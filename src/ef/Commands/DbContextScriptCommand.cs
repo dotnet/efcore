@@ -10,21 +10,21 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     // ReSharper disable once ArrangeTypeModifiers
     internal partial class DbContextScriptCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var sql = CreateExecutor().ScriptDbContext(
-                Context.Value());
+            using var executor = CreateExecutor(args);
+            var sql = executor.ScriptDbContext(Context!.Value());
 
-            if (!_output.HasValue())
+            if (!_output!.HasValue())
             {
                 Reporter.WriteData(sql);
             }
             else
             {
-                var output = _output.Value();
-                if (WorkingDir.HasValue())
+                var output = _output.Value()!;
+                if (WorkingDir!.HasValue())
                 {
-                    output = Path.Combine(WorkingDir.Value(), output);
+                    output = Path.Combine(WorkingDir.Value()!, output);
                 }
 
                 var directory = Path.GetDirectoryName(output);
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 File.WriteAllText(output, sql, Encoding.UTF8);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
     }
 }

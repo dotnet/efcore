@@ -6,7 +6,6 @@
     <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <IncludeBuildOutput>false</IncludeBuildOutput>
-    <CodeAnalysisRuleSet>..\..\EFCore.ruleset</CodeAnalysisRuleSet>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
   </PropertyGroup>
 
@@ -15,7 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(MicrosoftCodeAnalysisCSharpWorkspacesPackageVersion)" PrivateAssets="all" />
+    <!-- NB: Version affects the minimum required Visual Studio version -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisVersion)" PrivateAssets="all" />
     <PackageReference Update="NETStandard.Library" PrivateAssets="all" />
   </ItemGroup>
 
@@ -31,5 +31,10 @@
       <NuspecProperty Include="OutputSymbol=$(OutputPath)$(AssemblyName).pdb" />
     </ItemGroup>
   </Target>
+
+  <ItemGroup>
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
 
 </Project>

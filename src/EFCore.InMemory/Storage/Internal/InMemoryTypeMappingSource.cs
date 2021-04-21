@@ -2,11 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryTypeMappingSource([NotNull] TypeMappingSourceDependencies dependencies)
+        public InMemoryTypeMappingSource(TypeMappingSourceDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -43,30 +42,25 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+        protected override CoreTypeMapping? FindMapping(in TypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
-            Debug.Assert(clrType != null);
+            Check.DebugAssert(clrType != null, "ClrType is null");
 
             if (clrType.IsValueType
-                || clrType == typeof(string))
+                || clrType == typeof(string)
+                || clrType == typeof(byte[]))
             {
                 return new InMemoryTypeMapping(clrType);
-            }
-
-            if (clrType == typeof(byte[]))
-            {
-                return new InMemoryTypeMapping(clrType, structuralComparer: new ArrayStructuralComparer<byte>());
             }
 
             if (clrType.FullName == "NetTopologySuite.Geometries.Geometry"
                 || clrType.GetBaseTypes().Any(t => t.FullName == "NetTopologySuite.Geometries.Geometry"))
             {
-                var comparer = (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(clrType));
+                var comparer = (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(clrType))!;
 
                 return new InMemoryTypeMapping(
                     clrType,
-                    comparer,
                     comparer,
                     comparer);
             }

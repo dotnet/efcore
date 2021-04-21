@@ -13,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override bool SnapshotSupported => false;
+        protected override bool SnapshotSupported
+            => false;
 
         protected override DbContext CreateContextWithConnectionString()
         {
@@ -27,17 +28,17 @@ namespace Microsoft.EntityFrameworkCore
 
         public class TransactionSqliteFixture : TransactionFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
             public override void Reseed()
             {
-                using (var context = CreateContext())
-                {
-                    context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
-                    context.SaveChanges();
+                using var context = CreateContext();
+                context.Set<TransactionCustomer>().RemoveRange(context.Set<TransactionCustomer>());
+                context.Set<TransactionOrder>().RemoveRange(context.Set<TransactionOrder>());
+                context.SaveChanges();
 
-                    Seed(context);
-                }
+                Seed(context);
             }
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

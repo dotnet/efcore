@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Update;
@@ -37,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerModificationCommandBatchFactory(
-            [NotNull] ModificationCommandBatchFactoryDependencies dependencies,
-            [NotNull] IDbContextOptions options)
+            ModificationCommandBatchFactoryDependencies dependencies,
+            IDbContextOptions options)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(options, nameof(options));

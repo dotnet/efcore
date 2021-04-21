@@ -24,7 +24,17 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.Equal(
                 output, new CandidateNamingService().GenerateCandidateIdentifier(
-                    new DatabaseTable { Name = input }));
+                    new DatabaseTable { Database = new DatabaseModel(), Name = input }));
+        }
+
+        [ConditionalTheory]
+        [InlineData("‍🐶", "")]
+        [InlineData(" ", "")]
+        public void Generates_column_candidate_identifiers(string input, string output)
+        {
+            Assert.Equal(
+                output, new CandidateNamingService().GenerateCandidateIdentifier(
+                    new DatabaseColumn { Name = input }));
         }
     }
 }

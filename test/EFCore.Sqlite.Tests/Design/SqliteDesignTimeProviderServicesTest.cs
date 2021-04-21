@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     public class SqliteDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
     {
         protected override Assembly GetRuntimeAssembly()
-            => typeof(SqliteRelationalConnection).GetTypeInfo().Assembly;
+            => typeof(SqliteRelationalConnection).Assembly;
 
         protected override Type GetDesignTimeServicesType()
             => typeof(SqliteDesignTimeServices);

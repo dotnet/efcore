@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,26 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         /// <summary>
         ///     <para>
-        ///         Creates an <see cref="Expression" /> tree representing reading a value from a <see cref="ValueBuffer" />
-        ///     </para>
-        ///     <para>
-        ///         This method is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        /// </summary>
-        /// <param name="valueBuffer"> The expression that exposes the <see cref="ValueBuffer" />. </param>
-        /// <param name="type"> The type to read. </param>
-        /// <param name="index"> The index in the buffer to read from. </param>
-        /// <param name="property"> The IPropertyBase being read if any. </param>
-        /// <returns> An expression to read the value. </returns>
-        Expression CreateReadValueExpression(
-            [NotNull] Expression valueBuffer,
-            [NotNull] Type type,
-            int index,
-            [CanBeNull] IPropertyBase property);
-
-        /// <summary>
-        ///     <para>
         ///         Creates an <see cref="Expression" /> tree representing creating an entity instance.
         ///     </para>
         ///     <para>
@@ -61,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="materializationExpression"> The materialization expression to build on. </param>
         /// <returns> An expression to read the value. </returns>
         Expression CreateMaterializeExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] string entityInstanceName,
-            [NotNull] Expression materializationExpression);
+            IEntityType entityType,
+            string entityInstanceName,
+            Expression materializationExpression);
 
         /// <summary>
         ///     <para>
@@ -76,6 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entityType"> The entity type being materialized. </param>
         /// <returns> A delegate to create instances. </returns>
-        Func<MaterializationContext, object> GetMaterializer([NotNull] IEntityType entityType);
+        Func<MaterializationContext, object> GetMaterializer(IEntityType entityType);
     }
 }

@@ -3,20 +3,19 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
-    ///     Converts <c>TModel</c> to and from <c>TProvider</c> using simple casts from one type
+    ///     Converts <typeparamref name="TModel" /> to and from <typeparamref name="TProvider" /> using simple casts from one type
     ///     to the other.
     /// </summary>
     public class CastingConverter<TModel, TProvider> : ValueConverter<TModel, TProvider>
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConverterMappingHints _defaultHints = CreateDefaultHints();
+        private static readonly ConverterMappingHints? _defaultHints = CreateDefaultHints();
 
-        private static ConverterMappingHints CreateDefaultHints()
+        private static ConverterMappingHints? CreateDefaultHints()
         {
             if (typeof(TProvider).UnwrapNullableType() == typeof(decimal))
             {
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
-        public CastingConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public CastingConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 Convert<TModel, TProvider>(),
                 Convert<TProvider, TModel>(),
@@ -53,8 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), _defaultHints);
+            = new(typeof(TModel), typeof(TProvider), i => new CastingConverter<TModel, TProvider>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TIn, TOut>> Convert<TIn, TOut>()
         {

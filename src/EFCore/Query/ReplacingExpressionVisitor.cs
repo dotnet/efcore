@@ -1,98 +1,89 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression visitor that replaces one expression with another in given expression tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class ReplacingExpressionVisitor : ExpressionVisitor
     {
-        private readonly bool _quirkMode19737;
-        private readonly bool _quirkMode19087;
+        private readonly IReadOnlyList<Expression> _originals;
+        private readonly IReadOnlyList<Expression> _replacements;
 
-        private readonly Expression[] _originals;
-        private readonly Expression[] _replacements;
-
-        private readonly IDictionary<Expression, Expression> _quirkReplacements;
-
+        /// <summary>
+        ///     Replaces one expression with another in given expression tree.
+        /// </summary>
+        /// <param name="original"> The expression to replace. </param>
+        /// <param name="replacement"> The expression to be used as replacement. </param>
+        /// <param name="tree"> The expression tree in which replacement is going to be performed. </param>
+        /// <returns> An expression tree with replacements made. </returns>
         public static Expression Replace(Expression original, Expression replacement, Expression tree)
         {
+            Check.NotNull(original, nameof(original));
+            Check.NotNull(replacement, nameof(replacement));
+            Check.NotNull(tree, nameof(tree));
+
             return new ReplacingExpressionVisitor(new[] { original }, new[] { replacement }).Visit(tree);
         }
 
-        public ReplacingExpressionVisitor(Expression[] originals, Expression[] replacements)
+        /// <summary>
+        ///     Creates a new instance of the <see cref="ReplacingExpressionVisitor" /> class.
+        /// </summary>
+        /// <param name="originals"> A list of original expressions to replace. </param>
+        /// <param name="replacements"> A list of expressions to be used as replacements. </param>
+        public ReplacingExpressionVisitor(IReadOnlyList<Expression> originals, IReadOnlyList<Expression> replacements)
         {
-            _quirkMode19737 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
-            _quirkMode19087 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19087", out var enabled2) && enabled2;
+            Check.NotNull(originals, nameof(originals));
+            Check.NotNull(replacements, nameof(replacements));
 
-            if (_quirkMode19737)
-            {
-                _quirkReplacements = new Dictionary<Expression, Expression>();
-                for (var i = 0; i < originals.Length; i++)
-                {
-                    _quirkReplacements[originals[i]] = replacements[i];
-                }
-            }
-            else
-            {
-                _originals = originals;
-                _replacements = replacements;
-            }
+            _originals = originals;
+            _replacements = replacements;
         }
 
-        public ReplacingExpressionVisitor(IDictionary<Expression, Expression> replacements)
+        /// <inheritdoc />
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
-            _quirkMode19737 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue19737", out var enabled) && enabled;
-
-            if (_quirkMode19737)
-            {
-                _quirkReplacements = replacements;
-            }
-            else
-            {
-                _originals = replacements.Keys.ToArray();
-                _replacements = replacements.Values.ToArray();
-            }
-        }
-
-        public override Expression Visit(Expression expression)
-        {
-            if (expression == null)
+            if (expression == null
+                || expression is ShapedQueryExpression
+                || expression is EntityShaperExpression)
             {
                 return expression;
             }
 
-            if (_quirkMode19737)
+            // We use two arrays rather than a dictionary because hash calculation here can be prohibitively expensive
+            // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
+            for (var i = 0; i < _originals.Count; i++)
             {
-                if (_quirkReplacements.TryGetValue(expression, out var replacement))
+                if (expression.Equals(_originals[i]))
                 {
-                    return replacement;
-                }
-            }
-            else
-            {
-                // We use two arrays rather than a dictionary because hash calculation here can be prohibitively expensive
-                // for deep trees. Locality of reference makes arrays better for the small number of replacements anyway.
-                for (var i = 0; i < _originals.Length; i++)
-                {
-                    if (expression.Equals(_originals[i]))
-                    {
-                        return _replacements[i];
-                    }
+                    return _replacements[i];
                 }
             }
 
             return base.Visit(expression);
         }
 
+        /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
+            Check.NotNull(memberExpression, nameof(memberExpression));
+
             var innerExpression = Visit(memberExpression.Expression);
 
             if (innerExpression is GroupByShaperExpression groupByShaperExpression
@@ -110,30 +101,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            if (_quirkMode19087)
+            var mayBeMemberInitExpression = innerExpression.UnwrapTypeConversion(out var convertedType);
+            if (mayBeMemberInitExpression is MemberInitExpression memberInitExpression
+                && memberInitExpression.Bindings.SingleOrDefault(
+                    mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
             {
-                if (innerExpression is MemberInitExpression memberInitExpression
-                    && memberInitExpression.Bindings.SingleOrDefault(
-                        mb => mb.Member == memberExpression.Member) is MemberAssignment memberAssignment)
-                {
-                    return memberAssignment.Expression;
-                }
-            }
-            else
-            {
-                if (innerExpression is MemberInitExpression memberInitExpression
-                    && memberInitExpression.Bindings.SingleOrDefault(
-                        mb => mb.Member.IsSameAs(memberExpression.Member)) is MemberAssignment memberAssignment)
-                {
-                    return memberAssignment.Expression;
-                }
+                return memberAssignment.Expression;
             }
 
             return memberExpression.Update(innerExpression);
         }
 
+        /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
             if (methodCallExpression.TryGetEFPropertyArguments(out var entityExpression, out var propertyName))
             {
                 var newEntityExpression = Visit(entityExpression);
@@ -146,14 +129,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
 
-                if (newEntityExpression is MemberInitExpression memberInitExpression
+                var mayBeMemberInitExpression = newEntityExpression.UnwrapTypeConversion(out var convertedType);
+                if (mayBeMemberInitExpression is MemberInitExpression memberInitExpression
                     && memberInitExpression.Bindings.SingleOrDefault(
                         mb => mb.Member.Name == propertyName) is MemberAssignment memberAssignment)
                 {
                     return memberAssignment.Expression;
                 }
 
-                return methodCallExpression.Update(null, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
+                // TODO-Nullable bug
+                return methodCallExpression.Update(null!, new[] { newEntityExpression, methodCallExpression.Arguments[1] });
             }
 
             return base.VisitMethodCall(methodCallExpression);

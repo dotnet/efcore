@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public abstract class TestStore : IDisposable
     {
-        private static readonly TestStoreIndex _globalTestStoreIndex = new TestStoreIndex();
+        private static readonly TestStoreIndex _globalTestStoreIndex = new();
         public IServiceProvider ServiceProvider { get; protected set; }
 
         protected TestStore(string name, bool shared)
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
             else
             {
-                Initialize(createContext, seed, clean);
+                GetTestStoreIndex(serviceProvider).CreateNonShared(GetType().Name + Name, () => Initialize(createContext, seed, clean));
             }
 
             return this;
@@ -69,14 +69,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         protected virtual void Initialize(Func<DbContext> createContext, Action<DbContext> seed, Action<DbContext> clean)
         {
-            using (var context = createContext())
-            {
-                clean?.Invoke(context);
+            using var context = createContext();
+            clean?.Invoke(context);
 
-                Clean(context);
+            Clean(context);
 
-                seed?.Invoke(context);
-            }
+            seed?.Invoke(context);
         }
 
         public abstract DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder);
@@ -89,9 +87,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         protected virtual DbContext CreateDefaultContext()
-            => new DbContext(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
+            => new(AddProviderOptions(new DbContextOptionsBuilder().EnableServiceProviderCaching(false)).Options);
 
-        protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider) => _globalTestStoreIndex;
+        protected virtual TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider)
+            => _globalTestStoreIndex;
 
         public virtual void Dispose()
         {
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return Task.CompletedTask;
         }
 
-        private static readonly SemaphoreSlim _transactionSyncRoot = new SemaphoreSlim(1);
+        private static readonly SemaphoreSlim _transactionSyncRoot = new(1);
 
         public static IDisposable CreateTransactionScope(bool useTransaction = true)
         {

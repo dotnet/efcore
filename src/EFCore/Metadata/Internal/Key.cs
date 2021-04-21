@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,14 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class Key : ConventionAnnotatable, IMutableKey, IConventionKey
+    public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeKey
     {
+        private InternalKeyBuilder? _builder;
         private ConfigurationSource _configurationSource;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
-        private Func<bool, IIdentityMap> _identityMapFactory;
+        private Func<bool, IIdentityMap>? _identityMapFactory;
 
-        private object _principalKeyValueFactory;
+        private object? _principalKeyValueFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Key([NotNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        public Key(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
@@ -42,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Properties = properties;
             _configurationSource = configurationSource;
 
-            Builder = new InternalKeyBuilder(this, DeclaringEntityType.Model.Builder);
+            _builder = new InternalKeyBuilder(this, DeclaringEntityType.Model.Builder);
         }
 
         /// <summary>
@@ -72,10 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalKeyBuilder Builder
         {
-            [DebuggerStepThrough] get;
-            [DebuggerStepThrough]
-            [param: CanBeNull]
-            set;
+            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -84,8 +84,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool IsInModel
+            => _builder is not null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetRemovedFromModel()
+            => _builder = null;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsReadOnly => DeclaringEntityType.Model.IsReadOnly;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         [DebuggerStepThrough]
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+        public virtual ConfigurationSource GetConfigurationSource()
+            => _configurationSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,8 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <param name="annotation"> The annotation set. </param>
         /// <param name="oldAnnotation"> The old annotation. </param>
         /// <returns> The annotation that was set. </returns>
-        protected override IConventionAnnotation OnAnnotationSet(
-            string name, IConventionAnnotation annotation, IConventionAnnotation oldAnnotation)
+        protected override IConventionAnnotation? OnAnnotationSet(
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
             => Builder.ModelBuilder.Metadata.ConventionDispatcher.OnKeyAnnotationChanged(Builder, name, annotation, oldAnnotation);
 
         /// <summary>
@@ -130,7 +159,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Func<bool, IIdentityMap> IdentityMapFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
-                ref _identityMapFactory, this, k => new IdentityMapFactoryFactory().Create(k));
+                ref _identityMapFactory, this, static key =>
+                {
+                    key.EnsureReadOnly();
+                    return new IdentityMapFactoryFactory().Create(key);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -139,8 +172,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
+            where TKey : notnull
             => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-                ref _principalKeyValueFactory, this, k => new KeyValueFactoryFactory().Create<TKey>(k));
+                ref _principalKeyValueFactory, this, static key =>
+                {
+                    key.EnsureReadOnly();
+                    return new KeyValueFactoryFactory().Create<TKey>(key);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -148,8 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        // Note this is ISet because there is no suitable readonly interface in the profiles we are using
-        public virtual ISet<ForeignKey> ReferencingForeignKeys { get; [param: CanBeNull] set; }
+        public virtual ISet<ForeignKey>? ReferencingForeignKeys { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -157,7 +194,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string ToString() => this.ToDebugString();
+        public override string ToString()
+            => ((IReadOnlyKey)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,8 +203,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual DebugView<Key> DebugView
-            => new DebugView<Key>(this, m => m.ToDebugString(false));
+        public virtual DebugView DebugView
+            => new(
+                () => ((IReadOnlyKey)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyKey)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -174,7 +214,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IReadOnlyList<IProperty> IKey.Properties
+        IReadOnlyList<IReadOnlyProperty> IReadOnlyKey.Properties
         {
             [DebuggerStepThrough] get => Properties;
         }
@@ -185,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IEntityType IKey.DeclaringEntityType
+        IReadOnlyEntityType IReadOnlyKey.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
@@ -207,9 +247,57 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        IReadOnlyList<IConventionProperty> IConventionKey.Properties
+        {
+            [DebuggerStepThrough]
+            get => Properties;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IReadOnlyList<IProperty> IKey.Properties
+        {
+            [DebuggerStepThrough]
+            get => Properties;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         IMutableEntityType IMutableKey.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IConventionEntityType IConventionKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IEntityType IKey.DeclaringEntityType
+        {
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <summary>
@@ -229,9 +317,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IReadOnlyList<IConventionProperty> IConventionKey.Properties
+        IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
-            [DebuggerStepThrough] get => Properties;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
@@ -240,9 +329,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionEntityType IConventionKey.DeclaringEntityType
-        {
-            [DebuggerStepThrough] get => DeclaringEntityType;
-        }
+        [DebuggerStepThrough]
+        IEnumerable<IReadOnlyForeignKey> IReadOnlyKey.GetReferencingForeignKeys()
+            => ReferencingForeignKeys ?? Enumerable.Empty<IReadOnlyForeignKey>();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [DebuggerStepThrough]
+        Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()
+            => IdentityMapFactory;
     }
 }

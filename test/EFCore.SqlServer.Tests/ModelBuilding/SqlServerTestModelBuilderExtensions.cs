@@ -8,17 +8,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public static class SqlServerTestModelBuilderExtensions
     {
-        public static ModelBuilderTest.TestIndexBuilder IsClustered(
-            this ModelBuilderTest.TestIndexBuilder builder, bool clustered = true)
+        public static ModelBuilderTest.TestIndexBuilder<TEntity> IsClustered<TEntity>(
+            this ModelBuilderTest.TestIndexBuilder<TEntity> builder,
+            bool clustered = true)
         {
-            var indexBuilder = builder.GetInfrastructure();
-            indexBuilder.IsClustered(clustered);
+            switch (builder)
+            {
+                case IInfrastructure<IndexBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.IsClustered(clustered);
+                    break;
+                case IInfrastructure<IndexBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.IsClustered(clustered);
+                    break;
+            }
+
             return builder;
         }
 
         public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> IsMemoryOptimized<TEntity,
             TDependentEntity>(
-            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> builder, bool memoryOptimized = true)
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> builder,
+            bool memoryOptimized = true)
             where TEntity : class
             where TDependentEntity : class
         {

@@ -11,13 +11,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     internal class AnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<IAnnotation>
     {
-        public static readonly AnnotationComparer Instance = new AnnotationComparer();
+        public static readonly AnnotationComparer Instance = new();
 
         private AnnotationComparer()
         {
         }
 
-        public int Compare(IAnnotation x, IAnnotation y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
+        public int Compare(IAnnotation x, IAnnotation y)
+            => StringComparer.Ordinal.Compare(x.Name, y.Name);
 
         public bool Equals(IAnnotation x, IAnnotation y)
         {
@@ -30,10 +31,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ? false
                 : x.Name == y.Name
                 && (x.Name == CoreAnnotationNames.ValueGeneratorFactory
-                    || x.Name == CoreAnnotationNames.TypeMapping
                     || Equals(x.Value, y.Value));
         }
 
-        public int GetHashCode(IAnnotation obj) => obj.Name.GetHashCode() ^ obj.Value?.GetHashCode() ?? 0;
+        public int GetHashCode(IAnnotation obj)
+            => obj.Name.GetHashCode() ^ obj.Value?.GetHashCode() ?? 0;
     }
 }

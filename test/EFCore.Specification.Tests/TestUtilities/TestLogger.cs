@@ -3,34 +3,49 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
-    public class TestLogger<TDefinitions> : TestLoggerBase, IDiagnosticsLogger, ILogger
-        where TDefinitions : LoggingDefinitions, new()
+    public class TestLogger : TestLoggerBase, IDiagnosticsLogger, ILogger
     {
-        public ILoggingOptions Options => new LoggingOptions();
+        public TestLogger(LoggingDefinitions definitions)
+        {
+            Definitions = definitions;
+        }
 
-        public bool IsEnabled(LogLevel logLevel) => EnabledFor == logLevel;
+        public ILoggingOptions Options
+            => new LoggingOptions();
 
-        public IDisposable BeginScope<TState>(TState state) => null;
+        public bool ShouldLogSensitiveData()
+            => false;
+
+        public ILogger Logger
+            => this;
+
+        public virtual LoggingDefinitions Definitions { get; }
+
+        public IInterceptors Interceptors { get; }
+
+        public bool IsEnabled(LogLevel logLevel)
+            => EnabledFor == logLevel;
+
+        public IDisposable BeginScope<TState>(TState state)
+            => null;
 
         public void Log<TState>(
-            LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception exception,
+            Func<TState, Exception, string> formatter)
         {
             LoggedEvent = eventId;
             LoggedAt = logLevel;
             Assert.Equal(LoggedEvent, eventId);
             Message = formatter(state, exception);
         }
-
-        public bool ShouldLogSensitiveData() => false;
-
-        public ILogger Logger => this;
-
-        public virtual LoggingDefinitions Definitions { get; } = new TDefinitions();
     }
 }

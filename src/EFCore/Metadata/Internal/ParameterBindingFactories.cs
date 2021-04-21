@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ParameterBindingFactories(
-            [CanBeNull] IEnumerable<IParameterBindingFactory> registeredFactories,
-            [NotNull] IRegisteredServices registeredServices)
+            IEnumerable<IParameterBindingFactory>? registeredFactories,
+            IRegisteredServices registeredServices)
         {
             _registeredServices = registeredServices;
 
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IParameterBindingFactory FindFactory(Type parameterType, string parameterName)
+        public virtual IParameterBindingFactory? FindFactory(Type parameterType, string parameterName)
             => _parameterBindingFactories.FirstOrDefault(f => f.CanBind(parameterType, parameterName))
                 ?? (_registeredServices.Services.Contains(parameterType)
                     ? new ServiceParameterBindingFactory(parameterType)

@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     </para>
     /// </summary>
     [EntityFrameworkInternal]
-    public sealed class MigrationsAnnotationProviderDependencies
+    public sealed record MigrationsAnnotationProviderDependencies
     {
         /// <summary>
         ///     <para>

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Xunit;
 
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
                 { typeof(IProperty), () => property },
+                { typeof(IReadOnlyProperty), () => property },
                 { typeof(string), () => "Fake" }
             };
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -25,14 +26,12 @@ namespace Microsoft.EntityFrameworkCore
 
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider(customServices);
 
-            using (var context = new JustAContext(
-                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options))
-            {
-                Assert.NotNull(context.One);
-                Assert.NotNull(context.GetTwo());
-                Assert.NotNull(context.Three);
-                Assert.Null(context.Four);
-            }
+            using var context = new JustAContext(
+                new DbContextOptionsBuilder().UseInternalServiceProvider(serviceProvider).Options);
+            Assert.NotNull(context.One);
+            Assert.NotNull(context.GetTwo());
+            Assert.NotNull(context.Three);
+            Assert.Null(context.Four);
         }
 
         private class FakeSetFinder : IDbSetFinder
@@ -62,9 +61,11 @@ namespace Microsoft.EntityFrameworkCore
             private DbSet<object> Two { get; set; }
             public DbSet<string> Three { get; private set; }
 
-            public DbSet<string> Four => null;
+            public DbSet<string> Four
+                => null;
 
-            public DbSet<object> GetTwo() => Two;
+            public DbSet<object> GetTwo()
+                => Two;
         }
     }
 }

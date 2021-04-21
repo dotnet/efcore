@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -37,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryValueGeneratorSelector(
-            [NotNull] ValueGeneratorSelectorDependencies dependencies,
-            [NotNull] IInMemoryDatabase inMemoryDatabase)
+            ValueGeneratorSelectorDependencies dependencies,
+            IInMemoryDatabase inMemoryDatabase)
             : base(dependencies)
         {
             _inMemoryStore = inMemoryDatabase.Store;

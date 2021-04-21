@@ -15,39 +15,36 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NotificationEntitiesTestBase<TFixture>.NotificationEntitiesFixtureBase, new()
     {
-        protected NotificationEntitiesTestBase(TFixture fixture) => Fixture = fixture;
+        protected NotificationEntitiesTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected virtual TFixture Fixture { get; }
 
         [ConditionalFact] // Issue #4020
         public virtual void Include_brings_entities_referenced_from_already_tracked_notification_entities_as_Unchanged()
         {
-            using (var context = CreateContext())
-            {
-                var postA = context.Set<Post>().Single(e => e.Id == 1);
-                var postB = context.Set<Post>().Where(e => e.Id == 1).Include(e => e.Blog).ToArray().Single();
+            using var context = CreateContext();
+            var postA = context.Set<Post>().Single(e => e.Id == 1);
+            var postB = context.Set<Post>().Where(e => e.Id == 1).Include(e => e.Blog).ToArray().Single();
 
-                Assert.Same(postA, postB);
+            Assert.Same(postA, postB);
 
-                Assert.Equal(EntityState.Unchanged, context.Entry(postA).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(postA.Blog).State);
-            }
+            Assert.Equal(EntityState.Unchanged, context.Entry(postA).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(postA.Blog).State);
         }
 
         [ConditionalFact] // Issue #4020
         public virtual void Include_brings_collections_referenced_from_already_tracked_notification_entities_as_Unchanged()
         {
-            using (var context = CreateContext())
-            {
-                var blogA = context.Set<Blog>().Single(e => e.Id == 1);
-                var blogB = context.Set<Blog>().Where(e => e.Id == 1).Include(e => e.Posts).ToArray().Single();
+            using var context = CreateContext();
+            var blogA = context.Set<Blog>().Single(e => e.Id == 1);
+            var blogB = context.Set<Blog>().Where(e => e.Id == 1).Include(e => e.Posts).ToArray().Single();
 
-                Assert.Same(blogA, blogB);
+            Assert.Same(blogA, blogB);
 
-                Assert.Equal(EntityState.Unchanged, context.Entry(blogA).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.First()).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.Skip(1).First()).State);
-            }
+            Assert.Equal(EntityState.Unchanged, context.Entry(blogA).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.First()).State);
+            Assert.Equal(EntityState.Unchanged, context.Entry(blogA.Posts.Skip(1).First()).State);
         }
 
         protected class Blog : NotificationEntity
@@ -110,7 +107,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
@@ -125,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore
             protected override void Seed(PoolableDbContext context)
             {
                 context.Add(
-                    new Blog { Id = 1, Posts = new List<Post> { new Post { Id = 1 }, new Post { Id = 2 } } });
+                    new Blog { Id = 1, Posts = new List<Post> { new() { Id = 1 }, new() { Id = 2 } } });
 
                 context.SaveChanges();
             }

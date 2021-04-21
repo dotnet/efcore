@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -82,6 +83,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(expectedNullable, entityTypeBuilder.Property(propertyName).Metadata.IsNullable);
         }
 
+        [ConditionalFact]
+        public void Non_nullability_ignores_context_on_generic_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityTypeBuilder = modelBuilder.SharedTypeEntity<Dictionary<string, object>>("SomeBag");
+            entityTypeBuilder.IndexerProperty(typeof(string), "b");
+            Assert.True(entityTypeBuilder.Property("b").Metadata.IsNullable);
+        }
+
         private void RunConvention(InternalPropertyBuilder propertyBuilder)
         {
             var context = new ConventionContext<IConventionPropertyBuilder>(
@@ -119,7 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [AllowNull]
             public string NonNullablePropertyAllowNull { get; } = "";
 
-            [NotNull]
             public string? NullablePropertyNotNull { get; } = "";
 
             [DisallowNull]
@@ -131,7 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             [AllowNull]
             public string NonNullableFieldAllowNull = "";
 
-            [NotNull]
             public string? NullableFieldNotNull = "";
 
             [DisallowNull]
@@ -169,6 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 #nullable disable
 
-        private static ModelBuilder CreateModelBuilder() => InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder CreateModelBuilder()
+            => InMemoryTestHelpers.Instance.CreateConventionBuilder();
     }
 }

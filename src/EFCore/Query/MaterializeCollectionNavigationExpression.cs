@@ -4,38 +4,85 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents materialization of a collection navigation in <see cref="ShapedQueryExpression.ShaperExpression" />.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class MaterializeCollectionNavigationExpression : Expression, IPrintableExpression
     {
-        public MaterializeCollectionNavigationExpression(Expression subquery, INavigation navigation)
+        /// <summary>
+        ///     Creates a new instance of the <see cref="CollectionShaperExpression" /> class.
+        /// </summary>
+        /// <param name="subquery"> An expression reprensenting how to get value from query to create the collection. </param>
+        /// <param name="navigation"> A navigation associated with this collection. </param>
+        public MaterializeCollectionNavigationExpression(Expression subquery, INavigationBase navigation)
         {
+            Check.NotNull(subquery, nameof(subquery));
+            Check.NotNull(navigation, nameof(navigation));
+
             Subquery = subquery;
             Navigation = navigation;
         }
 
+        /// <summary>
+        ///     The expression that returns the values from query used to create the collection.
+        /// </summary>
         public virtual Expression Subquery { get; }
-        public virtual INavigation Navigation { get; }
 
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
-        public override Type Type => Navigation.ClrType;
+        /// <summary>
+        ///     The navigation associated with this collection.
+        /// </summary>
+        public virtual INavigationBase Navigation { get; }
 
+        /// <inheritdoc />
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
+
+        /// <inheritdoc />
+        public override Type Type
+            => Navigation.ClrType;
+
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => Update(visitor.Visit(Subquery));
+        {
+            Check.NotNull(visitor, nameof(visitor));
 
+            return Update(visitor.Visit(Subquery));
+        }
+
+        /// <summary>
+        ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+        ///     return this expression.
+        /// </summary>
+        /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
+        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual MaterializeCollectionNavigationExpression Update(Expression subquery)
-            => subquery != Subquery
+        {
+            Check.NotNull(subquery, nameof(subquery));
+
+            return subquery != Subquery
                 ? new MaterializeCollectionNavigationExpression(subquery, Navigation)
                 : this;
+        }
 
-        public virtual void Print(ExpressionPrinter expressionPrinter)
+        /// <inheritdoc />
+        void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
+            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
             expressionPrinter.AppendLine("MaterializeCollectionNavigation(");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine($"navigation: {Navigation.ToDebugString(detailed: false)},");
+                expressionPrinter.AppendLine($"Navigation: {Navigation.DeclaringEntityType.DisplayName()}.{Navigation.Name},");
                 expressionPrinter.Append("subquery: ");
                 expressionPrinter.Visit(Subquery);
             }

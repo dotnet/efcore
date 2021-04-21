@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -35,47 +36,45 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            SqlExpression left = null;
-            SqlExpression right = null;
+            Check.NotNull(method, nameof(method));
+            Check.NotNull(arguments, nameof(arguments));
+            Check.NotNull(logger, nameof(logger));
+
+            SqlExpression? left = null;
+            SqlExpression? right = null;
 
             if (method.Name == nameof(object.Equals)
                 && instance != null
                 && arguments.Count == 1)
             {
                 left = instance;
-                right = RemoveObjectConvert(arguments[0]);
+                right = arguments[0];
             }
             else if (instance == null
-                     && method.Name == nameof(object.Equals)
-                     && arguments.Count == 2)
+                && method.Name == nameof(object.Equals)
+                && arguments.Count == 2)
             {
-                left = RemoveObjectConvert(arguments[0]);
-                right = RemoveObjectConvert(arguments[1]);
+                left = arguments[0];
+                right = arguments[1];
             }
 
             if (left != null
                 && right != null)
             {
                 return left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType()
-                    ? (SqlExpression)_sqlExpressionFactory.Equal(left, right)
-                    : _sqlExpressionFactory.Constant(false);
+                    || (right.Type == typeof(object) && right is SqlParameterExpression)
+                    || (left.Type == typeof(object) && left is SqlParameterExpression)
+                        ? _sqlExpressionFactory.Equal(left, right)
+                        : (SqlExpression)_sqlExpressionFactory.Constant(false);
             }
 
             return null;
-        }
-
-        private SqlExpression RemoveObjectConvert(SqlExpression expression)
-        {
-            if (expression is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
-                && sqlUnaryExpression.Type == typeof(object))
-            {
-                return sqlUnaryExpression.Operand;
-            }
-
-            return expression;
         }
     }
 }

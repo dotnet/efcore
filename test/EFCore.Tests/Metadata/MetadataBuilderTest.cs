@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .KeyBuilderExtension("V1")
                 .KeyBuilderExtension("V2");
 
-            Assert.IsType<KeyBuilder>(returnedBuilder);
+            Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
@@ -298,7 +298,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<KeyBuilder>(returnedBuilder);
+            Assert.IsType<KeyBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
             var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
@@ -460,7 +460,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         public static EntityTypeBuilder<TEntity> GenericEntityBuilderExtension<TEntity>(
-            this EntityTypeBuilder<TEntity> builder, string value)
+            this EntityTypeBuilder<TEntity> builder,
+            string value)
             where TEntity : class
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
@@ -535,7 +536,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         public static EntityTypeBuilder<TEntity> SharedNameExtension<TEntity, TBuilder>(
-            this EntityTypeBuilder<TEntity> builder, string value)
+            this EntityTypeBuilder<TEntity> builder,
+            string value)
             where TEntity : class
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");

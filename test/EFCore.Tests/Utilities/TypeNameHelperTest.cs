@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming

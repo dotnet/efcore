@@ -1,19 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -119,36 +122,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public void Non_nullability_inverts_when_navigation_to_dependent()
-        {
-            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<Dependent>();
-            var principalEntityTypeBuilder =
-                dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
-
-            var relationshipBuilder = dependentEntityTypeBuilder.HasRelationship(
-                principalEntityTypeBuilder.Metadata,
-                nameof(Dependent.Principal),
-                nameof(Principal.Dependent),
-                ConfigurationSource.Convention);
-
-            Assert.Equal(nameof(Dependent), relationshipBuilder.Metadata.DeclaringEntityType.DisplayName());
-            Assert.False(relationshipBuilder.Metadata.IsRequired);
-
-            var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
-
-            navigation = RunConvention(relationshipBuilder, navigation);
-
-            Assert.Equal(nameof(Principal), navigation.ForeignKey.DeclaringEntityType.DisplayName());
-            Assert.True(navigation.ForeignKey.IsRequired);
-
-            var logEntry = ListLoggerFactory.Log.Single();
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogNonNullableInverted(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Principal.Dependent), nameof(Principal)), logEntry.Message);
-        }
-
-        [ConditionalFact]
         public void Non_nullability_sets_is_required_with_conventional_builder()
         {
             var modelBuilder = CreateModelBuilder();
@@ -160,62 +133,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     .IsRequired);
         }
 
-        [ConditionalFact]
-        public void Non_nullability_can_be_specified_on_both_navigations()
+        private Navigation RunConvention(InternalForeignKeyBuilder relationshipBuilder, Navigation navigation)
         {
-            var modelBuilder = CreateModelBuilder();
-            var model = (Model)modelBuilder.Model;
-            modelBuilder.Entity<BlogDetails>().HasOne(b => b.Blog).WithOne(b => b.BlogDetails);
-
-            var logEntry = ListLoggerFactory.Log.Single();
-
-            Assert.Equal(LogLevel.Debug, logEntry.Level);
-            Assert.Equal(
-                CoreResources.LogNonNullableReferenceOnBothNavigations(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(Blog), nameof(Blog.BlogDetails), nameof(BlogDetails), nameof(BlogDetails.Blog)), logEntry.Message);
-        }
-
-        private Navigation RunConvention(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
-        {
-            var context = new ConventionContext<IConventionNavigation>(
+            var context = new ConventionContext<IConventionNavigationBuilder>(
                 relationshipBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
-            CreateNotNullNavigationConvention().ProcessNavigationAdded(relationshipBuilder, navigation, context);
-            return context.ShouldStopProcessing() ? (Navigation)context.Result : navigation;
+            CreateNotNullNavigationConvention().ProcessNavigationAdded(navigation.Builder, context);
+            return context.ShouldStopProcessing() ? (Navigation)context.Result?.Metadata : navigation;
         }
 
         private NonNullableNavigationConvention CreateNotNullNavigationConvention()
-            => new NonNullableNavigationConvention(CreateDependencies());
+            => new(CreateDependencies());
 
         public ListLoggerFactory ListLoggerFactory { get; }
-            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+            = new(l => l == DbLoggerCategory.Model.Name);
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
+            var dependencies = CreateDependencies();
+            // Use public API to add conventions, issue #214
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(
-                new PropertyDiscoveryConvention(CreateDependencies()));
+                new PropertyDiscoveryConvention(dependencies));
 
-            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(CreateDependencies()));
+            conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention(dependencies));
 
-            var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
+            var modelBuilder = new Model(conventionSet).Builder;
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
         private ModelBuilder CreateModelBuilder()
         {
-            var dependencies = CreateDependencies();
-
+            var serviceProvider = CreateServiceProvider();
             return new ModelBuilder(
-                new RuntimeConventionSetBuilder(
-                        new ProviderConventionSetBuilder(dependencies),
-                        Enumerable.Empty<IConventionSetPlugin>())
-                    .CreateConventionSet());
+                serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
+                serviceProvider.GetService<ModelDependencies>());
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
-            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                .With(CreateLogger());
+            => CreateServiceProvider().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+        protected IServiceProvider CreateServiceProvider()
+            => InMemoryTestHelpers.Instance.CreateContextServices(
+                new ServiceCollection()
+                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => CreateLogger()));
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {
@@ -226,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 
@@ -247,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             public int Id { get; set; }
 
+            public int BlogId { get; set; }
             public Blog Blog { get; set; }
 
             private Post Post { get; set; }

@@ -8,11 +8,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestOperationReporter : IOperationReporter
     {
-        private readonly List<string> _messages = new List<string>();
+        private readonly List<string> _messages = new();
 
-        public IReadOnlyList<string> Messages => _messages;
+        public IReadOnlyList<string> Messages
+            => _messages;
 
-        public void Clear() => _messages.Clear();
+        public void Clear()
+            => _messages.Clear();
 
         public void WriteInformation(string message)
             => _messages.Add("info: " + message);

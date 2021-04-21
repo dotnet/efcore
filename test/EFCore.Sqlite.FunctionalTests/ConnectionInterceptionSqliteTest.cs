@@ -17,12 +17,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
-            => new BadUniverseContext(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);
+            => new(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);
 
         public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
         {
-            protected override string StoreName => "ConnectionInterception";
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override string StoreName
+                => "ConnectionInterception";
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
             protected override IServiceCollection InjectInterceptors(
                 IServiceCollection serviceCollection,
@@ -40,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => false;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => false;
             }
         }
 
@@ -54,7 +58,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
             {
-                protected override bool ShouldSubscribeToDiagnosticListener => true;
+                protected override bool ShouldSubscribeToDiagnosticListener
+                    => true;
             }
         }
     }

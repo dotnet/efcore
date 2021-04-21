@@ -3,7 +3,6 @@
 
 using System;
 using System.Data;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="storeType"> The name of the database type. </param>
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public DateTimeTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null)
             : base(storeType, typeof(DateTime), dbType)
         {
@@ -52,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the string format to be used to generate SQL literals of this type.
         /// </summary>
-        protected override string SqlLiteralFormatString => "TIMESTAMP '" + DateTimeFormatConst + "'";
+        protected override string SqlLiteralFormatString
+            => "TIMESTAMP '" + DateTimeFormatConst + "'";
     }
 }

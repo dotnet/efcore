@@ -20,7 +20,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ConferencePlannerSqlServerFixture : ConferencePlannerFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
         }
     }
 }

@@ -49,15 +49,41 @@ namespace Microsoft.EntityFrameworkCore
                 set = context.Categories;
             }
 
-            Assert.Throws<ObjectDisposedException>(() => set.Add(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Find(77));
-            Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Add(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Find(77)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Update(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.ToList()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync())).Message);
         }
 
         [ConditionalFact]
@@ -68,15 +94,41 @@ namespace Microsoft.EntityFrameworkCore
 
             var set = context.Categories;
 
-            Assert.Throws<ObjectDisposedException>(() => set.Add(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Find(77));
-            Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Update(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => set.ToList());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask());
-            await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Add(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Find(77)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Attach(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Update(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.Remove(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => set.ToList()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.AddAsync(new Category()).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.FindAsync(77).AsTask())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                (await Assert.ThrowsAsync<ObjectDisposedException>(() => set.ToListAsync())).Message);
         }
 
         [ConditionalFact]
@@ -85,7 +137,40 @@ namespace Microsoft.EntityFrameworkCore
             var context = new EarlyLearningCenter();
             context.Dispose();
 
-            Assert.Throws<ObjectDisposedException>(() => context.Set<Category>());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Set<Category>()).Message);
+        }
+
+        [Fact]
+        public void Direct_use_of_Set_for_shared_type_throws_if_context_disposed()
+        {
+            var context = new EarlyLearningCenter();
+            context.Dispose();
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => context.Set<Dictionary<string, object>>("SharedTypeEntityTypeName")).Message);
+        }
+
+        [ConditionalFact]
+        public void Using_shared_type_entity_type_db_set_with_incorrect_return_type_throws()
+        {
+            using var context = new EarlyLearningCenter();
+
+            var dbSet = context.Set<Dictionary<string, object>>("SharedEntity");
+
+            Assert.NotNull(dbSet.Add(new Dictionary<string, object> { { "Id", 1 } }));
+            Assert.NotNull(dbSet.ToList());
+
+            var wrongDbSet = context.Set<Category>("SharedEntity");
+
+            Assert.Equal(
+                CoreStrings.DbSetIncorrectGenericType("SharedEntity", "Dictionary<string, object>", "Category"),
+                Assert.Throws<InvalidOperationException>(() => wrongDbSet.Add(new Category())).Message);
+            Assert.Equal(
+                CoreStrings.DbSetIncorrectGenericType("SharedEntity", "Dictionary<string, object>", "Category"),
+                Assert.Throws<InvalidOperationException>(() => wrongDbSet.ToList()).Message);
         }
 
         [ConditionalFact]
@@ -98,23 +183,39 @@ namespace Microsoft.EntityFrameworkCore
                 view = context.Categories.Local;
             }
 
-            Assert.Throws<ObjectDisposedException>(() => view.Add(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => view.Remove(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => view.Contains(new Category()));
-            Assert.Throws<ObjectDisposedException>(() => view.CopyTo(Array.Empty<Category>(), 0));
-            Assert.Throws<ObjectDisposedException>(() => view.Clear());
-            Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator());
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Add(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Remove(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Contains(new Category())).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.CopyTo(Array.Empty<Category>(), 0)).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.Clear()).Message);
+
+            Assert.StartsWith(
+                CoreStrings.ContextDisposed,
+                Assert.Throws<ObjectDisposedException>(() => view.GetEnumerator()).Message);
         }
 
         [ConditionalFact]
         public void Using_ignored_entity_that_has_DbSet_on_context_throws_appropriately()
         {
-            using (var context = new IgnoredCntext())
-            {
-                Assert.Equal(
-                    CoreStrings.InvalidSetType(nameof(IgnoredEntity)),
-                    Assert.Throws<InvalidOperationException>(() => context.Ignored.ToList()).Message);
-            }
+            using var context = new IgnoredCntext();
+
+            Assert.Equal(
+                CoreStrings.InvalidSetType(nameof(IgnoredEntity)),
+                Assert.Throws<InvalidOperationException>(() => context.Ignored.ToList()).Message);
         }
 
         private class IgnoredCntext : DbContext
@@ -167,7 +268,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackEntitiesTest(
             Func<DbSet<Category>, Category, EntityEntry<Category>> categoryAdder,
-            Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder, EntityState expectedState)
+            Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder,
+            EntityState expectedState)
             => TrackEntitiesTest(
                 (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
                 (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
@@ -175,50 +277,49 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackEntitiesTest(
             Func<DbSet<Category>, Category, ValueTask<EntityEntry<Category>>> categoryAdder,
-            Func<DbSet<Product>, Product, ValueTask<EntityEntry<Product>>> productAdder, EntityState expectedState)
+            Func<DbSet<Product>, Product, ValueTask<EntityEntry<Product>>> productAdder,
+            EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter())
+            using var context = new EarlyLearningCenter();
+            var category1 = new Category { Id = 1, Name = "Beverages" };
+            var category2 = new Category { Id = 2, Name = "Foods" };
+            var product1 = new Product
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var product2 = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m
-                };
+                Id = 1,
+                Name = "Marmite",
+                Price = 7.99m
+            };
+            var product2 = new Product
+            {
+                Id = 2,
+                Name = "Bovril",
+                Price = 4.99m
+            };
 
-                var categoryEntry1 = await categoryAdder(context.Categories, category1);
-                var categoryEntry2 = await categoryAdder(context.Categories, category2);
-                var productEntry1 = await productAdder(context.Products, product1);
-                var productEntry2 = await productAdder(context.Products, product2);
+            var categoryEntry1 = await categoryAdder(context.Categories, category1);
+            var categoryEntry2 = await categoryAdder(context.Categories, category2);
+            var productEntry1 = await productAdder(context.Products, product1);
+            var productEntry2 = await productAdder(context.Products, product2);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Same(category2, categoryEntry2.Entity);
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Same(product2, productEntry2.Entity);
+            Assert.Same(category1, categoryEntry1.Entity);
+            Assert.Same(category2, categoryEntry2.Entity);
+            Assert.Same(product1, productEntry1.Entity);
+            Assert.Same(product2, productEntry2.Entity);
 
-                Assert.Same(category1, categoryEntry1.Entity);
-                Assert.Equal(expectedState, categoryEntry2.State);
-                Assert.Same(category2, categoryEntry2.Entity);
-                Assert.Equal(expectedState, categoryEntry2.State);
+            Assert.Same(category1, categoryEntry1.Entity);
+            Assert.Equal(expectedState, categoryEntry2.State);
+            Assert.Same(category2, categoryEntry2.Entity);
+            Assert.Equal(expectedState, categoryEntry2.State);
 
-                Assert.Same(product1, productEntry1.Entity);
-                Assert.Equal(expectedState, productEntry1.State);
-                Assert.Same(product2, productEntry2.Entity);
-                Assert.Equal(expectedState, productEntry2.State);
+            Assert.Same(product1, productEntry1.Entity);
+            Assert.Equal(expectedState, productEntry1.State);
+            Assert.Same(product2, productEntry2.Entity);
+            Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
-                Assert.Same(categoryEntry2.GetInfrastructure(), context.Entry(category2).GetInfrastructure());
-                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
-                Assert.Same(productEntry2.GetInfrastructure(), context.Entry(product2).GetInfrastructure());
-            }
+            Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
+            Assert.Same(categoryEntry2.GetInfrastructure(), context.Entry(category2).GetInfrastructure());
+            Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
+            Assert.Same(productEntry2.GetInfrastructure(), context.Entry(product2).GetInfrastructure());
         }
 
         [ConditionalFact]
@@ -268,7 +369,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackMultipleEntitiesTest(
             Action<EarlyLearningCenter, Category[]> categoryAdder,
-            Action<EarlyLearningCenter, Product[]> productAdder, EntityState expectedState)
+            Action<EarlyLearningCenter, Product[]> productAdder,
+            EntityState expectedState)
             => TrackMultipleEntitiesTest(
                 (c, e) =>
                 {
@@ -284,43 +386,42 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackMultipleEntitiesTest(
             Func<EarlyLearningCenter, Category[], Task> categoryAdder,
-            Func<EarlyLearningCenter, Product[], Task> productAdder, EntityState expectedState)
+            Func<EarlyLearningCenter, Product[], Task> productAdder,
+            EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter())
+            using var context = new EarlyLearningCenter();
+            var category1 = new Category { Id = 1, Name = "Beverages" };
+            var category2 = new Category { Id = 2, Name = "Foods" };
+            var product1 = new Product
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var product2 = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m
-                };
+                Id = 1,
+                Name = "Marmite",
+                Price = 7.99m
+            };
+            var product2 = new Product
+            {
+                Id = 2,
+                Name = "Bovril",
+                Price = 4.99m
+            };
 
-                await categoryAdder(context, new[] { category1, category2 });
-                await productAdder(context, new[] { product1, product2 });
+            await categoryAdder(context, new[] { category1, category2 });
+            await productAdder(context, new[] { product1, product2 });
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Same(product2, context.Entry(product2).Entity);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Same(category2, context.Entry(category2).Entity);
+            Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Same(product2, context.Entry(product2).Entity);
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Equal(expectedState, context.Entry(category1).State);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Equal(expectedState, context.Entry(category2).State);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Equal(expectedState, context.Entry(category1).State);
+            Assert.Same(category2, context.Entry(category2).Entity);
+            Assert.Equal(expectedState, context.Entry(category2).State);
 
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Equal(expectedState, context.Entry(product1).State);
-                Assert.Same(product2, context.Entry(product2).Entity);
-                Assert.Equal(expectedState, context.Entry(product2).State);
-            }
+            Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Equal(expectedState, context.Entry(product1).State);
+            Assert.Same(product2, context.Entry(product2).Entity);
+            Assert.Equal(expectedState, context.Entry(product2).State);
         }
 
         [ConditionalFact]
@@ -332,12 +433,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_set_async()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                await context.Categories.AddRangeAsync();
-                await context.Products.AddRangeAsync();
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter();
+            await context.Categories.AddRangeAsync();
+            await context.Products.AddRangeAsync();
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
@@ -360,12 +459,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private static void TrackNoEntitiesTest(Action<EarlyLearningCenter> categoryAdder, Action<EarlyLearningCenter> productAdder)
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                categoryAdder(context);
-                productAdder(context);
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter();
+            categoryAdder(context);
+            productAdder(context);
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
@@ -415,7 +512,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private static Task TrackMultipleEntitiesTestEnumerable(
             Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
-            Action<EarlyLearningCenter, IEnumerable<Product>> productAdder, EntityState expectedState)
+            Action<EarlyLearningCenter, IEnumerable<Product>> productAdder,
+            EntityState expectedState)
             => TrackMultipleEntitiesTestEnumerable(
                 (c, e) =>
                 {
@@ -431,45 +529,44 @@ namespace Microsoft.EntityFrameworkCore
 
         private static async Task TrackMultipleEntitiesTestEnumerable(
             Func<EarlyLearningCenter, IEnumerable<Category>, Task> categoryAdder,
-            Func<EarlyLearningCenter, IEnumerable<Product>, Task> productAdder, EntityState expectedState)
+            Func<EarlyLearningCenter, IEnumerable<Product>, Task> productAdder,
+            EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter())
+            using var context = new EarlyLearningCenter();
+            var category1 = new Category { Id = 1, Name = "Beverages" };
+            var category2 = new Category { Id = 2, Name = "Foods" };
+            var product1 = new Product
             {
-                var category1 = new Category { Id = 1, Name = "Beverages" };
-                var category2 = new Category { Id = 2, Name = "Foods" };
-                var product1 = new Product
-                {
-                    Id = 1,
-                    Name = "Marmite",
-                    Price = 7.99m
-                };
-                var product2 = new Product
-                {
-                    Id = 2,
-                    Name = "Bovril",
-                    Price = 4.99m
-                };
+                Id = 1,
+                Name = "Marmite",
+                Price = 7.99m
+            };
+            var product2 = new Product
+            {
+                Id = 2,
+                Name = "Bovril",
+                Price = 4.99m
+            };
 
-                await categoryAdder(
-                    context, new List<Category> { category1, category2 });
-                await productAdder(
-                    context, new List<Product> { product1, product2 });
+            await categoryAdder(
+                context, new List<Category> { category1, category2 });
+            await productAdder(
+                context, new List<Product> { product1, product2 });
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Same(product2, context.Entry(product2).Entity);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Same(category2, context.Entry(category2).Entity);
+            Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Same(product2, context.Entry(product2).Entity);
 
-                Assert.Same(category1, context.Entry(category1).Entity);
-                Assert.Equal(expectedState, context.Entry(category1).State);
-                Assert.Same(category2, context.Entry(category2).Entity);
-                Assert.Equal(expectedState, context.Entry(category2).State);
+            Assert.Same(category1, context.Entry(category1).Entity);
+            Assert.Equal(expectedState, context.Entry(category1).State);
+            Assert.Same(category2, context.Entry(category2).Entity);
+            Assert.Equal(expectedState, context.Entry(category2).State);
 
-                Assert.Same(product1, context.Entry(product1).Entity);
-                Assert.Equal(expectedState, context.Entry(product1).State);
-                Assert.Same(product2, context.Entry(product2).Entity);
-                Assert.Equal(expectedState, context.Entry(product2).State);
-            }
+            Assert.Same(product1, context.Entry(product1).Entity);
+            Assert.Equal(expectedState, context.Entry(product1).State);
+            Assert.Same(product2, context.Entry(product2).Entity);
+            Assert.Equal(expectedState, context.Entry(product2).State);
         }
 
         [ConditionalFact]
@@ -487,12 +584,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Can_add_no_new_entities_to_set_Enumerable_graph_async()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                await context.Categories.AddRangeAsync(new HashSet<Category>());
-                await context.Products.AddRangeAsync(new HashSet<Product>());
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter();
+            await context.Categories.AddRangeAsync(new HashSet<Category>());
+            await context.Products.AddRangeAsync(new HashSet<Product>());
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
@@ -511,12 +606,10 @@ namespace Microsoft.EntityFrameworkCore
             Action<EarlyLearningCenter, IEnumerable<Category>> categoryAdder,
             Action<EarlyLearningCenter, IEnumerable<Product>> productAdder)
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                categoryAdder(context, new HashSet<Category>());
-                productAdder(context, new HashSet<Product>());
-                Assert.Empty(context.ChangeTracker.Entries());
-            }
+            using var context = new EarlyLearningCenter();
+            categoryAdder(context, new HashSet<Category>());
+            productAdder(context, new HashSet<Product>());
+            Assert.Empty(context.ChangeTracker.Entries());
         }
 
         [ConditionalFact]
@@ -587,17 +680,15 @@ namespace Microsoft.EntityFrameworkCore
             EntityState initialState,
             EntityState expectedState)
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                var entity = new Category { Id = 1, Name = "Beverages" };
-                var entry = context.Entry(entity);
+            using var context = new EarlyLearningCenter();
+            var entity = new Category { Id = 1, Name = "Beverages" };
+            var entry = context.Entry(entity);
 
-                entry.State = initialState;
+            entry.State = initialState;
 
-                await action(context, entity);
+            await action(context, entity);
 
-                Assert.Equal(expectedState, entry.State);
-            }
+            Assert.Equal(expectedState, entry.State);
         }
 
         [ConditionalTheory]
@@ -605,78 +696,68 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(false)]
         public async Task Can_add_new_entities_to_context_with_key_generation(bool async)
         {
-            using (var context = new EarlyLearningCenter())
+            using var context = new EarlyLearningCenter();
+            var gu1 = new TheGu { ShirtColor = "Red" };
+            var gu2 = new TheGu { ShirtColor = "Still Red" };
+
+            if (async)
             {
-                var gu1 = new TheGu { ShirtColor = "Red" };
-                var gu2 = new TheGu { ShirtColor = "Still Red" };
-
-                if (async)
-                {
-                    Assert.Same(gu1, (await context.Gus.AddAsync(gu1)).Entity);
-                    Assert.Same(gu2, (await context.Gus.AddAsync(gu2)).Entity);
-                }
-                else
-                {
-                    Assert.Same(gu1, context.Gus.Add(gu1).Entity);
-                    Assert.Same(gu2, context.Gus.Add(gu2).Entity);
-                }
-
-                Assert.NotEqual(default, gu1.Id);
-                Assert.NotEqual(default, gu2.Id);
-                Assert.NotEqual(gu1.Id, gu2.Id);
-
-                var categoryEntry = context.Entry(gu1);
-                Assert.Same(gu1, categoryEntry.Entity);
-                Assert.Equal(EntityState.Added, categoryEntry.State);
-
-                categoryEntry = context.Entry(gu2);
-                Assert.Same(gu2, categoryEntry.Entity);
-                Assert.Equal(EntityState.Added, categoryEntry.State);
+                Assert.Same(gu1, (await context.Gus.AddAsync(gu1)).Entity);
+                Assert.Same(gu2, (await context.Gus.AddAsync(gu2)).Entity);
             }
+            else
+            {
+                Assert.Same(gu1, context.Gus.Add(gu1).Entity);
+                Assert.Same(gu2, context.Gus.Add(gu2).Entity);
+            }
+
+            Assert.NotEqual(default, gu1.Id);
+            Assert.NotEqual(default, gu2.Id);
+            Assert.NotEqual(gu1.Id, gu2.Id);
+
+            var categoryEntry = context.Entry(gu1);
+            Assert.Same(gu1, categoryEntry.Entity);
+            Assert.Equal(EntityState.Added, categoryEntry.State);
+
+            categoryEntry = context.Entry(gu2);
+            Assert.Same(gu2, categoryEntry.Entity);
+            Assert.Equal(EntityState.Added, categoryEntry.State);
         }
 
         [ConditionalFact]
         public void Can_get_scoped_service_provider()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.Same(
-                    ((IInfrastructure<IServiceProvider>)context).Instance,
-                    ((IInfrastructure<IServiceProvider>)context.Products).Instance);
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.Same(
+                ((IInfrastructure<IServiceProvider>)context).Instance,
+                ((IInfrastructure<IServiceProvider>)context.Products).Instance);
         }
 
         [ConditionalFact]
         public void Throws_when_using_with_IListSource()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.Equal(
-                    CoreStrings.DataBindingWithIListSource,
-                    Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus).GetList()).Message);
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.Equal(
+                CoreStrings.DataBindingWithIListSource,
+                Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus).GetList()).Message);
         }
 
         [ConditionalFact]
         public void Throws_when_using_query_with_IListSource()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.Equal(
-                    CoreStrings.DataBindingWithIListSource,
-                    Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Distinct()).GetList()).Message);
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.Equal(
+                CoreStrings.DataBindingWithIListSource,
+                Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Distinct()).GetList()).Message);
         }
 
         [ConditionalFact]
         public void Throws_when_using_Local_with_IListSource()
         {
-            using (var context = new EarlyLearningCenter())
-            {
-                Assert.Equal(
-                    CoreStrings.DataBindingToLocalWithIListSource,
-                    Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
-            }
+            using var context = new EarlyLearningCenter();
+            Assert.Equal(
+                CoreStrings.DataBindingToLocalWithIListSource,
+                Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
         }
 
         private class Curious
@@ -713,6 +794,13 @@ namespace Microsoft.EntityFrameworkCore
                 => optionsBuilder
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     .UseInternalServiceProvider(InMemoryTestHelpers.Instance.CreateServiceProvider());
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.SharedTypeEntity<Dictionary<string, object>>("SharedEntity").IndexerProperty<int>("Id");
+            }
         }
     }
 }

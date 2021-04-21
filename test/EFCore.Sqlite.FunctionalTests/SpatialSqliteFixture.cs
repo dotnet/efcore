@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,6 +23,15 @@ namespace Microsoft.EntityFrameworkCore
             new SqliteDbContextOptionsBuilder(optionsBuilder).UseNetTopologySuite();
 
             return optionsBuilder;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            modelBuilder.Entity<PointEntity>().Property(e => e.PointZ).HasColumnType("POINTZ");
+            modelBuilder.Entity<PointEntity>().Property(e => e.PointM).HasColumnType("POINTM");
+            modelBuilder.Entity<PointEntity>().Property(e => e.PointZM).HasColumnType("POINTZM");
         }
 
         protected override void Clean(DbContext context)

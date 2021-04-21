@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class MonsterFixupChangedChangingSqlServerFixture : MonsterFixupChangedChangingFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void OnModelCreating<TMessage, TProduct, TProductPhoto, TProductReview, TComputerDetail, TDimensions>(
                 ModelBuilder builder)

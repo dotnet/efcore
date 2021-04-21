@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
 
         private class ExpressionFinder : ExpressionVisitor
         {
-            public readonly List<Expression> FoundExpressions = new List<Expression>();
+            public readonly List<Expression> FoundExpressions = new();
 
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {

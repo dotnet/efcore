@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class PropertyValuesSqliteFixture : PropertyValuesFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

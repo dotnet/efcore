@@ -53,6 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             TransactionStarting,
             TransactionCommitting,
             TransactionRollingBack,
+            CreatingTransactionSavepoint,
+            CreatedTransactionSavepoint,
+            RollingBackToTransactionSavepoint,
+            RolledBackToTransactionSavepoint,
+            ReleasingTransactionSavepoint,
+            ReleasedTransactionSavepoint,
 
             // DataReader events
             DataReaderDisposing = CoreEventId.RelationalBaseId + 300,
@@ -70,20 +76,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
             QueryPossibleUnintendedUseOfEqualsWarning,
-            QueryPossibleExceptionWithAggregateOperatorWarning,
-            ValueConversionSqlLiteralWarning, // This warning has been removed.
+            Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning,
+            Obsolete_ValueConversionSqlLiteralWarning,
+            MultipleCollectionIncludeWarning,
 
             // Model validation events
             ModelValidationKeyDefaultValueWarning = CoreEventId.RelationalBaseId + 600,
             BoolWithDefaultWarning,
+            AllIndexPropertiesNotToMappedToAnyTable,
+            IndexPropertiesBothMappedAndNotMappedToTable,
+            IndexPropertiesMappedToNonOverlappingTables,
+            ForeignKeyPropertiesMappedToUnrelatedTables,
+            OptionalDependentWithoutIdentifyingPropertyWarning,
 
             // Update events
             BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
-            BatchSmallerThanMinBatchSize
+            BatchSmallerThanMinBatchSize,
+            BatchExecutorFailedToRollbackToSavepoint,
+            BatchExecutorFailedToReleaseSavepoint,
         }
 
         private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
-        private static EventId MakeConnectionId(Id id) => new EventId((int)id, _connectionPrefix + id);
+
+        private static EventId MakeConnectionId(Id id)
+            => new((int)id, _connectionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -151,7 +167,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId ConnectionError = MakeConnectionId(Id.ConnectionError);
 
         private static readonly string _sqlPrefix = DbLoggerCategory.Database.Command.Name + ".";
-        private static EventId MakeCommandId(Id id) => new EventId((int)id, _sqlPrefix + id);
+
+        private static EventId MakeCommandId(Id id)
+            => new((int)id, _sqlPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -219,7 +237,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId CommandError = MakeCommandId(Id.CommandError);
 
         private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
-        private static EventId MakeTransactionId(Id id) => new EventId((int)id, _transactionPrefix + id);
+
+        private static EventId MakeTransactionId(Id id)
+            => new((int)id, _transactionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -314,6 +334,84 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
+        ///         A database transaction savepoint is being created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CreatingTransactionSavepoint = MakeTransactionId(Id.CreatingTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction savepoint has been created.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId CreatedTransactionSavepoint = MakeTransactionId(Id.CreatedTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction is being rolled back to a savepoint.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RollingBackToTransactionSavepoint = MakeTransactionId(Id.RollingBackToTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction has been rolled back to a savepoint.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId RolledBackToTransactionSavepoint = MakeTransactionId(Id.RolledBackToTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction savepoint is being released.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ReleasingTransactionSavepoint = MakeTransactionId(Id.ReleasingTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         A database transaction savepoint has been released.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Transaction" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="TransactionEndEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ReleasedTransactionSavepoint = MakeTransactionId(Id.ReleasedTransactionSavepoint);
+
+        /// <summary>
+        ///     <para>
         ///         A database transaction has been disposed.
         ///     </para>
         ///     <para>
@@ -391,7 +489,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId DataReaderDisposing = MakeCommandId(Id.DataReaderDisposing);
 
         private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
-        private static EventId MakeMigrationsId(Id id) => new EventId((int)id, _migrationsPrefix + id);
+
+        private static EventId MakeMigrationsId(Id id)
+            => new((int)id, _migrationsPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -498,18 +598,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId MigrationAttributeMissingWarning = MakeMigrationsId(Id.MigrationAttributeMissingWarning);
 
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
-        private static EventId MakeQueryId(Id id) => new EventId((int)id, _queryPrefix + id);
 
-        /// <summary>
-        ///     <para>
-        ///         Part of a query is being evaluated on the client instead of on the database server.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
-        ///     </para>
-        /// </summary>
-        [Obsolete("Automatic client evaluation is no longer supported. This event is no longer generated.")]
-        public static readonly EventId QueryClientEvaluationWarning = MakeQueryId(Id.QueryClientEvaluationWarning);
+        private static EventId MakeQueryId(Id id)
+            => new((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -519,7 +610,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         ///     <para>
-        ///         This event uses the <see cref="ExpressionEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///         This event uses the <see cref="TwoSqlExpressionsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
         ///     </para>
         /// </summary>
         public static readonly EventId QueryPossibleUnintendedUseOfEqualsWarning =
@@ -533,11 +624,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
         ///     </para>
         /// </summary>
+        [Obsolete]
         public static readonly EventId QueryPossibleExceptionWithAggregateOperatorWarning =
-            MakeQueryId(Id.QueryPossibleExceptionWithAggregateOperatorWarning);
+            MakeQueryId(Id.Obsolete_QueryPossibleExceptionWithAggregateOperatorWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         A query is loading multiple related collections without configuring a <see cref="QuerySplittingBehavior" />.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId MultipleCollectionIncludeWarning = MakeQueryId(Id.MultipleCollectionIncludeWarning);
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
-        private static EventId MakeValidationId(Id id) => new EventId((int)id, _validationPrefix + id);
+
+        private static EventId MakeValidationId(Id id)
+            => new((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -565,8 +669,79 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId BoolWithDefaultWarning = MakeValidationId(Id.BoolWithDefaultWarning);
 
+        /// <summary>
+        ///     <para>
+        ///         An index specifies properties all of which are not mapped to a column in any table.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="IndexEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId AllIndexPropertiesNotToMappedToAnyTable =
+            MakeValidationId(Id.AllIndexPropertiesNotToMappedToAnyTable);
+
+        /// <summary>
+        ///     <para>
+        ///         An index specifies properties some of which are mapped and some of which are not mapped to a column in a table.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="IndexWithPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId IndexPropertiesBothMappedAndNotMappedToTable =
+            MakeValidationId(Id.IndexPropertiesBothMappedAndNotMappedToTable);
+
+        /// <summary>
+        ///     <para>
+        ///         An index specifies properties which map to columns on non-overlapping tables.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="IndexWithPropertiesEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId IndexPropertiesMappedToNonOverlappingTables =
+            MakeValidationId(Id.IndexPropertiesMappedToNonOverlappingTables);
+
+        /// <summary>
+        ///     <para>
+        ///         A foreign key specifies properties which don't map to the related tables.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ForeignKeyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ForeignKeyPropertiesMappedToUnrelatedTables = MakeValidationId(Id.ForeignKeyPropertiesMappedToUnrelatedTables);
+
+        /// <summary>
+        ///     <para>
+        ///         A foreign key specifies properties which don't map to the related tables.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptionalDependentWithoutIdentifyingPropertyWarning
+            = MakeValidationId(Id.OptionalDependentWithoutIdentifyingPropertyWarning);
+
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
-        private static EventId MakeUpdateId(Id id) => new EventId((int)id, _updatePrefix + id);
+
+        private static EventId MakeUpdateId(Id id)
+            => new((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>
@@ -595,5 +770,25 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId BatchSmallerThanMinBatchSize = MakeUpdateId(Id.BatchSmallerThanMinBatchSize);
+
+        /// <summary>
+        ///     <para>
+        ///         An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occured.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId BatchExecutorFailedToRollbackToSavepoint = MakeUpdateId(Id.BatchExecutorFailedToRollbackToSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         An error occurred while the batch executor was releasing a transaction savepoint.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId BatchExecutorFailedToReleaseSavepoint = MakeUpdateId(Id.BatchExecutorFailedToReleaseSavepoint);
     }
 }

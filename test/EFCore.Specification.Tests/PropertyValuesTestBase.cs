@@ -54,31 +54,29 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            building.Name = "Building One Prime";
+            building.Value = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+            var values = await getPropertyValues(context.Entry(building));
+
+            if (expectOriginalValues)
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-
-                building.Name = "Building One Prime";
-                building.Value = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
-
-                var values = await getPropertyValues(context.Entry(building));
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", values["Name"]);
-                    Assert.Equal(1500000m, values["Value"]);
-                    Assert.Equal(11, values["Shadow1"]);
-                    Assert.Equal("Meadow Drive", values["Shadow2"]);
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", values["Name"]);
-                    Assert.Equal(1500001m, values["Value"]);
-                    Assert.Equal(12, values["Shadow1"]);
-                    Assert.Equal("Pine Walk", values["Shadow2"]);
-                }
+                Assert.Equal("Building One", values["Name"]);
+                Assert.Equal(1500000m, values["Value"]);
+                Assert.Equal(11, values["Shadow1"]);
+                Assert.Equal("Meadow Drive", values["Shadow2"]);
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", values["Name"]);
+                Assert.Equal(1500001m, values["Value"]);
+                Assert.Equal(12, values["Shadow1"]);
+                Assert.Equal("Pine Walk", values["Shadow2"]);
             }
         }
 
@@ -110,32 +108,30 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            building.Name = "Building One Prime";
+            building.Value = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+            var entry = context.Entry(building);
+            var values = await getPropertyValues(entry);
+
+            if (expectOriginalValues)
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-
-                building.Name = "Building One Prime";
-                building.Value = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
-
-                var entry = context.Entry(building);
-                var values = await getPropertyValues(entry);
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", values[entry.Property(e => e.Name).Metadata]);
-                    Assert.Equal(1500000m, values[entry.Property(e => e.Value).Metadata]);
-                    Assert.Equal(11, values[entry.Property("Shadow1").Metadata]);
-                    Assert.Equal("Meadow Drive", values[entry.Property("Shadow2").Metadata]);
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", values[entry.Property(e => e.Name).Metadata]);
-                    Assert.Equal(1500001m, values[entry.Property(e => e.Value).Metadata]);
-                    Assert.Equal(12, values[entry.Property("Shadow1").Metadata]);
-                    Assert.Equal("Pine Walk", values[entry.Property("Shadow2").Metadata]);
-                }
+                Assert.Equal("Building One", values[entry.Property(e => e.Name).Metadata]);
+                Assert.Equal(1500000m, values[entry.Property(e => e.Value).Metadata]);
+                Assert.Equal(11, values[entry.Property("Shadow1").Metadata]);
+                Assert.Equal("Meadow Drive", values[entry.Property("Shadow2").Metadata]);
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", values[entry.Property(e => e.Name).Metadata]);
+                Assert.Equal(1500001m, values[entry.Property(e => e.Value).Metadata]);
+                Assert.Equal(12, values[entry.Property("Shadow1").Metadata]);
+                Assert.Equal("Pine Walk", values[entry.Property("Shadow2").Metadata]);
             }
         }
 
@@ -167,34 +163,32 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+
+            employee.LastName = "Milner";
+            employee.LeaveBalance = 55m;
+            context.Entry(employee).Property("Shadow1").CurrentValue = 222;
+            context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
+            context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
+
+            var values = await getPropertyValues(context.Entry(employee));
+
+            if (expectOriginalValues)
             {
-                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
-
-                employee.LastName = "Milner";
-                employee.LeaveBalance = 55m;
-                context.Entry(employee).Property("Shadow1").CurrentValue = 222;
-                context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
-                context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
-
-                var values = await getPropertyValues(context.Entry(employee));
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Miller", values["LastName"]);
-                    Assert.Equal(45m, values["LeaveBalance"]);
-                    Assert.Equal(111, values["Shadow1"]);
-                    Assert.Equal("PM", values["Shadow2"]);
-                    Assert.Equal(1111, values["Shadow3"]);
-                }
-                else
-                {
-                    Assert.Equal("Milner", values["LastName"]);
-                    Assert.Equal(55m, values["LeaveBalance"]);
-                    Assert.Equal(222, values["Shadow1"]);
-                    Assert.Equal("Dev", values["Shadow2"]);
-                    Assert.Equal(2222, values["Shadow3"]);
-                }
+                Assert.Equal("Miller", values["LastName"]);
+                Assert.Equal(45m, values["LeaveBalance"]);
+                Assert.Equal(111, values["Shadow1"]);
+                Assert.Equal("PM", values["Shadow2"]);
+                Assert.Equal(1111, values["Shadow3"]);
+            }
+            else
+            {
+                Assert.Equal("Milner", values["LastName"]);
+                Assert.Equal(55m, values["LeaveBalance"]);
+                Assert.Equal(222, values["Shadow1"]);
+                Assert.Equal("Dev", values["Shadow2"]);
+                Assert.Equal(2222, values["Shadow3"]);
             }
         }
 
@@ -226,41 +220,39 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            object building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
+            context.Entry(building).Property("Value").CurrentValue = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+            var values = await getPropertyValues(context.Entry(building));
+
+            if (expectOriginalValues)
             {
-                object building = context.Set<Building>().Single(b => b.Name == "Building One");
+                Assert.Equal("Building One", values["Name"]);
+                Assert.Equal(1500000m, values["Value"]);
+                Assert.Equal(11, values["Shadow1"]);
+                Assert.Equal("Meadow Drive", values["Shadow2"]);
 
-                context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
-                context.Entry(building).Property("Value").CurrentValue = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+                Assert.Equal("Building One", values.GetValue<string>("Name"));
+                Assert.Equal(1500000m, values.GetValue<decimal>("Value"));
+                Assert.Equal(11, values.GetValue<int>("Shadow1"));
+                Assert.Equal("Meadow Drive", values.GetValue<string>("Shadow2"));
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", values["Name"]);
+                Assert.Equal(1500001m, values["Value"]);
+                Assert.Equal(12, values["Shadow1"]);
+                Assert.Equal("Pine Walk", values["Shadow2"]);
 
-                var values = await getPropertyValues(context.Entry(building));
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", values["Name"]);
-                    Assert.Equal(1500000m, values["Value"]);
-                    Assert.Equal(11, values["Shadow1"]);
-                    Assert.Equal("Meadow Drive", values["Shadow2"]);
-
-                    Assert.Equal("Building One", values.GetValue<string>("Name"));
-                    Assert.Equal(1500000m, values.GetValue<decimal>("Value"));
-                    Assert.Equal(11, values.GetValue<int>("Shadow1"));
-                    Assert.Equal("Meadow Drive", values.GetValue<string>("Shadow2"));
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", values["Name"]);
-                    Assert.Equal(1500001m, values["Value"]);
-                    Assert.Equal(12, values["Shadow1"]);
-                    Assert.Equal("Pine Walk", values["Shadow2"]);
-
-                    Assert.Equal("Building One Prime", values.GetValue<string>("Name"));
-                    Assert.Equal(1500001m, values.GetValue<decimal>("Value"));
-                    Assert.Equal(12, values.GetValue<int>("Shadow1"));
-                    Assert.Equal("Pine Walk", values.GetValue<string>("Shadow2"));
-                }
+                Assert.Equal("Building One Prime", values.GetValue<string>("Name"));
+                Assert.Equal(1500001m, values.GetValue<decimal>("Value"));
+                Assert.Equal(12, values.GetValue<int>("Shadow1"));
+                Assert.Equal("Pine Walk", values.GetValue<string>("Shadow2"));
             }
         }
 
@@ -292,38 +284,36 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            object building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
+            context.Entry(building).Property("Value").CurrentValue = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+            var entry = context.Entry(building);
+            var values = await getPropertyValues(entry);
+
+            if (expectOriginalValues)
             {
-                object building = context.Set<Building>().Single(b => b.Name == "Building One");
+                Assert.Equal("Building One", values["Name"]);
+                Assert.Equal(1500000m, values["Value"]);
 
-                context.Entry(building).Property("Name").CurrentValue = "Building One Prime";
-                context.Entry(building).Property("Value").CurrentValue = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+                Assert.Equal("Building One", values.GetValue<string>(entry.Property("Name").Metadata));
+                Assert.Equal(1500000m, values.GetValue<decimal>(entry.Property("Value").Metadata));
+                Assert.Equal(11, values.GetValue<int>(entry.Property("Shadow1").Metadata));
+                Assert.Equal("Meadow Drive", values.GetValue<string>(entry.Property("Shadow2").Metadata));
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", values["Name"]);
+                Assert.Equal(1500001m, values["Value"]);
 
-                var entry = context.Entry(building);
-                var values = await getPropertyValues(entry);
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", values["Name"]);
-                    Assert.Equal(1500000m, values["Value"]);
-
-                    Assert.Equal("Building One", values.GetValue<string>(entry.Property("Name").Metadata));
-                    Assert.Equal(1500000m, values.GetValue<decimal>(entry.Property("Value").Metadata));
-                    Assert.Equal(11, values.GetValue<int>(entry.Property("Shadow1").Metadata));
-                    Assert.Equal("Meadow Drive", values.GetValue<string>(entry.Property("Shadow2").Metadata));
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", values["Name"]);
-                    Assert.Equal(1500001m, values["Value"]);
-
-                    Assert.Equal("Building One Prime", values.GetValue<string>(entry.Property("Name").Metadata));
-                    Assert.Equal(1500001m, values.GetValue<decimal>(entry.Property("Value").Metadata));
-                    Assert.Equal(12, values.GetValue<int>(entry.Property("Shadow1").Metadata));
-                    Assert.Equal("Pine Walk", values.GetValue<string>(entry.Property("Shadow2").Metadata));
-                }
+                Assert.Equal("Building One Prime", values.GetValue<string>(entry.Property("Name").Metadata));
+                Assert.Equal(1500001m, values.GetValue<decimal>(entry.Property("Value").Metadata));
+                Assert.Equal(12, values.GetValue<int>(entry.Property("Shadow1").Metadata));
+                Assert.Equal("Pine Walk", values.GetValue<string>(entry.Property("Shadow2").Metadata));
             }
         }
 
@@ -355,34 +345,32 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            object employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+
+            ((CurrentEmployee)employee).LastName = "Milner";
+            ((CurrentEmployee)employee).LeaveBalance = 55m;
+            context.Entry(employee).Property("Shadow1").CurrentValue = 222;
+            context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
+            context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
+
+            var values = await getPropertyValues(context.Entry(employee));
+
+            if (expectOriginalValues)
             {
-                object employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
-
-                ((CurrentEmployee)employee).LastName = "Milner";
-                ((CurrentEmployee)employee).LeaveBalance = 55m;
-                context.Entry(employee).Property("Shadow1").CurrentValue = 222;
-                context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
-                context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
-
-                var values = await getPropertyValues(context.Entry(employee));
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Miller", values["LastName"]);
-                    Assert.Equal(45m, values["LeaveBalance"]);
-                    Assert.Equal(111, values["Shadow1"]);
-                    Assert.Equal("PM", values["Shadow2"]);
-                    Assert.Equal(1111, values["Shadow3"]);
-                }
-                else
-                {
-                    Assert.Equal("Milner", values["LastName"]);
-                    Assert.Equal(55m, values["LeaveBalance"]);
-                    Assert.Equal(222, values["Shadow1"]);
-                    Assert.Equal("Dev", values["Shadow2"]);
-                    Assert.Equal(2222, values["Shadow3"]);
-                }
+                Assert.Equal("Miller", values["LastName"]);
+                Assert.Equal(45m, values["LeaveBalance"]);
+                Assert.Equal(111, values["Shadow1"]);
+                Assert.Equal("PM", values["Shadow2"]);
+                Assert.Equal(1111, values["Shadow3"]);
+            }
+            else
+            {
+                Assert.Equal("Milner", values["LastName"]);
+                Assert.Equal(55m, values["LeaveBalance"]);
+                Assert.Equal(222, values["Shadow1"]);
+                Assert.Equal("Dev", values["Shadow2"]);
+                Assert.Equal(2222, values["Shadow3"]);
             }
         }
 
@@ -402,27 +390,25 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = getPropertyValues(context.Entry(building));
 
-                values["Name"] = "Building 18";
-                values["Value"] = -1000m;
-                values["Shadow1"] = 13;
-                values["Shadow2"] = "Pine Walk";
+            values["Name"] = "Building 18";
+            values["Value"] = -1000m;
+            values["Shadow1"] = 13;
+            values["Shadow2"] = "Pine Walk";
 
-                Assert.Equal("Building 18", values["Name"]);
-                Assert.Equal(-1000m, values["Value"]);
-                Assert.Equal(13, values["Shadow1"]);
-                Assert.Equal("Pine Walk", values["Shadow2"]);
+            Assert.Equal("Building 18", values["Name"]);
+            Assert.Equal(-1000m, values["Value"]);
+            Assert.Equal(13, values["Shadow1"]);
+            Assert.Equal("Pine Walk", values["Shadow2"]);
 
-                var entry = context.Entry(building);
-                Assert.Equal("Building 18", getValue(entry, "Name"));
-                Assert.Equal(-1000m, getValue(entry, "Value"));
-                Assert.Equal(13, getValue(entry, "Shadow1"));
-                Assert.Equal("Pine Walk", getValue(entry, "Shadow2"));
-            }
+            var entry = context.Entry(building);
+            Assert.Equal("Building 18", getValue(entry, "Name"));
+            Assert.Equal(-1000m, getValue(entry, "Value"));
+            Assert.Equal(13, getValue(entry, "Shadow1"));
+            Assert.Equal("Pine Walk", getValue(entry, "Shadow2"));
         }
 
         [ConditionalFact]
@@ -441,27 +427,25 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
-                var values = getPropertyValues(entry);
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
+            var values = getPropertyValues(entry);
 
-                values[entry.Property(e => e.Name).Metadata] = "Building 18";
-                values[entry.Property(e => e.Value).Metadata] = -1000m;
-                values[entry.Property("Shadow1").Metadata] = 13;
-                values[entry.Property("Shadow2").Metadata] = "Pine Walk";
+            values[entry.Property(e => e.Name).Metadata] = "Building 18";
+            values[entry.Property(e => e.Value).Metadata] = -1000m;
+            values[entry.Property("Shadow1").Metadata] = 13;
+            values[entry.Property("Shadow2").Metadata] = "Pine Walk";
 
-                Assert.Equal("Building 18", values["Name"]);
-                Assert.Equal(-1000m, values["Value"]);
-                Assert.Equal(13, values["Shadow1"]);
-                Assert.Equal("Pine Walk", values["Shadow2"]);
+            Assert.Equal("Building 18", values["Name"]);
+            Assert.Equal(-1000m, values["Value"]);
+            Assert.Equal(13, values["Shadow1"]);
+            Assert.Equal("Pine Walk", values["Shadow2"]);
 
-                Assert.Equal("Building 18", getValue(entry, "Name"));
-                Assert.Equal(-1000m, getValue(entry, "Value"));
-                Assert.Equal(13, getValue(entry, "Shadow1"));
-                Assert.Equal("Pine Walk", getValue(entry, "Shadow2"));
-            }
+            Assert.Equal("Building 18", getValue(entry, "Name"));
+            Assert.Equal(-1000m, getValue(entry, "Value"));
+            Assert.Equal(13, getValue(entry, "Shadow1"));
+            Assert.Equal("Pine Walk", getValue(entry, "Shadow2"));
         }
 
         [ConditionalFact]
@@ -480,27 +464,25 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = getPropertyValues(context.Entry(building));
 
-                values["Name"] = "Building 18";
-                values["Value"] = -1000m;
-                values["Shadow1"] = 13;
-                values["Shadow2"] = "Pine Walk";
+            values["Name"] = "Building 18";
+            values["Value"] = -1000m;
+            values["Shadow1"] = 13;
+            values["Shadow2"] = "Pine Walk";
 
-                Assert.Equal("Building 18", values["Name"]);
-                Assert.Equal(-1000m, values["Value"]);
-                Assert.Equal(13, values["Shadow1"]);
-                Assert.Equal("Pine Walk", values["Shadow2"]);
+            Assert.Equal("Building 18", values["Name"]);
+            Assert.Equal(-1000m, values["Value"]);
+            Assert.Equal(13, values["Shadow1"]);
+            Assert.Equal("Pine Walk", values["Shadow2"]);
 
-                var entry = context.Entry(building);
-                Assert.Equal("Building 18", getValue(entry, "Name"));
-                Assert.Equal(-1000m, getValue(entry, "Value"));
-                Assert.Equal(13, getValue(entry, "Shadow1"));
-                Assert.Equal("Pine Walk", getValue(entry, "Shadow2"));
-            }
+            var entry = context.Entry(building);
+            Assert.Equal("Building 18", getValue(entry, "Name"));
+            Assert.Equal(-1000m, getValue(entry, "Value"));
+            Assert.Equal(13, getValue(entry, "Shadow1"));
+            Assert.Equal("Pine Walk", getValue(entry, "Shadow2"));
         }
 
         [ConditionalFact]
@@ -531,27 +513,25 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            building.Name = "Building One Prime";
+            building.Value = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+            var buildingClone = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
+
+            if (expectOriginalValues)
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-
-                building.Name = "Building One Prime";
-                building.Value = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
-
-                var buildingClone = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", buildingClone.Name);
-                    Assert.Equal(1500000m, buildingClone.Value);
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", buildingClone.Name);
-                    Assert.Equal(1500001m, buildingClone.Value);
-                }
+                Assert.Equal("Building One", buildingClone.Name);
+                Assert.Equal(1500000m, buildingClone.Value);
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", buildingClone.Name);
+                Assert.Equal(1500001m, buildingClone.Value);
             }
         }
 
@@ -583,30 +563,28 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<CurrentEmployee>, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+
+            employee.LastName = "Milner";
+            employee.LeaveBalance = 55m;
+            context.Entry(employee).Property("Shadow1").CurrentValue = 222;
+            context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
+            context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
+
+            var clone = (CurrentEmployee)(await getPropertyValues(context.Entry(employee))).ToObject();
+
+            if (expectOriginalValues)
             {
-                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
-
-                employee.LastName = "Milner";
-                employee.LeaveBalance = 55m;
-                context.Entry(employee).Property("Shadow1").CurrentValue = 222;
-                context.Entry(employee).Property("Shadow2").CurrentValue = "Dev";
-                context.Entry(employee).Property("Shadow3").CurrentValue = 2222;
-
-                var clone = (CurrentEmployee)(await getPropertyValues(context.Entry(employee))).ToObject();
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Rowan", clone.FirstName);
-                    Assert.Equal("Miller", clone.LastName);
-                    Assert.Equal(45m, clone.LeaveBalance);
-                }
-                else
-                {
-                    Assert.Equal("Rowan", clone.FirstName);
-                    Assert.Equal("Milner", clone.LastName);
-                    Assert.Equal(55m, clone.LeaveBalance);
-                }
+                Assert.Equal("Rowan", clone.FirstName);
+                Assert.Equal("Miller", clone.LastName);
+                Assert.Equal(45m, clone.LeaveBalance);
+            }
+            else
+            {
+                Assert.Equal("Rowan", clone.FirstName);
+                Assert.Equal("Milner", clone.LastName);
+                Assert.Equal(55m, clone.LeaveBalance);
             }
         }
 
@@ -638,27 +616,25 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            object building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            ((Building)building).Name = "Building One Prime";
+            ((Building)building).Value = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
+
+            var buildingClone = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
+
+            if (expectOriginalValues)
             {
-                object building = context.Set<Building>().Single(b => b.Name == "Building One");
-
-                ((Building)building).Name = "Building One Prime";
-                ((Building)building).Value = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "Pine Walk";
-
-                var buildingClone = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", buildingClone.Name);
-                    Assert.Equal(1500000m, buildingClone.Value);
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", buildingClone.Name);
-                    Assert.Equal(1500001m, buildingClone.Value);
-                }
+                Assert.Equal("Building One", buildingClone.Name);
+                Assert.Equal(1500000m, buildingClone.Value);
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", buildingClone.Name);
+                Assert.Equal(1500001m, buildingClone.Value);
             }
         }
 
@@ -690,90 +666,42 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            building.Name = "Building One Prime";
+            building.Value = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "The Avenue";
+
+            var buildingValues = await getPropertyValues(context.Entry(building));
+            var clonedBuildingValues = buildingValues.Clone();
+
+            if (expectOriginalValues)
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-
-                building.Name = "Building One Prime";
-                building.Value = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "The Avenue";
-
-                var buildingValues = await getPropertyValues(context.Entry(building));
-                var clonedBuildingValues = buildingValues.Clone();
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", clonedBuildingValues["Name"]);
-                    Assert.Equal(1500000m, clonedBuildingValues["Value"]);
-                    Assert.Equal(11, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", clonedBuildingValues["Name"]);
-                    Assert.Equal(1500001m, clonedBuildingValues["Value"]);
-                    Assert.Equal(12, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("The Avenue", clonedBuildingValues["Shadow2"]);
-                }
-
-                // Test modification of cloned property values does not impact original property values
-
-                var newKey = new Guid();
-                clonedBuildingValues["BuildingId"] = newKey; // Can change primary key on clone
-                clonedBuildingValues["Name"] = "Building 18";
-                clonedBuildingValues["Shadow1"] = 13;
-                clonedBuildingValues["Shadow2"] = "Pine Walk";
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
-                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
-                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
-
-                    Assert.Equal("Building One", buildingValues["Name"]);
-                    Assert.Equal(11, buildingValues["Shadow1"]);
-                    Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
-                }
-                else
-                {
-                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
-                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
-                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
-
-                    Assert.Equal("Building One Prime", buildingValues["Name"]);
-                    Assert.Equal(12, buildingValues["Shadow1"]);
-                    Assert.Equal("The Avenue", buildingValues["Shadow2"]);
-                }
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Values_in_cloned_dictionary_can_be_set_with_IProperty()
-        {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
-
-                var buildingValues = entry.CurrentValues;
-                var clonedBuildingValues = buildingValues.Clone();
-
                 Assert.Equal("Building One", clonedBuildingValues["Name"]);
                 Assert.Equal(1500000m, clonedBuildingValues["Value"]);
                 Assert.Equal(11, clonedBuildingValues["Shadow1"]);
                 Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", clonedBuildingValues["Name"]);
+                Assert.Equal(1500001m, clonedBuildingValues["Value"]);
+                Assert.Equal(12, clonedBuildingValues["Shadow1"]);
+                Assert.Equal("The Avenue", clonedBuildingValues["Shadow2"]);
+            }
 
-                // Test modification of cloned property values does not impact original property values
+            // Test modification of cloned property values does not impact original property values
 
-                var newKey = new Guid();
-                clonedBuildingValues[entry.Property(e => e.BuildingId).Metadata] = newKey; // Can change primary key on clone
-                clonedBuildingValues[entry.Property(e => e.Name).Metadata] = "Building 18";
-                clonedBuildingValues[entry.Property("Shadow1").Metadata] = 13;
-                clonedBuildingValues[entry.Property("Shadow2").Metadata] = "Pine Walk";
+            var newKey = new Guid();
+            clonedBuildingValues["BuildingId"] = newKey; // Can change primary key on clone
+            clonedBuildingValues["Name"] = "Building 18";
+            clonedBuildingValues["Shadow1"] = 13;
+            clonedBuildingValues["Shadow2"] = "Pine Walk";
 
+            if (expectOriginalValues)
+            {
                 Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
                 Assert.Equal("Building 18", clonedBuildingValues["Name"]);
                 Assert.Equal(13, clonedBuildingValues["Shadow1"]);
@@ -783,183 +711,219 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(11, buildingValues["Shadow1"]);
                 Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
             }
+            else
+            {
+                Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+                Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+                Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+                Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
+
+                Assert.Equal("Building One Prime", buildingValues["Name"]);
+                Assert.Equal(12, buildingValues["Shadow1"]);
+                Assert.Equal("The Avenue", buildingValues["Shadow2"]);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Values_in_cloned_dictionary_can_be_set_with_IProperty()
+        {
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
+
+            var buildingValues = entry.CurrentValues;
+            var clonedBuildingValues = buildingValues.Clone();
+
+            Assert.Equal("Building One", clonedBuildingValues["Name"]);
+            Assert.Equal(1500000m, clonedBuildingValues["Value"]);
+            Assert.Equal(11, clonedBuildingValues["Shadow1"]);
+            Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
+
+            // Test modification of cloned property values does not impact original property values
+
+            var newKey = new Guid();
+            clonedBuildingValues[entry.Property(e => e.BuildingId).Metadata] = newKey; // Can change primary key on clone
+            clonedBuildingValues[entry.Property(e => e.Name).Metadata] = "Building 18";
+            clonedBuildingValues[entry.Property("Shadow1").Metadata] = 13;
+            clonedBuildingValues[entry.Property("Shadow2").Metadata] = "Pine Walk";
+
+            Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+            Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+            Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+            Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
+
+            Assert.Equal("Building One", buildingValues["Name"]);
+            Assert.Equal(11, buildingValues["Shadow1"]);
+            Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
         }
 
         [ConditionalFact]
         public virtual void Using_bad_property_names_throws()
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
 
-                var buildingValues = entry.CurrentValues;
-                var clonedBuildingValues = buildingValues.Clone();
+            var buildingValues = entry.CurrentValues;
+            var clonedBuildingValues = buildingValues.Clone();
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Foo", nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => buildingValues["Foo"]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => buildingValues["Foo"]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Foo", nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Foo"]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Foo"]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Foo", nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => buildingValues["Foo"] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => buildingValues["Foo"] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Foo", nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Foo"] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => clonedBuildingValues["Foo"] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Foo", nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => clonedBuildingValues.GetValue<string>("Foo")).Message);
-            }
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Foo", nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => clonedBuildingValues.GetValue<string>("Foo")).Message);
         }
 
         [ConditionalFact]
         public virtual void Using_bad_IProperty_instances_throws()
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
 
-                var buildingValues = entry.CurrentValues;
-                var clonedBuildingValues = buildingValues.Clone();
+            var buildingValues = entry.CurrentValues;
+            var clonedBuildingValues = buildingValues.Clone();
 
-                var property = context.Model.FindEntityType(typeof(Whiteboard)).FindProperty(nameof(Whiteboard.AssetTag));
+            var property = context.Model.FindEntityType(typeof(Whiteboard)).FindProperty(nameof(Whiteboard.AssetTag));
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => buildingValues[property]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => buildingValues[property]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => clonedBuildingValues[property]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => clonedBuildingValues[property]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => buildingValues[property] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => buildingValues[property] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => clonedBuildingValues[property] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => clonedBuildingValues[property] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => clonedBuildingValues.GetValue<string>(property)).Message);
-            }
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("AssetTag", nameof(Whiteboard), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => clonedBuildingValues.GetValue<string>(property)).Message);
         }
 
         [ConditionalFact]
         public virtual void Using_bad_property_names_throws_derived()
         {
-            using (var context = CreateContext())
-            {
-                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
-                var entry = context.Entry(employee);
+            using var context = CreateContext();
+            var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+            var entry = context.Entry(employee);
 
-                var values = entry.CurrentValues;
-                var clonedValues = values.Clone();
+            var values = entry.CurrentValues;
+            var clonedValues = values.Clone();
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values["Shadow4"]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values["Shadow4"]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues["Shadow4"]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues["Shadow4"]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values["Shadow4"] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values["Shadow4"] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues["Shadow4"] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues["Shadow4"] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values["TerminationDate"]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values["TerminationDate"]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues["TerminationDate"]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues["TerminationDate"]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values["TerminationDate"] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values["TerminationDate"] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues["TerminationDate"] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues["TerminationDate"] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>("Shadow4")).Message);
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("Shadow4", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>("Shadow4")).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>("TerminationDate")).Message);
-            }
+            Assert.Equal(
+                CoreStrings.PropertyNotFound("TerminationDate", nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>("TerminationDate")).Message);
         }
 
         [ConditionalFact]
         public virtual void Using_bad_IProperty_instances_throws_derived()
         {
-            using (var context = CreateContext())
-            {
-                var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
-                var entry = context.Entry(employee);
+            using var context = CreateContext();
+            var employee = context.Set<Employee>().OfType<CurrentEmployee>().Single(b => b.FirstName == "Rowan");
+            var entry = context.Entry(employee);
 
-                var values = entry.CurrentValues;
-                var clonedValues = values.Clone();
+            var values = entry.CurrentValues;
+            var clonedValues = values.Clone();
 
-                var shadowProperty = context.Model.FindEntityType(typeof(PastEmployee)).FindProperty("Shadow4");
-                var termProperty = context.Model.FindEntityType(typeof(PastEmployee)).FindProperty(nameof(PastEmployee.TerminationDate));
+            var shadowProperty = context.Model.FindEntityType(typeof(PastEmployee)).FindProperty("Shadow4");
+            var termProperty = context.Model.FindEntityType(typeof(PastEmployee)).FindProperty(nameof(PastEmployee.TerminationDate));
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values[shadowProperty]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values[shadowProperty]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues[shadowProperty]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues[shadowProperty]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values[shadowProperty] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values[shadowProperty] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues[shadowProperty] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues[shadowProperty] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>(shadowProperty)).Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("Shadow4", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>(shadowProperty)).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values[termProperty]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values[termProperty]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues[termProperty]).Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues[termProperty]).Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => values[termProperty] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => values[termProperty] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues[termProperty] = "foo").Message);
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues[termProperty] = "foo").Message);
 
-                Assert.Equal(
-                    CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
-                    Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>(termProperty)).Message);
-            }
+            Assert.Equal(
+                CoreStrings.PropertyDoesNotBelong("TerminationDate", nameof(PastEmployee), nameof(CurrentEmployee)),
+                Assert.Throws<InvalidOperationException>(() => clonedValues.GetValue<string>(termProperty)).Message);
         }
 
         [ConditionalFact]
@@ -990,64 +954,62 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+
+            building.Name = "Building One Prime";
+            building.Value = 1500001m;
+            context.Entry(building).Property("Shadow1").CurrentValue = 12;
+            context.Entry(building).Property("Shadow2").CurrentValue = "The Avenue";
+
+            var buildingValues = await getPropertyValues(context.Entry(building));
+
+            var clonedBuildingValues = buildingValues.Clone();
+
+            if (expectOriginalValues)
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
+                Assert.Equal("Building One", clonedBuildingValues["Name"]);
+                Assert.Equal(1500000m, clonedBuildingValues["Value"]);
+                Assert.Equal(11, clonedBuildingValues["Shadow1"]);
+                Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
+            }
+            else
+            {
+                Assert.Equal("Building One Prime", clonedBuildingValues["Name"]);
+                Assert.Equal(1500001m, clonedBuildingValues["Value"]);
+                Assert.Equal(12, clonedBuildingValues["Shadow1"]);
+                Assert.Equal("The Avenue", clonedBuildingValues["Shadow2"]);
+            }
 
-                building.Name = "Building One Prime";
-                building.Value = 1500001m;
-                context.Entry(building).Property("Shadow1").CurrentValue = 12;
-                context.Entry(building).Property("Shadow2").CurrentValue = "The Avenue";
+            // Test modification of cloned dictionaries does not impact original property values
 
-                var buildingValues = await getPropertyValues(context.Entry(building));
+            var newKey = new Guid();
+            clonedBuildingValues["BuildingId"] = newKey; // Can change primary key on clone
+            clonedBuildingValues["Name"] = "Building 18";
+            clonedBuildingValues["Shadow1"] = 13;
+            clonedBuildingValues["Shadow2"] = "Pine Walk";
 
-                var clonedBuildingValues = buildingValues.Clone();
+            if (expectOriginalValues)
+            {
+                Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+                Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+                Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+                Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
 
-                if (expectOriginalValues)
-                {
-                    Assert.Equal("Building One", clonedBuildingValues["Name"]);
-                    Assert.Equal(1500000m, clonedBuildingValues["Value"]);
-                    Assert.Equal(11, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("Meadow Drive", clonedBuildingValues["Shadow2"]);
-                }
-                else
-                {
-                    Assert.Equal("Building One Prime", clonedBuildingValues["Name"]);
-                    Assert.Equal(1500001m, clonedBuildingValues["Value"]);
-                    Assert.Equal(12, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("The Avenue", clonedBuildingValues["Shadow2"]);
-                }
+                Assert.Equal("Building One", buildingValues["Name"]);
+                Assert.Equal(11, buildingValues["Shadow1"]);
+                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+            }
+            else
+            {
+                Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
+                Assert.Equal("Building 18", clonedBuildingValues["Name"]);
+                Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+                Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
 
-                // Test modification of cloned dictionaries does not impact original property values
-
-                var newKey = new Guid();
-                clonedBuildingValues["BuildingId"] = newKey; // Can change primary key on clone
-                clonedBuildingValues["Name"] = "Building 18";
-                clonedBuildingValues["Shadow1"] = 13;
-                clonedBuildingValues["Shadow2"] = "Pine Walk";
-
-                if (expectOriginalValues)
-                {
-                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
-                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
-                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
-
-                    Assert.Equal("Building One", buildingValues["Name"]);
-                    Assert.Equal(11, buildingValues["Shadow1"]);
-                    Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
-                }
-                else
-                {
-                    Assert.Equal(newKey, clonedBuildingValues["BuildingId"]);
-                    Assert.Equal("Building 18", clonedBuildingValues["Name"]);
-                    Assert.Equal(13, clonedBuildingValues["Shadow1"]);
-                    Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
-
-                    Assert.Equal("Building One Prime", buildingValues["Name"]);
-                    Assert.Equal(12, buildingValues["Shadow1"]);
-                    Assert.Equal("The Avenue", buildingValues["Shadow2"]);
-                }
+                Assert.Equal("Building One Prime", buildingValues["Name"]);
+                Assert.Equal(12, buildingValues["Shadow1"]);
+                Assert.Equal("The Avenue", buildingValues["Shadow2"]);
             }
         }
 
@@ -1191,22 +1153,20 @@ namespace Microsoft.EntityFrameworkCore
             EntityState state,
             bool expectOriginalValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
-                entry.State = state;
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
+            entry.State = state;
 
-                building.Name = "Building One Prime";
+            building.Name = "Building One Prime";
 
-                var values = await getPropertyValues(entry);
+            var values = await getPropertyValues(entry);
 
-                Assert.Equal(expectOriginalValues ? "Building One" : "Building One Prime", values["Name"]);
+            Assert.Equal(expectOriginalValues ? "Building One" : "Building One Prime", values["Name"]);
 
-                values["Name"] = "Building One Optimal";
+            values["Name"] = "Building One Optimal";
 
-                Assert.Equal("Building One Optimal", values["Name"]);
-            }
+            Assert.Equal("Building One Optimal", values["Name"]);
         }
 
         [ConditionalTheory]
@@ -1222,31 +1182,29 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(EntityState.Detached, false)]
         public async Task Values_can_be_reloaded_from_database_for_entity_in_any_state(EntityState state, bool async)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
+
+            entry.Property(e => e.Name).OriginalValue = "Original Building";
+            building.Name = "Building One Prime";
+
+            entry.State = state;
+
+            if (async)
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
-
-                entry.Property(e => e.Name).OriginalValue = "Original Building";
-                building.Name = "Building One Prime";
-
-                entry.State = state;
-
-                if (async)
-                {
-                    await entry.ReloadAsync();
-                }
-                else
-                {
-                    entry.Reload();
-                }
-
-                Assert.Equal("Building One", entry.Property(e => e.Name).OriginalValue);
-                Assert.Equal("Building One", entry.Property(e => e.Name).CurrentValue);
-                Assert.Equal("Building One", building.Name);
-
-                Assert.Equal(EntityState.Unchanged, entry.State);
+                await entry.ReloadAsync();
             }
+            else
+            {
+                entry.Reload();
+            }
+
+            Assert.Equal("Building One", entry.Property(e => e.Name).OriginalValue);
+            Assert.Equal("Building One", entry.Property(e => e.Name).CurrentValue);
+            Assert.Equal("Building One", building.Name);
+
+            Assert.Equal(EntityState.Unchanged, entry.State);
         }
 
         [ConditionalTheory]
@@ -1263,7 +1221,6 @@ namespace Microsoft.EntityFrameworkCore
         public async Task Reload_when_entity_deleted_in_store_can_happen_for_any_state(EntityState state, bool async)
         {
             using var context = CreateContext();
-
             var office = new Office { Number = "35" };
             var mailRoom = new MailRoom { id = 36 };
             var building = Building.Create(Guid.NewGuid(), "Bag End", 77);
@@ -1327,27 +1284,25 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
 
-                var newBuilding = Building.Create(
-                    new Guid(building.BuildingId.ToString()),
-                    "Values End",
-                    building.Value);
+            var newBuilding = Building.Create(
+                new Guid(building.BuildingId.ToString()),
+                "Values End",
+                building.Value);
 
-                buildingValues.SetValues(newBuilding);
+            buildingValues.SetValues(newBuilding);
 
-                // Check Values
+            // Check Values
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal(11, buildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(11, buildingValues["Shadow1"]);
+            Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-                ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
         }
 
         private static void ValidateBuildingPropereties(
@@ -1384,27 +1339,25 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
 
-                var newBuilding = Building.Create(
-                    new Guid(building.BuildingId.ToString()),
-                    "Values End",
-                    building.Value);
+            var newBuilding = Building.Create(
+                new Guid(building.BuildingId.ToString()),
+                "Values End",
+                building.Value);
 
-                buildingValues.SetValues(newBuilding);
+            buildingValues.SetValues(newBuilding);
 
-                // Check Values
+            // Check Values
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal(11, buildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(11, buildingValues["Shadow1"]);
+            Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-                ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Meadow Drive");
         }
 
         [ConditionalFact]
@@ -1423,30 +1376,28 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
+
+            var newBuilding = new BuildingDto
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+                BuildingId = new Guid(building.BuildingId.ToString()),
+                Name = "Values End",
+                Value = building.Value,
+                Shadow1 = 777
+            };
 
-                var newBuilding = new BuildingDto
-                {
-                    BuildingId = new Guid(building.BuildingId.ToString()),
-                    Name = "Values End",
-                    Value = building.Value,
-                    Shadow1 = 777
-                };
+            buildingValues.SetValues(newBuilding);
 
-                buildingValues.SetValues(newBuilding);
+            // Check Values
 
-                // Check Values
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(777, buildingValues["Shadow1"]);
+            Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal(777, buildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
-
-                ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
         }
 
         [ConditionalFact]
@@ -1465,28 +1416,26 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
+
+            var newBuilding = new BuildingDtoNoKey
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+                Name = "Values End",
+                Value = building.Value,
+                Shadow2 = "Cheese"
+            };
 
-                var newBuilding = new BuildingDtoNoKey
-                {
-                    Name = "Values End",
-                    Value = building.Value,
-                    Shadow2 = "Cheese"
-                };
+            buildingValues.SetValues(newBuilding);
 
-                buildingValues.SetValues(newBuilding);
+            // Check Values
 
-                // Check Values
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal("Cheese", buildingValues["Shadow2"]);
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal("Cheese", buildingValues["Shadow2"]);
-
-                ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Cheese");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 11, "Cheese");
         }
 
         [ConditionalFact]
@@ -1505,32 +1454,30 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
+
+            var dictionary = new Dictionary<string, object>
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+                { "BuildingId", new Guid(building.BuildingId.ToString()) },
+                { "Name", "Values End" },
+                { "Value", building.Value },
+                { "Shadow1", 13 },
+                { "Shadow2", "Pine Walk" },
+                { "PrincipalMailRoomId", 0 }
+            };
 
-                var dictionary = new Dictionary<string, object>
-                {
-                    { "BuildingId", new Guid(building.BuildingId.ToString()) },
-                    { "Name", "Values End" },
-                    { "Value", building.Value },
-                    { "Shadow1", 13 },
-                    { "Shadow2", "Pine Walk" },
-                    { "PrincipalMailRoomId", 0 }
-                };
+            buildingValues.SetValues(dictionary);
 
-                buildingValues.SetValues(dictionary);
+            // Check Values
 
-                // Check Values
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(13, buildingValues["Shadow1"]);
+            Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal(13, buildingValues["Shadow1"]);
-                Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
-
-                ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
         }
 
         [ConditionalFact]
@@ -1549,30 +1496,28 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
+
+            var dictionary = new Dictionary<string, object>
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+                { "BuildingId", new Guid(building.BuildingId.ToString()) },
+                { "Name", "Values End" },
+                { "Value", building.Value },
+                { "Shadow1", 777 }
+            };
 
-                var dictionary = new Dictionary<string, object>
-                {
-                    { "BuildingId", new Guid(building.BuildingId.ToString()) },
-                    { "Name", "Values End" },
-                    { "Value", building.Value },
-                    { "Shadow1", 777 }
-                };
+            buildingValues.SetValues(dictionary);
 
-                buildingValues.SetValues(dictionary);
+            // Check Values
 
-                // Check Values
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(777, buildingValues["Shadow1"]);
+            Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal(777, buildingValues["Shadow1"]);
-                Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
-
-                ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 777, "Meadow Drive");
         }
 
         [ConditionalFact]
@@ -1591,30 +1536,28 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry<Building>, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
 
-                var clonedBuildingValues = buildingValues.Clone();
+            var clonedBuildingValues = buildingValues.Clone();
 
-                clonedBuildingValues["BuildingId"] = new Guid(building.BuildingId.ToString());
-                clonedBuildingValues["Name"] = "Values End";
-                clonedBuildingValues["Value"] = building.Value;
-                clonedBuildingValues["Shadow1"] = 13;
-                clonedBuildingValues["Shadow2"] = "Pine Walk";
+            clonedBuildingValues["BuildingId"] = new Guid(building.BuildingId.ToString());
+            clonedBuildingValues["Name"] = "Values End";
+            clonedBuildingValues["Value"] = building.Value;
+            clonedBuildingValues["Shadow1"] = 13;
+            clonedBuildingValues["Shadow2"] = "Pine Walk";
 
-                buildingValues.SetValues(clonedBuildingValues);
+            buildingValues.SetValues(clonedBuildingValues);
 
-                // Check Values
+            // Check Values
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal(13, clonedBuildingValues["Shadow1"]);
-                Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(13, clonedBuildingValues["Shadow1"]);
+            Assert.Equal("Pine Walk", clonedBuildingValues["Shadow2"]);
 
-                ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
         }
 
         [ConditionalFact]
@@ -1633,30 +1576,28 @@ namespace Microsoft.EntityFrameworkCore
             Func<EntityEntry, PropertyValues> getPropertyValues,
             Func<EntityEntry, string, object> getValue)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
 
-                var clonedBuildingValues = buildingValues.Clone();
+            var clonedBuildingValues = buildingValues.Clone();
 
-                clonedBuildingValues["BuildingId"] = new Guid(building.BuildingId.ToString());
-                clonedBuildingValues["Name"] = "Values End";
-                clonedBuildingValues["Value"] = building.Value;
-                clonedBuildingValues["Shadow1"] = 13;
-                clonedBuildingValues["Shadow2"] = "Pine Walk";
+            clonedBuildingValues["BuildingId"] = new Guid(building.BuildingId.ToString());
+            clonedBuildingValues["Name"] = "Values End";
+            clonedBuildingValues["Value"] = building.Value;
+            clonedBuildingValues["Shadow1"] = 13;
+            clonedBuildingValues["Shadow2"] = "Pine Walk";
 
-                buildingValues.SetValues(clonedBuildingValues);
+            buildingValues.SetValues(clonedBuildingValues);
 
-                // Check Values
+            // Check Values
 
-                Assert.Equal("Values End", buildingValues["Name"]);
-                Assert.Equal(1500000m, buildingValues["Value"]);
-                Assert.Equal(13, buildingValues["Shadow1"]);
-                Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(13, buildingValues["Shadow1"]);
+            Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
 
-                ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
-            }
+            ValidateBuildingPropereties(context.Entry(building), getValue, 13, "Pine Walk");
         }
 
         [ConditionalFact]
@@ -1673,15 +1614,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private void TestKeyChange(Func<EntityEntry<Building>, PropertyValues> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = getPropertyValues(context.Entry(building));
 
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => values["BuildingId"] = new Guid()).Message);
-            }
+            Assert.Equal(
+                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => values["BuildingId"] = new Guid()).Message);
         }
 
         [ConditionalTheory]
@@ -1690,18 +1629,19 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never)]
         public virtual void Non_nullable_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
+            var values = entry.CurrentValues;
+            var originalValue = values["Value"];
+
+            Assert.False(entry.GetInfrastructure().HasConceptualNull);
+
+            if (deleteOrphansTiming == CascadeTiming.Immediate)
             {
-                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
-
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
-                var values = entry.CurrentValues;
-                var originalValue = values["Value"];
-
-                Assert.False(entry.GetInfrastructure().HasConceptualNull);
-
-                if (deleteOrphansTiming == CascadeTiming.Immediate)
+                if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled)
                 {
                     Assert.Equal(
                         CoreStrings.PropertyConceptualNullSensitive(
@@ -1712,13 +1652,19 @@ namespace Microsoft.EntityFrameworkCore
                 }
                 else
                 {
-                    values["Value"] = null;
-
-                    Assert.True(entry.GetInfrastructure().HasConceptualNull);
-
-                    Assert.Equal(1500000m, values["Value"]);
-                    Assert.Equal(1500000m, building.Value);
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNull("Value", nameof(Building)),
+                        Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
                 }
+            }
+            else
+            {
+                values["Value"] = null;
+
+                Assert.True(entry.GetInfrastructure().HasConceptualNull);
+
+                Assert.Equal(1500000m, values["Value"]);
+                Assert.Equal(1500000m, building.Value);
             }
         }
 
@@ -1728,17 +1674,18 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(CascadeTiming.Never)]
         public virtual void Non_nullable_shadow_property_in_current_values_results_in_conceptual_null(CascadeTiming deleteOrphansTiming)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
+
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var entry = context.Entry(building);
+            var values = entry.CurrentValues;
+
+            Assert.False(entry.GetInfrastructure().HasConceptualNull);
+
+            if (deleteOrphansTiming == CascadeTiming.Immediate)
             {
-                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming;
-
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var entry = context.Entry(building);
-                var values = entry.CurrentValues;
-
-                Assert.False(entry.GetInfrastructure().HasConceptualNull);
-
-                if (deleteOrphansTiming == CascadeTiming.Immediate)
+                if (context.GetService<IDbContextOptions>().FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled)
                 {
                     Assert.Equal(
                         CoreStrings.PropertyConceptualNullSensitive("Shadow1", nameof(Building), "{Shadow1: 11}"),
@@ -1746,59 +1693,59 @@ namespace Microsoft.EntityFrameworkCore
                 }
                 else
                 {
-                    values["Shadow1"] = null;
-
-                    Assert.True(entry.GetInfrastructure().HasConceptualNull);
-
-                    Assert.Equal(11, values["Shadow1"]);
+                    Assert.Equal(
+                        CoreStrings.PropertyConceptualNull("Shadow1", nameof(Building)),
+                        Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
                 }
             }
-        }
-
-        [ConditionalFact]
-        public virtual void Non_nullable_property_in_original_values_cannot_be_set_to_null_in_property_dictionary()
-        {
-            using (var context = CreateContext())
+            else
             {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = context.Entry(building).OriginalValues;
+                values["Shadow1"] = null;
 
-                Assert.Equal(
-                    CoreStrings.ValueCannotBeNull(nameof(Building.Value), nameof(Building), "decimal"),
-                    Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
-
-                Assert.Equal(1500000m, values["Value"]);
-            }
-        }
-
-        [ConditionalFact]
-        public virtual void Non_nullable_shadow_property_in_original_values_cannot_be_set_to_null_in_property_dictionary()
-        {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = context.Entry(building).OriginalValues;
-
-                Assert.Equal(
-                    CoreStrings.ValueCannotBeNull("Shadow1", nameof(Building), "int"),
-                    Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
+                Assert.True(entry.GetInfrastructure().HasConceptualNull);
 
                 Assert.Equal(11, values["Shadow1"]);
             }
         }
 
         [ConditionalFact]
+        public virtual void Non_nullable_property_in_original_values_cannot_be_set_to_null_in_property_dictionary()
+        {
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = context.Entry(building).OriginalValues;
+
+            Assert.Equal(
+                CoreStrings.ValueCannotBeNull(nameof(Building.Value), nameof(Building), "decimal"),
+                Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
+
+            Assert.Equal(1500000m, values["Value"]);
+        }
+
+        [ConditionalFact]
+        public virtual void Non_nullable_shadow_property_in_original_values_cannot_be_set_to_null_in_property_dictionary()
+        {
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = context.Entry(building).OriginalValues;
+
+            Assert.Equal(
+                CoreStrings.ValueCannotBeNull("Shadow1", nameof(Building), "int"),
+                Assert.Throws<InvalidOperationException>(() => values["Shadow1"] = null).Message);
+
+            Assert.Equal(11, values["Shadow1"]);
+        }
+
+        [ConditionalFact]
         public virtual void Non_nullable_property_in_cloned_dictionary_cannot_be_set_to_null()
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = context.Entry(building).CurrentValues.Clone();
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = context.Entry(building).CurrentValues.Clone();
 
-                Assert.Equal(
-                    CoreStrings.ValueCannotBeNull(nameof(Building.Value), nameof(Building), "decimal"),
-                    Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
-            }
+            Assert.Equal(
+                CoreStrings.ValueCannotBeNull(nameof(Building.Value), nameof(Building), "decimal"),
+                Assert.Throws<InvalidOperationException>(() => values["Value"] = null).Message);
         }
 
         [ConditionalFact]
@@ -1815,16 +1762,14 @@ namespace Microsoft.EntityFrameworkCore
 
         private void TestSetWrongType(Func<EntityEntry<Building>, PropertyValues> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = getPropertyValues(context.Entry(building));
 
-                Assert.Throws<InvalidCastException>(() => values["Name"] = 1);
+            Assert.Throws<InvalidCastException>(() => values["Name"] = 1);
 
-                Assert.Equal("Building One", values["Name"]);
-                Assert.Equal("Building One", building.Name);
-            }
+            Assert.Equal("Building One", values["Name"]);
+            Assert.Equal("Building One", building.Name);
         }
 
         [ConditionalFact]
@@ -1841,32 +1786,28 @@ namespace Microsoft.EntityFrameworkCore
 
         private void TestSetWrongTypeShadow(Func<EntityEntry<Building>, PropertyValues> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = getPropertyValues(context.Entry(building));
 
-                Assert.Throws<InvalidCastException>(() => values["Shadow1"] = "foo");
+            Assert.Throws<InvalidCastException>(() => values["Shadow1"] = "foo");
 
-                Assert.Equal(11, values["Shadow1"]);
-            }
+            Assert.Equal(11, values["Shadow1"]);
         }
 
         [ConditionalFact]
         public virtual void Property_in_cloned_dictionary_cannot_be_set_to_instance_of_wrong_type()
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = context.Entry(building).CurrentValues.Clone();
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = context.Entry(building).CurrentValues.Clone();
 
-                Assert.Equal(
-                    CoreStrings.InvalidType(nameof(Building.Name), nameof(Building), "int", "string"),
-                    Assert.Throws<InvalidCastException>(() => values["Name"] = 1).Message);
+            Assert.Equal(
+                CoreStrings.InvalidType(nameof(Building.Name), nameof(Building), "int", "string"),
+                Assert.Throws<InvalidCastException>(() => values["Name"] = 1).Message);
 
-                Assert.Equal("Building One", values["Name"]);
-                Assert.Equal("Building One", building.Name);
-            }
+            Assert.Equal("Building One", values["Name"]);
+            Assert.Equal("Building One", building.Name);
         }
 
         [ConditionalFact]
@@ -1883,18 +1824,16 @@ namespace Microsoft.EntityFrameworkCore
 
         private void TestKeyChangeByObject(Func<EntityEntry<Building>, PropertyValues> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = getPropertyValues(context.Entry(building));
 
-                var newBuilding = (Building)values.ToObject();
-                newBuilding.BuildingId = new Guid();
+            var newBuilding = (Building)values.ToObject();
+            newBuilding.BuildingId = new Guid();
 
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => values.SetValues(newBuilding)).Message);
-            }
+            Assert.Equal(
+                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => values.SetValues(newBuilding)).Message);
         }
 
         [ConditionalFact]
@@ -1911,18 +1850,16 @@ namespace Microsoft.EntityFrameworkCore
 
         private void TestKeyChangeByValues(Func<EntityEntry<Building>, PropertyValues> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var values = getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var values = getPropertyValues(context.Entry(building));
 
-                var clone = values.Clone();
-                clone["BuildingId"] = new Guid();
+            var clone = values.Clone();
+            clone["BuildingId"] = new Guid();
 
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
-                    Assert.Throws<InvalidOperationException>(() => values.SetValues(clone)).Message);
-            }
+            Assert.Equal(
+                CoreStrings.KeyReadOnly(nameof(Building.BuildingId), nameof(Building)),
+                Assert.Throws<InvalidOperationException>(() => values.SetValues(clone)).Message);
         }
 
         [ConditionalFact]
@@ -1957,23 +1894,21 @@ namespace Microsoft.EntityFrameworkCore
 
         private async Task TestProperties(Func<EntityEntry<Building>, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                var buildingValues = await getPropertyValues(context.Entry(building));
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = await getPropertyValues(context.Entry(building));
 
-                Assert.Equal(
-                    new List<string>
-                    {
-                        "BuildingId",
-                        "Name",
-                        "PrincipalMailRoomId",
-                        "Shadow1",
-                        "Shadow2",
-                        "Value"
-                    },
-                    buildingValues.Properties.Select(p => p.Name).ToList());
-            }
+            Assert.Equal(
+                new List<string>
+                {
+                    "BuildingId",
+                    "Name",
+                    "PrincipalMailRoomId",
+                    "Shadow1",
+                    "Shadow2",
+                    "Value"
+                },
+                buildingValues.Properties.Select(p => p.Name).ToList());
         }
 
         [ConditionalFact]
@@ -1991,17 +1926,15 @@ namespace Microsoft.EntityFrameworkCore
         private async Task GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = (Building)context.Entry(
-                    context.Set<Building>().Single(b => b.Name == "Building One")).CurrentValues.ToObject();
+            using var context = CreateContext();
+            var building = (Building)context.Entry(
+                context.Set<Building>().Single(b => b.Name == "Building One")).CurrentValues.ToObject();
 
-                building.BuildingId = new Guid();
+            building.BuildingId = new Guid();
 
-                context.Set<Building>().Attach(building);
+            context.Set<Building>().Attach(building);
 
-                Assert.Null(await getPropertyValues(context.Entry(building)));
-            }
+            Assert.Null(await getPropertyValues(context.Entry(building)));
         }
 
         [ConditionalFact]
@@ -2020,17 +1953,15 @@ namespace Microsoft.EntityFrameworkCore
         private async Task NonGeneric_GetDatabaseValues_for_entity_not_in_the_store_returns_null_implementation(
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building =
-                    (Building)
-                    context.Entry(context.Set<Building>().Single(b => b.Name == "Building One")).CurrentValues.ToObject();
-                building.BuildingId = new Guid();
+            using var context = CreateContext();
+            var building =
+                (Building)
+                context.Entry(context.Set<Building>().Single(b => b.Name == "Building One")).CurrentValues.ToObject();
+            building.BuildingId = new Guid();
 
-                context.Set<Building>().Attach(building);
+            context.Set<Building>().Attach(building);
 
-                Assert.Null(await getPropertyValues(context.Entry((object)building)));
-            }
+            Assert.Null(await getPropertyValues(context.Entry((object)building)));
         }
 
         [ConditionalFact]
@@ -2049,20 +1980,18 @@ namespace Microsoft.EntityFrameworkCore
         private async Task GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var employee = (CurrentEmployee)context.Entry(
-                        context.Set<Employee>()
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
-                    .CurrentValues
-                    .ToObject();
-                employee.EmployeeId = -77;
+            using var context = CreateContext();
+            var employee = (CurrentEmployee)context.Entry(
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
+                .CurrentValues
+                .ToObject();
+            employee.EmployeeId = -77;
 
-                context.Set<Employee>().Attach(employee);
+            context.Set<Employee>().Attach(employee);
 
-                Assert.Null(await getPropertyValues(context.Entry(employee)));
-            }
+            Assert.Null(await getPropertyValues(context.Entry(employee)));
         }
 
         [ConditionalFact]
@@ -2082,20 +2011,18 @@ namespace Microsoft.EntityFrameworkCore
         private async Task NonGeneric_GetDatabaseValues_for_derived_entity_not_in_the_store_returns_null_implementation(
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var employee = (CurrentEmployee)context.Entry(
-                        context.Set<Employee>()
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
-                    .CurrentValues
-                    .ToObject();
-                employee.EmployeeId = -77;
+            using var context = CreateContext();
+            var employee = (CurrentEmployee)context.Entry(
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
+                .CurrentValues
+                .ToObject();
+            employee.EmployeeId = -77;
 
-                context.Set<Employee>().Attach(employee);
+            context.Set<Employee>().Attach(employee);
 
-                Assert.Null(await getPropertyValues(context.Entry((object)employee)));
-            }
+            Assert.Null(await getPropertyValues(context.Entry((object)employee)));
         }
 
         [ConditionalFact]
@@ -2114,27 +2041,25 @@ namespace Microsoft.EntityFrameworkCore
         private async Task GetDatabaseValues_for_the_wrong_type_in_the_store_returns_null_implementation(
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var pastEmployeeId = context.Set<Employee>()
-                    .OfType<PastEmployee>()
-                    .AsNoTracking()
-                    .OrderBy(e => e.EmployeeId)
-                    .FirstOrDefault()
-                    .EmployeeId;
+            using var context = CreateContext();
+            var pastEmployeeId = context.Set<Employee>()
+                .OfType<PastEmployee>()
+                .AsNoTracking()
+                .OrderBy(e => e.EmployeeId)
+                .FirstOrDefault()
+                .EmployeeId;
 
-                var employee = (CurrentEmployee)context.Entry(
-                        context.Set<Employee>()
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
-                    .CurrentValues
-                    .ToObject();
-                employee.EmployeeId = pastEmployeeId;
+            var employee = (CurrentEmployee)context.Entry(
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
+                .CurrentValues
+                .ToObject();
+            employee.EmployeeId = pastEmployeeId;
 
-                context.Set<Employee>().Attach(employee);
+            context.Set<Employee>().Attach(employee);
 
-                Assert.Null(await getPropertyValues(context.Entry(employee)));
-            }
+            Assert.Null(await getPropertyValues(context.Entry(employee)));
         }
 
         [ConditionalFact]
@@ -2153,27 +2078,25 @@ namespace Microsoft.EntityFrameworkCore
         private async Task NonGeneric_GetDatabaseValues_for_the_wrong_type_in_the_store_throws_implementation(
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var pastEmployeeId = context.Set<Employee>()
-                    .OfType<PastEmployee>()
-                    .AsNoTracking()
-                    .OrderBy(e => e.EmployeeId)
-                    .FirstOrDefault()
-                    .EmployeeId;
+            using var context = CreateContext();
+            var pastEmployeeId = context.Set<Employee>()
+                .OfType<PastEmployee>()
+                .AsNoTracking()
+                .OrderBy(e => e.EmployeeId)
+                .FirstOrDefault()
+                .EmployeeId;
 
-                var employee = (CurrentEmployee)context.Entry(
-                        context.Set<Employee>()
-                            .OfType<CurrentEmployee>()
-                            .Single(b => b.FirstName == "Rowan"))
-                    .CurrentValues
-                    .ToObject();
-                employee.EmployeeId = pastEmployeeId;
+            var employee = (CurrentEmployee)context.Entry(
+                    context.Set<Employee>()
+                        .OfType<CurrentEmployee>()
+                        .Single(b => b.FirstName == "Rowan"))
+                .CurrentValues
+                .ToObject();
+            employee.EmployeeId = pastEmployeeId;
 
-                context.Set<Employee>().Attach(employee);
+            context.Set<Employee>().Attach(employee);
 
-                Assert.Null(await getPropertyValues(context.Entry((object)employee)));
-            }
+            Assert.Null(await getPropertyValues(context.Entry((object)employee)));
         }
 
         [ConditionalFact]
@@ -2192,35 +2115,31 @@ namespace Microsoft.EntityFrameworkCore
         private async Task Store_values_really_are_store_values_not_current_or_original_values_implementation(
             Func<EntityEntry, Task<PropertyValues>> getPropertyValues)
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
-                building.Name = "Values End";
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            building.Name = "Values End";
 
-                context.Entry(building).State = EntityState.Unchanged;
+            context.Entry(building).State = EntityState.Unchanged;
 
-                var storeValues = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
+            var storeValues = (Building)(await getPropertyValues(context.Entry(building))).ToObject();
 
-                Assert.Equal("Building One", storeValues.Name);
-            }
+            Assert.Equal("Building One", storeValues.Name);
         }
 
         [ConditionalFact]
         public virtual void Setting_store_values_does_not_change_current_or_original_values()
         {
-            using (var context = CreateContext())
-            {
-                var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
 
-                var storeValues = context.Entry(building).GetDatabaseValues();
-                storeValues["Name"] = "Bag End";
+            var storeValues = context.Entry(building).GetDatabaseValues();
+            storeValues["Name"] = "Bag End";
 
-                var currentValues = (Building)context.Entry(building).CurrentValues.ToObject();
-                Assert.Equal("Building One", currentValues.Name);
+            var currentValues = (Building)context.Entry(building).CurrentValues.ToObject();
+            Assert.Equal("Building One", currentValues.Name);
 
-                var originalValues = (Building)context.Entry(building).OriginalValues.ToObject();
-                Assert.Equal("Building One", originalValues.Name);
-            }
+            var originalValues = (Building)context.Entry(building).OriginalValues.ToObject();
+            Assert.Equal("Building One", originalValues.Name);
         }
 
         protected abstract class Employee : UnMappedPersonBase
@@ -2235,7 +2154,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public static Building Create(Guid buildingId, string name, decimal value)
-                => new Building
+                => new()
                 {
                     BuildingId = buildingId,
                     Name = name,
@@ -2260,9 +2179,11 @@ namespace Microsoft.EntityFrameworkCore
                 set => _noGetter = value;
             }
 
-            public string GetNoGetterValue() => _noGetter;
+            public string GetNoGetterValue()
+                => _noGetter;
 
-            public string NoSetter => "NoSetter";
+            public string NoSetter
+                => "NoSetter";
         }
 
         protected class BuildingDto
@@ -2282,9 +2203,11 @@ namespace Microsoft.EntityFrameworkCore
                 set => _noGetter = value;
             }
 
-            public string GetNoGetterValue() => _noGetter;
+            public string GetNoGetterValue()
+                => _noGetter;
 
-            public string NoSetter => "NoSetter";
+            public string NoSetter
+                => "NoSetter";
 
             public int Shadow1 { get; set; }
         }
@@ -2441,10 +2364,10 @@ namespace Microsoft.EntityFrameworkCore
 
                 var offices = new List<Office>
                 {
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1221" },
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "1/1223" },
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1458" },
-                    new Office { BuildingId = buildings[0].BuildingId, Number = "2/1789" }
+                    new() { BuildingId = buildings[0].BuildingId, Number = "1/1221" },
+                    new() { BuildingId = buildings[0].BuildingId, Number = "1/1223" },
+                    new() { BuildingId = buildings[0].BuildingId, Number = "2/1458" },
+                    new() { BuildingId = buildings[0].BuildingId, Number = "2/1789" }
                 };
 
                 foreach (var office in offices)
@@ -2498,19 +2421,19 @@ namespace Microsoft.EntityFrameworkCore
 
                 var whiteboards = new List<Whiteboard>
                 {
-                    new Whiteboard
+                    new()
                     {
                         AssetTag = "WB1973",
                         iD = new byte[] { 1, 9, 7, 3 },
                         Office = offices[0]
                     },
-                    new Whiteboard
+                    new()
                     {
                         AssetTag = "WB1977",
                         iD = new byte[] { 1, 9, 7, 7 },
                         Office = offices[0]
                     },
-                    new Whiteboard
+                    new()
                     {
                         AssetTag = "WB1970",
                         iD = new byte[] { 1, 9, 7, 0 },

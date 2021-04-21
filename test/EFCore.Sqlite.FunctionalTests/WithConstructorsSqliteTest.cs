@@ -19,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore
 
         public class WithConstructorsSqliteFixture : WithConstructorsFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
                 base.OnModelCreating(modelBuilder, context);
 
-                modelBuilder.Entity<BlogQuery>().HasNoKey().ToQuery(
-                    () => context.Set<BlogQuery>().FromSqlRaw("SELECT * FROM Blog"));
+                modelBuilder.Entity<BlogQuery>().HasNoKey().ToSqlQuery("SELECT * FROM Blog");
             }
         }
     }

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,9 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
     {
         private readonly IOperationReporter _reporter;
         private readonly string _projectDir;
-        private readonly string _rootNamespace;
-        private readonly string _language;
+        private readonly string? _rootNamespace;
+        private readonly string? _language;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
+        private readonly string[] _args;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,26 +33,25 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DatabaseOperations(
-            [NotNull] IOperationReporter reporter,
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
-            [CanBeNull] string language,
-            [NotNull] string[] args)
+            IOperationReporter reporter,
+            Assembly assembly,
+            Assembly startupAssembly,
+            string projectDir,
+            string? rootNamespace,
+            string? language,
+            string[]? args)
         {
             Check.NotNull(reporter, nameof(reporter));
             Check.NotNull(startupAssembly, nameof(startupAssembly));
             Check.NotNull(projectDir, nameof(projectDir));
-            Check.NotNull(rootNamespace, nameof(rootNamespace));
-            Check.NotNull(args, nameof(args));
 
             _reporter = reporter;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _language = language;
+            _args = args ?? Array.Empty<string>();
 
-            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, args);
+            _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
         }
 
         /// <summary>
@@ -62,16 +61,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual SavedModelFiles ScaffoldContext(
-            [NotNull] string provider,
-            [NotNull] string connectionString,
-            [CanBeNull] string outputDir,
-            [CanBeNull] string outputContextDir,
-            [CanBeNull] string dbContextClassName,
-            [NotNull] IEnumerable<string> schemas,
-            [NotNull] IEnumerable<string> tables,
+            string provider,
+            string connectionString,
+            string? outputDir,
+            string? outputContextDir,
+            string? dbContextClassName,
+            IEnumerable<string> schemas,
+            IEnumerable<string> tables,
+            string? modelNamespace,
+            string? contextNamespace,
             bool useDataAnnotations,
             bool overwriteFiles,
-            bool useDatabaseNames)
+            bool useDatabaseNames,
+            bool suppressOnConfiguring,
+            bool noPluralize)
         {
             Check.NotEmpty(provider, nameof(provider));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -90,22 +93,24 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var scaffolder = services.GetRequiredService<IReverseEngineerScaffolder>();
 
-            var modelNamespace = GetNamespaceFromOutputPath(outputDir);
-            var contextNamespace = GetNamespaceFromOutputPath(outputContextDir);
+            var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir);
+            var finalContextNamespace =
+                contextNamespace ?? modelNamespace ?? GetNamespaceFromOutputPath(outputContextDir);
 
             var scaffoldedModel = scaffolder.ScaffoldModel(
                 connectionString,
                 new DatabaseModelFactoryOptions(tables, schemas),
-                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames },
+                new ModelReverseEngineerOptions { UseDatabaseNames = useDatabaseNames, NoPluralize = noPluralize },
                 new ModelCodeGenerationOptions
                 {
                     UseDataAnnotations = useDataAnnotations,
                     RootNamespace = _rootNamespace,
-                    ModelNamespace = modelNamespace,
-                    ContextNamespace = contextNamespace,
+                    ModelNamespace = finalModelNamespace,
+                    ContextNamespace = finalContextNamespace,
                     Language = _language,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
-                    ContextName = dbContextClassName
+                    ContextName = dbContextClassName,
+                    SuppressOnConfiguring = suppressOnConfiguring
                 });
 
             return scaffolder.Save(
@@ -114,18 +119,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 overwriteFiles);
         }
 
-        private string GetNamespaceFromOutputPath(string directoryPath)
+        private string? GetNamespaceFromOutputPath(string directoryPath)
         {
             var subNamespace = SubnamespaceFromOutputPath(_projectDir, directoryPath);
             return string.IsNullOrEmpty(subNamespace)
                 ? _rootNamespace
-                : _rootNamespace + "." + subNamespace;
+                : string.IsNullOrEmpty(_rootNamespace)
+                    ? subNamespace
+                    : _rootNamespace + "." + subNamespace;
         }
 
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
         // --output-dir $(projectFolder)/A/B/C
         // => "namespace $(rootnamespace).A.B.C"
-        private static string SubnamespaceFromOutputPath(string projectDir, string outputDir)
+        private static string? SubnamespaceFromOutputPath(string projectDir, string outputDir)
         {
             if (!outputDir.StartsWith(projectDir, StringComparison.Ordinal))
             {
@@ -158,9 +165,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var last = path[path.Length - 1];
             return last == Path.DirectorySeparatorChar
-                   || last == Path.AltDirectorySeparatorChar
-                ? path
-                : path + Path.DirectorySeparatorChar;
+                || last == Path.AltDirectorySeparatorChar
+                    ? path
+                    : path + Path.DirectorySeparatorChar;
         }
     }
 }

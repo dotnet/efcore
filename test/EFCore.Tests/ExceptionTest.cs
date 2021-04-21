@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -154,22 +154,75 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(transportedException.Entries); // Because the entries cannot be serialized
         }
 
+        [ConditionalFact]
+        public void DbUpdateException_exposes_public_string_and_entries_constructor()
+        {
+            var entries = new List<EntityEntry>{ new EntityEntry(new FakeInternalEntityEntry()), new EntityEntry(new FakeInternalEntityEntry()) };
+            var exception = new DbUpdateException("Foo", entries);
+
+            Assert.Equal("Foo", exception.Message);
+            Assert.Same(entries, exception.Entries);
+        }
+
+        [ConditionalFact]
+        public void DbUpdateException_exposes_public_string_and_inner_exception_and_entries_constructor()
+        {
+            var inner = new Exception();
+            var entries = new List<EntityEntry>{ new EntityEntry(new FakeInternalEntityEntry()), new EntityEntry(new FakeInternalEntityEntry()) };
+            var exception = new DbUpdateException("Foo", inner, entries);
+
+            Assert.Equal("Foo", exception.Message);
+            Assert.Same(inner, exception.InnerException);
+            Assert.Same(entries, exception.Entries);
+        }
+
         private class FakeUpdateEntry : IUpdateEntry
         {
-            public void SetOriginalValue(IProperty property, object value) => throw new NotImplementedException();
-            public void SetPropertyModified(IProperty property) => throw new NotImplementedException();
+            public void SetOriginalValue(IProperty property, object value)
+                => throw new NotImplementedException();
+
+            public void SetPropertyModified(IProperty property)
+                => throw new NotImplementedException();
+
             public IEntityType EntityType { get; }
             public EntityState EntityState { get; set; }
             public IUpdateEntry SharedIdentityEntry { get; }
-            public bool IsModified(IProperty property) => throw new NotImplementedException();
-            public bool HasTemporaryValue(IProperty property) => throw new NotImplementedException();
-            public bool IsStoreGenerated(IProperty property) => throw new NotImplementedException();
-            public object GetCurrentValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public object GetOriginalValue(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase) => throw new NotImplementedException();
-            public TProperty GetOriginalValue<TProperty>(IProperty property) => throw new NotImplementedException();
-            public void SetStoreGeneratedValue(IProperty property, object value) => throw new NotImplementedException();
-            public EntityEntry ToEntityEntry() => new EntityEntry(new FakeInternalEntityEntry());
+
+            public bool IsModified(IProperty property)
+                => throw new NotImplementedException();
+
+            public bool HasTemporaryValue(IProperty property)
+                => throw new NotImplementedException();
+
+            public bool IsStoreGenerated(IProperty property)
+                => throw new NotImplementedException();
+
+            public object GetCurrentValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public object GetOriginalValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public TProperty GetOriginalValue<TProperty>(IProperty property)
+                => throw new NotImplementedException();
+
+            public void SetStoreGeneratedValue(IProperty property, object value)
+                => throw new NotImplementedException();
+
+            public EntityEntry ToEntityEntry()
+                => new(new FakeInternalEntityEntry());
+
+            public object GetRelationshipSnapshotValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public object GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase)
+                => throw new NotImplementedException();
+
+            public bool IsConceptualNull(IProperty property)
+                => throw new NotImplementedException();
         }
 
         private class FakeInternalEntityEntry : InternalEntityEntry
@@ -184,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore
 
         private static IEntityType CreateEntityType()
         {
-            var model = new Model(new ConventionSet());
+            var model = new Model();
             var entityType = model.AddEntityType(typeof(object), ConfigurationSource.Convention);
             model.FinalizeModel();
             return entityType;
@@ -196,10 +249,12 @@ namespace Microsoft.EntityFrameworkCore
             var stream = new MemoryStream();
             var formatter = new BinaryFormatter();
 
+#pragma warning disable SYSLIB0011 // Issue https://github.com/dotnet/runtime/issues/39289 tracks finding an alternative to BinaryFormatter
             formatter.Serialize(stream, exception);
             stream.Seek(0, SeekOrigin.Begin);
 
             return (TException)formatter.Deserialize(stream);
+#pragma warning restore SYSLIB0011
         }
     }
 }

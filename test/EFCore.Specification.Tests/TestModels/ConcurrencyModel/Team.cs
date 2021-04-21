@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -13,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
     {
         private readonly ILazyLoader _loader;
         private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
-        private readonly ObservableCollection<Sponsor> _sponsors = new ObservableCollection<Sponsor>();
+        private readonly ObservableCollection<Sponsor> _sponsors = new();
         private Engine _engine;
         private Chassis _chassis;
         private Gearbox _gearbox;
@@ -85,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
             }
         }
 
-        [NotMapped]
-        public virtual ICollection<Sponsor> Sponsors => _sponsors;
+        public virtual ICollection<Sponsor> Sponsors
+            => _sponsors;
 
         public int? GearboxId { get; set; }
 

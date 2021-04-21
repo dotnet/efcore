@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -57,6 +57,45 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         [ConditionalFact]
+        public void Append_value_containing_end_of_line_no_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.Append($"Foo{EOL}Bar");
+
+            Assert.Equal($"Foo{EOL}Bar", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_value_containing_end_of_line_with_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.Append($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL does not cause indent on "Bar"
+            Assert.Equal($"    Foo{EOL}Bar", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_in_middle_value_containing_end_of_line_with_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.Append("xyz");
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.Append($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL does not cause indent on "Bar"
+            Assert.Equal($"xyzFoo{EOL}Bar", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
         public void Append_line_at_start_with_indent()
         {
             var indentedStringBuilder = new IndentedStringBuilder();
@@ -95,6 +134,141 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
 
             Assert.Equal(Environment.NewLine, indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_line_value_containing_end_of_line_no_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.AppendLine($"Foo{EOL}Bar");
+
+            Assert.Equal($"Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_line_value_containing_end_of_line_with_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLine($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL does not cause indent on "Bar"
+            Assert.Equal($"    Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_line_in_middle_value_containing_end_of_line_with_indent_when_no_new_line()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.Append("xyz");
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLine($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL does not cause indent on "Bar"
+            Assert.Equal($"xyzFoo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_line_in_middle_value_containing_end_of_line_with_indent_when_new_line()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.AppendLine("xyz");
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLine($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL does not cause indent on "Bar"
+            Assert.Equal($"xyz{EOL}    Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_lines_at_start_with_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLines("Foo");
+            }
+
+            Assert.Equal("    Foo" + EOL, indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_lines_no_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.AppendLines($"Foo{EOL}Bar");
+
+            Assert.Equal($"Foo{EOL}Bar{EOL}", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_lines_with_indent()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLines($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL _does_ cause indent on "Bar"
+            Assert.Equal($"    Foo{EOL}    Bar{EOL}", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_lines_with_indent_with_skip_final_new_line()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLines($"Foo{EOL}Bar", skipFinalNewline: true);
+            }
+
+            // Note: EOL _does_ cause indent on "Bar", plus final EOL is skipped
+            Assert.Equal($"    Foo{EOL}    Bar", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_lines_in_middle_with_indent_when_no_new_line()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.Append("xyz");
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLines($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL _does_ cause indent on "Bar"
+            Assert.Equal($"xyzFoo{EOL}    Bar{EOL}", indentedStringBuilder.ToString());
+        }
+
+        [ConditionalFact]
+        public void Append_lines_in_middle_with_indent_when_new_line()
+        {
+            var indentedStringBuilder = new IndentedStringBuilder();
+
+            indentedStringBuilder.AppendLine("xyz");
+            using (indentedStringBuilder.Indent())
+            {
+                indentedStringBuilder.AppendLines($"Foo{EOL}Bar");
+            }
+
+            // Note: EOL _does_ cause indent on "Bar"
+            Assert.Equal($"xyz{EOL}    Foo{EOL}    Bar{EOL}", indentedStringBuilder.ToString());
         }
     }
 }

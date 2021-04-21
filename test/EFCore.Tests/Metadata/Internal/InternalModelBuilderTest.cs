@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -30,20 +32,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(entityBuilder);
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
-            Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation));
+            Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer).DisplayName(), ConfigurationSource.DataAnnotation));
+            Assert.NotNull(model.FindEntityType(typeof(Customer)).ClrType);
         }
 
         [ConditionalFact]
-        public void Entity_returns_same_instance_for_entity_type_name()
+        public void Entity_creates_new_instance_for_entity_type_name()
         {
             var model = new Model();
             var modelBuilder = CreateModelBuilder(model);
 
-            var entityBuilder = modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.DataAnnotation);
+            var entityBuilder = modelBuilder.Entity(typeof(Customer).DisplayName(), ConfigurationSource.DataAnnotation);
 
             Assert.NotNull(entityBuilder);
-            Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
-            Assert.Same(entityBuilder, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.NotNull(model.FindEntityType(typeof(Customer).DisplayName()));
+            Assert.NotSame(entityBuilder, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
+            Assert.NotNull(model.FindEntityType(typeof(Customer)).ClrType);
         }
 
         [ConditionalFact]
@@ -306,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.Empty(model.GetEntityTypes(typeof(Details)));
+            Assert.Empty(model.FindEntityTypes(typeof(Details)));
 
             Assert.Null(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
 
@@ -326,19 +330,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.Equal(2, model.GetEntityTypes(typeof(Details)).Count);
+            Assert.Equal(2, model.FindEntityTypes(typeof(Details)).Count());
+
+            Assert.Equal(
+                CoreStrings.ClashingSharedType(typeof(Details).Name),
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit)).Message);
 
             Assert.Equal(
                 CoreStrings.ClashingOwnedEntityType(typeof(Details).Name),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit)).Message);
+                Assert.Throws<InvalidOperationException>(()
+                    => modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit)).Message);
 
             Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Explicit));
 
             Assert.False(model.IsOwned(typeof(Details)));
 
-            Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Explicit));
+            Assert.NotNull(modelBuilder.SharedTypeEntity(nameof(Details), typeof(Details), ConfigurationSource.Explicit));
 
-            Assert.Empty(model.GetEntityTypes(typeof(Details)).Where(e => e.DefiningNavigationName != null));
+            Assert.Empty(model.FindEntityTypes(typeof(Details)).Where(e => !e.HasSharedClrType));
 
             Assert.Null(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
@@ -347,10 +356,163 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
         }
 
+        [ConditionalFact]
+        public void Can_remove_implicitly_created_join_entity_type()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention);
+            var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention);
+            var manyToManyLeftPK = manyToManyLeft.PrimaryKey(new[] { nameof(ManyToManyLeft.Id) }, ConfigurationSource.Convention);
+            var manyToManyRightPK = manyToManyRight.PrimaryKey(new[] { nameof(ManyToManyRight.Id) }, ConfigurationSource.Convention);
+
+            var skipNavOnLeft = manyToManyLeft.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))),
+                manyToManyRight.Metadata,
+                ConfigurationSource.Convention);
+            var skipNavOnRight = manyToManyRight.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))),
+                manyToManyLeft.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
+
+            var joinEntityTypeBuilder =
+                model.AddEntityType(
+                    "JoinEntity",
+                    typeof(Dictionary<string, object>),
+                    ConfigurationSource.Convention).Builder;
+            var leftFK = joinEntityTypeBuilder
+                .HasRelationship(
+                    manyToManyLeft.Metadata.Name,
+                    new List<string> { "ManyToManyLeft_Id" },
+                    manyToManyLeftPK.Metadata,
+                    ConfigurationSource.Convention)
+                .IsUnique(false, ConfigurationSource.Convention)
+                .Metadata;
+            var rightFK = joinEntityTypeBuilder
+                .HasRelationship(
+                    manyToManyRight.Metadata.Name,
+                    new List<string> { "ManyToManyRight_Id" },
+                    manyToManyRightPK.Metadata,
+                    ConfigurationSource.Convention)
+                .IsUnique(false, ConfigurationSource.Convention)
+                .Metadata;
+            skipNavOnLeft.HasForeignKey(leftFK, ConfigurationSource.Convention);
+            skipNavOnRight.HasForeignKey(rightFK, ConfigurationSource.Convention);
+            joinEntityTypeBuilder.PrimaryKey(
+                leftFK.Properties.Concat(rightFK.Properties).ToList(),
+                ConfigurationSource.Convention);
+
+            var joinEntityType = joinEntityTypeBuilder.Metadata;
+
+            Assert.NotNull(joinEntityType);
+            Assert.NotNull(modelBuilder.RemoveImplicitJoinEntity(joinEntityType));
+
+            Assert.Empty(
+                model.GetEntityTypes()
+                    .Where(e => e.IsImplicitlyCreatedJoinEntityType));
+
+            var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
+            var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
+
+            Assert.NotNull(leftSkipNav);
+            Assert.NotNull(rightSkipNav);
+        }
+
+        [ConditionalFact]
+        public void Cannot_remove_manually_created_join_entity_type()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            var manyToManyLeft = modelBuilder.Entity(typeof(ManyToManyLeft), ConfigurationSource.Convention);
+            var manyToManyRight = modelBuilder.Entity(typeof(ManyToManyRight), ConfigurationSource.Convention);
+            var manyToManyJoin = modelBuilder.Entity(typeof(ManyToManyJoin), ConfigurationSource.Convention);
+            var manyToManyLeftPK = manyToManyLeft.PrimaryKey(new[] { nameof(ManyToManyLeft.Id) }, ConfigurationSource.Convention);
+            var manyToManyRightPK = manyToManyRight.PrimaryKey(new[] { nameof(ManyToManyRight.Id) }, ConfigurationSource.Convention);
+            manyToManyJoin.PrimaryKey(
+                new[] { nameof(ManyToManyJoin.LeftId), nameof(ManyToManyJoin.RightId) }, ConfigurationSource.Convention);
+
+            var skipNavOnLeft = manyToManyLeft.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyLeft).GetProperty(nameof(ManyToManyLeft.Rights))),
+                manyToManyRight.Metadata,
+                ConfigurationSource.Convention);
+            var skipNavOnRight = manyToManyRight.HasSkipNavigation(
+                new MemberIdentity(typeof(ManyToManyRight).GetProperty(nameof(ManyToManyRight.Lefts))),
+                manyToManyLeft.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
+
+            var leftFK = manyToManyJoin.HasRelationship(
+                manyToManyLeft.Metadata.Name,
+                new[] { nameof(ManyToManyJoin.LeftId) },
+                manyToManyLeftPK.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnLeft.Metadata.SetForeignKey(leftFK.Metadata, ConfigurationSource.Convention);
+            var rightFK = manyToManyJoin.HasRelationship(
+                manyToManyRight.Metadata.Name,
+                new[] { nameof(ManyToManyJoin.RightId) },
+                manyToManyRightPK.Metadata,
+                ConfigurationSource.Convention);
+            skipNavOnRight.Metadata.SetForeignKey(rightFK.Metadata, ConfigurationSource.Convention);
+            skipNavOnLeft.HasInverse(skipNavOnRight.Metadata, ConfigurationSource.Convention);
+
+            var joinEntityType = skipNavOnLeft.Metadata.JoinEntityType;
+            Assert.NotNull(joinEntityType);
+            Assert.Same(joinEntityType, skipNavOnRight.Metadata.JoinEntityType);
+
+            Assert.Null(modelBuilder.RemoveImplicitJoinEntity(joinEntityType));
+
+            var leftSkipNav = manyToManyLeft.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyLeft.Rights));
+            var rightSkipNav = manyToManyRight.Metadata.FindDeclaredSkipNavigation(nameof(ManyToManyRight.Lefts));
+            Assert.NotNull(leftSkipNav);
+            Assert.NotNull(rightSkipNav);
+
+            Assert.Same(leftSkipNav.JoinEntityType, rightSkipNav.JoinEntityType);
+            Assert.Same(manyToManyJoin.Metadata, leftSkipNav.JoinEntityType);
+        }
+
+        [ConditionalFact]
+        public void Can_add_shared_type()
+        {
+            var model = new Model();
+            var modelBuilder = CreateModelBuilder(model);
+
+            var sharedTypeName = "SpecialDetails";
+
+            Assert.NotNull(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Convention));
+
+            Assert.True(model.FindEntityType(sharedTypeName).HasSharedClrType);
+
+            Assert.Null(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.Convention));
+
+            Assert.NotNull(modelBuilder.Entity(typeof(Product), ConfigurationSource.DataAnnotation));
+
+            Assert.Null(modelBuilder.SharedTypeEntity(typeof(Product).DisplayName(), typeof(Product), ConfigurationSource.DataAnnotation));
+
+            Assert.NotNull(modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Product), ConfigurationSource.Explicit));
+
+            Assert.Equal(typeof(Product), model.FindEntityType(sharedTypeName).ClrType);
+
+            Assert.Equal(
+                CoreStrings.ClashingMismatchedSharedType("SpecialDetails", nameof(Product)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.SharedTypeEntity(sharedTypeName, typeof(Details), ConfigurationSource.Explicit)).Message);
+
+            Assert.NotNull(modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit));
+
+            Assert.Equal(
+                CoreStrings.ClashingNonSharedType(typeof(Customer).DisplayName(), typeof(Customer).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.SharedTypeEntity(typeof(Customer).DisplayName(), typeof(Customer), ConfigurationSource.Explicit))
+                    .Message);
+        }
+
         private static void Cleanup(InternalModelBuilder modelBuilder)
         {
             new ModelCleanupConvention(CreateDependencies())
-                .ProcessModelFinalized(
+                .ProcessModelFinalizing(
                     modelBuilder,
                     new ConventionContext<IConventionModelBuilder>(modelBuilder.Metadata.ConventionDispatcher));
         }
@@ -359,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
-            => new InternalModelBuilder(model ?? new Model());
+            => new(model ?? new Model());
 
         private class Base
         {
@@ -403,6 +565,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private class Details
         {
             public string Name { get; set; }
+        }
+
+        private class ManyToManyLeft
+        {
+            public int Id { get; set; }
+            public List<ManyToManyRight> Rights { get; set; }
+            public List<ManyToManyRight> OtherRights { get; set; }
+        }
+
+        private class ManyToManyRight
+        {
+            public int Id { get; set; }
+            public List<ManyToManyLeft> Lefts { get; set; }
+            public List<ManyToManyLeft> OtherLefts { get; set; }
+        }
+
+        private class ManyToManyJoin
+        {
+            public int LeftId { get; set; }
+            public int RightId { get; set; }
         }
     }
 }

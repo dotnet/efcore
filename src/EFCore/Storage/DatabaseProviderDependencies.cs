@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class DatabaseProviderDependencies
+    public sealed record DatabaseProviderDependencies
     {
         /// <summary>
         ///     <para>

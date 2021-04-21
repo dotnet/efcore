@@ -6,17 +6,20 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
     {
-        private class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class InExpressionValuesExpandingExpressionVisitor : ExpressionVisitor
         {
             private readonly ISqlExpressionFactory _sqlExpressionFactory;
             private readonly IReadOnlyDictionary<string, object> _parametersValues;
 
             public InExpressionValuesExpandingExpressionVisitor(
-                ISqlExpressionFactory sqlExpressionFactory, IReadOnlyDictionary<string, object> parametersValues)
+                ISqlExpressionFactory sqlExpressionFactory,
+                IReadOnlyDictionary<string, object> parametersValues)
             {
                 _sqlExpressionFactory = sqlExpressionFactory;
                 _parametersValues = parametersValues;

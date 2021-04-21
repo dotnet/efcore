@@ -57,6 +57,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((Beatles)77, converter("77"));
             Assert.Equal(default, converter("0"));
             Assert.Equal(default, converter(null));
+            Assert.Equal(default, converter(""));
+
+            Assert.Equal(
+                CoreStrings.CannotConvertEnumValue("Jon", "Beatles"),
+                Assert.Throws<InvalidOperationException>(() => converter("Jon")).Message);
         }
 
         [ConditionalFact]

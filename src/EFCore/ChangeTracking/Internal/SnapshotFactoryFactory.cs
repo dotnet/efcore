@@ -28,12 +28,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
+        public virtual Func<ISnapshot> CreateEmpty(IEntityType entityType)
         {
             return GetPropertyCount(entityType) == 0
                 ? (() => Snapshot.Empty)
                 : Expression.Lambda<Func<ISnapshot>>(
-                        CreateConstructorExpression(entityType, null))
+                    // TODO-Nullable: This whole code path is null unsafe. We are passing null parameter but later using parameter
+                    // as if always exists.
+                        CreateConstructorExpression(entityType, null!))
                     .Compile();
         }
 
@@ -44,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateConstructorExpression(
-            [NotNull] IEntityType entityType,
-            [CanBeNull] ParameterExpression parameter)
+            IEntityType entityType,
+            ParameterExpression parameter)
         {
             var count = GetPropertyCount(entityType);
 
@@ -99,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateSnapshotExpression(
-            Type entityType,
+            Type? entityType,
             ParameterExpression parameter,
             Type[] types,
             IList<IPropertyBase> propertyBases)
@@ -124,32 +126,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 if (propertyBase is IProperty property)
                 {
-                    var storeGeneratedIndex = property.GetStoreGeneratedIndex();
-                    if (storeGeneratedIndex != -1)
-                    {
-                        arguments[i] = CreateReadValueExpression(parameter, property);
-                        continue;
-                    }
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
+                    continue;
                 }
 
                 if (propertyBase.IsShadowProperty())
                 {
-                    arguments[i] = CreateSnapshotValueExpression(
-                        CreateReadShadowValueExpression(parameter, propertyBase),
-                        propertyBase);
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadShadowValueExpression(parameter, propertyBase), propertyBase);
                     continue;
                 }
 
-                var memberAccess = (Expression)Expression.MakeMemberAccess(
-                    entityVariable,
-                    propertyBase.GetMemberInfo(forMaterialization: false, forSet: false));
+                var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
+                var memberAccess = PropertyBase.CreateMemberAccess(propertyBase, entityVariable!, memberInfo);
 
                 if (memberAccess.Type != propertyBase.ClrType)
                 {
-                    memberAccess = Expression.Convert(memberAccess, propertyBase.ClrType);
+                    var hasDefaultValueExpression = memberAccess.MakeHasDefaultValue(propertyBase);
+
+                    memberAccess = Expression.Condition(
+                        hasDefaultValueExpression,
+                        propertyBase.ClrType.GetDefaultValueConstant(),
+                        Expression.Convert(memberAccess, propertyBase.ClrType));
                 }
 
-                arguments[i] = (propertyBase as INavigation)?.IsCollection() ?? false
+                arguments[i] = (propertyBase as INavigation)?.IsCollection ?? false
                     ? Expression.Call(
                         null,
                         _snapshotCollectionMethod,
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 entityVariable,
                                 Expression.Convert(
                                     Expression.Property(parameter, "Entity"),
-                                    entityType)),
+                                    entityType!)),
                             constructorExpression
                         })
                     : constructorExpression;
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract ValueComparer GetValueComparer([NotNull] IProperty property);
+        protected abstract ValueComparer? GetValueComparer(IProperty property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -219,7 +219,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateReadShadowValueExpression(
-            [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
+            ParameterExpression parameter,
+            IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
@@ -232,7 +233,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual Expression CreateReadValueExpression(
-            [CanBeNull] ParameterExpression parameter, [NotNull] IPropertyBase property)
+            ParameterExpression parameter,
+            IPropertyBase property)
             => Expression.Call(
                 parameter,
                 InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(property.ClrType),
@@ -244,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract int GetPropertyIndex([NotNull] IPropertyBase propertyBase);
+        protected abstract int GetPropertyIndex(IPropertyBase propertyBase);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -252,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected abstract int GetPropertyCount([NotNull] IEntityType entityType);
+        protected abstract int GetPropertyCount(IEntityType entityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -260,15 +262,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual bool UseEntityVariable => true;
+        protected virtual bool UseEntityVariable
+            => true;
 
         private static readonly MethodInfo _snapshotCollectionMethod
-            = typeof(SnapshotFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(SnapshotCollection));
+            = typeof(SnapshotFactoryFactory).GetTypeInfo().GetRequiredDeclaredMethod(nameof(SnapshotCollection));
 
         [UsedImplicitly]
-        private static HashSet<object> SnapshotCollection(IEnumerable<object> collection)
+        private static HashSet<object>? SnapshotCollection(IEnumerable<object>? collection)
             => collection == null
                 ? null
-                : new HashSet<object>(collection, ReferenceEqualityComparer.Instance);
+                : new HashSet<object>(collection, LegacyReferenceEqualityComparer.Instance);
     }
 }

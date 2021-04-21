@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }
-            = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Name);
+            = new(l => l == DbLoggerCategory.Model.Name);
 
         private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -154,11 +154,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             CreateKeyDiscoveryConvention().ProcessPropertyAdded(propertyBuilder, context);
         }
 
-        private KeyDiscoveryConvention CreateKeyDiscoveryConvention() => new KeyDiscoveryConvention(CreateDependencies());
+        private KeyDiscoveryConvention CreateKeyDiscoveryConvention()
+            => new(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>()
-                .With(CreateLogger());
+                with { Logger = CreateLogger()};
 
         private DiagnosticsLogger<DbLoggerCategory.Model> CreateLogger()
         {
@@ -169,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ListLoggerFactory,
                 options,
                 new DiagnosticListener("Fake"),
-                new TestLoggingDefinitions());
+                new TestLoggingDefinitions(),
+                new NullDbContextLogger());
             return modelLogger;
         }
 

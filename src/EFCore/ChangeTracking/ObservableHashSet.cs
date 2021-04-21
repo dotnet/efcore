@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
         /// </param>
-        public ObservableHashSet([NotNull] IEqualityComparer<T> comparer)
+        public ObservableHashSet(IEqualityComparer<T> comparer)
         {
             _set = new HashSet<T>(comparer);
         }
@@ -51,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     number of elements copied.
         /// </summary>
         /// <param name="collection"> The collection whose elements are copied to the new set. </param>
-        public ObservableHashSet([NotNull] IEnumerable<T> collection)
+        public ObservableHashSet(IEnumerable<T> collection)
             : this(collection, EqualityComparer<T>.Default)
         {
         }
@@ -68,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     comparing values in the set, or null to use the default <see cref="IEqualityComparer{T}" />
         ///     implementation for the set type.
         /// </param>
-        public ObservableHashSet([NotNull] IEnumerable<T> collection, [NotNull] IEqualityComparer<T> comparer)
+        public ObservableHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
         {
             _set = new HashSet<T>(collection, comparer);
         }
@@ -76,19 +75,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Occurs when a property of this hash set (such as <see cref="Count" />) changes.
         /// </summary>
-        public virtual event PropertyChangedEventHandler PropertyChanged;
+        public virtual event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         ///     Occurs when a property of this hash set (such as <see cref="Count" />) is changing.
         /// </summary>
-        public virtual event PropertyChangingEventHandler PropertyChanging;
+        public virtual event PropertyChangingEventHandler? PropertyChanging;
 
         /// <summary>
         ///     Occurs when the contents of the hash set changes.
         /// </summary>
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+        public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
 
-        void ICollection<T>.Add(T item) => Add(item);
+        void ICollection<T>.Add(T item)
+            => Add(item);
 
         /// <summary>
         ///     Removes all elements from the hash set.
@@ -117,9 +117,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="item">The element to locate in the hash set.</param>
         /// <returns>
-        ///     True if the hash set contains the specified element; otherwise, false.
+        ///     <see langword="true" /> if the hash set contains the specified element; otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool Contains(T item) => _set.Contains(item);
+        public virtual bool Contains(T item)
+            => _set.Contains(item);
 
         /// <summary>
         ///     Copies the elements of the hash set to an array, starting at the specified array index.
@@ -129,14 +130,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the hash set. The array must have zero-based indexing.
         /// </param>
         /// <param name="arrayIndex"> The zero-based index in array at which copying begins. </param>
-        public virtual void CopyTo(T[] array, int arrayIndex) => _set.CopyTo(array, arrayIndex);
+        public virtual void CopyTo(T[] array, int arrayIndex)
+            => _set.CopyTo(array, arrayIndex);
 
         /// <summary>
         ///     Removes the specified element from the hash set.
         /// </summary>
         /// <param name="item"> The element to remove. </param>
         /// <returns>
-        ///     True if the element is successfully found and removed; otherwise, false.
+        ///     <see langword="true" /> if the element is successfully found and removed; otherwise, <see langword="false" />.
         /// </returns>
         public virtual bool Remove(T item)
         {
@@ -159,12 +161,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the number of elements that are contained in the hash set.
         /// </summary>
-        public virtual int Count => _set.Count;
+        public virtual int Count
+            => _set.Count;
 
         /// <summary>
         ///     Gets a value indicating whether the hash set is read-only.
         /// </summary>
-        public virtual bool IsReadOnly => ((ICollection<T>)_set).IsReadOnly;
+        public virtual bool IsReadOnly
+            => ((ICollection<T>)_set).IsReadOnly;
 
         /// <summary>
         ///     Returns an enumerator that iterates through the hash set.
@@ -172,20 +176,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns>
         ///     An enumerator for the hash set.
         /// </returns>
-        public virtual HashSet<T>.Enumerator GetEnumerator() => _set.GetEnumerator();
+        public virtual HashSet<T>.Enumerator GetEnumerator()
+            => _set.GetEnumerator();
 
         /// <inheritdoc />
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            => GetEnumerator();
 
         /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
 
         /// <summary>
         ///     Adds the specified element to the hash set.
         /// </summary>
         /// <param name="item"> The element to add to the set. </param>
         /// <returns>
-        ///     true if the element is added to the hash set; false if the element is already present.
+        ///     <see langword="true" /> if the element is added to the hash set; <see langword="false" /> if the element is already present.
         /// </returns>
         public virtual bool Add(T item)
         {
@@ -318,54 +325,60 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a subset of other; otherwise, false.
+        ///     <see langword="true" /> if the hash set is a subset of other; otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool IsSubsetOf(IEnumerable<T> other) => _set.IsSubsetOf(other);
+        public virtual bool IsSubsetOf(IEnumerable<T> other)
+            => _set.IsSubsetOf(other);
 
         /// <summary>
         ///     Determines whether the hash set is a proper subset of the specified collection.
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a proper subset of other; otherwise, false.
+        ///     <see langword="true" /> if the hash set is a proper subset of other; otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool IsProperSubsetOf(IEnumerable<T> other) => _set.IsProperSubsetOf(other);
+        public virtual bool IsProperSubsetOf(IEnumerable<T> other)
+            => _set.IsProperSubsetOf(other);
 
         /// <summary>
         ///     Determines whether the hash set is a superset of the specified collection.
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a superset of other; otherwise, false.
+        ///     <see langword="true" /> if the hash set is a superset of other; otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool IsSupersetOf(IEnumerable<T> other) => _set.IsSupersetOf(other);
+        public virtual bool IsSupersetOf(IEnumerable<T> other)
+            => _set.IsSupersetOf(other);
 
         /// <summary>
         ///     Determines whether the hash set is a proper superset of the specified collection.
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is a proper superset of other; otherwise, false.
+        ///     <see langword="true" /> if the hash set is a proper superset of other; otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool IsProperSupersetOf(IEnumerable<T> other) => _set.IsProperSupersetOf(other);
+        public virtual bool IsProperSupersetOf(IEnumerable<T> other)
+            => _set.IsProperSupersetOf(other);
 
         /// <summary>
         ///     Determines whether the current System.Collections.Generic.HashSet`1 object and a specified collection share common elements.
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set and other share at least one common element; otherwise, false.
+        ///     <see langword="true" /> if the hash set and other share at least one common element; otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool Overlaps(IEnumerable<T> other) => _set.Overlaps(other);
+        public virtual bool Overlaps(IEnumerable<T> other)
+            => _set.Overlaps(other);
 
         /// <summary>
         ///     Determines whether the hash set and the specified collection contain the same elements.
         /// </summary>
         /// <param name="other"> The collection to compare to the current hash set. </param>
         /// <returns>
-        ///     True if the hash set is equal to other; otherwise, false.
+        ///     <see langword="true" /> if the hash set is equal to other; otherwise, <see langword="false" />.
         /// </returns>
-        public virtual bool SetEquals(IEnumerable<T> other) => _set.SetEquals(other);
+        public virtual bool SetEquals(IEnumerable<T> other)
+            => _set.SetEquals(other);
 
         /// <summary>
         ///     Copies the elements of the hash set to an array.
@@ -374,7 +387,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The one-dimensional array that is the destination of the elements copied from
         ///     the hash set. The array must have zero-based indexing.
         /// </param>
-        public virtual void CopyTo([NotNull] T[] array) => _set.CopyTo(array);
+        public virtual void CopyTo(T[] array)
+            => _set.CopyTo(array);
 
         /// <summary>
         ///     Copies the specified number of elements of the hash set to an array, starting at the specified array index.
@@ -385,7 +399,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </param>
         /// <param name="arrayIndex"> The zero-based index in array at which copying begins. </param>
         /// <param name="count"> The number of elements to copy to array. </param>
-        public virtual void CopyTo([NotNull] T[] array, int arrayIndex, int count) => _set.CopyTo(array, arrayIndex, count);
+        public virtual void CopyTo(T[] array, int arrayIndex, int count)
+            => _set.CopyTo(array, arrayIndex, count);
 
         /// <summary>
         ///     Removes all elements that match the conditions defined by the specified predicate
@@ -395,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="Predicate{T}" /> delegate that defines the conditions of the elements to remove.
         /// </param>
         /// <returns> The number of elements that were removed from the hash set. </returns>
-        public virtual int RemoveWhere([NotNull] Predicate<T> match)
+        public virtual int RemoveWhere(Predicate<T> match)
         {
             var copy = new HashSet<T>(_set, _set.Comparer);
 
@@ -422,33 +437,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets the <see cref="IEqualityComparer{T}" /> object that is used to determine equality for the values in the set.
         /// </summary>
-        public virtual IEqualityComparer<T> Comparer => _set.Comparer;
+        public virtual IEqualityComparer<T> Comparer
+            => _set.Comparer;
 
         /// <summary>
         ///     Sets the capacity of the hash set to the actual number of elements it contains, rounded up to a nearby,
         ///     implementation-specific value.
         /// </summary>
-        public virtual void TrimExcess() => _set.TrimExcess();
+        public virtual void TrimExcess()
+            => _set.TrimExcess();
 
         /// <summary>
         ///     Raises the <see cref="PropertyChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that changed. </param>
-        protected virtual void OnPropertyChanged([NotNull] PropertyChangedEventArgs e)
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
             => PropertyChanged?.Invoke(this, e);
 
         /// <summary>
         ///     Raises the <see cref="PropertyChanging" /> event.
         /// </summary>
         /// <param name="e"> Details of the property that is changing. </param>
-        protected virtual void OnPropertyChanging([NotNull] PropertyChangingEventArgs e)
+        protected virtual void OnPropertyChanging(PropertyChangingEventArgs e)
             => PropertyChanging?.Invoke(this, e);
 
-        private void OnCountPropertyChanged() => OnPropertyChanged(ObservableHashSetSingletons._countPropertyChanged);
+        private void OnCountPropertyChanged()
+            => OnPropertyChanged(ObservableHashSetSingletons._countPropertyChanged);
 
-        private void OnCountPropertyChanging() => OnPropertyChanging(ObservableHashSetSingletons._countPropertyChanging);
+        private void OnCountPropertyChanging()
+            => OnPropertyChanging(ObservableHashSetSingletons._countPropertyChanging);
 
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object item)
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, object? item)
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
 
         private void OnCollectionChanged(IList newItems, IList oldItems)
@@ -458,17 +477,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Raises the <see cref="CollectionChanged" /> event.
         /// </summary>
         /// <param name="e"> Details of the change. </param>
-        protected virtual void OnCollectionChanged([NotNull] NotifyCollectionChangedEventArgs e)
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
             => CollectionChanged?.Invoke(this, e);
     }
 
     internal static class ObservableHashSetSingletons
     {
-        public static readonly PropertyChangedEventArgs _countPropertyChanged
-            = new PropertyChangedEventArgs("Count");
-
-        public static readonly PropertyChangingEventArgs _countPropertyChanging
-            = new PropertyChangingEventArgs("Count");
+        public static readonly PropertyChangedEventArgs _countPropertyChanged = new("Count");
+        public static readonly PropertyChangingEventArgs _countPropertyChanging = new("Count");
 
         public static readonly object[] _noItems = Array.Empty<object>();
     }

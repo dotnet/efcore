@@ -3,7 +3,7 @@
 
 using System;
 using System.ComponentModel;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyBuilder : IInfrastructure<InternalPropertyBuilder>
+    public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public PropertyBuilder([NotNull] IMutableProperty property)
+        public PropertyBuilder(IMutableProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -40,12 +40,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the property.
         /// </summary>
-        InternalPropertyBuilder IInfrastructure<InternalPropertyBuilder>.Instance => Builder;
+        IConventionPropertyBuilder IInfrastructure<IConventionPropertyBuilder>.Instance
+            => Builder;
+
+        private InternalPropertyBuilder Builder { get; }
 
         /// <summary>
         ///     The property being configured.
         /// </summary>
-        public virtual IMutableProperty Metadata => Builder.Metadata;
+        public virtual IMutableProperty Metadata
+            => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the property. If an annotation with the key specified in
@@ -54,10 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public virtual PropertyBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
 
             Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -65,9 +68,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures whether this property must have a value assigned or <c>null</c> is a valid value.
+        ///     Configures whether this property must have a value assigned or <see langword="null" /> is a valid value.
         ///     A property can only be configured as non-required if it is based on a CLR type that can be
-        ///     assigned <c>null</c>.
+        ///     assigned <see langword="null" />.
         /// </summary>
         /// <param name="required"> A value indicating whether the property is required. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -87,6 +90,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual PropertyBuilder HasMaxLength(int maxLength)
         {
             Builder.HasMaxLength(maxLength, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures the precision and scale of the property.
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <param name="scale"> The scale of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision, int scale)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
+            Builder.HasScale(scale, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the precision of the property.
+        ///     </para>
+        /// </summary>
+        /// <param name="precision"> The precision of the property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasPrecision(int precision)
+        {
+            Builder.HasPrecision(precision, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -130,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -159,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -177,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="valueGeneratorType"> A type that inherits from <see cref="ValueGenerator" />. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasValueGenerator([CanBeNull] Type valueGeneratorType)
+        public virtual PropertyBuilder HasValueGenerator(Type? valueGeneratorType)
         {
             Builder.HasValueGenerator(valueGeneratorType, ConfigurationSource.Explicit);
 
@@ -192,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     <para>
         ///         Values are generated when the entity is added to the context using, for example,
         ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
-        ///         the CLR default value (<c>null</c> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
         ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
         ///     </para>
         ///     <para>
@@ -206,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="factory"> A delegate that will be used to create value generator instances. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasValueGenerator([NotNull] Func<IProperty, IEntityType, ValueGenerator> factory)
+        public virtual PropertyBuilder HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory)
         {
             Check.NotNull(factory, nameof(factory));
 
@@ -283,6 +314,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
+        ///     Configures a property to have a value generated under certain conditions when saving an existing entity.
+        /// </summary>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder ValueGeneratedOnUpdateSometimes()
+        {
+            Builder.ValueGenerated(ValueGenerated.OnUpdateSometimes, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
         ///     <para>
         ///         Sets the backing field to use for this property.
         ///     </para>
@@ -301,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="fieldName"> The field name. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasField([NotNull] string fieldName)
+        public virtual PropertyBuilder HasField(string fieldName)
         {
             Check.NotEmpty(fieldName, nameof(fieldName));
 
@@ -349,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="providerClrType"> The type to convert to and from. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion([CanBeNull] Type providerClrType)
+        public virtual PropertyBuilder HasConversion(Type? providerClrType)
         {
             Builder.HasConversion(providerClrType, ConfigurationSource.Explicit);
 
@@ -362,14 +404,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="converter"> The converter to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder HasConversion([CanBeNull] ValueConverter converter)
+        public virtual PropertyBuilder HasConversion(ValueConverter? converter)
         {
             Builder.HasConversion(converter, ConfigurationSource.Explicit);
 
             return this;
         }
 
-        private InternalPropertyBuilder Builder { get; }
+        /// <summary>
+        ///     Configures the property so that the property value is converted to the given type before
+        ///     writing to the database and converted back when reading from the database.
+        /// </summary>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion<TProvider>(ValueComparer? valueComparer)
+            => HasConversion(typeof(TProvider), valueComparer);
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to the given type before
+        ///     writing to the database and converted back when reading from the database.
+        /// </summary>
+        /// <param name="providerClrType"> The type to convert to and from. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion(Type? providerClrType, ValueComparer? valueComparer)
+        {
+            Builder.HasConversion(providerClrType, ConfigurationSource.Explicit);
+            Builder.HasValueComparer(valueComparer, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
+        /// </summary>
+        /// <param name="converter"> The converter to use. </param>
+        /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual PropertyBuilder HasConversion(ValueConverter? converter, ValueComparer? valueComparer)
+        {
+            Builder.HasConversion(converter, ConfigurationSource.Explicit);
+            Builder.HasValueComparer(valueComparer, ConfigurationSource.Explicit);
+
+            return this;
+        }
 
         #region Hidden System.Object members
 
@@ -378,16 +458,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string? ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object? obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
@@ -395,7 +477,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

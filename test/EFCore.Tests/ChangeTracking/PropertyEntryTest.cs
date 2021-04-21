@@ -189,22 +189,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_get_name_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
-            {
-                var entry = context
-                    .Entry(
-                        new TWotty
-                        {
-                            Id = 1,
-                            Primate = "Monkey",
-                            RequiredPrimate = "Tarsier"
-                        })
-                    .GetInfrastructure();
+            using var context = new PrimateContext();
+            var entry = context
+                .Entry(
+                    new TWotty
+                    {
+                        Id = 1,
+                        Primate = "Monkey",
+                        RequiredPrimate = "Tarsier"
+                    })
+                .GetInfrastructure();
 
-                entry.SetEntityState(EntityState.Unchanged);
+            entry.SetEntityState(EntityState.Unchanged);
 
-                Assert.Equal("Primate", new PropertyEntry(entry, "Primate").Metadata.Name);
-            }
+            Assert.Equal("Primate", new PropertyEntry(entry, "Primate").Metadata.Name);
         }
 
         [ConditionalFact]
@@ -218,23 +216,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_get_current_value_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
-            {
-                var entry = context
-                    .Entry(
-                        new TWotty
-                        {
-                            Id = 1,
-                            Primate = "Monkey",
-                            RequiredPrimate = "Tarsier"
-                        })
-                    .GetInfrastructure();
+            using var context = new PrimateContext();
+            var entry = context
+                .Entry(
+                    new TWotty
+                    {
+                        Id = 1,
+                        Primate = "Monkey",
+                        RequiredPrimate = "Tarsier"
+                    })
+                .GetInfrastructure();
 
-                entry.SetEntityState(EntityState.Unchanged);
+            entry.SetEntityState(EntityState.Unchanged);
 
-                Assert.Equal("Monkey", new PropertyEntry(entry, "Primate").CurrentValue);
-                Assert.Equal("Tarsier", new PropertyEntry(entry, "RequiredPrimate").CurrentValue);
-            }
+            Assert.Equal("Monkey", new PropertyEntry(entry, "Primate").CurrentValue);
+            Assert.Equal("Tarsier", new PropertyEntry(entry, "RequiredPrimate").CurrentValue);
         }
 
         [ConditionalFact]
@@ -248,28 +244,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_current_value_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
+            using var context = new PrimateContext();
+            var entity = new TWotty
             {
-                var entity = new TWotty
-                {
-                    Id = 1,
-                    Primate = "Monkey",
-                    RequiredPrimate = "Tarsier"
-                };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(EntityState.Unchanged);
+                Id = 1,
+                Primate = "Monkey",
+                RequiredPrimate = "Tarsier"
+            };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(EntityState.Unchanged);
 
-                new PropertyEntry(entry, "Primate").CurrentValue = "Chimp";
-                new PropertyEntry(entry, "RequiredPrimate").CurrentValue = "Bushbaby";
+            new PropertyEntry(entry, "Primate").CurrentValue = "Chimp";
+            new PropertyEntry(entry, "RequiredPrimate").CurrentValue = "Bushbaby";
 
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Bushbaby", entity.RequiredPrimate);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Bushbaby", entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Bushbaby", entity.RequiredPrimate);
-            }
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Bushbaby", entity.RequiredPrimate);
         }
 
         [ConditionalFact]
@@ -283,28 +277,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_current_value_to_null_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
+            using var context = new PrimateContext();
+            var entity = new TWotty
             {
-                var entity = new TWotty
-                {
-                    Id = 1,
-                    Primate = "Monkey",
-                    RequiredPrimate = "Tarsier"
-                };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(EntityState.Unchanged);
+                Id = 1,
+                Primate = "Monkey",
+                RequiredPrimate = "Tarsier"
+            };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(EntityState.Unchanged);
 
-                new PropertyEntry(entry, "Primate").CurrentValue = null;
-                new PropertyEntry(entry, "RequiredPrimate").CurrentValue = null;
+            new PropertyEntry(entry, "Primate").CurrentValue = null;
+            new PropertyEntry(entry, "RequiredPrimate").CurrentValue = null;
 
-                Assert.Null(entity.Primate);
-                Assert.Null(entity.RequiredPrimate);
+            Assert.Null(entity.Primate);
+            Assert.Null(entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Null(entity.Primate);
-                Assert.Null(entity.RequiredPrimate);
-            }
+            Assert.Null(entity.Primate);
+            Assert.Null(entity.RequiredPrimate);
         }
 
         [ConditionalFact]
@@ -318,37 +310,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_and_get_original_value_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
+            using var context = new PrimateContext();
+            var entity = new TWotty
             {
-                var entity = new TWotty
-                {
-                    Id = 1,
-                    Primate = "Monkey",
-                    RequiredPrimate = "Tarsier"
-                };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(EntityState.Unchanged);
+                Id = 1,
+                Primate = "Monkey",
+                RequiredPrimate = "Tarsier"
+            };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(EntityState.Unchanged);
 
-                Assert.Equal("Monkey", new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Equal("Tarsier", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
+            Assert.Equal("Monkey", new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Equal("Tarsier", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
 
-                new PropertyEntry(entry, "Primate").OriginalValue = "Chimp";
-                new PropertyEntry(entry, "RequiredPrimate").OriginalValue = "Bushbaby";
+            new PropertyEntry(entry, "Primate").OriginalValue = "Chimp";
+            new PropertyEntry(entry, "RequiredPrimate").OriginalValue = "Bushbaby";
 
-                Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Equal("Monkey", entity.Primate);
+            Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Equal("Monkey", entity.Primate);
 
-                Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+            Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Equal("Monkey", entity.Primate);
+            Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Equal("Monkey", entity.Primate);
 
-                Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
-            }
+            Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
         }
 
         [ConditionalFact]
@@ -362,32 +352,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_and_get_original_value_starting_null_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
-            {
-                var entity = new TWotty { Id = 1 };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(EntityState.Unchanged);
+            using var context = new PrimateContext();
+            var entity = new TWotty { Id = 1 };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(EntityState.Unchanged);
 
-                Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Null(new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
+            Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Null(new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
 
-                new PropertyEntry(entry, "Primate").OriginalValue = "Chimp";
-                new PropertyEntry(entry, "RequiredPrimate").OriginalValue = "Bushbaby";
+            new PropertyEntry(entry, "Primate").OriginalValue = "Chimp";
+            new PropertyEntry(entry, "RequiredPrimate").OriginalValue = "Bushbaby";
 
-                Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Null(entity.Primate);
+            Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Null(entity.Primate);
 
-                Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
-                Assert.Null(entity.RequiredPrimate);
+            Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
+            Assert.Null(entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Null(entity.Primate);
+            Assert.Equal("Chimp", new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Null(entity.Primate);
 
-                Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
-                Assert.Null(entity.RequiredPrimate);
-            }
+            Assert.Equal("Bushbaby", new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
+            Assert.Null(entity.RequiredPrimate);
         }
 
         [ConditionalFact]
@@ -401,28 +389,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_original_value_to_null_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
+            using var context = new PrimateContext();
+            var entity = new TWotty
             {
-                var entity = new TWotty
-                {
-                    Id = 1,
-                    Primate = "Monkey",
-                    RequiredPrimate = "Tarsier"
-                };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(EntityState.Unchanged);
+                Id = 1,
+                Primate = "Monkey",
+                RequiredPrimate = "Tarsier"
+            };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(EntityState.Unchanged);
 
-                new PropertyEntry(entry, "Primate").OriginalValue = null;
-                new PropertyEntry(entry, "RequiredPrimate").OriginalValue = null;
+            new PropertyEntry(entry, "Primate").OriginalValue = null;
+            new PropertyEntry(entry, "RequiredPrimate").OriginalValue = null;
 
-                Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Null(new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
+            Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Null(new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
-                Assert.Null(new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
-            }
+            Assert.Null(new PropertyEntry(entry, "Primate").OriginalValue);
+            Assert.Null(new PropertyEntry(entry, "RequiredPrimate").OriginalValue);
         }
 
         [ConditionalFact]
@@ -436,42 +422,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_and_clear_modified_on_Modified_entity_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
-            {
-                var entity = new TWotty { Id = 1 };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(EntityState.Modified);
+            using var context = new PrimateContext();
+            var entity = new TWotty { Id = 1 };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(EntityState.Modified);
 
-                Assert.True(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.True(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                new PropertyEntry(entry, "Primate").IsModified = false;
-                new PropertyEntry(entry, "RequiredPrimate").IsModified = false;
+            new PropertyEntry(entry, "Primate").IsModified = false;
+            new PropertyEntry(entry, "RequiredPrimate").IsModified = false;
 
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                new PropertyEntry(entry, "Primate").IsModified = true;
-                new PropertyEntry(entry, "RequiredPrimate").IsModified = true;
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            new PropertyEntry(entry, "RequiredPrimate").IsModified = true;
 
-                Assert.True(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.True(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
-            }
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
         }
 
         [ConditionalTheory]
@@ -489,33 +473,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_and_clear_modified_on_Added_or_Deleted_entity_helper<TWotty>(EntityState initialState)
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
-            {
-                var entity = new TWotty { Id = 1 };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(initialState);
+            using var context = new PrimateContext();
+            var entity = new TWotty { Id = 1 };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(initialState);
 
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                new PropertyEntry(entry, "Primate").IsModified = true;
-                new PropertyEntry(entry, "RequiredPrimate").IsModified = true;
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            new PropertyEntry(entry, "RequiredPrimate").IsModified = true;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            context.ChangeTracker.DetectChanges();
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                new PropertyEntry(entry, "Primate").IsModified = false;
-                new PropertyEntry(entry, "RequiredPrimate").IsModified = false;
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            new PropertyEntry(entry, "Primate").IsModified = false;
+            new PropertyEntry(entry, "RequiredPrimate").IsModified = false;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
-            }
+            context.ChangeTracker.DetectChanges();
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
         }
 
         [ConditionalTheory]
@@ -533,33 +515,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_set_and_clear_modified_on_Unchanged_or_Detached_entity_helper<TWotty>(EntityState initialState)
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
-            {
-                var entity = new TWotty { Id = 1 };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(initialState);
+            using var context = new PrimateContext();
+            var entity = new TWotty { Id = 1 };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(initialState);
 
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                new PropertyEntry(entry, "Primate").IsModified = true;
-                new PropertyEntry(entry, "RequiredPrimate").IsModified = true;
-                Assert.True(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            new PropertyEntry(entry, "Primate").IsModified = true;
+            new PropertyEntry(entry, "RequiredPrimate").IsModified = true;
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.True(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            context.ChangeTracker.DetectChanges();
+            Assert.True(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.True(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                new PropertyEntry(entry, "Primate").IsModified = false;
-                new PropertyEntry(entry, "RequiredPrimate").IsModified = false;
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
+            new PropertyEntry(entry, "Primate").IsModified = false;
+            new PropertyEntry(entry, "RequiredPrimate").IsModified = false;
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.False(new PropertyEntry(entry, "Primate").IsModified);
-                Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
-            }
+            context.ChangeTracker.DetectChanges();
+            Assert.False(new PropertyEntry(entry, "Primate").IsModified);
+            Assert.False(new PropertyEntry(entry, "RequiredPrimate").IsModified);
         }
 
         [ConditionalFact]
@@ -573,74 +553,72 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         private void Can_reject_changes_when_clearing_modified_flag_helper<TWotty>()
             where TWotty : IWotty, new()
         {
-            using (var context = new PrimateContext())
+            using var context = new PrimateContext();
+            var entity = new TWotty
             {
-                var entity = new TWotty
-                {
-                    Id = 1,
-                    Primate = "Monkey",
-                    Marmate = "Bovril",
-                    RequiredPrimate = "Tarsier"
-                };
-                var entry = context.Entry(entity).GetInfrastructure();
-                entry.SetEntityState(EntityState.Unchanged);
+                Id = 1,
+                Primate = "Monkey",
+                Marmate = "Bovril",
+                RequiredPrimate = "Tarsier"
+            };
+            var entry = context.Entry(entity).GetInfrastructure();
+            entry.SetEntityState(EntityState.Unchanged);
 
-                var primateEntry = new PropertyEntry(entry, "Primate") { OriginalValue = "Chimp", IsModified = true };
+            var primateEntry = new PropertyEntry(entry, "Primate") { OriginalValue = "Chimp", IsModified = true };
 
-                var marmateEntry = new PropertyEntry(entry, "Marmate") { OriginalValue = "Marmite", IsModified = true };
+            var marmateEntry = new PropertyEntry(entry, "Marmate") { OriginalValue = "Marmite", IsModified = true };
 
-                var requiredEntry = new PropertyEntry(entry, "RequiredPrimate") { OriginalValue = "Bushbaby", IsModified = true };
+            var requiredEntry = new PropertyEntry(entry, "RequiredPrimate") { OriginalValue = "Bushbaby", IsModified = true };
 
-                Assert.Equal(EntityState.Modified, entry.EntityState);
-                Assert.Equal("Monkey", entity.Primate);
-                Assert.Equal("Bovril", entity.Marmate);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Monkey", entity.Primate);
+            Assert.Equal("Bovril", entity.Marmate);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.Equal(EntityState.Modified, entry.EntityState);
-                Assert.Equal("Monkey", entity.Primate);
-                Assert.Equal("Bovril", entity.Marmate);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+            context.ChangeTracker.DetectChanges();
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Monkey", entity.Primate);
+            Assert.Equal("Bovril", entity.Marmate);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
 
-                primateEntry.IsModified = false;
+            primateEntry.IsModified = false;
 
-                Assert.Equal(EntityState.Modified, entry.EntityState);
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Bovril", entity.Marmate);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Bovril", entity.Marmate);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.Equal(EntityState.Modified, entry.EntityState);
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Bovril", entity.Marmate);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+            context.ChangeTracker.DetectChanges();
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Bovril", entity.Marmate);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
 
-                marmateEntry.IsModified = false;
+            marmateEntry.IsModified = false;
 
-                Assert.Equal(EntityState.Modified, entry.EntityState);
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Marmite", entity.Marmate);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Marmite", entity.Marmate);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.Equal(EntityState.Modified, entry.EntityState);
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Marmite", entity.Marmate);
-                Assert.Equal("Tarsier", entity.RequiredPrimate);
+            context.ChangeTracker.DetectChanges();
+            Assert.Equal(EntityState.Modified, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Marmite", entity.Marmate);
+            Assert.Equal("Tarsier", entity.RequiredPrimate);
 
-                requiredEntry.IsModified = false;
+            requiredEntry.IsModified = false;
 
-                Assert.Equal(EntityState.Unchanged, entry.EntityState);
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Marmite", entity.Marmate);
-                Assert.Equal("Bushbaby", entity.RequiredPrimate);
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Marmite", entity.Marmate);
+            Assert.Equal("Bushbaby", entity.RequiredPrimate);
 
-                context.ChangeTracker.DetectChanges();
-                Assert.Equal(EntityState.Unchanged, entry.EntityState);
-                Assert.Equal("Chimp", entity.Primate);
-                Assert.Equal("Marmite", entity.Marmate);
-                Assert.Equal("Bushbaby", entity.RequiredPrimate);
-            }
+            context.ChangeTracker.DetectChanges();
+            Assert.Equal(EntityState.Unchanged, entry.EntityState);
+            Assert.Equal("Chimp", entity.Primate);
+            Assert.Equal("Marmite", entity.Marmate);
+            Assert.Equal("Bushbaby", entity.RequiredPrimate);
         }
 
         [ConditionalFact]
@@ -1187,7 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     b.Property(e => e.ConcurrentPrimate).IsConcurrencyToken();
                 });
 
-            return finalize ? builder.Model.FinalizeModel() : builder.Model;
+            return finalize ? builder.Model.FinalizeModel() : (IModel)builder.Model;
         }
 
         private class PrimateContext : DbContext

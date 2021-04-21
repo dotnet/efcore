@@ -3,145 +3,216 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
+    /// <summary>
+    ///     <para>
+    ///         An expression that represents an entity in the projection of <see cref="SelectExpression" />.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class EntityProjectionExpression : Expression
     {
-        private readonly IDictionary<IProperty, ColumnExpression> _propertyExpressionsCache
-            = new Dictionary<IProperty, ColumnExpression>();
+        private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _propertyExpressionMap;
+        private readonly Dictionary<INavigation, EntityShaperExpression> _ownedNavigationMap = new();
 
-        private readonly IDictionary<INavigation, EntityShaperExpression> _navigationExpressionsCache
-            = new Dictionary<INavigation, EntityShaperExpression>();
-
-        private readonly TableExpressionBase _innerTable;
-        private readonly bool _nullable;
-
+        /// <summary>
+        ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
+        /// </summary>
+        /// <param name="entityType"> The entity type to shape. </param>
+        /// <param name="innerTable"> The table from which entity columns are being projected out. </param>
+        /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
+        [Obsolete("Use the constructor which takes populated column expressions map.", error: true)]
         public EntityProjectionExpression(IEntityType entityType, TableExpressionBase innerTable, bool nullable)
         {
-            EntityType = entityType;
-            _innerTable = innerTable;
-            _nullable = nullable;
+            throw new NotSupportedException("Obsolete: Use the constructor which takes populated column expressions map.");
         }
 
-        public EntityProjectionExpression(IEntityType entityType, IDictionary<IProperty, ColumnExpression> propertyExpressions)
+        /// <summary>
+        ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
+        /// </summary>
+        /// <param name="entityType"> The entity type to shape. </param>
+        /// <param name="propertyExpressionMap"> A dictionary of column expressions corresponding to properties of the entity type. </param>
+        /// <param name="discriminatorExpression"> A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy. </param>
+        public EntityProjectionExpression(
+            IEntityType entityType,
+            IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
+            SqlExpression? discriminatorExpression = null)
         {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(propertyExpressionMap, nameof(propertyExpressionMap));
+
             EntityType = entityType;
-            _propertyExpressionsCache = propertyExpressions;
+            _propertyExpressionMap = propertyExpressionMap;
+            DiscriminatorExpression = discriminatorExpression;
         }
 
+        /// <summary>
+        ///     The entity type being projected out.
+        /// </summary>
+        public virtual IEntityType EntityType { get; }
+
+        /// <summary>
+        ///     A <see cref="SqlExpression" /> to generate discriminator for entity type.
+        /// </summary>
+        public virtual SqlExpression? DiscriminatorExpression { get; }
+
+        /// <inheritdoc />
+        public sealed override ExpressionType NodeType
+            => ExpressionType.Extension;
+
+        /// <inheritdoc />
+        public override Type Type
+            => EntityType.ClrType;
+
+        /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            if (_innerTable != null)
-            {
-                var table = (TableExpressionBase)visitor.Visit(_innerTable);
-
-                return table != _innerTable
-                    ? new EntityProjectionExpression(EntityType, table, _nullable)
-                    : this;
-            }
+            Check.NotNull(visitor, nameof(visitor));
 
             var changed = false;
-            var newCache = new Dictionary<IProperty, ColumnExpression>();
-            foreach (var expression in _propertyExpressionsCache)
+            var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var expression in _propertyExpressionMap)
             {
                 var newExpression = (ColumnExpression)visitor.Visit(expression.Value);
                 changed |= newExpression != expression.Value;
 
-                newCache[expression.Key] = newExpression;
+                propertyExpressionMap[expression.Key] = newExpression;
             }
 
+            var discriminatorExpression = (SqlExpression?)visitor.Visit(DiscriminatorExpression);
+            changed |= discriminatorExpression != DiscriminatorExpression;
+
             return changed
-                ? new EntityProjectionExpression(EntityType, newCache)
+                ? new EntityProjectionExpression(EntityType, propertyExpressionMap, discriminatorExpression)
                 : this;
         }
 
+        /// <summary>
+        ///     Makes entity instance in projection nullable.
+        /// </summary>
+        /// <returns> A new entity projection expression which can project nullable entity. </returns>
         public virtual EntityProjectionExpression MakeNullable()
         {
-            if (_innerTable != null)
+            var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var expression in _propertyExpressionMap)
             {
-                return new EntityProjectionExpression(EntityType, _innerTable, nullable: true);
+                propertyExpressionMap[expression.Key] = expression.Value.MakeNullable();
             }
 
-            var newCache = new Dictionary<IProperty, ColumnExpression>();
-            foreach (var expression in _propertyExpressionsCache)
-            {
-                newCache[expression.Key] = expression.Value.MakeNullable();
-            }
-
-            return new EntityProjectionExpression(EntityType, newCache);
+            // We don't need to process DiscriminatorExpression because they are already nullable
+            return new EntityProjectionExpression(EntityType, propertyExpressionMap, DiscriminatorExpression);
         }
 
+        /// <summary>
+        ///     Updates the entity type being projected out to one of the derived type.
+        /// </summary>
+        /// <param name="derivedType"> A derived entity type which should be projected. </param>
+        /// <returns> A new entity projection expression which has the derived type being projected. </returns>
         public virtual EntityProjectionExpression UpdateEntityType(IEntityType derivedType)
         {
-            if (_innerTable != null)
+            Check.NotNull(derivedType, nameof(derivedType));
+
+            if (!derivedType.GetAllBaseTypes().Contains(EntityType))
             {
-                return new EntityProjectionExpression(derivedType, _innerTable, _nullable);
+                throw new InvalidOperationException(
+                    RelationalStrings.InvalidDerivedTypeInEntityProjection(
+                        derivedType.DisplayName(), EntityType.DisplayName()));
             }
 
-            var propertyExpressionCache = new Dictionary<IProperty, ColumnExpression>();
-            foreach (var kvp in _propertyExpressionsCache)
+            var propertyExpressionMap = new Dictionary<IProperty, ColumnExpression>();
+            foreach (var kvp in _propertyExpressionMap)
             {
                 var property = kvp.Key;
                 if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
                     || property.DeclaringEntityType.IsAssignableFrom(derivedType))
                 {
-                    propertyExpressionCache[property] = kvp.Value;
+                    propertyExpressionMap[property] = kvp.Value;
                 }
             }
 
-            return new EntityProjectionExpression(derivedType, propertyExpressionCache);
+            var discriminatorExpression = DiscriminatorExpression;
+            if (DiscriminatorExpression is CaseExpression caseExpression)
+            {
+                var entityTypesToSelect = derivedType.GetTptDiscriminatorValues();
+                var whenClauses = caseExpression.WhenClauses
+                    .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value!))
+                    .ToList();
+
+                discriminatorExpression = caseExpression.Update(operand: null, whenClauses, elseResult: null);
+            }
+
+            return new EntityProjectionExpression(derivedType, propertyExpressionMap, discriminatorExpression);
         }
 
-        public virtual IEntityType EntityType { get; }
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
-        public override Type Type => EntityType.ClrType;
-
+        /// <summary>
+        ///     Binds a property with this entity projection to get the SQL representation.
+        /// </summary>
+        /// <param name="property"> A property to bind. </param>
+        /// <returns> A column which is a SQL representation of the property. </returns>
         public virtual ColumnExpression BindProperty(IProperty property)
         {
+            Check.NotNull(property, nameof(property));
+
             if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
                 && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    $"Called EntityProjectionExpression.BindProperty() with incorrect IProperty. EntityType:{EntityType.DisplayName()}, Property:{property.Name}");
+                    RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
             }
 
-            if (!_propertyExpressionsCache.TryGetValue(property, out var expression))
-            {
-                expression = new ColumnExpression(property, _innerTable, _nullable);
-                _propertyExpressionsCache[property] = expression;
-            }
-
-            return expression;
+            return _propertyExpressionMap[property];
         }
 
+        /// <summary>
+        ///     Adds a navigation binding for this entity projection when the target entity type of the navigation is owned or weak.
+        /// </summary>
+        /// <param name="navigation"> A navigation to add binding for. </param>
+        /// <param name="entityShaper"> An entity shaper expression for the target type. </param>
         public virtual void AddNavigationBinding(INavigation navigation, EntityShaperExpression entityShaper)
         {
+            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(entityShaper, nameof(entityShaper));
+
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.AddNavigationBinding() with incorrect INavigation. "
-                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    RelationalStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
             }
 
-            _navigationExpressionsCache[navigation] = entityShaper;
+            _ownedNavigationMap[navigation] = entityShaper;
         }
 
-        public virtual EntityShaperExpression BindNavigation(INavigation navigation)
+        /// <summary>
+        ///     Binds a navigation with this entity projection to get entity shaper for the target entity type of the navigation which was
+        ///     previously added using <see cref="AddNavigationBinding(INavigation, EntityShaperExpression)" /> method.
+        /// </summary>
+        /// <param name="navigation"> A navigation to bind. </param>
+        /// <returns> An entity shaper expression for the target entity type of the navigation. </returns>
+        public virtual EntityShaperExpression? BindNavigation(INavigation navigation)
         {
+            Check.NotNull(navigation, nameof(navigation));
+
             if (!EntityType.IsAssignableFrom(navigation.DeclaringEntityType)
                 && !navigation.DeclaringEntityType.IsAssignableFrom(EntityType))
             {
                 throw new InvalidOperationException(
-                    "Called EntityProjectionExpression.BindNavigation() with incorrect INavigation. "
-                    + $"EntityType:{EntityType.DisplayName()}, Property:{navigation.Name}");
+                    RelationalStrings.UnableToBindMemberToEntityProjection("navigation", navigation.Name, EntityType.DisplayName()));
             }
 
-            return _navigationExpressionsCache.TryGetValue(navigation, out var expression)
+            return _ownedNavigationMap.TryGetValue(navigation, out var expression)
                 ? expression
                 : null;
         }

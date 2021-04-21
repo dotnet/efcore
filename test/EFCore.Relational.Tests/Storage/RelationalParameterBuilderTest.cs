@@ -3,10 +3,12 @@
 
 using System.Collections.Generic;
 using System.Data;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -77,18 +79,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var property = ((IMutableModel)new Model()).AddEntityType("MyType").AddProperty("MyProp", typeof(string));
+            var model = (IMutableModel)new Model();
+            var property = model.AddEntityType("MyType").AddProperty("MyProp", typeof(string));
             property.IsNullable = nullable;
-            property[CoreAnnotationNames.TypeMapping] = GetMapping(typeMapper, property);
+
+            RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>()
+                .Initialize(model.FinalizeModel(), designTime: false, validationLogger: null);
 
             var parameterBuilder = new RelationalCommandBuilder(
-                new RelationalCommandBuilderDependencies(
-                    typeMapper));
+                new RelationalCommandBuilderDependencies(typeMapper));
 
             parameterBuilder.AddParameter(
                 "InvariantName",
                 "Name",
-                property);
+                property.GetRelationalTypeMapping(),
+                property.IsNullable);
 
             Assert.Equal(1, parameterBuilder.Parameters.Count);
 
@@ -97,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotNull(parameter);
             Assert.Equal("InvariantName", parameter.InvariantName);
             Assert.Equal("Name", parameter.Name);
-            Assert.Equal(GetMapping(typeMapper, property), parameter.RelationalTypeMapping);
+            Assert.Equal(property.GetTypeMapping(), parameter.RelationalTypeMapping);
             Assert.Equal(nullable, parameter.IsNullable);
         }
 

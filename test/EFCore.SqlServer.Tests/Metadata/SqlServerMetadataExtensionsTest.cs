@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -103,23 +102,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.Name)
                 .Metadata;
 
-            Assert.Equal("Name", property.GetColumnName());
+            Assert.Equal("Name", property.GetColumnBaseName());
             Assert.Null(((IConventionProperty)property).GetColumnNameConfigurationSource());
 
             ((IConventionProperty)property).SetColumnName("Eman", fromDataAnnotation: true);
 
-            Assert.Equal("Eman", property.GetColumnName());
+            Assert.Equal("Eman", property.GetColumnBaseName());
             Assert.Equal(ConfigurationSource.DataAnnotation, ((IConventionProperty)property).GetColumnNameConfigurationSource());
 
             property.SetColumnName("MyNameIs");
 
             Assert.Equal("Name", property.Name);
-            Assert.Equal("MyNameIs", property.GetColumnName());
+            Assert.Equal("MyNameIs", property.GetColumnBaseName());
             Assert.Equal(ConfigurationSource.Explicit, ((IConventionProperty)property).GetColumnNameConfigurationSource());
 
             property.SetColumnName(null);
 
-            Assert.Equal("Name", property.GetColumnName());
+            Assert.Equal("Name", property.GetColumnBaseName());
             Assert.Null(((IConventionProperty)property).GetColumnNameConfigurationSource());
         }
 
@@ -188,146 +187,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             key.SetIsClustered(null);
 
             Assert.Null(key.IsClustered());
-        }
-
-        [ConditionalFact]
-        public void Can_get_and_set_sequence()
-        {
-            var modelBuilder = GetModelBuilder();
-            var model = modelBuilder.Model;
-
-            Assert.Null(model.FindSequence("Foo"));
-            Assert.Null(model.FindSequence("Foo"));
-            Assert.Null(((IModel)model).FindSequence("Foo"));
-
-            var sequence = model.AddSequence("Foo");
-
-            Assert.Equal("Foo", model.FindSequence("Foo").Name);
-            Assert.Equal("Foo", ((IModel)model).FindSequence("Foo").Name);
-            Assert.Equal("Foo", model.FindSequence("Foo").Name);
-            Assert.Equal("Foo", ((IModel)model).FindSequence("Foo").Name);
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-
-            Assert.NotNull(model.FindSequence("Foo"));
-
-            var sequence2 = model.FindSequence("Foo");
-
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
-
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
-        }
-
-        [ConditionalFact]
-        public void Can_get_and_set_sequence_with_schema_name()
-        {
-            var modelBuilder = GetModelBuilder();
-            var model = modelBuilder.Model;
-
-            Assert.Null(model.FindSequence("Foo", "Smoo"));
-            Assert.Null(model.FindSequence("Foo", "Smoo"));
-            Assert.Null(((IModel)model).FindSequence("Foo", "Smoo"));
-
-            var sequence = model.AddSequence("Foo", "Smoo");
-
-            Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", ((IModel)model).FindSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", model.FindSequence("Foo", "Smoo").Name);
-            Assert.Equal("Foo", ((IModel)model).FindSequence("Foo", "Smoo").Name);
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-
-            Assert.NotNull(model.FindSequence("Foo", "Smoo"));
-
-            var sequence2 = model.FindSequence("Foo", "Smoo");
-
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
-
-            Assert.Equal(sequence2.Name, sequence.Name);
-            Assert.Equal(sequence2.Schema, sequence.Schema);
-            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
-            Assert.Equal(sequence2.StartValue, sequence.StartValue);
-            Assert.Equal(sequence2.MinValue, sequence.MinValue);
-            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
-            Assert.Same(sequence2.ClrType, sequence.ClrType);
-        }
-
-        [ConditionalFact]
-        public void Can_get_multiple_sequences()
-        {
-            var modelBuilder = GetModelBuilder();
-            var model = modelBuilder.Model;
-
-            model.AddSequence("Fibonacci");
-            model.AddSequence("Golomb");
-
-            var sequences = model.GetSequences();
-
-            Assert.Equal(2, sequences.Count);
-            Assert.Contains(sequences, s => s.Name == "Fibonacci");
-            Assert.Contains(sequences, s => s.Name == "Golomb");
-        }
-
-        [ConditionalFact]
-        public void Can_get_multiple_sequences_when_overridden()
-        {
-            var modelBuilder = GetModelBuilder();
-            var model = modelBuilder.Model;
-
-            model.AddSequence("Fibonacci").StartValue = 1;
-            model.FindSequence("Fibonacci").StartValue = 3;
-            model.AddSequence("Golomb");
-
-            var sequences = model.GetSequences();
-
-            Assert.Equal(2, sequences.Count);
-            Assert.Contains(sequences, s => s.Name == "Golomb");
-
-            var sequence = sequences.FirstOrDefault(s => s.Name == "Fibonacci");
-            Assert.NotNull(sequence);
-            Assert.Equal(3, sequence.StartValue);
         }
 
         [ConditionalFact]
@@ -501,34 +360,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void TryGetSequence_returns_null_if_property_is_not_configured_for_sequence_value_generation()
-        {
-            var modelBuilder = GetModelBuilder();
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .Metadata;
-
-            modelBuilder.Model.AddSequence("DaneelOlivaw");
-
-            Assert.Null(property.FindHiLoSequence());
-
-            property.SetHiLoSequenceName("DaneelOlivaw");
-
-            Assert.Null(property.FindHiLoSequence());
-
-            modelBuilder.Model.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
-
-            Assert.Null(property.FindHiLoSequence());
-
-            modelBuilder.Model.SetValueGenerationStrategy(null);
-            property.SetValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
-
-            Assert.Null(property.FindHiLoSequence());
-        }
-
-        [ConditionalFact]
         public void TryGetSequence_returns_sequence_property_is_marked_for_sequence_generation()
         {
             var modelBuilder = GetModelBuilder();
@@ -681,7 +512,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal("R", property.FindHiLoSequence().Schema);
         }
 
-        private static ModelBuilder GetModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
+        private static ModelBuilder GetModelBuilder()
+            => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
         // ReSharper disable once ClassNeverInstantiated.Local
         private class Customer

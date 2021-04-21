@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(RelationalAnnotationNames.MaxIdentifierLength, annotations[0].Name);
 
             Assert.Equal(
-                RelationalAnnotationNames.SequencePrefix + "." + SqlServerModelExtensions.DefaultHiLoSequenceName,
+                RelationalAnnotationNames.Sequences,
                 annotations[1].Name);
             Assert.NotNull(annotations[1].Value);
 

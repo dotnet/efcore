@@ -4,13 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -34,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CSharpHelper([NotNull] IRelationalTypeMappingSource relationalTypeMappingSource)
+        public CSharpHelper(IRelationalTypeMappingSource relationalTypeMappingSource)
         {
             _relationalTypeMappingSource = relationalTypeMappingSource;
         }
@@ -177,23 +175,27 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Lambda(IReadOnlyList<string> properties)
+        public virtual string Lambda(IReadOnlyList<string> properties, string? lambdaIdentifier)
         {
             Check.NotNull(properties, nameof(properties));
+            Check.NullButNotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
 
+            lambdaIdentifier ??= "x";
             var builder = new StringBuilder();
-            builder.Append("x => ");
+            builder.Append(lambdaIdentifier);
+            builder.Append(" => ");
 
             if (properties.Count == 1)
             {
                 builder
-                    .Append("x.")
+                    .Append(lambdaIdentifier)
+                    .Append(".")
                     .Append(properties[0]);
             }
             else
             {
                 builder.Append("new { ");
-                builder.Append(string.Join(", ", properties.Select(p => "x." + p)));
+                builder.AppendJoin(", ", properties.Select(p => $"{lambdaIdentifier}.{p}"));
                 builder.Append(" }");
             }
 
@@ -229,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (type.IsArray)
             {
                 builder
-                    .Append(Reference(type.GetElementType()))
+                    .Append(Reference(type.GetElementType()!))
                     .Append("[");
 
                 var rank = type.GetArrayRank();
@@ -245,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (type.IsNested)
             {
-                Debug.Assert(type.DeclaringType != null);
+                Check.DebugAssert(type.DeclaringType != null, "DeclaringType is null");
                 builder
                     .Append(Reference(type.DeclaringType))
                     .Append(".");
@@ -265,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Identifier(string name, ICollection<string> scope = null)
+        public virtual string Identifier(string name, ICollection<string>? scope = null)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -344,10 +346,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(string value) =>
-            value.Contains('\n') || value.Contains('\r')
-                ? "@\"" + value.Replace("\"", "\"\"") + "\""
-                : "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+        public virtual string Literal(string value)
+            // do not use @"" syntax as in Migrations this can get indented at a newline and so add spaces to the literal
+            => "\"" + value.Replace(@"\", @"\\").Replace("\"", "\\\"").Replace("\n", @"\n").Replace("\r", @"\r") + "\"";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -355,7 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(bool value) => value ? "true" : "false";
+        public virtual string Literal(bool value)
+            => value ? "true" : "false";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -363,7 +365,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(byte value) => "(byte)" + value;
+        public virtual string Literal(byte value)
+            => "(byte)" + value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -371,7 +374,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(char value) => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
+        public virtual string Literal(char value)
+            => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -381,22 +385,22 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Literal(DateTime value)
             => string.Format(
-                   CultureInfo.InvariantCulture,
-                   "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
-                   value.Year,
-                   value.Month,
-                   value.Day,
-                   value.Hour,
-                   value.Minute,
-                   value.Second,
-                   value.Millisecond,
-                   value.Kind)
-               + (value.Ticks % 10000 == 0
-                   ? ""
-                   : string.Format(
-                       CultureInfo.InvariantCulture,
-                       ".AddTicks({0})",
-                       value.Ticks % 10000));
+                    CultureInfo.InvariantCulture,
+                    "new DateTime({0}, {1}, {2}, {3}, {4}, {5}, {6}, DateTimeKind.{7})",
+                    value.Year,
+                    value.Month,
+                    value.Day,
+                    value.Hour,
+                    value.Minute,
+                    value.Second,
+                    value.Millisecond,
+                    value.Kind)
+                + (value.Ticks % 10000 == 0
+                    ? ""
+                    : string.Format(
+                        CultureInfo.InvariantCulture,
+                        ".AddTicks({0})",
+                        value.Ticks % 10000));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -404,8 +408,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(DateTimeOffset value) =>
-            "new DateTimeOffset(" + Literal(value.DateTime) + ", " + Literal(value.Offset) + ")";
+        public virtual string Literal(DateTimeOffset value)
+            => "new DateTimeOffset(" + Literal(value.DateTime) + ", " + Literal(value.Offset) + ")";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -413,7 +417,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(decimal value) => value.ToString(CultureInfo.InvariantCulture) + "m";
+        public virtual string Literal(decimal value)
+            => value.ToString(CultureInfo.InvariantCulture) + "m";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -421,7 +426,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(double value) => EnsureDecimalPlaces(value);
+        public virtual string Literal(double value)
+            => EnsureDecimalPlaces(value);
 
         private static string EnsureDecimalPlaces(double number)
         {
@@ -443,10 +449,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             return !literal.Contains("E")
-                   && !literal.Contains("e")
-                   && !literal.Contains(".")
-                ? literal + ".0"
-                : literal;
+                && !literal.Contains("e")
+                && !literal.Contains(".")
+                    ? literal + ".0"
+                    : literal;
         }
 
         /// <summary>
@@ -455,7 +461,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(float value) => value.ToString(CultureInfo.InvariantCulture) + "f";
+        public virtual string Literal(float value)
+            => value.ToString(CultureInfo.InvariantCulture) + "f";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -463,7 +470,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(Guid value) => "new Guid(\"" + value + "\")";
+        public virtual string Literal(Guid value)
+            => "new Guid(\"" + value + "\")";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -471,7 +479,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(int value) => value.ToString(CultureInfo.InvariantCulture);
+        public virtual string Literal(int value)
+            => value.ToString(CultureInfo.InvariantCulture);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -479,7 +488,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(long value) => value.ToString(CultureInfo.InvariantCulture) + "L";
+        public virtual string Literal(long value)
+            => value.ToString(CultureInfo.InvariantCulture) + "L";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -487,7 +497,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(sbyte value) => "(sbyte)" + value;
+        public virtual string Literal(sbyte value)
+            => "(sbyte)" + value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -495,7 +506,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(short value) => "(short)" + value;
+        public virtual string Literal(short value)
+            => "(short)" + value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -524,7 +536,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(uint value) => value + "u";
+        public virtual string Literal(uint value)
+            => value + "u";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -532,7 +545,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(ulong value) => value + "ul";
+        public virtual string Literal(ulong value)
+            => value + "ul";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -540,7 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(ushort value) => "(ushort)" + value;
+        public virtual string Literal(ushort value)
+            => "(ushort)" + value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -548,8 +563,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(BigInteger value) =>
-            $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
+        public virtual string Literal(BigInteger value)
+            => $"BigInteger.Parse(\"{value.ToString(NumberFormatInfo.InvariantInfo)}\", NumberFormatInfo.InvariantInfo)";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -558,8 +573,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual string Literal<T>(T? value)
-            where T : struct =>
-            UnknownLiteral(value);
+            where T : struct
+            => UnknownLiteral(value);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -576,77 +591,87 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             builder.Append("new");
 
-            var byteArray = type == typeof(byte);
-            if (byteArray)
-            {
-                builder.Append(" byte");
-            }
-            else if (type == typeof(object))
-            {
-                builder.Append(" object");
-            }
+            var valuesList = values.Cast<object?>().ToList();
 
-            builder.Append("[]");
-
-            if (vertical)
+            if (valuesList.Count == 0)
             {
-                builder.AppendLine();
+                builder
+                    .Append(" ")
+                    .Append(Reference(type))
+                    .Append("[0]");
             }
             else
             {
-                builder.Append(" ");
-            }
-
-            builder.Append("{");
-
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.IncrementIndent();
-            }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            var first = true;
-            foreach (var value in values)
-            {
-                if (first)
+                var byteArray = type == typeof(byte);
+                if (byteArray)
                 {
-                    first = false;
+                    builder.Append(" byte");
+                }
+                else if (type == typeof(object))
+                {
+                    builder.Append(" object");
+                }
+
+                if (vertical)
+                {
+                    builder.AppendLine("[]");
                 }
                 else
                 {
-                    builder.Append(",");
+                    builder.Append("[] ");
+                }
 
-                    if (vertical)
+                builder.Append("{");
+
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.IncrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+
+                var first = true;
+                foreach (var value in valuesList)
+                {
+                    if (first)
                     {
-                        builder.AppendLine();
+                        first = false;
                     }
                     else
                     {
-                        builder.Append(" ");
+                        builder.Append(",");
+
+                        if (vertical)
+                        {
+                            builder.AppendLine();
+                        }
+                        else
+                        {
+                            builder.Append(" ");
+                        }
                     }
+
+                    builder.Append(
+                        byteArray
+                            ? Literal((int)(byte)value!)
+                            : UnknownLiteral(value));
                 }
 
-                builder.Append(
-                    byteArray
-                        ? Literal((int)(byte)value)
-                        : UnknownLiteral(value));
-            }
+                if (vertical)
+                {
+                    builder.AppendLine();
+                    builder.DecrementIndent();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
 
-            if (vertical)
-            {
-                builder.AppendLine();
-                builder.DecrementIndent();
+                builder.Append("}");
             }
-            else
-            {
-                builder.Append(" ");
-            }
-
-            builder.Append("}");
 
             return builder.ToString();
         }
@@ -657,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(object[,] values)
+        public virtual string Literal(object?[,] values)
         {
             var builder = new IndentedStringBuilder();
 
@@ -743,11 +768,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             return allValues.Aggregate(
-                (string)null,
+                (string?)null,
                 (previous, current) =>
                     previous == null
-                        ? GetSimpleEnumValue(type, Enum.GetName(type, current))
-                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)));
+                        ? GetSimpleEnumValue(type, Enum.GetName(type, current)!)
+                        : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!))!;
         }
 
         internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)
@@ -777,10 +802,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string UnknownLiteral(object value)
+        public virtual string UnknownLiteral(object? value)
         {
-            if (value == null
-                || value == DBNull.Value)
+            if (value == null)
             {
                 return "null";
             }
@@ -799,7 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (value is Array array)
             {
-                return Array(literalType.GetElementType(), array);
+                return Array(literalType.GetElementType()!, array);
             }
 
             var mapping = _relationalTypeMappingSource.FindMapping(literalType);
@@ -831,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 case ExpressionType.NewArrayInit:
                     builder
                         .Append("new ")
-                        .Append(Reference(expression.Type.GetElementType()))
+                        .Append(Reference(expression.Type.GetElementType()!))
                         .Append("[] { ");
 
                     HandleList(((NewArrayExpression)expression).Expressions, builder, simple: true);
@@ -859,11 +883,11 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (callExpression.Method.IsStatic)
                     {
                         builder
-                            .Append(Reference(callExpression.Method.DeclaringType, useFullName: true));
+                            .Append(Reference(callExpression.Method.DeclaringType!, useFullName: true));
                     }
                     else
                     {
-                        if (!HandleExpression(callExpression.Object, builder))
+                        if (!HandleExpression(callExpression.Object!, builder))
                         {
                             return false;
                         }
@@ -893,7 +917,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (memberExpression.Expression == null)
                     {
                         builder
-                            .Append(Reference(memberExpression.Member.DeclaringType, useFullName: true));
+                            .Append(Reference(memberExpression.Member.DeclaringType!, useFullName: true));
                     }
                     else
                     {
@@ -906,6 +930,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     builder
                         .Append('.')
                         .Append(memberExpression.Member.Name);
+
+                    return true;
+                }
+                case ExpressionType.Add:
+                {
+                    var binaryExpression = (BinaryExpression)expression;
+                    if (!HandleExpression(binaryExpression.Left, builder))
+                    {
+                        return false;
+                    }
+
+                    builder.Append(" + ");
+
+                    if (!HandleExpression(binaryExpression.Right, builder))
+                    {
+                        return false;
+                    }
 
                     return true;
                 }
@@ -992,7 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 return ch < 'A'
                     ? false
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')
@@ -1009,9 +1050,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 return ch < 'A'
                     ? ch >= '0'
-                      && ch <= '9'
+                    && ch <= '9'
                     : ch <= 'Z'
-                      || ch == '_';
+                    || ch == '_';
             }
 
             if (ch <= 'z')

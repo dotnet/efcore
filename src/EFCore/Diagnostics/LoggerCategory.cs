@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -23,19 +22,21 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The logger category name.
         /// </summary>
         /// <returns> The logger category name. </returns>
-        public override string ToString() => Name;
+        public override string ToString()
+            => Name;
 
         /// <summary>
         ///     The logger category name.
         /// </summary>
         /// <param name="loggerCategory"> The category. </param>
-        public static implicit operator string([NotNull] LoggerCategory<T> loggerCategory) => loggerCategory.ToString();
+        public static implicit operator string(LoggerCategory<T> loggerCategory)
+            => loggerCategory.ToString();
 
         private static string ToName(Type loggerCategoryType)
         {
             const string outerClassName = "." + nameof(DbLoggerCategory);
 
-            var name = loggerCategoryType.FullName.Replace('+', '.');
+            var name = loggerCategoryType.FullName!.Replace('+', '.');
             var index = name.IndexOf(outerClassName, StringComparison.Ordinal);
             if (index >= 0)
             {

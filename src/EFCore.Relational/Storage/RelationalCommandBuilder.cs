@@ -2,8 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -19,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
-        private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
+        private readonly List<IRelationalParameter> _parameters = new();
+        private readonly IndentedStringBuilder _commandTextBuilder = new();
 
         /// <summary>
         ///     <para>
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalCommandBuilder(
-            [NotNull] RelationalCommandBuilderDependencies dependencies)
+            RelationalCommandBuilderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -48,7 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The source for <see cref="RelationalTypeMapping" />s to use.
         /// </summary>
-        public virtual IRelationalTypeMappingSource TypeMappingSource => Dependencies.TypeMappingSource;
+        public virtual IRelationalTypeMappingSource TypeMappingSource
+            => Dependencies.TypeMappingSource;
 
         /// <summary>
         ///     Creates the command.
@@ -60,12 +60,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the command text.
         /// </summary>
-        public override string ToString() => _commandTextBuilder.ToString();
+        public override string ToString()
+            => _commandTextBuilder.ToString();
 
         /// <summary>
         ///     The collection of parameters.
         /// </summary>
-        public virtual IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+        public virtual IReadOnlyList<IRelationalParameter> Parameters
+            => _parameters;
 
         /// <summary>
         ///     Adds the given parameter to this command.
@@ -86,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="value"> The object to be written. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual IRelationalCommandBuilder Append(object value)
+        public virtual IRelationalCommandBuilder Append(string value)
         {
             Check.NotNull(value, nameof(value));
 
@@ -131,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the length of the command text.
         /// </summary>
-        public virtual int CommandTextLength => _commandTextBuilder.Length;
+        public virtual int CommandTextLength
+            => _commandTextBuilder.Length;
     }
 }

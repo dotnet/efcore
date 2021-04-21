@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class FindInMemoryFixture : FindFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
         }
     }
 }

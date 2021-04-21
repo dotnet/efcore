@@ -93,10 +93,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty("ParentId");
                 Assert.True(property1.IsForeignKey());
-                Assert.Equal("ParentId", property1.GetColumnName());
+                Assert.Equal("ParentId", property1.GetColumnBaseName());
                 var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty("ParentId");
                 Assert.True(property2.IsForeignKey());
-                Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnName());
+                Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnBaseName());
             }
 
             [ConditionalFact]
@@ -111,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty(nameof(Child.Name));
-                Assert.Equal(nameof(Child.Name), property1.GetColumnName());
+                Assert.Equal(nameof(Child.Name), property1.GetColumnBaseName());
                 var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty(nameof(Child.Name));
-                Assert.Equal(nameof(Child.Name), property2.GetColumnName());
+                Assert.Equal(nameof(Child.Name), property2.GetColumnBaseName());
             }
 
             [ConditionalFact] //Issue#10659
@@ -147,6 +147,90 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Ignore<DetailsBase>();
 
                 Assert.Null(index.GetFilter());
+            }
+
+            [ConditionalFact]
+            public virtual void TPT_identifying_FK_are_created_only_on_declaring_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<BigMak>()
+                    .Ignore(b => b.Bun)
+                    .Ignore(b => b.Pickles);
+                modelBuilder.Entity<Ingredient>(b =>
+                {
+                    b.ToTable("Ingredients");
+                    b.Ignore(i => i.BigMak);
+                });
+                modelBuilder.Entity<Bun>(b =>
+                {
+                    b.ToTable("Buns");
+                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                });
+                modelBuilder.Entity<SesameBun>(b =>
+                {
+                    b.ToTable("SesameBuns");
+                });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var principalType = model.FindEntityType(typeof(BigMak));
+                Assert.Empty(principalType.GetForeignKeys());
+                Assert.Empty(principalType.GetIndexes());
+
+                var ingredientType = model.FindEntityType(typeof(Ingredient));
+
+                var bunType = model.FindEntityType(typeof(Bun));
+                Assert.Empty(bunType.GetIndexes());
+                var bunFk = bunType.GetDeclaredForeignKeys().Single(fk => !fk.IsBaseLinking());
+                Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName());
+                Assert.Equal("FK_Buns_BigMak_Id", bunFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(principalType, StoreObjectType.Table).Value));
+                Assert.Single(bunFk.GetMappedConstraints());
+
+                var bunLinkingFk = bunType.GetDeclaredForeignKeys().Single(fk => fk.IsBaseLinking());
+                Assert.Equal("FK_Buns_Ingredients_Id", bunLinkingFk.GetConstraintName());
+                Assert.Equal("FK_Buns_Ingredients_Id", bunLinkingFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(ingredientType, StoreObjectType.Table).Value));
+                Assert.Single(bunLinkingFk.GetMappedConstraints());
+
+                var sesameBunType = model.FindEntityType(typeof(SesameBun));
+                Assert.Empty(sesameBunType.GetIndexes());
+                var sesameBunFk = sesameBunType.GetDeclaredForeignKeys().Single();
+                Assert.True(sesameBunFk.IsBaseLinking());
+                Assert.Equal("FK_SesameBuns_Buns_Id", sesameBunFk.GetConstraintName());
+                Assert.Equal("FK_SesameBuns_Buns_Id", sesameBunFk.GetConstraintName(
+                    StoreObjectIdentifier.Create(sesameBunType, StoreObjectType.Table).Value,
+                    StoreObjectIdentifier.Create(bunType, StoreObjectType.Table).Value));
+                Assert.Single(sesameBunFk.GetMappedConstraints());
+            }
+
+            [ConditionalFact]
+            public virtual void TPT_index_can_use_inherited_properties()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<BigMak>()
+                    .Ignore(b => b.Bun)
+                    .Ignore(b => b.Pickles);
+                modelBuilder.Entity<Ingredient>(b =>
+                {
+                    b.ToTable("Ingredients");
+                    b.Property<int?>("NullableProp");
+                    b.Ignore(i => i.BigMak);
+                });
+                modelBuilder.Entity<Bun>(b =>
+                {
+                    b.ToTable("Buns");
+                    b.HasIndex(bun => bun.BurgerId);
+                    b.HasIndex("NullableProp");
+                    b.HasOne(i => i.BigMak).WithOne().HasForeignKey<Bun>(i => i.Id);
+                });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var bunType = model.FindEntityType(typeof(Bun));
+                Assert.All(bunType.GetIndexes(), i => Assert.Null(i.GetFilter()));
             }
 
             public class Parent
@@ -192,6 +276,68 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class SqlServerGenericOneToOne : GenericOneToOne
         {
+            protected override TestModelBuilder CreateModelBuilder()
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+        }
+
+        public class SqlServerGenericManyToMany : GenericManyToMany
+        {
+            [ConditionalFact]
+            public virtual void Join_entity_type_uses_same_schema()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Category>().ToTable("Category", "mySchema").Ignore(c => c.ProductCategories);
+                modelBuilder.Entity<Product>().ToTable("Product", "mySchema");
+                modelBuilder.Entity<CategoryBase>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product));
+                var categoryType = model.FindEntityType(typeof(Category));
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+                var productCategoryType = categoriesFk.DeclaringEntityType;
+
+                Assert.Equal(typeof(Dictionary<string, object>), productCategoryType.ClrType);
+                Assert.Equal("mySchema", productCategoryType.GetSchema());
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+            }
+
+            [ConditionalFact]
+            public virtual void Join_entity_type_uses_default_schema_if_related_are_different()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Category>().ToTable("Category").Ignore(c => c.ProductCategories);
+                modelBuilder.Entity<Product>().ToTable("Product", "dbo");
+                modelBuilder.Entity<CategoryBase>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product));
+                var categoryType = model.FindEntityType(typeof(Category));
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+                var productCategoryType = categoriesFk.DeclaringEntityType;
+
+                Assert.Equal(typeof(Dictionary<string, object>), productCategoryType.ClrType);
+                Assert.Null(productCategoryType.GetSchema());
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+            }
+
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }
@@ -262,12 +408,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
                 Assert.Equal(4, model.GetEntityTypes().Count(e => e.ClrType == typeof(SpecialBookLabel)));
 
-                Assert.Equal(
-                    nameof(Book.Label) + "_" + nameof(BookLabel.Id),
-                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
-                Assert.Equal(
-                    nameof(Book.AlternateLabel) + "_" + nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
-                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
+                Assert.Null(
+                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
+                Assert.Null(
+                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).ToTable("Label");
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).ToTable("AlternateLabel");
@@ -276,10 +422,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal(
                     nameof(BookLabel.Id),
-                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
+                    bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("Label", null)));
                 Assert.Equal(
                     nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
-                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id)).GetColumnName());
+                    bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
+                        .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
             }
 
             [ConditionalFact]
@@ -291,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>(
                     bb =>
                     {
-                        bb.ToTable("BT", "BS");
+                        bb.ToTable("BT", "BS", t => t.ExcludeFromMigrations());
                         bb.OwnsOne(
                             b => b.AlternateLabel, tb =>
                             {
@@ -304,7 +452,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                     l => l.AnotherBookLabel, ab =>
                                     {
                                         ab.Ignore(l => l.Book);
-                                        ab.ToTable("AT1", "AS1");
+                                        ab.ToTable("AT1", "AS1", excludedFromMigrations: false);
                                         ab.OwnsOne(s => s.SpecialBookLabel)
                                             .ToTable("ST11", "SS11")
                                             .Ignore(l => l.Book)
@@ -372,18 +520,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 Assert.Equal("BS", book.GetSchema());
                 Assert.Equal("BT", book.GetTableName());
+                Assert.True(book.IsTableExcludedFromMigrations());
                 Assert.Equal("LS", bookOwnership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("LT", bookOwnership1.DeclaringEntityType.GetTableName());
                 Assert.False(bookOwnership1.DeclaringEntityType.IsMemoryOptimized());
+                Assert.True(bookOwnership1.DeclaringEntityType.IsTableExcludedFromMigrations());
                 Assert.Equal("TS", bookOwnership2.DeclaringEntityType.GetSchema());
                 Assert.Equal("TT", bookOwnership2.DeclaringEntityType.GetTableName());
                 Assert.True(bookOwnership2.DeclaringEntityType.IsMemoryOptimized());
+                Assert.True(bookOwnership2.DeclaringEntityType.IsTableExcludedFromMigrations());
                 Assert.Equal("AS2", bookLabel1Ownership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("AT2", bookLabel1Ownership1.DeclaringEntityType.GetTableName());
                 Assert.Equal("SS1", bookLabel1Ownership2.DeclaringEntityType.GetSchema());
                 Assert.Equal("ST1", bookLabel1Ownership2.DeclaringEntityType.GetTableName());
                 Assert.Equal("AS1", bookLabel2Ownership1.DeclaringEntityType.GetSchema());
                 Assert.Equal("AT1", bookLabel2Ownership1.DeclaringEntityType.GetTableName());
+                Assert.False(bookLabel2Ownership1.DeclaringEntityType.IsTableExcludedFromMigrations());
                 Assert.Equal("SS2", bookLabel2Ownership2.DeclaringEntityType.GetSchema());
                 Assert.Equal("ST2", bookLabel2Ownership2.DeclaringEntityType.GetTableName());
                 Assert.Equal("SS21", bookLabel1Ownership11.DeclaringEntityType.GetSchema());
@@ -467,7 +619,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Single(owned.GetIndexes());
                 Assert.Equal(
                     new[] { nameof(Order.OrderId), nameof(Order.AnotherCustomerId), nameof(Order.CustomerId) },
-                    owned.GetProperties().Select(p => p.GetColumnName()));
+                    owned.GetProperties().Select(p => p.GetColumnBaseName()));
                 Assert.Equal(nameof(Order), owned.GetTableName());
                 Assert.Null(owned.GetSchema());
                 Assert.True(owned.IsMemoryOptimized());
@@ -491,7 +643,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.FinalizeModel();
 
                 Assert.Equal("blah", owned.GetTableName());
-                Assert.Equal("foo", owned.GetSchema());
+                Assert.Null(owned.GetSchema());
             }
 
             [ConditionalFact]
@@ -547,12 +699,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey().Properties.Single().Name);
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
-        }
-
-        public class SqlServerGenericKeylessEntities : GenericKeylessEntities
-        {
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
         }

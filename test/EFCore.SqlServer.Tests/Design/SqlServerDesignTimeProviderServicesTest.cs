@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     public class SqlServerDesignTimeProviderServicesTest : DesignTimeProviderServicesTest
     {
         protected override Assembly GetRuntimeAssembly()
-            => typeof(SqlServerConnection).GetTypeInfo().Assembly;
+            => typeof(SqlServerConnection).Assembly;
 
         protected override Type GetDesignTimeServicesType()
             => typeof(SqlServerDesignTimeServices);

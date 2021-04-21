@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -16,6 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the schema.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
     }
 }

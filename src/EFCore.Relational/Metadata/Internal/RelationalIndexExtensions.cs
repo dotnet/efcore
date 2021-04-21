@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -23,10 +22,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool AreCompatible([NotNull] this IIndex index, [NotNull] IIndex duplicateIndex, bool shouldThrow)
+        public static bool AreCompatible(
+            this IReadOnlyIndex index,
+            IReadOnlyIndex duplicateIndex,
+            in StoreObjectIdentifier storeObject,
+            bool shouldThrow)
         {
-            if (!index.Properties.Select(p => p.GetColumnName())
-                .SequenceEqual(duplicateIndex.Properties.Select(p => p.GetColumnName())))
+            var columnNames = index.Properties.GetColumnNames(storeObject);
+            var duplicateColumnNames = duplicateIndex.Properties.GetColumnNames(storeObject);
+            if (columnNames == null
+                || duplicateColumnNames == null)
+            {
+                if (shouldThrow)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateIndexTableMismatch(
+                            index.Properties.Format(),
+                            index.DeclaringEntityType.DisplayName(),
+                            duplicateIndex.Properties.Format(),
+                            duplicateIndex.DeclaringEntityType.DisplayName(),
+                            index.GetDatabaseName(storeObject),
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            duplicateIndex.DeclaringEntityType.GetSchemaQualifiedTableName()));
+                }
+
+                return false;
+            }
+
+            if (!columnNames.SequenceEqual(duplicateColumnNames))
             {
                 if (shouldThrow)
                 {
@@ -36,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             index.DeclaringEntityType.DisplayName(),
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
-                            Format(index.DeclaringEntityType),
-                            index.GetName(),
-                            index.Properties.FormatColumns(),
-                            duplicateIndex.Properties.FormatColumns()));
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            index.GetDatabaseName(storeObject),
+                            index.Properties.FormatColumns(storeObject),
+                            duplicateIndex.Properties.FormatColumns(storeObject)));
                 }
 
                 return false;
@@ -55,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             index.DeclaringEntityType.DisplayName(),
                             duplicateIndex.Properties.Format(),
                             duplicateIndex.DeclaringEntityType.DisplayName(),
-                            Format(index.DeclaringEntityType),
-                            index.GetName()));
+                            index.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                            index.GetDatabaseName(storeObject)));
                 }
 
                 return false;
@@ -64,8 +87,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return true;
         }
-
-        private static string Format(IEntityType entityType)
-            => (string.IsNullOrEmpty(entityType.GetSchema()) ? "" : entityType.GetSchema() + ".") + entityType.GetTableName();
     }
 }

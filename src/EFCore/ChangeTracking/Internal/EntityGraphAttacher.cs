@@ -3,7 +3,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,7 +33,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public EntityGraphAttacher(
-            [NotNull] IEntityEntryGraphIterator graphIterator) => _graphIterator = graphIterator;
+            IEntityEntryGraphIterator graphIterator)
+            => _graphIterator = graphIterator;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,13 +47,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EntityState targetState,
             EntityState storeGeneratedWithKeySetTargetState,
             bool forceStateWhenUnknownKey)
-            => _graphIterator.TraverseGraph(
-                new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
-                    rootEntry,
-                    (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
-                    null,
-                    null),
-                PaintAction);
+        {
+            try
+            {
+                rootEntry.StateManager.BeginAttachGraph();
+
+                _graphIterator.TraverseGraph(
+                    new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
+                        rootEntry,
+                        (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
+                        null,
+                        null),
+                    PaintAction);
+
+                rootEntry.StateManager.CompleteAttachGraph();
+            }
+            catch
+            {
+                rootEntry.StateManager.AbortAttachGraph();
+                throw;
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,20 +75,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task AttachGraphAsync(
+        public virtual async Task AttachGraphAsync(
             InternalEntityEntry rootEntry,
             EntityState targetState,
             EntityState storeGeneratedWithKeySetTargetState,
             bool forceStateWhenUnknownKey,
             CancellationToken cancellationToken = default)
-            => _graphIterator.TraverseGraphAsync(
-                new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
-                    rootEntry,
-                    (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
-                    null,
-                    null),
-                PaintActionAsync,
-                cancellationToken);
+        {
+            try
+            {
+                rootEntry.StateManager.BeginAttachGraph();
+
+                await _graphIterator.TraverseGraphAsync(
+                    new EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)>(
+                        rootEntry,
+                        (targetState, storeGeneratedWithKeySetTargetState, forceStateWhenUnknownKey),
+                        null,
+                        null),
+                    PaintActionAsync,
+                    cancellationToken);
+
+                rootEntry.StateManager.CompleteAttachGraph();
+            }
+            catch
+            {
+                rootEntry.StateManager.AbortAttachGraph();
+                throw;
+            }
+        }
 
         private static bool PaintAction(
             EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)
@@ -118,12 +146,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var (isGenerated, isSet) = internalEntityEntry.IsKeySet;
 
             await internalEntityEntry.SetEntityStateAsync(
-                isSet
-                    ? (isGenerated ? storeGenTargetState : targetState)
-                    : EntityState.Added, // Key can only be not-set if it is store-generated
-                acceptChanges: true,
-                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
-                cancellationToken: cancellationToken);
+                    isSet
+                        ? (isGenerated ? storeGenTargetState : targetState)
+                        : EntityState.Added, // Key can only be not-set if it is store-generated
+                    acceptChanges: true,
+                    forceStateWhenUnknownKey: force ? (EntityState?)targetState : null,
+                    cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
 
             return true;
         }
@@ -133,9 +162,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var inboundNavigation = node.InboundNavigation;
             if (inboundNavigation != null
-                && !inboundNavigation.IsCollection())
+                && !inboundNavigation.IsCollection)
             {
-                node.SourceEntry.GetInfrastructure().SetIsLoaded(inboundNavigation);
+                node.SourceEntry!.GetInfrastructure().SetIsLoaded(inboundNavigation);
             }
         }
     }

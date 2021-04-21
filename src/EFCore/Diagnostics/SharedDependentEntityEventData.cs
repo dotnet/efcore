@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -22,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="firstEntityType"> The first <see cref="IEntityType" />. </param>
         /// <param name="secondEntityType"> The second <see cref="IEntityType" />. </param>
         public SharedDependentEntityEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IEntityType firstEntityType,
-            [NotNull] IEntityType secondEntityType)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IEntityType firstEntityType,
+            IEntityType secondEntityType)
             : base(eventDefinition, messageGenerator)
         {
             FirstEntityType = firstEntityType;

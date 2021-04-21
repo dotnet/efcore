@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Update;
+
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -15,11 +17,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class DependentsMap<TKey> : IDependentsMap
+        where TKey : notnull
     {
         private readonly IForeignKey _foreignKey;
         private readonly IPrincipalKeyValueFactory<TKey> _principalKeyValueFactory;
         private readonly IDependentKeyValueFactory<TKey> _dependentKeyValueFactory;
-        private readonly Dictionary<TKey, HashSet<InternalEntityEntry>> _map;
+        private readonly Dictionary<TKey, HashSet<IUpdateEntry>> _map;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,14 +31,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DependentsMap(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
-            [NotNull] IDependentKeyValueFactory<TKey> dependentKeyValueFactory)
+            IForeignKey foreignKey,
+            IPrincipalKeyValueFactory<TKey> principalKeyValueFactory,
+            IDependentKeyValueFactory<TKey> dependentKeyValueFactory)
         {
             _foreignKey = foreignKey;
             _principalKeyValueFactory = principalKeyValueFactory;
             _dependentKeyValueFactory = dependentKeyValueFactory;
-            _map = new Dictionary<TKey, HashSet<InternalEntityEntry>>(principalKeyValueFactory.EqualityComparer);
+            _map = new Dictionary<TKey, HashSet<IUpdateEntry>>(principalKeyValueFactory.EqualityComparer);
         }
 
         /// <summary>
@@ -44,14 +47,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Add(InternalEntityEntry entry)
+        public virtual void Add(IUpdateEntry entry)
         {
             if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
                 && TryCreateFromCurrentValues(entry, out var key))
             {
                 if (!_map.TryGetValue(key, out var dependents))
                 {
-                    dependents = new HashSet<InternalEntityEntry>();
+                    dependents = new HashSet<IUpdateEntry>();
                     _map[key] = dependents;
                 }
 
@@ -65,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Remove(InternalEntityEntry entry)
+        public virtual void Remove(IUpdateEntry entry)
         {
             if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
                 && TryCreateFromCurrentValues(entry, out var key))
@@ -83,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Update(InternalEntityEntry entry)
+        public virtual void Update(IUpdateEntry entry)
         {
             if (_foreignKey.DeclaringEntityType.IsAssignableFrom(entry.EntityType))
             {
@@ -97,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (!_map.TryGetValue(key, out dependents))
                     {
-                        dependents = new HashSet<InternalEntityEntry>();
+                        dependents = new HashSet<IUpdateEntry>();
                         _map[key] = dependents;
                     }
 
@@ -106,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private bool TryCreateFromCurrentValues(InternalEntityEntry entry, out TKey key)
+        private bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
         {
             // TODO: Move into delegate
             foreach (var property in _foreignKey.Properties)
@@ -127,11 +130,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry)
+        public virtual IEnumerable<IUpdateEntry> GetDependents(IUpdateEntry principalEntry)
         {
             return _map.TryGetValue(_principalKeyValueFactory.CreateFromCurrentValues(principalEntry), out var dependents)
                 ? dependents
-                : Enumerable.Empty<InternalEntityEntry>();
+                : Enumerable.Empty<IUpdateEntry>();
         }
 
         /// <summary>
@@ -140,11 +143,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<InternalEntityEntry> GetDependentsUsingRelationshipSnapshot(InternalEntityEntry principalEntry)
+        public virtual IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(IUpdateEntry principalEntry)
         {
             return _map.TryGetValue(_principalKeyValueFactory.CreateFromRelationshipSnapshot(principalEntry), out var dependents)
                 ? dependents
-                : Enumerable.Empty<InternalEntityEntry>();
+                : Enumerable.Empty<IUpdateEntry>();
         }
     }
 }

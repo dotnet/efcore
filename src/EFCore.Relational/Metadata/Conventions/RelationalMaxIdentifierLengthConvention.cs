@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -20,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public RelationalMaxIdentifierLengthConvention(
             int maxIdentifierLength,
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             MaxIdentifierLength = maxIdentifierLength;
             Dependencies = dependencies;
@@ -43,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessModelInitialized(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             modelBuilder.Metadata.Builder.HasMaxIdentifierLength(MaxIdentifierLength);
         }

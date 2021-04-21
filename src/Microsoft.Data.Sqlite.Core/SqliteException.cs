@@ -11,6 +11,7 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Represents a SQLite error.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/database-errors">Database Errors</seealso>
     public class SqliteException : DbException
     {
         /// <summary>
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="message">The message to display for the exception. Can be null.</param>
         /// <param name="errorCode">The SQLite error code.</param>
-        public SqliteException(string message, int errorCode)
+        public SqliteException(string? message, int errorCode)
             : this(message, errorCode, errorCode)
         {
         }
@@ -29,7 +30,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="message">The message to display for the exception. Can be null.</param>
         /// <param name="errorCode">The SQLite error code.</param>
         /// <param name="extendedErrorCode">The extended SQLite error code.</param>
-        public SqliteException(string message, int errorCode, int extendedErrorCode)
+        public SqliteException(string? message, int errorCode, int extendedErrorCode)
             : base(message)
         {
             SqliteErrorCode = errorCode;
@@ -40,14 +41,14 @@ namespace Microsoft.Data.Sqlite
         ///     Gets the SQLite error code.
         /// </summary>
         /// <value>The SQLite error code.</value>
-        /// <seealso href="http://sqlite.org/rescode.html">SQLite Result Codes</seealso>
+        /// <seealso href="https://www.sqlite.org/rescode.html">SQLite Result Codes</seealso>
         public virtual int SqliteErrorCode { get; }
 
         /// <summary>
         ///     Gets the extended SQLite error code.
         /// </summary>
         /// <value>The SQLite error code.</value>
-        /// <seealso href="https://sqlite.org/rescode.html#extrc">SQLite Result Codes</seealso>
+        /// <seealso href="https://www.sqlite.org/rescode.html#extrc">SQLite Result Codes</seealso>
         public virtual int SqliteExtendedErrorCode { get; }
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace Microsoft.Data.Sqlite
         /// <remarks>
         ///     No exception is thrown for non-error result codes.
         /// </remarks>
-        public static void ThrowExceptionForRC(int rc, sqlite3 db)
+        public static void ThrowExceptionForRC(int rc, sqlite3? db)
         {
             if (rc == SQLITE_OK
                 || rc == SQLITE_ROW

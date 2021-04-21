@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
     {
-        protected FromSqlSprocQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected FromSqlSprocQueryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -75,12 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                 .Select(mep => mep.TenMostExpensiveProducts);
 
-            var actual = async
-                ? await query.ToArrayAsync()
-                : query.ToArray();
-
-            Assert.Equal(10, actual.Length);
-            Assert.Contains(actual, r => r == "Côte de Blaye");
+            Assert.Equal(
+                RelationalStrings.FromSqlNonComposable,
+                (async
+                    ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
+                    : Assert.Throws<InvalidOperationException>(() => query.ToArray())).Message);
         }
 
         [ConditionalTheory]
@@ -454,7 +454,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected virtual object[] GetCustomerOrderHistorySprocParameters()
             => new[] { "ALFKI" };
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
 
         protected abstract string TenMostExpensiveProductsSproc { get; }
 

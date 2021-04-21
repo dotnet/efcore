@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductWithBytes> ProductWithBytes { get; set; }
         public DbSet<AFewBytes> AFewBytes { get; set; }
+        public DbSet<ProductViewTable> ProductView { get; set; }
+        public DbSet<ProductTableWithView> ProductTable { get; set; }
+        public DbSet<ProductTableView> ProductTableView { get; set; }
 
         public UpdatesContext(DbContextOptions options)
             : base(options)

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -18,24 +17,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entity"> The entity instance. </param>
         /// <param name="value"> The value to add. </param>
         /// <param name="forMaterialization"> If true, then the value is being added as part of query materialization.</param>
-        /// <returns> True if a value was added; false if it was already in the collection. </returns>
-        bool Add([NotNull] object entity, [NotNull] object value, bool forMaterialization);
+        /// <returns> <see langword="true" /> if a value was added; <see langword="false" /> if it was already in the collection. </returns>
+        bool Add(object entity, object value, bool forMaterialization);
 
         /// <summary>
         ///     Checks whether the value is contained in the collection.
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <param name="value"> The value to check. </param>
-        /// <returns> True if the value is contained in the collection; false otherwise. </returns>
-        bool Contains([NotNull] object entity, [NotNull] object value);
+        /// <returns> <see langword="true" /> if the value is contained in the collection; <see langword="false" /> otherwise. </returns>
+        bool Contains(object entity, object value);
 
         /// <summary>
         ///     Removes a value from the collection.
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <param name="value"> The value to check. </param>
-        /// <returns> True if the value was contained in the collection; false otherwise. </returns>
-        bool Remove([NotNull] object entity, [NotNull] object value);
+        /// <returns> <see langword="true" /> if the value was contained in the collection; <see langword="false" /> otherwise. </returns>
+        bool Remove(object entity, object value);
 
         /// <summary>
         ///     Creates a new collection instance of the appropriate type for the navigation property.
@@ -48,9 +47,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     exists, then creates a new instance, sets it, and returns it.
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
-        /// <param name="forMaterialization"> If true, then this is happening as part of query materialization; false otherwise. </param>
+        /// <param name="forMaterialization"> If true, then this is happening as part of query materialization; <see langword="false" /> otherwise. </param>
         /// <returns> The existing or new collection. </returns>
-        object GetOrCreate([NotNull] object entity, bool forMaterialization);
+        object GetOrCreate(object entity, bool forMaterialization);
 
         /// <summary>
         ///     The collection type.

@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class QueryContextDependencies
+    public sealed record QueryContextDependencies
     {
         /// <summary>
         ///     <para>
@@ -59,11 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public QueryContextDependencies(
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
+            ICurrentDbContext currentContext,
+            IExecutionStrategyFactory executionStrategyFactory,
+            IConcurrencyDetector concurrencyDetector,
+            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+            IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The cache being used to store value generator instances.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -90,70 +90,34 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public IStateManager StateManager => CurrentContext.GetDependencies().StateManager;
+        public IStateManager StateManager
+            => CurrentContext.GetDependencies().StateManager;
 
         /// <summary>
         ///     Gets the query provider.
         /// </summary>
-        public IQueryProvider QueryProvider => CurrentContext.GetDependencies().QueryProvider;
+        [Obsolete("Use the service by getting it from " + nameof(CurrentContext) + ".")]
+        public IQueryProvider QueryProvider
+            => CurrentContext.GetDependencies().QueryProvider;
 
         /// <summary>
         ///     The execution strategy.
         /// </summary>
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+        public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     Gets the concurrency detector.
         /// </summary>
-        public IConcurrencyDetector ConcurrencyDetector { get; }
+        public IConcurrencyDetector ConcurrencyDetector { get; init; }
 
         /// <summary>
         ///     The command logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; init; }
 
         /// <summary>
         ///     A query logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryContextDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new QueryContextDependencies(currentContext, ExecutionStrategyFactory, ConcurrencyDetector, CommandLogger, QueryLogger);
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactor"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryContextDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactor)
-            => new QueryContextDependencies(CurrentContext, executionStrategyFactor, ConcurrencyDetector, CommandLogger, QueryLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="concurrencyDetector"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryContextDependencies With([NotNull] IConcurrencyDetector concurrencyDetector)
-            => new QueryContextDependencies(CurrentContext, ExecutionStrategyFactory, concurrencyDetector, CommandLogger, QueryLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="commandLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryContextDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
-            => new QueryContextDependencies(CurrentContext, ExecutionStrategyFactory, ConcurrencyDetector, commandLogger, QueryLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="queryLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public QueryContextDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
-            => new QueryContextDependencies(CurrentContext, ExecutionStrategyFactory, ConcurrencyDetector, CommandLogger, queryLogger);
+        public IDiagnosticsLogger<DbLoggerCategory.Query> QueryLogger { get; init; }
     }
 }

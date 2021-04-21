@@ -8,10 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class MigrationsScriptCommand : ContextCommandBase
     {
-        private CommandArgument _from;
-        private CommandArgument _to;
-        private CommandOption _output;
-        private CommandOption _idempotent;
+        private CommandArgument? _from;
+        private CommandArgument? _to;
+        private CommandOption? _output;
+        private CommandOption? _idempotent;
+        private CommandOption? _noTransactions;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -22,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             _output = command.Option("-o|--output <FILE>", Resources.OutputDescription);
             _idempotent = command.Option("-i|--idempotent", Resources.IdempotentDescription);
+            _noTransactions = command.Option("--no-transactions", Resources.NoTransactionsDescription);
 
             base.Configure(command);
         }

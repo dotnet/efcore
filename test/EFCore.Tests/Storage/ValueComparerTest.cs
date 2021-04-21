@@ -6,12 +6,45 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class ValueComparerTest
     {
+        private class SomeDbContext : DbContext
+        {
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
+                => modelBuilder.Entity<Foo>().Property(e => e.Bar).HasConversion<string>(new FakeValueComparer());
+        }
+
+        protected class FakeValueComparer : ValueComparer<double>
+        {
+            public FakeValueComparer() : base(false)
+            {
+            }
+        }
+
+        private class Foo
+        {
+            public int Id { get; set; }
+            public int Bar { get; set; }
+        }
+
+        [ConditionalFact]
+        public void Throws_for_comparer_with_wrong_type()
+        {
+            using var context = new SomeDbContext();
+
+            Assert.Equal(
+                CoreStrings.ComparerPropertyMismatch("double", nameof(Foo), nameof(Foo.Bar), "int"),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+        }
+
         [ConditionalTheory]
         [InlineData(typeof(byte), (byte)1, (byte)2, 1)]
         [InlineData(typeof(ushort), (ushort)1, (ushort)2, 1)]
@@ -121,12 +154,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             public int A { get; set; }
             public string B { get; set; }
 
-            private bool Equals(JustAStructWithEquality other) => A == other.A;
+            private bool Equals(JustAStructWithEquality other)
+                => A == other.A;
 
             public override bool Equals(object obj)
                 => obj is JustAStructWithEquality o && Equals(o);
 
-            public override int GetHashCode() => A;
+            public override int GetHashCode()
+                => A;
         }
 
         [ConditionalFact]
@@ -185,7 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             public int A { get; set; }
 
-            private bool Equals(JustAClassWithEquality other) => A == other.A;
+            private bool Equals(JustAClassWithEquality other)
+                => A == other.A;
 
             public override bool Equals(object obj)
                 => !(obj is null)
@@ -193,7 +229,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         || obj is JustAClassWithEquality o
                         && Equals(o));
 
-            public override int GetHashCode() => A;
+            public override int GetHashCode()
+                => A;
         }
 
         [ConditionalFact]
@@ -401,6 +438,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var keyEquals = keyComparer.EqualsExpression.Compile();
             var getHashCode = comparer.HashCodeExpression.Compile();
             var getKeyHashCode = keyComparer.HashCodeExpression.Compile();
+            var snapshot = comparer.SnapshotExpression.Compile();
+            var keySnapshot = keyComparer.SnapshotExpression.Compile();
 
             var value1a = new byte[] { 1, 2 };
             var value1b = new byte[] { 1, 2 };
@@ -416,6 +455,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(value1a.GetHashCode(), getHashCode(value1a));
             Assert.NotEqual(value1a.GetHashCode(), getKeyHashCode(value1a));
+
+            var copy = snapshot(value1a);
+            var keyCopy = keySnapshot(value2);
+
+            Assert.Same(value1a, copy);
+            Assert.NotSame(value2, keyCopy);
+            Assert.Equal(value1a, copy);
+            Assert.Equal(value2, keyCopy);
         }
 
         private class Binary

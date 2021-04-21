@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         ///     Initializes a new instance of the <see cref="ProviderConventionSetBuilder" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ProviderConventionSetBuilder([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ProviderConventionSetBuilder(ProviderConventionSetBuilderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -61,23 +60,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var inversePropertyAttributeConvention = new InversePropertyAttributeConvention(Dependencies);
             var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention(Dependencies);
             var servicePropertyDiscoveryConvention = new ServicePropertyDiscoveryConvention(Dependencies);
+            var indexAttributeConvention = new IndexAttributeConvention(Dependencies);
 
+            var baseTypeDiscoveryConvention = new BaseTypeDiscoveryConvention(Dependencies);
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new OwnedEntityTypeAttributeConvention(Dependencies));
+            conventionSet.EntityTypeAddedConventions.Add(new KeylessEntityTypeAttributeConvention(Dependencies));
+            conventionSet.EntityTypeAddedConventions.Add(new EntityTypeConfigurationEntityTypeAttributeConvention(Dependencies));
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedMemberAttributeConvention(Dependencies));
-            conventionSet.EntityTypeAddedConventions.Add(new BaseTypeDiscoveryConvention(Dependencies));
+            conventionSet.EntityTypeAddedConventions.Add(baseTypeDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(propertyDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(servicePropertyDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(keyDiscoveryConvention);
+            conventionSet.EntityTypeAddedConventions.Add(indexAttributeConvention);
             conventionSet.EntityTypeAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeAddedConventions.Add(relationshipDiscoveryConvention);
-            conventionSet.EntityTypeAddedConventions.Add(new DerivedTypeDiscoveryConvention(Dependencies));
 
-            conventionSet.EntityTypeIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeIgnoredConventions.Add(relationshipDiscoveryConvention);
 
             var discriminatorConvention = new DiscriminatorConvention(Dependencies);
-            conventionSet.EntityTypeRemovedConventions.Add(new OwnedTypesConvention(Dependencies));
+            conventionSet.EntityTypeRemovedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeRemovedConventions.Add(discriminatorConvention);
 
             var foreignKeyIndexConvention = new ForeignKeyIndexConvention(Dependencies);
@@ -86,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(propertyDiscoveryConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(servicePropertyDiscoveryConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(keyDiscoveryConvention);
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(indexAttributeConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(foreignKeyIndexConvention);
@@ -97,7 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            conventionSet.EntityTypeMemberIgnoredConventions.Add(servicePropertyDiscoveryConvention);
 
             var keyAttributeConvention = new KeyAttributeConvention(Dependencies);
             var backingFieldConvention = new BackingFieldConvention(Dependencies);
@@ -105,11 +107,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             var databaseGeneratedAttributeConvention = new DatabaseGeneratedAttributeConvention(Dependencies);
             var requiredPropertyAttributeConvention = new RequiredPropertyAttributeConvention(Dependencies);
             var nonNullableReferencePropertyConvention = new NonNullableReferencePropertyConvention(Dependencies);
-            var nonNullableNavigationConvention = new NonNullableNavigationConvention(Dependencies);
             var maxLengthAttributeConvention = new MaxLengthAttributeConvention(Dependencies);
             var stringLengthAttributeConvention = new StringLengthAttributeConvention(Dependencies);
             var timestampAttributeConvention = new TimestampAttributeConvention(Dependencies);
+            var backingFieldAttributeConvention = new BackingFieldAttributeConvention(Dependencies);
+            var unicodeAttributeConvention = new UnicodeAttributeConvention(Dependencies);
+            var precisionAttributeConvention = new PrecisionAttributeConvention(Dependencies);
 
+            conventionSet.PropertyAddedConventions.Add(backingFieldAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(backingFieldConvention);
             conventionSet.PropertyAddedConventions.Add(concurrencyCheckAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(databaseGeneratedAttributeConvention);
@@ -121,6 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.PropertyAddedConventions.Add(unicodeAttributeConvention);
+            conventionSet.PropertyAddedConventions.Add(precisionAttributeConvention);
 
             conventionSet.EntityTypePrimaryKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.EntityTypePrimaryKeyChangedConventions.Add(valueGeneratorConvention);
@@ -159,34 +166,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ForeignKeyRequirednessChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(new NavigationEagerLoadingConvention(Dependencies));
+            conventionSet.ForeignKeyOwnershipChangedConventions.Add(baseTypeDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.ForeignKeyOwnershipChangedConventions.Add(valueGeneratorConvention);
 
-            conventionSet.ModelInitializedConventions.Add(new DbSetFindingConvention(Dependencies));
-
-            conventionSet.ModelFinalizedConventions.Add(new ModelCleanupConvention(Dependencies));
-            conventionSet.ModelFinalizedConventions.Add(keyAttributeConvention);
-            conventionSet.ModelFinalizedConventions.Add(foreignKeyAttributeConvention);
-            conventionSet.ModelFinalizedConventions.Add(new ChangeTrackingStrategyConvention(Dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new ConstructorBindingConvention(Dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new TypeMappingConvention(Dependencies));
-            conventionSet.ModelFinalizedConventions.Add(foreignKeyIndexConvention);
-            conventionSet.ModelFinalizedConventions.Add(foreignKeyPropertyDiscoveryConvention);
-            conventionSet.ModelFinalizedConventions.Add(servicePropertyDiscoveryConvention);
-            conventionSet.ModelFinalizedConventions.Add(nonNullableReferencePropertyConvention);
-            conventionSet.ModelFinalizedConventions.Add(nonNullableNavigationConvention);
-            conventionSet.ModelFinalizedConventions.Add(new QueryFilterDefiningQueryRewritingConvention(Dependencies));
-            conventionSet.ModelFinalizedConventions.Add(inversePropertyAttributeConvention);
-            conventionSet.ModelFinalizedConventions.Add(backingFieldConvention);
-            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(Dependencies));
-            // Don't add any more conventions to ModelFinalizedConventions after ValidatingConvention
-
+            var requiredNavigationAttributeConvention = new RequiredNavigationAttributeConvention(Dependencies);
+            var nonNullableNavigationConvention = new NonNullableNavigationConvention(Dependencies);
+            conventionSet.NavigationAddedConventions.Add(new NavigationBackingFieldAttributeConvention(Dependencies));
             conventionSet.NavigationAddedConventions.Add(backingFieldConvention);
-            conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention(Dependencies));
+            conventionSet.NavigationAddedConventions.Add(requiredNavigationAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(nonNullableNavigationConvention);
             conventionSet.NavigationAddedConventions.Add(inversePropertyAttributeConvention);
             conventionSet.NavigationAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.NavigationAddedConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.NavigationAddedConventions.Add(foreignKeyAttributeConvention);
+
+            var manyToManyJoinEntityTypeConvention = new ManyToManyJoinEntityTypeConvention(Dependencies);
+            conventionSet.SkipNavigationAddedConventions.Add(new NavigationBackingFieldAttributeConvention(Dependencies));
+            conventionSet.SkipNavigationAddedConventions.Add(backingFieldConvention);
+            conventionSet.SkipNavigationAddedConventions.Add(manyToManyJoinEntityTypeConvention);
+
+            conventionSet.SkipNavigationRemovedConventions.Add(manyToManyJoinEntityTypeConvention);
+
+            conventionSet.SkipNavigationInverseChangedConventions.Add(manyToManyJoinEntityTypeConvention);
+            conventionSet.SkipNavigationInverseChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(manyToManyJoinEntityTypeConvention);
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(keyDiscoveryConvention);
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 
@@ -197,10 +205,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.IndexUniquenessChangedConventions.Add(foreignKeyIndexConvention);
 
             conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(requiredNavigationAttributeConvention);
+            conventionSet.ForeignKeyPrincipalEndChangedConventions.Add(nonNullableNavigationConvention);
 
             conventionSet.PropertyNullabilityChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
-            conventionSet.PropertyFieldChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyFieldChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
             conventionSet.PropertyFieldChangedConventions.Add(keyAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(concurrencyCheckAttributeConvention);
@@ -210,6 +219,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.PropertyFieldChangedConventions.Add(maxLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(stringLengthAttributeConvention);
             conventionSet.PropertyFieldChangedConventions.Add(timestampAttributeConvention);
+
+            conventionSet.ModelInitializedConventions.Add(new DbSetFindingConvention(Dependencies));
+
+            conventionSet.ModelFinalizingConventions.Add(new ModelCleanupConvention(Dependencies));
+            conventionSet.ModelFinalizingConventions.Add(keyAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(indexAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(foreignKeyAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(new ChangeTrackingStrategyConvention(Dependencies));
+            conventionSet.ModelFinalizingConventions.Add(new ConstructorBindingConvention(Dependencies));
+            conventionSet.ModelFinalizingConventions.Add(foreignKeyIndexConvention);
+            conventionSet.ModelFinalizingConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.ModelFinalizingConventions.Add(nonNullableReferencePropertyConvention);
+            conventionSet.ModelFinalizingConventions.Add(nonNullableNavigationConvention);
+            conventionSet.ModelFinalizingConventions.Add(new QueryFilterRewritingConvention(Dependencies));
+            conventionSet.ModelFinalizingConventions.Add(inversePropertyAttributeConvention);
+            conventionSet.ModelFinalizingConventions.Add(backingFieldConvention);
+
+            conventionSet.ModelFinalizedConventions.Add(new SlimModelConvention(Dependencies));
 
             return conventionSet;
         }
@@ -222,8 +249,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
         /// <param name="newConvention"> The new convention. </param>
         protected virtual bool ReplaceConvention<TConvention, TImplementation>(
-            [NotNull] IList<TConvention> conventionsList,
-            [NotNull] TImplementation newConvention)
+            IList<TConvention> conventionsList,
+            TImplementation newConvention)
             where TImplementation : TConvention
             => ConventionSet.Replace(conventionsList, newConvention);
     }

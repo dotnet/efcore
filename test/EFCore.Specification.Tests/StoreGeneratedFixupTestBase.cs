@@ -18,10 +18,11 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : StoreGeneratedFixupTestBase<TFixture>.StoreGeneratedFixupFixtureBase, new()
     {
-        protected static readonly Guid Guid77 = new Guid("{DE390D36-DAAC-4C8B-91F7-E9F5DAA7EF01}");
-        protected static readonly Guid Guid78 = new Guid("{4C80406F-49AF-4D85-AFFB-75C146A98A70}");
+        protected static readonly Guid Guid77 = new("{DE390D36-DAAC-4C8B-91F7-E9F5DAA7EF01}");
+        protected static readonly Guid Guid78 = new("{4C80406F-49AF-4D85-AFFB-75C146A98A70}");
 
-        protected StoreGeneratedFixupTestBase(TFixture fixture) => Fixture = fixture;
+        protected StoreGeneratedFixupTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
@@ -4215,17 +4216,15 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Temporary_value_equals_database_generated_value()
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new Game { Id = Guid77 });
-                entry.Property(g => g.Id).IsTemporary = true;
-                var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
-                internalEntry.PrepareToSave();
-                internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
-                internalEntry.AcceptChanges();
+            using var context = CreateContext();
+            var entry = context.Add(new Game { Id = Guid77 });
+            entry.Property(g => g.Id).IsTemporary = true;
+            var internalEntry = ((IInfrastructure<InternalEntityEntry>)entry).Instance;
+            internalEntry.PrepareToSave();
+            internalEntry.SetProperty(entry.Metadata.FindProperty("Id"), Guid77, false);
+            internalEntry.AcceptChanges();
 
-                Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
-            }
+            Assert.Equal(EntityState.Unchanged, internalEntry.EntityState);
         }
 
         private void AssertFixupAndSave(DbContext context, Game game, Level level, Item item)
@@ -4278,24 +4277,22 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Remove_overlapping_principal()
         {
-            using (var context = CreateContext())
-            {
-                context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
+            using var context = CreateContext();
+            context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
 
-                var game = new Game { Id = Guid77 };
-                var level = new Level { Game = game };
-                var item = new Item { Level = level };
+            var game = new Game { Id = Guid77 };
+            var level = new Level { Game = game };
+            var item = new Item { Level = level };
 
-                context.Add(item);
+            context.Add(item);
 
-                level.Items.Remove(item);
+            level.Items.Remove(item);
 
-                context.ChangeTracker.DetectChanges();
+            context.ChangeTracker.DetectChanges();
 
-                Assert.Null(item.Level);
-                Assert.Empty(level.Items);
-                Assert.Empty(level.Actors);
-            }
+            Assert.Null(item.Level);
+            Assert.Empty(level.Items);
+            Assert.Empty(level.Actors);
         }
 
         [ConditionalFact]
@@ -4400,8 +4397,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             first.SecondLevels = new List<SecondLevel>
             {
-                new SecondLevel { ThirdLevels = new List<ThirdLevel> { new ThirdLevel(), new ThirdLevel() } },
-                new SecondLevel { ThirdLevels = new List<ThirdLevel> { new ThirdLevel(), new ThirdLevel() } }
+                new() { ThirdLevels = new List<ThirdLevel> { new(), new() } },
+                new() { ThirdLevels = new List<ThirdLevel> { new(), new() } }
             };
         }
 
@@ -4642,7 +4639,8 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
             => TestHelpers.ExecuteWithStrategyInTransaction(CreateContext, UseTransaction, testOperation);
 
-        protected DbContext CreateContext() => Fixture.CreateContext();
+        protected DbContext CreateContext()
+            => Fixture.CreateContext();
 
         public abstract class StoreGeneratedFixupFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {

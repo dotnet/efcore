@@ -8,13 +8,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     internal class ProjectOptions
     {
-        public CommandOption Project { get; private set; }
-        public CommandOption StartupProject { get; private set; }
-        public CommandOption Framework { get; private set; }
-        public CommandOption Configuration { get; private set; }
-        public CommandOption Runtime { get; private set; }
-        public CommandOption MSBuildProjectExtensionsPath { get; private set; }
-        public CommandOption NoBuild { get; private set; }
+        public CommandOption? Project { get; private set; }
+        public CommandOption? StartupProject { get; private set; }
+        public CommandOption? Framework { get; private set; }
+        public CommandOption? Configuration { get; private set; }
+        public CommandOption? Runtime { get; private set; }
+        public CommandOption? MSBuildProjectExtensionsPath { get; private set; }
+        public CommandOption? NoBuild { get; private set; }
 
         public void Configure(CommandLineApplication command)
         {

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.MusicStore
         }
 
         public static ShoppingCart GetCart(MusicStoreContext db, string cartId)
-            => new ShoppingCart(db, cartId);
+            => new(db, cartId);
 
         public async Task AddToCart(Album album)
         {

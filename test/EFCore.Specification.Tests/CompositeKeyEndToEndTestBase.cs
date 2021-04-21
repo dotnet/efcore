@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
     public abstract class CompositeKeyEndToEndTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : CompositeKeyEndToEndTestBase<TFixture>.CompositeKeyEndToEndFixtureBase
     {
-        protected CompositeKeyEndToEndTestBase(TFixture fixture) => Fixture = fixture;
+        protected CompositeKeyEndToEndTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         private TFixture Fixture { get; }
 
@@ -185,7 +186,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected BronieContext CreateContext() => (BronieContext)Fixture.CreateContext();
+        protected BronieContext CreateContext()
+            => (BronieContext)Fixture.CreateContext();
 
         public abstract class CompositeKeyEndToEndFixtureBase : SharedStoreFixtureBase<DbContext>
         {

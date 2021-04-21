@@ -12,27 +12,26 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class GearsOfWarFromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : GearsOfWarQueryRelationalFixture, new()
     {
-        protected GearsOfWarFromSqlQueryTestBase(TFixture fixture) => Fixture = fixture;
+        protected GearsOfWarFromSqlQueryTestBase(TFixture fixture)
+            => Fixture = fixture;
 
         protected TFixture Fixture { get; }
 
         [ConditionalFact]
         public virtual void From_sql_queryable_simple_columns_out_of_order()
         {
-            using (var context = CreateContext())
-            {
-                var actual = context.Set<Weapon>().FromSqlRaw(
-                        NormalizeDelimitersInRawString(
-                            "SELECT [Id], [Name], [IsAutomatic], [AmmunitionType], [OwnerFullName], [SynergyWithId] FROM [Weapons] ORDER BY [Name]"))
-                    .ToArray();
+            using var context = CreateContext();
+            var actual = context.Set<Weapon>().FromSqlRaw(
+                    NormalizeDelimitersInRawString(
+                        "SELECT [Id], [Name], [IsAutomatic], [AmmunitionType], [OwnerFullName], [SynergyWithId] FROM [Weapons] ORDER BY [Name]"))
+                .ToArray();
 
-                Assert.Equal(10, actual.Length);
+            Assert.Equal(10, actual.Length);
 
-                var first = actual.First();
+            var first = actual.First();
 
-                Assert.Equal(AmmunitionType.Shell, first.AmmunitionType);
-                Assert.Equal("Baird's Gnasher", first.Name);
-            }
+            Assert.Equal(AmmunitionType.Shell, first.AmmunitionType);
+            Assert.Equal("Baird's Gnasher", first.Name);
         }
 
         private string NormalizeDelimitersInRawString(string sql)
@@ -41,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         private FormattableString NormalizeDelimitersInInterpolatedString(FormattableString sql)
             => Fixture.TestStore.NormalizeDelimitersInInterpolatedString(sql);
 
-        protected GearsOfWarContext CreateContext() => Fixture.CreateContext();
+        protected GearsOfWarContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual void ClearLog()
         {

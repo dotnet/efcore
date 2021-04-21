@@ -51,7 +51,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return false;
             }
 
-            foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection()))
+            foreach (var navigation in entityType
+                .GetNavigations()
+                .Concat<INavigationBase>(entityType.GetSkipNavigations())
+                .Where(n => n.IsCollection))
             {
                 AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
                     += entry.HandleINotifyCollectionChanged;
@@ -82,7 +85,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             if (changeTrackingStrategy != ChangeTrackingStrategy.Snapshot)
             {
-                foreach (var navigation in entityType.GetNavigations().Where(n => n.IsCollection()))
+                foreach (var navigation in entityType.GetNavigations()
+                    .Concat<INavigationBase>(entityType.GetSkipNavigations())
+                    .Where(n => n.IsCollection))
                 {
                     AsINotifyCollectionChanged(entry, navigation, entityType, changeTrackingStrategy).CollectionChanged
                         -= entry.HandleINotifyCollectionChanged;
@@ -101,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static INotifyCollectionChanged AsINotifyCollectionChanged(
             InternalEntityEntry entry,
-            INavigation navigation,
+            INavigationBase navigation,
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            if (!(navigation.GetCollectionAccessor()
-                ?.GetOrCreate(entry.Entity, forMaterialization: false) is INotifyCollectionChanged notifyingCollection))
+            if (navigation.GetCollectionAccessor()
+                ?.GetOrCreate(entry.Entity, forMaterialization: false) is not INotifyCollectionChanged notifyingCollection)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NonNotifyingCollection(navigation.Name, entityType.DisplayName(), changeTrackingStrategy));
@@ -120,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            if (!(entry.Entity is INotifyPropertyChanged changed))
+            if (entry.Entity is not INotifyPropertyChanged changed)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ChangeTrackingInterfaceMissing(
@@ -135,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IEntityType entityType,
             ChangeTrackingStrategy changeTrackingStrategy)
         {
-            if (!(entry.Entity is INotifyPropertyChanging changing))
+            if (entry.Entity is not INotifyPropertyChanging changing)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ChangeTrackingInterfaceMissing(

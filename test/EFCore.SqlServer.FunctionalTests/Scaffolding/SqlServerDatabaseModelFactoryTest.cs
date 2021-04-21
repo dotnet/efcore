@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -36,7 +38,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         #region Sequences
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Create_sequences_with_facets()
         {
             Test(
@@ -81,7 +82,6 @@ DROP SEQUENCE db2.CustomFacetsSequence");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_min_max_start_values_are_null_if_default()
         {
             Test(
@@ -117,7 +117,6 @@ DROP SEQUENCE [BigIntSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_min_max_start_values_are_not_null_if_decimal()
         {
             Test(
@@ -145,7 +144,38 @@ DROP SEQUENCE [NumericSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
+        public void Sequence_high_min_max_start_values_are_not_null_if_decimal()
+        {
+            Test(
+                @"
+CREATE SEQUENCE [dbo].[HighDecimalSequence]
+ AS [numeric](38, 0)
+ START WITH -99999999999999999999999999999999999999
+ INCREMENT BY 1
+ MINVALUE -99999999999999999999999999999999999999
+ MAXVALUE 99999999999999999999999999999999999999
+ CACHE;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.All(
+                        dbModel.Sequences,
+                        s =>
+                        {
+                            Assert.NotNull(s.StartValue);
+                            Assert.Equal(long.MinValue, s.StartValue);
+                            Assert.NotNull(s.MinValue);
+                            Assert.Equal(long.MinValue, s.MinValue);
+                            Assert.NotNull(s.MaxValue);
+                            Assert.Equal(long.MaxValue, s.MaxValue);
+                        });
+                },
+                @"
+DROP SEQUENCE [HighDecimalSequence];");
+        }
+
+        [ConditionalFact]
         public void Sequence_using_type_alias()
         {
             Fixture.TestStore.ExecuteNonQuery(
@@ -176,7 +206,6 @@ DROP TYPE [dbo].[TestTypeAlias];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Sequence_using_type_with_facets()
         {
             Test(
@@ -199,7 +228,6 @@ DROP SEQUENCE [TypeFacetSequence];");
         }
 
         [ConditionalFact]
-        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public void Filter_sequences_based_on_schema()
         {
             Test(
@@ -583,8 +611,8 @@ BEGIN
 IF NOT EXISTS (
     SELECT 1 FROM [sys].[filegroups] [FG] JOIN [sys].[database_files] [F] ON [FG].[data_space_id] = [F].[data_space_id] WHERE [FG].[type] = N'FX' AND [F].[type] = 2)
     BEGIN
-    DECLARE @db_name NVARCHAR(MAX) = DB_NAME();
-    DECLARE @fg_name NVARCHAR(MAX);
+    DECLARE @db_name nvarchar(max) = DB_NAME();
+    DECLARE @fg_name nvarchar(max);
     SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';
 
     IF @fg_name IS NULL
@@ -593,14 +621,14 @@ IF NOT EXISTS (
         EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');
         END
 
-    DECLARE @path NVARCHAR(MAX);
+    DECLARE @path nvarchar(max);
     SELECT TOP(1) @path = [physical_name] FROM [sys].[database_files] WHERE charindex('\', [physical_name]) > 0 ORDER BY [file_id];
     IF (@path IS NULL)
         SET @path = '\' + @db_name;
 
-    DECLARE @filename NVARCHAR(MAX) = right(@path, charindex('\', reverse(@path)) - 1);
+    DECLARE @filename nvarchar(max) = right(@path, charindex('\', reverse(@path)) - 1);
     SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';
-    DECLARE @new_path NVARCHAR(MAX) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(MAX)), '''', '''''') + @filename;
+    DECLARE @new_path nvarchar(max) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(max)), '''', '''''') + @filename;
 
     EXEC(N'
         ALTER DATABASE CURRENT
@@ -639,10 +667,10 @@ CREATE TABLE [dbo].[Blogs] (
 );
 EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog table comment.
 On multiple lines.',
-    @level0type = N'SCHEMA', @level0name = 'dbo', 
+    @level0type = N'SCHEMA', @level0name = 'dbo',
     @level1type = N'TABLE', @level1name = 'Blogs';
 EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog.Id column comment.',
-    @level0type = N'SCHEMA', @level0name = 'dbo', 
+    @level0type = N'SCHEMA', @level0name = 'dbo',
     @level1type = N'TABLE', @level1name = 'Blogs',
     @level2type = N'COLUMN', @level2name = 'Id';
 ",
@@ -1339,7 +1367,8 @@ CREATE TABLE DefaultComputedValues (
     ComputedValue AS GETDATE(),
     A int NOT NULL,
     B int NOT NULL,
-    SumOfAAndB AS A + B PERSISTED,
+    SumOfAAndB AS A + B,
+    SumOfAAndBPersisted AS A + B PERSISTED,
 );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -1347,14 +1376,23 @@ CREATE TABLE DefaultComputedValues (
                 {
                     var columns = dbModel.Tables.Single().Columns;
 
-                    Assert.Equal("('October 20, 2015 11am')", columns.Single(c => c.Name == "FixedDefaultValue").DefaultValueSql);
-                    Assert.Null(columns.Single(c => c.Name == "FixedDefaultValue").ComputedColumnSql);
+                    var fixedDefaultValue = columns.Single(c => c.Name == "FixedDefaultValue");
+                    Assert.Equal("('October 20, 2015 11am')", fixedDefaultValue.DefaultValueSql);
+                    Assert.Null(fixedDefaultValue.ComputedColumnSql);
 
-                    Assert.Null(columns.Single(c => c.Name == "ComputedValue").DefaultValueSql);
-                    Assert.Equal("(getdate())", columns.Single(c => c.Name == "ComputedValue").ComputedColumnSql);
+                    var computedValue = columns.Single(c => c.Name == "ComputedValue");
+                    Assert.Null(computedValue.DefaultValueSql);
+                    Assert.Equal("(getdate())", computedValue.ComputedColumnSql);
 
-                    Assert.Null(columns.Single(c => c.Name == "SumOfAAndB").DefaultValueSql);
-                    Assert.Equal("([A]+[B])", columns.Single(c => c.Name == "SumOfAAndB").ComputedColumnSql);
+                    var sumOfAAndB = columns.Single(c => c.Name == "SumOfAAndB");
+                    Assert.Null(sumOfAAndB.DefaultValueSql);
+                    Assert.Equal("([A]+[B])", sumOfAAndB.ComputedColumnSql);
+                    Assert.False(sumOfAAndB.IsStored);
+
+                    var sumOfAAndBPersisted = columns.Single(c => c.Name == "SumOfAAndBPersisted");
+                    Assert.Null(sumOfAAndBPersisted.DefaultValueSql);
+                    Assert.Equal("([A]+[B])", sumOfAAndBPersisted.ComputedColumnSql);
+                    Assert.True(sumOfAAndBPersisted.IsStored);
                 },
                 "DROP TABLE DefaultComputedValues;");
         }
@@ -1493,6 +1531,50 @@ CREATE TABLE NullableColumns (
                     Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
                 },
                 "DROP TABLE NullableColumns;");
+        }
+
+        [ConditionalFact]
+        public void Column_collation_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnsWithCollation (
+    Id int,
+    DefaultCollation nvarchar(max),
+    NonDefaultCollation nvarchar(max) COLLATE German_PhoneBook_CI_AS,
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    Assert.Null(columns.Single(c => c.Name == "DefaultCollation").Collation);
+                    Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
+                },
+                "DROP TABLE ColumnsWithCollation;");
+        }
+
+        [ConditionalFact]
+        public void Column_sparseness_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnsWithSparseness (
+    Id int,
+    Sparse nvarchar(max) SPARSE NULL,
+    NonSparse nvarchar(max) NULL
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    Assert.True((bool)columns.Single(c => c.Name == "Sparse")[SqlServerAnnotationNames.Sparse]);
+                    Assert.Null(columns.Single(c => c.Name == "NonSparse")[SqlServerAnnotationNames.Sparse]);
+                },
+                "DROP TABLE ColumnsWithSparseness;");
         }
 
         [ConditionalFact]
@@ -1863,6 +1945,69 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 "DROP TABLE FilteredIndexTable;");
         }
 
+        [ConditionalFact]
+        public void Ignore_hypothetical_index()
+        {
+            Test(
+                @"
+CREATE TABLE HypotheticalIndexTable (
+    Id1 int,
+    Id2 int NULL,
+);
+
+CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Empty(dbModel.Tables.Single().Indexes);
+                },
+                "DROP TABLE HypotheticalIndexTable;");
+        }
+
+        [ConditionalFact]
+        public void Ignore_columnstore_index()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnStoreIndexTable (
+    Id1 int,
+    Id2 int NULL,
+);
+
+CREATE NONCLUSTERED COLUMNSTORE INDEX ixColumnStore ON ColumnStoreIndexTable ( Id1, Id2 )",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Empty(dbModel.Tables.Single().Indexes);
+                },
+                "DROP TABLE ColumnStoreIndexTable;");
+        }
+
+        [ConditionalFact]
+        public void Set_include_for_index()
+        {
+            Test(
+                @"
+CREATE TABLE IncludeIndexTable (
+    Id int,
+    IndexProperty int,
+    IncludeProperty int
+);
+
+CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProperty);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                    Assert.Equal(new[] { "IndexProperty" }, index.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Null(index[SqlServerAnnotationNames.Include]);
+                },
+                "DROP TABLE IncludeIndexTable;");
+        }
+
         #endregion
 
         #region ForeignKeyFacets
@@ -2190,7 +2335,11 @@ DROP TABLE PrincipalTable;");
         #endregion
 
         private void Test(
-            string createSql, IEnumerable<string> tables, IEnumerable<string> schemas, Action<DatabaseModel> asserter, string cleanupSql)
+            string createSql,
+            IEnumerable<string> tables,
+            IEnumerable<string> schemas,
+            Action<DatabaseModel> asserter,
+            string cleanupSql)
         {
             Fixture.TestStore.ExecuteNonQuery(createSql);
 
@@ -2201,7 +2350,8 @@ DROP TABLE PrincipalTable;");
                         Fixture.ListLoggerFactory,
                         new LoggingOptions(),
                         new DiagnosticListener("Fake"),
-                        new SqlServerLoggingDefinitions()));
+                        new SqlServerLoggingDefinitions(),
+                        new NullDbContextLogger()));
 
                 var databaseModel = databaseModelFactory.Create(
                     Fixture.TestStore.ConnectionString,
@@ -2221,13 +2371,18 @@ DROP TABLE PrincipalTable;");
         public class SqlServerDatabaseModelFixture : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = nameof(SqlServerDatabaseModelFactoryTest);
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
-            public new SqlServerTestStore TestStore => (SqlServerTestStore)base.TestStore;
 
-            public SqlServerDatabaseModelFixture()
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
+            public new SqlServerTestStore TestStore
+                => (SqlServerTestStore)base.TestStore;
+
+            public override async Task InitializeAsync()
             {
-                TestStore.ExecuteNonQuery("CREATE SCHEMA db2");
-                TestStore.ExecuteNonQuery("CREATE SCHEMA [db.2]");
+                await base.InitializeAsync();
+                await TestStore.ExecuteNonQueryAsync("CREATE SCHEMA db2");
+                await TestStore.ExecuteNonQueryAsync("CREATE SCHEMA [db.2]");
             }
 
             protected override bool ShouldLogCategory(string logCategory)

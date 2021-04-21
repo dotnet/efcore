@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -21,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSqlVariantTypeMapping(
-            [NotNull] string storeType)
-            : base(storeType, typeof(object))
+            string storeType)
+            : base(storeType, typeof(object), System.Data.DbType.Object)
         {
         }
 

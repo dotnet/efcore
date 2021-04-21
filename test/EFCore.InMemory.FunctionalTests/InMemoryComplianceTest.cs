@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore
         {
             // No in-memory tests
             typeof(FunkyDataQueryTestBase<>),
-            typeof(OptimisticConcurrencyTestBase<>),
             typeof(StoreGeneratedTestBase<>),
-            typeof(ConferencePlannerTestBase<>)
+            typeof(ConferencePlannerTestBase<>),
+            typeof(ManyToManyQueryTestBase<>),
         };
 
         protected override Assembly TargetAssembly { get; } = typeof(InMemoryComplianceTest).Assembly;

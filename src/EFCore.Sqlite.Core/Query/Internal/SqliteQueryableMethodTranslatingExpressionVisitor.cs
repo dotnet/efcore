@@ -5,35 +5,70 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SqliteQueryableMethodTranslatingExpressionVisitor(
             QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
             RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-            IModel model)
-            : base(dependencies, relationalDependencies, model)
+            QueryCompilationContext queryCompilationContext)
+            : base(dependencies, relationalDependencies, queryCompilationContext)
         {
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected SqliteQueryableMethodTranslatingExpressionVisitor(
             SqliteQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor)
         {
         }
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
 
-        protected override ShapedQueryExpression TranslateOrderBy(
-            ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override ShapedQueryExpression? TranslateOrderBy(
+            ShapedQueryExpression source,
+            LambdaExpression keySelector,
+            bool ascending)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+
             var translation = base.TranslateOrderBy(source, keySelector, ascending);
             if (translation == null)
             {
@@ -54,8 +89,17 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             return translation;
         }
 
-        protected override ShapedQueryExpression TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override ShapedQueryExpression? TranslateThenBy(ShapedQueryExpression source, LambdaExpression keySelector, bool ascending)
         {
+            Check.NotNull(source, nameof(source));
+            Check.NotNull(keySelector, nameof(keySelector));
+
             var translation = base.TranslateThenBy(source, keySelector, ascending);
             if (translation == null)
             {
@@ -77,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         }
 
         private static Type GetProviderType(SqlExpression expression)
-            => (expression.TypeMapping?.Converter?.ProviderClrType
+            => expression.TypeMapping?.Converter?.ProviderClrType
                 ?? expression.TypeMapping?.ClrType
-                ?? expression.Type).UnwrapNullableType();
+                ?? expression.Type;
     }
 }

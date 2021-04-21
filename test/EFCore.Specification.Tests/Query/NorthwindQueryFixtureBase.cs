@@ -12,47 +12,106 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreFixtureBase<NorthwindContext>, IQueryFixtureBase
+    public abstract class NorthwindQueryFixtureBase<TModelCustomizer> : SharedStoreFixtureBase<NorthwindContext>, IFilteredQueryFixtureBase
         where TModelCustomizer : IModelCustomizer, new()
     {
-        protected NorthwindQueryFixtureBase()
+        public Func<DbContext> GetContextCreator()
+            => () => CreateContext();
+
+        private readonly Dictionary<(bool, string, string), ISetSource> _expectedDataCache = new();
+
+        public virtual ISetSource GetExpectedData()
+            => new NorthwindData();
+
+        public virtual ISetSource GetFilteredExpectedData(DbContext context)
         {
-            var entitySorters = new Dictionary<Type, Func<dynamic, object>>
+            var applyFilters = typeof(TModelCustomizer) == typeof(NorthwindQueryFiltersCustomizer);
+            var tenantPrefix = applyFilters ? ((NorthwindContext)context).TenantPrefix : null;
+            var searchTerm = applyFilters ? ((NorthwindContext)context).SearchTerm : null;
+
+            if (_expectedDataCache.TryGetValue((applyFilters, tenantPrefix, searchTerm), out var cachedResult))
             {
-                { typeof(Customer), e => e?.CustomerID },
-                { typeof(CustomerView), e => e?.CompanyName },
-                { typeof(Order), e => e?.OrderID },
-                { typeof(OrderQuery), e => e?.CustomerID },
-                { typeof(Employee), e => e?.EmployeeID },
-                { typeof(Product), e => e?.ProductID },
-                { typeof(OrderDetail), e => (e?.OrderID.ToString(), e?.ProductID.ToString()) }
+                return cachedResult;
+            }
+
+            var expectedData = new NorthwindData();
+            if (applyFilters)
+            {
+                var customers = expectedData.Customers.Where(c => c.CompanyName.StartsWith(tenantPrefix)).ToArray();
+                var customerQueriesWithQueryFilter = expectedData.CustomerQueriesWithQueryFilter.Where(cq => cq.CompanyName.StartsWith(searchTerm)).ToArray();
+                var employees = expectedData.Employees.Where(e => e.Address.StartsWith("A")).ToArray();
+                var products = expectedData.Products.Where(p => p.Discontinued).ToArray();
+                var orders = expectedData.Orders.Where(o => o.Customer.CompanyName.StartsWith(tenantPrefix)).ToArray();
+                var orderDetails = expectedData.OrderDetails.Where(od => od.Order.Customer.CompanyName.StartsWith(tenantPrefix) && od.Quantity > 50).ToArray();
+
+                foreach (var product in products)
+                {
+                    product.OrderDetails = product.OrderDetails.Where(od => od.Quantity > 50).ToList();
+                }
+
+                foreach (var order in orders)
+                {
+                    order.OrderDetails = order.OrderDetails.Where(od => od.Quantity > 50).ToList();
+                }
+
+                foreach (var orderDetail in orderDetails)
+                {
+                    orderDetail.Order = orderDetail.Order.Customer.CompanyName.StartsWith(tenantPrefix) ? orderDetail.Order : null;
+                    orderDetail.Product = orderDetail.Product.Discontinued ? orderDetail.Product : null;
+                }
+
+                expectedData = new NorthwindData(
+                    customers,
+                    expectedData.CustomerQueries,
+                    customerQueriesWithQueryFilter,
+                    employees,
+                    products,
+                    expectedData.ProductQueries,
+                    orders,
+                    orderDetails);
+            }
+
+            _expectedDataCache[(applyFilters, tenantPrefix, searchTerm)] = expectedData;
+
+            return expectedData;
+        }
+
+        public IReadOnlyDictionary<Type, object> GetEntitySorters()
+            => new Dictionary<Type, Func<object, object>>
+            {
+                { typeof(Customer), e => ((Customer)e)?.CustomerID },
+                { typeof(CustomerQuery), e => ((CustomerQuery)e)?.CompanyName },
+                { typeof(Order), e => ((Order)e)?.OrderID },
+                { typeof(OrderQuery), e => ((OrderQuery)e)?.CustomerID },
+                { typeof(Employee), e => ((Employee)e)?.EmployeeID },
+                { typeof(Product), e => ((Product)e)?.ProductID },
+                { typeof(ProductQuery), e => ((ProductQuery)e)?.ProductID },
+                { typeof(OrderDetail), e => (((OrderDetail)e)?.OrderID.ToString(), ((OrderDetail)e)?.ProductID.ToString()) }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-            var entityAsserters = new Dictionary<Type, object>();
-
-            QueryAsserter = new QueryAsserter<NorthwindContext>(
-                CreateContext,
-                new NorthwindData(),
-                entitySorters,
-                entityAsserters);
-        }
+        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+            => null;
 
         protected override string StoreName { get; } = "Northwind";
 
-        protected override bool UsePooling => typeof(TModelCustomizer) == typeof(NoopModelCustomizer);
-
-        public QueryAsserterBase QueryAsserter { get; set; }
+        protected override bool UsePooling
+            => typeof(TModelCustomizer) == typeof(NoopModelCustomizer);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => new TModelCustomizer().Customize(modelBuilder, context);
 
-        protected override void Seed(NorthwindContext context) => NorthwindData.Seed(context);
+        protected override void Seed(NorthwindContext context)
+            => NorthwindData.Seed(context);
 
-        protected override Task SeedAsync(NorthwindContext context) => NorthwindData.SeedAsync(context);
+        protected override Task SeedAsync(NorthwindContext context)
+            => NorthwindData.SeedAsync(context);
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(
                 c => c
+                    .Log(CoreEventId.RowLimitingOperationWithoutOrderByWarning)
+                    .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
+                    .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
                     .Log(CoreEventId.PossibleUnintendedCollectionNavigationNullComparisonWarning)
                     .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
     }
