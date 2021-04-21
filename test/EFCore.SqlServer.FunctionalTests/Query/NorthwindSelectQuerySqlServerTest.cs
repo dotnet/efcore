@@ -1535,7 +1535,7 @@ ORDER BY [t].[CustomerID]");
             await base.Do_not_erase_projection_mapping_when_adding_single_projection(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[ProductID0], [t].[Discontinued], [t].[ProductName], [t].[SupplierID], [t].[UnitPrice0], [t].[UnitsInStock], [t0].[OrderID], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[ProductID0], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock], [t2].[OrderID], [t2].[ProductID], [t2].[Discount], [t2].[Quantity], [t2].[UnitPrice], [t2].[ProductID0], [t2].[Discontinued], [t2].[ProductName], [t2].[SupplierID], [t2].[UnitPrice0], [t2].[UnitsInStock]
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t].[ProductID0], [t].[Discontinued], [t].[ProductName], [t].[SupplierID], [t].[UnitPrice0], [t].[UnitsInStock], [t0].[OrderID], [t0].[ProductID], [t0].[ProductID0], [t2].[OrderID], [t2].[ProductID], [t2].[Discount], [t2].[Quantity], [t2].[UnitPrice], [t2].[ProductID0], [t2].[Discontinued], [t2].[ProductName], [t2].[SupplierID], [t2].[UnitPrice0], [t2].[UnitsInStock], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice], [t0].[Discontinued], [t0].[ProductName], [t0].[SupplierID], [t0].[UnitPrice0], [t0].[UnitsInStock]
 FROM [Orders] AS [o]
 LEFT JOIN (
     SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [p].[ProductID] AS [ProductID0], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice] AS [UnitPrice0], [p].[UnitsInStock]
@@ -1724,25 +1724,24 @@ ORDER BY [t].[City], [t1].[OrderID], [t1].[OrderID00]");
             await base.Collection_include_over_result_of_single_non_scalar(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID0], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t].[OrderID0], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [o2].[OrderID], [o2].[ProductID], [o2].[Discount], [o2].[Quantity], [o2].[UnitPrice]
 FROM [Customers] AS [c]
 LEFT JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID] AS [OrderID0], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
     FROM [Orders] AS [o]
     LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-OUTER APPLY (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
+LEFT JOIN (
+    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
     FROM (
-        SELECT TOP(1) [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
-        FROM [Orders] AS [o2]
-        WHERE [c].[CustomerID] = [o2].[CustomerID]
-        ORDER BY [o2].[OrderDate]
+        SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o1].[CustomerID] ORDER BY [o1].[OrderDate]) AS [row]
+        FROM [Orders] AS [o1]
     ) AS [t1]
-    LEFT JOIN [Order Details] AS [o1] ON [t1].[OrderID] = [o1].[OrderID]
-) AS [t0]
+    WHERE [t1].[row] <= 1
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+LEFT JOIN [Order Details] AS [o2] ON [t0].[OrderID] = [o2].[OrderID]
 WHERE [c].[CustomerID] LIKE N'F%'
-ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID]");
+ORDER BY [c].[CustomerID], [t].[OrderID], [t].[OrderID0], [t].[ProductID], [t0].[OrderID], [o2].[OrderID], [o2].[ProductID]");
         }
 
         public override async Task Collection_projection_selecting_outer_element_followed_by_take(bool async)

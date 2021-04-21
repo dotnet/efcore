@@ -128,26 +128,29 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private sealed class ProjectionIndexRemappingExpressionVisitor : ExpressionVisitor
         {
-            private readonly SelectExpression _queryExpression;
+            private readonly SelectExpression _oldSelectExpression;
+            private readonly SelectExpression _newSelectExpression;
             private readonly int[] _indexMap;
 
             public ProjectionIndexRemappingExpressionVisitor(
-                SelectExpression queryExpression, int[] indexMap)
+                SelectExpression oldSelectExpression, SelectExpression newSelectExpression, int[] indexMap)
             {
-                _queryExpression = queryExpression;
+                _oldSelectExpression = oldSelectExpression;
+                _newSelectExpression = newSelectExpression;
                 _indexMap = indexMap;
             }
 
             [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
-                if (expression is ProjectionBindingExpression projectionBindingExpression)
+                if (expression is ProjectionBindingExpression projectionBindingExpression
+                    && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldSelectExpression))
                 {
                     Check.DebugAssert(projectionBindingExpression.Index != null,
                         "ProjectionBindingExpression must have index.");
 
                     return new ProjectionBindingExpression(
-                        _queryExpression,
+                        _newSelectExpression,
                         _indexMap[projectionBindingExpression.Index.Value],
                         projectionBindingExpression.Type);
                 }
@@ -541,9 +544,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private sealed class ClientProjectionRemappingExpressionVisitor : ExpressionVisitor
         {
-            private readonly object[] _clientProjectionIndexMap;
+            private readonly List<object> _clientProjectionIndexMap;
 
-            public ClientProjectionRemappingExpressionVisitor(object[] clientProjectionIndexMap)
+            public ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap)
             {
                 _clientProjectionIndexMap = clientProjectionIndexMap;
             }
@@ -562,7 +565,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                     if (value is Expression innerShaper)
                     {
-                        return innerShaper;
+                        return Visit(innerShaper);
                     }
 
                     throw new InvalidCastException();
