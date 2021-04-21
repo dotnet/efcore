@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     /// </summary>
-    public struct ColumnModificationParameters
+    public sealed record ColumnModificationParameters
     {
 #if DEBUG
         /// <summary>

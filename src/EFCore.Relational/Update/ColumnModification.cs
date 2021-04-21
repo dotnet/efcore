@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
         /// <param name="columnModificationParameters"> Creation parameters. </param>
-        public ColumnModification(in ColumnModificationParameters columnModificationParameters)
+        public ColumnModification(ColumnModificationParameters columnModificationParameters)
         {
             this.ColumnName               = columnModificationParameters.ColumnName;
             this._originalValue           = columnModificationParameters.OriginalValue;
