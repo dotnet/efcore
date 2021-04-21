@@ -230,5 +230,5 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             //this.IsConcurrencyToken = false;
         }
-    };//struct ColumnModificationParameters
+    }
 }
