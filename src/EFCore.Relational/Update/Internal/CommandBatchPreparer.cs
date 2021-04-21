@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     {
         private readonly IModificationCommandBatchFactory _modificationCommandBatchFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
-        private readonly IComparer<ModificationCommand> _modificationCommandComparer;
+        private readonly IComparer<IModificationCommand> _modificationCommandComparer;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
         private readonly IColumnModificationFactory _columnModificationFactory;
         private readonly int _minBatchSize;
