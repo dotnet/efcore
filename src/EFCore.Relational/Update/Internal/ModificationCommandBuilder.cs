@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 _comparer,
                 _columnModificationFactory,
                 _entries,
-                _mainEntryAdded);
+                EntityState);
 
             return _resultCommand;
         }

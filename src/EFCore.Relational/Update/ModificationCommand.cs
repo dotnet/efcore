@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly List<IUpdateEntry> _entries = new();
         private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
-        private bool _mainEntryAdded;
+        private readonly EntityState _entityState;
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -43,7 +43,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
         /// <param name="entries"> List of entries. </param>
-        /// <param name="mainEntryAdded"> Indicator of definition of main entry in entries[0]. </param>
+        /// <param name="entityState">
+        ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
+        ///     inserted (<see cref="Microsoft.EntityFrameworkCore.EntityState.Added" />),
+        ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
+        ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
+        /// </param>
         public ModificationCommand(
             string name,
             string? schema,
@@ -52,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             IComparer<IUpdateEntry>? comparer,
             IColumnModificationFactory columnModificationFactory,
             List<IUpdateEntry> entries,
-            bool mainEntryAdded)
+            EntityState entityState)
         {
             TableName = name;
             Schema = schema;
@@ -66,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             _requiresResultPropagation = false;
 
             _entries = entries;
-            _mainEntryAdded = mainEntryAdded;
+            _entityState = entityState;
         }
 
         /// <summary>
@@ -121,6 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             _columnModifications = columnModifications;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             _columnModificationFactory = columnModificationFactory;
+
+            _entityState = EntityState.Modified;
         }
 
         /// <summary>
@@ -192,27 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
         /// </summary>
         public virtual EntityState EntityState
-        {
-            get
-            {
-                if (_mainEntryAdded)
-                {
-                    var mainEntry = _entries[0];
-                    if (mainEntry.SharedIdentityEntry == null)
-                    {
-                        return mainEntry.EntityState;
-                    }
-
-                    return mainEntry.SharedIdentityEntry.EntityType == mainEntry.EntityType
-                        || mainEntry.SharedIdentityEntry.EntityType.GetTableMappings()
-                            .Any(m => m.Table.Name == TableName && m.Table.Schema == Schema)
-                            ? EntityState.Modified
-                            : mainEntry.EntityState;
-                }
-
-                return EntityState.Modified;
-            }
-        }
+            => _entityState;
 
         /// <summary>
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
