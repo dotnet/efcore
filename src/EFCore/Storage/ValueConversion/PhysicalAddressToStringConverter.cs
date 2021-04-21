@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts a <see cref="PhysicalAddress" /> to and from a <see cref="string" />.
     /// </summary>
-    public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress, string>
+    public class PhysicalAddressToStringConverter : ValueConverter<PhysicalAddress?, string?>
     {
         private static readonly ConverterMappingHints _defaultHints = new(size: 20);
 
@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             : base(
                 ToString(),
                 ToPhysicalAddress(),
+                convertsNulls: true,
                 _defaultHints.With(mappingHints))
         {
         }
@@ -35,12 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public static ValueConverterInfo DefaultInfo { get; }
             = new(typeof(PhysicalAddress), typeof(string), i => new PhysicalAddressToStringConverter(i.MappingHints), _defaultHints);
 
-        private static new Expression<Func<PhysicalAddress, string>> ToString()
-            // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
+        private static new Expression<Func<PhysicalAddress?, string?>> ToString()
             => v => v == null ? default! : v.ToString();
 
-        private static Expression<Func<string, PhysicalAddress>> ToPhysicalAddress()
-            // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
+        private static Expression<Func<string?, PhysicalAddress?>> ToPhysicalAddress()
             => v => v == null ? default! : PhysicalAddress.Parse(v);
     }
 }

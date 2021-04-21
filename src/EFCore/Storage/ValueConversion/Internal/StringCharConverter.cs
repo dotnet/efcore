@@ -45,6 +45,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static Expression<Func<string, char>> ToChar()
-            => v => v != null && v.Length >= 1 ? v[0] : (char)0;
+            => v => v.Length < 1 ? default : v[0];
     }
 }

@@ -3708,7 +3708,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityOne>().Count());
                 Assert.Equal(3, context.ChangeTracker.Entries<EntityTwo>().Count());
                 Assert.Equal(5, context.ChangeTracker.Entries<JoinOneToTwo>().Count());
-                Assert.Equal(1, context.ChangeTracker.Entries<JoinOneToTwoExtra>().Count());
+                Assert.Single(context.ChangeTracker.Entries<JoinOneToTwoExtra>());
 
                 Assert.Equal(3, leftEntities[0].TwoSkip.Count);
                 Assert.Single(leftEntities[1].TwoSkip);

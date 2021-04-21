@@ -24,7 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
             Expression<Func<TModel, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TModel>> convertFromProviderExpression,
             ConverterMappingHints? mappingHints = null)
-            : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
+            : base(
+                convertToProviderExpression,
+                convertFromProviderExpression,
+                convertsNulls: true,
+                mappingHints)
         {
         }
 
@@ -34,9 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-        protected static new Expression<Func<Uri, string>> ToString()
-            => v => v != null ? v.ToString() : null!;
+        protected static new Expression<Func<Uri?, string?>> ToString()
+            => v => v != null ? v.ToString() : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,13 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected static Expression<Func<string, Uri>> ToUri()
-            => v => ConvertToUri(v);
-
-        // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-        private static Uri ConvertToUri(string value)
-            => Uri.TryCreate(value, UriKind.RelativeOrAbsolute, out var result)
-                ? result
-                : default!;
+        protected static Expression<Func<string?, Uri?>> ToUri()
+            => v => v != null ? new Uri(v, UriKind.RelativeOrAbsolute) : null;
     }
 }

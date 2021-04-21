@@ -87,14 +87,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             bool IsStrategyNoneNeeded(IReadOnlyProperty property, StoreObjectIdentifier storeObject)
             {
                 if (property.ValueGenerated == ValueGenerated.OnAdd
-                    && property.GetDefaultValue(storeObject) == null
+                    && !property.TryGetDefaultValue(storeObject, out _)
                     && property.GetDefaultValueSql(storeObject) == null
                     && property.GetComputedColumnSql(storeObject) == null
                     && property.DeclaringEntityType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
                 {
                     var providerClrType = (property.GetValueConverter()
-                        ?? (property.FindRelationalTypeMapping(storeObject)
-                            ?? Dependencies.TypeMappingSource.FindMapping((IProperty)property))?.Converter)
+                            ?? (property.FindRelationalTypeMapping(storeObject)
+                                ?? Dependencies.TypeMappingSource.FindMapping((IProperty)property))?.Converter)
                         ?.ProviderClrType.UnwrapNullableType();
 
                     return providerClrType != null

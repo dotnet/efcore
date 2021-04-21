@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.AlternateId)
                 .Metadata;
 
-            Assert.Null(property.GetDefaultValue());
+            Assert.Equal(Guid.Empty, property.GetDefaultValue());
 
             var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             property.SetDefaultValue(null);
 
-            Assert.Null(property.GetDefaultValue());
+            Assert.Equal(Guid.Empty, property.GetDefaultValue());
         }
 
         [ConditionalFact]

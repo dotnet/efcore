@@ -69,9 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
                         ? (TEnum)(object)ulongValue
                         : long.TryParse(value, out var longValue)
                             ? (TEnum)(object)longValue
-                            : string.IsNullOrEmpty(value)
+                            : value == ""
                                 ? default
-                                : throw new InvalidOperationException(
-                                    CoreStrings.CannotConvertEnumValue(value, typeof(TEnum).ShortDisplayName()));
+                                : value == null
+                                    ? throw new ArgumentNullException(nameof(value))
+                                    : throw new InvalidOperationException(
+                                        CoreStrings.CannotConvertEnumValue(value, typeof(TEnum).ShortDisplayName()));
     }
 }

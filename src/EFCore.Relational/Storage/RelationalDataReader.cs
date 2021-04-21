@@ -28,13 +28,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private DbCommand _command = default!;
         private DbDataReader _reader = default!;
         private Guid _commandId;
-        private IDiagnosticsLogger<DbLoggerCategory.Database.Command>? _logger;
+        private IRelationalCommandDiagnosticsLogger? _logger;
         private DateTimeOffset _startTime;
         private readonly Stopwatch _stopwatch = new();
 
         private int _readCount;
 
         private bool _disposed;
+
+        private static readonly TimeSpan _oneSecond = TimeSpan.FromSeconds(1);
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDataReader" /> class.
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             DbCommand command,
             DbDataReader reader,
             Guid commandId,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
+            IRelationalCommandDiagnosticsLogger? logger)
         {
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
@@ -70,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _reader = reader;
             _commandId = commandId;
             _logger = logger;
-            _startTime = DateTimeOffset.UtcNow;
             _disposed = false;
+            _startTime = DateTimeOffset.UtcNow;
             _stopwatch.Restart();
         }
 
@@ -122,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _reader.Close(); // can throw
 
-                    if (_logger != null)
+                    if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
                     {
                         interceptionResult = _logger.DataReaderDisposing(
                             _relationalConnection,
@@ -162,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     await _reader.CloseAsync().ConfigureAwait(false); // can throw
 
-                    if (_logger != null)
+                    if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
                     {
                         interceptionResult = _logger.DataReaderDisposing(
                             _relationalConnection,

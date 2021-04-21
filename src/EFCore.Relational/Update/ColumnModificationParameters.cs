@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     /// </summary>
-    public struct ColumnModificationParameters
+    public sealed record ColumnModificationParameters
     {
 #if DEBUG
         /// <summary>
@@ -155,26 +155,26 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(columnName, nameof(columnName));
 
 #if DEBUG
-            this.DebugInitKind=EnumDebugInitKind.Kind001;
+            DebugInitKind=EnumDebugInitKind.Kind001;
 #endif
 
-            this.ColumnName = columnName;
-            this.OriginalValue = originalValue;
-            this.Value = value;
-            this.Property = property;
-            this.ColumnType = columnType;
-            this.TypeMapping = typeMapping;
-            this.IsRead = valueIsRead;
-            this.IsWrite = valueIsWrite;
-            this.IsKey = columnIsKey;
-            this.IsCondition = columnIsCondition;
-            this.SensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            this.IsNullable = isNullable;
+            ColumnName = columnName;
+            OriginalValue = originalValue;
+            Value = value;
+            Property = property;
+            ColumnType = columnType;
+            TypeMapping = typeMapping;
+            IsRead = valueIsRead;
+            IsWrite = valueIsWrite;
+            IsKey = columnIsKey;
+            IsCondition = columnIsCondition;
+            SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+            IsNullable = isNullable;
 
-            this.GenerateParameterName = null;
-            this.Entry = null;
+            GenerateParameterName = null;
+            Entry = null;
 
-            //this.IsConcurrencyToken = false;
+            //IsConcurrencyToken = false;
         }
 
         /// <summary>
@@ -209,26 +209,26 @@ namespace Microsoft.EntityFrameworkCore.Update
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
 #if DEBUG
-            this.DebugInitKind=EnumDebugInitKind.Kind002;
+            DebugInitKind=EnumDebugInitKind.Kind002;
 #endif
 
-            this.ColumnName = column.Name;
-            this.OriginalValue = null;
-            this.Value = null;
-            this.Property = property;
-            this.ColumnType = column.StoreType;
-            this.TypeMapping = typeMapping;
-            this.IsRead = valueIsRead;
-            this.IsWrite = valueIsWrite;
-            this.IsKey = columnIsKey;
-            this.IsCondition = columnIsCondition;
-            this.SensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            this.IsNullable = column.IsNullable;
+            ColumnName = column.Name;
+            OriginalValue = null;
+            Value = null;
+            Property = property;
+            ColumnType = column.StoreType;
+            TypeMapping = typeMapping;
+            IsRead = valueIsRead;
+            IsWrite = valueIsWrite;
+            IsKey = columnIsKey;
+            IsCondition = columnIsCondition;
+            SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+            IsNullable = column.IsNullable;
 
-            this.GenerateParameterName = generateParameterName;
-            this.Entry = entry;
+            GenerateParameterName = generateParameterName;
+            Entry = entry;
 
-            //this.IsConcurrencyToken = false;
+            //IsConcurrencyToken = false;
         }
-    };//struct ColumnModificationParameters
+    }
 }

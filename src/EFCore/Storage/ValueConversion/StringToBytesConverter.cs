@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts strings to and from arrays of bytes.
     /// </summary>
-    public class StringToBytesConverter : ValueConverter<string, byte[]>
+    public class StringToBytesConverter : ValueConverter<string?, byte[]?>
     {
         /// <summary>
         ///     Creates a new instance of this converter.
@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             Encoding encoding,
             ConverterMappingHints? mappingHints = null)
             : base(
-                // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-                v => v == null ? null! : encoding.GetBytes(v),
-                v => v == null ? null! : encoding.GetString(v),
+                v => v == null ? null : encoding.GetBytes(v),
+                v => v == null ? null : encoding.GetString(v),
+                convertsNulls: true,
                 mappingHints)
         {
         }

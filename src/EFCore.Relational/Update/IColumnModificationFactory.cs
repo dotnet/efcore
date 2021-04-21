@@ -22,6 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="columnModificationParameters"> Creation parameters. </param>
         /// <returns> A new instance of ColumnModification. </returns>
-        ColumnModification CreateColumnModification(in ColumnModificationParameters columnModificationParameters);
+        ColumnModification CreateColumnModification(ColumnModificationParameters columnModificationParameters);
     }
 }

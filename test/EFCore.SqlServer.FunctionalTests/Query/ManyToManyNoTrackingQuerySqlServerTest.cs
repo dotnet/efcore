@@ -645,7 +645,7 @@ ORDER BY [e].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id], [t0].[Id0], [t0].[Le
             await base.Include_skip_navigation_and_reference(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[EntityOneId], [t].[EntityTwoId]
+                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [e0].[Id], [t].[Id], [t].[Name], [t].[EntityOneId], [t].[EntityTwoId], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 LEFT JOIN [EntityThrees] AS [e0] ON [e].[Id] = [e0].[ReferenceInverseId]
 LEFT JOIN (

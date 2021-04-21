@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private readonly ICurrentDbContext _currentContext;
         private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Migrations> _logger;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+        private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
         private readonly string _activeProvider;
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             ICurrentDbContext currentContext,
             IModelRuntimeInitializer modelRuntimeInitializer,
             IDiagnosticsLogger<DbLoggerCategory.Migrations> logger,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
+            IRelationalCommandDiagnosticsLogger commandLogger,
             IDatabaseProvider databaseProvider)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));

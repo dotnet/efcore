@@ -38,26 +38,25 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
         /// <param name="columnModificationParameters"> Creation parameters. </param>
-        public ColumnModification(in ColumnModificationParameters columnModificationParameters)
+        public ColumnModification(ColumnModificationParameters columnModificationParameters)
         {
-            this.ColumnName               = columnModificationParameters.ColumnName;
-            this._originalValue           = columnModificationParameters.OriginalValue;
-            this._value                   = columnModificationParameters.Value;
-            this.Property                 = columnModificationParameters.Property;
-            this.ColumnType               = columnModificationParameters.ColumnType;
-            this.TypeMapping              = columnModificationParameters.TypeMapping;
-            this.IsRead                   = columnModificationParameters.IsRead;
-            this.IsWrite                  = columnModificationParameters.IsWrite;
-            this.IsKey                    = columnModificationParameters.IsKey;
-            this.IsCondition              = columnModificationParameters.IsCondition;
-            this._sensitiveLoggingEnabled = columnModificationParameters.SensitiveLoggingEnabled;
-            this.IsNullable               = columnModificationParameters.IsNullable;
+            ColumnName               = columnModificationParameters.ColumnName;
+            _originalValue           = columnModificationParameters.OriginalValue;
+            _value                   = columnModificationParameters.Value;
+            Property                 = columnModificationParameters.Property;
+            ColumnType               = columnModificationParameters.ColumnType;
+            TypeMapping              = columnModificationParameters.TypeMapping;
+            IsRead                   = columnModificationParameters.IsRead;
+            IsWrite                  = columnModificationParameters.IsWrite;
+            IsKey                    = columnModificationParameters.IsKey;
+            IsCondition              = columnModificationParameters.IsCondition;
+            _sensitiveLoggingEnabled = columnModificationParameters.SensitiveLoggingEnabled;
+            IsNullable               = columnModificationParameters.IsNullable;
+            _generateParameterName   = columnModificationParameters.GenerateParameterName;
+            Entry                    = columnModificationParameters.Entry;
 
-            this._generateParameterName   = columnModificationParameters.GenerateParameterName;
-            this.Entry                    = columnModificationParameters.Entry;
-
-            this._useParameters           = (this._generateParameterName != null);
-        }//ColumnModification
+            _useParameters           = (_generateParameterName != null);
+        }
 
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.

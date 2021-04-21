@@ -30,5 +30,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal("True", converter(true));
             Assert.Equal("False", converter(false));
         }
+
+        [ConditionalFact]
+        public void Can_convert_strings_to_bools_object()
+        {
+            var converter = _stringToBool.ConvertToProvider;
+
+            Assert.False((bool)converter("False"));
+            Assert.True((bool)converter("True"));
+            Assert.False((bool)converter("false"));
+            Assert.True((bool)converter("true"));
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_bools_to_strings_object()
+        {
+            var converter = _stringToBool.ConvertFromProvider;
+
+            Assert.Equal("True", converter(true));
+            Assert.Equal("False", converter(false));
+            Assert.Null(converter(null));
+        }
     }
 }

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class PhysicalAddressToBytesConverterTest
     {
-        private static readonly PhysicalAddressToBytesConverter _physicalAddressToBytes            = new();
+        private static readonly PhysicalAddressToBytesConverter _physicalAddressToBytes = new();
 
         [ConditionalTheory]
         [MemberData(nameof(Data))]
@@ -33,6 +33,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var bytes = physicalAddress.GetAddressBytes();
 
             Assert.Equal(bytes, converter(physicalAddress));
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(Data))]
+        public void Can_convert_bytes_to_physical_address(string address)
+        {
+            var converter = _physicalAddressToBytes.ConvertFromProviderExpression.Compile();
+
+            var physicalAddress = PhysicalAddress.Parse(address);
+            var bytes = physicalAddress.GetAddressBytes();
+
+            Assert.Equal(physicalAddress, converter(bytes));
             Assert.Null(converter(null));
         }
 
