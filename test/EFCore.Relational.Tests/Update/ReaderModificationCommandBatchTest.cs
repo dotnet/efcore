@@ -87,8 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -108,8 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -129,8 +133,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -150,8 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var fakeSqlGenerator = new FakeSqlGenerator(
                 RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<UpdateSqlGeneratorDependencies>());
@@ -171,8 +179,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var dbDataReader = CreateFakeDataReader();
 
@@ -195,8 +205,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -220,8 +232,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -244,15 +258,15 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var cmdBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            cmdBuilder.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
                     new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }));
 
             var batch = new ModificationCommandBatchFake();
-            batch.AddCommand(command);
+            batch.AddCommand(cmdBuilder.GetModificationCommand());
 
             await batch.ExecuteAsync(connection);
 
@@ -268,8 +282,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
@@ -291,15 +307,15 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var cmdBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            cmdBuilder.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
                     new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
 
             var batch = new ModificationCommandBatchFake();
-            batch.AddCommand(command);
+            batch.AddCommand(cmdBuilder.GetModificationCommand());
 
             Assert.Equal(
                 RelationalStrings.UpdateConcurrencyException(1, 42),
@@ -315,8 +331,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            command.AddEntry(entry, true);
+            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            commandBuilder.AddEntry(entry, true);
+
+            var command = commandBuilder.GetModificationCommand();
 
             var connection = CreateConnection(
                 CreateFakeDataReader(new[] { "Col1" }, new List<object[]>()));
