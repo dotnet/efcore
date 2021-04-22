@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
@@ -39,7 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal('A', converter("A"));
             Assert.Equal('z', converter("z"));
             Assert.Equal('F', converter("Funkadelic"));
-            Assert.Equal('\0', converter(null));
+            Assert.Equal('\0', converter(""));
+
+            Assert.Throws<NullReferenceException>(() => converter(null));
         }
 
         [ConditionalFact]

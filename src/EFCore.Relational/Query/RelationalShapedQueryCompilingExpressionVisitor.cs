@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -60,10 +61,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);
             var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
-            var splitQuery = ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior
-                == QuerySplittingBehavior.SplitQuery;
+            var querySplittingBehavior = ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior;
+            var splitQuery = querySplittingBehavior == QuerySplittingBehavior.SplitQuery;
+            var collectionCount = 0;
             var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
-                shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders);
+                shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders, ref collectionCount);
+            if (querySplittingBehavior == null
+                && collectionCount > 1)
+            {
+                QueryCompilationContext.Logger.MultipleCollectionIncludeWarning();
+            }
 
             if (nonComposedFromSql)
             {

@@ -162,14 +162,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 if (generationProperty == null
                                     || !principalProperty.ClrType.IsDefaultValue(principalValue))
                                 {
-                                    if (principalEntry.HasTemporaryValue(principalProperty))
-                                    {
-                                        entry.SetTemporaryValue(property, principalValue);
-                                    }
-                                    else
-                                    {
-                                        entry[property] = principalValue;
-                                    }
+                                    entry.PropagateValue(principalEntry, principalProperty, property);
 
                                     return principalEntry;
                                 }

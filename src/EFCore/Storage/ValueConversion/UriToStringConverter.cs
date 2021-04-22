@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts a <see cref="Uri" /> to and from a <see cref="string" />.
     /// </summary>
-    public class UriToStringConverter : StringUriConverter<Uri, string>
+    public class UriToStringConverter : StringUriConverter<Uri?, string?>
     {
         /// <summary>
         ///     Creates a new instance of this converter. This converter preserves order.

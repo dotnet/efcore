@@ -385,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The default columns to which the property would be mapped. </returns>
         public static IEnumerable<IColumnMappingBase> GetDefaultColumnMappings(this IProperty property)
             => (IEnumerable<IColumnMappingBase>?)property.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.DefaultColumnMappings)
+                    RelationalAnnotationNames.DefaultColumnMappings)
                 ?? Enumerable.Empty<IColumnMappingBase>();
 
         /// <summary>
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The table columns to which the property is mapped. </returns>
         public static IEnumerable<IColumnMapping> GetTableColumnMappings(this IProperty property)
             => (IEnumerable<IColumnMapping>?)property.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.TableColumnMappings)
+                    RelationalAnnotationNames.TableColumnMappings)
                 ?? Enumerable.Empty<IColumnMapping>();
 
         /// <summary>
@@ -405,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The view columns to which the property is mapped. </returns>
         public static IEnumerable<IViewColumnMapping> GetViewColumnMappings(this IProperty property)
             => (IEnumerable<IViewColumnMapping>?)property.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.ViewColumnMappings)
+                    RelationalAnnotationNames.ViewColumnMappings)
                 ?? Enumerable.Empty<IViewColumnMapping>();
 
         /// <summary>
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The SQL query columns to which the property is mapped. </returns>
         public static IEnumerable<ISqlQueryColumnMapping> GetSqlQueryColumnMappings(this IProperty property)
             => (IEnumerable<ISqlQueryColumnMapping>?)property.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.SqlQueryColumnMappings)
+                    RelationalAnnotationNames.SqlQueryColumnMappings)
                 ?? Enumerable.Empty<ISqlQueryColumnMapping>();
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The function columns to which the property is mapped. </returns>
         public static IEnumerable<IFunctionColumnMapping> GetFunctionColumnMappings(this IProperty property)
             => (IEnumerable<IFunctionColumnMapping>?)property.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.FunctionColumnMappings)
+                    RelationalAnnotationNames.FunctionColumnMappings)
                 ?? Enumerable.Empty<IFunctionColumnMapping>();
 
         /// <summary>
@@ -701,7 +701,30 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The object that is used as the default value for the column this property is mapped to. </returns>
         public static object? GetDefaultValue(this IReadOnlyProperty property)
-            => property.FindAnnotation(RelationalAnnotationNames.DefaultValue)?.Value;
+        {
+            property.TryGetDefaultValue(out var defaultValue);
+            return defaultValue;
+        }
+
+        /// <summary>
+        ///     Returns the object that is used as the default value for the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="defaultValue"> The default value, or the CLR default if no explicit default has been set. </param>
+        /// <returns> <see langword="true" /> if a default value has been explicitly set; <see langword="false" /> otherwise. </returns>
+        public static bool TryGetDefaultValue(this IReadOnlyProperty property, out object? defaultValue)
+        {
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
+
+            if (annotation != null)
+            {
+                defaultValue = annotation.Value;
+                return defaultValue != null;
+            }
+
+            defaultValue = property.ClrType.GetDefaultValue();
+            return false;
+        }
 
         /// <summary>
         ///     Returns the object that is used as the default value for the column this property is mapped to.
@@ -711,19 +734,37 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The object that is used as the default value for the column this property is mapped to. </returns>
         public static object? GetDefaultValue(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
+            property.TryGetDefaultValue(storeObject, out var defaultValue);
+            return defaultValue;
+        }
+
+        /// <summary>
+        ///     Returns the object that is used as the default value for the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <param name="defaultValue"> The default value, or the CLR default if no explicit default has been set. </param>
+        /// <returns> <see langword="true" /> if a default value has been explicitly set; <see langword="false" /> otherwise. </returns>
+        public static bool TryGetDefaultValue(
+            this IReadOnlyProperty property,
+            in StoreObjectIdentifier storeObject,
+            out object? defaultValue)
+        {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
             if (annotation != null)
             {
-                return annotation.Value;
+                defaultValue = annotation.Value;
+                return defaultValue != null;
             }
 
             var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
             if (sharedTableRootProperty != null)
             {
-                return GetDefaultValue(sharedTableRootProperty, storeObject);
+                return TryGetDefaultValue(sharedTableRootProperty, storeObject, out defaultValue);
             }
 
-            return null;
+            defaultValue = property.ClrType.GetDefaultValue();
+            return false;
         }
 
         /// <summary>
@@ -982,7 +1023,10 @@ namespace Microsoft.EntityFrameworkCore
                 || IsOptionalSharingDependent(property.DeclaringEntityType, storeObject, 0);
         }
 
-        private static bool IsOptionalSharingDependent(IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject, int recursionDepth)
+        private static bool IsOptionalSharingDependent(
+            IReadOnlyEntityType entityType,
+            in StoreObjectIdentifier storeObject,
+            int recursionDepth)
         {
             if (recursionDepth++ == Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable)
             {
@@ -1277,7 +1321,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private static IReadOnlyProperty? FindSharedObjectRootPrimaryKeyProperty(
-            IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+            IReadOnlyProperty property,
+            in StoreObjectIdentifier storeObject)
         {
             if (!property.IsPrimaryKey())
             {
@@ -1393,7 +1438,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> An object that stores property facet overrides. </returns>
         public static IAnnotatable? FindOverrides(this IProperty property, in StoreObjectIdentifier storeObject)
-            => (IAnnotatable?)RelationalPropertyOverrides.Find(property, storeObject);
+            => RelationalPropertyOverrides.Find(property, storeObject);
 
         /// <summary>
         ///     <para>
@@ -1410,7 +1455,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableAnnotatable GetOrCreateOverrides(
             this IMutableProperty property,
             in StoreObjectIdentifier storeObject)
-            => (IMutableAnnotatable)RelationalPropertyOverrides.GetOrCreate(property, storeObject);
+            => RelationalPropertyOverrides.GetOrCreate(property, storeObject);
 
         /// <summary>
         ///     <para>
@@ -1427,6 +1472,6 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionAnnotatable GetOrCreateOverrides(
             this IConventionProperty property,
             in StoreObjectIdentifier storeObject)
-            => (IConventionAnnotatable)RelationalPropertyOverrides.GetOrCreate(property, storeObject);
+            => RelationalPropertyOverrides.GetOrCreate(property, storeObject);
     }
 }

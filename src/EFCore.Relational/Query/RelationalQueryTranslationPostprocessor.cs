@@ -46,11 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Expression Process(Expression query)
         {
             query = base.Process(query);
-            query = new SelectExpressionProjectionApplyingExpressionVisitor().Visit(query);
-            query = new CollectionJoinApplyingExpressionVisitor((RelationalQueryCompilationContext)QueryCompilationContext).Visit(query);
+            query = new SelectExpressionProjectionApplyingExpressionVisitor(
+                ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query);
 #if DEBUG
-            // TODO: 24460 blocks from enabling this
-            //query = new TableAliasVerifyingExpressionVisitor().Visit(query);
+            query = new TableAliasVerifyingExpressionVisitor().Visit(query);
 #endif
             query = new SelectExpressionPruningExpressionVisitor().Visit(query);
             query = new SqlExpressionSimplifyingExpressionVisitor(RelationalDependencies.SqlExpressionFactory, _useRelationalNulls).Visit(query);

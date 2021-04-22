@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Throws<ArgumentException>(
                 () => converter(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
 
-            Assert.Equal(Guid.Empty, converter(null));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]

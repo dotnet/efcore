@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts a <see cref="PhysicalAddress" /> to and from a <see cref="byte" />.
     /// </summary>
-    public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress, byte[]>
+    public class PhysicalAddressToBytesConverter : ValueConverter<PhysicalAddress?, byte[]?>
     {
         private static readonly ConverterMappingHints _defaultHints = new(size: 8);
 
@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public PhysicalAddressToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(
-                // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-                v => v == null ? default! : v.GetAddressBytes(),
-                v => v == null ? default! : new PhysicalAddress(v),
+                v => v == null ? default : v.GetAddressBytes(),
+                v => v == null ? default : new PhysicalAddress(v),
+                convertsNulls: true,
                 _defaultHints.With(mappingHints))
         {
         }

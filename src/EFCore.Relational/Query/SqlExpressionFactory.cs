@@ -966,7 +966,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         private EntityProjectionExpression GetMappedEntityProjectionExpression(SelectExpression selectExpression)
-            => (EntityProjectionExpression)selectExpression.GetMappedProjection(new ProjectionMember());
+            => (EntityProjectionExpression)selectExpression.GetProjection(
+                new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
 
         private SqlExpression IsNotNull(IProperty property, EntityProjectionExpression entityProjection)
             => IsNotNull(entityProjection.BindProperty(property));
