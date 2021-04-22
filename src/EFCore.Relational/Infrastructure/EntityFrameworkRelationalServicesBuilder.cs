@@ -76,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IColumnModificationFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IModificationCommandFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IModificationCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -151,6 +153,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRawSqlCommandBuilder, RawSqlCommandBuilder>();
             TryAdd<ICommandBatchPreparer, CommandBatchPreparer>();
             TryAdd<IColumnModificationFactory, ColumnModificationFactory>();
+            TryAdd<IModificationCommandFactory, ModificationCommandFactory>();
+            TryAdd<IModificationCommandBuilderFactory, ModificationCommandBuilderFactory>();
             TryAdd<IMigrationsModelDiffer, MigrationsModelDiffer>();
             TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
             TryAdd<IExecutionStrategyFactory, RelationalExecutionStrategyFactory>();
@@ -219,7 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
                 .AddDependencyScoped<RelationalQueryContextDependencies>()
-                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
+                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>()
+                .AddDependencyScoped<ModificationCommandBuilderFactoryDependencies>();
 
             return base.TryAddCoreServices();
         }

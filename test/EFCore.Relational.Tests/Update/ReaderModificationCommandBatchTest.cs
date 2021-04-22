@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -85,9 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -108,9 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -131,9 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -154,9 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -177,9 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -203,9 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -230,9 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -256,17 +243,15 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var cmdBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            cmdBuilder.AddEntry(entry, true);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+            commandBuilder.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
                     new[] { "Col2" }, new List<object[]> { new object[] { "FortyTwo" } }));
 
             var batch = new ModificationCommandBatchFake();
-            batch.AddCommand(cmdBuilder.GetModificationCommand());
+            batch.AddCommand(commandBuilder.GetModificationCommand());
 
             await batch.ExecuteAsync(connection);
 
@@ -280,9 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -305,17 +288,15 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var cmdBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
-            cmdBuilder.AddEntry(entry, true);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+            commandBuilder.AddEntry(entry, true);
 
             var connection = CreateConnection(
                 CreateFakeDataReader(
                     new[] { "Col1" }, new List<object[]> { new object[] { 42 } }));
 
             var batch = new ModificationCommandBatchFake();
-            batch.AddCommand(cmdBuilder.GetModificationCommand());
+            batch.AddCommand(commandBuilder.GetModificationCommand());
 
             Assert.Equal(
                 RelationalStrings.UpdateConcurrencyException(1, 42),
@@ -329,9 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var commandBuilder = new ModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var commandBuilder = CreateModificationCommandBuilder("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             commandBuilder.AddEntry(entry, true);
 
             var command = commandBuilder.GetModificationCommand();
@@ -702,6 +681,29 @@ namespace Microsoft.EntityFrameworkCore.Update
                     ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
 
             return optionsBuilder.Options;
+        }
+
+        private static IModificationCommandBuilder CreateModificationCommandBuilder(
+            string tableName,
+            string schemaName,
+            Func<string> generateParameterName,
+            bool sensitiveLoggingEnabled,
+            IComparer<IUpdateEntry> comparer)
+        {
+            var modificationCommandFactory = new ModificationCommandFactory();
+
+            var columnModificationFactory = new ColumnModificationFactory();
+
+            var commandBuilder = new ModificationCommandBuilder
+                (tableName,
+                 schemaName,
+                 generateParameterName,
+                 sensitiveLoggingEnabled,
+                 comparer,
+                 modificationCommandFactory,
+                 columnModificationFactory);
+
+           return commandBuilder;
         }
     }
 }

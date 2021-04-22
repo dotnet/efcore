@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<IModificationCommand> _modificationCommandComparer;
         private readonly IKeyValueIndexFactorySource _keyValueIndexFactorySource;
-        private readonly IColumnModificationFactory _columnModificationFactory;
+        private readonly IModificationCommandBuilderFactory _modificationCommandBuilderFactory;
         private readonly int _minBatchSize;
         private readonly bool _sensitiveLoggingEnabled;
 
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
             _modificationCommandComparer = dependencies.ModificationCommandComparer;
             _keyValueIndexFactorySource = dependencies.KeyValueIndexFactorySource;
-            _columnModificationFactory = dependencies.ColumnModificationFactory;
+            _modificationCommandBuilderFactory = dependencies.ModificationCommandBuilderFactory;
             _minBatchSize =
                 dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
                 ?? 4;
@@ -164,8 +164,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IUpdateAdapter updateAdapter,
             Func<string> generateParameterName)
         {
-            var cmdBuilders = new List<ModificationCommandBuilder>();
-            Dictionary<(string Name, string? Schema), SharedTableEntryMap<ModificationCommandBuilder>>? sharedTablesCmdBuildersMap =
+            var cmdBuilders = new List<IModificationCommandBuilder>();
+            Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommandBuilder>>? sharedTablesCmdBuildersMap =
                 null;
             foreach (var entry in entries)
             {
@@ -177,36 +177,36 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
-                ModificationCommandBuilder? firstCmdBuilder = null;
+                IModificationCommandBuilder? firstCmdBuilder = null;
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
                     var tableKey = (table.Name, table.Schema);
 
-                    ModificationCommandBuilder cmdBuilder;
+                    IModificationCommandBuilder cmdBuilder;
                     var isMainEntry = true;
                     if (table.IsShared)
                     {
                         if (sharedTablesCmdBuildersMap == null)
                         {
-                            sharedTablesCmdBuildersMap = new Dictionary<(string, string?), SharedTableEntryMap<ModificationCommandBuilder>>();
+                            sharedTablesCmdBuildersMap = new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommandBuilder>>();
                         }
 
                         if (!sharedTablesCmdBuildersMap.TryGetValue(tableKey, out var sharedCommandsMap))
                         {
-                            sharedCommandsMap = new SharedTableEntryMap<ModificationCommandBuilder>(table, updateAdapter);
+                            sharedCommandsMap = new SharedTableEntryMap<IModificationCommandBuilder>(table, updateAdapter);
                             sharedTablesCmdBuildersMap.Add(tableKey, sharedCommandsMap);
                         }
 
                         cmdBuilder = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, c) => new ModificationCommandBuilder(n, s, generateParameterName, _sensitiveLoggingEnabled, c, _columnModificationFactory));
+                            (n, s, c) => _modificationCommandBuilderFactory.CreateModificationCommandBuilder(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
-                        cmdBuilder = new ModificationCommandBuilder(
-                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null, _columnModificationFactory);
+                        cmdBuilder = _modificationCommandBuilderFactory.CreateModificationCommandBuilder(
+                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
                     }
 
                     cmdBuilder.AddEntry(entry, isMainEntry);
@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private void AddUnchangedSharingEntries(
-            IEnumerable<SharedTableEntryMap<ModificationCommandBuilder>> sharedTablesCommands,
+            IEnumerable<SharedTableEntryMap<IModificationCommandBuilder>> sharedTablesCommands,
             IList<IUpdateEntry> entries)
         {
             foreach (var sharedCommandsMap in sharedTablesCommands)

@@ -976,7 +976,10 @@ FakeEntity [Deleted]" + CoreStrings.SensitiveDataDisabled;
                     new ParameterNameGeneratorFactory(new ParameterNameGeneratorDependencies()),
                     new ModificationCommandComparer(),
                     new KeyValueIndexFactorySource(),
-                    new ColumnModificationFactory(),
+                    new ModificationCommandBuilderFactory(
+                        new ModificationCommandBuilderFactoryDependencies(
+                            new ModificationCommandFactory(),
+                            new ColumnModificationFactory())),
                     loggingOptions,
                     new FakeDiagnosticsLogger<DbLoggerCategory.Update>(),
                     new DbContextOptionsBuilder().Options));

@@ -16,13 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ModificationCommandBuilder
+    public class ModificationCommandBuilder : IModificationCommandBuilder
     {
         private readonly string _tableName;
         private readonly string? _schemaName;
         private readonly Func<string> _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IComparer<IUpdateEntry>? _comparer;
+
+        private readonly IModificationCommandFactory _modificationCommandFactory;
         private readonly IColumnModificationFactory _columnModificationFactory;
 
         private bool _mainEntryAdded;
@@ -43,6 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             IComparer<IUpdateEntry>? comparer,
+            IModificationCommandFactory modificationCommandFactory,
             IColumnModificationFactory columnModificationFactory)
         {
             _tableName = tableName;
@@ -51,6 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _generateParameterName = generateParameterName;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
             _comparer = comparer;
+
+            _modificationCommandFactory = modificationCommandFactory;
             _columnModificationFactory = columnModificationFactory;
 
             _mainEntryAdded = false;
@@ -104,9 +109,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual void AddEntry(IUpdateEntry entry, bool mainEntry)
         {
-            Check.DebugAssert(_resultCommand == null, "_resultCommand was created!");
-
             Check.NotNull(entry, nameof(entry));
+
+            // TODO: Transform to runtime check
+            Check.DebugAssert(_resultCommand == null, "_resultCommand was created!");
 
             switch (entry.EntityState)
             {
@@ -171,14 +177,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 _entries.Sort(_comparer);
             }
 
-            _resultCommand = new ModificationCommand(
-                _tableName,
-                _schemaName,
-                _generateParameterName,
-                _sensitiveLoggingEnabled,
-                _columnModificationFactory,
-                _entries,
-                EntityState);
+            _resultCommand = _modificationCommandFactory.CreateModificationCommand(
+                new ModificationCommandParameters(
+                    _tableName,
+                    _schemaName,
+                    _generateParameterName,
+                    _sensitiveLoggingEnabled,
+                    _columnModificationFactory,
+                    _entries,
+                    EntityState));
 
             return _resultCommand;
         }

@@ -32,24 +32,25 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
+            var modificationCommandFactory = new ModificationCommandFactory();
             var columnModificationFactory = new ColumnModificationFactory();
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[(IProperty)key] = 1;
             entry1.SetEntityState(EntityState.Added);
-            var modificationCmdBuilderAdded = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
+            var modificationCmdBuilderAdded = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, modificationCommandFactory, columnModificationFactory);
             modificationCmdBuilderAdded.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
             entry2[(IProperty)key] = 2;
             entry2.SetEntityState(EntityState.Modified);
-            var modificationCmdBuilderModified = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
+            var modificationCmdBuilderModified = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, modificationCommandFactory, columnModificationFactory);
             modificationCmdBuilderModified.AddEntry(entry2, true);
 
             var entry3 = stateManager.GetOrCreateEntry(new object());
             entry3[(IProperty)key] = 3;
             entry3.SetEntityState(EntityState.Deleted);
-            var modificationCmdBuilderDeleted = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
+            var modificationCmdBuilderDeleted = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, modificationCommandFactory, columnModificationFactory);
             modificationCmdBuilderDeleted.AddEntry(entry3, true);
 
             var mCC = new ModificationCommandComparer();
@@ -179,21 +180,22 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
+            var modificationCommandFactory = new ModificationCommandFactory();
             var columnModificationFactory = new ColumnModificationFactory();
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
             entry1[(IProperty)keyProperty] = value1;
             entry1.SetEntityState(EntityState.Modified);
-            var modificationCmdBuilder1 = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
+            var modificationCmdBuilder1 = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, modificationCommandFactory, columnModificationFactory);
             modificationCmdBuilder1.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
             entry2[(IProperty)keyProperty] = value2;
             entry2.SetEntityState(EntityState.Modified);
-            var modificationCmdBuilder2 = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
+            var modificationCmdBuilder2 = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, modificationCommandFactory, columnModificationFactory);
             modificationCmdBuilder2.AddEntry(entry2, true);
 
-            var modificationCmdBuilder3 = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory);
+            var modificationCmdBuilder3 = new ModificationCommandBuilder("A", null, new ParameterNameGenerator().GenerateNext, false, null, modificationCommandFactory, columnModificationFactory);
             modificationCmdBuilder3.AddEntry(entry1, true);
 
             var mCC = new ModificationCommandComparer();

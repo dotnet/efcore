@@ -37,39 +37,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
         /// </summary>
-        /// <param name="name"> The name of the table containing the data to be modified. </param>
-        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
-        /// <param name="entries"> List of entries. </param>
-        /// <param name="entityState">
-        ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
-        ///     inserted (<see cref="Microsoft.EntityFrameworkCore.EntityState.Added" />),
-        ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
-        ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
-        /// </param>
+        /// <param name="modificationCommandParameters"> Creation parameters. </param>
         public ModificationCommand(
-            string name,
-            string? schema,
-            Func<string> generateParameterName,
-            bool sensitiveLoggingEnabled,
-            IColumnModificationFactory columnModificationFactory,
-            IReadOnlyList<IUpdateEntry> entries,
-            EntityState entityState)
+            ModificationCommandParameters modificationCommandParameters)
         {
-            TableName = name;
-            Schema = schema;
+            TableName = modificationCommandParameters.TableName;
+            Schema = modificationCommandParameters.Schema;
 
-            _generateParameterName = generateParameterName;
-            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            _columnModificationFactory = columnModificationFactory;
+            _generateParameterName = modificationCommandParameters.GenerateParameterName;
+            _sensitiveLoggingEnabled = modificationCommandParameters.SensitiveLoggingEnabled;
+            _columnModificationFactory = modificationCommandParameters.ColumnModificationFactory;
 
             _columnModifications = null;
             _requiresResultPropagation = false;
 
-            _entries = entries;
-            _entityState = entityState;
+            _entries = modificationCommandParameters.Entries;
+            _entityState = modificationCommandParameters.EntityState;
         }
 
         /// <summary>
