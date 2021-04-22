@@ -42,7 +42,7 @@ The typical workflow for contributing to EF Core is outlined below. This is not 
 
 * [Set up your development environment](../docs/getting-and-building-the-code.md) so that you can build and test the code. Don't forget to [create a fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) for your work.
 * Make sure all tests are passing. (This is typically done by running `test` at a command prompt.)
-* Choose an issue (see above), understand it, and **comment on the issue** indicating what you intend to do fix it. **This communication with the team is very important and often helps avoid throwing away lots of work caused by taking the wrong approach.**
+* Choose an issue (see above), understand it, and **comment on the issue** indicating what you intend to do to fix it. **This communication with the team is very important and often helps avoid throwing away lots of work caused by taking the wrong approach.**
 * Create and check out a [branch](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-and-deleting-branches-within-your-repository) in your local clone. You will use this branch to prepare your PR.
 * Make appropriate code and test changes. Follow the patterns and code style that you see in the existing code. Make sure to add tests that fail without the change and then pass with the change.
 * Consider other scenarios where your change may have an impact and add more testing. We always prefer having too many tests to having not enough of them.
