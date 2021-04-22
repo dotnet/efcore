@@ -1013,6 +1013,27 @@ LEFT JOIN (
 ORDER BY [b].[Id], [t].[Id]");
         }
 
+        public override async Task Include_on_derived_type_with_queryable_Cast(bool async)
+        {
+            await base.Include_on_derived_type_with_queryable_Cast(async);
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN N'DerivedInheritanceRelationshipEntity'
+END AS [Discriminator], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name], [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+LEFT JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+LEFT JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+LEFT JOIN (
+    SELECT [b1].[Id], [b1].[Name], [b1].[ParentId], [d1].[DerivedInheritanceRelationshipEntityId]
+    FROM [BaseCollectionsOnDerived] AS [b1]
+    INNER JOIN [DerivedCollectionsOnDerived] AS [d1] ON [b1].[Id] = [d1].[Id]
+) AS [t] ON [b].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
+WHERE [b].[Id] >= 4
+ORDER BY [b].[Id], [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [t].[Id]");
+        }
+
         public override async Task Include_collection_with_inheritance_split(bool async)
         {
             await base.Include_collection_with_inheritance_split(async);
@@ -1831,6 +1852,42 @@ INNER JOIN (
     FROM [BaseCollectionsOnBase] AS [b0]
     LEFT JOIN [DerivedCollectionsOnBase] AS [d0] ON [b0].[Id] = [d0].[Id]
 ) AS [t] ON [b].[Id] = [t].[BaseParentId]
+ORDER BY [b].[Id]");
+        }
+
+        public override async Task Include_on_derived_type_with_queryable_Cast_split(bool async)
+        {
+            await base.Include_on_derived_type_with_queryable_Cast_split(async);
+
+            AssertSql(
+                @"SELECT [b].[Id], [b].[Name], [d].[BaseId], CASE
+    WHEN [d].[Id] IS NOT NULL THEN N'DerivedInheritanceRelationshipEntity'
+END AS [Discriminator], [b].[OwnedReferenceOnBase_Id], [b].[OwnedReferenceOnBase_Name], [d].[Id], [d].[OwnedReferenceOnDerived_Id], [d].[OwnedReferenceOnDerived_Name]
+FROM [BaseEntities] AS [b]
+LEFT JOIN [DerivedEntities] AS [d] ON [b].[Id] = [d].[Id]
+WHERE [b].[Id] >= 4
+ORDER BY [b].[Id]",
+                //
+                @"SELECT [b0].[BaseInheritanceRelationshipEntityId], [b0].[Id], [b0].[Name], [b].[Id]
+FROM [BaseEntities] AS [b]
+INNER JOIN [BaseEntities_OwnedCollectionOnBase] AS [b0] ON [b].[Id] = [b0].[BaseInheritanceRelationshipEntityId]
+WHERE [b].[Id] >= 4
+ORDER BY [b].[Id]",
+                //
+                @"SELECT [d0].[DerivedInheritanceRelationshipEntityId], [d0].[Id], [d0].[Name], [b].[Id]
+FROM [BaseEntities] AS [b]
+INNER JOIN [DerivedEntities_OwnedCollectionOnDerived] AS [d0] ON [b].[Id] = [d0].[DerivedInheritanceRelationshipEntityId]
+WHERE [b].[Id] >= 4
+ORDER BY [b].[Id]",
+                //
+                @"SELECT [t].[Id], [t].[Name], [t].[ParentId], [t].[DerivedInheritanceRelationshipEntityId], [b].[Id]
+FROM [BaseEntities] AS [b]
+INNER JOIN (
+    SELECT [b0].[Id], [b0].[Name], [b0].[ParentId], [d0].[DerivedInheritanceRelationshipEntityId]
+    FROM [BaseCollectionsOnDerived] AS [b0]
+    INNER JOIN [DerivedCollectionsOnDerived] AS [d0] ON [b0].[Id] = [d0].[Id]
+) AS [t] ON [b].[Id] = [t].[DerivedInheritanceRelationshipEntityId]
+WHERE [b].[Id] >= 4
 ORDER BY [b].[Id]");
         }
 
