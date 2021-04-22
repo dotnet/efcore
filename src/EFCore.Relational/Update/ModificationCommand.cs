@@ -60,36 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="name"> The name of the table containing the data to be modified. </param>
         /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
-        private ModificationCommand(
-            string name,
-            string? schema,
-            Func<string> generateParameterName,
-            bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer)
-        {
-            Check.NotNull(generateParameterName, nameof(generateParameterName));
-
-            Check.NotNull(name, nameof(name));
-
-            TableName = name;
-            Schema = schema;
-            _columnModifications = null;
-            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            _generateParameterName = generateParameterName;
-
-            _entries = _emptyEntries;
-
-            _entityState = EntityState.Modified;
-        }
-
-        /// <summary>
-        ///     Initializes a new <see cref="ModificationCommand" /> instance.
-        /// </summary>
-        /// <param name="name"> The name of the table containing the data to be modified. </param>
-        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
         /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ModificationCommand(
