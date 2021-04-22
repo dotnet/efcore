@@ -3486,21 +3486,6 @@ END <> N'L') OR CASE
 END IS NULL");
         }
 
-        public override async Task Projecting_collection_with_FirstOrDefault_without_split_works(bool async)
-        {
-            await base.Projecting_collection_with_FirstOrDefault_without_split_works(async);
-
-            AssertSql(
-                @"SELECT [t].[Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
-FROM (
-    SELECT TOP(1) [l].[Id]
-    FROM [LevelOne] AS [l]
-    WHERE [l].[Id] = 1
-) AS [t]
-LEFT JOIN [LevelTwo] AS [l0] ON [t].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [t].[Id], [l0].[Id]");
-        }
-
         public override async Task Distinct_skip_without_orderby(bool async)
         {
             await base.Distinct_skip_without_orderby(async);

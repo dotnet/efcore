@@ -15,11 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Include_inside_subquery(bool async)
-        {
-            return base.Include_inside_subquery(async);
-        }
+        public override async Task Include_inside_subquery(bool async)
+           => Assert.Equal(
+               SqliteStrings.ApplyNotSupported,
+               (await Assert.ThrowsAsync<InvalidOperationException>(
+                   () => base.Include_inside_subquery(async))).Message);
 
         public override async Task Filtered_include_after_different_filtered_include_different_level(bool async)
             => Assert.Equal(

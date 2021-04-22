@@ -8499,16 +8499,18 @@ FROM (
     LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
     ORDER BY [o].[Id]
 ) AS [t]
-ORDER BY [t].[Id]",
+ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]",
                     //
-                    @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id]
+                    @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
 FROM (
-    SELECT TOP(1) [o].[Id]
+    SELECT TOP(1) [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id] AS [Owner23211Id0]
     FROM [Owner23211] AS [o]
+    LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
+    LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
     ORDER BY [o].[Id]
 ) AS [t]
 INNER JOIN [Dependent23211] AS [d] ON [t].[Id] = [d].[Owner23211Id]
-ORDER BY [t].[Id]");
+ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]");
             }
 
             using (var context = contextFactory.CreateContext())
@@ -8528,16 +8530,17 @@ FROM (
     LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
     ORDER BY [s].[Id]
 ) AS [t]
-ORDER BY [t].[Id]",
+ORDER BY [t].[Id], [t].[SecondOwner23211Id]",
                     //
-                    @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id]
+                    @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id], [t].[SecondOwner23211Id]
 FROM (
-    SELECT TOP(1) [s].[Id]
+    SELECT TOP(1) [s].[Id], [o].[SecondOwner23211Id]
     FROM [SecondOwner23211] AS [s]
+    LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
     ORDER BY [s].[Id]
 ) AS [t]
 INNER JOIN [SecondDependent23211] AS [s0] ON [t].[Id] = [s0].[SecondOwner23211Id]
-ORDER BY [t].[Id]");
+ORDER BY [t].[Id], [t].[SecondOwner23211Id]");
             }
         }
 

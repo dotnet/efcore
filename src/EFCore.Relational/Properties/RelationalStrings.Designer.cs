@@ -1062,14 +1062,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 memberType, member, entityType);
 
         /// <summary>
-        ///     The query has been configured to use '{splitQueryEnumValue}', but contains a collection in the 'Select' call which could not be split into a separate query. Remove '{splitQueryMethodName}' if applied, or add '{singleQueryMethodName}' to the query.
-        /// </summary>
-        public static string UnableToSplitCollectionProjectionInSplitQuery(object? splitQueryEnumValue, object? splitQueryMethodName, object? singleQueryMethodName)
-            => string.Format(
-                GetString("UnableToSplitCollectionProjectionInSplitQuery", nameof(splitQueryEnumValue), nameof(splitQueryMethodName), nameof(singleQueryMethodName)),
-                splitQueryEnumValue, splitQueryMethodName, singleQueryMethodName);
-
-        /// <summary>
         ///     Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.
         /// </summary>
         public static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor)
