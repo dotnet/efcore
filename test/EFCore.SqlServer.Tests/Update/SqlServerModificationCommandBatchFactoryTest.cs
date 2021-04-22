@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new ModificationCommandBatchFactoryDependencies(
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new ModificationCommandBatchFactoryDependencies(

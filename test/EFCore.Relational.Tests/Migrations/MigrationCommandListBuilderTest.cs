@@ -130,7 +130,7 @@ Statement3
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
             var migrationsLogger = new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>();
             var generationHelper = new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
 

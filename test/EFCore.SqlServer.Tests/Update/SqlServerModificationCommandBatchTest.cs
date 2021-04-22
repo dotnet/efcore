@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var batch = new SqlServerModificationCommandBatch(
                 new ModificationCommandBatchFactoryDependencies(
