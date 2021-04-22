@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
-        public ModificationCommand(
+        private ModificationCommand(
             string name,
             string? schema,
             Func<string> generateParameterName,
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
-        public ModificationCommand(
+        private ModificationCommand(
             string name,
             string? schema,
             IReadOnlyList<ColumnModification>? columnModifications,

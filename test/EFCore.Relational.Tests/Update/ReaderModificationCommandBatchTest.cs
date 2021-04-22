@@ -29,9 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void AddCommand_adds_command_if_possible()
         {
-            var columnModificationFactory = new ColumnModificationFactory();
-
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -50,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -68,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, columnModificationFactory);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -345,7 +343,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     null,
                     parameterNameGenerator.GenerateNext,
                     true,
-                    columnModificationFactory,
                     new List<ColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
@@ -364,7 +361,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     null,
                     parameterNameGenerator.GenerateNext,
                     true,
-                    columnModificationFactory,
                     new List<ColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
@@ -404,7 +400,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     null,
                     parameterNameGenerator.GenerateNext,
                     true,
-                    columnModificationFactory,
                     new List<ColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
@@ -443,7 +438,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     null,
                     parameterNameGenerator.GenerateNext,
                     true,
-                    columnModificationFactory,
                     new List<ColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
@@ -482,7 +476,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     null,
                     parameterNameGenerator.GenerateNext,
                     true,
-                    columnModificationFactory,
                     new List<ColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
@@ -523,7 +516,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                     null,
                     parameterNameGenerator.GenerateNext,
                     true,
-                    columnModificationFactory,
                     new List<ColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(

@@ -42,14 +42,12 @@ namespace Microsoft.EntityFrameworkCore.Update
                     logger),
                 1);
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
             Assert.True(
                 batch.AddCommand(
-                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
+                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
             Assert.False(
                 batch.AddCommand(
-                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, columnModificationFactory)));
+                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
         }
 
         private class FakeDbContext : DbContext

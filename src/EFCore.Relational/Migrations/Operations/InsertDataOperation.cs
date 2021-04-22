@@ -79,8 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 }
 
                 yield return new ModificationCommand(
-                    Table, Schema, modifications, sensitiveLoggingEnabled: false,
-                    columnModificationFactory: columnModificationFactory);
+                    Table, Schema, modifications, sensitiveLoggingEnabled: false);
             }
         }
     }

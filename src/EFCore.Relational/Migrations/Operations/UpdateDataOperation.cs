@@ -118,8 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 }
 
                 yield return new ModificationCommand(
-                    Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: false,
-                    columnModificationFactory: columnModificationFactory);
+                    Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: false);
             }
         }
     }
