@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     {
         private readonly Func<string>? _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
-        private readonly IColumnModificationFactory _columnModificationFactory;
+        private readonly IColumnModificationFactory? _columnModificationFactory;
         private readonly IReadOnlyList<IUpdateEntry> _entries;
         private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
@@ -63,49 +63,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
-        /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
-        private ModificationCommand(
+        public ModificationCommand(
             string name,
             string? schema,
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer,
-            IColumnModificationFactory columnModificationFactory)
-            : this(
-                Check.NotEmpty(name, nameof(name)),
-                schema,
-                null,
-                sensitiveLoggingEnabled,
-                columnModificationFactory)
+            IComparer<IUpdateEntry>? comparer)
         {
             Check.NotNull(generateParameterName, nameof(generateParameterName));
 
-            _generateParameterName = generateParameterName;
-        }
-
-        /// <summary>
-        ///     Initializes a new <see cref="ModificationCommand" /> instance.
-        /// </summary>
-        /// <param name="name"> The name of the table containing the data to be modified. </param>
-        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="columnModificationFactory"> A ColumnModification factory. </param>
-        private ModificationCommand(
-            string name,
-            string? schema,
-            IReadOnlyList<ColumnModification>? columnModifications,
-            bool sensitiveLoggingEnabled,
-            IColumnModificationFactory columnModificationFactory)
-        {
             Check.NotNull(name, nameof(name));
-            Check.NotNull(columnModificationFactory, nameof(columnModificationFactory));
 
             TableName = name;
             Schema = schema;
-            _columnModifications = columnModifications;
+            _columnModifications = null;
             _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            _columnModificationFactory = columnModificationFactory;
+            _generateParameterName = generateParameterName;
 
             _entries = _emptyEntries;
 
@@ -113,31 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Initializes a new <see cref="ModificationCommand" /> instance with own ColumnModification factory.
-        /// </summary>
-        /// <param name="name"> The name of the table containing the data to be modified. </param>
-        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
-        public ModificationCommand(
-            string name,
-            string? schema,
-            Func<string> generateParameterName,
-            bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer)
-            : this(
-                name,
-                schema,
-                generateParameterName,
-                sensitiveLoggingEnabled,
-                comparer,
-                SingleColumnModificationFactory.Instance)
-        {
-        }
-
-        /// <summary>
-        ///     Initializes a new <see cref="ModificationCommand" /> instance with own ColumnModification factory.
+        ///     Initializes a new <see cref="ModificationCommand" /> instance.
         /// </summary>
         /// <param name="name"> The name of the table containing the data to be modified. </param>
         /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
@@ -148,13 +97,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schema,
             IReadOnlyList<ColumnModification>? columnModifications,
             bool sensitiveLoggingEnabled)
-            :this(
-                name,
-                schema,
-                columnModifications,
-                sensitiveLoggingEnabled,
-                SingleColumnModificationFactory.Instance)
         {
+            Check.NotNull(name, nameof(name));
+
+            TableName = name;
+            Schema = schema;
+            _columnModifications = columnModifications;
+            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
+            _generateParameterName = null;
+
+            _entries = _emptyEntries;
+
+            _entityState = EntityState.Modified;
         }
 
         /// <summary>
@@ -298,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             isCondition,
                             _sensitiveLoggingEnabled);
 
-                        var columnModification = _columnModificationFactory.CreateColumnModification(
+                        var columnModification = _columnModificationFactory!.CreateColumnModification(
                             columnModificationParameters);
 
                         if (columnPropagator != null
@@ -436,11 +390,6 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 return _write;
             }
-        }
-
-        private static class SingleColumnModificationFactory
-        {
-            public static readonly IColumnModificationFactory Instance = new Internal.ColumnModificationFactory();
         }
     }
 }
