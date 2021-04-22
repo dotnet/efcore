@@ -38,63 +38,63 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///   Internal Debug API.
         /// </summary>
-        public readonly EnumDebugInitKind DebugInitKind;
+        public EnumDebugInitKind DebugInitKind  { get; init; }
 #endif
 
         /// <summary>
         ///  A delegate for generating parameter names for the update SQL.
         /// </summary>
-        public Func<string>? GenerateParameterName;
+        public Func<string>? GenerateParameterName  { get; init; }
 
         /// <summary>
         ///  The original value of the property mapped to column.
         /// </summary>
-        public object? OriginalValue;
+        public object? OriginalValue  { get; init; }
 
         /// <summary>
         ///  Current value of the property mapped to column.
         /// </summary>
-        public object? Value;
+        public object? Value  { get; init; }
 
         /// <summary>
         ///  Indicates whether or not potentially sensitive data (e.g. database values) can be logged.
         /// </summary>
-        public bool SensitiveLoggingEnabled;
+        public bool SensitiveLoggingEnabled  { get; init; }
 
         /// <summary>
         ///     The <see cref="IUpdateEntry" /> that represents the entity that is being modified.
         /// </summary>
-        public IUpdateEntry? Entry;
+        public IUpdateEntry? Entry  { get; init; }
 
         /// <summary>
         ///     The property that maps to the column.
         /// </summary>
-        public IProperty? Property;
+        public IProperty? Property  { get; init; }
 
         /// <summary>
         ///     The relational type mapping for the column.
         /// </summary>
-        public RelationalTypeMapping? TypeMapping;
+        public RelationalTypeMapping? TypeMapping  { get; init; }
 
         /// <summary>
         ///     A value indicating whether the column could contain a null value.
         /// </summary>
-        public bool? IsNullable;
+        public bool? IsNullable  { get; init; }
 
         /// <summary>
         ///     Indicates whether or not a value must be read from the database for the column.
         /// </summary>
-        public bool IsRead;
+        public bool IsRead  { get; init; }
 
         /// <summary>
         ///     Indicates whether or not a value must be written to the database for the column.
         /// </summary>
-        public bool IsWrite;
+        public bool IsWrite  { get; init; }
 
         /// <summary>
         ///     Indicates whether or not the column is used in the <c>WHERE</c> clause when updating.
         /// </summary>
-        public bool IsCondition;
+        public bool IsCondition  { get; init; }
 
         // /// <summary>
         // ///     Indicates whether or not the column is concurrency token.
@@ -105,17 +105,17 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Indicates whether or not the column is part of a primary or alternate key.
         /// </summary>
-        public bool IsKey;
+        public bool IsKey  { get; init; }
 
         /// <summary>
         ///     The name of the column.
         /// </summary>
-        public string ColumnName;
+        public string ColumnName  { get; init; }
 
         /// <summary>
         ///     The database type of the column.
         /// </summary>
-        public string? ColumnType;
+        public string? ColumnType  { get; init; }
 
         /// <summary>
         ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
