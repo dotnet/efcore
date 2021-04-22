@@ -19,32 +19,32 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The name of the table containing the data to be modified.
         /// </summary>
-        public readonly string TableName;
+        public string TableName { get; init; }
 
         /// <summary>
         ///     The schema containing the table, or <see langword="null" /> to use the default schema.
         /// </summary>
-        public readonly string? Schema;
+        public string? Schema { get; init; }
 
         /// <summary>
         ///     A delegate to generate parameter names.
         /// </summary>
-        public readonly Func<string> GenerateParameterName;
+        public Func<string> GenerateParameterName { get; init; }
 
         /// <summary>
         ///     Indicates whether or not potentially sensitive data (e.g. database values) can be logged.
         /// </summary>
-        public readonly bool SensitiveLoggingEnabled;
+        public bool SensitiveLoggingEnabled { get; init; }
 
         /// <summary>
         ///     A ColumnModification factory.
         /// </summary>
-        public readonly IColumnModificationFactory ColumnModificationFactory;
+        public IColumnModificationFactory ColumnModificationFactory { get; init; }
 
         /// <summary>
         ///     #DUMMY
         /// </summary>
-        public readonly IReadOnlyList<IUpdateEntry> Entries;
+        public IReadOnlyList<IUpdateEntry> Entries { get; init; }
 
         /// <summary>
         ///     The <see cref="EntityFrameworkCore.EntityState" /> that indicates whether the row will be
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
         ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
         /// </summary>
-        public readonly EntityState EntityState;
+        public EntityState EntityState { get; init; }
 
         /// <summary>
         ///     Creates a new <see cref="ModificationCommandParameters" /> instance.
