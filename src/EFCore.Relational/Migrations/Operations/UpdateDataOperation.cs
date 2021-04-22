@@ -117,7 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                     modifications[j] = columnModificationFactory.CreateColumnModification(columnModificationParameters);
                 }
 
-                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: false);
+                var modificationCommandParameters = new ModificationCommandParameters(
+                    Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: false);
+
+                yield return new ModificationCommand(modificationCommandParameters);
             }
         }
     }

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -714,7 +715,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 columnModifications = columnModifications.Where(c => !c.IsWrite).ToArray();
             }
 
-            return new ModificationCommand("Ducks", Schema, columnModifications, false);
+            return CreateModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
         protected ModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
@@ -757,7 +758,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, true, false, concurrencyToken, true))
             };
 
-            return new ModificationCommand("Ducks", Schema, columnModifications, false);
+            return CreateModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
         protected ModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
@@ -785,7 +786,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         concurrencyProperty.GetTableColumnMappings().Single().TypeMapping, false, false, false, concurrencyToken, true))
             };
 
-            return new ModificationCommand("Ducks", Schema, columnModifications, false);
+            return CreateModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
         protected abstract TestHelpers TestHelpers { get; }
@@ -804,6 +805,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             public int Quacks { get; set; }
             public Guid Computed { get; set; }
             public byte[] ConcurrencyToken { get; set; }
+        }
+
+        private static ModificationCommand CreateModificationCommand(
+            string name,
+            string schema,
+            IReadOnlyList<ColumnModification> columnModifications,
+            bool sensitiveLoggingEnabled)
+        {
+            var modificationCommandParametets = new ModificationCommandParameters(
+                name, schema, columnModifications, sensitiveLoggingEnabled);
+
+            return new ModificationCommand(modificationCommandParametets);
         }
     }
 }

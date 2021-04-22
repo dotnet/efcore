@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             string schema,
             bool sensitiveLoggingEnabled,
             IReadOnlyList<ColumnModification> columnModifications)
-            : base(name, schema, columnModifications: null, sensitiveLoggingEnabled)
+            : base(new ModificationCommandParameters(name, schema, columnModifications: null, sensitiveLoggingEnabled))
         {
             //TODO: [2021-04-22] Pass columnModifications into base class?
             ColumnModifications = columnModifications;

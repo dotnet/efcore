@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void AddCommand_adds_command_if_possible()
         {
-            var command = new ModificationCommand("T1", null, columnModifications: null, true);
+            var command = CreateModificationCommand("T1", null, columnModifications: null, true);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, columnModifications: null, true);
+            var command = CreateModificationCommand("T1", null, columnModifications: null, true);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var columnModificationFactory = new ColumnModificationFactory();
 
-            var command = new ModificationCommand("T1", null, columnModifications: null, true);
+            var command = CreateModificationCommand("T1", null, columnModifications: null, true);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -690,6 +690,18 @@ namespace Microsoft.EntityFrameworkCore.Update
                  columnModificationFactory);
 
            return commandBuilder;
+        }
+
+        private static ModificationCommand CreateModificationCommand(
+            string name,
+            string schema,
+            IReadOnlyList<ColumnModification> columnModifications,
+            bool sensitiveLoggingEnabled)
+        {
+            var modificationCommandParametets = new ModificationCommandParameters(
+                name, schema, columnModifications, sensitiveLoggingEnabled);
+
+            return new ModificationCommand(modificationCommandParametets);
         }
     }
 }

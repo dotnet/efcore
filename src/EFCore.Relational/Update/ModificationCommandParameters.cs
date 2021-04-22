@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     A delegate to generate parameter names.
         /// </summary>
-        public Func<string> GenerateParameterName { get; init; }
+        public Func<string>? GenerateParameterName { get; init; }
 
         /// <summary>
         ///     Indicates whether or not potentially sensitive data (e.g. database values) can be logged.
@@ -39,10 +39,22 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     A ColumnModification factory.
         /// </summary>
-        public IColumnModificationFactory ColumnModificationFactory { get; init; }
+        public IColumnModificationFactory? ColumnModificationFactory { get; init; }
 
         /// <summary>
-        ///     #DUMMY
+        ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
+        /// </summary>
+        public IReadOnlyList<ColumnModification>? ColumnModifications { get; init; }
+
+        /// <summary>
+        ///     Indicates whether or not the database will return values for some mapped properties
+        ///     that will then need to be propagated back to the tracked entities.
+        /// </summary>
+        public bool RequiresResultPropagation { get; init; }
+
+        /// <summary>
+        ///     The <see cref="IUpdateEntry" />s that represent the entities that are mapped to the row
+        ///     to update.
         /// </summary>
         public IReadOnlyList<IUpdateEntry> Entries { get; init; }
 
@@ -83,8 +95,36 @@ namespace Microsoft.EntityFrameworkCore.Update
             GenerateParameterName = generateParameterName;
             SensitiveLoggingEnabled = sensitiveLoggingEnabled;
             ColumnModificationFactory = columnModificationFactory;
+            ColumnModifications = null;
+            RequiresResultPropagation = false;
             Entries = entries;
             EntityState = entityState;
         }
+
+        /// <summary>
+        ///     Initializes a new <see cref="ModificationCommand" /> instance.
+        /// </summary>
+        /// <param name="tableName"> The name of the table containing the data to be modified. </param>
+        /// <param name="schemaName"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
+        /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
+        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
+        public ModificationCommandParameters(
+            string tableName,
+            string? schemaName,
+            IReadOnlyList<ColumnModification>? columnModifications,
+            bool sensitiveLoggingEnabled)
+        {
+            TableName = tableName;
+            Schema = schemaName;
+            GenerateParameterName = null;
+            SensitiveLoggingEnabled = sensitiveLoggingEnabled;
+            ColumnModificationFactory = null;
+            ColumnModifications = columnModifications;
+            RequiresResultPropagation = false;
+            Entries = _emptyEntries;
+            EntityState = EntityState.Modified;
+        }
+
+        private static readonly IUpdateEntry[] _emptyEntries=new IUpdateEntry[0];
     }
 }

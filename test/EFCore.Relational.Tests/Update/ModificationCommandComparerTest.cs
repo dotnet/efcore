@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -62,44 +63,44 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(
                 0
                 == mCC.Compare(
-                    new ModificationCommand("A", "dbo", columnModifications: null, false),
-                    new ModificationCommand("A", "dbo", columnModifications: null, false)));
+                    CreateModificationCommand("A", "dbo", columnModifications: null, false),
+                    CreateModificationCommand("A", "dbo", columnModifications: null, false)));
 
-            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, columnModifications: null, false)));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, columnModifications: null, false), null));
-
-            Assert.True(
-                0
-                > mCC.Compare(
-                    new ModificationCommand("A", null, columnModifications: null, false),
-                    new ModificationCommand("A", "dbo", columnModifications: null, false)));
-            Assert.True(
-                0
-                < mCC.Compare(
-                    new ModificationCommand("A", "dbo", columnModifications: null, false),
-                    new ModificationCommand("A", null, columnModifications: null, false)));
+            Assert.True(0 > mCC.Compare(null, CreateModificationCommand("A", null, columnModifications: null, false)));
+            Assert.True(0 < mCC.Compare(CreateModificationCommand("A", null, columnModifications: null, false), null));
 
             Assert.True(
                 0
                 > mCC.Compare(
-                    new ModificationCommand("A", "dbo", columnModifications: null, false),
-                    new ModificationCommand("A", "foo", columnModifications: null, false)));
+                    CreateModificationCommand("A", null, columnModifications: null, false),
+                    CreateModificationCommand("A", "dbo", columnModifications: null, false)));
             Assert.True(
                 0
                 < mCC.Compare(
-                    new ModificationCommand("A", "foo", columnModifications: null, false),
-                    new ModificationCommand("A", "dbo", columnModifications: null, false)));
+                    CreateModificationCommand("A", "dbo", columnModifications: null, false),
+                    CreateModificationCommand("A", null, columnModifications: null, false)));
 
             Assert.True(
                 0
                 > mCC.Compare(
-                    new ModificationCommand("A", null, columnModifications: null, false),
-                    new ModificationCommand("B", null, columnModifications: null, false)));
+                    CreateModificationCommand("A", "dbo", columnModifications: null, false),
+                    CreateModificationCommand("A", "foo", columnModifications: null, false)));
             Assert.True(
                 0
                 < mCC.Compare(
-                    new ModificationCommand("B", null, columnModifications: null, false),
-                    new ModificationCommand("A", null, columnModifications: null, false)));
+                    CreateModificationCommand("A", "foo", columnModifications: null, false),
+                    CreateModificationCommand("A", "dbo", columnModifications: null, false)));
+
+            Assert.True(
+                0
+                > mCC.Compare(
+                    CreateModificationCommand("A", null, columnModifications: null, false),
+                    CreateModificationCommand("B", null, columnModifications: null, false)));
+            Assert.True(
+                0
+                < mCC.Compare(
+                    CreateModificationCommand("B", null, columnModifications: null, false),
+                    CreateModificationCommand("A", null, columnModifications: null, false)));
 
             Assert.True(0 > mCC.Compare(modificationCmdBuilderModified.GetModificationCommand(), modificationCmdBuilderAdded.GetModificationCommand()));
             Assert.True(0 < mCC.Compare(modificationCmdBuilderAdded.GetModificationCommand(), modificationCmdBuilderModified.GetModificationCommand()));
@@ -211,6 +212,18 @@ namespace Microsoft.EntityFrameworkCore.Update
             Default = 0,
             First = 1 << 0,
             Second = 1 << 2
+        }
+
+        private static ModificationCommand CreateModificationCommand(
+            string name,
+            string schema,
+            IReadOnlyList<ColumnModification> columnModifications,
+            bool sensitiveLoggingEnabled)
+        {
+            var modificationCommandParametets = new ModificationCommandParameters(
+                name, schema, columnModifications, sensitiveLoggingEnabled);
+
+            return new ModificationCommand(modificationCommandParametets);
         }
     }
 }

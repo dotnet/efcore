@@ -32,8 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         private bool _requiresResultPropagation;
         private readonly EntityState _entityState;
 
-        private static readonly IUpdateEntry[] _emptyEntries=new IUpdateEntry[0];
-
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
         /// </summary>
@@ -48,37 +46,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             _sensitiveLoggingEnabled = modificationCommandParameters.SensitiveLoggingEnabled;
             _columnModificationFactory = modificationCommandParameters.ColumnModificationFactory;
 
-            _columnModifications = null;
-            _requiresResultPropagation = false;
+            _columnModifications = modificationCommandParameters.ColumnModifications;
+            _requiresResultPropagation = modificationCommandParameters.RequiresResultPropagation;
 
             _entries = modificationCommandParameters.Entries;
             _entityState = modificationCommandParameters.EntityState;
-        }
-
-        /// <summary>
-        ///     Initializes a new <see cref="ModificationCommand" /> instance.
-        /// </summary>
-        /// <param name="name"> The name of the table containing the data to be modified. </param>
-        /// <param name="schema"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
-        public ModificationCommand(
-            string name,
-            string? schema,
-            IReadOnlyList<ColumnModification>? columnModifications,
-            bool sensitiveLoggingEnabled)
-        {
-            Check.NotNull(name, nameof(name));
-
-            TableName = name;
-            Schema = schema;
-            _columnModifications = columnModifications;
-            _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
-            _generateParameterName = null;
-
-            _entries = _emptyEntries;
-
-            _entityState = EntityState.Modified;
         }
 
         /// <summary>
