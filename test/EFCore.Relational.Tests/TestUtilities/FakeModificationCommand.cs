@@ -12,11 +12,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public FakeModificationCommand(
             string name,
             string schema,
-            Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             IReadOnlyList<ColumnModification> columnModifications)
-            : base(name, schema, generateParameterName, sensitiveLoggingEnabled, null)
+            : base(name, schema, columnModifications: null, sensitiveLoggingEnabled)
         {
+            //TODO: [2021-04-22] Pass columnModifications into base class?
             ColumnModifications = columnModifications;
         }
 

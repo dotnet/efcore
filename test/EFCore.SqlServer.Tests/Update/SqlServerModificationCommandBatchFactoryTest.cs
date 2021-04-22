@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, columnModifications: null, false)));
+            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, columnModifications: null, false)));
         }
 
         [ConditionalFact]
@@ -86,8 +86,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var columnModificationFactory = new ColumnModificationFactory();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, columnModifications: null, false)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, columnModifications: null, false)));
         }
 
         private class FakeDbContext : DbContext

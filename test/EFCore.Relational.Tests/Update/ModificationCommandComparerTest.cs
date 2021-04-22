@@ -62,44 +62,44 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.True(
                 0
                 == mCC.Compare(
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "dbo", columnModifications: null, false),
+                    new ModificationCommand("A", "dbo", columnModifications: null, false)));
 
-            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null), null));
-
-            Assert.True(
-                0
-                > mCC.Compare(
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.True(
-                0
-                < mCC.Compare(
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.True(0 > mCC.Compare(null, new ModificationCommand("A", null, columnModifications: null, false)));
+            Assert.True(0 < mCC.Compare(new ModificationCommand("A", null, columnModifications: null, false), null));
 
             Assert.True(
                 0
                 > mCC.Compare(
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", null, columnModifications: null, false),
+                    new ModificationCommand("A", "dbo", columnModifications: null, false)));
             Assert.True(
                 0
                 < mCC.Compare(
-                    new ModificationCommand("A", "foo", new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", "dbo", new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "dbo", columnModifications: null, false),
+                    new ModificationCommand("A", null, columnModifications: null, false)));
 
             Assert.True(
                 0
                 > mCC.Compare(
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "dbo", columnModifications: null, false),
+                    new ModificationCommand("A", "foo", columnModifications: null, false)));
             Assert.True(
                 0
                 < mCC.Compare(
-                    new ModificationCommand("B", null, new ParameterNameGenerator().GenerateNext, false, null),
-                    new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("A", "foo", columnModifications: null, false),
+                    new ModificationCommand("A", "dbo", columnModifications: null, false)));
+
+            Assert.True(
+                0
+                > mCC.Compare(
+                    new ModificationCommand("A", null, columnModifications: null, false),
+                    new ModificationCommand("B", null, columnModifications: null, false)));
+            Assert.True(
+                0
+                < mCC.Compare(
+                    new ModificationCommand("B", null, columnModifications: null, false),
+                    new ModificationCommand("A", null, columnModifications: null, false)));
 
             Assert.True(0 > mCC.Compare(modificationCmdBuilderModified.GetModificationCommand(), modificationCmdBuilderAdded.GetModificationCommand()));
             Assert.True(0 < mCC.Compare(modificationCmdBuilderAdded.GetModificationCommand(), modificationCmdBuilderModified.GetModificationCommand()));

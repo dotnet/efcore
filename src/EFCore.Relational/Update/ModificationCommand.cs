@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
-        public ModificationCommand(
+        private ModificationCommand(
             string name,
             string? schema,
             Func<string> generateParameterName,
