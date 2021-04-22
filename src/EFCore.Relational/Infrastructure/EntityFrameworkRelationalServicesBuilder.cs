@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalQueryStringFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IColumnModificationFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IColumnModificationFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
