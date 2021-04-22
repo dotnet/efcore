@@ -722,6 +722,32 @@ INNER JOIN (
 ORDER BY [t].[CustomerID]");
         }
 
+        public override async Task Take_in_collection_projection_with_FirstOrDefault_on_top_level(bool async)
+        {
+            await base.Take_in_collection_projection_with_FirstOrDefault_on_top_level(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t0].[Title], [t0].[OrderID], [t0].[CustomerID]
+FROM (
+    SELECT TOP(1) [c].[CustomerID]
+    FROM [Customers] AS [c]
+) AS [t]
+OUTER APPLY (
+    SELECT CASE
+        WHEN ([t1].[CustomerID] = [c0].[City]) OR ([t1].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
+        ELSE N'B'
+    END AS [Title], [t1].[OrderID], [c0].[CustomerID], [t1].[OrderDate]
+    FROM (
+        SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
+        FROM [Orders] AS [o]
+        WHERE [t].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderDate]
+    ) AS [t1]
+    LEFT JOIN [Customers] AS [c0] ON [t1].[CustomerID] = [c0].[CustomerID]
+) AS [t0]
+ORDER BY [t].[CustomerID], [t0].[OrderDate], [t0].[OrderID], [t0].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
