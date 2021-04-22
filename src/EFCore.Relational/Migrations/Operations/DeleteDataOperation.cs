@@ -80,8 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                     modifications[j] = columnModificationFactory.CreateColumnModification(columnModificationParameters);
                 }
 
-                yield return new ModificationCommand(
-                    Table, Schema, modifications, sensitiveLoggingEnabled: false);
+                yield return new ModificationCommand(Table, Schema, modifications, sensitiveLoggingEnabled: false);
             }
         }
     }
