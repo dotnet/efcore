@@ -208,22 +208,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 ref _columnModifications, this, static command => command.GenerateColumnModifications());
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [Conditional("DEBUG")]
-        [EntityFrameworkInternal]
-        public virtual void AssertColumnsNotInitialized()
-        {
-            if (_columnModifications != null)
-            {
-                throw new Exception("_columnModifications have been initialized prematurely");
-            }
-        }
-
-        /// <summary>
         ///     Indicates whether or not the database will return values for some mapped properties
         ///     that will then need to be propagated back to the tracked entities.
         /// </summary>
