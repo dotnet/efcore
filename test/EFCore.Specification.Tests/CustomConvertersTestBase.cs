@@ -121,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1, Dependents = new List<NonNullableDependent> { new() { Id = 1 } }
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new() { Id = 1 } }
                         })
                     .Entity;
 
@@ -570,6 +571,31 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
             Assert.Throws<InvalidOperationException>(
                 () => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
+        }
+
+        [ConditionalFact]
+        public virtual void Value_conversion_on_enum_collection_contains()
+        {
+            using var context = CreateContext();
+            var group = MessageGroup.SomeGroup;
+            var query = context.Set<User23059>()
+                .Where(x => !x.IsSoftDeleted && (x.MessageGroups.Contains(group) || x.MessageGroups.Contains(MessageGroup.All)))
+                .ToList();
+
+            Assert.Single(query);
+        }
+
+        protected class User23059
+        {
+            public int Id { get; set; }
+            public bool IsSoftDeleted { get; set; }
+            public List<MessageGroup> MessageGroups { get; set; }
+        }
+
+        protected enum MessageGroup
+        {
+            All,
+            SomeGroup
         }
 
         protected class Blog
@@ -1229,6 +1255,19 @@ namespace Microsoft.EntityFrameworkCore
                             e => new BookId(e));
 
                         b.HasData(new Book(new BookId(1)) { Value = "Book1" });
+                    });
+
+                modelBuilder.Entity<User23059>(
+                    b =>
+                    {
+                        b.Property(e => e.MessageGroups).HasConversion(
+                            v => string.Join(',', v),
+                            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => Enum.Parse<MessageGroup>(x)).ToList(),
+                            new ValueComparer<List<MessageGroup>>(favorStructuralComparisons: true));
+
+                        b.HasData(
+                            new User23059 { Id = 1, IsSoftDeleted = true, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } },
+                            new User23059 { Id = 2, IsSoftDeleted = false, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } });
                     });
             }
 

@@ -199,6 +199,9 @@ UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 User.Email ---> [nullable nvarchar] [MaxLength = -1]
 User.Id ---> [uniqueidentifier]
+User23059.Id ---> [int] [Precision = 10 Scale = 0]
+User23059.IsSoftDeleted ---> [bit]
+User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
@@ -287,6 +290,13 @@ WHERE [b].[IndexerVisible] = N'Nay'");
                 @"SELECT [b].[Id], [b].[Value]
 FROM [Book] AS [b]
 WHERE [b].[Id] = 1");
+        }
+
+        public override void Value_conversion_on_enum_collection_contains()
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(47),
+                Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
         }
 
         private void AssertSql(params string[] expected)
