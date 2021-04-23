@@ -2296,7 +2296,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private object? GetValue(ColumnModification columnModification)
+        private object? GetValue(IColumnModification columnModification)
         {
             var converter = GetValueConverter(columnModification.Property!);
             var value = columnModification.UseCurrentValueParameter
