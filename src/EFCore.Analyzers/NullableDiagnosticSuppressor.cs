@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         private static readonly SuppressionDescriptor _descriptor = new(
             id: "EFS0001",
             suppressedDiagnosticId: "CS8602",
-            justification: "The dereference is safe inside this expression tree.");
+            justification: "EF Core provides null-safety in translated expression trees.");
 
         public override ImmutableArray<SuppressionDescriptor> SupportedSuppressions => ImmutableArray.Create(_descriptor);
 
@@ -57,7 +57,6 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     context.ReportSuppression(Suppression.Create(_descriptor, diagnostic));
                 }
-
             }
         }
     }

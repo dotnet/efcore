@@ -60,6 +60,5 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             }
         }
 
-
     }
 }
