@@ -15,14 +15,17 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
     ///     <para>
-    ///         Represents an update, insert, or delete operation for a single column. <see cref="ModificationCommand" />s
-    ///         contain lists of <see cref="ColumnModification" />s.
+    ///         Implementation of <see cref="IColumnModification" /> interface.
+    ///     </para>
+    ///     <para>
+    ///         Represents an update, insert, or delete operation for a single column. <see cref="IModificationCommand" />s
+    ///         contain lists of <see cref="IColumnModification" />s.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     /// </summary>
-    public class ColumnModification
+    public class ColumnModification : IColumnModification
     {
         private string? _parameterName;
         private string? _originalParameterName;
@@ -31,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private object? _value;
         private readonly bool _useParameters;
         private readonly bool _sensitiveLoggingEnabled;
-        private List<ColumnModification>? _sharedColumnModifications;
+        private List<IColumnModification>? _sharedColumnModifications;
 
         /// <summary>
         ///     Creates a new <see cref="ColumnModification" /> instance.
@@ -428,14 +431,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Adds a modification affecting the same database value.
         /// </summary>
         /// <param name="modification"> The modification for the shared column. </param>
-        public virtual void AddSharedColumnModification(ColumnModification modification)
+        public virtual void AddSharedColumnModification(IColumnModification modification)
         {
             Check.DebugAssert(Entry is not null, "Entry is not null");
             Check.DebugAssert(Property is not null, "Property is not null");
             Check.DebugAssert(modification.Entry is not null, "modification.Entry is not null");
             Check.DebugAssert(modification.Property is not null, "modification.Property is not null");
 
-            _sharedColumnModifications ??= new List<ColumnModification>();
+            _sharedColumnModifications ??= new List<IColumnModification>();
 
             if (UseCurrentValueParameter
                 && !StructuralComparisons.StructuralEqualityComparer.Equals(Value, modification.Value))
