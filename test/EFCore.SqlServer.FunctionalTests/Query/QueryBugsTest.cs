@@ -10115,7 +10115,7 @@ ORDER BY [t].[Id]");
         protected override TestStore CreateTestStore()
             => SqlServerTestStore.CreateInitialized(StoreName, multipleActiveResultSets: true);
 
-        private static readonly FieldInfo querySplittingBehaviorFieldInfo =
+        private static readonly FieldInfo _querySplittingBehaviorFieldInfo =
             typeof(RelationalOptionsExtension).GetField("_querySplittingBehavior", BindingFlags.NonPublic | BindingFlags.Instance);
 
         protected DbContextOptionsBuilder ClearQuerySplittingBehavior(DbContextOptionsBuilder optionsBuilder)
@@ -10127,7 +10127,7 @@ ORDER BY [t].[Id]");
             }
             else
             {
-                querySplittingBehaviorFieldInfo.SetValue(extension, null);
+                _querySplittingBehaviorFieldInfo.SetValue(extension, null);
             }
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
