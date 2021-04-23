@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
-            private readonly bool _concurrencyDetectionEnabled;
+            private readonly bool _threadSafetyChecksEnabled;
 
             public QueryingEnumerable(
                 QueryContext queryContext,
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Func<QueryContext, ValueBuffer, T> shaper,
                 Type contextType,
                 bool standAloneStateManager,
-                bool concurrencyDetectionEnabled)
+                bool threadSafetyChecksEnabled)
             {
                 _queryContext = queryContext;
                 _innerEnumerable = innerEnumerable;
@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _contextType = contextType;
                 _queryLogger = queryContext.QueryLogger;
                 _standAloneStateManager = standAloneStateManager;
-                _concurrencyDetectionEnabled = concurrencyDetectionEnabled;
+                _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     _cancellationToken = cancellationToken;
                     Current = default!;
 
-                    _concurrencyDetector = queryingEnumerable._concurrencyDetectionEnabled
+                    _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
                         ? _queryContext.ConcurrencyDetector
                         : null;
                 }

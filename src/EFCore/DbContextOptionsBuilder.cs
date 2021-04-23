@@ -355,8 +355,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual DbContextOptionsBuilder DisableConcurrencyDetection(bool concurrencyDetectionDisabled = true)
-            => WithOption(e => e.WithConcurrencyDetectionEnabled(!concurrencyDetectionDisabled));
+        public virtual DbContextOptionsBuilder EnableThreadSafetyChecks(bool enableChecks = true)
+            => WithOption(e => e.WithThreadSafetyChecksEnabled(enableChecks));
 
         /// <summary>
         ///     <para>

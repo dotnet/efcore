@@ -746,13 +746,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
              => new(this);
 
         /// <summary>
-        ///     Populates this command from the provided <paramref name="templateCommand"/>.
+        ///     Populates this command from the provided <paramref name="command"/>.
         /// </summary>
-        /// <param name="templateCommand"> A template command from which the command text and parameters will be copied. </param>
-        public virtual void PopulateFromTemplate(IRelationalCommand templateCommand)
+        /// <param name="command"> A template command from which the command text and parameters will be copied. </param>
+        public virtual void PopulateFrom(IRelationalCommand command)
         {
-            CommandText = templateCommand.CommandText;
-            Parameters = templateCommand.Parameters;
+            CommandText = command.CommandText;
+            Parameters = command.Parameters;
         }
     }
 }
