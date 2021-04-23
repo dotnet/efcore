@@ -1336,7 +1336,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
                 @"SELECT SUBSTRING([c].[ContactName], CASE
     WHEN N'a' = N'' THEN 0
     ELSE CAST(CHARINDEX(N'a', [c].[ContactName]) AS int) - 1
-END + 1, 3)
+END + 1, LEN([c].[ContactName]))
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
