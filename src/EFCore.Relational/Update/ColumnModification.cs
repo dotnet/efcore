@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -339,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual string? ParameterName
             => InternalValueOfParameterName ??= UseCurrentValueParameter ? GenerateParameterName!() : null;
- 
+
         /// <summary>
         ///     The parameter name to use for the original value parameter (<see cref="UseOriginalValueParameter" />), if needed.
         /// </summary>
