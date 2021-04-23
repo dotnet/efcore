@@ -13,13 +13,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             string name,
             string schema,
             bool sensitiveLoggingEnabled,
-            IReadOnlyList<ColumnModification> columnModifications)
+            IReadOnlyList<IColumnModification> columnModifications)
             : base(new ModificationCommandParameters(name, schema, columnModifications: null, sensitiveLoggingEnabled))
         {
             //TODO: [2021-04-22] Pass columnModifications into base class?
             ColumnModifications = columnModifications;
         }
 
-        public override IReadOnlyList<ColumnModification> ColumnModifications { get; }
+        public override IReadOnlyList<IColumnModification> ColumnModifications { get; }
     }
 }

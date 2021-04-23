@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
             base.AppendBatchHeader(commandStringBuilder);
         }
 
-        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
+        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
             => commandStringBuilder
                 .Append(SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")

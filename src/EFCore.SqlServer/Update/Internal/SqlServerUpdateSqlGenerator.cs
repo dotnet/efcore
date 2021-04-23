@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         private ResultSetMapping AppendBulkInsertWithoutServerValues(
             StringBuilder commandStringBuilder,
             IReadOnlyList<IModificationCommand> modificationCommands,
-            List<ColumnModification> writeOperations)
+            List<IColumnModification> writeOperations)
         {
             Check.DebugAssert(writeOperations.Count > 0, $"writeOperations.Count is {writeOperations.Count}");
 
@@ -164,9 +164,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             StringBuilder commandStringBuilder,
             IReadOnlyList<IModificationCommand> modificationCommands,
             int commandPosition,
-            List<ColumnModification> writeOperations,
-            List<ColumnModification> keyOperations,
-            List<ColumnModification> readOperations)
+            List<IColumnModification> writeOperations,
+            List<IColumnModification> keyOperations,
+            List<IColumnModification> readOperations)
         {
             AppendDeclareTable(
                 commandStringBuilder,
@@ -205,9 +205,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             StringBuilder commandStringBuilder,
             IReadOnlyList<IModificationCommand> modificationCommands,
             int commandPosition,
-            List<ColumnModification> nonIdentityOperations,
-            List<ColumnModification> keyOperations,
-            List<ColumnModification> readOperations)
+            List<IColumnModification> nonIdentityOperations,
+            List<IColumnModification> keyOperations,
+            List<IColumnModification> readOperations)
         {
             AppendDeclareTable(commandStringBuilder, InsertedTableBaseName, commandPosition, keyOperations);
 
@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             string? schema,
             string toInsertTableAlias,
             IReadOnlyList<IModificationCommand> modificationCommands,
-            IReadOnlyList<ColumnModification> writeOperations,
+            IReadOnlyList<IColumnModification> writeOperations,
             string? additionalColumns = null)
         {
             commandStringBuilder.Append("MERGE ");
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private void AppendValues(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<ColumnModification> operations,
+            IReadOnlyList<IColumnModification> operations,
             string additionalLiteral)
         {
             if (operations.Count > 0)
@@ -332,7 +332,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             StringBuilder commandStringBuilder,
             string name,
             int index,
-            IReadOnlyList<ColumnModification> operations,
+            IReadOnlyList<IColumnModification> operations,
             string? additionalColumns = null)
         {
             commandStringBuilder
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local
         private void AppendOutputClause(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<ColumnModification> operations,
+            IReadOnlyList<IColumnModification> operations,
             string tableName,
             int tableIndex,
             string? additionalColumns = null)
@@ -405,8 +405,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         private ResultSetMapping AppendInsertOperationWithServerKeys(
             StringBuilder commandStringBuilder,
             IModificationCommand command,
-            IReadOnlyList<ColumnModification> keyOperations,
-            IReadOnlyList<ColumnModification> readOperations,
+            IReadOnlyList<IColumnModification> keyOperations,
+            IReadOnlyList<IColumnModification> readOperations,
             int commandPosition)
         {
             var name = command.TableName;
@@ -429,8 +429,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private ResultSetMapping AppendSelectCommand(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<ColumnModification> readOperations,
-            IReadOnlyList<ColumnModification> keyOperations,
+            IReadOnlyList<IColumnModification> readOperations,
+            IReadOnlyList<IColumnModification> keyOperations,
             string insertedTableName,
             int insertedTableIndex,
             string tableName,
@@ -514,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
+        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, IColumnModification columnModification)
         {
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, columnModification.ColumnName);
             commandStringBuilder.Append(" = ");

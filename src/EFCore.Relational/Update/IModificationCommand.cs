@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
-        public IReadOnlyList<ColumnModification> ColumnModifications { get; }
+        public IReadOnlyList<IColumnModification> ColumnModifications { get; }
 
         /// <summary>
         ///     Indicates whether or not the database will return values for some mapped properties

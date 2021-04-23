@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
-        public IReadOnlyList<ColumnModification>? ColumnModifications { get; init; }
+        public IReadOnlyList<IColumnModification>? ColumnModifications { get; init; }
 
         /// <summary>
         ///     Indicates whether or not the database will return values for some mapped properties
@@ -106,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="tableName"> The name of the table containing the data to be modified. </param>
         /// <param name="schemaName"> The schema containing the table, or <see langword="null" /> to use the default schema. </param>
-        /// <param name="columnModifications"> The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete. </param>
+        /// <param name="columnModifications"> The list of <see cref="IColumnModification" />s needed to perform the insert, update, or delete. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         public ModificationCommandParameters(
             string tableName,
             string? schemaName,
-            IReadOnlyList<ColumnModification>? columnModifications,
+            IReadOnlyList<IColumnModification>? columnModifications,
             bool sensitiveLoggingEnabled)
         {
             TableName = tableName;

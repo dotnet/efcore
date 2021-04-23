@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "T1",
                     null,
                     true,
-                    new List<ColumnModification>
+                    new List<IColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
                             new(
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "T1",
                     null,
                     true,
-                    new List<ColumnModification>
+                    new List<IColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
                             new(
@@ -397,7 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "T1",
                     null,
                     true,
-                    new List<ColumnModification>
+                    new List<IColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
                             new(
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "T1",
                     null,
                     true,
-                    new List<ColumnModification>
+                    new List<IColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
                             new(
@@ -471,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "T1",
                     null,
                     true,
-                    new List<ColumnModification>
+                    new List<IColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
                             new(
@@ -510,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "T1",
                     null,
                     true,
-                    new List<ColumnModification>
+                    new List<IColumnModification>
                     {
                         columnModificationFactory.CreateColumnModification(
                             new(

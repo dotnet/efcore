@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Update
     public interface IColumnModificationFactory
     {
         /// <summary>
-        ///     Creates a new <see cref="ColumnModification" /> instance.
+        ///     Creates a new object with <see cref="IColumnModification" /> interface.
         /// </summary>
         /// <param name="columnModificationParameters"> Creation parameters. </param>
-        /// <returns> A new instance of ColumnModification. </returns>
-        ColumnModification CreateColumnModification(ColumnModificationParameters columnModificationParameters);
+        /// <returns> The new instance with IColumnModification interface. </returns>
+        IColumnModification CreateColumnModification(ColumnModificationParameters columnModificationParameters);
     }
 }

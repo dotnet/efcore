@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </param>
         /// <returns> The factory. </returns>
         protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
-            IReadOnlyList<ColumnModification> columnModifications)
+            IReadOnlyList<IColumnModification> columnModifications)
             => Dependencies.ValueBufferFactoryFactory
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))

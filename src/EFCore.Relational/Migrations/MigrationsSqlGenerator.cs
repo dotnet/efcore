@@ -976,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.Values.GetLength(0); i++)
             {
-                var modifications = new ColumnModification[operation.Columns.Length];
+                var modifications = new IColumnModification[operation.Columns.Length];
                 for (var j = 0; j < operation.Columns.Length; j++)
                 {
                     var name = operation.Columns[j];
@@ -1073,7 +1073,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
             {
-                var modifications = new ColumnModification[operation.KeyColumns.Length];
+                var modifications = new IColumnModification[operation.KeyColumns.Length];
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {
                     var name = operation.KeyColumns[j];
@@ -1195,7 +1195,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
             {
-                var keys = new ColumnModification[operation.KeyColumns.Length];
+                var keys = new IColumnModification[operation.KeyColumns.Length];
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {
                     var name = operation.KeyColumns[j];
@@ -1218,7 +1218,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         columnModificationParameters);
                 }
 
-                var modifications = new ColumnModification[operation.Columns.Length];
+                var modifications = new IColumnModification[operation.Columns.Length];
                 for (var j = 0; j < operation.Columns.Length; j++)
                 {
                     var name = operation.Columns[j];

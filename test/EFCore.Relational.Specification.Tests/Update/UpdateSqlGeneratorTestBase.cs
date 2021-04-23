@@ -810,7 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private static ModificationCommand CreateModificationCommand(
             string name,
             string schema,
-            IReadOnlyList<ColumnModification> columnModifications,
+            IReadOnlyList<IColumnModification> columnModifications,
             bool sensitiveLoggingEnabled)
         {
             var modificationCommandParametets = new ModificationCommandParameters(

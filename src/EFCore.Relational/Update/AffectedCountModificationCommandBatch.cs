@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         /// <summary>
         ///     Reads values returned from the database in the given <see cref="ValueBuffer" /> and
-        ///     propagates them back to into the appropriate <see cref="ColumnModification" />
+        ///     propagates them back to into the appropriate <see cref="IColumnModification" />
         ///     from which the values can be propagated on to tracked entities.
         /// </summary>
         /// <param name="modificationCommand"> The object with IModificationCommand interface. </param>

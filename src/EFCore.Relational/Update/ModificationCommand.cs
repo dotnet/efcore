@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private readonly bool _sensitiveLoggingEnabled;
         private readonly IColumnModificationFactory? _columnModificationFactory;
         private readonly IReadOnlyList<IUpdateEntry> _entries;
-        private IReadOnlyList<ColumnModification>? _columnModifications;
+        private IReadOnlyList<IColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private readonly EntityState _entityState;
 
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
-        public virtual IReadOnlyList<ColumnModification> ColumnModifications
+        public virtual IReadOnlyList<IColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _columnModifications, this, static command => command.GenerateColumnModifications());
 
@@ -101,12 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
         }
 
-        private IReadOnlyList<ColumnModification> GenerateColumnModifications()
+        private IReadOnlyList<IColumnModification> GenerateColumnModifications()
         {
             var state = EntityState;
             var adding = state == EntityState.Added;
             var updating = state == EntityState.Modified;
-            var columnModifications = new List<ColumnModification>();
+            var columnModifications = new List<IColumnModification>();
             Dictionary<string, ColumnValuePropagator>? sharedTableColumnMap = null;
 
             if (_entries.Count > 1
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             private object? _originalValue;
             private object? _currentValue;
 
-            public ColumnModification? ColumnModification { get; set; }
+            public IColumnModification? ColumnModification { get; set; }
 
             public void RecordValue(IProperty property, IUpdateEntry entry)
             {

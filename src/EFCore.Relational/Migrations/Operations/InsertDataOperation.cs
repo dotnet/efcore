@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 
             for (var i = 0; i < Values.GetLength(0); i++)
             {
-                var modifications = new ColumnModification[Columns.Length];
+                var modifications = new IColumnModification[Columns.Length];
                 for (var j = 0; j < Columns.Length; j++)
                 {
                     var columnModificationParameters = new ColumnModificationParameters(
