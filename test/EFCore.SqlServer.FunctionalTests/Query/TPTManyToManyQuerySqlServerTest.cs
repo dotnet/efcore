@@ -1196,18 +1196,14 @@ ORDER BY [e].[Id]");
 FROM [EntityThrees] AS [e]
 ORDER BY [e].[Id]",
                 //
-                @"SELECT [t0].[ThreeId], [t0].[TwoId], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id]
+                @"SELECT [t].[ThreeId], [t].[TwoId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
-    SELECT [t].[ThreeId], [t].[TwoId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
-    FROM (
-        SELECT [j].[ThreeId], [j].[TwoId], [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[ThreeId] ORDER BY [e0].[Id]) AS [row]
-        FROM [JoinTwoToThree] AS [j]
-        INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
-    ) AS [t]
-    WHERE 0 < [t].[row]
-) AS [t0] ON [e].[Id] = [t0].[ThreeId]
-ORDER BY [e].[Id], [t0].[ThreeId], [t0].[Id]");
+    SELECT [j].[ThreeId], [j].[TwoId], [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId]
+    FROM [JoinTwoToThree] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+) AS [t] ON [e].[Id] = [t].[ThreeId]
+ORDER BY [e].[Id], [t].[Id]");
         }
 
         public override async Task Filtered_include_skip_navigation_order_by_skip_split(bool async)
@@ -1421,7 +1417,7 @@ INNER JOIN (
     ) AS [t]
     WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
 ) AS [t0] ON [e].[Id] = [t0].[OneId]
-ORDER BY [e].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id]",
+ORDER BY [e].[Id], [t0].[OneId], [t0].[Id], [t0].[TwoId]",
                 //
                 @"SELECT [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [e].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id]
 FROM [EntityOnes] AS [e]
@@ -1440,7 +1436,7 @@ INNER JOIN (
     INNER JOIN [EntityThrees] AS [e1] ON [j0].[ThreeId] = [e1].[Id]
     WHERE [e1].[Id] < 10
 ) AS [t1] ON [t0].[Id] = [t1].[TwoId]
-ORDER BY [e].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id]");
+ORDER BY [e].[Id], [t0].[OneId], [t0].[Id], [t0].[TwoId]");
         }
 
         public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take_split(bool async)

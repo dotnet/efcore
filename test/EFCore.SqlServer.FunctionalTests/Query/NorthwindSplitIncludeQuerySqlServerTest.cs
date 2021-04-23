@@ -1702,7 +1702,7 @@ ORDER BY [e].[EmployeeID]");
             AssertSql(
                 @"@__p_0='1'
 
-SELECT [t].[CustomerID], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID], [t0].[Discount], [t0].[Quantity], [t0].[UnitPrice]
+SELECT [t].[CustomerID]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -1710,12 +1710,34 @@ FROM (
     ORDER BY [c].[CustomerID]
     OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 ) AS [t]
-LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID] AS [OrderID0], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-    FROM [Orders] AS [o]
-    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
-ORDER BY [t].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]");
+ORDER BY [t].[CustomerID]",
+                //
+                @"@__p_0='1'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
+FROM (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+    OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+) AS [t]
+INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+ORDER BY [t].[CustomerID], [o].[OrderID]",
+                //
+                @"@__p_0='1'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [t].[CustomerID], [o].[OrderID]
+FROM (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'A%'
+    ORDER BY [c].[CustomerID]
+    OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+) AS [t]
+INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+ORDER BY [t].[CustomerID], [o].[OrderID]");
         }
 
         public override async Task Multi_level_includes_are_applied_with_take(bool async)
@@ -1725,7 +1747,7 @@ ORDER BY [t].[CustomerID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]");
             AssertSql(
                 @"@__p_0='1'
 
-SELECT [t0].[CustomerID], [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID], [t1].[Discount], [t1].[Quantity], [t1].[UnitPrice]
+SELECT [t0].[CustomerID]
 FROM (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
@@ -1736,12 +1758,40 @@ FROM (
     ) AS [t]
     ORDER BY [t].[CustomerID]
 ) AS [t0]
-LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID] AS [OrderID0], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-    FROM [Orders] AS [o]
-    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-) AS [t1] ON [t0].[CustomerID] = [t1].[CustomerID]
-ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]");
+ORDER BY [t0].[CustomerID]",
+                //
+                @"@__p_0='1'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t0].[CustomerID]
+FROM (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT TOP(@__p_0) [c].[CustomerID]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'A%'
+        ORDER BY [c].[CustomerID]
+    ) AS [t]
+    ORDER BY [t].[CustomerID]
+) AS [t0]
+INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
+ORDER BY [t0].[CustomerID], [o].[OrderID]",
+                //
+                @"@__p_0='1'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [t0].[CustomerID], [o].[OrderID]
+FROM (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT TOP(@__p_0) [c].[CustomerID]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'A%'
+        ORDER BY [c].[CustomerID]
+    ) AS [t]
+    ORDER BY [t].[CustomerID]
+) AS [t0]
+INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+ORDER BY [t0].[CustomerID], [o].[OrderID]");
         }
 
         public override async Task Multi_level_includes_are_applied_with_skip_take(bool async)
@@ -1751,7 +1801,7 @@ ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]");
             AssertSql(
                 @"@__p_0='1'
 
-SELECT [t0].[CustomerID], [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID], [t1].[Discount], [t1].[Quantity], [t1].[UnitPrice]
+SELECT [t0].[CustomerID]
 FROM (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
@@ -1763,12 +1813,42 @@ FROM (
     ) AS [t]
     ORDER BY [t].[CustomerID]
 ) AS [t0]
-LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID] AS [OrderID0], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
-    FROM [Orders] AS [o]
-    LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-) AS [t1] ON [t0].[CustomerID] = [t1].[CustomerID]
-ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]");
+ORDER BY [t0].[CustomerID]",
+                //
+                @"@__p_0='1'
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t0].[CustomerID]
+FROM (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'A%'
+        ORDER BY [c].[CustomerID]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+    ) AS [t]
+    ORDER BY [t].[CustomerID]
+) AS [t0]
+INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
+ORDER BY [t0].[CustomerID], [o].[OrderID]",
+                //
+                @"@__p_0='1'
+
+SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [t0].[CustomerID], [o].[OrderID]
+FROM (
+    SELECT TOP(1) [t].[CustomerID]
+    FROM (
+        SELECT [c].[CustomerID]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'A%'
+        ORDER BY [c].[CustomerID]
+        OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+    ) AS [t]
+    ORDER BY [t].[CustomerID]
+) AS [t0]
+INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+ORDER BY [t0].[CustomerID], [o].[OrderID]");
         }
 
         public override async Task Filtered_include_with_multiple_ordering(bool async)
@@ -1792,8 +1872,6 @@ CROSS APPLY (
         ORDER BY [o].[OrderID]
         OFFSET 1 ROWS
     ) AS [t]
-    ORDER BY [t].[OrderDate] DESC
-    OFFSET 0 ROWS
 ) AS [t0]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t0].[OrderDate] DESC");
@@ -1822,7 +1900,33 @@ ORDER BY [c].[CustomerID], [o].[OrderID]");
         {
             await base.Include_in_let_followed_by_FirstOrDefault(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [c].[CustomerID], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t0].[OrderID]",
+                //
+                @"SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [c].[CustomerID], [t0].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [t].[OrderID], [t].[CustomerID]
+    FROM (
+        SELECT [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate]) AS [row]
+        FROM [Orders] AS [o]
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+INNER JOIN [Order Details] AS [o0] ON [t0].[OrderID] = [o0].[OrderID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t0].[OrderID]");
         }
 
         private void AssertSql(params string[] expected)

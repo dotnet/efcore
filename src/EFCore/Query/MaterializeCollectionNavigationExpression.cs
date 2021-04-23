@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 expressionPrinter.AppendLine($"Navigation: {Navigation.DeclaringEntityType.DisplayName()}.{Navigation.Name},");
                 expressionPrinter.Append("subquery: ");
                 expressionPrinter.Visit(Subquery);
+                expressionPrinter.Append(")");
             }
         }
     }

@@ -712,11 +712,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             Visit(childIdentifier.Column);
                         }
 
-                        break;
+                        return selectExpression;
 
                     case ConcreteColumnExpression concreteColumnExpression:
                         concreteColumnExpression.Verify(_tableReferencesInScope);
-                        break;
+                        return concreteColumnExpression;
+
+                    case ShapedQueryExpression shapedQueryExpression:
+                        Verify(shapedQueryExpression.QueryExpression, _tableReferencesInScope);
+                        return shapedQueryExpression;
                 }
 
                 return base.Visit(expression);
@@ -726,6 +730,96 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             public static void Verify(Expression expression, IEnumerable<TableReferenceExpression> tableReferencesInScope)
                 => new SelectExpressionVerifyingExpressionVisitor(tableReferencesInScope)
                     .Visit(expression);
+        }
+
+        private sealed class CloningExpressionVisitor : ExpressionVisitor
+        {
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (expression is SelectExpression selectExpression)
+                {
+                    // We ignore projection binding related elements as we don't want to copy them over for top level
+                    // Nested level will have _projection populated and no binding elements
+                    var newProjections = selectExpression._projection.Select(Visit).ToList<ProjectionExpression>();
+
+                    var newTables = selectExpression._tables.Select(Visit).ToList<TableExpressionBase>();
+                    // Since we are cloning we need to generate new table references
+                    // In other cases (like VisitChildren), we just reuse the same table references and update the SelectExpression inside it.
+                    // We initially assign old SelectExpression in table references and later update it once we construct clone
+                    var newTableReferences = selectExpression._tableReferences
+                        .Select(e => new TableReferenceExpression(selectExpression, e.Alias)).ToList();
+                    Check.DebugAssert(
+                        newTables.Select(e => GetAliasFromTableExpressionBase(e)).SequenceEqual(newTableReferences.Select(e => e.Alias)),
+                        "Alias of updated tables must match the old tables.");
+
+                    var predicate = (SqlExpression?)Visit(selectExpression.Predicate);
+                    var newGroupBy = selectExpression._groupBy.Select(Visit)
+                        .Where(e => !(e is SqlConstantExpression || e is SqlParameterExpression))
+                        .ToList<SqlExpression>();
+                    var havingExpression = (SqlExpression?)Visit(selectExpression.Having);
+                    var newOrderings = selectExpression._orderings.Select(Visit).ToList<OrderingExpression>();
+                    var offset = (SqlExpression?)Visit(selectExpression.Offset);
+                    var limit = (SqlExpression?)Visit(selectExpression.Limit);
+
+                    var newSelectExpression = new SelectExpression(selectExpression.Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings)
+                    {
+                        Predicate = predicate,
+                        Having = havingExpression,
+                        Offset = offset,
+                        Limit = limit,
+                        IsDistinct = selectExpression.IsDistinct,
+                        Tags = selectExpression.Tags,
+                        _usedAliases = selectExpression._usedAliases.ToHashSet()
+                    };
+
+                    newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
+                    // Since identifiers are ColumnExpression, they are not visited since they don't contain SelectExpression inside it.
+                    newSelectExpression._identifier.AddRange(selectExpression._identifier);
+                    newSelectExpression._childIdentifiers.AddRange(selectExpression._childIdentifiers);
+
+                    // Remap tableReferences in new select expression
+                    foreach (var tableReference in newTableReferences)
+                    {
+                        tableReference.UpdateTableReference(selectExpression, newSelectExpression);
+                    }
+
+                    // Now that we have SelectExpression, we visit all components and update table references inside columns
+                    newSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(selectExpression, newSelectExpression)
+                        .Visit(newSelectExpression);
+
+                    return newSelectExpression;
+
+                }
+
+                return expression is ICloneable cloneable ? (Expression)cloneable.Clone() : base.Visit(expression);
+            }
+        }
+
+        private sealed class ColumnExpressionReplacingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly SelectExpression _oldSelectExpression;
+            private readonly Dictionary<string, TableReferenceExpression> _newTableReferences;
+
+            public ColumnExpressionReplacingExpressionVisitor(SelectExpression oldSelectExpression, SelectExpression newSelectExpression)
+            {
+                _oldSelectExpression = oldSelectExpression;
+                _newTableReferences = newSelectExpression._tableReferences.ToDictionary(e => e.Alias);
+            }
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                return expression is ConcreteColumnExpression concreteColumnExpression
+                    && _oldSelectExpression.ContainsTableReference(concreteColumnExpression)
+                    ? new ConcreteColumnExpression(
+                        concreteColumnExpression.Name,
+                        _newTableReferences[concreteColumnExpression.TableAlias],
+                        concreteColumnExpression.Type,
+                        concreteColumnExpression.TypeMapping!,
+                        concreteColumnExpression.IsNullable)
+                    : base.Visit(expression);
+            }
         }
     }
 }
