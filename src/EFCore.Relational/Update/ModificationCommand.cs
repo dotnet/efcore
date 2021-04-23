@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             => _entityState;
 
         /// <summary>
-        ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
+        ///     The list of <see cref="IColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
         public virtual IReadOnlyList<IColumnModification> ColumnModifications
             => NonCapturingLazyInitializer.EnsureInitialized(

@@ -328,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     <see cref="ValueBuffer" /> to consume the data reader.
         /// </summary>
         /// <param name="columnModifications">
-        ///     The list of <see cref="ColumnModification" />s for all the columns
+        ///     The list of <see cref="IColumnModification" />s for all the columns
         ///     being modified such that a ValueBuffer with appropriate slots can be created.
         /// </param>
         /// <returns> The factory. </returns>

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         public string? Schema { get; }
 
         /// <summary>
-        ///     The list of <see cref="ColumnModification" />s needed to perform the insert, update, or delete.
+        ///     The list of <see cref="IColumnModification" />s needed to perform the insert, update, or delete.
         /// </summary>
         public IReadOnlyList<IColumnModification> ColumnModifications { get; }
 
