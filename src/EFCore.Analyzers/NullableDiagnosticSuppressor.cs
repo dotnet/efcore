@@ -45,8 +45,7 @@ namespace Microsoft.EntityFrameworkCore
                 var root = tree.GetRoot(context.CancellationToken);
                 var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie: true);
                 var model = context.GetSemanticModel(tree);
-                var operation = model.GetOperation(node, context.CancellationToken);
-                if (operation is null)
+                if (model.GetOperation(node, context.CancellationToken) is not IOperation operation)
                 {
                     continue;
                 }
