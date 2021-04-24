@@ -40,10 +40,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (string?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetHiLoSequenceName(storeObject)
-                : null;
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceName(storeObject);
         }
 
         /// <summary>
@@ -106,10 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (string?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetHiLoSequenceSchema(storeObject)
-                : null;
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceSchema(storeObject);
         }
 
         /// <summary>
@@ -226,10 +220,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetIdentitySeed(storeObject)
-                : null;
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetIdentitySeed(storeObject);
         }
 
         /// <summary>
@@ -292,10 +283,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty != null
-                ? sharedTableRootProperty.GetIdentityIncrement(storeObject)
-                : null;
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetIdentityIncrement(storeObject);
         }
 
         /// <summary>
