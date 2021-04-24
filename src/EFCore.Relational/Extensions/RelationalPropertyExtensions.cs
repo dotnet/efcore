@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the base name of the column to which the property would be mapped.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The the base name of the column to which the property would be mapped. </returns>
+        /// <returns> The base name of the column to which the property would be mapped. </returns>
         public static string GetColumnBaseName(this IReadOnlyProperty property)
             => (string?)property.FindAnnotation(RelationalAnnotationNames.ColumnName)?.Value ?? property.GetDefaultColumnBaseName();
 

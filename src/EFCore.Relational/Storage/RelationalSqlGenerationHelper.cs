@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => "SAVEPOINT " + DelimitIdentifier(name) + StatementTerminator;
 
         /// <summary>
-        ///     Generates an SQL statement which which rolls back to a savepoint with the given name.
+        ///     Generates an SQL statement which rolls back to a savepoint with the given name.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be rolled back to. </param>
         /// <returns> An SQL string to roll back the savepoint. </returns>
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => "ROLLBACK TO " + DelimitIdentifier(name) + StatementTerminator;
 
         /// <summary>
-        ///     Generates an SQL statement which which releases a savepoint with the given name.
+        ///     Generates an SQL statement which releases a savepoint with the given name.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be released. </param>
         /// <returns> An SQL string to release the savepoint. </returns>
