@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
-        private readonly bool _concurrencyDetectionEnabled;
+        private readonly bool _threadSafetyChecksEnabled;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             : base(dependencies, queryCompilationContext)
         {
             _contextType = queryCompilationContext.ContextType;
-            _concurrencyDetectionEnabled = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled;
+            _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Expression.Constant(_contextType),
                 Expression.Constant(
                     QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                Expression.Constant(_concurrencyDetectionEnabled));
+                Expression.Constant(_threadSafetyChecksEnabled));
         }
 
         private static readonly MethodInfo _tableMethodInfo

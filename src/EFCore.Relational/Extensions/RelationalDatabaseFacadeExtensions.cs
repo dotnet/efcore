@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+            var concurrencyDetector = facadeDependencies.CoreOptions.AreThreadSafetyChecksEnabled
                 ? facadeDependencies.ConcurrencyDetector
                 : null;
             var logger = facadeDependencies.CommandLogger;
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+            var concurrencyDetector = facadeDependencies.CoreOptions.AreThreadSafetyChecksEnabled
                 ? facadeDependencies.ConcurrencyDetector
                 : null;
             var logger = facadeDependencies.CommandLogger;
