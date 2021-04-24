@@ -40,8 +40,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (string?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty?.GetHiLoSequenceName(storeObject);
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceName(storeObject);
         }
 
         /// <summary>
@@ -104,8 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (string?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty?.GetHiLoSequenceSchema(storeObject);
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetHiLoSequenceSchema(storeObject);
         }
 
         /// <summary>
@@ -222,8 +220,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty?.GetIdentitySeed(storeObject);
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetIdentitySeed(storeObject);
         }
 
         /// <summary>
@@ -286,8 +283,7 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
-            return sharedTableRootProperty?.GetIdentityIncrement(storeObject);
+            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetIdentityIncrement(storeObject);
         }
 
         /// <summary>
