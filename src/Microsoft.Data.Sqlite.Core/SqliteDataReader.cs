@@ -706,10 +706,10 @@ namespace Microsoft.Data.Sqlite
                         command.Parameters.Clear();
                         var columnType = "typeof(\"" + columnName.Replace("\"", "\"\"") + "\")";
                         command.CommandText = new StringBuilder()
-                            .AppendLine($"SELECT {columnType}")
-                            .AppendLine($"FROM \"{tableName}\"")
-                            .AppendLine($"WHERE {columnType} != 'null'")
-                            .AppendLine($"GROUP BY {columnType}")
+                            .Append("SELECT ").AppendLine(columnType)
+                            .Append("FROM \"").Append(tableName).AppendLine("\"")
+                            .Append("WHERE ").Append(columnType).AppendLine(" != 'null'")
+                            .Append("GROUP BY ").AppendLine(columnType)
                             .AppendLine("ORDER BY count() DESC")
                             .AppendLine("LIMIT 1;").ToString();
 

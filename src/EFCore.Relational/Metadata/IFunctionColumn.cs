@@ -44,12 +44,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"FunctionColumn: {Table.Name}.");
+                builder.Append("FunctionColumn: ").Append(Table.Name).Append('.');
             }
 
             builder.Append(Name).Append(" (");
 
-            builder.Append(StoreType).Append(")");
+            builder.Append(StoreType).Append(')');
 
             if (IsNullable)
             {
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" NonNullable");
             }
 
-            builder.Append(")");
+            builder.Append(')');
 
             if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {

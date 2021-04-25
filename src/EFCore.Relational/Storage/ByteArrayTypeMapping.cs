@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 stringBuilder.Append(@byte.ToString("X2", CultureInfo.InvariantCulture));
             }
 
-            stringBuilder.Append("'");
+            stringBuilder.Append('\'');
             return stringBuilder.ToString();
         }
     }

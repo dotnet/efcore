@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 builder
                     .Append(Schema)
-                    .Append(".");
+                    .Append('.');
             }
 
             builder.Append(Name);

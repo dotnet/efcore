@@ -111,13 +111,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Append("DbFunction: ");
 
             builder.Append(ReturnType.ShortDisplayName())
-                .Append(" ");
+                .Append(' ');
 
             if (Schema != null)
             {
                 builder
                     .Append(Schema)
-                    .Append(".");
+                    .Append('.');
             }
 
             builder.Append(Name);

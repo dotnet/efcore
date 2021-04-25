@@ -48,13 +48,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder
                 .Append(Property.DeclaringEntityType.DisplayName())
-                .Append(".")
+                .Append('.')
                 .Append(Property.Name)
                 .Append(" - ");
 
             builder
                 .Append(Column.Table.Name)
-                .Append(".")
+                .Append('.')
                 .Append(Column.Name);
 
             if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

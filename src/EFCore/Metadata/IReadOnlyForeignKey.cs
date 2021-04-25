@@ -159,11 +159,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder
                 .Append(DeclaringEntityType.DisplayName())
-                .Append(" ")
+                .Append(' ')
                 .Append(Properties.Format())
                 .Append(" -> ")
                 .Append(PrincipalEntityType.DisplayName())
-                .Append(" ")
+                .Append(' ')
                 .Append(PrincipalKey.Properties.Format());
 
             if (IsUnique)
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             if (DeleteBehavior != DeleteBehavior.NoAction)
             {
                 builder
-                    .Append(" ")
+                    .Append(' ')
                     .Append(DeleteBehavior);
             }
 

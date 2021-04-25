@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append("Service property: ").Append(DeclaringType.DisplayName()).Append(".");
+                builder.Append("Service property: ").Append(DeclaringType.DisplayName()).Append('.');
             }
 
             builder.Append(Name);
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" (").Append(GetFieldName()).Append(", ");
             }
 
-            builder.Append(ClrType?.ShortDisplayName()).Append(")");
+            builder.Append(ClrType?.ShortDisplayName()).Append(')');
 
             if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {

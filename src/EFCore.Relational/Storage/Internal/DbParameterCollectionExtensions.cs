@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             builder
                 .Append(name)
-                .Append("=");
+                .Append('=');
 
             FormatParameterValue(builder, value);
 
