@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents an index on a set of properties.
     /// </summary>
-    public class SlimIndex : AnnotatableBase, IIndex
+    public class RuntimeIndex : AnnotatableBase, IIndex
     {
         private readonly bool _isUnique;
 
@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimIndex(
-            IReadOnlyList<SlimProperty> properties,
-            SlimEntityType declaringEntityType,
+        public RuntimeIndex(
+            IReadOnlyList<RuntimeProperty> properties,
+            RuntimeEntityType declaringEntityType,
             string? name,
             bool unique)
         {
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the properties that this index is defined on.
         /// </summary>
-        public virtual IReadOnlyList<SlimProperty> Properties { get; }
+        public virtual IReadOnlyList<RuntimeProperty> Properties { get; }
 
         /// <summary>
         ///     Gets the name of this index.
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     are defined on when the index is defined a derived type in an inheritance hierarchy (since the properties
         ///     may be defined on a base type).
         /// </summary>
-        public virtual SlimEntityType DeclaringEntityType { get; }
+        public virtual RuntimeEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Returns a string that represents the current object.

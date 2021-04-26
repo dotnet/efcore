@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a function parameter.
     /// </summary>
-    public class SlimDbFunctionParameter : AnnotatableBase, IRuntimeDbFunctionParameter
+    public class RuntimeDbFunctionParameter : AnnotatableBase, IRuntimeDbFunctionParameter
     {
         private readonly string _name;
         private readonly Type _clrType;
@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimDbFunctionParameter(
-            SlimDbFunction function,
+        public RuntimeDbFunctionParameter(
+            RuntimeDbFunction function,
             string name,
             Type clrType,
             bool propagatesNullability,
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the function to which this parameter belongs.
         /// </summary>
-        public virtual SlimDbFunction Function { get; }
+        public virtual RuntimeDbFunction Function { get; }
 
         /// <summary>
         ///     Returns a string that represents the current object.

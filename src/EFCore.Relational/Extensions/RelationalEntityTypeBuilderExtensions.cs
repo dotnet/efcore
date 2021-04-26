@@ -862,7 +862,7 @@ namespace Microsoft.EntityFrameworkCore
             var model = entityType.Model;
             var function = name is not null
                 ? model.FindDbFunction(name) ?? model.AddDbFunction(
-                    name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType ?? typeof(Dictionary<string, object>)))
+                    name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType))
                 : null;
 
             return function;

@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a relational database function in a model.
     /// </summary>
-    public class SlimDbFunction : AnnotatableBase, IRuntimeDbFunction
+    public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
     {
-        private readonly List<SlimDbFunctionParameter> _parameters = new();
+        private readonly List<RuntimeDbFunctionParameter> _parameters = new();
         private readonly MethodInfo? _methodInfo;
         private readonly Type _returnType;
         private readonly bool _isScalar;
@@ -39,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimDbFunction(
+        public RuntimeDbFunction(
             string modelName,
-            SlimModel model,
+            RuntimeModel model,
             MethodInfo? methodInfo,
             Type returnType,
             bool scalar,
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the model in which this function is defined.
         /// </summary>
-        public virtual SlimModel Model { get; }
+        public virtual RuntimeModel Model { get; }
 
         /// <summary>
         ///     Gets the name of the function in the model.
@@ -88,22 +88,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="storeType"> The store type of this parameter. </param>
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> for this parameter. </param>
         /// <returns> The new parameter. </returns>
-        public virtual SlimDbFunctionParameter AddParameter(
+        public virtual RuntimeDbFunctionParameter AddParameter(
             string name,
             Type clrType,
             bool propagatesNullability,
             string storeType,
             RelationalTypeMapping? typeMapping = null)
         {
-            var slimFunctionParameter = new SlimDbFunctionParameter(this,
+            var runtimeFunctionParameter = new RuntimeDbFunctionParameter(this,
                 name,
                 clrType,
                 propagatesNullability,
                 storeType,
                 typeMapping);
 
-            _parameters.Add(slimFunctionParameter);
-            return slimFunctionParameter;
+            _parameters.Add(runtimeFunctionParameter);
+            return runtimeFunctionParameter;
         }
 
         /// <summary>

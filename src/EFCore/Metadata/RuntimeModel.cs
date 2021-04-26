@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         This is a light-weight implementation that is constructed from a built model and is not meant to be used at design-time.
     ///     </para>
     /// </summary>
-    public class SlimModel : AnnotatableBase, IRuntimeModel
+    public class RuntimeModel : AnnotatableBase, IRuntimeModel
     {
-        private readonly SortedDictionary<string, SlimEntityType> _entityTypes = new(StringComparer.Ordinal);
+        private readonly SortedDictionary<string, RuntimeEntityType> _entityTypes = new(StringComparer.Ordinal);
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
-        private readonly Dictionary<Type, SortedSet<SlimEntityType>> _sharedTypes = new();
+        private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
         private readonly bool _skipDetectChanges;
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimModel(RuntimeModelDependencies modelDependencies, bool skipDetectChanges = false)
+        public RuntimeModel(RuntimeModelDependencies modelDependencies, bool skipDetectChanges = false)
         {
            ((IModel)this).ModelDependencies = modelDependencies;
             _skipDetectChanges = skipDetectChanges;
@@ -61,17 +61,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     and a method that can be used to determine whether a given indexer property contains a value.
         /// </param>
         /// <returns> The new entity type. </returns>
-        public virtual SlimEntityType AddEntityType(
+        public virtual RuntimeEntityType AddEntityType(
             string name,
             Type type,
             bool sharedClrType,
-            SlimEntityType? baseType = null,
+            RuntimeEntityType? baseType = null,
             string? discriminatorProperty = null,
             ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
             PropertyInfo? indexerPropertyInfo = null,
             bool propertyBag = false)
         {
-            var entityType = new SlimEntityType(
+            var entityType = new RuntimeEntityType(
                 name,
                 type,
                 sharedClrType,
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 }
                 else
                 {
-                    var types = new SortedSet<SlimEntityType>(EntityTypeFullNameComparer.Instance) { entityType };
+                    var types = new SortedSet<RuntimeEntityType>(EntityTypeFullNameComparer.Instance) { entityType };
                     _sharedTypes.Add(type, types);
                 }
             }
@@ -107,25 +107,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <returns> The entity type, or <see langword="null"/> if none is found. </returns>
-        public virtual SlimEntityType? FindEntityType(string name)
+        public virtual RuntimeEntityType? FindEntityType(string name)
             => _entityTypes.TryGetValue(name, out var entityType)
                 ? entityType
                 : null;
 
-        private SlimEntityType? FindEntityType(Type type)
+        private RuntimeEntityType? FindEntityType(Type type)
             => FindEntityType(GetDisplayName(type));
 
-        private SlimEntityType? FindEntityType(
+        private RuntimeEntityType? FindEntityType(
             string name,
             string definingNavigationName,
             IReadOnlyEntityType definingEntityType)
             => FindEntityType(definingEntityType.GetOwnedName(name, definingNavigationName));
 
-        private IEnumerable<SlimEntityType> FindEntityTypes(Type type)
+        private IEnumerable<RuntimeEntityType> FindEntityTypes(Type type)
         {
             var entityType = FindEntityType(GetDisplayName(type));
             var result = entityType == null
-                ? Array.Empty<SlimEntityType>()
+                ? Array.Empty<RuntimeEntityType>()
                 : new[] { entityType };
 
             return _sharedTypes.TryGetValue(type, out var sharedTypes)
@@ -145,8 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        [EntityFrameworkInternal]
-        public virtual object? RelationalModel
+        object? IRuntimeModel.RelationalModel
             => ((IAnnotatable)this).FindRuntimeAnnotationValue("Relational:RelationalModel");
 
         /// <summary>
@@ -171,12 +170,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <inheritdoc/>
         [DebuggerStepThrough]
         PropertyAccessMode IReadOnlyModel.GetPropertyAccessMode()
-            => throw new InvalidOperationException(CoreStrings.SlimModelMissingData);
+            => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
         ChangeTrackingStrategy IReadOnlyModel.GetChangeTrackingStrategy()
-            => throw new InvalidOperationException(CoreStrings.SlimModelMissingData);
+            => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
@@ -210,7 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <inheritdoc/>
         [DebuggerStepThrough]
         IReadOnlyEntityType? IReadOnlyModel.FindEntityType(string name, string definingNavigationName, IReadOnlyEntityType definingEntityType)
-            => FindEntityType(name, definingNavigationName, (SlimEntityType)definingEntityType);
+            => FindEntityType(name, definingNavigationName, (RuntimeEntityType)definingEntityType);
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
@@ -218,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             string name,
             string definingNavigationName,
             IEntityType definingEntityType)
-            => FindEntityType(name, definingNavigationName, (SlimEntityType)definingEntityType);
+            => FindEntityType(name, definingNavigationName, (RuntimeEntityType)definingEntityType);
 
         /// <inheritdoc/>
         [DebuggerStepThrough]

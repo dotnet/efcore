@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a navigation property which can be used to navigate a relationship.
     /// </summary>
-    public class SlimNavigation : SlimPropertyBase, INavigation
+    public class RuntimeNavigation : RuntimePropertyBase, INavigation
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private IClrCollectionAccessor? _collectionAccessor;
@@ -26,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimNavigation(
+        public RuntimeNavigation(
             string name,
             Type clrType,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
-            SlimForeignKey foreignKey,
+            RuntimeForeignKey foreignKey,
             PropertyAccessMode propertyAccessMode,
             bool eagerLoaded)
             : base(name, propertyInfo, fieldInfo, propertyAccessMode)
@@ -52,12 +52,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the foreign key that defines the relationship this navigation property will navigate.
         /// </summary>
-        public virtual SlimForeignKey ForeignKey { get; }
+        public virtual RuntimeForeignKey ForeignKey { get; }
 
         /// <summary>
         ///     Gets the entity type that this navigation property belongs to.
         /// </summary>
-        public override SlimEntityType DeclaringEntityType
+        public override RuntimeEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => ((IReadOnlyNavigation)this).IsOnDependent ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;

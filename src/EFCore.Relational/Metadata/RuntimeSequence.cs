@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a database sequence in the model.
     /// </summary>
-    public class SlimSequence : AnnotatableBase, ISequence
+    public class RuntimeSequence : AnnotatableBase, ISequence
     {
         private readonly string? _schema;
         private readonly Type _type;
@@ -27,10 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimSequence(
+        public RuntimeSequence(
             string name,
             string? schema,
-            SlimModel model,
+            RuntimeModel model,
             Type type,
             long startValue,
             int incrementBy,
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the model in which this sequence is defined.
         /// </summary>
-        public virtual SlimModel Model { get; }
+        public virtual RuntimeModel Model { get; }
 
         /// <summary>
         ///     Gets the name of the sequence in the database.
