@@ -127,17 +127,32 @@ namespace Microsoft.Data.Sqlite
                     _columnNameOrdinalCache[GetName(i)] = i;
                 }
             }
-            
+
             if (_columnNameOrdinalCache.TryGetValue(name, out var ordinal))
             {
                 return ordinal;
             }
 
-            var insensitiveMatchingColumns = _columnNameOrdinalCache.Where(kv => kv.Key.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if(insensitiveMatchingColumns.Count() == 1) {
-                ordinal = insensitiveMatchingColumns.First().Value;
-                _columnNameOrdinalCache.Add(name, ordinal);
-                return ordinal;
+            KeyValuePair<string, int>? match = null;
+            foreach (var item in _columnNameOrdinalCache)
+            {
+                if (string.Equals(name, item.Key, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (match != null)
+                    {
+                        throw new InvalidOperationException(
+                            Resources.AmbiguousColumnName(name, match.Value.Key, item.Key));
+                    }
+
+                    match = item;
+                }
+            }
+
+            if (match != null)
+            {
+                _columnNameOrdinalCache.Add(name, match.Value.Value);
+
+                return match.Value.Value;
             }
 
             // NB: Message is provided by framework

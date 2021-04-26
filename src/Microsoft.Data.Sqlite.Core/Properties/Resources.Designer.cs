@@ -256,6 +256,14 @@ namespace Microsoft.Data.Sqlite.Properties
                 GetString("UnknownCollection", nameof(collectionName)),
                 collectionName);
 
+        /// <summary>
+        /// The name '{name}' is ambiguous between columns '{column1}' and '{column2}'. Specify one using its exact case.
+        /// </summary>
+        public static string AmbiguousColumnName(object name, object column1, object column2)
+            => string.Format(
+                GetString("AmbiguousColumnName", nameof(name), nameof(column1), nameof(column2)),
+                name, column1, column2);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

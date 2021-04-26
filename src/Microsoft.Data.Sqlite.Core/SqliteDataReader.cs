@@ -90,9 +90,8 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Gets the value of the specified column.
         /// </summary>
-        /// <param name="name">The name of the column.</param>
+        /// <param name="name">The name of the column. The value is case-sensitive.</param>
         /// <returns>The value.</returns>
-        /// <remarks>Performs a case-sensitive lookup first. If it fails, a second, case-insensitive search occurs.</remarks>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/types">Data Types</seealso>
         public override object this[string name]
             => _record == null

@@ -1276,23 +1276,33 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Theory]
-        [InlineData("SELECT 1;", "Name")]
-        [InlineData("SELECT 1 as Id, 2 as ID;", "id")]
-        public void GetOrdinal_throws_when_out_of_range(string query, string columnName)
+        [Fact]
+        public void GetOrdinal_throws_when_out_of_range()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader(query))
+                using (var reader = connection.ExecuteReader("SELECT 1;"))
                 {
-                    var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal(columnName));
+                    var ex = Assert.Throws<ArgumentOutOfRangeException>(() => reader.GetOrdinal("Name"));
                     Assert.NotNull(ex.Message);
                     Assert.Equal("name", ex.ParamName);
-                    Assert.Equal(columnName, ex.ActualValue);
+                    Assert.Equal("Name", ex.ActualValue);
                 }
             }
+        }
+
+        [Fact]
+        public void GetOrdinal_throws_when_ambiguous()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+
+            using var reader = connection.ExecuteReader("SELECT 1 AS Id, 2 AS ID");
+            var ex = Assert.Throws<InvalidOperationException>(() => reader.GetOrdinal("id"));
+
+            Assert.Contains(Resources.AmbiguousColumnName("id", "Id", "ID"), ex.Message);
         }
 
         [Fact]
@@ -1586,9 +1596,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Theory]
-        [InlineData("SELECT 1 as Id;", "Id", 1L)]
-        [InlineData("SELECT 1 as Id;", "id", 1L)]
-        [InlineData("SELECT 1 as Id, 2 as id;", "id", 2L)]
+        [InlineData("SELECT 1 AS Id;", "Id", 1L)]
+        [InlineData("SELECT 1 AS Id;", "id", 1L)]
+        [InlineData("SELECT 1 AS Id, 2 AS id;", "id", 2L)]
         public void Item_by_name_works(string query, string column, long expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
