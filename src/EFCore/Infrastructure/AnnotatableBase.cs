@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             foreach (var annotation in annotations)
             {
-                annotatable.AddAnnotation(annotation.Name, (Annotation)annotation);
+                annotatable.AddAnnotation(annotation.Name, annotation.Value);
             }
         }
 
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly created annotation. </returns>
         protected virtual Annotation CreateRuntimeAnnotation(string name, object? value)
-            => new Annotation(name, value);
+            => new (name, value);
 
         private ConcurrentDictionary<string, Annotation> GetOrCreateRuntimeAnnotations()
         {
