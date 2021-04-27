@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (Collation != null)
             {
-                builder.AppendLine().Append(indentString).Append("Collation: " + Collation);
+                builder.AppendLine().Append(indentString).Append("Collation: ").Append(Collation);
             }
 
             foreach (var table in Tables)

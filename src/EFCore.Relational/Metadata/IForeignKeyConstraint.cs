@@ -75,19 +75,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder
                 .Append(Name)
-                .Append(" ")
+                .Append(' ')
                 .Append(Table.Name)
-                .Append(" ")
+                .Append(' ')
                 .Append(ColumnBase.Format(Columns))
                 .Append(" -> ")
                 .Append(PrincipalTable.Name)
-                .Append(" ")
+                .Append(' ')
                 .Append(ColumnBase.Format(PrincipalColumns));
 
             if (OnDeleteAction != ReferentialAction.NoAction)
             {
                 builder
-                    .Append(" ")
+                    .Append(' ')
                     .Append(OnDeleteAction);
             }
 

@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">The candidate name for the parameter.</param>
         public virtual void GenerateParameterName(StringBuilder builder, string name)
-            => builder.Append("@").Append(name);
+            => builder.Append('@').Append(name);
 
         /// <summary>
         ///     Generates a valid parameter placeholder name for the given candidate name.
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (!string.IsNullOrEmpty(schema))
             {
                 DelimitIdentifier(builder, schema);
-                builder.Append(".");
+                builder.Append('.');
             }
 
             DelimitIdentifier(builder, name);
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    builder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
+                    builder.Append(SingleLineCommentToken).Append(' ').AppendLine(line);
                 }
             }
 

@@ -238,7 +238,7 @@ WHERE name = '{connection.Database}';";
                     schemaFilterBuilder.Append(s);
                     schemaFilterBuilder.Append(" IN (");
                     schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
-                    schemaFilterBuilder.Append(")");
+                    schemaFilterBuilder.Append(')');
                     return schemaFilterBuilder.ToString();
                 })
                 : (Func<string, string>?)null;
@@ -272,7 +272,7 @@ WHERE name = '{connection.Database}';";
                         if (schemaFilter != null)
                         {
                             tableFilterBuilder
-                                .Append("(")
+                                .Append('(')
                                 .Append(schemaFilter(s));
                             openBracket = true;
                         }
@@ -287,7 +287,7 @@ WHERE name = '{connection.Database}';";
                             }
                             else
                             {
-                                tableFilterBuilder.Append("(");
+                                tableFilterBuilder.Append('(');
                                 openBracket = true;
                             }
 
@@ -297,7 +297,7 @@ WHERE name = '{connection.Database}';";
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(" IN (");
                                 tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
-                                tableFilterBuilder.Append(")");
+                                tableFilterBuilder.Append(')');
                             }
 
                             var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
@@ -317,13 +317,13 @@ WHERE name = '{connection.Database}';";
                                 tableFilterBuilder.Append(t);
                                 tableFilterBuilder.Append(") IN (");
                                 tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
-                                tableFilterBuilder.Append(")");
+                                tableFilterBuilder.Append(')');
                             }
                         }
 
                         if (openBracket)
                         {
-                            tableFilterBuilder.Append(")");
+                            tableFilterBuilder.Append(')');
                         }
 
                         return tableFilterBuilder.ToString();

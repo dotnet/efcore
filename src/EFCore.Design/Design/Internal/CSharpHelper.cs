@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 builder
                     .Append(lambdaIdentifier)
-                    .Append(".")
+                    .Append('.')
                     .Append(properties[0]);
             }
             else
@@ -232,15 +232,15 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 builder
                     .Append(Reference(type.GetElementType()!))
-                    .Append("[");
+                    .Append('[');
 
                 var rank = type.GetArrayRank();
                 for (var i = 1; i < rank; i++)
                 {
-                    builder.Append(",");
+                    builder.Append(',');
                 }
 
-                builder.Append("]");
+                builder.Append(']');
 
                 return builder.ToString();
             }
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 Check.DebugAssert(type.DeclaringType != null, "DeclaringType is null");
                 builder
                     .Append(Reference(type.DeclaringType))
-                    .Append(".");
+                    .Append('.');
             }
 
             builder.Append(
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (builder.Length == 0
                 || !IsIdentifierStartCharacter(builder[0]))
             {
-                builder.Insert(0, "_");
+                builder.Insert(0, '_');
             }
 
             var identifier = builder.ToString();
@@ -1001,9 +1001,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             while (current != null)
             {
                 builder
-                    .Append(".")
+                    .Append('.')
                     .Append(current.Method)
-                    .Append("(");
+                    .Append('(');
 
                 for (var i = 0; i < current.Arguments.Count; i++)
                 {
@@ -1015,7 +1015,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     builder.Append(UnknownLiteral(current.Arguments[i]));
                 }
 
-                builder.Append(")");
+                builder.Append(')');
 
                 current = current.ChainedCall;
             }

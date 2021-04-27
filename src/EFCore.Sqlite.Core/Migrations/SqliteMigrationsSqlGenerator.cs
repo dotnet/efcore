@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         selectBuilder
                             .Append(", ")
                             .Append(defaultValueTypeMapping.GenerateSqlLiteral(defaultValue))
-                            .Append(")");
+                            .Append(')');
                     }
                 }
 
