@@ -132,6 +132,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 LeasedFromPool += OnLeasedFromPool;
                 ReturnedToPool += OnReturnedToPool;
+                LeasedFromPoolAsync += OnLeasedFromPoolAsync;
+                ReturnedToPoolAsync += OnReturnedToPoolAsync;
             }
 
             public int LeasedCount { get; private set; }
@@ -141,11 +143,33 @@ namespace Microsoft.EntityFrameworkCore
             public bool? AsyncReturn { get; private set; }
             public bool? SyncReturn { get; private set; }
 
-            private void OnLeasedFromPool(object sender, EventArgs e)
-                => LeasedCount++;
+            private void OnLeasedFromPool(object sender)
+            {
+                SyncLease = true;
+                LeasedCount++;
+            }
 
-            private void OnReturnedToPool(object sender, EventArgs e)
-                => ReturnedCount++;
+            private async Task OnLeasedFromPoolAsync(DbContext sender, CancellationToken cancellationToken)
+            {
+                await sender.Database.CanConnectAsync(cancellationToken); // Just something async
+
+                AsyncLease = true;
+                LeasedCount++;
+            }
+
+            private void OnReturnedToPool(object sender)
+            {
+                SyncReturn = true;
+                ReturnedCount++;
+            }
+
+            private async Task OnReturnedToPoolAsync(DbContext sender, CancellationToken cancellationToken)
+            {
+                await sender.Database.CanConnectAsync(cancellationToken); // Just something async
+
+                AsyncReturn = true;
+                ReturnedCount++;
+            }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -245,6 +269,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 LeasedFromPool += OnLeasedFromPool;
                 ReturnedToPool += OnReturnedToPool;
+                LeasedFromPoolAsync += OnLeasedFromPoolAsync;
+                ReturnedToPoolAsync += OnReturnedToPoolAsync;
             }
 
             public int LeasedCount { get; private set; }
@@ -254,11 +280,33 @@ namespace Microsoft.EntityFrameworkCore
             public bool? AsyncReturn { get; private set; }
             public bool? SyncReturn { get; private set; }
 
-            private void OnLeasedFromPool(object sender, EventArgs e)
-                => LeasedCount++;
+            private void OnLeasedFromPool(object sender)
+            {
+                SyncLease = true;
+                LeasedCount++;
+            }
 
-            private void OnReturnedToPool(object sender, EventArgs e)
-                => ReturnedCount++;
+            private async Task OnLeasedFromPoolAsync(DbContext sender, CancellationToken cancellationToken)
+            {
+                await sender.Database.CanConnectAsync(cancellationToken); // Just something async
+
+                AsyncLease = true;
+                LeasedCount++;
+            }
+
+            private void OnReturnedToPool(object sender)
+            {
+                SyncReturn = true;
+                ReturnedCount++;
+            }
+
+            private async Task OnReturnedToPoolAsync(DbContext sender, CancellationToken cancellationToken)
+            {
+                await sender.Database.CanConnectAsync(cancellationToken); // Just something async
+
+                AsyncReturn = true;
+                ReturnedCount++;
+            }
         }
 
         private class SecondContextWithOverrides : DbContext, ISecondContext
@@ -731,6 +779,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, secondContext1!.LeasedCount);
             Assert.Equal(0, context1.ReturnedCount);
             Assert.Equal(0, secondContext1.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Null(context1.SyncReturn);
+            Assert.Null(context1.AsyncReturn);
 
             var serviceScope2 = serviceProvider.CreateScope();
             var scopedProvider2 = serviceScope2.ServiceProvider;
@@ -745,6 +797,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, context1.ReturnedCount);
             Assert.Equal(0, secondContext1.ReturnedCount);
             Assert.Equal(0, context2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Null(context1.SyncReturn);
+            Assert.Null(context1.AsyncReturn);
 
             var secondContext2 = useInterface
                 ? scopedProvider2.GetService<ISecondContext>()
@@ -761,6 +817,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, secondContext1.ReturnedCount);
             Assert.Equal(0, context2.ReturnedCount);
             Assert.Equal(0, secondContext2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Null(context1.SyncReturn);
+            Assert.Null(context1.AsyncReturn);
 
             await Dispose(serviceScope1, async);
 
@@ -772,6 +832,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, secondContext1.ReturnedCount);
             Assert.Equal(0, context2.ReturnedCount);
             Assert.Equal(0, secondContext2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
 
             await Dispose(serviceScope2, async);
 
@@ -783,6 +847,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, secondContext1.ReturnedCount);
             Assert.Equal(1, context2.ReturnedCount);
             Assert.Equal(1, secondContext2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
 
             var serviceScope3 = serviceProvider.CreateScope();
             var scopedProvider3 = serviceScope3.ServiceProvider;
@@ -806,6 +874,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, secondContext1.ReturnedCount);
             Assert.Equal(1, context2.ReturnedCount);
             Assert.Equal(1, secondContext2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
 
             var serviceScope4 = serviceProvider.CreateScope();
             var scopedProvider4 = serviceScope4.ServiceProvider;
@@ -829,6 +901,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, secondContext1.ReturnedCount);
             Assert.Equal(1, context2.ReturnedCount);
             Assert.Equal(1, secondContext2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
 
             await Dispose(serviceScope3, async);
 
@@ -840,6 +916,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(2, secondContext1.ReturnedCount);
             Assert.Equal(1, context2.ReturnedCount);
             Assert.Equal(1, secondContext2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
 
             await Dispose(serviceScope4, async);
 
@@ -851,6 +931,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(2, secondContext1.ReturnedCount);
             Assert.Equal(2, context2.ReturnedCount);
             Assert.Equal(2, secondContext2.ReturnedCount);
+            Assert.True(context1.SyncLease);
+            Assert.Null(context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
         }
 
         [ConditionalTheory]
@@ -879,6 +963,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(0, secondContext1.ReturnedCount);
             Assert.Equal(0, context2.ReturnedCount);
             Assert.Equal(0, secondContext2.ReturnedCount);
+            Assert.Equal(!async ? true : null, context1.SyncLease);
+            Assert.Equal(async ? true : null, context1.AsyncLease);
+            Assert.Null(context1.SyncReturn);
+            Assert.Null(context1.AsyncReturn);
 
             await Dispose(context1, async);
             await Dispose(secondContext1, async);
@@ -893,6 +981,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(1, secondContext1.ReturnedCount);
             Assert.Equal(1, context2.ReturnedCount);
             Assert.Equal(1, secondContext2.ReturnedCount);
+            Assert.Equal(!async ? true : null, context1.SyncLease);
+            Assert.Equal(async ? true : null, context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
 
             var context3 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
             var secondContext3 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
@@ -928,6 +1020,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(2, secondContext1.ReturnedCount);
             Assert.Equal(2, context2.ReturnedCount);
             Assert.Equal(2, secondContext2.ReturnedCount);
+            Assert.Equal(!async ? true : null, context1.SyncLease);
+            Assert.Equal(async ? true : null, context1.AsyncLease);
+            Assert.Equal(!async ? true : null, context1.SyncReturn);
+            Assert.Equal(async ? true : null, context1.AsyncReturn);
         }
 
         [ConditionalTheory]
