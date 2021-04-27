@@ -10099,6 +10099,73 @@ ORDER BY [t].[Id]");
 
         #endregion
 
+        #region Issue24569
+
+        // TODO: Remove when JSON is first class and we have proper tests. See issue#4021
+
+        [ConditionalFact]
+        public virtual async Task Builtin_tvf_translated_correctly()
+        {
+            var contextFactory = await InitializeAsync<MyContext24569>(seed: c => c.Seed());
+
+            using (var context = contextFactory.CreateContext())
+            {
+                var query = await (from c in context.Cars
+                                   from j in context.OpenJson(c.Json, "$.items")
+                                   select new { c, j }).ToListAsync();
+
+                AssertSql(
+                    new[] {
+                    @"SELECT [c].[Id], [c].[Json], [o].[Value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]" });
+            }
+        }
+
+        protected class MyContext24569 : DbContext
+        {
+            public DbSet<Car24569> Cars { get; set; }
+
+            public MyContext24569(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.HasDbFunction(() => OpenJson(string.Empty, string.Empty)).HasStoreType("nvarchar(max)");
+            }
+
+            [DbFunction("OPENJSON", IsBuiltIn = true)]
+            public IQueryable<JsonResult> OpenJson(string column, string jsonPath)
+                => FromExpression(() => OpenJson(column, jsonPath));
+
+            public void Seed()
+            {
+                Cars.Add(new Car24569
+                {
+                    Json = @"{ ""name"": ""test"", ""items"": [{""id"": 1}, {""id"": 2}] }",
+                });
+
+                SaveChanges();
+            }
+
+            public class Car24569
+            {
+                public int Id { get; set; }
+
+                public string Json { get; set; }
+            }
+
+            [Keyless]
+            public class JsonResult
+            {
+                public string Value { get; set; }
+            }
+        }
+
+        #endregion
+
         protected override string StoreName => "QueryBugsTest";
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

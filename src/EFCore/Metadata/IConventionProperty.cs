@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="maxLength"> The maximum length of data that is allowed in this property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured property. </returns>
-        int? SetMaxLength( int? maxLength, bool fromDataAnnotation = false);
+        int? SetMaxLength(int? maxLength, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetMaxLength" />.
@@ -222,8 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets a value indicating whether this property can persist Unicode characters.
         /// </summary>
         /// <param name="unicode">
-        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to
-        ///     clear the setting.
+        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not,
+        ///     <see langword="null" /> to clear the setting.
         /// </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
@@ -308,7 +308,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         Func<IProperty, IEntityType, ValueGenerator>? SetValueGeneratorFactory(
-            Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory,
+            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
+        ///     </para>
+        ///     <para>
+        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueGeneratorFactory">
+        ///     A factory that will be used to create the value generator, or <see langword="null" /> to
+        ///     clear any previously set factory.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        Type? SetValueGeneratorFactory(
+            Type? valueGeneratorFactory,
             bool fromDataAnnotation = false);
 
         /// <summary>
@@ -323,7 +342,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        ValueConverter? SetValueConverter(ValueConverter? converter,  bool fromDataAnnotation = false);
+        ValueConverter? SetValueConverter(ValueConverter? converter, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueConverter" /> for this property.
+        /// </summary>
+        /// <param name="converterType">
+        ///     A type that derives from <see cref="ValueConverter"/>, or <see langword="null" /> to remove any previously set converter.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        Type? SetValueConverter(Type? converterType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetValueConverter" />.
@@ -352,6 +381,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
         ValueComparer? SetValueComparer(ValueComparer? comparer, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueComparer" /> for this property.
+        /// </summary>
+        /// <param name="comparerType">
+        ///     A type that derives from <see cref="ValueComparer"/>, or <see langword="null" /> to remove any previously set comparer.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        Type? SetValueComparer(Type? comparerType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetValueComparer" />.

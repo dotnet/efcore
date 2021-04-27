@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
         private readonly bool _standAloneStateManager;
         private readonly bool _detailedErrorsEnabled;
-        private readonly bool _concurrencyDetectionEnabled;
+        private readonly bool _threadSafetyChecksEnabled;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Type contextType,
             bool standAloneStateManager,
             bool detailedErrorsEnabled,
-            bool concurrencyDetectionEnabled)
+            bool threadSafetyChecksEnabled)
         {
             _relationalQueryContext = relationalQueryContext;
             _relationalCommandCache = relationalCommandCache;
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _queryLogger = relationalQueryContext.QueryLogger;
             _standAloneStateManager = standAloneStateManager;
             _detailedErrorsEnabled = detailedErrorsEnabled;
-            _concurrencyDetectionEnabled = concurrencyDetectionEnabled;
+            _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
                 Current = default!;
 
-                _concurrencyDetector = queryingEnumerable._concurrencyDetectionEnabled
+                _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
                     ? _relationalQueryContext.ConcurrencyDetector
                     : null;
             }
@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     enumerator._relationalQueryContext.ParameterValues);
 
                 var relationalCommand = enumerator._relationalCommand = enumerator._relationalQueryContext.Connection.RentCommand();
-                relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
+                relationalCommand.PopulateFrom(relationalCommandTemplate);
 
                 enumerator._dataReader = relationalCommand.ExecuteReader(
                     new RelationalCommandParameterObject(
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _detailedErrorsEnabled = queryingEnumerable._detailedErrorsEnabled;
                 Current = default!;
 
-                _concurrencyDetector = queryingEnumerable._concurrencyDetectionEnabled
+                _concurrencyDetector = queryingEnumerable._threadSafetyChecksEnabled
                     ? _relationalQueryContext.ConcurrencyDetector
                     : null;
             }
@@ -364,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     enumerator._relationalQueryContext.ParameterValues);
 
                 var relationalCommand = enumerator._relationalCommand = enumerator._relationalQueryContext.Connection.RentCommand();
-                relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
+                relationalCommand.PopulateFrom(relationalCommandTemplate);
 
                 enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(

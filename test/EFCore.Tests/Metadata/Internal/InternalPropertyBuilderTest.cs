@@ -3,9 +3,11 @@
 
 using System;
 using System.Reflection;
+using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
@@ -203,6 +205,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(builder.HasValueGenerator((p, e) => new CustomValueGenerator1(), ConfigurationSource.Convention));
             Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
             Assert.True(metadata.RequiresValueGenerator());
+
+            Assert.Null(builder.HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory), ConfigurationSource.Convention));
+            Assert.IsType<CustomValueGenerator2>(metadata.GetValueGeneratorFactory()(null, null));
+
+            Assert.NotNull(builder.HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory), ConfigurationSource.DataAnnotation));
+            Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
+            Assert.True(metadata.RequiresValueGenerator());
+
+            Assert.NotNull(builder.HasValueGeneratorFactory(null, ConfigurationSource.DataAnnotation));
+            Assert.Null(metadata.GetValueGeneratorFactory());
+            Assert.False(metadata.RequiresValueGenerator());
+            Assert.Null(metadata[CoreAnnotationNames.ValueGeneratorFactory]);
+            Assert.Null(metadata[CoreAnnotationNames.ValueGeneratorFactoryType]);
         }
 
         [ConditionalFact]
@@ -313,6 +328,80 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public override bool GeneratesTemporaryValues
                 => false;
+        }
+
+        private class CustomValueGeneratorFactory : ValueGeneratorFactory
+        {
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => new CustomValueGenerator1();
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_ValueConverter()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.NotNull(builder.HasConversion(new UTF8StringToBytesConverter(), ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasConversion(new CastingConverter<string, string>(), ConfigurationSource.DataAnnotation));
+
+            Assert.IsType<CastingConverter<string, string>>(metadata.GetValueConverter());
+
+            Assert.Null(builder.HasConversion(new UTF8StringToBytesConverter(), ConfigurationSource.Convention));
+            Assert.IsType<CastingConverter<string, string>>(metadata.GetValueConverter());
+
+            Assert.Null(builder.HasConverter(typeof(UTF8StringToBytesConverter), ConfigurationSource.Convention));
+            Assert.IsType<CastingConverter<string, string>>(metadata.GetValueConverter());
+
+            Assert.NotNull(builder.HasConverter(typeof(UTF8StringToBytesConverter), ConfigurationSource.DataAnnotation));
+            Assert.IsType<UTF8StringToBytesConverter>(metadata.GetValueConverter());
+
+            Assert.NotNull(builder.HasConverter(null, ConfigurationSource.DataAnnotation));
+            Assert.Null(metadata.GetValueConverter());
+            Assert.Null(metadata[CoreAnnotationNames.ValueConverter]);
+            Assert.Null(metadata[CoreAnnotationNames.ValueConverterType]);
+        }
+
+        private class UTF8StringToBytesConverter : StringToBytesConverter
+        {
+            public UTF8StringToBytesConverter()
+                : base(Encoding.UTF8)
+            {
+            }
+        }
+
+        [ConditionalFact]
+        public void Can_only_override_lower_or_equal_source_ValueComparer()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.NotNull(builder.HasValueComparer(new CustomValueComparer<string>(), ConfigurationSource.DataAnnotation));
+            Assert.NotNull(builder.HasValueComparer(new ValueComparer<string>(false), ConfigurationSource.DataAnnotation));
+
+            Assert.IsType<ValueComparer<string>>(metadata.GetValueComparer());
+
+            Assert.Null(builder.HasValueComparer(new CustomValueComparer<string>(), ConfigurationSource.Convention));
+            Assert.IsType<ValueComparer<string>>(metadata.GetValueComparer());
+
+            Assert.Null(builder.HasValueComparer(typeof(CustomValueComparer<string>), ConfigurationSource.Convention));
+            Assert.IsType<ValueComparer<string>>(metadata.GetValueComparer());
+
+            Assert.NotNull(builder.HasValueComparer(typeof(CustomValueComparer<string>), ConfigurationSource.DataAnnotation));
+            Assert.IsType<CustomValueComparer<string>>(metadata.GetValueComparer());
+
+            Assert.NotNull(builder.HasValueComparer((ValueComparer)null, ConfigurationSource.DataAnnotation));
+            Assert.Null(metadata.GetValueComparer());
+            Assert.Null(metadata[CoreAnnotationNames.ValueComparer]);
+            Assert.Null(metadata[CoreAnnotationNames.ValueComparerType]);
+        }
+
+        private class CustomValueComparer<T> : ValueComparer<T>
+        {
+            public CustomValueComparer()
+                : base(false)
+            {
+            }
         }
 
         [ConditionalFact]

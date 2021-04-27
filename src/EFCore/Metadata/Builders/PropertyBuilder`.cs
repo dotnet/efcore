@@ -184,6 +184,65 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.HasValueGenerator(factory);
 
         /// <summary>
+        ///     <para>
+        ///         Configures the <see cref="ValueGeneratorFactory" /> for creating a <see cref="ValueGenerator" />
+        ///         to use to generate values for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
+        ///     </para>
+        ///     <para>
+        ///         A single instance of this type will be created and used to generate values for this property in all
+        ///         instances of the entity type. The type must be instantiable and have a parameterless constructor.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        ///     <para>
+        ///         Setting <see langword="null"/> does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TFactory"> A type that inherits from <see cref="ValueGeneratorFactory" />. </typeparam>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+            where TFactory : ValueGeneratorFactory
+            => (PropertyBuilder<TProperty>)base.HasValueGeneratorFactory<TFactory>();
+
+        /// <summary>
+        ///     <para>
+        ///         Configures the <see cref="ValueGeneratorFactory" /> for creating a <see cref="ValueGenerator" />
+        ///         to use to generate values for this property.
+        ///     </para>
+        ///     <para>
+        ///         Values are generated when the entity is added to the context using, for example,
+        ///         <see cref="DbContext.Add{TEntity}" />. Values are generated only when the property is assigned
+        ///         the CLR default value (<see langword="null" /> for <c>string</c>, <c>0</c> for <c>int</c>,
+        ///         <c>Guid.Empty</c> for <c>Guid</c>, etc.).
+        ///     </para>
+        ///     <para>
+        ///         A single instance of this type will be created and used to generate values for this property in all
+        ///         instances of the entity type. The type must be instantiable and have a parameterless constructor.
+        ///     </para>
+        ///     <para>
+        ///         This method is intended for use with custom value generation. Value generation for common cases is
+        ///         usually handled automatically by the database provider.
+        ///     </para>
+        ///     <para>
+        ///         Setting <see langword="null"/> does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueGeneratorFactoryType"> A type that inherits from <see cref="ValueGeneratorFactory" />. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasValueGeneratorFactory(Type? valueGeneratorFactoryType)
+            => (PropertyBuilder<TProperty>)base.HasValueGeneratorFactory(valueGeneratorFactoryType);
+
+        /// <summary>
         ///     Configures whether this property should be used as a concurrency token. When a property is configured
         ///     as a concurrency token the value in the database will be checked when an instance of this entity type
         ///     is updated or deleted during <see cref="DbContext.SaveChanges()" /> to ensure it has not changed since
@@ -259,6 +318,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasField(string fieldName)
             => (PropertyBuilder<TProperty>)base.HasField(fieldName);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the <see cref="PropertyAccessMode" /> to use for this property.
+        ///     </para>
+        ///     <para>
+        ///         By default, the backing field, if one is found by convention or has been specified, is used when
+        ///         new objects are constructed, typically when entities are queried from the database.
+        ///         Properties are used for all other accesses.  Calling this method will change that behavior
+        ///         for this property as described in the <see cref="PropertyAccessMode" /> enum.
+        ///     </para>
+        ///     <para>
+        ///         Calling this method overrides for this property any access mode that was set on the
+        ///         entity type or model.
+        ///     </para>
+        /// </summary>
+        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+            => (PropertyBuilder<TProperty>)base.UsePropertyAccessMode(propertyAccessMode);
 
         /// <summary>
         ///     Configures the property so that the property value is converted to the given type before
@@ -380,23 +459,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.HasConversion(converter, valueComparer);
 
         /// <summary>
-        ///     <para>
-        ///         Sets the <see cref="PropertyAccessMode" /> to use for this property.
-        ///     </para>
-        ///     <para>
-        ///         By default, the backing field, if one is found by convention or has been specified, is used when
-        ///         new objects are constructed, typically when entities are queried from the database.
-        ///         Properties are used for all other accesses.  Calling this method will change that behavior
-        ///         for this property as described in the <see cref="PropertyAccessMode" /> enum.
-        ///     </para>
-        ///     <para>
-        ///         Calling this method overrides for this property any access mode that was set on the
-        ///         entity type or model.
-        ///     </para>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
+        /// <typeparam name="TConverter"> A type that derives from <see cref="ValueConverter"/>. </typeparam>
+        /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer"/>. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
-            => (PropertyBuilder<TProperty>)base.UsePropertyAccessMode(propertyAccessMode);
+        public new virtual PropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+            where TConverter : ValueConverter
+            where TComparer : ValueComparer
+            => (PropertyBuilder<TProperty>)base.HasConversion<TConverter, TComparer>();
+
+        /// <summary>
+        ///     Configures the property so that the property value is converted to and from the database
+        ///     using the given <see cref="ValueConverter" />.
+        /// </summary>
+        /// <param name="converterType"> A type that derives from <see cref="ValueConverter"/>. </param>
+        /// <param name="comparerType"> A type that derives from <see cref="ValueComparer"/>. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual PropertyBuilder<TProperty> HasConversion(Type? converterType, Type? comparerType)
+            => (PropertyBuilder<TProperty>)base.HasConversion(converterType, comparerType);
     }
 }

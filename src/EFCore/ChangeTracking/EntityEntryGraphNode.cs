@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         An <see cref="EntityEntry" /> for the entity instance from which a navigation property was traversed to the the instance
+        ///         An <see cref="EntityEntry" /> for the entity instance from which a navigation property was traversed to the instance
         ///         represented by this node.
         ///     </para>
         ///     <para>

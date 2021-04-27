@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ValueGenerationManager = dependencies.ValueGenerationManager;
             _model = dependencies.Model;
             _database = dependencies.Database;
-            _concurrencyDetector = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled
+            _concurrencyDetector = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled
                 ? dependencies.ConcurrencyDetector
                 : null;
             Context = dependencies.CurrentContext.Context;

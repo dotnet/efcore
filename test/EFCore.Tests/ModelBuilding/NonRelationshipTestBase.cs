@@ -737,30 +737,51 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Properties_can_have_value_converter_set_generic()
+            public virtual void Properties_can_have_value_converter_type_set()
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
-
-                var stringConverter = new StringToBytesConverter(Encoding.UTF8);
-                var intConverter = new CastingConverter<int, long>();
 
                 modelBuilder.Entity<Quarks>(
                     b =>
                     {
                         b.Property(e => e.Up);
-                        b.Property(e => e.Down).HasConversion(stringConverter);
-                        b.Property<int>("Charm").HasConversion(intConverter);
-                        b.Property<string>("Strange").HasConversion(stringConverter);
-                        b.Property<string>("Strange").HasConversion((ValueConverter)null);
+                        b.Property(e => e.Down).HasConversion(typeof(UTF8StringToBytesConverter), typeof(CustomValueComparer<string>));
+                        b.Property<int>("Charm").HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
+                        b.Property<string>("Strange").HasConversion(typeof(UTF8StringToBytesConverter), typeof(CustomValueComparer<string>));
+                        b.Property<string>("Strange").HasConversion((ValueConverter)null, null);
                     });
 
                 var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
                 Assert.Null(entityType.FindProperty("Up").GetValueConverter());
-                Assert.Same(stringConverter, entityType.FindProperty("Down").GetValueConverter());
-                Assert.Same(intConverter, entityType.FindProperty("Charm").GetValueConverter());
+
+                var down = entityType.FindProperty("Down");
+                Assert.IsType<UTF8StringToBytesConverter>(down.GetValueConverter());
+                Assert.IsType<CustomValueComparer<string>>(down.GetValueComparer());
+
+                var charm = entityType.FindProperty("Charm");
+                Assert.IsType<CastingConverter<int, long>>(charm.GetValueConverter());
+                Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
+
                 Assert.Null(entityType.FindProperty("Strange").GetValueConverter());
+                Assert.Null(entityType.FindProperty("Strange").GetValueComparer());
+            }
+
+            private class UTF8StringToBytesConverter : StringToBytesConverter
+            {
+                public UTF8StringToBytesConverter()
+                    : base(Encoding.UTF8)
+                {
+                }
+            }
+
+            private class CustomValueComparer<T> : ValueComparer<T>
+            {
+                public CustomValueComparer()
+                    : base(false)
+                {
+                }
             }
 
             [ConditionalFact]
@@ -982,8 +1003,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.Property(e => e.Down).HasValueGenerator(typeof(CustomValueGenerator));
                         b.Property<int>("Charm").HasValueGenerator((_, __) => new CustomValueGenerator());
                         b.Property<string>("Strange").HasValueGenerator<CustomValueGenerator>();
-                        b.Property<int>("Top").HasValueGenerator(typeof(CustomValueGenerator));
-                        b.Property<string>("Bottom").HasValueGenerator((_, __) => new CustomValueGenerator());
+                        b.Property<int>("Top").HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory));
+                        b.Property<string>("Bottom").HasValueGeneratorFactory<CustomValueGeneratorFactory>();
                     });
 
                 modelBuilder.FinalizeModel();
@@ -1008,6 +1029,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 public override bool GeneratesTemporaryValues
                     => false;
+            }
+
+            private class CustomValueGeneratorFactory : ValueGeneratorFactory
+            {
+                public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                    => new CustomValueGenerator();
             }
 
             [ConditionalFact]
@@ -1040,12 +1067,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var entityType = model.FindEntityType(typeof(Quarks));
 
                 Assert.Equal(
-                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1)),
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1), "HasValueGenerator"),
                     Assert.Throws<InvalidOperationException>(
                         () => entityType.FindProperty("Up").GetValueGeneratorFactory()(null, null)).Message);
 
                 Assert.Equal(
-                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator2)),
+                    CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator2), "HasValueGenerator"),
                     Assert.Throws<InvalidOperationException>(
                         () => entityType.FindProperty("Down").GetValueGeneratorFactory()(null, null)).Message);
             }
@@ -1221,6 +1248,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .HasMaxLength(100)
                     .HasValueGenerator<CustomValueGenerator>()
                     .HasValueGenerator(typeof(CustomValueGenerator))
+                    .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
+                    .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
                     .HasValueGenerator((_, __) => null)
                     .IsRequired();
             }

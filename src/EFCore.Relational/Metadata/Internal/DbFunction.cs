@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 builder
                     .Append(methodInfo.DeclaringType.FullName)
-                    .Append(".");
+                    .Append('.');
             }
 
             builder

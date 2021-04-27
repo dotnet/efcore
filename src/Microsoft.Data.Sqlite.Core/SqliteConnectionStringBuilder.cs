@@ -252,7 +252,7 @@ namespace Microsoft.Data.Sqlite
                         return;
 
                     default:
-                        Debug.Assert(false, "Unexpected keyword: " + keyword);
+                        Debug.Fail("Unexpected keyword: " + keyword);
                         return;
                 }
             }
@@ -397,7 +397,7 @@ namespace Microsoft.Data.Sqlite
                     return DefaultTimeout;
 
                 default:
-                    Debug.Assert(false, "Unexpected keyword: " + index);
+                    Debug.Fail("Unexpected keyword: " + index);
                     return null;
             }
         }
@@ -440,7 +440,7 @@ namespace Microsoft.Data.Sqlite
                     return;
 
                 default:
-                    Debug.Assert(false, "Unexpected keyword: " + index);
+                    Debug.Fail("Unexpected keyword: " + index);
                     return;
             }
         }

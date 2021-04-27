@@ -179,6 +179,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
+        ///     The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.
+        /// </summary>
+        public static string BadValueComparerType(object? givenType, object? expectedType)
+            => string.Format(
+                GetString("BadValueComparerType", nameof(givenType), nameof(expectedType)),
+                givenType, expectedType);
+
+        /// <summary>
+        ///     The type '{givenType}' cannot be used as a value converter because it does not inherit from '{expectedType}'. Make sure to inherit value converters from '{expectedType}'.
+        /// </summary>
+        public static string BadValueConverterType(object? givenType, object? expectedType)
+            => string.Format(
+                GetString("BadValueConverterType", nameof(givenType), nameof(expectedType)),
+                givenType, expectedType);
+
+        /// <summary>
         ///     The type '{givenType}' cannot be used as a value generator because it does not inherit from '{expectedType}'. Make sure to inherit value generators from '{expectedType}'.
         /// </summary>
         public static string BadValueGeneratorType(object? givenType, object? expectedType)
@@ -224,12 +240,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotConvertQueryableToEnumerableMethod");
 
         /// <summary>
-        ///     Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of 'HasValueGenerator' that accepts a delegate.
+        ///     Cannot create an instance of value comparer type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.
         /// </summary>
-        public static string CannotCreateValueGenerator(object? generatorType)
+        public static string CannotCreateValueComparer(object? generatorType, object? method)
             => string.Format(
-                GetString("CannotCreateValueGenerator", nameof(generatorType)),
-                generatorType);
+                GetString("CannotCreateValueComparer", nameof(generatorType), nameof(method)),
+                generatorType, method);
+
+        /// <summary>
+        ///     Cannot create an instance of value converter type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.
+        /// </summary>
+        public static string CannotCreateValueConverter(object? generatorType, object? method)
+            => string.Format(
+                GetString("CannotCreateValueConverter", nameof(generatorType), nameof(method)),
+                generatorType, method);
+
+        /// <summary>
+        ///     Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.
+        /// </summary>
+        public static string CannotCreateValueGenerator(object? generatorType, object? method)
+            => string.Format(
+                GetString("CannotCreateValueGenerator", nameof(generatorType), nameof(method)),
+                generatorType, method);
 
         /// <summary>
         ///     The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.

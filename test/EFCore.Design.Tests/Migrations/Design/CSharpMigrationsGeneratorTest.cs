@@ -49,9 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.Unicode,
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.ValueGeneratorFactoryType,
                 CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ValueConverter,
+                CoreAnnotationNames.ValueConverterType,
                 CoreAnnotationNames.ValueComparer,
+                CoreAnnotationNames.ValueComparerType,
 #pragma warning disable 618
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,

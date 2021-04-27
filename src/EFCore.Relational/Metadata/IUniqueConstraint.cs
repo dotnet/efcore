@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder
                 .Append(Name)
-                .Append(" ")
+                .Append(' ')
                 .Append(ColumnBase.Format(Columns));
 
             if (GetIsPrimaryKey())

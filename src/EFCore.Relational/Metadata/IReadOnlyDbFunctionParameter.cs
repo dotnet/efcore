@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Append("DbFunctionParameter: ");
 
             builder.Append(Name)
-                .Append(" ")
+                .Append(' ')
                 .Append(StoreType);
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)

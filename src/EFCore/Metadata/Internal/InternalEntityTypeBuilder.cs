@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -3197,7 +3198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private InternalForeignKeyBuilder? HasOwnership(
             in TypeIdentity targetEntityType,
             in MemberIdentity navigation,
-            in MemberIdentity? inverse,
+            MemberIdentity? inverse,
             ConfigurationSource configurationSource)
         {
             InternalEntityTypeBuilder? ownedEntityTypeBuilder;
@@ -4416,7 +4417,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             rootTypeBuilder.Metadata.SetDiscriminatorProperty(discriminatorProperty, configurationSource);
             discriminatorPropertyBuilder.IsRequired(true, ConfigurationSource.Convention);
-            discriminatorPropertyBuilder.HasValueGenerator(DiscriminatorValueGenerator.Factory, ConfigurationSource.Convention);
+            discriminatorPropertyBuilder.HasValueGeneratorFactory(typeof(DiscriminatorValueGeneratorFactory), ConfigurationSource.Convention);
 
             return new DiscriminatorBuilder(Metadata);
         }

@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Sets a value indicating whether this property can persist Unicode characters.
         /// </summary>
         /// <param name="unicode">
-        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not, <see langword="null" /> to
-        ///     clear the setting.
+        ///     <see langword="true" /> if the property accepts Unicode characters, <see langword="false" /> if it does not,
+        ///     <see langword="null" /> to clear the setting.
         /// </param>
         void SetIsUnicode(bool? unicode);
 
@@ -187,13 +187,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     A factory that will be used to create the value generator, or <see langword="null" /> to
         ///     clear any previously set factory.
         /// </param>
-        void SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator> valueGeneratorFactory);
+        void SetValueGeneratorFactory(Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory);
+
+        /// <summary>
+        ///     <para>
+        ///         Sets the factory to use for generating values for this property, or <see langword="null" /> to clear any previously set factory.
+        ///     </para>
+        ///     <para>
+        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
+        ///         configured for this property. The database provider may still have a value generator for the property type.
+        ///     </para>
+        /// </summary>
+        /// <param name="valueGeneratorFactory">
+        ///     A factory that will be used to create the value generator, or <see langword="null" /> to
+        ///     clear any previously set factory.
+        /// </param>
+        void SetValueGeneratorFactory(Type? valueGeneratorFactory);
 
         /// <summary>
         ///     Sets the custom <see cref="ValueConverter" /> for this property.
         /// </summary>
         /// <param name="converter"> The converter, or <see langword="null" /> to remove any previously set converter. </param>
         void SetValueConverter(ValueConverter? converter);
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueConverter" /> for this property.
+        /// </summary>
+        /// <param name="converterType">
+        ///     A type that derives from <see cref="ValueConverter"/>, or <see langword="null" /> to remove any previously set converter.
+        /// </param>
+        void SetValueConverter(Type? converterType);
 
         /// <summary>
         ///     Sets the type that the property value will be converted to before being sent to the database provider.
@@ -212,5 +235,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="comparer"> The comparer, or <see langword="null" /> to remove any previously set comparer. </param>
         void SetValueComparer(ValueComparer? comparer);
+
+        /// <summary>
+        ///     Sets the custom <see cref="ValueComparer" /> for this property.
+        /// </summary>
+        /// <param name="comparerType">
+        ///     A type that derives from <see cref="ValueComparer"/>, or <see langword="null" /> to remove any previously set comparer.
+        /// </param>
+        void SetValueComparer(Type? comparerType);
     }
 }
