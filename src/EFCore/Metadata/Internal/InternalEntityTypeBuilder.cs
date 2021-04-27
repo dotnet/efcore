@@ -3198,7 +3198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private InternalForeignKeyBuilder? HasOwnership(
             in TypeIdentity targetEntityType,
             in MemberIdentity navigation,
-            in MemberIdentity? inverse,
+            MemberIdentity? inverse,
             ConfigurationSource configurationSource)
         {
             InternalEntityTypeBuilder? ownedEntityTypeBuilder;
