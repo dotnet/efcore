@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (partStart != name.Length)
             {
-                builder.Append(name, partStart, name.Length - partStart);
+                builder.Append(name.Substring(partStart));
             }
 
             if (builder.Length == 0
