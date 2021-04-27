@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append("FunctionColumn: ").Append(Table.Name).Append('.');
+                builder.Append($"FunctionColumn: {Table.Name}.");
             }
 
             builder.Append(Name).Append(" (");

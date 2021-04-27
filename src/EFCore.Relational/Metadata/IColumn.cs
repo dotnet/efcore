@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append("Column: ").Append(Table.Name).Append('.');
+                builder.Append($"Column: {Table.Name}.");
             }
 
             builder.Append(Name).Append(" (");

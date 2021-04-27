@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append("SqlQueryColumn: ").Append(Table.Name).Append('.');
+                builder.Append($"SqlQueryColumn: {Table.Name}.");
             }
 
             builder.Append(Name).Append(" (");
