@@ -172,17 +172,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (hasNext)
                         {
+                            var resultContext = _resultCoordinator.ResultContext;
                             while (true)
                             {
                                 _resultCoordinator.ResultReady = true;
                                 _resultCoordinator.HasNext = null;
                                 Current = _shaper(
-                                    _relationalQueryContext, _dataReader!.DbDataReader, _resultCoordinator.ResultContext,
+                                    _relationalQueryContext, _dataReader!.DbDataReader, resultContext,
                                     _resultCoordinator);
                                 if (_resultCoordinator.ResultReady)
                                 {
                                     // We generated a result so null out previously stored values
-                                    _resultCoordinator.ResultContext.Values = null;
+                                    resultContext.Values = null;
                                     break;
                                 }
 
@@ -192,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     // Enumeration has ended, materialize last element
                                     _resultCoordinator.ResultReady = true;
                                     Current = _shaper(
-                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                        _relationalQueryContext, _dataReader.DbDataReader, resultContext,
                                         _resultCoordinator);
 
                                     break;
@@ -313,17 +314,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         if (hasNext)
                         {
+                            var resultContext = _resultCoordinator.ResultContext;
                             while (true)
                             {
                                 _resultCoordinator.ResultReady = true;
                                 _resultCoordinator.HasNext = null;
                                 Current = _shaper(
-                                    _relationalQueryContext, _dataReader!.DbDataReader, _resultCoordinator.ResultContext,
+                                    _relationalQueryContext, _dataReader!.DbDataReader, resultContext,
                                     _resultCoordinator);
                                 if (_resultCoordinator.ResultReady)
                                 {
                                     // We generated a result so null out previously stored values
-                                    _resultCoordinator.ResultContext.Values = null;
+                                    resultContext.Values = null;
                                     break;
                                 }
 
@@ -333,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     // Enumeration has ended, materialize last element
                                     _resultCoordinator.ResultReady = true;
                                     Current = _shaper(
-                                        _relationalQueryContext, _dataReader.DbDataReader, _resultCoordinator.ResultContext,
+                                        _relationalQueryContext, _dataReader.DbDataReader, resultContext,
                                         _resultCoordinator);
 
                                     break;
