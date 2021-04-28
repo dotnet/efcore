@@ -8491,15 +8491,11 @@ FROM [Blogs] AS [b]");
                 Assert.Equal("B", owner.Owned2.Value);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t].[Owner23211Id], [t].[Value], [t].[Owner23211Id0], [t].[Value0]
-FROM (
-    SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id] AS [Owner23211Id0], [o1].[Value] AS [Value0]
-    FROM [Owner23211] AS [o]
-    LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
-    LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
-    ORDER BY [o].[Id]
-) AS [t]
-ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]",
+                    @"SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id], [o1].[Value]
+FROM [Owner23211] AS [o]
+LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
+LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
+ORDER BY [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id]",
                     //
                     @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
 FROM (
@@ -8523,14 +8519,10 @@ ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]");
                 Assert.Equal("A", owner.Owned.Value);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t].[SecondOwner23211Id], [t].[Value]
-FROM (
-    SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
-    FROM [SecondOwner23211] AS [s]
-    LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
-    ORDER BY [s].[Id]
-) AS [t]
-ORDER BY [t].[Id], [t].[SecondOwner23211Id]",
+                    @"SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
+FROM [SecondOwner23211] AS [s]
+LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
+ORDER BY [s].[Id], [o].[SecondOwner23211Id]",
                     //
                     @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id], [t].[SecondOwner23211Id]
 FROM (
