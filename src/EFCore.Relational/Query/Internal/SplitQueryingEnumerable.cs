@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._detailedErrorsEnabled));
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
-                var resultCoordinator = enumerator._resultCoordinator = new SplitQueryResultCoordinator();
+                enumerator._resultCoordinator = new SplitQueryResultCoordinator();
 
                 enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 
@@ -255,6 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
 
                     _dataReader = null;
+                    _dbDataReader = null;
                 }
             }
 
@@ -378,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     .ConfigureAwait(false);
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
-                var resultCoordinator = enumerator._resultCoordinator = new SplitQueryResultCoordinator();
+                enumerator._resultCoordinator = new SplitQueryResultCoordinator();
 
                 enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 
@@ -405,6 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _resultCoordinator = null;
                     }
                     _dataReader = null;
+                    _dbDataReader = null;
                 }
             }
         }
