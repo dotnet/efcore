@@ -307,7 +307,7 @@ namespace Microsoft.Extensions.DependencyInjection
             AddPoolingOptions<TContextImplementation>(serviceCollection, optionsAction, poolSize);
 
             serviceCollection.TryAddSingleton<IDbContextPool<TContextImplementation>, DbContextPool<TContextImplementation>>();
-            serviceCollection.AddScoped<IScopedDbContextLease<TContextImplementation>, ScopedDbContextLease<TContextImplementation>>();
+            serviceCollection.AddScoped<IScopedDbContextLease<TContextImplementation>, PoolingScopedDbContextLease<TContextImplementation>>();
 
             serviceCollection.AddScoped<TContextService>(
                 sp => sp.GetRequiredService<IScopedDbContextLease<TContextImplementation>>().Context);
@@ -368,6 +368,13 @@ namespace Microsoft.Extensions.DependencyInjection
             ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
             where TContext : DbContext
             => AddDbContext<TContext, TContext>(serviceCollection, contextLifetime, optionsLifetime);
+
+        // public static IServiceCollection AddDbContext<TContext>(
+        //     this IServiceCollection serviceCollection,
+        //     ServiceLifetime contextLifetime,
+        //     ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+        //     where TContext : DbContext
+        //     => AddDbContext<TContext, TContext>(serviceCollection, contextLifetime, optionsLifetime);
 
         /// <summary>
         ///     <para>
@@ -779,6 +786,9 @@ namespace Microsoft.Extensions.DependencyInjection
                     typeof(IDbContextFactory<TContext>),
                     typeof(TFactory),
                     lifetime));
+
+            serviceCollection.AddScoped<IScopedDbContextLease<TContext>, ScopedDbContextLease<TContext>>();
+            serviceCollection.AddScoped(sp => sp.GetRequiredService<IScopedDbContextLease<TContext>>().Context);
 
             return serviceCollection;
         }

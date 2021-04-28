@@ -12,11 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public sealed class ScopedDbContextLease<TContext> : IScopedDbContextLease<TContext>, IDisposable, IAsyncDisposable
+    public sealed class PoolingScopedDbContextLease<TContext> : IScopedDbContextLease<TContext>, IDisposable, IAsyncDisposable
         where TContext : DbContext
     {
-        private readonly IDbContextFactory<TContext> _factory;
-        private TContext? _context;
+        private DbContextLease _lease;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ScopedDbContextLease(IDbContextFactory<TContext> factory)
-            => _factory = factory;
+        public PoolingScopedDbContextLease(IDbContextPool<TContext> contextPool)
+            => _lease = new DbContextLease(contextPool, standalone: false);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public TContext Context
-            => _context = _factory.CreateDbContext();
+            => (TContext)_lease.Context;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         void IDisposable.Dispose()
-            => _context!.Dispose();
+            => _lease.Release();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,6 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         ValueTask IAsyncDisposable.DisposeAsync()
-            => _context!.DisposeAsync();
+            => _lease.ReleaseAsync();
     }
 }
