@@ -169,7 +169,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
 
                         var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
-                        Current = default!;
 
                         if (hasNext)
                         {
@@ -197,6 +196,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     break;
                                 }
                             }
+                        }
+                        else
+                        {
+                            Current = default!;
                         }
 
                         return hasNext;
@@ -313,7 +316,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         var hasNext = _resultCoordinator!.HasNext
                             ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
-                        Current = default!;
 
                         if (hasNext)
                         {
@@ -341,6 +343,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     break;
                                 }
                             }
+                        }
+                        else
+                        {
+                            Current = default!;
                         }
 
                         return hasNext;
