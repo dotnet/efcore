@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using Xunit;
 
@@ -8,6 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class SqlServerObjectToStringTranslator_Tests
     {
+        private string EOL => Environment.NewLine;
+
         public class SimpleEntity
         {
             public long Id { get; set; }
@@ -36,11 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var actual = dbContext.SimpleEntities.Select(e => e.IsEnabled.ToString()).ToQueryString();
             var expected =
 
-@"SELECT CASE
-    WHEN [s].[IsEnabled] = CAST(0 AS bit) THEN N'False'
-    ELSE N'True'
-END
-FROM [SimpleEntities] AS [s]";
+"SELECT CASE" + EOL + "    WHEN [s].[IsEnabled] = CAST(0 AS bit) THEN N'False'" + EOL + "    ELSE N'True'" + EOL + "END" + EOL + "FROM [SimpleEntities] AS [s]";
 
             Assert.Equal(expected, actual);
         }
