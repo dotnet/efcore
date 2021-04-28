@@ -140,7 +140,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader? _dataReader;
             private DbDataReader? _dbDataReader;
             private SplitQueryResultCoordinator? _resultCoordinator;
-            private ResultContext? _resultContext;
             private IExecutionStrategy? _executionStrategy;
 
             public Enumerator(SplitQueryingEnumerable<T> queryingEnumerable)
@@ -189,9 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         if (hasNext)
                         {
                             _resultCoordinator!.ResultContext.Values = null;
-                            _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                            _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                             _relatedDataLoaders?.Invoke(_relationalQueryContext, _executionStrategy!, _resultCoordinator);
-                            Current = _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                            Current = _shaper(
+                                _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         }
 
                         return hasNext;
@@ -230,7 +230,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
                 var resultCoordinator = enumerator._resultCoordinator = new SplitQueryResultCoordinator();
-                enumerator._resultContext = resultCoordinator.ResultContext;
 
                 enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 
@@ -280,7 +279,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader? _dataReader;
             private DbDataReader? _dbDataReader;
             private SplitQueryResultCoordinator? _resultCoordinator;
-            private ResultContext? _resultContext;
             private IExecutionStrategy? _executionStrategy;
 
             public AsyncEnumerator(SplitQueryingEnumerable<T> queryingEnumerable)
@@ -332,14 +330,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         if (hasNext)
                         {
                             _resultCoordinator!.ResultContext.Values = null;
-                            _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                            _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                             if (_relatedDataLoaders != null)
                             {
                                 await _relatedDataLoaders(_relationalQueryContext, _executionStrategy!, _resultCoordinator)
                                     .ConfigureAwait(false);
                             }
 
-                            Current = _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                            Current =
+                                _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                         }
 
                         return hasNext;
@@ -380,7 +379,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
                 var resultCoordinator = enumerator._resultCoordinator = new SplitQueryResultCoordinator();
-                enumerator._resultContext = resultCoordinator.ResultContext;
 
                 enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 

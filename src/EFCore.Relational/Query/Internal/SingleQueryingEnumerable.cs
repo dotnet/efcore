@@ -132,7 +132,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader? _dataReader;
             private DbDataReader? _dbDataReader;
             private SingleQueryResultCoordinator? _resultCoordinator;
-            private ResultContext? _resultContext;
 
             public Enumerator(SingleQueryingEnumerable<T> queryingEnumerable)
             {
@@ -178,11 +177,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 _resultCoordinator.ResultReady = true;
                                 _resultCoordinator.HasNext = null;
-                                Current = _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                                Current = _shaper(
+                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                                 if (_resultCoordinator.ResultReady)
                                 {
                                     // We generated a result so null out previously stored values
-                                    _resultContext!.Values = null;
+                                    _resultCoordinator.ResultContext.Values = null;
                                     break;
                                 }
 
@@ -191,7 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     _resultCoordinator.HasNext = false;
                                     // Enumeration has ended, materialize last element
                                     _resultCoordinator.ResultReady = true;
-                                    Current = _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                                    Current = _shaper(
+                                        _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
                                     break;
                                 }
@@ -234,7 +235,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
                 var resultCoordinator = enumerator._resultCoordinator = new SingleQueryResultCoordinator();
-                enumerator._resultContext = resultCoordinator.ResultContext;
 
                 enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 
@@ -271,7 +271,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader? _dataReader;
             private DbDataReader? _dbDataReader;
             private SingleQueryResultCoordinator? _resultCoordinator;
-            private ResultContext? _resultContext;
 
             public AsyncEnumerator(SingleQueryingEnumerable<T> queryingEnumerable)
             {
@@ -321,11 +320,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             {
                                 _resultCoordinator.ResultReady = true;
                                 _resultCoordinator.HasNext = null;
-                                Current = _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                                Current = _shaper(
+                                    _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                                 if (_resultCoordinator.ResultReady)
                                 {
                                     // We generated a result so null out previously stored values
-                                    _resultContext!.Values = null;
+                                    _resultCoordinator.ResultContext.Values = null;
                                     break;
                                 }
 
@@ -334,7 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                     _resultCoordinator.HasNext = false;
                                     // Enumeration has ended, materialize last element
                                     _resultCoordinator.ResultReady = true;
-                                    Current = _shaper(_relationalQueryContext, _dbDataReader!, _resultContext!, _resultCoordinator);
+                                    Current = _shaper(
+                                        _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
 
                                     break;
                                 }
@@ -379,7 +380,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
                 var resultCoordinator = enumerator._resultCoordinator = new SingleQueryResultCoordinator();
-                enumerator._resultContext = resultCoordinator.ResultContext;
 
                 enumerator._relationalQueryContext.InitializeStateManager(enumerator._standAloneStateManager);
 
