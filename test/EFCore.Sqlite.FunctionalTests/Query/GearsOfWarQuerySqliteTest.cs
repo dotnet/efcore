@@ -297,6 +297,16 @@ FROM ""Squads"" AS ""s""
 WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
         }
 
+        public override Task ToString_boolean_property_non_nullable(bool async)
+        {
+            return base.ToString_boolean_property_non_nullable(async);
+        }
+
+        public override Task ToString_boolean_property_nullable(bool async)
+        {
+            return base.ToString_boolean_property_nullable(async);
+        }
+
         [ConditionalTheory(Skip = "Issue#18844")]
         public override Task TimeSpan_Hours(bool async)
             => base.TimeSpan_Hours(async);
