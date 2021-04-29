@@ -79,14 +79,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (instance.Type == typeof(bool))
             {
-                return _sqlExpressionFactory.Case(
-                    new[]
-                    {
-                        new CaseWhenClause(
-                            _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(false)),
-                            _sqlExpressionFactory.Constant(false.ToString()))
-                    },
-                    _sqlExpressionFactory.Constant(true.ToString()));
+                if (instance is ColumnExpression columnExpression && columnExpression.IsNullable)
+                {
+                    return _sqlExpressionFactory.Case(
+                        new[]
+                        {
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(false)),
+                                _sqlExpressionFactory.Constant(false.ToString())),
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(true)),
+                                _sqlExpressionFactory.Constant(true.ToString()))
+                            },
+                        _sqlExpressionFactory.Constant(null));
+                }
+                else
+                {
+                    return _sqlExpressionFactory.Case(
+                        new[]
+                        {
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(false)),
+                                _sqlExpressionFactory.Constant(false.ToString()))
+                            },
+                        _sqlExpressionFactory.Constant(true.ToString()));
+                }
             }
 
             return _typeMapping.TryGetValue(instance.Type, out var storeType)
