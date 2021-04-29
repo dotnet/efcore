@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -44,10 +45,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             switch (extensionExpression)
             {
-                case InMemoryQueryExpression inMemoryQueryExpression:
-                    inMemoryQueryExpression.ApplyProjection();
-                    return Visit(inMemoryQueryExpression.ServerQueryExpression);
-
                 case InMemoryTableExpression inMemoryTableExpression:
                     return Expression.Call(
                         _tableMethodInfo,
@@ -69,27 +66,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(shapedQueryExpression, nameof(shapedQueryExpression));
 
             var inMemoryQueryExpression = (InMemoryQueryExpression)shapedQueryExpression.QueryExpression;
+            inMemoryQueryExpression.ApplyProjection();
 
-            var shaper = new ShaperExpressionProcessingExpressionVisitor(
-                    inMemoryQueryExpression, inMemoryQueryExpression.CurrentParameter)
-                .Inject(shapedQueryExpression.ShaperExpression);
-
-            shaper = InjectEntityMaterializers(shaper);
-
-            var innerEnumerable = Visit(inMemoryQueryExpression);
-
-            shaper = new InMemoryProjectionBindingRemovingExpressionVisitor().Visit(shaper);
-
-            shaper = new CustomShaperCompilingExpressionVisitor(
-                QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll).Visit(shaper);
-
-            var shaperLambda = (LambdaExpression)shaper;
+            var shaperExpression = new ShaperExpressionProcessingExpressionVisitor(
+                this, inMemoryQueryExpression, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                .ProcessShaper(shapedQueryExpression.ShaperExpression);
+            var innerEnumerable = Visit(inMemoryQueryExpression.ServerQueryExpression);
 
             return Expression.New(
-                typeof(QueryingEnumerable<>).MakeGenericType(shaperLambda.ReturnType).GetConstructors()[0],
+                typeof(QueryingEnumerable<>).MakeGenericType(shaperExpression.ReturnType).GetConstructors()[0],
                 QueryCompilationContext.QueryContextParameter,
                 innerEnumerable,
-                Expression.Constant(shaperLambda.Compile()),
+                Expression.Constant(shaperExpression.Compile()),
                 Expression.Constant(_contextType),
                 Expression.Constant(
                     QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),

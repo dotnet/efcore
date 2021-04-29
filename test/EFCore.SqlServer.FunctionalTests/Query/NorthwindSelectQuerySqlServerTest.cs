@@ -1824,6 +1824,24 @@ OUTER APPLY (
 ORDER BY [t].[CustomerID], [t0].[OrderDate], [t0].[OrderID], [t0].[CustomerID]");
         }
 
+        public override async Task Client_projection_via_ctor_arguments(bool async)
+        {
+            await base.Client_projection_via_ctor_arguments(async);
+
+            AssertSql(
+                @"SELECT [t].[CustomerID], [t].[City], [o0].[OrderID], [o0].[OrderDate], [t].[c]
+FROM (
+    SELECT TOP(2) [c].[CustomerID], [c].[City], (
+        SELECT COUNT(*)
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]) AS [c]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] = N'ALFKI'
+) AS [t]
+LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
+ORDER BY [t].[CustomerID], [o0].[OrderID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
