@@ -289,6 +289,38 @@ FROM ""Customers"" AS ""c""
 WHERE ""c"".""CustomerID"" = 'ALFKI'");
         }
 
+        public override async Task Substring_with_one_arg_with_zero_startindex(bool async)
+        {
+            await base.Substring_with_one_arg_with_zero_startindex(async);
+
+            AssertSql(
+                @"SELECT ""c"".""ContactName""
+FROM ""Customers"" AS ""c""
+WHERE substr(""c"".""CustomerID"", 0 + 1) = 'ALFKI'");
+        }
+
+        public override async Task Substring_with_one_arg_with_constant(bool async)
+        {
+            await base.Substring_with_one_arg_with_constant(async);
+
+            AssertSql(
+                @"SELECT ""c"".""ContactName""
+FROM ""Customers"" AS ""c""
+WHERE substr(""c"".""CustomerID"", 1 + 1) = 'LFKI'");
+        }
+
+        public override async Task Substring_with_one_arg_with_closure(bool async)
+        {
+            await base.Substring_with_one_arg_with_closure(async);
+
+            AssertSql(
+                @"@__start_0='2' (DbType = String)
+
+SELECT ""c"".""ContactName""
+FROM ""Customers"" AS ""c""
+WHERE substr(""c"".""CustomerID"", @__start_0 + 1) = 'FKI'");
+        }
+
         public override async Task Substring_with_two_args_with_zero_startindex(bool async)
         {
             await base.Substring_with_two_args_with_zero_startindex(async);

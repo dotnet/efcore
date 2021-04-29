@@ -1326,7 +1326,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(0)));
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.Substring(0) == "ALFKI")
+                    .Select(c => c.ContactName));
         }
 
         [ConditionalTheory]
@@ -1335,7 +1337,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(1)));
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.Substring(1) == "LFKI")
+                    .Select(c => c.ContactName));
         }
 
         [ConditionalTheory]
@@ -1346,17 +1350,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Substring(start)));
-        }
-
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Substring_with_one_arg_with_Index_of(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI")
-                    .Select(c => c.ContactName.Substring(c.ContactName.IndexOf("a"))));
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.Substring(start) == "FKI")
+                    .Select(c => c.ContactName));
         }
 
         [ConditionalTheory]

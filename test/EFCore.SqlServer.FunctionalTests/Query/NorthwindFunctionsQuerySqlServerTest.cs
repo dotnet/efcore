@@ -1302,9 +1302,9 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             await base.Substring_with_one_arg_with_zero_startindex(async);
 
             AssertSql(
-                @"SELECT SUBSTRING([c].[ContactName], 0 + 1, LEN([c].[ContactName]))
+                @"SELECT [c].[ContactName]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE SUBSTRING([c].[CustomerID], 0 + 1, LEN([c].[CustomerID])) = N'ALFKI'");
         }
 
         public override async Task Substring_with_one_arg_with_constant(bool async)
@@ -1312,9 +1312,9 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             await base.Substring_with_one_arg_with_constant(async);
 
             AssertSql(
-                @"SELECT SUBSTRING([c].[ContactName], 1 + 1, LEN([c].[ContactName]))
+                @"SELECT [c].[ContactName]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE SUBSTRING([c].[CustomerID], 1 + 1, LEN([c].[CustomerID])) = N'LFKI'");
         }
 
         public override async Task Substring_with_one_arg_with_closure(bool async)
@@ -1324,21 +1324,9 @@ WHERE [c].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"@__start_0='2'
 
-SELECT SUBSTRING([c].[ContactName], @__start_0 + 1, LEN([c].[ContactName]))
+SELECT [c].[ContactName]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
-        }
-        public override async Task Substring_with_one_arg_with_Index_of(bool async)
-        {
-            await base.Substring_with_one_arg_with_Index_of(async);
-
-            AssertSql(
-                @"SELECT SUBSTRING([c].[ContactName], CASE
-    WHEN N'a' = N'' THEN 0
-    ELSE CAST(CHARINDEX(N'a', [c].[ContactName]) AS int) - 1
-END + 1, LEN([c].[ContactName]))
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE SUBSTRING([c].[CustomerID], @__start_0 + 1, LEN([c].[CustomerID])) = N'FKI'");
         }
 
         public override async Task Substring_with_two_args_with_zero_startindex(bool async)
