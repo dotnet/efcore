@@ -236,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var toRemove = new HashSet<KeyValuePair<IConventionEntityType, T>>();
             var entityTypesWithDerivedTypes =
-                entityTypeDictionary.Where(e => e.Key.GetDirectlyDerivedTypes().Any()).ToList();
+                entityTypeDictionary.Where(e => e.Key.GetDirectlyDerivedTypes().Any());
             foreach (var entityType in entityTypeDictionary.Where(e => e.Key.BaseType != null))
             {
                 foreach (var otherEntityType in entityTypesWithDerivedTypes)
@@ -249,15 +249,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     if (otherEntityType.Key.IsAssignableFrom(entityType.Key))
                     {
-                        toRemove.Add(entityType);
+                        entityTypeDictionary.Remove(entityType.Key);
                         break;
                     }
                 }
-            }
-
-            foreach (var entityType in toRemove)
-            {
-                entityTypeDictionary.Remove(entityType.Key);
             }
         }
     }
