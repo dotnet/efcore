@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -2017,16 +2018,16 @@ namespace Microsoft.EntityFrameworkCore
                 .Select(
                     b => new
                     {
-                        Sbyte = b.TestSignedByte.ToString(),
-                        Byte = b.TestByte.ToString(),
-                        Short = b.TestInt16.ToString(),
-                        Ushort = b.TestUnsignedInt16.ToString(),
-                        Int = b.TestInt32.ToString(),
-                        Uint = b.TestUnsignedInt32.ToString(),
-                        Long = b.TestInt64.ToString(),
-                        Ulong = b.TestUnsignedInt64.ToString(),
-                        Decimal = b.TestDecimal.ToString(),
-                        Char = b.TestCharacter.ToString()
+                        Sbyte = b.TestSignedByte.ToString(CultureInfo.InvariantCulture),
+                        Byte = b.TestByte.ToString(CultureInfo.InvariantCulture),
+                        Short = b.TestInt16.ToString(CultureInfo.InvariantCulture),
+                        Ushort = b.TestUnsignedInt16.ToString(CultureInfo.InvariantCulture),
+                        Int = b.TestInt32.ToString(CultureInfo.InvariantCulture),
+                        Uint = b.TestUnsignedInt32.ToString(CultureInfo.InvariantCulture),
+                        Long = b.TestInt64.ToString(CultureInfo.InvariantCulture),
+                        Ulong = b.TestUnsignedInt64.ToString(CultureInfo.InvariantCulture),
+                        Decimal = b.TestDecimal.ToString(CultureInfo.InvariantCulture),
+                        Char = b.TestCharacter.ToString(CultureInfo.InvariantCulture)
                     })
                 .First();
 
