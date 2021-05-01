@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         [MemberData(nameof(IsAsyncData))]
         public virtual Task FromSql(bool async)
             => ConcurrencyDetectorTest(async c => async
-                ? await c.Products.FromSqlRaw("select * from products").ToListAsync()
-                : c.Products.FromSqlRaw("select * from products").ToList());
+                ? await c.Products.FromSqlRaw("select * from Products").ToListAsync()
+                : c.Products.FromSqlRaw("select * from Products").ToList());
     }
 }
