@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public override void WriteJson(
             JsonWriter writer,
-            object value,
+            object? value,
             JsonSerializer serializer)
         {
             if (value == null)

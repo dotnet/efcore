@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class DatabaseUpdateCommand : ContextCommandBase
     {
-        private CommandArgument _migration;
-        private CommandOption _connection;
+        private CommandArgument? _migration;
+        private CommandOption? _connection;
 
         public override void Configure(CommandLineApplication command)
         {

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSequenceBuilder HasType([CanBeNull] Type type, bool fromDataAnnotation = false);
+        IConventionSequenceBuilder? HasType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given type can be set for the sequence.
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="type"> The type of values returned by the sequence. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the given type can be set for the sequence. </returns>
-        bool CanSetType([CanBeNull] Type type, bool fromDataAnnotation = false);
+        bool CanSetType(Type? type, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the sequence to increment by the given amount when generating each next value.
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSequenceBuilder IncrementsBy(int? increment, bool fromDataAnnotation = false);
+        IConventionSequenceBuilder? IncrementsBy(int? increment, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given increment can be set for the sequence.
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSequenceBuilder StartsAt(long? startValue, bool fromDataAnnotation = false);
+        IConventionSequenceBuilder? StartsAt(long? startValue, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given starting value can be set for the sequence.
@@ -82,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSequenceBuilder HasMax(long? maximum, bool fromDataAnnotation = false);
+        IConventionSequenceBuilder? HasMax(long? maximum, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given maximum value can be set for the sequence.
@@ -101,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSequenceBuilder HasMin(long? minimum, bool fromDataAnnotation = false);
+        IConventionSequenceBuilder? HasMin(long? minimum, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given minimum value can be set for the sequence.
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionSequenceBuilder IsCyclic(bool? cyclic, bool fromDataAnnotation = false);
+        IConventionSequenceBuilder? IsCyclic(bool? cyclic, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given cyclicity can be set for the sequence.

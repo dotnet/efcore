@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="dbContextTransaction"> The transaction to get the <see cref="DbTransaction" /> from. </param>
         /// <returns> The underlying <see cref="DbTransaction" />. </returns>
-        public static DbTransaction GetDbTransaction([NotNull] this IDbContextTransaction dbContextTransaction)
+        public static DbTransaction GetDbTransaction(this IDbContextTransaction dbContextTransaction)
         {
             Check.NotNull(dbContextTransaction, nameof(dbContextTransaction));
 

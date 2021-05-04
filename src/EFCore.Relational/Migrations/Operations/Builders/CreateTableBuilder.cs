@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -27,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="operation"> The <see cref="CreateTableOperation" />. </param>
         /// <param name="columnMap"> The map of CLR properties to <see cref="AddColumnOperation" />s. </param>
         public CreateTableBuilder(
-            [NotNull] CreateTableOperation operation,
-            [NotNull] IReadOnlyDictionary<PropertyInfo, AddColumnOperation> columnMap)
+            CreateTableOperation operation,
+            IReadOnlyDictionary<PropertyInfo, AddColumnOperation> columnMap)
             : base(operation)
         {
             Check.NotNull(columnMap, nameof(columnMap));
@@ -48,18 +47,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="onDelete"> The <see cref="ReferentialAction" /> to use for deletes. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> column,
-            [NotNull] string principalTable,
-            [NotNull] string principalColumn,
-            [CanBeNull] string principalSchema = null,
+            string name,
+            Expression<Func<TColumns, object>> column,
+            string principalTable,
+            string? principalColumn = null,
+            string? principalSchema = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)
             => ForeignKey(
                 name,
                 column,
                 principalTable,
-                new[] { principalColumn },
+                principalColumn == null ? null : new[] { principalColumn },
                 principalSchema,
                 onUpdate,
                 onDelete);
@@ -76,11 +75,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="onDelete"> The <see cref="ReferentialAction" /> to use for deletes. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddForeignKeyOperation> ForeignKey(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> columns,
-            [NotNull] string principalTable,
-            [NotNull] string[] principalColumns,
-            [CanBeNull] string principalSchema = null,
+            string name,
+            Expression<Func<TColumns, object>> columns,
+            string principalTable,
+            string[]? principalColumns,
+            string? principalSchema = null,
             ReferentialAction onUpdate = ReferentialAction.NoAction,
             ReferentialAction onDelete = ReferentialAction.NoAction)
         {
@@ -112,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="columns"> The columns that make up the primary key. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddPrimaryKeyOperation> PrimaryKey(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> columns)
+            string name,
+            Expression<Func<TColumns, object>> columns)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(columns, nameof(columns));
@@ -138,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="columns"> The columns that make up the constraint. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddUniqueConstraintOperation> UniqueConstraint(
-            [NotNull] string name,
-            [NotNull] Expression<Func<TColumns, object>> columns)
+            string name,
+            Expression<Func<TColumns, object>> columns)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(columns, nameof(columns));
@@ -163,8 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="sql"> The sql expression used in the CHECK constraint. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<AddCheckConstraintOperation> CheckConstraint(
-            [NotNull] string name,
-            [NotNull] string sql)
+            string name,
+            string sql)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(sql, nameof(sql));
@@ -187,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <param name="name"> The annotation name. </param>
         /// <param name="value"> The annotation value. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
-        public new virtual CreateTableBuilder<TColumns> Annotation([NotNull] string name, [NotNull] object value)
+        public new virtual CreateTableBuilder<TColumns> Annotation(string name, object value)
             => (CreateTableBuilder<TColumns>)base.Annotation(name, value);
 
         private string[] Map(LambdaExpression columns)

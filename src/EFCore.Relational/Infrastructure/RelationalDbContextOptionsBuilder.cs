@@ -3,7 +3,7 @@
 
 using System;
 using System.ComponentModel;
-using JetBrains.Annotations;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="RelationalDbContextOptionsBuilder{TBuilder, TExtension}" /> class.
         /// </summary>
         /// <param name="optionsBuilder"> The core options builder. </param>
-        protected RelationalDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
+        protected RelationalDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
 
@@ -63,6 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Configures the wait time (in seconds) before terminating the attempt to execute a command and generating an error.
         /// </summary>
+        /// <remarks>
+        ///     <para>This sets the <see cref="DbCommand.CommandTimeout"/> property on the ADO.NET provider being used.</para>
+        ///     <para>An <see cref="ArgumentException"/> is generated if <paramref name="commandTimeout"/> value is less than 0.</para>
+        ///     <para>Zero (0) typically means no timeout will be applied, consult your ADO.NET provider documentation.</para>
+        /// </remarks>
         /// <param name="commandTimeout"> The time in seconds to wait for the command to execute. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TBuilder CommandTimeout(int? commandTimeout)
@@ -73,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="assemblyName"> The name of the assembly. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder MigrationsAssembly([CanBeNull] string assemblyName)
+        public virtual TBuilder MigrationsAssembly(string? assemblyName)
             => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName, nameof(assemblyName))));
 
         /// <summary>
@@ -82,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="tableName"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TBuilder MigrationsHistoryTable([NotNull] string tableName, [CanBeNull] string schema = null)
+        public virtual TBuilder MigrationsHistoryTable(string tableName, string? schema = null)
         {
             Check.NotEmpty(tableName, nameof(tableName));
             Check.NullButNotEmpty(schema, nameof(schema));
@@ -111,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="getExecutionStrategy"> A function that returns a new instance of an execution strategy. </param>
         public virtual TBuilder ExecutionStrategy(
-            [NotNull] Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
+            Func<ExecutionStrategyDependencies, IExecutionStrategy> getExecutionStrategy)
             => WithOption(
                 e => (TExtension)e.WithExecutionStrategyFactory(Check.NotNull(getExecutionStrategy, nameof(getExecutionStrategy))));
 
@@ -121,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="setAction"> An action to set the option. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        protected virtual TBuilder WithOption([NotNull] Func<TExtension, TExtension> setAction)
+        protected virtual TBuilder WithOption(Func<TExtension, TExtension> setAction)
         {
             ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(
                 setAction(OptionsBuilder.Options.FindExtension<TExtension>() ?? new TExtension()));
@@ -136,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -145,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

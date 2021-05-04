@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -18,9 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class CosmosQueryableExtensions
     {
         internal static readonly MethodInfo WithPartitionKeyMethodInfo
-            = typeof(CosmosQueryableExtensions)
-                .GetTypeInfo()
-                .GetDeclaredMethod(nameof(WithPartitionKey));
+            = typeof(CosmosQueryableExtensions).GetRequiredDeclaredMethod(nameof(WithPartitionKey));
 
         /// <summary>
         ///     Specify the partition key for partition used for the query. Required when using
@@ -31,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="partitionKey"> The partition key. </param>
         /// <returns> A new query with the set partition key. </returns>
         public static IQueryable<TEntity> WithPartitionKey<TEntity>(
-            [NotNull] this IQueryable<TEntity> source,
-            [NotNull] [NotParameterized] string partitionKey)
+            this IQueryable<TEntity> source,
+            [NotParameterized] string partitionKey)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosQueryableMethodTranslatingExpressionVisitorFactory(
-            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
-            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IMemberTranslatorProvider memberTranslatorProvider,
+            IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _dependencies = dependencies;
             _sqlExpressionFactory = sqlExpressionFactory;

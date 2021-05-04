@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -16,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
     {
         private readonly Type _contextType;
+        private readonly bool _threadSafetyChecksEnabled;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,11 +24,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryShapedQueryCompilingExpressionVisitor(
-            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
             _contextType = queryCompilationContext.ContextType;
+            _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
         }
 
         /// <summary>
@@ -91,12 +92,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Expression.Constant(shaperLambda.Compile()),
                 Expression.Constant(_contextType),
                 Expression.Constant(
-                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution));
+                    QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
+                Expression.Constant(_threadSafetyChecksEnabled));
         }
 
         private static readonly MethodInfo _tableMethodInfo
-            = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(Table));
+            = typeof(InMemoryShapedQueryCompilingExpressionVisitor).GetRequiredDeclaredMethod(nameof(Table));
 
         private static IEnumerable<ValueBuffer> Table(
             QueryContext queryContext,

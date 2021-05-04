@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -16,16 +15,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="foreignKey"> The foreign key to track. </param>
         /// <returns> The new foreign key object if the given one was replaced by a convention. </returns>
-        IConventionForeignKey Run([NotNull] IConventionForeignKey foreignKey);
+        IConventionForeignKey? Run(IConventionForeignKey foreignKey);
 
         /// <summary>
         ///     Starts tracking changes to the given foreign key.
         /// </summary>
         /// <param name="foreignKey"> The foreign key to track. </param>
         /// <returns>
-        ///     An object that will contain the reference to the new foreign key instance
-        ///     if the given one was replaced by a convention.
+        ///     An object that will contain the reference to the new foreign key instance if the given one was replaced by a convention.
+        ///     Otherwise, returns the original foreign key.
         /// </returns>
-        IMetadataReference<IConventionForeignKey> Track([NotNull] IConventionForeignKey foreignKey);
+        IMetadataReference<IConventionForeignKey> Track(IConventionForeignKey foreignKey);
     }
 }

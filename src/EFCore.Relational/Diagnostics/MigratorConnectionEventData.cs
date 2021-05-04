@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -30,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
         /// </param>
         public MigratorConnectionEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IMigrator migrator,
-            [NotNull] DbConnection connection,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IMigrator migrator,
+            DbConnection connection,
             Guid connectionId)
             : base(eventDefinition, messageGenerator, migrator)
         {

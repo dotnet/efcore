@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -35,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] string navigationName,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
+            string? navigationName,
+            IMutableForeignKey foreignKey)
             : base(declaringEntityType, relatedEntityType, navigationName, foreignKey)
         {
         }
@@ -51,10 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         [EntityFrameworkInternal]
         public ReferenceNavigationBuilder(
-            [NotNull] IMutableEntityType declaringEntityType,
-            [NotNull] IMutableEntityType relatedEntityType,
-            [CanBeNull] MemberInfo navigationMemberInfo,
-            [NotNull] IMutableForeignKey foreignKey)
+            IMutableEntityType declaringEntityType,
+            IMutableEntityType relatedEntityType,
+            MemberInfo? navigationMemberInfo,
+            IMutableForeignKey foreignKey)
             : base(declaringEntityType, relatedEntityType, navigationMemberInfo, foreignKey)
         {
         }
@@ -75,9 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            [CanBeNull] string navigationName = null)
+            string? navigationName = null)
         {
-            return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+            return new(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(
@@ -101,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            [CanBeNull] Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> navigationExpression)
+            Expression<Func<TRelatedEntity, IEnumerable<TEntity>?>>? navigationExpression)
         {
-            return new ReferenceCollectionBuilder<TRelatedEntity, TEntity>(
+            return new(
                 RelatedEntityType,
                 DeclaringEntityType,
                 WithManyBuilder(navigationExpression?.GetMemberAccess()).Metadata);
@@ -125,8 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] string navigationName = null)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+           string? navigationName = null)
+            => new(
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(
@@ -149,8 +148,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-            [CanBeNull] Expression<Func<TRelatedEntity, TEntity>> navigationExpression)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
+            Expression<Func<TRelatedEntity, TEntity?>>? navigationExpression)
+            => new(
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(navigationExpression?.GetMemberAccess()).Metadata);

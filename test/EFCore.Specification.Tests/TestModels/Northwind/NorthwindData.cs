@@ -12,27 +12,28 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public partial class NorthwindData : ISetSource
     {
-        private readonly Customer[] _customers;
-        private readonly CustomerQuery[] _customerQueries;
-        private readonly Employee[] _employees;
-        private readonly Product[] _products;
-        private readonly ProductQuery[] _productQueries;
-        private readonly Order[] _orders;
-        private readonly OrderQuery[] _orderQueries;
-        private readonly OrderDetail[] _orderDetails;
+        public Customer[] Customers { get; }
+        public CustomerQuery[] CustomerQueries { get; }
+        public CustomerQueryWithQueryFilter[] CustomerQueriesWithQueryFilter { get; }
+        public Employee[] Employees { get; }
+        public Product[] Products { get; }
+        public ProductQuery[] ProductQueries { get; }
+        public Order[] Orders { get; }
+        public OrderQuery[] OrderQueries { get; }
+        public OrderDetail[] OrderDetails { get; }
 
         public NorthwindData()
         {
-            _customers = CreateCustomers();
-            _employees = CreateEmployees();
-            _products = CreateProducts();
-            _orders = CreateOrders();
-            _orderDetails = CreateOrderDetails();
+            Customers = CreateCustomers();
+            Employees = CreateEmployees();
+            Products = CreateProducts();
+            Orders = CreateOrders();
+            OrderDetails = CreateOrderDetails();
 
             var customerQueries = new List<CustomerQuery>();
-            var customerQueriesWithQueryFilter = new List<CustomerQueryWithQueryFilter>();
+            CustomerQueriesWithQueryFilter = new CustomerQueryWithQueryFilter[0];
 
-            foreach (var customer in _customers)
+            foreach (var customer in Customers)
             {
                 customer.Orders = new List<Order>();
 
@@ -47,11 +48,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                     });
             }
 
-            _customerQueries = customerQueries.ToArray();
+            CustomerQueries = customerQueries.ToArray();
 
             var productQueries = new List<ProductQuery>();
 
-            foreach (var product in _products)
+            foreach (var product in Products)
             {
                 product.OrderDetails = new List<OrderDetail>();
 
@@ -67,15 +68,15 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 }
             }
 
-            _productQueries = productQueries.ToArray();
+            ProductQueries = productQueries.ToArray();
 
             var orderQueries = new List<OrderQuery>();
 
-            foreach (var order in _orders)
+            foreach (var order in Orders)
             {
                 order.OrderDetails = new List<OrderDetail>();
 
-                var customer = _customers.First(c => c.CustomerID == order.CustomerID);
+                var customer = Customers.First(c => c.CustomerID == order.CustomerID);
                 order.Customer = customer;
                 customer.Orders.Add(order);
 
@@ -83,24 +84,44 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                     new OrderQuery { CustomerID = order.CustomerID, Customer = order.Customer });
             }
 
-            _orderQueries = orderQueries.ToArray();
+            OrderQueries = orderQueries.ToArray();
 
-            foreach (var orderDetail in _orderDetails)
+            foreach (var orderDetail in OrderDetails)
             {
-                var order = _orders.First(o => o.OrderID == orderDetail.OrderID);
+                var order = Orders.First(o => o.OrderID == orderDetail.OrderID);
                 orderDetail.Order = order;
                 order.OrderDetails.Add(orderDetail);
 
-                var product = _products.First(p => p.ProductID == orderDetail.ProductID);
+                var product = Products.First(p => p.ProductID == orderDetail.ProductID);
                 orderDetail.Product = product;
                 product.OrderDetails.Add(orderDetail);
             }
 
-            foreach (var employee in _employees)
+            foreach (var employee in Employees)
             {
-                var manager = _employees.FirstOrDefault(e => employee.ReportsTo == e.EmployeeID);
+                var manager = Employees.FirstOrDefault(e => employee.ReportsTo == e.EmployeeID);
                 employee.Manager = manager;
             }
+        }
+
+        public NorthwindData(
+            Customer[] customers,
+            CustomerQuery[] customerQueries,
+            CustomerQueryWithQueryFilter[] customerQueriesWithQueryFilter,
+            Employee[] employees,
+            Product[] products,
+            ProductQuery[] productQueries,
+            Order[] orders,
+            OrderDetail[] orderDetails)
+        {
+            Customers = customers;
+            CustomerQueries = customerQueries;
+            CustomerQueriesWithQueryFilter = customerQueriesWithQueryFilter;
+            Employees = employees;
+            Products = products;
+            ProductQueries = productQueries;
+            Orders = orders;
+            OrderDetails = orderDetails;
         }
 
         public IQueryable<TEntity> Set<TEntity>()
@@ -108,42 +129,42 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         {
             if (typeof(TEntity) == typeof(Customer))
             {
-                return (IQueryable<TEntity>)_customers.AsQueryable();
+                return (IQueryable<TEntity>)Customers.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(Employee))
             {
-                return (IQueryable<TEntity>)_employees.AsQueryable();
+                return (IQueryable<TEntity>)Employees.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(Order))
             {
-                return (IQueryable<TEntity>)_orders.AsQueryable();
+                return (IQueryable<TEntity>)Orders.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(OrderDetail))
             {
-                return (IQueryable<TEntity>)_orderDetails.AsQueryable();
+                return (IQueryable<TEntity>)OrderDetails.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(Product))
             {
-                return (IQueryable<TEntity>)_products.AsQueryable();
+                return (IQueryable<TEntity>)Products.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(CustomerQuery))
             {
-                return (IQueryable<TEntity>)_customerQueries.AsQueryable();
+                return (IQueryable<TEntity>)CustomerQueries.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(OrderQuery))
             {
-                return (IQueryable<TEntity>)_orderQueries.AsQueryable();
+                return (IQueryable<TEntity>)OrderQueries.AsQueryable();
             }
 
             if (typeof(TEntity) == typeof(ProductQuery))
             {
-                return (IQueryable<TEntity>)_productQueries.AsQueryable();
+                return (IQueryable<TEntity>)ProductQueries.AsQueryable();
             }
 
             throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

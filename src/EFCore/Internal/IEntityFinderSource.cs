@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         IEntityFinder Create(
-            [NotNull] IStateManager stateManager,
-            [NotNull] IDbSetSource setSource,
-            [NotNull] IDbSetCache setCache,
-            [NotNull] IEntityType type);
+            IStateManager stateManager,
+            IDbSetSource setSource,
+            IDbSetCache setCache,
+            IEntityType type);
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -16,17 +15,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The schema that contains the sequence, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     The name of the sequence.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
 
         /// <summary>
         ///     An operation representing the sequence as it was before being altered.
         /// </summary>
-        public virtual SequenceOperation OldSequence { get; [param: NotNull] set; } = new CreateSequenceOperation();
+        public virtual SequenceOperation OldSequence { get; set; } = new CreateSequenceOperation();
 
         /// <inheritdoc />
         IMutableAnnotatable IAlterMigrationOperation.OldAnnotations

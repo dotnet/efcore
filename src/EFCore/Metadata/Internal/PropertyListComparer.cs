@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     // Sealed for perf
-    public sealed class PropertyListComparer : IComparer<IReadOnlyList<IProperty>>, IEqualityComparer<IReadOnlyList<IProperty>>
+    public sealed class PropertyListComparer : IComparer<IReadOnlyList<IReadOnlyProperty>>, IEqualityComparer<IReadOnlyList<IReadOnlyProperty>>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly PropertyListComparer Instance = new PropertyListComparer();
+        public static readonly PropertyListComparer Instance = new();
 
         private PropertyListComparer()
         {
@@ -33,8 +33,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IReadOnlyList<IProperty> x, IReadOnlyList<IProperty> y)
+        public int Compare(IReadOnlyList<IReadOnlyProperty>? x, IReadOnlyList<IReadOnlyProperty>? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = x.Count - y.Count;
 
             if (result != 0)
@@ -59,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IReadOnlyList<IProperty> x, IReadOnlyList<IProperty> y)
+        public bool Equals(IReadOnlyList<IReadOnlyProperty>? x, IReadOnlyList<IReadOnlyProperty>? y)
             => Compare(x, y) == 0;
 
         /// <summary>
@@ -68,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int GetHashCode(IReadOnlyList<IProperty> obj)
+        public int GetHashCode(IReadOnlyList<IReadOnlyProperty> obj)
         {
             var hash = new HashCode();
             for (var i = 0; i < obj.Count; i++)

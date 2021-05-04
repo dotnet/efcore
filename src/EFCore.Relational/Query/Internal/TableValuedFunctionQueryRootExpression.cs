@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -27,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         //Since this is always generated while compiling there is no query provider associated
         public TableValuedFunctionQueryRootExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] IStoreFunction function,
-            [NotNull] IReadOnlyCollection<Expression> arguments)
+            IEntityType entityType,
+            IStoreFunction function,
+            IReadOnlyCollection<Expression> arguments)
             : base(entityType)
         {
             Check.NotNull(function, nameof(function));
@@ -99,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is TableValuedFunctionQueryRootExpression queryRootExpression

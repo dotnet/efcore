@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListSource
         where T : class
     {
-        private IBindingList _bindingList;
+        private IBindingList? _bindingList;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ObservableCollectionListSource{T}" /> class.
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     contains elements copied from the specified collection.
         /// </summary>
         /// <param name="collection"> The collection from which the elements are copied. </param>
-        public ObservableCollectionListSource([NotNull] IEnumerable<T> collection)
+        public ObservableCollectionListSource(IEnumerable<T> collection)
             : base(collection)
         {
         }
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     contains elements copied from the specified list.
         /// </summary>
         /// <param name="list"> The list from which the elements are copied. </param>
-        public ObservableCollectionListSource([NotNull] List<T> list)
+        public ObservableCollectionListSource(List<T> list)
             : base(list)
         {
         }
@@ -70,6 +69,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     An <see cref="IBindingList" /> in sync with the ObservableCollection.
         /// </returns>
         IList IListSource.GetList()
-            => _bindingList ?? (_bindingList = this.ToBindingList());
+            => _bindingList ??= this.ToBindingList();
     }
 }

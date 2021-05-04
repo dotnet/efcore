@@ -4,9 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -77,8 +78,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ReadItemExpression(
-            [NotNull] IEntityType entityType,
-            [NotNull] IDictionary<IProperty, string> propertyParameters)
+            IEntityType entityType,
+            IDictionary<IProperty, string> propertyParameters)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyParameters, nameof(propertyParameters));

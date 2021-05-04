@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="source2"> A table source which is second source in the set operation. </param>
         /// <param name="distinct"> A bool value indicating whether result will remove duplicate rows. </param>
         protected SetOperationBase(
-            [NotNull] string alias,
-            [NotNull] SelectExpression source1,
-            [NotNull] SelectExpression source2,
+            string alias,
+            SelectExpression source1,
+            SelectExpression source2,
             bool distinct)
             : base(Check.NotEmpty(alias, nameof(alias)))
         {
@@ -38,6 +38,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             IsDistinct = distinct;
             Source1 = source1;
             Source2 = source2;
+        }
+
+        /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
         }
 
         /// <summary>
@@ -56,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public virtual SelectExpression Source2 { get; }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SetOperationBase setOperationBase

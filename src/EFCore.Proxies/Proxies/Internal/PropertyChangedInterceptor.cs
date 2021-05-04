@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using Castle.DynamicProxy;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         private static readonly Type _notifyChangedInterface = typeof(INotifyPropertyChanged);
 
         private readonly bool _checkEquality;
-        private PropertyChangedEventHandler _handler;
+        private PropertyChangedEventHandler? _handler;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public PropertyChangedInterceptor(
-            [NotNull] IEntityType entityType,
+            IEntityType entityType,
             bool checkEquality)
             : base(entityType)
         {
@@ -57,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 }
                 else if (methodName == $"remove_{nameof(INotifyPropertyChanged.PropertyChanged)}")
                 {
-                    _handler = (PropertyChangedEventHandler)Delegate.Remove(
+                    _handler = (PropertyChangedEventHandler?)Delegate.Remove(
                         _handler, (Delegate)invocation.Arguments[0]);
                 }
             }
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 else
                 {
                     var navigation = EntityType.FindNavigation(propertyName)
-                        ?? (INavigationBase)EntityType.FindSkipNavigation(propertyName);
+                        ?? (INavigationBase?)EntityType.FindSkipNavigation(propertyName);
 
                     if (navigation != null)
                     {
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
             }
         }
 
-        private void HandleChanged(IInvocation invocation, IPropertyBase property, IEqualityComparer comparer)
+        private void HandleChanged(IInvocation invocation, IPropertyBase property, IEqualityComparer? comparer)
         {
             var newValue = invocation.Arguments[^1];
 

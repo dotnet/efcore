@@ -4,7 +4,6 @@
 using System;
 using System.Globalization;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
 {
@@ -23,8 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        protected static readonly ConverterMappingHints _defaultHints
-            = new ConverterMappingHints(size: 64);
+        protected static readonly ConverterMappingHints _defaultHints = new(size: 64);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,10 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public StringNumberConverter(
-            [NotNull] Expression<Func<TModel, TProvider>> convertToProviderExpression,
-            [NotNull] Expression<Func<TProvider, TModel>> convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
-            : base(convertToProviderExpression, convertFromProviderExpression, mappingHints)
+            Expression<Func<TModel, TProvider>> convertToProviderExpression,
+            Expression<Func<TProvider, TModel>> convertFromProviderExpression,
+            bool convertsNulls,
+            ConverterMappingHints? mappingHints = null)
+            : base(convertToProviderExpression, convertFromProviderExpression, convertsNulls, mappingHints)
         {
         }
 
@@ -57,29 +56,27 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
                 typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
                 typeof(decimal), typeof(float), typeof(double));
 
-            var tryParseMethod = type.GetMethod(
-                nameof(int.TryParse),
-                new[] { typeof(string), typeof(NumberStyles), typeof(IFormatProvider), type.MakeByRefType() });
+            var parseMethod = type.GetMethod(
+                nameof(double.Parse),
+                new[] { typeof(string), typeof(NumberStyles), typeof(IFormatProvider) })!;
 
-            var parsedVariable = Expression.Variable(type, "parsed");
             var param = Expression.Parameter(typeof(string), "v");
 
-            return Expression.Lambda<Func<string, TNumber>>(
-                Expression.Block(
-                    typeof(TNumber),
-                    new[] { parsedVariable },
-                    Expression.Condition(
-                        Expression.Call(
-                            tryParseMethod,
-                            param,
-                            Expression.Constant(NumberStyles.Any),
-                            Expression.Constant(CultureInfo.InvariantCulture, typeof(IFormatProvider)),
-                            parsedVariable),
-                        typeof(TNumber).IsNullableType()
-                            ? (Expression)Expression.Convert(parsedVariable, typeof(TNumber))
-                            : parsedVariable,
-                        Expression.Constant(default(TNumber), typeof(TNumber)))),
-                param);
+            Expression expression = Expression.Call(
+                parseMethod,
+                param,
+                Expression.Constant(NumberStyles.Any),
+                Expression.Constant(CultureInfo.InvariantCulture, typeof(IFormatProvider)));
+
+            if (typeof(TNumber).IsNullableType())
+            {
+                expression = Expression.Condition(
+                    Expression.ReferenceEqual(param, Expression.Constant(null, typeof(string))),
+                    Expression.Constant(null, typeof(TNumber)),
+                    Expression.Convert(expression, typeof(TNumber)));
+            }
+
+            return Expression.Lambda<Func<string, TNumber>>(expression, param);
         }
 
         /// <summary>
@@ -99,12 +96,27 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
                 typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
                 typeof(decimal), typeof(float), typeof(double));
 
-            return v => v == null
-                ? null
-                : string.Format(
-                    CultureInfo.InvariantCulture,
-                    type == typeof(float) || type == typeof(double) ? "{0:R}" : "{0}",
-                    v);
+            var formatMethod = typeof(string).GetMethod(
+                nameof(string.Format),
+                new[] { typeof(IFormatProvider), typeof(string), typeof(object) })!;
+
+            var param = Expression.Parameter(typeof(TNumber), "v");
+
+            Expression expression = Expression.Call(
+                formatMethod,
+                Expression.Constant(CultureInfo.InvariantCulture),
+                Expression.Constant(type == typeof(float) || type == typeof(double) ? "{0:R}" : "{0}"),
+                Expression.Convert(param, typeof(object)));
+
+            if (typeof(TNumber).IsNullableType())
+            {
+                expression = Expression.Condition(
+                    Expression.Call(param, typeof(TNumber).GetMethod("get_HasValue")!),
+                    expression,
+                    Expression.Constant(null, typeof(string)));
+            }
+
+            return Expression.Lambda<Func<TNumber, string>>(expression, param);
         }
     }
 }

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -25,11 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         private static readonly PropertyInfo _queryContextContextPropertyInfo
-            = typeof(QueryContext)
-                .GetTypeInfo()
-                .GetDeclaredProperty(nameof(QueryContext.Context));
+            = typeof(QueryContext).GetRequiredDeclaredProperty(nameof(QueryContext.Context));
 
-        private static readonly Dictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
+        private static readonly Dictionary<MethodInfo, MethodInfo> _predicateLessMethodInfo = new()
         {
             { QueryableMethods.FirstWithPredicate, QueryableMethods.FirstWithoutPredicate },
             { QueryableMethods.FirstOrDefaultWithPredicate, QueryableMethods.FirstOrDefaultWithoutPredicate },
@@ -39,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate }
         };
 
-        private static readonly List<MethodInfo> _supportedFilteredIncludeOperations = new List<MethodInfo>
+        private static readonly List<MethodInfo> _supportedFilteredIncludeOperations = new()
         {
             QueryableMethods.Where,
             QueryableMethods.OrderBy,
@@ -59,14 +56,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
         private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
         private readonly RemoveRedundantNavigationComparisonExpressionVisitor _removeRedundantNavigationComparisonExpressionVisitor;
-        private readonly HashSet<string> _parameterNames = new HashSet<string>();
+        private readonly HashSet<string> _parameterNames = new();
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
         private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
         private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
-            = new Dictionary<IEntityType, LambdaExpression>();
+            = new();
 
-        private readonly Parameters _parameters = new Parameters();
+        private readonly Parameters _parameters = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,9 +72,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public NavigationExpandingExpressionVisitor(
-            [NotNull] QueryTranslationPreprocessor queryTranslationPreprocessor,
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            QueryTranslationPreprocessor queryTranslationPreprocessor,
+            QueryCompilationContext queryCompilationContext,
+            IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
             _queryTranslationPreprocessor = queryTranslationPreprocessor;
             _queryCompilationContext = queryCompilationContext;
@@ -97,10 +94,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 parameterize: false,
                 generateContextAccessors: true);
 
-            if (!_queryCompilationContext.IgnoreAutoIncludes)
-            {
-                _nonCyclicAutoIncludeEntityTypes = new HashSet<IEntityType>();
-            }
+            // TODO: Use MemberNotNullWhen
+            // Value won't be accessed when condition is not met.
+            _nonCyclicAutoIncludeEntityTypes = !_queryCompilationContext.IgnoreAutoIncludes ? new HashSet<IEntityType>() : null!;
         }
 
         /// <summary>
@@ -109,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Expand([NotNull] Expression query)
+        public virtual Expression Expand(Expression query)
         {
             var result = Visit(query);
             result = new PendingSelectorExpandingExpressionVisitor(this, applyIncludes: true).Visit(result);
@@ -124,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             foreach (var parameterValue in _parameters.ParameterValues)
             {
-                var lambda = (LambdaExpression)parameterValue.Value;
+                var lambda = (LambdaExpression)parameterValue.Value!;
                 var remappedLambdaBody = ReplacingExpressionVisitor.Replace(
                     lambda.Parameters[0],
                     dbContextOnQueryContextPropertyAccess,
@@ -205,6 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             // Convert ICollection<T>.Count to Count<T>()
             if (memberExpression.Expression != null
+                && innerExpression != null
                 && memberExpression.Member.Name == nameof(ICollection<int>.Count)
                 && memberExpression.Expression.Type.GetInterfaces().Append(memberExpression.Expression.Type)
                     .Any(e => e.IsGenericType && e.GetGenericTypeDefinition() == typeof(ICollection<>)))
@@ -215,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 {
                     return Visit(
                         Expression.Call(
-                            QueryableMethods.CountWithoutPredicate.MakeGenericMethod(innerQueryable.Type.TryGetSequenceType()),
+                            QueryableMethods.CountWithoutPredicate.MakeGenericMethod(innerQueryable.Type.GetSequenceType()),
                             innerQueryable));
                 }
             }
@@ -254,7 +251,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 || method.DeclaringType == typeof(EntityFrameworkQueryableExtensions))
             {
                 var genericMethod = method.IsGenericMethod ? method.GetGenericMethodDefinition() : null;
-                var firstArgument = Visit(methodCallExpression.Arguments[0]);
+                // First argument is source
+                var firstArgument = Visit(methodCallExpression.Arguments[0])!;
                 if (firstArgument is NavigationExpansionExpression source)
                 {
                     if (source.PendingOrderings.Any()
@@ -381,6 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             when genericMethod == QueryableMethods.Join:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            secondArgument = UnwrapCollectionMaterialization(secondArgument);
                             if (secondArgument is NavigationExpansionExpression innerSource)
                             {
                                 return ProcessJoin(
@@ -398,6 +397,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             when genericMethod == QueryableExtensions.LeftJoinMethodInfo:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            secondArgument = UnwrapCollectionMaterialization(secondArgument);
                             if (secondArgument is NavigationExpansionExpression innerSource)
                             {
                                 return ProcessLeftJoin(
@@ -435,6 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             when genericMethod == QueryableMethods.Union:
                         {
                             var secondArgument = Visit(methodCallExpression.Arguments[1]);
+                            secondArgument = UnwrapCollectionMaterialization(secondArgument);
                             if (secondArgument is NavigationExpansionExpression innerSource)
                             {
                                 return ProcessSetOperation(source, genericMethod, innerSource);
@@ -450,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return ProcessCastOfType(
                                 source,
                                 genericMethod,
-                                methodCallExpression.Type.TryGetSequenceType());
+                                methodCallExpression.Type.GetSequenceType());
 
                         case nameof(EntityFrameworkQueryableExtensions.Include):
                             return ProcessInclude(
@@ -571,8 +572,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (firstArgument.Type.TryGetElementType(typeof(IQueryable<>)) == null)
                 {
                     // firstArgument was not an queryable
-                    var visitedArguments = new[] { firstArgument }
-                        .Concat(methodCallExpression.Arguments.Skip(1).Select(Visit));
+                    var visitedArguments = new [] { firstArgument }
+                        .Concat(methodCallExpression.Arguments.Skip(1).Select(e => Visit(e)!));
 
                     return ConvertToEnumerable(method, visitedArguments);
                 }
@@ -586,7 +587,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     || method.GetGenericMethodDefinition() == EnumerableMethods.ToArray))
             {
                 return methodCallExpression.Update(
-                    null, new[] { UnwrapCollectionMaterialization(Visit(methodCallExpression.Arguments[0])) });
+                    // TODO-Nullable bug
+                    null!, new[] { UnwrapCollectionMaterialization(Visit(methodCallExpression.Arguments[0])) });
             }
 
             return ProcessUnknownMethod(methodCallExpression);
@@ -619,7 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private Expression ProcessAllAnyCountLongCount(
             NavigationExpansionExpression source,
             MethodInfo genericMethod,
-            LambdaExpression predicate)
+            LambdaExpression? predicate)
         {
             if (predicate != null)
             {
@@ -632,7 +634,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return Expression.Call(genericMethod.MakeGenericMethod(source.SourceElementType), source.Source);
         }
 
-        private Expression ProcessAverageMaxMinSum(NavigationExpansionExpression source, MethodInfo method, LambdaExpression selector)
+        private Expression ProcessAverageMaxMinSum(NavigationExpansionExpression source, MethodInfo method, LambdaExpression? selector)
         {
             if (selector != null)
             {
@@ -659,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (method.GetGenericArguments().Length == 1)
             {
                 // Min/Max without selector has 1 generic parameters
-                method = method.MakeGenericMethod(queryable.Type.TryGetSequenceType());
+                method = method.MakeGenericMethod(queryable.Type.GetSequenceType());
             }
 
             return Expression.Call(method, queryable);
@@ -699,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var siblingNavigations = newEntityReference.IncludePaths.Keys
                     .Where(
                         n => !castEntityType.IsAssignableFrom(n.DeclaringEntityType)
-                            && !n.DeclaringEntityType.IsAssignableFrom(castEntityType)).ToList();
+                            && !n.DeclaringEntityType.IsAssignableFrom(castEntityType));
 
                 foreach (var navigation in siblingNavigations)
                 {
@@ -724,7 +726,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
             var queryable = Reduce(source);
 
-            return Expression.Call(QueryableMethods.Contains.MakeGenericMethod(queryable.Type.TryGetSequenceType()), queryable, item);
+            return Expression.Call(QueryableMethods.Contains.MakeGenericMethod(queryable.Type.GetSequenceType()), queryable, item);
         }
 
         private NavigationExpansionExpression ProcessDefaultIfEmpty(NavigationExpansionExpression source)
@@ -754,7 +756,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var newStructure = SnapshotExpression(source.PendingSelector);
             var queryable = Reduce(source);
 
-            var result = Expression.Call(genericMethod.MakeGenericMethod(queryable.Type.TryGetSequenceType()), queryable);
+            var result = Expression.Call(genericMethod.MakeGenericMethod(queryable.Type.GetSequenceType()), queryable);
 
             var navigationTree = new NavigationTreeExpression(newStructure);
             var parameterName = GetParameterName("e");
@@ -775,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private NavigationExpansionExpression ProcessFirstSingleLastOrDefault(
             NavigationExpansionExpression source,
             MethodInfo genericMethod,
-            LambdaExpression predicate,
+            LambdaExpression? predicate,
             Type returnType)
         {
             if (predicate != null)
@@ -797,8 +799,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private NavigationExpansionExpression ProcessGroupBy(
             NavigationExpansionExpression source,
             LambdaExpression keySelector,
-            LambdaExpression elementSelector,
-            LambdaExpression resultSelector)
+            LambdaExpression? elementSelector,
+            LambdaExpression? resultSelector)
         {
             var keySelectorBody = ExpandNavigationsForSource(source, RemapLambdaExpression(source, keySelector));
             // Need to generate lambda after processing element/result selector
@@ -829,7 +831,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Quote(elementSelector),
                     Expression.Quote(Visit(resultSelector)));
 
-            var navigationTree = new NavigationTreeExpression(Expression.Default(result.Type.TryGetSequenceType()));
+            var navigationTree = new NavigationTreeExpression(Expression.Default(result.Type.GetSequenceType()));
             var parameterName = GetParameterName("e");
 
             return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
@@ -882,7 +884,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 else
                 {
                     var currentIncludeTreeNode = thenInclude
-                        ? entityReference.LastIncludeTreeNode
+                        // LastIncludeTreeNode would be non-null for ThenInclude
+                        ? entityReference.LastIncludeTreeNode!
                         : entityReference.IncludePaths;
                     var includeLambda = expression.UnwrapLambdaFromQuote();
 
@@ -910,7 +913,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             throw new InvalidOperationException(CoreStrings.IncludeOnNonEntity(expression.Print()));
 
-            static (Expression result, LambdaExpression filterExpression) ExtractIncludeFilter(
+            static (Expression result, LambdaExpression? filterExpression) ExtractIncludeFilter(
                 Expression currentExpression,
                 Expression includeExpression)
             {
@@ -937,7 +940,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     var arguments = new List<Expression> { filterExpression.Body };
                     arguments.AddRange(methodCallExpression.Arguments.Skip(1));
                     filterExpression = Expression.Lambda(
-                        methodCallExpression.Update(methodCallExpression.Object, arguments),
+                        // TODO-Nullable bug
+                        methodCallExpression.Update(methodCallExpression.Object!, arguments),
                         filterExpression.Parameters);
 
                     return (result, filterExpression);
@@ -962,7 +966,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     arguments.Add(source);
                     arguments.AddRange(methodCallExpression.Arguments.Skip(1));
 
-                    return methodCallExpression.Update(methodCallExpression.Object, arguments);
+                    // TODO-Nullable bug
+                    return methodCallExpression.Update(methodCallExpression.Object!, arguments);
                 }
 
                 return expression;
@@ -986,8 +991,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 outerSource.SourceElementType, innerSource.SourceElementType);
 
-            var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+            var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
 
             var newResultSelector = Expression.Lambda(
                 Expression.New(
@@ -1035,8 +1040,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var transparentIdentifierType = TransparentIdentifierFactory.Create(
                 outerSource.SourceElementType, innerSource.SourceElementType);
 
-            var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-            var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+            var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+            var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
 
             var newResultSelector = Expression.Lambda(
                 Expression.New(
@@ -1139,20 +1144,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private NavigationExpansionExpression ProcessSelectMany(
             NavigationExpansionExpression source,
             LambdaExpression collectionSelector,
-            LambdaExpression resultSelector)
+            LambdaExpression? resultSelector)
         {
             var collectionSelectorBody = ExpandNavigationsForSource(source, RemapLambdaExpression(source, collectionSelector));
-            if (collectionSelectorBody is MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression)
-            {
-                collectionSelectorBody = materializeCollectionNavigationExpression.Subquery;
-            }
+            collectionSelectorBody = UnwrapCollectionMaterialization(collectionSelectorBody);
 
             if (collectionSelectorBody is NavigationExpansionExpression collectionSource)
             {
                 collectionSource = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(collectionSource);
                 var innerTree = new NavigationTreeExpression(SnapshotExpression(collectionSource.PendingSelector));
                 collectionSelector = GenerateLambda(collectionSource, source.CurrentParameter);
-                var collectionElementType = collectionSelector.ReturnType.TryGetSequenceType();
+                var collectionElementType = collectionSelector.ReturnType.GetSequenceType();
 
                 // Collection selector body is IQueryable, we need to adjust the type to IEnumerable, to match the SelectMany signature
                 // therefore the delegate type is specified explicitly
@@ -1167,8 +1169,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var transparentIdentifierType = TransparentIdentifierFactory.Create(
                     source.SourceElementType, collectionElementType);
-                var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
-                var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
+                var transparentIdentifierOuterMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Outer");
+                var transparentIdentifierInnerMemberInfo = transparentIdentifierType.GetTypeInfo().GetRequiredDeclaredField("Inner");
                 var collectionElementParameter = Expression.Parameter(collectionElementType, "c");
 
                 var newResultSelector = Expression.Lambda(
@@ -1221,8 +1223,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var outerQueryable = Reduce(outerSource);
             var innerQueryable = Reduce(innerSource);
 
-            var outerType = outerQueryable.Type.TryGetSequenceType();
-            var innerType = innerQueryable.Type.TryGetSequenceType();
+            var outerType = outerQueryable.Type.GetSequenceType();
+            var innerType = innerQueryable.Type.GetSequenceType();
 
             var result = Expression.Call(
                 genericMethod.MakeGenericMethod(outerType.IsAssignableFrom(innerType) ? outerType : innerType),
@@ -1491,7 +1493,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             var genericTypeArguments = queryableMethod.IsGenericMethod
                 ? queryableMethod.GetGenericArguments()
-                : null;
+                : Array.Empty<Type>();
             var enumerableArguments = arguments.Select(
                     arg => arg is UnaryExpression unaryExpression
                         && unaryExpression.NodeType == ExpressionType.Quote
@@ -1609,14 +1611,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private NavigationExpansionExpression CreateNavigationExpansionExpression(
-            [NotNull] Expression sourceExpression,
-            [NotNull] IEntityType entityType)
+            Expression sourceExpression,
+            IEntityType entityType)
         {
             var entityReference = new EntityReference(entityType);
             PopulateEagerLoadedNavigations(entityReference.IncludePaths);
 
             var currentTree = new NavigationTreeExpression(entityReference);
-            var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLower());
+            var parameterName = GetParameterName(entityType.ShortName()[0].ToString().ToLowerInvariant());
 
             return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
         }
@@ -1659,9 +1661,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 foreach (var derivedNavigation in entityType.GetDerivedTypes()
-                    .Select(et => et.FindDeclaredNavigation(navigationName)).Where(n => n != null))
+                    .Select(et => et.FindDeclaredNavigation(navigationName)))
                 {
-                    yield return derivedNavigation;
+                    if (derivedNavigation != null)
+                    {
+                        yield return derivedNavigation;
+                    }
                 }
             }
 
@@ -1673,9 +1678,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             else
             {
                 foreach (var derivedSkipNavigation in entityType.GetDerivedTypes()
-                    .Select(et => et.FindDeclaredSkipNavigation(navigationName)).Where(n => n != null))
+                    .Select(et => et.FindDeclaredSkipNavigation(navigationName)))
                 {
-                    yield return derivedSkipNavigation;
+                    if (derivedSkipNavigation != null)
+                    {
+                        yield return derivedSkipNavigation;
+                    }
                 }
             }
         }
@@ -1704,7 +1712,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && ownedNavigationReference.Navigation.IsCollection
                     ? CreateNavigationExpansionExpression(
                         Expression.Call(
-                            QueryableMethods.AsQueryable.MakeGenericMethod(ownedNavigationReference.Type.TryGetSequenceType()),
+                            QueryableMethods.AsQueryable.MakeGenericMethod(ownedNavigationReference.Type.GetSequenceType()),
                             ownedNavigationReference),
                         ownedNavigationReference)
                     : expression;
@@ -1796,7 +1804,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 case ParameterExpression _:
                     return includeTreeNode;
 
-                case MemberExpression memberExpression:
+                case MemberExpression memberExpression
+                when memberExpression.Expression != null:
                     var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
                     var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression, setLoaded);
                     var entityType = innerIncludeTreeNode.EntityType;
@@ -1875,7 +1884,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private static EntityReference UnwrapEntityReference(Expression expression)
+        private static EntityReference? UnwrapEntityReference(Expression? expression)
         {
             switch (expression)
             {
@@ -1899,12 +1908,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private sealed class Parameters : IParameterValues
         {
-            private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
+            private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
 
-            public IReadOnlyDictionary<string, object> ParameterValues
-                => (IReadOnlyDictionary<string, object>)_parameterValues;
+            public IReadOnlyDictionary<string, object?> ParameterValues
+                => (IReadOnlyDictionary<string, object?>)_parameterValues;
 
-            public void AddParameter(string name, object value)
+            public void AddParameter(string name, object? value)
             {
                 _parameterValues.Add(name, value);
             }

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -23,18 +22,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public StoreFunctionParameter(
-            [NotNull] StoreFunction function,
-            [NotNull] DbFunctionParameter parameter)
+            StoreFunction function,
+            IRuntimeDbFunctionParameter parameter)
         {
             Function = function;
             Name = parameter.Name;
-            Type = parameter.StoreType;
+            Type = parameter.StoreType!;
             DbFunctionParameters = new List<IDbFunctionParameter> { parameter };
             parameter.StoreFunctionParameter = this;
         }
 
-        /// <inheritdoc />
-        public virtual IStoreFunction Function { get; }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual StoreFunction Function { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override bool IsReadOnly => Function.IsReadOnly;
 
         /// <inheritdoc />
         public virtual string Name { get; }
@@ -57,12 +69,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override string ToString()
-            => this.ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+            => ((IStoreFunctionParameter)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
+        /// <inheritdoc />
+        IStoreFunction IStoreFunctionParameter.Function
+        {
+            [DebuggerStepThrough]
+            get => Function;
+        }
+
+        /// <inheritdoc />
         IEnumerable<IDbFunctionParameter> IStoreFunctionParameter.DbFunctionParameters
         {
             [DebuggerStepThrough]
             get => DbFunctionParameters;
         }
+
     }
 }

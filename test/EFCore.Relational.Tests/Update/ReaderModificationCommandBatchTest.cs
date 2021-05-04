@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -373,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -483,7 +483,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     true,
                     new List<ColumnModification>
                     {
-                        new ColumnModification(
+                        new(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-                var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+                var logger = new FakeRelationalCommandDiagnosticsLogger();
 
                 return new ModificationCommandBatchFactoryDependencies(
                     new RelationalCommandBuilderFactory(
@@ -594,10 +594,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 => ShouldValidateSql;
 
             protected override void UpdateCachedCommandText(int commandIndex)
-            {
-                CachedCommandText ??= new StringBuilder();
-                CachedCommandText.Append(".");
-            }
+                => CachedCommandText.Append(".");
 
             public void UpdateCachedCommandTextBase(int commandIndex)
                 => base.UpdateCachedCommandText(commandIndex);
@@ -628,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         public static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
         {

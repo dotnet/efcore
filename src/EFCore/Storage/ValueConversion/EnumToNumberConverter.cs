@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -17,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         where TNumber : struct
     {
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly ConverterMappingHints _defaultHints = CreateDefaultHints();
+        private static readonly ConverterMappingHints? _defaultHints = CreateDefaultHints();
 
-        private static ConverterMappingHints CreateDefaultHints()
+        private static ConverterMappingHints? CreateDefaultHints()
         {
             var underlyingModelType = typeof(TEnum).UnwrapEnumType();
 
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public EnumToNumberConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public EnumToNumberConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 ToNumber(),
                 ToEnum(),
@@ -48,8 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), _defaultHints);
+            = new(typeof(TEnum), typeof(TNumber), i => new EnumToNumberConverter<TEnum, TNumber>(i.MappingHints), _defaultHints);
 
         private static Expression<Func<TEnum, TNumber>> ToNumber()
         {

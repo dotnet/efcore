@@ -19,32 +19,33 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void Compare_returns_0_only_for_commands_that_are_equal()
         {
-            IMutableModel model = new Model(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            var model = modelBuilder.Model;
             var entityType = model.AddEntityType(typeof(object));
             var key = entityType.AddProperty("Id", typeof(int));
             entityType.SetPrimaryKey(key);
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model.FinalizeModel())
+                .UseModel(RelationalTestHelpers.Instance.Finalize(modelBuilder))
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
-            entry1[key] = 1;
+            entry1[(IProperty)key] = 1;
             entry1.SetEntityState(EntityState.Added);
             var modificationCommandAdded = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommandAdded.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
-            entry2[key] = 2;
+            entry2[(IProperty)key] = 2;
             entry2.SetEntityState(EntityState.Modified);
             var modificationCommandModified = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommandModified.AddEntry(entry2, true);
 
             var entry3 = stateManager.GetOrCreateEntry(new object());
-            entry3[key] = 3;
+            entry3[(IProperty)key] = 3;
             entry3.SetEntityState(EntityState.Deleted);
             var modificationCommandDeleted = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommandDeleted.AddEntry(entry3, true);
@@ -153,14 +154,14 @@ namespace Microsoft.EntityFrameworkCore.Update
                 FlagsEnum.Default, FlagsEnum.First | FlagsEnum.Second);
 
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic(new Guid().ToByteArray(), Guid.NewGuid().ToByteArray());
-            Compare_returns_0_only_for_entries_that_have_same_key_values_generic(new[] { 1 }, new[] { 2 });
 
             Compare_returns_0_only_for_entries_that_have_same_key_values_generic("1", "2");
         }
 
         private void Compare_returns_0_only_for_entries_that_have_same_key_values_generic<T>(T value1, T value2)
         {
-            IMutableModel model = new Model(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            var model = modelBuilder.Model;
             var entityType = model.AddEntityType(typeof(object));
 
             var keyProperty = entityType.AddProperty("Id", typeof(T));
@@ -169,19 +170,19 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                .UseModel(model.FinalizeModel())
+                .UseModel(RelationalTestHelpers.Instance.Finalize(modelBuilder))
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();
 
             var entry1 = stateManager.GetOrCreateEntry(new object());
-            entry1[keyProperty] = value1;
+            entry1[(IProperty)keyProperty] = value1;
             entry1.SetEntityState(EntityState.Modified);
             var modificationCommand1 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommand1.AddEntry(entry1, true);
 
             var entry2 = stateManager.GetOrCreateEntry(new object());
-            entry2[keyProperty] = value2;
+            entry2[(IProperty)keyProperty] = value2;
             entry2.SetEntityState(EntityState.Modified);
             var modificationCommand2 = new ModificationCommand("A", null, new ParameterNameGenerator().GenerateNext, false, null);
             modificationCommand2.AddEntry(entry2, true);

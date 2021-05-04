@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalModelValidatorDependencies
+    public sealed record RelationalModelValidatorDependencies
     {
         /// <summary>
         ///     <para>
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalModelValidatorDependencies(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            IRelationalTypeMappingSource typeMappingSource)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
@@ -68,14 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalModelValidatorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalModelValidatorDependencies(typeMappingSource);
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
     }
 }

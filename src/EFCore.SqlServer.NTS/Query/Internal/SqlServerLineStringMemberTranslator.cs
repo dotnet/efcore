@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -25,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private static readonly IDictionary<MemberInfo, string> _memberToFunctionName = new Dictionary<MemberInfo, string>
         {
-            { typeof(LineString).GetRuntimeProperty(nameof(LineString.Count)), "STNumPoints" },
-            { typeof(LineString).GetRuntimeProperty(nameof(LineString.EndPoint)), "STEndPoint" },
-            { typeof(LineString).GetRuntimeProperty(nameof(LineString.IsClosed)), "STIsClosed" },
-            { typeof(LineString).GetRuntimeProperty(nameof(LineString.StartPoint)), "STStartPoint" },
-            { typeof(LineString).GetRuntimeProperty(nameof(LineString.IsRing)), "STIsRing" }
+            { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.Count)), "STNumPoints" },
+            { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.EndPoint)), "STEndPoint" },
+            { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.IsClosed)), "STIsClosed" },
+            { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.StartPoint)), "STStartPoint" },
+            { typeof(LineString).GetRequiredRuntimeProperty(nameof(LineString.IsRing)), "STIsRing" }
         };
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
@@ -42,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerLineStringMemberTranslator(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -55,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -67,11 +66,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (_memberToFunctionName.TryGetValue(member, out var functionName))
             {
-                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
-                var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
+                var isGeography = storeType == "geography";
 
-                if (isGeography && string.Equals(functionName, "STIsRing"))
+                if (isGeography && functionName == "STIsRing")
                 {
                     return null;
                 }

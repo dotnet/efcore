@@ -134,6 +134,33 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Distinct_used_after_order_by()
+        {
+            using var context = CreateContext();
+            var customers = context.Set<Customer>().OrderBy(x => x.Address).Distinct().Take(5).ToList();
+
+            Assert.NotEmpty(customers);
+
+            Assert.Equal(
+                CoreResources.LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_does_not_generate_warning()
+        {
+            using var context = CreateContext();
+            var customer = context.Set<Customer>().Include(e => e.Orders).AsSplitQuery().Single(e => e.CustomerID == "ALFKI");
+
+            Assert.NotNull(customer);
+            Assert.Equal(6, customer.Orders.Count);
+
+            Assert.DoesNotContain(
+                CoreResources.LogRowLimitingOperationWithoutOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log.Select(e => e.Message));
+        }
+
+        [ConditionalFact]
         public void SelectExpression_does_not_use_an_old_logger()
         {
             DbContextOptions CreateOptions(ListLoggerFactory listLoggerFactory)

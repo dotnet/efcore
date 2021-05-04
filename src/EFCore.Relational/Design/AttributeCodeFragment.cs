@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Design
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         /// <param name="type"> The attribute's CLR type. </param>
         /// <param name="arguments"> The attribute's arguments. </param>
-        public AttributeCodeFragment([NotNull] Type type, [NotNull] params object[] arguments)
+        public AttributeCodeFragment(Type type, params object[] arguments)
         {
             Check.NotNull(type, nameof(type));
             Check.NotNull(arguments, nameof(arguments));

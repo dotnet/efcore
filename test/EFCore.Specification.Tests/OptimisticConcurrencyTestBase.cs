@@ -32,11 +32,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = Fixture.CreateModelBuilder();
             modelBuilder.Entity("Dummy");
+            var model = modelBuilder.FinalizeModel();
+
+            var context = new F1Context(new DbContextOptionsBuilder(Fixture.CreateOptions()).UseModel(model).Options);
 
             Assert.Equal(
-                CoreStrings.ShadowEntity("Dummy"),
-                Assert.Throws<InvalidOperationException>
-                    (() => modelBuilder.FinalizeModel()).Message);
+                CoreStrings.EntityRequiresKey("Dummy (Dictionary<string, object>)"),
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
         }
 
         [ConditionalFact]
@@ -48,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore
             c.Database.CreateExecutionStrategy().Execute(
                 c, context =>
                 {
-                    using var transaction = context.Database.BeginTransaction();
+                    using var transaction = BeginTransaction(context.Database);
                     var sponsor = context.Sponsors.Single(s => s.Id == 1);
                     Assert.Null(context.Entry(sponsor).Property<int?>(Sponsor.ClientTokenPropertyName).CurrentValue);
                     originalName = sponsor.Name;
@@ -134,14 +136,16 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c =>
                 {
+                    var chassis = c.Set<Chassis>().Single(c => c.Name == "MP4-25");
                     var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                    team.Chassis.Name = "MP4-25b";
+                    chassis.Name = "MP4-25b";
                     team.Principal = "Larry David";
                 },
                 c =>
                 {
+                    var chassis = c.Set<Chassis>().Single(c => c.Name == "MP4-25");
                     var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                    team.Chassis.Name = "MP4-25c";
+                    chassis.Name = "MP4-25c";
                     team.Principal = "Jerry Seinfeld";
                 },
                 (c, ex) =>
@@ -181,14 +185,16 @@ namespace Microsoft.EntityFrameworkCore
             return ConcurrencyTestAsync(
                 c =>
                 {
+                    var driver = c.Drivers.Single(d => d.Name == "Jenson Button");
                     var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                    team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 1;
+                    driver.Poles = 1;
                     team.Principal = "Larry David";
                 },
                 c =>
                 {
+                    var driver = c.Drivers.Single(d => d.Name == "Jenson Button");
                     var team = c.Teams.Single(t => t.Id == Team.McLaren);
-                    team.Drivers.Single(d => d.Name == "Jenson Button").Poles = 2;
+                    driver.Poles = 2;
                     team.Principal = "Jerry Seinfeld";
                 },
                 (c, ex) =>
@@ -227,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             return ConcurrencyTestAsync(
                 c => c.Engines.Single(e => e.Name == "056").EngineSupplierId =
-                    c.EngineSuppliers.Single(s => s.Name == "Cosworth").Id,
+                    c.EngineSuppliers.Single(s => s.Name == "Cosworth").Name,
                 c => c.Engines.Single(e => e.Name == "056").EngineSupplier =
                     c.EngineSuppliers.Single(s => s.Name == "Renault"),
                 (c, ex) =>
@@ -276,36 +282,41 @@ namespace Microsoft.EntityFrameworkCore
                 null);
         }
 
-        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")]
-        // TODO: See issue#1368
-        public virtual Task
-            Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
+        [ConditionalFact]
+        public virtual Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
             return ConcurrencyTestAsync(
                 c =>
-                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell"))),
+                {
+                    c.Teams.Include(e => e.Sponsors).Load();
+                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA")));
+                },
                 (c, ex) =>
                 {
                     var entry = ex.Entries.Single();
-                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                    Assert.IsAssignableFrom<TeamSponsor>(entry.Entity);
                 },
                 null);
         }
 
-        [ConditionalFact(Skip = "Many-to-many relationships are not supported without CLR class for join table.")]
-        // TODO: See issue#1368
-        public virtual Task
-            Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
+        [ConditionalFact]
+        public virtual Task Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
-            return ConcurrencyTestAsync(
-                c =>
-                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA"))),
+            return ConcurrencyTestAsync<DbUpdateException>(
+                Change,
+                Change,
                 (c, ex) =>
                 {
                     var entry = ex.Entries.Single();
-                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                    Assert.IsAssignableFrom<TeamSponsor>(entry.Entity);
                 },
                 null);
+
+            void Change(F1Context c)
+            {
+                c.Teams.Include(e => e.Sponsors).Load();
+                c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell")));
+            }
         }
 
         #endregion
@@ -339,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
                 c, async context =>
                 {
-                    using var transaction = context.Database.BeginTransaction();
+                    using var transaction = BeginTransaction(context.Database);
                     context.Teams.Add(
                         new Team
                         {
@@ -460,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
                 c, async context =>
                 {
-                    using (context.Database.BeginTransaction())
+                    using (BeginTransaction(context.Database))
                     {
                         var entry = context.Drivers.Add(
                             new Driver { Name = "Larry David", TeamId = Team.Ferrari });
@@ -509,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
                 c, async context =>
                 {
-                    using (context.Database.BeginTransaction())
+                    using (BeginTransaction(context.Database))
                     {
                         var entry = context.Drivers.Add(
                             new Driver
@@ -571,7 +582,7 @@ namespace Microsoft.EntityFrameworkCore
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
                 c, async context =>
                 {
-                    using (context.Database.BeginTransaction())
+                    using (BeginTransaction(context.Database))
                     {
                         var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
                         larry.Name = "Rory Gilmore";
@@ -604,7 +615,7 @@ namespace Microsoft.EntityFrameworkCore
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
                 c, async context =>
                 {
-                    using var transaction = context.Database.BeginTransaction();
+                    using var transaction = BeginTransaction(context.Database);
                     var titleSponsor = context.Set<TitleSponsor>().Single(t => t.Name == "Vodafone");
 
                     var ownerEntry = context.Entry(titleSponsor);
@@ -634,7 +645,7 @@ namespace Microsoft.EntityFrameworkCore
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
                 c, async context =>
                 {
-                    using var transaction = context.Database.BeginTransaction();
+                    using var transaction = BeginTransaction(context.Database);
                     var titleSponsor = context.Set<TitleSponsor>().Single(t => t.Name == "Vodafone");
 
                     var ownerEntry = context.Entry(titleSponsor);
@@ -705,17 +716,33 @@ namespace Microsoft.EntityFrameworkCore
         ///     again. Finally, a new context is created and the validator is called so that the state of
         ///     the database at the end of the process can be validated.
         /// </summary>
-        protected virtual async Task ConcurrencyTestAsync(
+        protected virtual Task ConcurrencyTestAsync(
             Action<F1Context> storeChange,
             Action<F1Context> clientChange,
             Action<F1Context, DbUpdateConcurrencyException> resolver,
             Action<F1Context> validator)
+            => ConcurrencyTestAsync<DbUpdateConcurrencyException>(storeChange, clientChange, resolver, validator);
+
+        /// <summary>
+        ///     Runs the two actions with two different contexts and calling
+        ///     SaveChanges such that storeChange will succeed and the store will reflect this change, and
+        ///     then clientChange will result in a concurrency exception.
+        ///     After the exception is caught the resolver action is called, after which SaveChanges is called
+        ///     again. Finally, a new context is created and the validator is called so that the state of
+        ///     the database at the end of the process can be validated.
+        /// </summary>
+        protected virtual async Task ConcurrencyTestAsync<TException>(
+            Action<F1Context> storeChange,
+            Action<F1Context> clientChange,
+            Action<F1Context, TException> resolver,
+            Action<F1Context> validator)
+            where TException : DbUpdateException
         {
             using var c = CreateF1Context();
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
                 c, async context =>
                 {
-                    using var transaction = context.Database.BeginTransaction();
+                    using var transaction = BeginTransaction(context.Database);
                     clientChange(context);
 
                     using var innerContext = CreateF1Context();
@@ -724,11 +751,14 @@ namespace Microsoft.EntityFrameworkCore
                     await innerContext.SaveChangesAsync();
 
                     var updateException =
-                        await Assert.ThrowsAnyAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+                        await Assert.ThrowsAnyAsync<TException>(() => context.SaveChangesAsync());
 
-                    Assert.Equal(
-                        LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
-                            l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                    if (typeof(TException) == typeof(DbUpdateConcurrencyException))
+                    {
+                        Assert.Equal(
+                            LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
+                                l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                    }
                     Fixture.ListLoggerFactory.Clear();
 
                     resolver(context, updateException);
@@ -743,6 +773,9 @@ namespace Microsoft.EntityFrameworkCore
                     }
                 });
         }
+
+        protected virtual IDbContextTransaction BeginTransaction(DatabaseFacade facade)
+            => facade.BeginTransaction();
 
         protected virtual void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         {

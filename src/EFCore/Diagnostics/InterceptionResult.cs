@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///         Represents a result from an <see cref="IInterceptor" /> such as an 'IDbConnectionInterceptor' to allow
+    ///         Represents a result from an <see cref="IInterceptor" /> such as an <see cref="ISaveChangesInterceptor" /> to allow
     ///         suppression of the normal operation being intercepted.
     ///     </para>
     ///     <para>
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     execution should be suppressed.
         /// </summary>
         public static InterceptionResult Suppress()
-            => new InterceptionResult(true);
+            => new(true);
 
         private InterceptionResult(bool suppress)
             => IsSuppressed = suppress;

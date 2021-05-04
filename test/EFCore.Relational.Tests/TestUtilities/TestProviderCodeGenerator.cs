@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
             MethodCallCodeFragment providerOptions)
-            => new MethodCallCodeFragment(
+            => new(
                 "UseTestProvider",
                 providerOptions == null
                     ? new object[] { connectionString }

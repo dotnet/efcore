@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -14,23 +15,23 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public AnsiTextWriter(TextWriter writer) => _writer = writer;
 
-        public void WriteLine(string text)
+        public void WriteLine(string? text)
         {
             Interpret(text);
             _writer.Write(Environment.NewLine);
         }
 
-        private void Interpret(string value)
+        private void Interpret(string? value)
         {
             var matches = Regex.Matches(value, "\x1b\\[([0-9]+)?m");
 
             var start = 0;
-            foreach (Match match in matches)
+            foreach (var match in matches.Cast<Match>())
             {
                 var length = match.Index - start;
                 if (length != 0)
                 {
-                    _writer.Write(value.Substring(start, length));
+                    _writer.Write(value!.Substring(start, length));
                 }
 
                 Apply(match.Groups[1].Value);
@@ -38,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 start = match.Index + match.Length;
             }
 
-            if (start != value.Length)
+            if (start != value?.Length)
             {
-                _writer.Write(value.Substring(start));
+                _writer.Write(value?.Substring(start));
             }
         }
 

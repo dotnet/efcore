@@ -37,13 +37,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             var builder = new StringBuilder();
             var entityType = entry.Metadata;
 
-            var primaryKey = entityType.FindPrimaryKey();
+            var primaryKey = entityType.FindPrimaryKey()!;
             var discriminator = entityType.GetDiscriminatorValue();
             if (discriminator != null
-                && !primaryKey.Properties.Contains(entityType.GetDiscriminatorProperty()))
+                && !primaryKey.Properties.Contains(entityType.FindDiscriminatorProperty()))
             {
                 AppendString(builder, discriminator);
-                builder.Append("|");
+                builder.Append('|');
             }
 
             var partitionKey = entityType.GetPartitionKeyPropertyName();
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
 
                 AppendString(builder, value);
 
-                builder.Append("|");
+                builder.Append('|');
             }
 
             builder.Remove(builder.Length - 1, 1);
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             return builder.ToString();
         }
 
-        private void AppendString(StringBuilder builder, object propertyValue)
+        private void AppendString(StringBuilder builder, object? propertyValue)
         {
             switch (propertyValue)
             {
@@ -83,13 +83,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                 case IEnumerable enumerable:
                     foreach (var item in enumerable)
                     {
-                        builder.Append(item.ToString().Replace("|", "^|"));
-                        builder.Append("|");
+                        builder.Append(item.ToString()!.Replace("|", "^|"));
+                        builder.Append('|');
                     }
 
                     return;
                 default:
-                    builder.Append(propertyValue == null ? "null" : propertyValue.ToString().Replace("|", "^|"));
+                    builder.Append(propertyValue == null ? "null" : propertyValue.ToString()!.Replace("|", "^|"));
                     return;
             }
         }

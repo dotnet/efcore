@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -25,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="dependencies"> The base dependencies. </param>
         /// <param name="csharpDependencies"> The dependencies. </param>
         public CSharpMigrationsGenerator(
-            [NotNull] MigrationsCodeGeneratorDependencies dependencies,
-            [NotNull] CSharpMigrationsGeneratorDependencies csharpDependencies)
+            MigrationsCodeGeneratorDependencies dependencies,
+            CSharpMigrationsGeneratorDependencies csharpDependencies)
             : base(dependencies)
         {
             Check.NotNull(csharpDependencies, nameof(csharpDependencies));
@@ -65,12 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="downOperations"> The migration's down operations. </param>
         /// <returns> The migration code. </returns>
         public override string GenerateMigration(
-            string migrationNamespace,
+            string? migrationNamespace,
             string migrationName,
             IReadOnlyList<MigrationOperation> upOperations,
             IReadOnlyList<MigrationOperation> downOperations)
         {
-            Check.NotEmpty(migrationNamespace, nameof(migrationNamespace));
             Check.NotEmpty(migrationName, nameof(migrationName));
             Check.NotNull(upOperations, nameof(upOperations));
             Check.NotNull(downOperations, nameof(downOperations));
@@ -86,45 +84,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(";");
             }
 
+            if (!string.IsNullOrEmpty(migrationNamespace))
+            {
+                builder
+                    .AppendLine()
+                    .Append("namespace ").AppendLine(Code.Namespace(migrationNamespace))
+                    .AppendLine("{")
+                    .IncrementIndent();
+            }
+
             builder
-                .AppendLine()
-                .Append("namespace ").AppendLine(Code.Namespace(migrationNamespace))
+                .Append("public partial class ").Append(Code.Identifier(migrationName)).AppendLine(" : Migration")
                 .AppendLine("{");
             using (builder.Indent())
             {
                 builder
-                    .Append("public partial class ").Append(Code.Identifier(migrationName)).AppendLine(" : Migration")
+                    .AppendLine("protected override void Up(MigrationBuilder migrationBuilder)")
                     .AppendLine("{");
                 using (builder.Indent())
                 {
-                    builder
-                        .AppendLine("protected override void Up(MigrationBuilder migrationBuilder)")
-                        .AppendLine("{");
-                    using (builder.Indent())
-                    {
-                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", upOperations, builder);
-                    }
-
-                    builder
-                        .AppendLine()
-                        .AppendLine("}")
-                        .AppendLine()
-                        .AppendLine("protected override void Down(MigrationBuilder migrationBuilder)")
-                        .AppendLine("{");
-                    using (builder.Indent())
-                    {
-                        CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", downOperations, builder);
-                    }
-
-                    builder
-                        .AppendLine()
-                        .AppendLine("}");
+                    CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", upOperations, builder);
                 }
 
-                builder.AppendLine("}");
+                builder
+                    .AppendLine()
+                    .AppendLine("}")
+                    .AppendLine()
+                    .AppendLine("protected override void Down(MigrationBuilder migrationBuilder)")
+                    .AppendLine("{");
+                using (builder.Indent())
+                {
+                    CSharpDependencies.CSharpMigrationOperationGenerator.Generate("migrationBuilder", downOperations, builder);
+                }
+
+                builder
+                    .AppendLine()
+                    .AppendLine("}");
             }
 
             builder.AppendLine("}");
+
+            if (!string.IsNullOrEmpty(migrationNamespace))
+            {
+                builder
+                    .DecrementIndent()
+                    .AppendLine("}");
+            }
+
 
             return builder.ToString();
         }
@@ -144,13 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="targetModel"> The migration's target model. </param>
         /// <returns> The migration metadata code. </returns>
         public override string GenerateMetadata(
-            string migrationNamespace,
+            string? migrationNamespace,
             Type contextType,
             string migrationName,
             string migrationId,
             IModel targetModel)
         {
-            Check.NotEmpty(migrationNamespace, nameof(migrationNamespace));
             Check.NotNull(contextType, nameof(contextType));
             Check.NotEmpty(migrationName, nameof(migrationName));
             Check.NotEmpty(migrationId, nameof(migrationId));
@@ -179,46 +184,53 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(";");
             }
 
+            if (!string.IsNullOrEmpty(migrationNamespace))
+            {
+                builder
+                    .AppendLine()
+                    .Append("namespace ").AppendLine(Code.Namespace(migrationNamespace))
+                    .AppendLine("{")
+                    .IncrementIndent();
+            }
+
             builder
-                .AppendLine()
-                .Append("namespace ").AppendLine(Code.Namespace(migrationNamespace))
+                .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
+                .Append("[Migration(").Append(Code.Literal(migrationId)).AppendLine(")]")
+                .Append("partial class ").AppendLine(Code.Identifier(migrationName))
                 .AppendLine("{");
             using (builder.Indent())
             {
                 builder
-                    .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
-                    .Append("[Migration(").Append(Code.Literal(migrationId)).AppendLine(")]")
-                    .Append("partial class ").AppendLine(Code.Identifier(migrationName))
-                    .AppendLine("{");
+                    .AppendLine("protected override void BuildTargetModel(ModelBuilder modelBuilder)")
+                    .AppendLine("{")
+                    .DecrementIndent()
+                    .DecrementIndent()
+                    .AppendLine("#pragma warning disable 612, 618")
+                    .IncrementIndent()
+                    .IncrementIndent();
                 using (builder.Indent())
                 {
-                    builder
-                        .AppendLine("protected override void BuildTargetModel(ModelBuilder modelBuilder)")
-                        .AppendLine("{")
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .AppendLine("#pragma warning disable 612, 618")
-                        .IncrementIndent()
-                        .IncrementIndent();
-                    using (builder.Indent())
-                    {
-                        // TODO: Optimize. This is repeated below
-                        CSharpDependencies.CSharpSnapshotGenerator.Generate("modelBuilder", targetModel, builder);
-                    }
-
-                    builder
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .AppendLine("#pragma warning restore 612, 618")
-                        .IncrementIndent()
-                        .IncrementIndent()
-                        .AppendLine("}");
+                    // TODO: Optimize. This is repeated below
+                    CSharpDependencies.CSharpSnapshotGenerator.Generate("modelBuilder", targetModel, builder);
                 }
 
-                builder.AppendLine("}");
+                builder
+                    .DecrementIndent()
+                    .DecrementIndent()
+                    .AppendLine("#pragma warning restore 612, 618")
+                    .IncrementIndent()
+                    .IncrementIndent()
+                    .AppendLine("}");
             }
 
             builder.AppendLine("}");
+
+            if (!string.IsNullOrEmpty(migrationNamespace))
+            {
+                builder
+                    .DecrementIndent()
+                    .AppendLine("}");
+            }
 
             return builder.ToString();
         }
@@ -232,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="model"> The model. </param>
         /// <returns> The model snapshot code. </returns>
         public override string GenerateSnapshot(
-            string modelSnapshotNamespace,
+            string? modelSnapshotNamespace,
             Type contextType,
             string modelSnapshotName,
             IModel model)
@@ -264,44 +276,51 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(";");
             }
 
+            if (!string.IsNullOrEmpty(modelSnapshotNamespace))
+            {
+                builder
+                    .AppendLine()
+                    .Append("namespace ").AppendLine(Code.Namespace(modelSnapshotNamespace))
+                    .AppendLine("{")
+                    .IncrementIndent();
+            }
+
             builder
-                .AppendLine()
-                .Append("namespace ").AppendLine(Code.Namespace(modelSnapshotNamespace))
+                .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
+                .Append("partial class ").Append(Code.Identifier(modelSnapshotName)).AppendLine(" : ModelSnapshot")
                 .AppendLine("{");
             using (builder.Indent())
             {
                 builder
-                    .Append("[DbContext(typeof(").Append(Code.Reference(contextType)).AppendLine("))]")
-                    .Append("partial class ").Append(Code.Identifier(modelSnapshotName)).AppendLine(" : ModelSnapshot")
-                    .AppendLine("{");
+                    .AppendLine("protected override void BuildModel(ModelBuilder modelBuilder)")
+                    .AppendLine("{")
+                    .DecrementIndent()
+                    .DecrementIndent()
+                    .AppendLine("#pragma warning disable 612, 618")
+                    .IncrementIndent()
+                    .IncrementIndent();
                 using (builder.Indent())
                 {
-                    builder
-                        .AppendLine("protected override void BuildModel(ModelBuilder modelBuilder)")
-                        .AppendLine("{")
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .AppendLine("#pragma warning disable 612, 618")
-                        .IncrementIndent()
-                        .IncrementIndent();
-                    using (builder.Indent())
-                    {
-                        CSharpDependencies.CSharpSnapshotGenerator.Generate("modelBuilder", model, builder);
-                    }
-
-                    builder
-                        .DecrementIndent()
-                        .DecrementIndent()
-                        .AppendLine("#pragma warning restore 612, 618")
-                        .IncrementIndent()
-                        .IncrementIndent()
-                        .AppendLine("}");
+                    CSharpDependencies.CSharpSnapshotGenerator.Generate("modelBuilder", model, builder);
                 }
 
-                builder.AppendLine("}");
+                builder
+                    .DecrementIndent()
+                    .DecrementIndent()
+                    .AppendLine("#pragma warning restore 612, 618")
+                    .IncrementIndent()
+                    .IncrementIndent()
+                    .AppendLine("}");
             }
 
             builder.AppendLine("}");
+
+            if (!string.IsNullOrEmpty(modelSnapshotNamespace))
+            {
+                builder
+                    .DecrementIndent()
+                    .AppendLine("}");
+            }
 
             return builder.ToString();
         }

@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class GuidToBytesConverterTest
     {
-        private static readonly GuidToBytesConverter _guidToBytes
-            = new GuidToBytesConverter();
+        private static readonly GuidToBytesConverter _guidToBytes = new();
 
         [ConditionalFact]
         public void Can_convert_GUIDs_to_bytes()
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Throws<ArgumentException>(
                 () => converter(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
 
-            Assert.Equal(Guid.Empty, converter(null));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]

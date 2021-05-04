@@ -159,11 +159,11 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             AssertSql(
-                @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[Details_Name]
+                @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
 FROM [Sample] AS [s]
 WHERE [s].[Unique_No] = 1",
                 //
-                @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[Details_Name]
+                @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
 FROM [Sample] AS [s]
 WHERE [s].[Unique_No] = 1",
                 //
@@ -197,11 +197,13 @@ SELECT @@ROWCOUNT;");
 @p1='Third' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000003'
 @p3='Third Additional Name' (Size = 4000)
-@p4='Third Name' (Size = 4000)
+@p4='0' (Nullable = true)
+@p5='Third Name' (Size = 4000)
+@p6='0' (Nullable = true)
 
 SET NOCOUNT ON;
-INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
-VALUES (@p0, @p1, @p2, @p3, @p4);
+INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 SELECT [Unique_No]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
@@ -216,11 +218,13 @@ WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
 @p3='Third Additional Name' (Size = 4000)
-@p4='Third Name' (Size = 4000)
+@p4='0' (Nullable = true)
+@p5='Third Name' (Size = 4000)
+@p6='0' (Nullable = true)
 
 SET NOCOUNT ON;
-INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
-VALUES (@p0, @p1, @p2, @p3, @p4);
+INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 SELECT [Unique_No]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();",
@@ -229,11 +233,13 @@ WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();",
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000002'
 @p3='Third Additional Name' (Size = 4000)
-@p4='Third Name' (Size = 4000)
+@p4='0' (Nullable = true)
+@p5='Third Name' (Size = 4000)
+@p6='0' (Nullable = true)
 
 SET NOCOUNT ON;
-INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [Details_Name])
-VALUES (@p0, @p1, @p2, @p3, @p4);
+INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 SELECT [Unique_No]
 FROM [Sample]
 WHERE @@ROWCOUNT = 1 AND [Unique_No] = scope_identity();");

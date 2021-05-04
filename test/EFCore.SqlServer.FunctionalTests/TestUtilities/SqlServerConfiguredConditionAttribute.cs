@@ -12,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     public sealed class SqlServerConfiguredConditionAttribute : Attribute, ITestCondition
     {
         public ValueTask<bool> IsMetAsync()
-            => new ValueTask<bool>(
-                TestEnvironment.IsConfigured && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !TestEnvironment.IsLocalDb));
+            => new(TestEnvironment.IsConfigured && (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || !TestEnvironment.IsLocalDb));
 
         public string SkipReason
             => TestEnvironment.IsLocalDb

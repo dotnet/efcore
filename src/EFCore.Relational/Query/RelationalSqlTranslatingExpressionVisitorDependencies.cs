@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class RelationalSqlTranslatingExpressionVisitorDependencies
+    public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
     {
         /// <summary>
         ///     <para>
@@ -54,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalSqlTranslatingExpressionVisitorDependencies(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
-            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IRelationalTypeMappingSource typeMappingSource,
+            IMemberTranslatorProvider memberTranslatorProvider,
+            IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
@@ -73,58 +72,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
         /// <summary>
         ///     The relational type mapping souce.
         /// </summary>
-        public IRelationalTypeMappingSource TypeMappingSource { get; }
+        public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The member translation provider.
         /// </summary>
-        public IMemberTranslatorProvider MemberTranslatorProvider { get; }
+        public IMemberTranslatorProvider MemberTranslatorProvider { get; init; }
 
         /// <summary>
         ///     The method-call translation provider.
         /// </summary>
-        public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                sqlExpressionFactory, TypeMappingSource, MemberTranslatorProvider, MethodCallTranslatorProvider);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IRelationalTypeMappingSource typeMappingSource)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, typeMappingSource, MemberTranslatorProvider, MethodCallTranslatorProvider);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memberTranslatorProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With([NotNull] IMemberTranslatorProvider memberTranslatorProvider)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, TypeMappingSource, memberTranslatorProvider, MethodCallTranslatorProvider);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="methodCallTranslatorProvider"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalSqlTranslatingExpressionVisitorDependencies With(
-            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
-            => new RelationalSqlTranslatingExpressionVisitorDependencies(
-                SqlExpressionFactory, TypeMappingSource, MemberTranslatorProvider, methodCallTranslatorProvider);
+        public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; init; }
     }
 }

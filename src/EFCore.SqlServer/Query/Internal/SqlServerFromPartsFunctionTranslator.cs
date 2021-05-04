@@ -1,10 +1,10 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -22,17 +22,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _dateFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _dateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _dateTime2FromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts),
                 new[]
                 {
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 });
 
         private static readonly MethodInfo _dateTimeOffsetFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts),
                 new[]
                 {
@@ -66,12 +66,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 });
 
         private static readonly MethodInfo _smallDateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
         private static readonly MethodInfo _timeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRuntimeMethod(
+            .GetRequiredRuntimeMethod(
                 nameof(SqlServerDbFunctionsExtensions.TimeFromParts),
                 new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) });
 
@@ -96,8 +96,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerFromPartsFunctionTranslator(
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IRelationalTypeMappingSource typeMappingSource)
+            ISqlExpressionFactory sqlExpressionFactory,
+            IRelationalTypeMappingSource typeMappingSource)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
             _typeMappingSource = typeMappingSource;
@@ -109,8 +109,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)

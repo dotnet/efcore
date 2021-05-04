@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogDecimalTypeKey;
+        public EventDefinitionBase? LogDecimalTypeKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogDefaultDecimalTypeColumn;
+        public EventDefinitionBase? LogDefaultDecimalTypeColumn;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogByteIdentityColumn;
+        public EventDefinitionBase? LogByteIdentityColumn;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundDefaultSchema;
+        public EventDefinitionBase? LogFoundDefaultSchema;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundTypeAlias;
+        public EventDefinitionBase? LogFoundTypeAlias;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundColumn;
+        public EventDefinitionBase? LogFoundColumn;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundForeignKey;
+        public EventDefinitionBase? LogFoundForeignKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogPrincipalTableNotInSelectionSet;
+        public EventDefinitionBase? LogPrincipalTableNotInSelectionSet;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogMissingSchema;
+        public EventDefinitionBase? LogMissingSchema;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogMissingTable;
+        public EventDefinitionBase? LogMissingTable;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundSequence;
+        public EventDefinitionBase? LogFoundSequence;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundTable;
+        public EventDefinitionBase? LogFoundTable;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundIndex;
+        public EventDefinitionBase? LogFoundIndex;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundPrimaryKey;
+        public EventDefinitionBase? LogFoundPrimaryKey;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogFoundUniqueConstraint;
+        public EventDefinitionBase? LogFoundUniqueConstraint;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogPrincipalColumnNotFound;
+        public EventDefinitionBase? LogPrincipalColumnNotFound;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogReflexiveConstraintIgnored;
+        public EventDefinitionBase? LogReflexiveConstraintIgnored;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogSavepointsDisabledBecauseOfMARS;
+        public EventDefinitionBase? LogSavepointsDisabledBecauseOfMARS;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -163,6 +163,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EventDefinitionBase LogConflictingValueGenerationStrategies;
+        public EventDefinitionBase? LogConflictingValueGenerationStrategies;
     }
 }

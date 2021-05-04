@@ -3,7 +3,6 @@
 
 using System;
 using System.Net.Http;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 {
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public HttpException([NotNull] HttpResponseMessage response)
+        public HttpException(HttpResponseMessage response)
             : base(response.ReasonPhrase)
         {
             // An error occurred while sending the request.

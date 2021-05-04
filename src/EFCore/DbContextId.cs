@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="obj"> The other ID. </param>
         /// <returns> <see langword="true" /> if they represent the same leased context; <see langword="false" /> otherwise. </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is DbContextId other && Equals(other);
 
         /// <summary>

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
@@ -28,13 +27,13 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     {
         private readonly TemporaryNumberValueGeneratorFactory _numberFactory
-            = new TemporaryNumberValueGeneratorFactory();
+            = new();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalValueGeneratorSelector([NotNull] ValueGeneratorSelectorDependencies dependencies)
+        public RelationalValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                     || propertyType == typeof(float)
                     || propertyType == typeof(double))
                 {
-                    return _numberFactory.Create(property);
+                    return _numberFactory.Create(property, entityType);
                 }
 
                 if (propertyType == typeof(DateTime))

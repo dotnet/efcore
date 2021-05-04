@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -15,6 +14,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -40,11 +41,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosQueryableMethodTranslatingExpressionVisitor(
-            [NotNull] QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IMemberTranslatorProvider memberTranslatorProvider,
-            [NotNull] IMethodCallTranslatorProvider methodCallTranslatorProvider)
+            QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
+            QueryCompilationContext queryCompilationContext,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IMemberTranslatorProvider memberTranslatorProvider,
+            IMethodCallTranslatorProvider methodCallTranslatorProvider)
             : base(dependencies, queryCompilationContext, subquery: false)
         {
             _queryCompilationContext = queryCompilationContext;
@@ -67,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected CosmosQueryableMethodTranslatingExpressionVisitor(
-            [NotNull] CosmosQueryableMethodTranslatingExpressionVisitor parentVisitor)
+            CosmosQueryableMethodTranslatingExpressionVisitor parentVisitor)
             : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
             _queryCompilationContext = parentVisitor._queryCompilationContext;
@@ -249,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         }
 
         private ShapedQueryExpression CreateShapedQueryExpression(Expression queryExpression, IEntityType entityType)
-            => new ShapedQueryExpression(
+            => new(
                 queryExpression,
                 new EntityShaperExpression(
                     entityType,
@@ -565,6 +566,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             return null;
@@ -618,6 +621,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(outer, nameof(outer));
             Check.NotNull(inner, nameof(inner));
+            Check.NotNull(outerKeySelector, nameof(outerKeySelector));
+            Check.NotNull(innerKeySelector, nameof(innerKeySelector));
             Check.NotNull(resultSelector, nameof(resultSelector));
 
             return null;
@@ -1159,7 +1164,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     if (valueExpression is ConstantExpression
                         || (valueExpression is ParameterExpression valueParameterExpression
-                            && valueParameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix) == true))
+                            && valueParameterExpression.Name?
+                                .StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true))
                     {
                         return valueExpression;
                     }

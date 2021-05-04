@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
-        private readonly StringBuilder _sqlBuilder = new StringBuilder();
+        private readonly StringBuilder _sqlBuilder = new();
         private IReadOnlyDictionary<string, object> _parameterValues;
         private List<SqlParameter> _sqlParameters;
         private bool _useValueProjection;
@@ -70,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual CosmosSqlQuery GetSqlQuery(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IReadOnlyDictionary<string, object> parameterValues)
+            SelectExpression selectExpression,
+            IReadOnlyDictionary<string, object> parameterValues)
         {
             _sqlBuilder.Clear();
             _parameterValues = parameterValues;
@@ -154,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             if (_useValueProjection)
             {
-                _sqlBuilder.Append("\"").Append(projectionExpression.Alias).Append("\" : ");
+                _sqlBuilder.Append('"').Append(projectionExpression.Alias).Append("\" : ");
             }
 
             Visit(projectionExpression.Expression);
@@ -209,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _useValueProjection = true;
                     _sqlBuilder.Append("VALUE {");
                     GenerateList(selectExpression.Projection, e => Visit(e));
-                    _sqlBuilder.Append("}");
+                    _sqlBuilder.Append('}');
                     _useValueProjection = false;
                 }
                 else
@@ -219,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
             else
             {
-                _sqlBuilder.Append("1");
+                _sqlBuilder.Append('1');
             }
 
             _sqlBuilder.AppendLine();
@@ -252,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
                 else
                 {
-                    _sqlBuilder.Append("0");
+                    _sqlBuilder.Append('0');
                 }
 
                 _sqlBuilder.Append(" LIMIT ");
@@ -302,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(sqlBinaryExpression, nameof(sqlBinaryExpression));
 
             var op = _operatorMap[sqlBinaryExpression.OperatorType];
-            _sqlBuilder.Append("(");
+            _sqlBuilder.Append('(');
             Visit(sqlBinaryExpression.Left);
 
             if (sqlBinaryExpression.OperatorType == ExpressionType.Add
@@ -314,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlBuilder.Append(op);
 
             Visit(sqlBinaryExpression.Right);
-            _sqlBuilder.Append(")");
+            _sqlBuilder.Append(')');
 
             return sqlBinaryExpression;
         }
@@ -339,9 +340,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             _sqlBuilder.Append(op);
 
-            _sqlBuilder.Append("(");
+            _sqlBuilder.Append('(');
             Visit(sqlUnaryExpression.Operand);
-            _sqlBuilder.Append(")");
+            _sqlBuilder.Append(')');
 
             return sqlUnaryExpression;
         }
@@ -388,7 +389,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var unwrappedType = typeMapping.ClrType.UnwrapNullableType();
                 value = unwrappedType.IsEnum
                     ? Enum.ToObject(unwrappedType, value)
-                    : value;
+                    : unwrappedType == typeof(char)
+                        ? Convert.ChangeType(value, unwrappedType)
+                        : value;
             }
 
             var converter = typeMapping.Converter;
@@ -412,13 +415,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(sqlConditionalExpression, nameof(sqlConditionalExpression));
 
-            _sqlBuilder.Append("(");
+            _sqlBuilder.Append('(');
             Visit(sqlConditionalExpression.Test);
             _sqlBuilder.Append(" ? ");
             Visit(sqlConditionalExpression.IfTrue);
             _sqlBuilder.Append(" : ");
             Visit(sqlConditionalExpression.IfFalse);
-            _sqlBuilder.Append(")");
+            _sqlBuilder.Append(')');
 
             return sqlConditionalExpression;
         }
@@ -458,12 +461,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             Visit(inExpression.Item);
             _sqlBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
-            _sqlBuilder.Append("(");
+            _sqlBuilder.Append('(');
             var valuesConstant = (SqlConstantExpression)inExpression.Values;
             var valuesList = ((IEnumerable<object>)valuesConstant.Value)
                 .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
             GenerateList(valuesList, e => Visit(e));
-            _sqlBuilder.Append(")");
+            _sqlBuilder.Append(')');
 
             return inExpression;
         }
@@ -479,9 +482,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(sqlFunctionExpression, nameof(sqlFunctionExpression));
 
             _sqlBuilder.Append(sqlFunctionExpression.Name);
-            _sqlBuilder.Append("(");
+            _sqlBuilder.Append('(');
             GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
-            _sqlBuilder.Append(")");
+            _sqlBuilder.Append(')');
 
             return sqlFunctionExpression;
         }

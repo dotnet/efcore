@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -16,25 +19,48 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     {
         public void TestEventLogging(
             Type eventIdType,
-            Type loggerExtensionsType,
-            Type loggerDefinitionsType,
+            Type loggerExtensionType,
+            LoggingDefinitions loggerDefinitions,
             IDictionary<Type, Func<object>> fakeFactories,
             Dictionary<string, IList<string>> eventMappings = null)
+            => TestEventLogging(
+                eventIdType,
+                loggerExtensionType,
+                loggerMethodTypes: Array.Empty<Type>(),
+                loggerDefinitions,
+                fakeFactories,
+                serviceCollectionBuilder: services => new EntityFrameworkServicesBuilder(services).TryAddCoreServices(),
+                eventMappings);
+
+        public void TestEventLogging(
+            Type eventIdType,
+            Type loggerExtensionType,
+            Type[] loggerMethodTypes,
+            LoggingDefinitions loggerDefinitions,
+            IDictionary<Type, Func<object>> fakeFactories,
+            Action<ServiceCollection> serviceCollectionBuilder,
+            Dictionary<string, IList<string>> eventMappings = null)
         {
+            var testLoggerFactory = new TestLoggerFactory(loggerDefinitions);
+            var testLogger = testLoggerFactory.Logger;
+            var testDiagnostics = new TestDiagnosticSource();
+            var contextLogger = new TestDbContextLogger();
+
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(LoggingDefinitions), loggerDefinitions));
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(ILoggerFactory), testLoggerFactory));
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(DiagnosticSource), testDiagnostics));
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(IDbContextLogger), contextLogger));
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(IDbContextOptions), new DbContextOptionsBuilder().Options));
+            serviceCollectionBuilder(serviceCollection);
+            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            using var serviceScope = serviceProvider.CreateScope();
+            var scopeServiceProvider = serviceScope.ServiceProvider;
+
             var eventIdFields = eventIdType.GetTypeInfo()
                 .DeclaredFields
                 .Where(p => p.FieldType == typeof(EventId) && p.GetCustomAttribute<ObsoleteAttribute>() == null)
                 .ToList();
-
-            var declaredMethods = loggerExtensionsType.GetTypeInfo()
-                .DeclaredMethods
-                .Where(m => m.IsPublic)
-                .OrderBy(e => e.Name)
-                .ToList();
-
-            var loggerMethods = declaredMethods
-                .GroupBy(e => e.Name)
-                .ToDictionary(m => m.Key, e => e.First());
 
             foreach (var eventIdField in eventIdFields)
             {
@@ -47,12 +73,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                 foreach (var mappedName in mappedNames)
                 {
-                    Assert.Contains(mappedName, loggerMethods.Keys);
+                    var loggerMethod = loggerMethodTypes
+                        .Append(loggerExtensionType)
+                        .Select(t => t.GetMethod(mappedName))
+                        .FirstOrDefault(m => m is not null);
 
-                    var loggerMethod = loggerMethods[mappedName];
+                    Assert.True(loggerMethod is not null, $"Couldn't find logger method {mappedName}");
 
+                    var isExtensionMethod = loggerMethod.IsStatic;
                     var loggerParameters = loggerMethod.GetParameters();
-                    var category = loggerParameters[0].ParameterType.GenericTypeArguments[0];
+
+                    var category = isExtensionMethod
+                        ? loggerParameters[0].ParameterType.GenericTypeArguments[0]
+                        : loggerMethod.DeclaringType!.GetInterfaces()
+                            .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDiagnosticsLogger<>))
+                            .GetGenericArguments()[0];
 
                     if (category.ContainsGenericParameters)
                     {
@@ -67,15 +102,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var categoryName = Activator.CreateInstance(category).ToString();
                     Assert.Equal(categoryName + "." + eventName, eventId.Name);
 
-                    var testLogger =
-                        (TestLoggerBase)Activator.CreateInstance(typeof(TestLogger<,>).MakeGenericType(category, loggerDefinitionsType));
-                    var testDiagnostics = (TestDiagnosticSource)testLogger.DiagnosticSource;
-                    var contextLogger = (TestDbContextLogger)testLogger.DbContextLogger;
+                    var diagnosticLogger = scopeServiceProvider.GetRequiredService(
+                        isExtensionMethod
+                            ? typeof(IDiagnosticsLogger<>).MakeGenericType(category)
+                            : loggerMethod.DeclaringType);
 
                     var args = new object[loggerParameters.Length];
-                    args[0] = testLogger;
+                    var i = 0;
+                    if (isExtensionMethod)
+                    {
+                        args[i++] = diagnosticLogger;
+                    }
 
-                    for (var i = 1; i < args.Length; i++)
+                    for (; i < args.Length; i++)
                     {
                         var type = loggerParameters[i].ParameterType;
 
@@ -113,11 +152,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             testLogger.LoggedAt = null;
                             testDiagnostics.LoggedEventName = null;
 
-                            loggerMethod.Invoke(null, args);
+                            loggerMethod.Invoke(isExtensionMethod ? null : diagnosticLogger, args);
 
-                            if (testLogger.LoggedAt != null)
+                            if (testLoggerFactory.LoggedAt != null)
                             {
-                                Assert.Equal(logLevel, testLogger.LoggedAt);
+                                Assert.Equal(logLevel, testLoggerFactory.LoggedAt);
                                 logged = true;
 
                                 if (categoryName != DbLoggerCategory.Scaffolding.Name)

@@ -105,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
                 property.ValueGenerated = generateValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             }
 
-            return model.FinalizeModel();
+            return InMemoryTestHelpers.Instance.Finalize(builder);
         }
 
         private class AnEntity

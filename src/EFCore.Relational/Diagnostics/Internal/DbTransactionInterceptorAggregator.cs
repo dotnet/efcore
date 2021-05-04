@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         {
             private readonly IDbTransactionInterceptor[] _interceptors;
 
-            public CompositeDbTransactionInterceptor([NotNull] IEnumerable<IDbTransactionInterceptor> interceptors)
+            public CompositeDbTransactionInterceptor(IEnumerable<IDbTransactionInterceptor> interceptors)
             {
                 _interceptors = interceptors.ToArray();
             }

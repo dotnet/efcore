@@ -11,8 +11,8 @@ namespace Microsoft.Data.Sqlite.TestUtilities
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public sealed class UseCultureAttribute : BeforeAfterTestAttribute
     {
-        private CultureInfo _originalCulture;
-        private CultureInfo _originalUICulture;
+        private CultureInfo? _originalCulture;
+        private CultureInfo? _originalUICulture;
 
         public UseCultureAttribute(string culture)
             : this(culture, culture)
@@ -39,8 +39,8 @@ namespace Microsoft.Data.Sqlite.TestUtilities
 
         public override void After(MethodInfo methodUnderTest)
         {
-            CultureInfo.CurrentCulture = _originalCulture;
-            CultureInfo.CurrentUICulture = _originalUICulture;
+            CultureInfo.CurrentCulture = _originalCulture!;
+            CultureInfo.CurrentUICulture = _originalUICulture!;
         }
     }
 }

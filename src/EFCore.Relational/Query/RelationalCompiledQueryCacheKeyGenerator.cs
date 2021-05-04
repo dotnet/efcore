@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this service. </param>
         public RelationalCompiledQueryCacheKeyGenerator(
-            [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
-            [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
+            CompiledQueryCacheKeyGeneratorDependencies dependencies,
+            RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
         protected new RelationalCompiledQueryCacheKey
-            GenerateCacheKeyCore([NotNull] Expression query, bool async) // Intentionally non-virtual
+            GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
         {
             var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
 
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     <see langword="true" /> if the object is a <see cref="RelationalCompiledQueryCacheKey" /> and is for the same query,
             ///     otherwise <see langword="false" />.
             /// </returns>
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is RelationalCompiledQueryCacheKey key
                     && Equals(key);
 

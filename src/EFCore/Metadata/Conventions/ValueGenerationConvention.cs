@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ValueGenerationConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ValueGenerationConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ValueGenerationConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -87,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 OnForeignKeyRemoved(oldDependentProperties);
 
-                if (relationshipBuilder.Metadata.Builder != null
+                if (relationshipBuilder.Metadata.IsInModel
                     && !foreignKey.IsBaseLinking())
                 {
                     foreach (var property in foreignKey.Properties)
@@ -105,7 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var pk = property.FindContainingPrimaryKey();
                 if (pk == null)
                 {
-                    property.Builder?.ValueGenerated(GetValueGenerated(property));
+                    if (property.IsInModel)
+                    {
+                        property.Builder.ValueGenerated(GetValueGenerated(property));
+                    }
                 }
                 else
                 {
@@ -126,19 +128,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypePrimaryKeyChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionKey newPrimaryKey,
-            IConventionKey previousPrimaryKey,
+            IConventionKey? newPrimaryKey,
+            IConventionKey? previousPrimaryKey,
             IConventionContext<IConventionKey> context)
         {
             if (previousPrimaryKey != null)
             {
                 foreach (var property in previousPrimaryKey.Properties)
                 {
-                    property.Builder?.ValueGenerated(ValueGenerated.Never);
+                    if (property.IsInModel)
+                    {
+                        property.Builder.ValueGenerated(ValueGenerated.Never);
+                    }
                 }
             }
 
-            if (newPrimaryKey?.Builder != null)
+            if (newPrimaryKey?.IsInModel == true)
             {
                 foreach (var property in newPrimaryKey.Properties)
                 {
@@ -156,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (entityTypeBuilder.Metadata.BaseType != newBaseType)
@@ -176,28 +181,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        protected virtual ValueGenerated? GetValueGenerated([NotNull] IConventionProperty property)
-            => GetValueGenerated((IProperty)property);
+        protected virtual ValueGenerated? GetValueGenerated(IConventionProperty property)
+            => GetValueGenerated((IReadOnlyProperty)property);
 
         /// <summary>
         ///     Returns the store value generation strategy to set for the given property.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        public static ValueGenerated? GetValueGenerated([NotNull] IProperty property)
+        public static ValueGenerated? GetValueGenerated(IReadOnlyProperty property)
             => !property.GetContainingForeignKeys().Any(fk => !fk.IsBaseLinking())
                 && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
                 && CanBeGenerated(property)
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null;
 
-        private static bool ShouldHaveGeneratedProperty(IKey key)
-        {
-            var onOwnedType = key?.DeclaringEntityType.IsOwned();
-            return key != null
-                && (onOwnedType.Value && key.Properties.Count(p => !p.IsForeignKey()) == 1
-                    || !onOwnedType.Value && key.Properties.Count == 1);
-        }
+        private static bool ShouldHaveGeneratedProperty(IReadOnlyKey? key)
+            => key != null
+                && key.DeclaringEntityType.IsOwned() is var onOwnedType
+                && (onOwnedType && key.Properties.Count(p => !p.IsForeignKey()) == 1
+                    || !onOwnedType && key.Properties.Count == 1);
 
         /// <summary>
         ///     Indicates whether the specified property can have the value generated by the store or by a non-temporary value generator
@@ -205,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="property"> The key property that might be store generated. </param>
         /// <returns> A value indicating whether the specified property should have the value generated by the store. </returns>
-        private static bool CanBeGenerated(IProperty property)
+        private static bool CanBeGenerated(IReadOnlyProperty property)
         {
             var propertyType = property.ClrType.UnwrapNullableType();
             return (propertyType.IsInteger()

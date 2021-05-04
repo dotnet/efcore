@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -21,11 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         string WriteCode(
-            [NotNull] IModel model,
-            [NotNull] string contextName,
-            [NotNull] string connectionString,
-            [CanBeNull] string contextNamespace,
-            [NotNull] string modelNamespace,
+            IModel model,
+            string contextName,
+            string connectionString,
+            string? contextNamespace,
+            string? modelNamespace,
             bool useDataAnnotations,
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring);

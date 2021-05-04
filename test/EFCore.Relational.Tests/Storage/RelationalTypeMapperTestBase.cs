@@ -7,10 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public abstract class RelationalTypeMapperTestBase
     {
-        protected IMutableEntityType CreateEntityType()
-            => CreateModel().FindEntityType(typeof(MyType));
-
-        protected IMutableModel CreateModel()
+        protected IMutableEntityType CreateEntityType<TEntity>()
         {
             var builder = CreateModelBuilder();
 
@@ -26,8 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             builder.Entity<MyPrecisionType>().Property(e => e.PrecisionAndScale).HasPrecision(18, 7);
             builder.Entity<MyTypeWithIndexAttribute>();
 
-            return builder.Model;
+            return builder.Model.FindEntityType(typeof(TEntity));
         }
+
+        protected IModel CreateModel() => CreateEntityType<MyType>().Model.FinalizeModel();
 
         protected abstract ModelBuilder CreateModelBuilder();
 

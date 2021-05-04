@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -98,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public GiddyupContext([NotNull] IServiceProvider serviceProvider)
+            public GiddyupContext(IServiceProvider serviceProvider)
             {
                 _serviceProvider = serviceProvider;
             }

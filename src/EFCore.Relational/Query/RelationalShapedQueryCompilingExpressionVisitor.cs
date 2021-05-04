@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         private readonly Type _contextType;
         private readonly ISet<string> _tags;
+        private readonly bool _threadSafetyChecksEnabled;
         private readonly bool _detailedErrorsEnabled;
         private readonly bool _useRelationalNulls;
 
@@ -30,9 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         public RelationalShapedQueryCompilingExpressionVisitor(
-            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            [NotNull] RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
-            [NotNull] QueryCompilationContext queryCompilationContext)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies,
+            QueryCompilationContext queryCompilationContext)
             : base(dependencies, queryCompilationContext)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -41,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _contextType = queryCompilationContext.ContextType;
             _tags = queryCompilationContext.Tags;
-            _detailedErrorsEnabled = relationalDependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
+            _threadSafetyChecksEnabled = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled;
+            _detailedErrorsEnabled = dependencies.CoreSingletonOptions.AreDetailedErrorsEnabled;
             _useRelationalNulls = RelationalOptionsExtension.Extract(queryCompilationContext.ContextOptions).UseRelationalNulls;
         }
 
@@ -59,10 +61,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             VerifyNoClientConstant(shapedQueryExpression.ShaperExpression);
             var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
-            var splitQuery = ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior
-                == QuerySplittingBehavior.SplitQuery;
+            var querySplittingBehavior = ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior;
+            var splitQuery = querySplittingBehavior == QuerySplittingBehavior.SplitQuery;
+            var collectionCount = 0;
             var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
-                shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders);
+                shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var relatedDataLoaders, ref collectionCount);
+            if (querySplittingBehavior == null
+                && collectionCount > 1)
+            {
+                QueryCompilationContext.Logger.MultipleCollectionIncludeWarning();
+            }
 
             if (nonComposedFromSql)
             {
@@ -77,7 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(_contextType),
                     Expression.Constant(
                         QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Expression.Constant(_detailedErrorsEnabled));
+                    Expression.Constant(_detailedErrorsEnabled),
+                    Expression.Constant(_threadSafetyChecksEnabled));
             }
 
             if (splitQuery)
@@ -100,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     Expression.Constant(_contextType),
                     Expression.Constant(
                         QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Expression.Constant(_detailedErrorsEnabled));
+                    Expression.Constant(_detailedErrorsEnabled),
+                    Expression.Constant(_threadSafetyChecksEnabled));
             }
 
             return Expression.New(
@@ -111,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 Expression.Constant(_contextType),
                 Expression.Constant(
                     QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),
-                    Expression.Constant(_detailedErrorsEnabled));
+                Expression.Constant(_detailedErrorsEnabled),
+                Expression.Constant(_threadSafetyChecksEnabled));
         }
     }
 }

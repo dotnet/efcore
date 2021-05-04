@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -28,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime">The start time of this event. </param>
         /// <param name="duration">The duration this event. </param>
         public DataReaderDisposingEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbCommand command,
-            [NotNull] DbDataReader dataReader,
-            [CanBeNull] DbContext context,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbCommand command,
+            DbDataReader dataReader,
+            DbContext? context,
             Guid commandId,
             Guid connectionId,
             int recordsAffected,

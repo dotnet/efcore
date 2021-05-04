@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
@@ -20,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Creates a new <see cref="SingularModificationCommandBatch" /> instance.
         /// </summary>
         /// <param name="dependencies"> Service dependencies. </param>
-        public SingularModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
+        public SingularModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
             : base(dependencies)
         {
         }

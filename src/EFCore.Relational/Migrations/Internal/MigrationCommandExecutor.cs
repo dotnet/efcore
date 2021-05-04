@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 try
                 {
-                    IDbContextTransaction transaction = null;
+                    IDbContextTransaction? transaction = null;
 
                     try
                     {
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 try
                 {
-                    IDbContextTransaction transaction = null;
+                    IDbContextTransaction? transaction = null;
 
                     try
                     {

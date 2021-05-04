@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -29,10 +28,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="arguments"> SQL representations of <see cref="MethodCallExpression.Arguments" />. </param>
         /// <param name="logger"> The query logger to use. </param>
         /// <returns> A SQL translation of the <see cref="MethodCallExpression" />. </returns>
-        SqlExpression Translate(
-            [CanBeNull] SqlExpression instance,
-            [NotNull] MethodInfo method,
-            [NotNull] IReadOnlyList<SqlExpression> arguments,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger);
+        SqlExpression? Translate(
+            SqlExpression? instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger);
     }
 }

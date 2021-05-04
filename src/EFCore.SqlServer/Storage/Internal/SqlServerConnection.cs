@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         // Compensate for slow SQL Server database creation
         private const int DefaultMasterConnectionCommandTimeout = 60;
 
-        private static readonly ConcurrentDictionary<string, bool> _multipleActiveResultSetsEnabledMap =
-            new ConcurrentDictionary<string, bool>();
+        private static readonly ConcurrentDictionary<string, bool> _multipleActiveResultSetsEnabledMap = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerConnection([NotNull] RelationalConnectionDependencies dependencies)
+        public SqlServerConnection(RelationalConnectionDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -89,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout))
                 .Options;
 
-            return new SqlServerConnection(Dependencies.With(contextOptions));
+            return new SqlServerConnection(Dependencies with { ContextOptions = contextOptions });
         }
 
         /// <summary>

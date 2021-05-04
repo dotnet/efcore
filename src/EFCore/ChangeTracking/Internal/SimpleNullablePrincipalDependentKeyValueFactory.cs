@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
+
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -31,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SimpleNullablePrincipalDependentKeyValueFactory(
-            [NotNull] IProperty property,
-            [NotNull] PropertyAccessors propertyAccessors)
+            IProperty property,
+            PropertyAccessors propertyAccessors)
         {
             _propertyAccessors = propertyAccessors;
             EqualityComparer = property.CreateKeyEqualityComparer<TKey>();
@@ -52,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, out TKey key)
+        public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key)
         {
-            var value = _propertyAccessors.ValueBufferGetter(valueBuffer);
+            var value = _propertyAccessors.ValueBufferGetter!(valueBuffer);
             if (value == null)
             {
                 key = default;
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
         {
             key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.CurrentValueGetter)(entry);
             return true;
@@ -83,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
         {
             key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry);
             return true;
@@ -95,9 +96,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
         {
-            key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.OriginalValueGetter)(entry);
+            key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.OriginalValueGetter!)(entry);
             return true;
         }
 
@@ -107,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, out TKey key)
+        public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
         {
             key = (TKey)(object)((Func<IUpdateEntry, TNonNullableKey>)_propertyAccessors.RelationshipSnapshotGetter)(entry);
             return true;

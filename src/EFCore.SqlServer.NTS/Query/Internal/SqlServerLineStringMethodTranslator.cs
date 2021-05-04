@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerLineStringMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _getPointN = typeof(LineString).GetRuntimeMethod(
+        private static readonly MethodInfo _getPointN = typeof(LineString).GetRequiredRuntimeMethod(
             nameof(LineString.GetPointN), new[] { typeof(int) });
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerLineStringMethodTranslator(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(logger, nameof(logger));
 
-            if (Equals(method, _getPointN))
+            if (Equals(method, _getPointN)
+                && instance != null)
             {
                 return _sqlExpressionFactory.Function(
                     instance,
@@ -72,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     instancePropagatesNullability: true,
                     argumentsPropagateNullability: new[] { true },
                     method.ReturnType,
-                    _typeMappingSource.FindMapping(method.ReturnType, instance.TypeMapping.StoreType));
+                    _typeMappingSource.FindMapping(method.ReturnType, instance.TypeMapping!.StoreType));
             }
 
             return null;

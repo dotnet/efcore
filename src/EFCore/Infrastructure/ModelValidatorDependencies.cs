@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ModelValidatorDependencies
+    public sealed record ModelValidatorDependencies
     {
         /// <summary>
         ///     <para>
@@ -59,42 +59,28 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public ModelValidatorDependencies(
-            [NotNull] ITypeMappingSource typeMappingSource,
-            [NotNull] IMemberClassifier memberClassifier)
+            ITypeMappingSource typeMappingSource,
+            IMemberClassifier memberClassifier)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
             Check.NotNull(memberClassifier, nameof(memberClassifier));
 
+#pragma warning disable CS0618 // Type or member is obsolete
             TypeMappingSource = typeMappingSource;
+#pragma warning restore CS0618 // Type or member is obsolete
             MemberClassifier = memberClassifier;
         }
 
         /// <summary>
         ///     The type mapper.
         /// </summary>
-        public ITypeMappingSource TypeMappingSource { get; }
+        [Obsolete("The model now contains this dependency")]
+        public ITypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>
         ///     The member classifier.
         /// </summary>
         [EntityFrameworkInternal]
-        public IMemberClassifier MemberClassifier { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="typeMappingSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModelValidatorDependencies With([NotNull] ITypeMappingSource typeMappingSource)
-            => new ModelValidatorDependencies(typeMappingSource, MemberClassifier);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="memberClassifier"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [EntityFrameworkInternal]
-        public ModelValidatorDependencies With([NotNull] IMemberClassifier memberClassifier)
-            => new ModelValidatorDependencies(TypeMappingSource, memberClassifier);
+        public IMemberClassifier MemberClassifier { get; init; }
     }
 }

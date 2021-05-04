@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -30,6 +30,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The context to get the model cache key for.
         /// </param>
         /// <returns> The created key. </returns>
-        object Create([NotNull] DbContext context);
+        [Obsolete("Use the overload with most parameters")]
+        object Create(DbContext context);
+
+        /// <summary>
+        ///     Gets the model cache key for a given context.
+        /// </summary>
+        /// <param name="context">
+        ///     The context to get the model cache key for.
+        /// </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
+        /// <returns> The created key. </returns>
+        object Create(DbContext context, bool designTime)
+#pragma warning disable CS0618 // Type or member is obsolete
+            => Create(context);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

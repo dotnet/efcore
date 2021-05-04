@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -44,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
         public SqlUnaryExpression(
             ExpressionType operatorType,
-            [NotNull] SqlExpression operand,
-            [NotNull] Type type,
-            [CanBeNull] RelationalTypeMapping typeMapping)
+            SqlExpression operand,
+            Type type,
+            RelationalTypeMapping? typeMapping)
             : base(type, typeMapping)
         {
             Check.NotNull(operand, nameof(operand));
@@ -87,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="operand"> The <see cref="Operand" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual SqlUnaryExpression Update([NotNull] SqlExpression operand)
+        public virtual SqlUnaryExpression Update(SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));
 
@@ -101,11 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            if (OperatorType == ExpressionType.Convert)
+            if (OperatorType == ExpressionType.Convert
+                && TypeMapping != null)
             {
                 expressionPrinter.Append("CAST(");
                 expressionPrinter.Visit(Operand);
-                expressionPrinter.Append(")");
                 expressionPrinter.Append(" AS ");
                 expressionPrinter.Append(TypeMapping.StoreType);
                 expressionPrinter.Append(")");
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlUnaryExpression sqlUnaryExpression

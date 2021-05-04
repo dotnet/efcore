@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using JetBrains.Annotations;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteDatabaseCreator(
-            [NotNull] RelationalDatabaseCreatorDependencies dependencies,
-            [NotNull] ISqliteRelationalConnection connection,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
+            RelationalDatabaseCreatorDependencies dependencies,
+            ISqliteRelationalConnection connection,
+            IRawSqlCommandBuilder rawSqlCommandBuilder)
             : base(dependencies)
         {
             _connection = connection;
@@ -116,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         null,
                         null,
                         null,
-                        Dependencies.CommandLogger));
+                        Dependencies.CommandLogger))!;
 
             return count != 0;
         }
@@ -129,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public override void Delete()
         {
-            string path = null;
+            string? path = null;
 
             Dependencies.Connection.Open();
             try

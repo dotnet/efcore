@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="type"> The type. </param>
         /// <returns> The human-readable name. </returns>
-        public static string ShortDisplayName([NotNull] this Type type)
+        public static string ShortDisplayName(this Type type)
             => type.DisplayName(fullName: false);
     }
 }

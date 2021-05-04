@@ -48,10 +48,10 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
         {
             Point CreatePoint(double y = 2.2)
-                => new Point(1.1, y, 3.3);
+                => new(1.1, y, 3.3);
 
             Polygon CreatePolygon(double y = 2.2)
-                => new Polygon(
+                => new(
                     new LinearRing(
                         new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, y), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }));
 

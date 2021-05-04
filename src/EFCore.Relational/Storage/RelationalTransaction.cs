@@ -6,7 +6,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -26,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     {
         private readonly DbTransaction _dbTransaction;
         private readonly bool _transactionOwned;
+        private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
         private bool _connectionClosed;
         private bool _disposed;
@@ -40,16 +40,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transactionOwned">
         ///     A value indicating whether the transaction is owned by this class (i.e. if it can be disposed when this class is disposed).
         /// </param>
+        /// <param name="sqlGenerationHelper"> The SQL generation helper to use. </param>
         public RelationalTransaction(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction transaction,
+            IRelationalConnection connection,
+            DbTransaction transaction,
             Guid transactionId,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
-            bool transactionOwned)
+            IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
+            bool transactionOwned,
+            ISqlGenerationHelper sqlGenerationHelper)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(transaction, nameof(transaction));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
 
             if (connection.DbConnection != transaction.Connection)
             {
@@ -62,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             _dbTransaction = transaction;
             Logger = logger;
             _transactionOwned = transactionOwned;
+            _sqlGenerationHelper = sqlGenerationHelper;
         }
 
         /// <summary>
@@ -279,7 +283,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetCreateSavepointSql(name);
+                    command.CommandText = _sqlGenerationHelper.GenerateCreateSavepointStatement(name);
                     command.ExecuteNonQuery();
                 }
 
@@ -323,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetCreateSavepointSql(name);
+                    command.CommandText = _sqlGenerationHelper.GenerateCreateSavepointStatement(name);
                     await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
                 }
 
@@ -350,15 +354,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        /// <summary>
-        ///     When implemented in a provider supporting transaction savepoints, this method should return an
-        ///     SQL statement which creates a savepoint with the given name.
-        /// </summary>
-        /// <param name="name"> The name of the savepoint to be created. </param>
-        /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetCreateSavepointSql([NotNull] string name)
-            => "SAVEPOINT " + name;
-
         /// <inheritdoc />
         public virtual void RollbackToSavepoint(string name)
         {
@@ -377,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetRollbackToSavepointSql(name);
+                    command.CommandText = _sqlGenerationHelper.GenerateRollbackToSavepointStatement(name);
                     command.ExecuteNonQuery();
                 }
 
@@ -421,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetRollbackToSavepointSql(name);
+                    command.CommandText = _sqlGenerationHelper.GenerateRollbackToSavepointStatement(name);
                     await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
                 }
 
@@ -448,15 +443,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        /// <summary>
-        ///     When implemented in a provider supporting transaction savepoints, this method should return an
-        ///     SQL statement which rolls back a savepoint with the given name.
-        /// </summary>
-        /// <param name="name"> The name of the savepoint to be created. </param>
-        /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetRollbackToSavepointSql([NotNull] string name)
-            => "ROLLBACK TO " + name;
-
         /// <inheritdoc />
         public virtual void ReleaseSavepoint(string name)
         {
@@ -475,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetReleaseSavepointSql(name);
+                    command.CommandText = _sqlGenerationHelper.GenerateReleaseSavepointStatement(name);
                     command.ExecuteNonQuery();
                 }
 
@@ -519,7 +505,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     using var command = Connection.DbConnection.CreateCommand();
                     command.Transaction = _dbTransaction;
-                    command.CommandText = GetReleaseSavepointSql(name);
+                    command.CommandText = _sqlGenerationHelper.GenerateReleaseSavepointStatement(name);
                     await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
                 }
 
@@ -545,21 +531,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw;
             }
         }
-
-        /// <summary>
-        ///     <para>
-        ///         When implemented in a provider supporting transaction savepoints, this method should return an
-        ///         SQL statement which releases a savepoint with the given name.
-        ///     </para>
-        ///     <para>
-        ///         If savepoint release isn't supported, <see cref="ReleaseSavepoint " /> and <see cref="ReleaseSavepointAsync " /> should
-        ///         be overridden to do nothing.
-        ///     </para>
-        /// </summary>
-        /// <param name="name"> The name of the savepoint to be created. </param>
-        /// <returns> An SQL string to create the savepoint. </returns>
-        protected virtual string GetReleaseSavepointSql([NotNull] string name)
-            => "RELEASE SAVEPOINT " + name;
 
         /// <inheritdoc />
         public virtual bool SupportsSavepoints

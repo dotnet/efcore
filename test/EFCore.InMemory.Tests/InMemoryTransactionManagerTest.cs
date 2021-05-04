@@ -3,12 +3,15 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -17,6 +20,59 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class InMemoryTransactionManagerTest
     {
+        private class FakeTransactionManagerContext : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .ReplaceService<IDbContextTransactionManager, FakeTransactionManager>()
+                    .EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString());
+        }
+
+        private class FakeTransactionManager : IDbContextTransactionManager
+        {
+            public void ResetState()
+                => throw new NotImplementedException();
+
+            public Task ResetStateAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public IDbContextTransaction BeginTransaction()
+                => throw new NotImplementedException();
+
+            public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public void CommitTransaction()
+                => throw new NotImplementedException();
+
+            public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public void RollbackTransaction()
+                => throw new NotImplementedException();
+
+            public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public IDbContextTransaction CurrentTransaction
+                => throw new NotImplementedException();
+        }
+
+        [ConditionalFact]
+        public void Enlist_operations_fails_if_provider_does_not_support_enlistment()
+        {
+            using var context = new FakeTransactionManagerContext();
+
+            Assert.Equal(
+                CoreStrings.TransactionsNotSupported,
+                Assert.Throws<NotSupportedException>(() => context.Database.EnlistTransaction(Transaction.Current)).Message);
+
+            Assert.Equal(
+                CoreStrings.TransactionsNotSupported,
+                Assert.Throws<NotSupportedException>(() => context.Database.GetEnlistedTransaction()).Message);
+        }
+
         [ConditionalFact]
         public void CurrentTransaction_returns_null()
         {

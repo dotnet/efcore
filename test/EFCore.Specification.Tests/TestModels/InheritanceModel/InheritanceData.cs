@@ -42,7 +42,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel
                         EagleId = ((Bird)a).EagleId,
                         IsFlightless = ((Bird)a).IsFlightless,
                         FoundOn = ((Kiwi)a).FoundOn,
-                    }).ToList().AsReadOnly();
+                    }).ToList();
+        }
+
+        public InheritanceData(
+            IReadOnlyList<Animal> animals,
+            IReadOnlyList<AnimalQuery> animalQueries,
+            IReadOnlyList<Country> countries,
+            IReadOnlyList<Drink> drinks,
+            IReadOnlyList<Plant> plants)
+        {
+            Animals = animals;
+            AnimalQueries = animalQueries;
+            Countries = countries;
+            Drinks = drinks;
+            Plants = plants;
         }
 
         public virtual IQueryable<TEntity> Set<TEntity>()
@@ -157,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel
         public static IReadOnlyList<Country> CreateCountries()
             => new List<Country>
             {
-                new Country { Id = 1, Name = "New Zealand" }, new Country { Id = 2, Name = "USA" },
+                new() { Id = 1, Name = "New Zealand" }, new() { Id = 2, Name = "USA" },
             };
 
         public static IReadOnlyList<Drink> CreateDrinks()
