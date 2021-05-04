@@ -22,35 +22,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents an entity type in a model.
     /// </summary>
-    public class SlimEntityType : AnnotatableBase, IRuntimeEntityType
+    public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     {
-        private readonly List<SlimForeignKey> _foreignKeys = new();
+        private readonly List<RuntimeForeignKey> _foreignKeys = new();
 
-        private readonly SortedDictionary<string, SlimNavigation> _navigations
+        private readonly SortedDictionary<string, RuntimeNavigation> _navigations
             = new(StringComparer.Ordinal);
 
-        private readonly SortedDictionary<string, SlimSkipNavigation> _skipNavigations
+        private readonly SortedDictionary<string, RuntimeSkipNavigation> _skipNavigations
             = new(StringComparer.Ordinal);
 
-        private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, SlimIndex> _unnamedIndexes
+        private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeIndex> _unnamedIndexes
             = new(PropertyListComparer.Instance);
 
-        private readonly SortedDictionary<string, SlimIndex> _namedIndexes
+        private readonly SortedDictionary<string, RuntimeIndex> _namedIndexes
             = new(StringComparer.Ordinal);
 
-        private readonly SortedDictionary<string, SlimProperty> _properties;
+        private readonly SortedDictionary<string, RuntimeProperty> _properties;
 
-        private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, SlimKey> _keys
+        private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeKey> _keys
             = new(PropertyListComparer.Instance);
 
-        private readonly SortedDictionary<string, SlimServiceProperty> _serviceProperties
+        private readonly SortedDictionary<string, RuntimeServiceProperty> _serviceProperties
             = new(StringComparer.Ordinal);
 
-        private SlimKey? _primaryKey;
+        private RuntimeKey? _primaryKey;
         private readonly bool _hasSharedClrType;
         private readonly Type _clrType;
-        private readonly SlimEntityType? _baseType;
-        private readonly SortedSet<SlimEntityType> _directlyDerivedTypes = new(EntityTypeFullNameComparer.Instance);
+        private readonly RuntimeEntityType? _baseType;
+        private readonly SortedSet<RuntimeEntityType> _directlyDerivedTypes = new(EntityTypeFullNameComparer.Instance);
         private readonly ChangeTrackingStrategy _changeTrackingStrategy;
         private InstantiationBinding? _constructorBinding;
         private InstantiationBinding? _serviceOnlyConstructorBinding;
@@ -77,12 +77,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimEntityType(
+        public RuntimeEntityType(
             string name,
             Type type,
             bool sharedClrType,
-            SlimModel model,
-            SlimEntityType? baseType,
+            RuntimeModel model,
+            RuntimeEntityType? baseType,
             string? discriminatorProperty,
             ChangeTrackingStrategy changeTrackingStrategy,
             PropertyInfo? indexerPropertyInfo,
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             _isPropertyBag = propertyBag;
             SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
 
-            _properties = new SortedDictionary<string, SlimProperty>(new PropertyNameComparer(this));
+            _properties = new SortedDictionary<string, RuntimeProperty>(new PropertyNameComparer(this));
         }
 
         /// <summary>
@@ -113,16 +113,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the model that this type belongs to.
         /// </summary>
-        public virtual SlimModel Model { [DebuggerStepThrough] get; }
+        public virtual RuntimeModel Model { [DebuggerStepThrough] get; }
 
-        private IEnumerable<SlimEntityType> GetDerivedTypes()
+        private IEnumerable<RuntimeEntityType> GetDerivedTypes()
         {
             if (_directlyDerivedTypes.Count == 0)
             {
-                return Enumerable.Empty<SlimEntityType>();
+                return Enumerable.Empty<RuntimeEntityType>();
             }
 
-            var derivedTypes = new List<SlimEntityType>();
+            var derivedTypes = new List<RuntimeEntityType>();
             var type = this;
             var currentTypeIndex = 0;
             while (type != null)
@@ -137,14 +137,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return derivedTypes;
         }
 
-        private SlimKey? FindPrimaryKey()
+        private RuntimeKey? FindPrimaryKey()
             => _baseType?.FindPrimaryKey() ?? _primaryKey;
 
         /// <summary>
         ///     Sets the primary key for this entity type.
         /// </summary>
         /// <param name="key"> The new primary key. </param>
-        public virtual void SetPrimaryKey(SlimKey key)
+        public virtual void SetPrimaryKey(RuntimeKey key)
         {
             foreach (var property in key.Properties)
             {
@@ -165,16 +165,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the alternate key. </param>
         /// <returns> The newly created key. </returns>
-        public virtual SlimKey AddKey(IReadOnlyList<SlimProperty> properties)
+        public virtual RuntimeKey AddKey(IReadOnlyList<RuntimeProperty> properties)
         {
-            var key = new SlimKey(properties);
+            var key = new RuntimeKey(properties);
             _keys.Add(properties, key);
 
             foreach (var property in properties)
             {
                 if (property.Keys == null)
                 {
-                    property.Keys = new List<SlimKey> { key };
+                    property.Keys = new List<RuntimeKey> { key };
                 }
                 else
                 {
@@ -191,15 +191,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key, or <see langword="null" /> if none is defined. </returns>
-        public virtual SlimKey? FindKey(IReadOnlyList<IReadOnlyProperty> properties)
+        public virtual RuntimeKey? FindKey(IReadOnlyList<IReadOnlyProperty> properties)
             => _keys.TryGetValue(properties, out var key)
                 ? key
                 : _baseType?.FindKey(properties);
 
-        private IEnumerable<SlimKey> GetDeclaredKeys()
+        private IEnumerable<RuntimeKey> GetDeclaredKeys()
             => _keys.Values;
 
-        private IEnumerable<SlimKey> GetKeys()
+        private IEnumerable<RuntimeKey> GetKeys()
             => _baseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
 
         /// <summary>
@@ -221,17 +221,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="requiredDependent"> A value indicating whether the dependent entity is required. </param>
         /// <param name="ownership"> A value indicating whether this relationship defines an ownership. </param>
         /// <returns> The newly created foreign key. </returns>
-        public virtual SlimForeignKey AddForeignKey(
-            IReadOnlyList<SlimProperty> properties,
-            SlimKey principalKey,
-            SlimEntityType principalEntityType,
+        public virtual RuntimeForeignKey AddForeignKey(
+            IReadOnlyList<RuntimeProperty> properties,
+            RuntimeKey principalKey,
+            RuntimeEntityType principalEntityType,
             DeleteBehavior deleteBehavior = ForeignKey.DefaultDeleteBehavior,
             bool unique = false,
             bool required = false,
             bool requiredDependent = false,
             bool ownership = false)
         {
-            var foreignKey = new SlimForeignKey(
+            var foreignKey = new RuntimeForeignKey(
                 properties, principalKey, this, principalEntityType, deleteBehavior, unique, required, requiredDependent, ownership);
 
             _foreignKeys.Add(foreignKey);
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 if (property.ForeignKeys == null)
                 {
-                    property.ForeignKeys = new List<SlimForeignKey> { foreignKey };
+                    property.ForeignKeys = new List<RuntimeForeignKey> { foreignKey };
                 }
                 else
                 {
@@ -250,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (principalKey.ReferencingForeignKeys == null)
             {
-                principalKey.ReferencingForeignKeys = new SortedSet<SlimForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+                principalKey.ReferencingForeignKeys = new SortedSet<RuntimeForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
             }
             else
             {
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if (principalEntityType.DeclaredReferencingForeignKeys == null)
             {
-                principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<SlimForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
+                principalEntityType.DeclaredReferencingForeignKeys = new SortedSet<RuntimeForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
             }
             else
             {
@@ -269,26 +269,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return foreignKey;
         }
 
-        private IEnumerable<SlimForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
+        private IEnumerable<RuntimeForeignKey> FindForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
             => _baseType != null
                 ? _foreignKeys.Count == 0
                     ? _baseType.FindForeignKeys(properties)
                     : _baseType.FindForeignKeys(properties).Concat(FindDeclaredForeignKeys(properties))
                 : FindDeclaredForeignKeys(properties);
 
-        private SlimForeignKey? FindForeignKey(
+        private RuntimeForeignKey? FindForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
             IReadOnlyKey principalKey,
             IReadOnlyEntityType principalEntityType)
             => FindDeclaredForeignKey(properties, principalKey, principalEntityType)
                 ?? _baseType?.FindForeignKey(properties, principalKey, principalEntityType);
 
-        private IEnumerable<SlimForeignKey> GetDerivedForeignKeys()
+        private IEnumerable<RuntimeForeignKey> GetDerivedForeignKeys()
             => _directlyDerivedTypes.Count == 0
-                ? Enumerable.Empty<SlimForeignKey>()
+                ? Enumerable.Empty<RuntimeForeignKey>()
                 : GetDerivedTypes().SelectMany(et => et._foreignKeys);
 
-        private IEnumerable<SlimForeignKey> GetForeignKeys()
+        private IEnumerable<RuntimeForeignKey> GetForeignKeys()
             => _baseType != null
                 ? _foreignKeys.Count == 0
                     ? _baseType.GetForeignKeys()
@@ -300,12 +300,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the foreign keys on. </param>
         /// <returns> Declared foreign keys. </returns>
-        public virtual IEnumerable<SlimForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
+        public virtual IEnumerable<RuntimeForeignKey> FindDeclaredForeignKeys(IReadOnlyList<IReadOnlyProperty> properties)
             => _foreignKeys.Count == 0
-                ? Enumerable.Empty<SlimForeignKey>()
+                ? Enumerable.Empty<RuntimeForeignKey>()
                 : _foreignKeys.Where(fk => PropertyListComparer.Instance.Equals(fk.Properties, properties));
 
-        private SlimForeignKey? FindDeclaredForeignKey(
+        private RuntimeForeignKey? FindDeclaredForeignKey(
             IReadOnlyList<IReadOnlyProperty> properties,
             IReadOnlyKey principalKey,
             IReadOnlyEntityType principalEntityType)
@@ -327,17 +327,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return null;
         }
 
-        private IEnumerable<SlimForeignKey> GetReferencingForeignKeys()
+        private IEnumerable<RuntimeForeignKey> GetReferencingForeignKeys()
             => _baseType != null
                 ? (DeclaredReferencingForeignKeys?.Count ?? 0) == 0
                     ? _baseType.GetReferencingForeignKeys()
                     : _baseType.GetReferencingForeignKeys().Concat(GetDeclaredReferencingForeignKeys())
                 : GetDeclaredReferencingForeignKeys();
 
-        private IEnumerable<SlimForeignKey> GetDeclaredReferencingForeignKeys()
-            => DeclaredReferencingForeignKeys ?? Enumerable.Empty<SlimForeignKey>();
+        private IEnumerable<RuntimeForeignKey> GetDeclaredReferencingForeignKeys()
+            => DeclaredReferencingForeignKeys ?? Enumerable.Empty<RuntimeForeignKey>();
 
-        private SortedSet<SlimForeignKey>? DeclaredReferencingForeignKeys { get; set; }
+        private SortedSet<RuntimeForeignKey>? DeclaredReferencingForeignKeys { get; set; }
 
         /// <summary>
         ///     Adds a new navigation property to this entity type.
@@ -353,17 +353,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this navigation. </param>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
         /// <returns> The newly created navigation property. </returns>
-        public virtual SlimNavigation AddNavigation(
+        public virtual RuntimeNavigation AddNavigation(
             string name,
             Type clrType,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
-            SlimForeignKey foreignKey,
+            RuntimeForeignKey foreignKey,
             bool onDependent,
             PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
             bool eagerLoaded = false)
         {
-            var navigation = new SlimNavigation(name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded);
+            var navigation = new RuntimeNavigation(name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded);
 
             _navigations.Add(name, navigation);
 
@@ -377,18 +377,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public virtual SlimNavigation? FindNavigation(string name)
-            => (SlimNavigation?)((IReadOnlyEntityType)this).FindNavigation(name);
+        public virtual RuntimeNavigation? FindNavigation(string name)
+            => (RuntimeNavigation?)((IReadOnlyEntityType)this).FindNavigation(name);
 
-        private SlimNavigation? FindDeclaredNavigation(string name)
+        private RuntimeNavigation? FindDeclaredNavigation(string name)
             => _navigations.TryGetValue(name, out var navigation)
                 ? navigation
                 : null;
 
-        private IEnumerable<SlimNavigation> GetDeclaredNavigations()
+        private IEnumerable<RuntimeNavigation> GetDeclaredNavigations()
             => _navigations.Values;
 
-        private IEnumerable<SlimNavigation> GetNavigations()
+        private IEnumerable<RuntimeNavigation> GetNavigations()
             => _baseType != null
                 ? _navigations.Count == 0 ? _baseType.GetNavigations() : _baseType.GetNavigations().Concat(_navigations.Values)
                 : _navigations.Values;
@@ -409,19 +409,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this navigation. </param>
         /// <param name="eagerLoaded"> A value indicating whether this navigation should be eager loaded by default. </param>
         /// <returns> The newly created skip navigation property. </returns>
-        public virtual SlimSkipNavigation AddSkipNavigation(
+        public virtual RuntimeSkipNavigation AddSkipNavigation(
             string name,
             Type clrType,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
-            SlimEntityType targetEntityType,
-            SlimForeignKey foreignKey,
+            RuntimeEntityType targetEntityType,
+            RuntimeForeignKey foreignKey,
             bool collection,
             bool onDependent,
             PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
             bool eagerLoaded = false)
         {
-            var skipNavigation = new SlimSkipNavigation(
+            var skipNavigation = new RuntimeSkipNavigation(
                 name,
                 clrType,
                 propertyInfo,
@@ -444,26 +444,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
-        public virtual SlimSkipNavigation? FindSkipNavigation(string name)
+        public virtual RuntimeSkipNavigation? FindSkipNavigation(string name)
             => FindDeclaredSkipNavigation(name) ?? _baseType?.FindSkipNavigation(name);
 
-        private SlimSkipNavigation? FindSkipNavigation(MemberInfo memberInfo)
+        private RuntimeSkipNavigation? FindSkipNavigation(MemberInfo memberInfo)
             => FindSkipNavigation(memberInfo.GetSimpleMemberName());
 
-        private SlimSkipNavigation? FindDeclaredSkipNavigation(string name)
+        private RuntimeSkipNavigation? FindDeclaredSkipNavigation(string name)
             => _skipNavigations.TryGetValue(name, out var navigation)
                 ? navigation
                 : null;
 
-        private IEnumerable<SlimSkipNavigation> GetDeclaredSkipNavigations()
+        private IEnumerable<RuntimeSkipNavigation> GetDeclaredSkipNavigations()
             => _skipNavigations.Values;
 
-        private IEnumerable<SlimSkipNavigation> GetDerivedSkipNavigations()
+        private IEnumerable<RuntimeSkipNavigation> GetDerivedSkipNavigations()
             => _directlyDerivedTypes.Count == 0
-                ? Enumerable.Empty<SlimSkipNavigation>()
+                ? Enumerable.Empty<RuntimeSkipNavigation>()
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredSkipNavigations());
 
-        private IEnumerable<SlimSkipNavigation> GetSkipNavigations()
+        private IEnumerable<RuntimeSkipNavigation> GetSkipNavigations()
             => _baseType != null
                 ? _skipNavigations.Count == 0
                     ? _baseType.GetSkipNavigations()
@@ -477,12 +477,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The name of the index. </param>
         /// <param name="unique"> A value indicating whether the values assigned to the indexed properties are unique. </param>
         /// <returns> The newly created index. </returns>
-        public virtual SlimIndex AddIndex(
-            IReadOnlyList<SlimProperty> properties,
+        public virtual RuntimeIndex AddIndex(
+            IReadOnlyList<RuntimeProperty> properties,
             string? name = null,
             bool unique = false)
         {
-            var index = new SlimIndex(properties, this, name, unique);
+            var index = new RuntimeIndex(properties, this, name, unique);
             if (name != null)
             {
                 _namedIndexes.Add(name, index);
@@ -496,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 if (property.Indexes == null)
                 {
-                    property.Indexes = new List<SlimIndex> { index };
+                    property.Indexes = new List<RuntimeIndex> { index };
                 }
                 else
                 {
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="properties"> The properties to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        public virtual SlimIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
+        public virtual RuntimeIndex? FindIndex(IReadOnlyList<IReadOnlyProperty> properties)
             => _unnamedIndexes.TryGetValue(properties, out var index)
                 ? index
                 : _baseType?.FindIndex(properties);
@@ -527,22 +527,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the index. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        public virtual SlimIndex? FindIndex(string name)
+        public virtual RuntimeIndex? FindIndex(string name)
             => _namedIndexes.TryGetValue(name, out var index)
                 ? index
                 : _baseType?.FindIndex(name);
 
-        private IEnumerable<SlimIndex> GetDeclaredIndexes()
+        private IEnumerable<RuntimeIndex> GetDeclaredIndexes()
             => _namedIndexes.Count == 0
                 ? _unnamedIndexes.Values
                 : _unnamedIndexes.Values.Concat(_namedIndexes.Values);
 
-        private IEnumerable<SlimIndex> GetDerivedIndexes()
+        private IEnumerable<RuntimeIndex> GetDerivedIndexes()
             => _directlyDerivedTypes.Count == 0
-                ? Enumerable.Empty<SlimIndex>()
+                ? Enumerable.Empty<RuntimeIndex>()
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes());
 
-        private IEnumerable<SlimIndex> GetIndexes()
+        private IEnumerable<RuntimeIndex> GetIndexes()
             => _baseType != null
                 ? _namedIndexes.Count == 0 && _unnamedIndexes.Count == 0
                     ? _baseType.GetIndexes()
@@ -579,7 +579,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="keyValueComparer"> The <see cref="ValueComparer" /> to use with keys for this property. </param>
         /// <param name="typeMapping"> The <see cref="CoreTypeMapping" /> for this property. </param>
         /// <returns> The newly created property. </returns>
-        public virtual SlimProperty AddProperty(
+        public virtual RuntimeProperty AddProperty(
             string name,
             Type propertyType,
             PropertyInfo? propertyInfo,
@@ -601,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             ValueComparer? keyValueComparer = null,
             CoreTypeMapping? typeMapping = null)
         {
-            var property = new SlimProperty(
+            var property = new RuntimeProperty(
                 name,
                 propertyType,
                 propertyInfo,
@@ -640,20 +640,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the property. </param>
         /// <returns> The property, or <see langword="null" /> if none is found. </returns>
-        public virtual SlimProperty? FindProperty(string name)
+        public virtual RuntimeProperty? FindProperty(string name)
             => FindDeclaredProperty(name) ?? _baseType?.FindProperty(name);
 
-        private SlimProperty? FindDeclaredProperty(string name)
+        private RuntimeProperty? FindDeclaredProperty(string name)
             => _properties.TryGetValue(name, out var property)
                 ? property
                 : null;
 
-        private IEnumerable<SlimProperty> GetDeclaredProperties()
+        private IEnumerable<RuntimeProperty> GetDeclaredProperties()
             => _properties.Values;
 
-        private IEnumerable<SlimProperty> GetDerivedProperties()
+        private IEnumerable<RuntimeProperty> GetDerivedProperties()
             => _directlyDerivedTypes.Count == 0
-                ? Enumerable.Empty<SlimProperty>()
+                ? Enumerable.Empty<RuntimeProperty>()
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredProperties());
 
         /// <summary>
@@ -666,9 +666,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="propertyNames"> The property names. </param>
         /// <returns> The properties, or <see langword="null" /> if any property is not found. </returns>
-        public virtual IReadOnlyList<SlimProperty>? FindProperties(IEnumerable<string> propertyNames)
+        public virtual IReadOnlyList<RuntimeProperty>? FindProperties(IEnumerable<string> propertyNames)
         {
-            var properties = new List<SlimProperty>();
+            var properties = new List<RuntimeProperty>();
             foreach (var propertyName in propertyNames)
             {
                 var property = FindProperty(propertyName);
@@ -683,7 +683,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return properties;
         }
 
-        private IEnumerable<SlimProperty> GetProperties()
+        private IEnumerable<RuntimeProperty> GetProperties()
             => _baseType != null
                 ? _baseType.GetProperties().Concat(_properties.Values)
                 : _properties.Values;
@@ -696,13 +696,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="fieldInfo"> The corresponding CLR field or <see langword="null" /> for a shadow property. </param>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> used for this property. </param>
         /// <returns> The newly created service property. </returns>
-        public virtual SlimServiceProperty AddServiceProperty(
+        public virtual RuntimeServiceProperty AddServiceProperty(
             string name,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
             PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode)
         {
-            var serviceProperty = new SlimServiceProperty(
+            var serviceProperty = new RuntimeServiceProperty(
                 name,
                 propertyInfo,
                 fieldInfo,
@@ -725,27 +725,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The name of the service property. </param>
         /// <returns> The service property, or <see langword="null" /> if none is found. </returns>
-        public virtual SlimServiceProperty? FindServiceProperty(string name)
+        public virtual RuntimeServiceProperty? FindServiceProperty(string name)
             => FindDeclaredServiceProperty(name) ?? _baseType?.FindServiceProperty(name);
 
-        private SlimServiceProperty? FindDeclaredServiceProperty(string name)
+        private RuntimeServiceProperty? FindDeclaredServiceProperty(string name)
             => _serviceProperties.TryGetValue(name, out var property)
                 ? property
                 : null;
 
-        private IEnumerable<SlimServiceProperty> GetServiceProperties()
+        private IEnumerable<RuntimeServiceProperty> GetServiceProperties()
             => _baseType != null
                 ? _serviceProperties.Count == 0
                     ? _baseType.GetServiceProperties()
                     : _baseType.GetServiceProperties().Concat(_serviceProperties.Values)
                 : _serviceProperties.Values;
 
-        private IEnumerable<SlimServiceProperty> GetDeclaredServiceProperties()
+        private IEnumerable<RuntimeServiceProperty> GetDeclaredServiceProperties()
             => _serviceProperties.Values;
 
-        private IEnumerable<SlimServiceProperty> GetDerivedServiceProperties()
+        private IEnumerable<RuntimeServiceProperty> GetDerivedServiceProperties()
             => _directlyDerivedTypes.Count == 0
-                ? Enumerable.Empty<SlimServiceProperty>()
+                ? Enumerable.Empty<RuntimeServiceProperty>()
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredServiceProperties());
 
         /// <summary>
@@ -1049,7 +1049,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [DebuggerStepThrough]
         IEnumerable<IReadOnlyNavigation> IReadOnlyEntityType.GetDerivedNavigations()
             => _directlyDerivedTypes.Count == 0
-                ? Enumerable.Empty<SlimNavigation>()
+                ? Enumerable.Empty<RuntimeNavigation>()
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredNavigations());
 
         /// <inheritdoc/>
@@ -1340,6 +1340,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => GetServiceProperties();
 
         IEnumerable<IDictionary<string, object?>> IReadOnlyEntityType.GetSeedData(bool providerValues)
-            => throw new InvalidOperationException(CoreStrings.SlimModelMissingData);
+            => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
     }
 }

@@ -42,21 +42,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Sql = sql;
             _configurationSource = configurationSource;
 
-            var dataDictionary = GetConstraintsDictionary(EntityType);
-            if (dataDictionary == null)
+            var constraints = GetConstraintsDictionary(EntityType);
+            if (constraints == null)
             {
-                dataDictionary = new Dictionary<string, ICheckConstraint>();
-                ((IMutableEntityType)EntityType).SetOrRemoveAnnotation(RelationalAnnotationNames.CheckConstraints, dataDictionary);
+                constraints = new Dictionary<string, ICheckConstraint>();
+                ((IMutableEntityType)EntityType).SetOrRemoveAnnotation(RelationalAnnotationNames.CheckConstraints, constraints);
             }
 
-            if (dataDictionary.ContainsKey(Name))
+            if (constraints.ContainsKey(Name))
             {
                 throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(Name, EntityType.DisplayName()));
             }
 
             EnsureMutable();
 
-            dataDictionary.Add(name, this);
+            constraints.Add(name, this);
         }
 
         /// <summary>

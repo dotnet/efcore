@@ -179,7 +179,8 @@ SELECT 1 ELSE SELECT 0");
                     {
                         Name = builder.InitialCatalog,
                         FileName = builder.AttachDBFilename,
-                        Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>().Model.GetCollation()
+                        Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>()
+                            .Model.GetRelationalModel().Collation
                     }
                 },
                 null);

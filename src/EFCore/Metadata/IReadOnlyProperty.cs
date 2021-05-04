@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
+        ///     Returns the type mapping for this property.
         /// </summary>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         CoreTypeMapping? FindTypeMapping();

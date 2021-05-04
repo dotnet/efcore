@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a property on an entity type that represents an
     ///     injected service from the <see cref="DbContext" />.
     /// </summary>
-    public class SlimServiceProperty : SlimPropertyBase, IServiceProperty
+    public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
     {
         private ServiceParameterBinding? _parameterBinding;
 
@@ -26,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimServiceProperty(
+        public RuntimeServiceProperty(
             string name,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
-            SlimEntityType declaringEntityType,
+            RuntimeEntityType declaringEntityType,
             PropertyAccessMode propertyAccessMode)
             : base(name, propertyInfo, fieldInfo, propertyAccessMode)
         {
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type that this property-like object belongs to.
         /// </summary>
-        public override SlimEntityType DeclaringEntityType { get; }
+        public override RuntimeEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the type of value that this property-like object holds.
