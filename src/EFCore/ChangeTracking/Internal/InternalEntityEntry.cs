@@ -559,8 +559,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void PropagateValue(
-            InternalEntityEntry principalEntry, 
-            IProperty principalProperty, 
+            InternalEntityEntry principalEntry,
+            IProperty principalProperty,
             IProperty dependentProperty,
             bool isMaterialization = false,
             bool setModified = true)
@@ -1334,7 +1334,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _storeGeneratedValues = new SidecarValues();
                 _temporaryValues = new SidecarValues();
             }
-            
+
             _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsTemporary, false);
 
             var currentState = EntityState;

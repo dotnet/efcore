@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a primary or alternate key on an entity type.
     /// </summary>
-    public class SlimKey : AnnotatableBase, IRuntimeKey
+    public class RuntimeKey : AnnotatableBase, IRuntimeKey
     {
         // Warning: Never access these fields directly as access needs to be thread-safe
         private Func<bool, IIdentityMap>? _identityMapFactory;
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimKey(IReadOnlyList<SlimProperty> properties)
+        public RuntimeKey(IReadOnlyList<RuntimeProperty> properties)
         {
             Properties = properties;
         }
@@ -37,14 +37,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the properties that make up the key.
         /// </summary>
-        public virtual IReadOnlyList<SlimProperty> Properties { get; }
+        public virtual IReadOnlyList<RuntimeProperty> Properties { get; }
 
         /// <summary>
         ///     Gets the entity type the key is defined on. This may be different from the type that <see cref="IKey.Properties" />
         ///     are defined on when the key is defined a derived type in an inheritance hierarchy (since the properties
         ///     may be defined on a base type).
         /// </summary>
-        public virtual SlimEntityType DeclaringEntityType
+        public virtual RuntimeEntityType DeclaringEntityType
         {
             [DebuggerStepThrough]
             get => Properties[0].DeclaringEntityType;
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual ISet<SlimForeignKey>? ReferencingForeignKeys { get; set; }
+        public virtual ISet<RuntimeForeignKey>? ReferencingForeignKeys { get; set; }
 
         /// <summary>
         ///     Returns a string that represents the current object.
