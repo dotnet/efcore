@@ -137,7 +137,7 @@ stages:
               - LC_ALL: 'en_US.UTF-8'
               - LANG: 'en_US.UTF-8'
               - LANGUAGE: 'en_US.UTF-8'
-              - ${{ if and(eq(variables['System.TeamProject'], 'public'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
+              - ${{ if and(eq(variables['System.TeamProject'], 'internal'), eq(variables['system.pullrequest.isfork'], false), notin(variables['Build.Reason'], 'PullRequest', 'Schedule', 'BuildCompletion')) }}:
                 - _CosmosConnectionUrl: 'true'
             steps:
               - bash: sudo apt-get install -y libsqlite3-mod-spatialite
