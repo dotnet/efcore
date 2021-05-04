@@ -4,6 +4,8 @@ We welcome community pull requests for bug fixes, enhancements, and documentatio
 
 For code changes, you will need to [fork and clone the repo and build the code locally](../docs/getting-and-building-the-code.md).
 
+He is a [video](https://www.youtube.com/watch?v=9OMxy1wal1s) where Entity Framework Core team members guide you through the contributing process and provide advise and good practices.
+
 ## Choosing an issue
 
 All contributions should address an [open issue](https://github.com/dotnet/efcore/issues) in the [dotnet/efcore](https://github.com/dotnet/efcore) repo.
