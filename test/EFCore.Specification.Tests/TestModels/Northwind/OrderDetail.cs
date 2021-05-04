@@ -7,8 +7,21 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class OrderDetail : IComparable<OrderDetail>
     {
-        public int OrderID { get; set; }
-        public int ProductID { get; set; }
+        private int? _orderId;
+        private int? _productId;
+
+        public int OrderID
+        {
+            get => _orderId ?? 0;
+            set => _orderId = value;
+        }
+
+        public int ProductID
+        {
+            get => _productId ?? 0;
+            set => _productId = value;
+        }
+
         public decimal UnitPrice { get; set; }
         public short Quantity { get; set; }
         public float Discount { get; set; }
@@ -33,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 && Equals((OrderDetail)obj);
         }
 
-        public override int GetHashCode() => HashCode.Combine(OrderID, ProductID);
+        public override int GetHashCode()
+            => HashCode.Combine(OrderID, ProductID);
 
         public int CompareTo(OrderDetail other)
         {

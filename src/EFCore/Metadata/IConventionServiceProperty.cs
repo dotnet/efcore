@@ -1,14 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         A <see cref="IPropertyBase" /> in the Entity Framework model that represents an
+    ///         A <see cref="IReadOnlyPropertyBase" /> in the Entity Framework model that represents an
     ///         injected service from the <see cref="DbContext" />.
     ///     </para>
     ///     <para>
@@ -16,12 +16,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IServiceProperty" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
-    public interface IConventionServiceProperty : IServiceProperty, IConventionPropertyBase
+    public interface IConventionServiceProperty : IReadOnlyServiceProperty, IConventionPropertyBase
     {
         /// <summary>
         ///     Gets the builder that can be used to configure this service property.
         /// </summary>
-        IConventionServicePropertyBuilder Builder { get; }
+        /// <exception cref="InvalidOperationException"> If the service property has been removed from the model. </exception>
+        new IConventionServicePropertyBuilder Builder { get; }
 
         /// <summary>
         ///     Gets the type that this property belongs to.
@@ -29,22 +30,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IConventionEntityType DeclaringEntityType { get; }
 
         /// <summary>
-        ///     Returns the configuration source for this property.
-        /// </summary>
-        /// <returns> The configuration source. </returns>
-        ConfigurationSource GetConfigurationSource();
-
-        /// <summary>
         ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
         /// <param name="parameterBinding"> The parameter binding. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        void SetParameterBinding([CanBeNull] ServiceParameterBinding parameterBinding, bool fromDataAnnotation = false);
+        /// <returns> The configured binding. </returns>
+        ServiceParameterBinding? SetParameterBinding(ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IServiceProperty.ParameterBinding" />.
+        ///     Returns the configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IServiceProperty.ParameterBinding" />. </returns>
+        /// <returns> The configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />. </returns>
         ConfigurationSource? GetParameterBindingConfigurationSource();
     }
 }

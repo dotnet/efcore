@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalDatabaseDependencies
+    public sealed record RelationalDatabaseDependencies
     {
         /// <summary>
         ///     <para>
@@ -55,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalDatabaseDependencies(
-            [NotNull] ICommandBatchPreparer batchPreparer,
-            [NotNull] IBatchExecutor batchExecutor,
-            [NotNull] IRelationalConnection connection)
+            ICommandBatchPreparer batchPreparer,
+            IBatchExecutor batchExecutor,
+            IRelationalConnection connection)
         {
             Check.NotNull(batchPreparer, nameof(batchPreparer));
             Check.NotNull(batchExecutor, nameof(batchExecutor));
@@ -71,46 +70,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The <see cref="ICommandBatchPreparer" /> to be used.
         /// </summary>
-        public ICommandBatchPreparer BatchPreparer { get; }
+        public ICommandBatchPreparer BatchPreparer { get; init; }
 
         /// <summary>
         ///     The <see cref="IBatchExecutor" /> to be used.
         /// </summary>
-        public IBatchExecutor BatchExecutor { get; }
+        public IBatchExecutor BatchExecutor { get; init; }
 
         /// <summary>
         ///     The <see cref="IRelationalConnection" /> to be used.
         /// </summary>
-        public IRelationalConnection Connection { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="batchPreparer">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseDependencies With([NotNull] ICommandBatchPreparer batchPreparer)
-            => new RelationalDatabaseDependencies(batchPreparer, BatchExecutor, Connection);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="batchExecutor">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseDependencies With([NotNull] IBatchExecutor batchExecutor)
-            => new RelationalDatabaseDependencies(BatchPreparer, batchExecutor, Connection);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="connection">
-        ///     A replacement for the current dependency of this type.
-        /// </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalDatabaseDependencies With([NotNull] IRelationalConnection connection)
-            => new RelationalDatabaseDependencies(BatchPreparer, BatchExecutor, connection);
+        public IRelationalConnection Connection { get; init; }
     }
 }

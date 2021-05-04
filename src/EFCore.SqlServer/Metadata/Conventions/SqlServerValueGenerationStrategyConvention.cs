@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the default model <see cref="SqlServerValueGenerationStrategy" /> as
     ///     <see cref="SqlServerValueGenerationStrategy.IdentityColumn" />.
     /// </summary>
-    public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizedConvention
+    public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="SqlServerValueGenerationStrategyConvention" />.
@@ -20,16 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public SqlServerValueGenerationStrategyConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
         }
 
-        /// <summary>
-        ///     Parameter object containing service dependencies.
-        /// </summary>
-        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+        private ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
         ///     Called after a model is initialized.
@@ -37,30 +34,74 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="modelBuilder"> The builder for the model. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessModelInitialized(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             modelBuilder.HasValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn);
         }
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(
-            IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
+        /// <inheritdoc />
+        public virtual void ProcessModelFinalizing(
+            IConventionModelBuilder modelBuilder,
+            IConventionContext<IConventionModelBuilder> context)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
+                    SqlServerValueGenerationStrategy? strategy = null;
+                    var table = entityType.GetTableName();
+                    if (table != null)
+                    {
+                        var storeObject = StoreObjectIdentifier.Table(table, entityType.GetSchema());
+                        strategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
+                        if (strategy == SqlServerValueGenerationStrategy.None
+                            && !IsStrategyNoneNeeded(property, storeObject))
+                        {
+                            strategy = null;
+                        }
+                    }
+                    else
+                    {
+                        var view = entityType.GetViewName();
+                        if (view != null)
+                        {
+                            var storeObject = StoreObjectIdentifier.View(view, entityType.GetViewSchema());
+                            strategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
+                            if (strategy == SqlServerValueGenerationStrategy.None
+                                && !IsStrategyNoneNeeded(property, storeObject))
+                            {
+                                strategy = null;
+                            }
+                        }
+                    }
+
                     // Needed for the annotation to show up in the model snapshot
-                    var strategy = property.GetValueGenerationStrategy();
-                    if (strategy != SqlServerValueGenerationStrategy.None)
+                    if (strategy != null)
                     {
                         property.Builder.HasValueGenerationStrategy(strategy);
                     }
                 }
+            }
+
+            bool IsStrategyNoneNeeded(IReadOnlyProperty property, StoreObjectIdentifier storeObject)
+            {
+                if (property.ValueGenerated == ValueGenerated.OnAdd
+                    && !property.TryGetDefaultValue(storeObject, out _)
+                    && property.GetDefaultValueSql(storeObject) == null
+                    && property.GetComputedColumnSql(storeObject) == null
+                    && property.DeclaringEntityType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
+                {
+                    var providerClrType = (property.GetValueConverter()
+                            ?? (property.FindRelationalTypeMapping(storeObject)
+                                ?? Dependencies.TypeMappingSource.FindMapping((IProperty)property))?.Converter)
+                        ?.ProviderClrType.UnwrapNullableType();
+
+                    return providerClrType != null
+                        && (providerClrType.IsInteger() || providerClrType == typeof(decimal));
+                }
+
+                return false;
             }
         }
     }

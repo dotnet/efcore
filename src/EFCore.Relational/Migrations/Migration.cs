@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         public const string InitialDatabase = "0";
 
-        private IModel _targetModel;
-        private List<MigrationOperation> _upOperations;
-        private List<MigrationOperation> _downOperations;
+        private IModel? _targetModel;
+        private List<MigrationOperation>? _upOperations;
+        private List<MigrationOperation>? _downOperations;
 
         /// <summary>
         ///     The <see cref="IModel" /> that the database will map to after the migration has been applied.
@@ -33,11 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 IModel Create()
                 {
-                    var model = new Model();
-                    var modelBuilder = new ModelBuilder(model);
+                    var modelBuilder = new ModelBuilder();
                     BuildTargetModel(modelBuilder);
 
-                    return model.FinalizeModel();
+                    return (IModel)modelBuilder.Model;
                 }
 
                 return _targetModel ??= Create();
@@ -79,13 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         can be made to the database depending on the type of database being used.
         ///     </para>
         /// </summary>
-        public virtual string ActiveProvider { get; [param: NotNull] set; }
+        [DisallowNull]
+        public virtual string? ActiveProvider { get; set; }
 
         /// <summary>
-        ///     Implemented to builds the <see cref="TargetModel" />.
+        ///     Implemented to build the <see cref="TargetModel" />.
         /// </summary>
         /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
-        protected virtual void BuildTargetModel([NotNull] ModelBuilder modelBuilder)
+        protected virtual void BuildTargetModel(ModelBuilder modelBuilder)
         {
         }
 
@@ -98,11 +98,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         previous migration so that it is up-to-date with regard to this migration.
         ///     </para>
         ///     <para>
-        ///         This method must be overridden in each class the inherits from <see cref="Migration" />.
+        ///         This method must be overridden in each class that inherits from <see cref="Migration" />.
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
-        protected abstract void Up([NotNull] MigrationBuilder migrationBuilder);
+        protected abstract void Up(MigrationBuilder migrationBuilder);
 
         /// <summary>
         ///     <para>
@@ -113,16 +113,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         this migration so that it returns to the state that it was in before this migration was applied.
         ///     </para>
         ///     <para>
-        ///         This method must be overridden in each class the inherits from <see cref="Migration" /> if
+        ///         This method must be overridden in each class that inherits from <see cref="Migration" /> if
         ///         both 'up' and 'down' migrations are to be supported. If it is not overridden, then calling it
         ///         will throw and it will not be possible to migrate in the 'down' direction.
         ///     </para>
         /// </summary>
         /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
-        protected virtual void Down([NotNull] MigrationBuilder migrationBuilder)
-        {
-            throw new NotImplementedException();
-        }
+        protected virtual void Down(MigrationBuilder migrationBuilder)
+            => throw new NotSupportedException(RelationalStrings.MigrationDownMissing);
 
         private List<MigrationOperation> BuildOperations(Action<MigrationBuilder> buildAction)
         {

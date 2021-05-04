@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -26,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public ValueConverterInfo(
-            [NotNull] Type modelClrType,
-            [NotNull] Type providerClrType,
-            [NotNull] Func<ValueConverterInfo, ValueConverter> factory,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            Type modelClrType,
+            Type providerClrType,
+            Func<ValueConverterInfo, ValueConverter> factory,
+            ConverterMappingHints? mappingHints = null)
         {
             _factory = factory;
             Check.NotNull(modelClrType, nameof(modelClrType));
@@ -55,11 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </summary>
-        public ConverterMappingHints MappingHints { get; }
+        public ConverterMappingHints? MappingHints { get; }
 
         /// <summary>
         ///     Creates an instance of the <see cref="ValueConverter" />.
         /// </summary>
-        public ValueConverter Create() => _factory(this);
+        public ValueConverter Create()
+            => _factory(this);
     }
 }

@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             command.HandleResponseFiles = true;
 
             command.OnExecute(
-                () =>
+                (args) =>
                 {
                     Reporter.IsVerbose = verbose.HasValue();
                     Reporter.NoColor = noColor.HasValue();
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
                     Validate();
 
-                    return Execute();
+                    return Execute(args);
                 });
         }
 
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
         }
 
-        protected virtual int Execute()
+        protected virtual int Execute(string[] args)
             => 0;
     }
 }

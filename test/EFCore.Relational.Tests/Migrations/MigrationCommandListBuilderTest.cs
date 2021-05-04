@@ -1,7 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Assert.Equal(1, commandList.Count);
 
             Assert.Equal(suppressTransaction, commandList[0].TransactionSuppressed);
+            Assert.NotNull(commandList[0].CommandLogger);
             Assert.Equal(
                 @"Statement1
 Statement2
@@ -58,6 +60,7 @@ Statement3
             Assert.Equal(3, commandList.Count);
 
             Assert.Equal(suppressTransaction, commandList[0].TransactionSuppressed);
+            Assert.NotNull(commandList[0].CommandLogger);
             Assert.Equal(
                 @"Statement1
 ",
@@ -65,6 +68,7 @@ Statement3
                 ignoreLineEndingDifferences: true);
 
             Assert.Equal(suppressTransaction, commandList[1].TransactionSuppressed);
+            Assert.NotNull(commandList[1].CommandLogger);
             Assert.Equal(
                 @"Statement2
 Statement3
@@ -73,6 +77,7 @@ Statement3
                 ignoreLineEndingDifferences: true);
 
             Assert.Equal(suppressTransaction, commandList[2].TransactionSuppressed);
+            Assert.NotNull(commandList[2].CommandLogger);
             Assert.Equal(
                 @"Statement4
 Statement5
@@ -102,6 +107,7 @@ Statement6
             Assert.Equal(2, commandList.Count);
 
             Assert.Equal(suppressTransaction, commandList[0].TransactionSuppressed);
+            Assert.NotNull(commandList[0].CommandLogger);
             Assert.Equal(
                 @"Statement1
 ",
@@ -109,6 +115,7 @@ Statement6
                 ignoreLineEndingDifferences: true);
 
             Assert.Equal(suppressTransaction, commandList[1].TransactionSuppressed);
+            Assert.NotNull(commandList[1].CommandLogger);
             Assert.Equal(
                 @"Statement2
 Statement3
@@ -123,7 +130,8 @@ Statement3
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
+            var migrationsLogger = new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>();
             var generationHelper = new RelationalSqlGenerationHelper(new RelationalSqlGenerationHelperDependencies());
 
             return new MigrationCommandListBuilder(
@@ -138,7 +146,9 @@ Statement3
                     generationHelper,
                     typeMappingSource,
                     new CurrentDbContext(new FakeDbContext()),
-                    logger));
+                    new LoggingOptions(),
+                    logger,
+                    migrationsLogger));
         }
 
         private class FakeDbContext : DbContext

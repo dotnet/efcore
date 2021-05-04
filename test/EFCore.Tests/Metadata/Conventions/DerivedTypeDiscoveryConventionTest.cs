@@ -16,16 +16,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Discovers_child_types()
         {
-            var entityBuilderA = CreateInternalEntityTypeBuilder<A>();
-            var entityBuilderB = entityBuilderA.ModelBuilder.Entity(typeof(B), ConfigurationSource.Explicit);
-            var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
-            Assert.Null(entityBuilderB.Metadata.BaseType);
+            var entityBuilderC = CreateInternalEntityTypeBuilder<C>();
+
+            RunConvention(entityBuilderC);
+
             Assert.Null(entityBuilderC.Metadata.BaseType);
+
+            var entityBuilderA = entityBuilderC.ModelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
 
             RunConvention(entityBuilderA);
 
-            Assert.Same(entityBuilderA.Metadata, entityBuilderB.Metadata.BaseType);
             Assert.Same(entityBuilderA.Metadata, entityBuilderC.Metadata.BaseType);
+
+            var entityBuilderB = entityBuilderC.ModelBuilder.Entity(typeof(B), ConfigurationSource.Explicit);
+            Assert.Null(entityBuilderB.Metadata.BaseType);
 
             RunConvention(entityBuilderB);
 
@@ -36,10 +40,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Discovers_child_type_when_grandchild_type_exists()
         {
-            var entityBuilderA = CreateInternalEntityTypeBuilder<A>();
-            var entityBuilderB = entityBuilderA.ModelBuilder.Entity(typeof(B), ConfigurationSource.Explicit);
-            var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
-            entityBuilderC.HasBaseType(entityBuilderB.Metadata, ConfigurationSource.DataAnnotation);
+            var entityBuilderB = CreateInternalEntityTypeBuilder<B>();
+
+            RunConvention(entityBuilderB);
+
+            var entityBuilderC = entityBuilderB.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
+
+            Assert.Null(entityBuilderC.Metadata.BaseType);
+
+            RunConvention(entityBuilderC);
+
+            Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
+
+            var entityBuilderA = entityBuilderB.ModelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
 
             RunConvention(entityBuilderA);
 
@@ -51,13 +64,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Discovers_child_type_if_base_type_set()
         {
             var entityBuilderA = CreateInternalEntityTypeBuilder<A>();
-            var entityBuilderB = entityBuilderA.ModelBuilder.Entity(typeof(B), ConfigurationSource.Explicit);
-            entityBuilderB.HasBaseType(entityBuilderA.Metadata, ConfigurationSource.DataAnnotation);
             var entityBuilderC = entityBuilderA.ModelBuilder.Entity(typeof(C), ConfigurationSource.Explicit);
-            entityBuilderC.HasBaseType(entityBuilderA.Metadata, ConfigurationSource.Convention);
+
+            RunConvention(entityBuilderC);
+
+            Assert.Same(entityBuilderA.Metadata, entityBuilderC.Metadata.BaseType);
+
+            var entityBuilderB = entityBuilderA.ModelBuilder.Entity(typeof(B), ConfigurationSource.Explicit);
+
+            Assert.Null(entityBuilderB.Metadata.BaseType);
 
             RunConvention(entityBuilderB);
 
+            Assert.Same(entityBuilderA.Metadata, entityBuilderB.Metadata.BaseType);
             Assert.Same(entityBuilderB.Metadata, entityBuilderC.Metadata.BaseType);
         }
 
@@ -65,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
 
-            new DerivedTypeDiscoveryConvention(CreateDependencies())
+            new BaseTypeDiscoveryConvention(CreateDependencies())
                 .ProcessEntityTypeAdded(entityTypeBuilder, context);
         }
 

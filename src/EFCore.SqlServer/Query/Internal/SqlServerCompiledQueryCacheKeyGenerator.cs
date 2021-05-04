@@ -1,31 +1,24 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
     /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCacheKeyGenerator
     {
+        private readonly ISqlServerConnection _sqlServerConnection;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,10 +26,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerCompiledQueryCacheKeyGenerator(
-            [NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies,
-            [NotNull] RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies)
+            CompiledQueryCacheKeyGeneratorDependencies dependencies,
+            RelationalCompiledQueryCacheKeyGeneratorDependencies relationalDependencies,
+            ISqlServerConnection sqlServerConnection)
             : base(dependencies, relationalDependencies)
         {
+            Check.NotNull(sqlServerConnection, nameof(sqlServerConnection));
+
+            _sqlServerConnection = sqlServerConnection;
         }
 
         /// <summary>
@@ -48,30 +45,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         public override object GenerateCacheKey(Expression query, bool async)
             => new SqlServerCompiledQueryCacheKey(
                 GenerateCacheKeyCore(query, async),
-                RelationalDependencies.ContextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false);
+                _sqlServerConnection.IsMultipleActiveResultSetsEnabled);
 
-        private readonly struct SqlServerCompiledQueryCacheKey
+        private readonly struct SqlServerCompiledQueryCacheKey : IEquatable<SqlServerCompiledQueryCacheKey>
         {
             private readonly RelationalCompiledQueryCacheKey _relationalCompiledQueryCacheKey;
-            private readonly bool _useRowNumberOffset;
+            private readonly bool _multipleActiveResultSetsEnabled;
 
             public SqlServerCompiledQueryCacheKey(
-                RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey, bool useRowNumberOffset)
+                RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey,
+                bool multipleActiveResultSetsEnabled)
             {
                 _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
-                _useRowNumberOffset = useRowNumberOffset;
+                _multipleActiveResultSetsEnabled = multipleActiveResultSetsEnabled;
             }
 
-            public override bool Equals(object obj)
-                => !(obj is null)
-                    && obj is SqlServerCompiledQueryCacheKey key
-                    && Equals(key);
+            public override bool Equals(object? obj)
+                => obj is SqlServerCompiledQueryCacheKey sqlServerCompiledQueryCacheKey
+                    && Equals(sqlServerCompiledQueryCacheKey);
 
-            private bool Equals(SqlServerCompiledQueryCacheKey other)
+            public bool Equals(SqlServerCompiledQueryCacheKey other)
                 => _relationalCompiledQueryCacheKey.Equals(other._relationalCompiledQueryCacheKey)
-                    && _useRowNumberOffset == other._useRowNumberOffset;
+                    && _multipleActiveResultSetsEnabled == other._multipleActiveResultSetsEnabled;
 
-            public override int GetHashCode() => HashCode.Combine(_relationalCompiledQueryCacheKey, _useRowNumberOffset);
+            public override int GetHashCode()
+                => HashCode.Combine(_relationalCompiledQueryCacheKey, _multipleActiveResultSetsEnabled);
         }
     }
 }

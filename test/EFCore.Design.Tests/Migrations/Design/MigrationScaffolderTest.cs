@@ -5,12 +5,15 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -46,6 +49,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
         }
 
+        [ConditionalFact]
+        public void ScaffoldMigration_can_override_namespace()
+        {
+            var scaffolder = CreateMigrationScaffolder<ContextWithSnapshot>();
+
+            var migration = scaffolder.ScaffoldMigration("EmptyMigration", null, "OverrideNamespace.OverrideSubNamespace");
+
+            Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.MigrationCode);
+            Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.MigrationSubNamespace);
+
+            Assert.Contains("namespace OverrideNamespace.OverrideSubNamespace", migration.SnapshotCode);
+            Assert.Equal("OverrideNamespace.OverrideSubNamespace", migration.SnapshotSubnamespace);
+        }
+
         private IMigrationsScaffolder CreateMigrationScaffolder<TContext>()
             where TContext : DbContext, new()
         {
@@ -54,8 +71,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-            var code = new CSharpHelper(
-                sqlServerTypeMappingSource);
+            var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
+                new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
+            var code = new CSharpHelper(sqlServerTypeMappingSource);
             var reporter = new TestOperationReporter();
             var migrationAssembly
                 = new MigrationsAssembly(
@@ -66,17 +84,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var historyRepository = new MockHistoryRepository();
 
             var services = RelationalTestHelpers.Instance.CreateContextServices();
+            var model = new Model().FinalizeModel();
+            model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, new RelationalModel(model));
 
             return new MigrationsScaffolder(
                 new MigrationsScaffolderDependencies(
                     currentContext,
-                    new Model(),
+                    model,
                     migrationAssembly,
                     new MigrationsModelDiffer(
                         new TestRelationalTypeMappingSource(
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
-                        new MigrationsAnnotationProvider(new MigrationsAnnotationProviderDependencies()),
+                        new MigrationsAnnotationProvider(
+                            new MigrationsAnnotationProviderDependencies()),
                         services.GetRequiredService<IChangeDetector>(),
                         services.GetRequiredService<IUpdateAdapterFactory>(),
                         services.GetRequiredService<CommandBatchPreparerDependencies>()),
@@ -85,7 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         new[]
                         {
                             new CSharpMigrationsGenerator(
-                                new MigrationsCodeGeneratorDependencies(sqlServerTypeMappingSource),
+                                new MigrationsCodeGeneratorDependencies(
+                                    sqlServerTypeMappingSource,
+                                    sqlServerAnnotationCodeGenerator),
                                 new CSharpMigrationsGeneratorDependencies(
                                     code,
                                     new CSharpMigrationOperationGenerator(
@@ -93,12 +116,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                                             code)),
                                     new CSharpSnapshotGenerator(
                                         new CSharpSnapshotGeneratorDependencies(
-                                            code, sqlServerTypeMappingSource))))
+                                            code, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))))
                         }),
                     historyRepository,
                     reporter,
                     new MockProvider(),
-                    new SnapshotModelProcessor(reporter),
+                    new SnapshotModelProcessor(reporter, services.GetRequiredService<IModelRuntimeInitializer>()),
                     new Migrator(
                         migrationAssembly,
                         historyRepository,
@@ -109,8 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         services.GetRequiredService<IRelationalConnection>(),
                         services.GetRequiredService<ISqlGenerationHelper>(),
                         services.GetRequiredService<ICurrentDbContext>(),
+                        services.GetRequiredService<IModelRuntimeInitializer>(),
                         services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Migrations>>(),
-                        services.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>(),
+                        services.GetRequiredService<IRelationalCommandDiagnosticsLogger>(),
                         services.GetRequiredService<IDatabaseProvider>())));
         }
 
@@ -133,26 +157,47 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
         private class MockHistoryRepository : IHistoryRepository
         {
-            public string GetBeginIfExistsScript(string migrationId) => null;
-            public string GetBeginIfNotExistsScript(string migrationId) => null;
-            public string GetCreateScript() => null;
-            public string GetCreateIfNotExistsScript() => null;
-            public string GetEndIfScript() => null;
-            public bool Exists() => false;
-            public Task<bool> ExistsAsync(CancellationToken cancellationToken) => Task.FromResult(false);
-            public IReadOnlyList<HistoryRow> GetAppliedMigrations() => null;
+            public string GetBeginIfExistsScript(string migrationId)
+                => null;
+
+            public string GetBeginIfNotExistsScript(string migrationId)
+                => null;
+
+            public string GetCreateScript()
+                => null;
+
+            public string GetCreateIfNotExistsScript()
+                => null;
+
+            public string GetEndIfScript()
+                => null;
+
+            public bool Exists()
+                => false;
+
+            public Task<bool> ExistsAsync(CancellationToken cancellationToken)
+                => Task.FromResult(false);
+
+            public IReadOnlyList<HistoryRow> GetAppliedMigrations()
+                => null;
 
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
                 => Task.FromResult<IReadOnlyList<HistoryRow>>(null);
 
-            public string GetDeleteScript(string migrationId) => null;
-            public string GetInsertScript(HistoryRow row) => null;
+            public string GetDeleteScript(string migrationId)
+                => null;
+
+            public string GetInsertScript(HistoryRow row)
+                => null;
         }
 
         private class MockProvider : IDatabaseProvider
         {
-            public string Name => "Mock.Provider";
-            public bool IsConfigured(IDbContextOptions options) => true;
+            public string Name
+                => "Mock.Provider";
+
+            public bool IsConfigured(IDbContextOptions options)
+                => true;
         }
     }
 }

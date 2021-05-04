@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class ConferencePlannerSqliteFixture : ConferencePlannerFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

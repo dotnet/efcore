@@ -12,64 +12,58 @@ namespace Microsoft.EntityFrameworkCore.Query
     public abstract class MappingQueryTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : MappingQueryTestBase<TFixture>.MappingQueryFixtureBase, new()
     {
-        protected MappingQueryTestBase(MappingQueryFixtureBase fixture) => Fixture = fixture;
+        protected MappingQueryTestBase(MappingQueryFixtureBase fixture)
+            => Fixture = fixture;
 
         protected MappingQueryFixtureBase Fixture { get; }
 
         [ConditionalFact]
         public virtual void All_customers()
         {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Set<MappedCustomer>()
-                        .ToList();
+            using var context = CreateContext();
+            var customers
+                = context.Set<MappedCustomer>()
+                    .ToList();
 
-                Assert.Equal(91, customers.Count);
-            }
+            Assert.Equal(91, customers.Count);
         }
 
         [ConditionalFact]
         public virtual void All_employees()
         {
-            using (var context = CreateContext())
-            {
-                var employees
-                    = context.Set<MappedEmployee>()
-                        .ToList();
+            using var context = CreateContext();
+            var employees
+                = context.Set<MappedEmployee>()
+                    .ToList();
 
-                Assert.Equal(9, employees.Count);
-            }
+            Assert.Equal(9, employees.Count);
         }
 
         [ConditionalFact]
         public virtual void All_orders()
         {
-            using (var context = CreateContext())
-            {
-                var orders
-                    = context.Set<MappedOrder>()
-                        .ToList();
+            using var context = CreateContext();
+            var orders
+                = context.Set<MappedOrder>()
+                    .ToList();
 
-                Assert.Equal(830, orders.Count);
-            }
+            Assert.Equal(830, orders.Count);
         }
 
         [ConditionalFact]
         public virtual void Project_nullable_enum()
         {
-            using (var context = CreateContext())
-            {
-                var orders
-                    = context.Set<MappedOrder>()
-                        .Select(o => o.ShipVia2)
-                        .ToList();
+            using var context = CreateContext();
+            var orders
+                = context.Set<MappedOrder>()
+                    .Select(o => o.ShipVia2)
+                    .ToList();
 
-                Assert.Equal(830, orders.Count);
-            }
+            Assert.Equal(830, orders.Count);
         }
 
-        protected virtual DbContext CreateContext() => Fixture.CreateContext();
+        protected virtual DbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected class MappedCustomer : Customer
         {
@@ -97,7 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             protected abstract string DatabaseSchema { get; }
             protected override string StoreName { get; } = "Northwind";
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

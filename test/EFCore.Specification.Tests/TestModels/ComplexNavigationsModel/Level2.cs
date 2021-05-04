@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
                 && Level1_Optional_Id == other.Level1_Optional_Id;
         }
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, Date, Level1_Required_Id, Level1_Optional_Id);
+        public override int GetHashCode()
+            => HashCode.Combine(Id, Name, Date, Level1_Required_Id, Level1_Optional_Id);
     }
 }

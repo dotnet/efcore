@@ -24,6 +24,20 @@ namespace Microsoft.EntityFrameworkCore
     public class RelationalDatabaseFacadeExtensionsTest
     {
         [ConditionalFact]
+        public void Return_true_if_relational()
+        {
+            using var context = RelationalTestHelpers.Instance.CreateContext();
+            Assert.True(context.Database.IsRelational());
+        }
+
+        [ConditionalFact]
+        public void Return_false_if_inMemory()
+        {
+            using var context = InMemoryTestHelpers.Instance.CreateContext();
+            Assert.False(context.Database.IsRelational());
+        }
+
+        [ConditionalFact]
         public void GetDbConnection_returns_the_current_connection()
         {
             var dbConnection = new FakeDbConnection("A=B");
@@ -153,7 +167,8 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public Task ResetStateAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+            public Task ResetStateAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
 
             public IDbContextTransaction BeginTransaction()
             {
@@ -174,6 +189,12 @@ namespace Microsoft.EntityFrameworkCore
             public void RollbackTransaction()
             {
             }
+
+            public Task CommitTransactionAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
+
+            public Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
+                => Task.CompletedTask;
 
             public IDbContextTransaction CurrentTransaction { get; }
 
@@ -214,8 +235,12 @@ namespace Microsoft.EntityFrameworkCore
             public IReadOnlyDictionary<string, TypeInfo> Migrations { get; set; }
             public ModelSnapshot ModelSnapshot { get; }
             public Assembly Assembly { get; }
-            public string FindMigrationId(string nameOrId) => throw new NotImplementedException();
-            public Migration CreateMigration(TypeInfo migrationClass, string activeProvider) => throw new NotImplementedException();
+
+            public string FindMigrationId(string nameOrId)
+                => throw new NotImplementedException();
+
+            public Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
+                => throw new NotImplementedException();
         }
 
         [ConditionalTheory]
@@ -250,15 +275,32 @@ namespace Microsoft.EntityFrameworkCore
             public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken = default)
                 => Task.FromResult<IReadOnlyList<HistoryRow>>(AppliedMigrations);
 
-            public bool Exists() => throw new NotImplementedException();
-            public Task<bool> ExistsAsync(CancellationToken cancellationToken = default) => throw new NotImplementedException();
-            public string GetCreateScript() => throw new NotImplementedException();
-            public string GetCreateIfNotExistsScript() => throw new NotImplementedException();
-            public string GetInsertScript(HistoryRow row) => throw new NotImplementedException();
-            public string GetDeleteScript(string migrationId) => throw new NotImplementedException();
-            public string GetBeginIfNotExistsScript(string migrationId) => throw new NotImplementedException();
-            public string GetBeginIfExistsScript(string migrationId) => throw new NotImplementedException();
-            public string GetEndIfScript() => throw new NotImplementedException();
+            public bool Exists()
+                => throw new NotImplementedException();
+
+            public Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
+                => throw new NotImplementedException();
+
+            public string GetCreateScript()
+                => throw new NotImplementedException();
+
+            public string GetCreateIfNotExistsScript()
+                => throw new NotImplementedException();
+
+            public string GetInsertScript(HistoryRow row)
+                => throw new NotImplementedException();
+
+            public string GetDeleteScript(string migrationId)
+                => throw new NotImplementedException();
+
+            public string GetBeginIfNotExistsScript(string migrationId)
+                => throw new NotImplementedException();
+
+            public string GetBeginIfExistsScript(string migrationId)
+                => throw new NotImplementedException();
+
+            public string GetEndIfScript()
+                => throw new NotImplementedException();
         }
 
         [ConditionalTheory]

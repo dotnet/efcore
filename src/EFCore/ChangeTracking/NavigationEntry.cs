@@ -2,16 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
@@ -35,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] string name, bool collection)
+        protected NavigationEntry(InternalEntityEntry internalEntry, string name, bool collection)
             : this(internalEntry, GetNavigation(internalEntry, name, collection))
         {
         }
@@ -47,14 +44,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected NavigationEntry([NotNull] InternalEntityEntry internalEntry, [NotNull] INavigation navigation)
+        protected NavigationEntry(InternalEntityEntry internalEntry, INavigationBase navigation)
             : base(internalEntry, navigation)
         {
         }
 
-        private static INavigation GetNavigation(InternalEntityEntry internalEntry, string name, bool collection)
+        private static INavigationBase GetNavigation(InternalEntityEntry internalEntry, string name, bool collection)
         {
-            var navigation = internalEntry.EntityType.FindNavigation(name);
+            var navigation = (INavigationBase?)internalEntry.EntityType.FindNavigation(name)
+                ?? internalEntry.EntityType.FindSkipNavigation(name);
+
             if (navigation == null)
             {
                 if (internalEntry.EntityType.FindProperty(name) != null)
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             if (collection
-                && !navigation.IsCollection())
+                && !navigation.IsCollection)
             {
                 throw new InvalidOperationException(
                     CoreStrings.CollectionIsReference(
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
 
             if (!collection
-                && navigation.IsCollection())
+                && navigation.IsCollection)
             {
                 throw new InvalidOperationException(
                     CoreStrings.ReferenceIsCollection(
@@ -99,13 +98,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         /// </summary>
-        public virtual void Load()
-        {
-            if (!IsLoaded)
-            {
-                TargetFinder.Load(Metadata, InternalEntry);
-            }
-        }
+        public abstract void Load();
 
         /// <summary>
         ///     <para>
@@ -116,20 +109,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
-        /// <returns>
-        ///     A task that represents the asynchronous operation.
-        /// </returns>
-        public virtual Task LoadAsync(CancellationToken cancellationToken = default)
-            => IsLoaded
-                ? Task.FromResult(0)
-                : TargetFinder.LoadAsync(Metadata, InternalEntry, cancellationToken);
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public abstract Task LoadAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     <para>
@@ -142,8 +129,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <returns> The query to load related entities. </returns>
-        public virtual IQueryable Query()
-            => TargetFinder.Query(Metadata, InternalEntry);
+        public abstract IQueryable Query();
 
         /// <summary>
         ///     <para>
@@ -154,7 +140,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Loading entities from the database using
         ///         <see cref="EntityFrameworkQueryableExtensions.Include{TEntity,TProperty}" /> or
         ///         <see
-        ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(EntityFrameworkCore.Query.IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{System.Func{TPreviousProperty,TProperty}})" />
+        ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(Query.IIncludableQueryable{TEntity,IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{Func{TPreviousProperty,TProperty}})" />
         ///         , <see cref="Load" />, or <see cref="LoadAsync" /> will set this flag. Subsequent calls to <see cref="Load" />
         ///         or <see cref="LoadAsync" /> will then be a no-op.
         ///     </para>
@@ -166,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <value>
-        ///     True if all the related entities are loaded or the IsLoaded has been explicitly set to true.
+        ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to true.
         /// </value>
         public virtual bool IsLoaded
         {
@@ -174,104 +160,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             set => InternalEntry.SetIsLoaded(Metadata, value);
         }
 
-        private IEntityFinder TargetFinder
-            => InternalEntry.StateManager.CreateEntityFinder(Metadata.GetTargetType());
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether any of foreign key property values associated
-        ///     with this navigation property have been modified and should be updated in the database
-        ///     when <see cref="DbContext.SaveChanges()" /> is called.
-        /// </summary>
-        public override bool IsModified
-        {
-            get
-            {
-                if (Metadata.IsDependentToPrincipal())
-                {
-                    return AnyFkPropertiesModified(InternalEntry);
-                }
-
-                var navigationValue = CurrentValue;
-
-                return navigationValue != null
-                    && (Metadata.IsCollection()
-                        ? ((IEnumerable)navigationValue).OfType<object>().Any(CollectionContainsNewOrChangedRelationships)
-                        : AnyFkPropertiesModified(navigationValue));
-            }
-            set
-            {
-                if (Metadata.IsDependentToPrincipal())
-                {
-                    SetFkPropertiesModified(InternalEntry, value);
-                }
-                else
-                {
-                    var navigationValue = CurrentValue;
-                    if (navigationValue != null)
-                    {
-                        if (Metadata.IsCollection())
-                        {
-                            foreach (var relatedEntity in (IEnumerable)navigationValue)
-                            {
-                                SetFkPropertiesModified(relatedEntity, value);
-                            }
-                        }
-                        else
-                        {
-                            SetFkPropertiesModified(navigationValue, value);
-                        }
-                    }
-                }
-            }
-        }
-
-        private bool CollectionContainsNewOrChangedRelationships(object relatedEntity)
-        {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
-
-            return relatedEntry != null
-                && (relatedEntry.EntityState == EntityState.Added
-                    || relatedEntry.EntityState == EntityState.Deleted
-                    || Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified));
-        }
-
-        private bool AnyFkPropertiesModified(object relatedEntity)
-        {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
-
-            return relatedEntry != null
-                && Metadata.ForeignKey.Properties.Any(relatedEntry.IsModified);
-        }
-
-        private void SetFkPropertiesModified(object relatedEntity, bool modified)
-        {
-            var relatedEntry = InternalEntry.StateManager.TryGetEntry(relatedEntity, Metadata.GetTargetType());
-            if (relatedEntry != null)
-            {
-                SetFkPropertiesModified(relatedEntry, modified);
-            }
-        }
-
-        private void SetFkPropertiesModified(InternalEntityEntry internalEntityEntry, bool modified)
-        {
-            var anyNonPk = Metadata.ForeignKey.Properties.Any(p => !p.IsPrimaryKey());
-            foreach (var property in Metadata.ForeignKey.Properties)
-            {
-                if (anyNonPk
-                    && !property.IsPrimaryKey())
-                {
-                    internalEntityEntry.SetPropertyModified(property, isModified: modified, acceptChanges: true);
-                }
-            }
-        }
-
-        private bool AnyFkPropertiesModified(InternalEntityEntry internalEntityEntry)
-            => Metadata.ForeignKey.Properties.Any(internalEntityEntry.IsModified);
-
         /// <summary>
         ///     Gets the metadata that describes the facets of this property and how it maps to the database.
         /// </summary>
-        public new virtual INavigation Metadata
-            => (INavigation)base.Metadata;
+        public new virtual INavigationBase Metadata
+            => (INavigationBase)base.Metadata;
     }
 }

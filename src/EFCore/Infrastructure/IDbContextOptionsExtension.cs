@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -30,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     required services when EF is creating an service provider.
         /// </summary>
         /// <param name="services"> The collection to add services to. </param>
-        void ApplyServices([NotNull] IServiceCollection services);
+        void ApplyServices(IServiceCollection services);
 
         /// <summary>
         ///     Gives the extension a chance to validate that all options in the extension are valid.
@@ -38,6 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     If options are invalid, then an exception should be thrown.
         /// </summary>
         /// <param name="options"> The options being validated. </param>
-        void Validate([NotNull] IDbContextOptions options);
+        void Validate(IDbContextOptions options);
     }
 }

@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.AcceptAllChanges();
 
                 var retryMessage =
-                    "A transient exception has been encountered during execution and the operation will be retried after 0ms."
+                    "A transient exception occurred during execution. The operation will be retried after 0ms."
                     + Environment.NewLine
                     + "Microsoft.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)
@@ -199,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private async Task Test_commit_failure_async(
-            bool realFailure, Func<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext, Task> execute)
+            bool realFailure,
+            Func<TestSqlServerRetryingExecutionStrategy, ExecutionStrategyContext, Task> execute)
         {
             CleanContext();
 
@@ -215,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.AcceptAllChanges();
 
                 var retryMessage =
-                    "A transient exception has been encountered during execution and the operation will be retried after 0ms."
+                    "A transient exception occurred during execution. The operation will be retried after 0ms."
                     + Environment.NewLine
                     + "Microsoft.Data.SqlClient.SqlException (0x80131904): Bang!";
                 if (realFailure)
@@ -244,45 +245,44 @@ namespace Microsoft.EntityFrameworkCore
         {
             CleanContext();
 
-            using (var context1 = CreateContext())
+            using var context1 = CreateContext();
+            var connection = (TestSqlServerConnection)context1.GetService<ISqlServerConnection>();
+
+            using (var context2 = CreateContext())
             {
-                var connection = (TestSqlServerConnection)context1.GetService<ISqlServerConnection>();
+                connection.CommitFailures.Enqueue(new bool?[] { realFailure });
 
-                using (var context2 = CreateContext())
-                {
-                    connection.CommitFailures.Enqueue(new bool?[] { realFailure });
+                context1.Products.Add(new Product());
+                context2.Products.Add(new Product());
 
-                    context1.Products.Add(new Product());
-                    context2.Products.Add(new Product());
+                new TestSqlServerRetryingExecutionStrategy(context1).ExecuteInTransaction(
+                    context1,
+                    c1 =>
+                    {
+                        context2.Database.UseTransaction(null);
+                        context2.Database.UseTransaction(context1.Database.CurrentTransaction.GetDbTransaction());
 
-                    new TestSqlServerRetryingExecutionStrategy(context1).ExecuteInTransaction(
-                        context1,
-                        c1 =>
-                        {
-                            context2.Database.UseTransaction(null);
-                            context2.Database.UseTransaction(context1.Database.CurrentTransaction.GetDbTransaction());
+                        c1.SaveChanges(false);
 
-                            c1.SaveChanges(false);
+                        return context2.SaveChanges(false);
+                    },
+                    c => c.Products.AsNoTracking().Any());
 
-                            return context2.SaveChanges(false);
-                        },
-                        c => c.Products.AsNoTracking().Any());
-
-                    context1.ChangeTracker.AcceptAllChanges();
-                    context2.ChangeTracker.AcceptAllChanges();
-                }
-
-                using (var context = CreateContext())
-                {
-                    Assert.Equal(2, context.Products.Count());
-                }
+                context1.ChangeTracker.AcceptAllChanges();
+                context2.ChangeTracker.AcceptAllChanges();
             }
+
+            using var context = CreateContext();
+            Assert.Equal(2, context.Products.Count());
         }
 
         [ConditionalTheory]
         [MemberData(nameof(DataGenerator.GetBoolCombinations), 4, MemberType = typeof(DataGenerator))]
         public async Task Retries_SaveChanges_on_execution_failure(
-            bool realFailure, bool externalStrategy, bool openConnection, bool async)
+            bool realFailure,
+            bool externalStrategy,
+            bool openConnection,
+            bool async)
         {
             CleanContext();
 
@@ -364,11 +364,11 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     if (async)
                     {
-                        context.Database.CloseConnection();
+                        await context.Database.CloseConnectionAsync();
                     }
                     else
                     {
-                        await context.Database.CloseConnectionAsync();
+                        context.Database.CloseConnection();
                     }
                 }
 
@@ -507,54 +507,52 @@ namespace Microsoft.EntityFrameworkCore
         [MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
         public async Task Retries_OpenConnection_on_execution_failure(bool externalStrategy, bool async)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
+
+            connection.OpenFailures.Enqueue(new bool?[] { true });
+
+            Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
+
+            if (async)
             {
-                var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
-
-                connection.OpenFailures.Enqueue(new bool?[] { true });
-
-                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
-
-                if (async)
+                if (externalStrategy)
                 {
-                    if (externalStrategy)
-                    {
-                        await new TestSqlServerRetryingExecutionStrategy(context).ExecuteAsync(
-                            context,
-                            c => c.Database.OpenConnectionAsync());
-                    }
-                    else
-                    {
-                        await context.Database.OpenConnectionAsync();
-                    }
+                    await new TestSqlServerRetryingExecutionStrategy(context).ExecuteAsync(
+                        context,
+                        c => c.Database.OpenConnectionAsync());
                 }
                 else
                 {
-                    if (externalStrategy)
-                    {
-                        new TestSqlServerRetryingExecutionStrategy(context).Execute(
-                            context,
-                            c => c.Database.OpenConnection());
-                    }
-                    else
-                    {
-                        context.Database.OpenConnection();
-                    }
+                    await context.Database.OpenConnectionAsync();
                 }
-
-                Assert.Equal(2, connection.OpenCount);
-
-                if (async)
-                {
-                    context.Database.CloseConnection();
-                }
-                else
-                {
-                    await context.Database.CloseConnectionAsync();
-                }
-
-                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
             }
+            else
+            {
+                if (externalStrategy)
+                {
+                    new TestSqlServerRetryingExecutionStrategy(context).Execute(
+                        context,
+                        c => c.Database.OpenConnection());
+                }
+                else
+                {
+                    context.Database.OpenConnection();
+                }
+            }
+
+            Assert.Equal(2, connection.OpenCount);
+
+            if (async)
+            {
+                context.Database.CloseConnection();
+            }
+            else
+            {
+                await context.Database.CloseConnectionAsync();
+            }
+
+            Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
         }
 
         [ConditionalTheory]
@@ -562,35 +560,33 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public async Task Retries_BeginTransaction_on_execution_failure(bool async)
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
+
+            connection.OpenFailures.Enqueue(new bool?[] { true });
+
+            Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
+
+            if (async)
             {
-                var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
+                var transaction = await new TestSqlServerRetryingExecutionStrategy(context).ExecuteAsync(
+                    context,
+                    c => context.Database.BeginTransactionAsync());
 
-                connection.OpenFailures.Enqueue(new bool?[] { true });
-
-                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
-
-                if (async)
-                {
-                    var transaction = await new TestSqlServerRetryingExecutionStrategy(context).ExecuteAsync(
-                        context,
-                        c => context.Database.BeginTransactionAsync());
-
-                    transaction.Dispose();
-                }
-                else
-                {
-                    var transaction = new TestSqlServerRetryingExecutionStrategy(context).Execute(
-                        context,
-                        c => context.Database.BeginTransaction());
-
-                    transaction.Dispose();
-                }
-
-                Assert.Equal(2, connection.OpenCount);
-
-                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
+                transaction.Dispose();
             }
+            else
+            {
+                var transaction = new TestSqlServerRetryingExecutionStrategy(context).Execute(
+                    context,
+                    c => context.Database.BeginTransaction());
+
+                transaction.Dispose();
+            }
+
+            Assert.Equal(2, connection.OpenCount);
+
+            Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
         }
 
         [ConditionalFact]
@@ -646,23 +642,30 @@ namespace Microsoft.EntityFrameworkCore
 
         private void CleanContext()
         {
-            using (var context = CreateContext())
+            using var context = CreateContext();
+            foreach (var product in context.Products.ToList())
             {
-                foreach (var product in context.Products.ToList())
-                {
-                    context.Remove(product);
-                    context.SaveChanges();
-                }
+                context.Remove(product);
+                context.SaveChanges();
             }
         }
 
         public class ExecutionStrategyFixture : SharedStoreFixtureBase<DbContext>
         {
-            protected override bool UsePooling => false;
+            protected override bool UsePooling
+                => false;
+
             protected override string StoreName { get; } = nameof(ExecutionStrategyTest);
-            public new RelationalTestStore TestStore => (RelationalTestStore)base.TestStore;
-            public TestSqlLoggerFactory TestSqlLoggerFactory => (TestSqlLoggerFactory)ListLoggerFactory;
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+            public new RelationalTestStore TestStore
+                => (RelationalTestStore)base.TestStore;
+
+            public TestSqlLoggerFactory TestSqlLoggerFactory
+                => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
+
             protected override Type ContextType { get; } = typeof(ExecutionStrategyContext);
 
             protected override IServiceCollection AddServices(IServiceCollection serviceCollection)

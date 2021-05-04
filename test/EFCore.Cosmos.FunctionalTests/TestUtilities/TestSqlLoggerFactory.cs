@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestSqlLoggerFactory : ListLoggerFactory
     {
@@ -30,9 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
         }
 
-        public IReadOnlyList<string> SqlStatements => ((TestSqlLogger)Logger).SqlStatements;
-        public IReadOnlyList<string> Parameters => ((TestSqlLogger)Logger).Parameters;
-        public string Sql => string.Join(_eol + _eol, SqlStatements);
+        public IReadOnlyList<string> SqlStatements
+            => ((TestSqlLogger)Logger).SqlStatements;
+
+        public IReadOnlyList<string> Parameters
+            => ((TestSqlLogger)Logger).Parameters;
+
+        public string Sql
+            => string.Join(_eol + _eol, SqlStatements);
 
         public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
@@ -44,6 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     {
                         Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
                     }
+
+                    Assert.Empty(SqlStatements.Skip(expected.Length));
                 }
                 else
                 {
@@ -62,11 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     new[] { _eol },
                     StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
 
-                var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
-                var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
-                var lineNumber = lineIndex > 0 ? methodCallLine.Substring(lineIndex) : "";
-
-                const string indent = FileNewLine + "                ";
+                var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
+                var testName = methodCallLine.Substring(0, indexMethodEnding);
+                var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                var fileName = parts[1][..^5];
+                var lineNumber = int.Parse(parts[2]);
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
@@ -75,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
+                const string indent = FileNewLine + "                ";
 
                 var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
@@ -89,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                 Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
                 Logger.TestOutputHelper?.WriteLine(newBaseLine);
 
-                var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
+                var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
                 File.AppendAllText(logFile, contents);
 
@@ -101,10 +108,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
         {
             private readonly bool _shouldLogCommands;
 
-            public TestSqlLogger(bool shouldLogCommands) => _shouldLogCommands = shouldLogCommands;
+            public TestSqlLogger(bool shouldLogCommands)
+                => _shouldLogCommands = shouldLogCommands;
 
-            public List<string> SqlStatements { get; } = new List<string>();
-            public List<string> Parameters { get; } = new List<string>();
+            public List<string> SqlStatements { get; } = new();
+            public List<string> Parameters { get; } = new();
 
             protected override void UnsafeClear()
             {
@@ -115,17 +123,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
             }
 
             protected override void UnsafeLog<TState>(
-                LogLevel logLevel, EventId eventId, string message, TState state, Exception exception)
+                LogLevel logLevel,
+                EventId eventId,
+                string message,
+                TState state,
+                Exception exception)
             {
-                if (eventId.Id == CoreEventId.ProviderBaseId)
+                if (eventId.Id == CosmosEventId.ExecutingSqlQuery)
                 {
                     if (_shouldLogCommands)
                     {
                         base.UnsafeLog(logLevel, eventId, message, state, exception);
                     }
 
-                    if (message != null
-                        && eventId.Id == CoreEventId.ProviderBaseId)
+                    if (message != null)
                     {
                         var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
 
@@ -139,6 +150,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.TestUtilities
                         }
 
                         SqlStatements.Add(parameters + commandText);
+                    }
+                }
+
+                if (eventId.Id == CosmosEventId.ExecutingReadItem)
+                {
+                    if (_shouldLogCommands)
+                    {
+                        base.UnsafeLog(logLevel, eventId, message, state, exception);
+                    }
+
+                    if (message != null)
+                    {
+                        var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
+
+                        var partitionKey = structure.Where(i => i.Key == "partitionKey").Select(i => (string)i.Value).First();
+                        var resourceId = structure.Where(i => i.Key == "resourceId").Select(i => (string)i.Value).First();
+
+                        SqlStatements.Add($"ReadItem({partitionKey}, {resourceId})");
                     }
                 }
                 else

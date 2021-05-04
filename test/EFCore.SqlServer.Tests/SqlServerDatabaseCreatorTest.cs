@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -205,10 +206,11 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
-            public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
+            private readonly List<IRelationalParameter> _parameters = new();
+            public IndentedStringBuilder Instance { get; } = new();
 
-            public IReadOnlyList<IRelationalParameter> Parameters => _parameters;
+            public IReadOnlyList<IRelationalParameter> Parameters
+                => _parameters;
 
             public IRelationalCommandBuilder AddParameter(IRelationalParameter parameter)
             {
@@ -217,11 +219,13 @@ namespace Microsoft.EntityFrameworkCore
                 return this;
             }
 
-            public IRelationalTypeMappingSource TypeMappingSource => null;
+            public IRelationalTypeMappingSource TypeMappingSource
+                => null;
 
-            public IRelationalCommand Build() => new FakeRelationalCommand();
+            public IRelationalCommand Build()
+                => new FakeRelationalCommand();
 
-            public IRelationalCommandBuilder Append(object value)
+            public IRelationalCommandBuilder Append(string value)
             {
                 Instance.Append(value);
 
@@ -249,7 +253,8 @@ namespace Microsoft.EntityFrameworkCore
                 return this;
             }
 
-            public int CommandTextLength => Instance.Length;
+            public int CommandTextLength
+                => Instance.Length;
         }
 
         private class FakeRelationalCommand : IRelationalCommand
@@ -258,12 +263,11 @@ namespace Microsoft.EntityFrameworkCore
 
             public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-            public IReadOnlyDictionary<string, object> ParameterValues => throw new NotImplementedException();
+            public IReadOnlyDictionary<string, object> ParameterValues
+                => throw new NotImplementedException();
 
             public int ExecuteNonQuery(RelationalCommandParameterObject parameterObject)
-            {
-                return 0;
-            }
+                => 0;
 
             public Task<int> ExecuteNonQueryAsync(
                 RelationalCommandParameterObject parameterObject,
@@ -271,28 +275,26 @@ namespace Microsoft.EntityFrameworkCore
                 => Task.FromResult(0);
 
             public RelationalDataReader ExecuteReader(RelationalCommandParameterObject parameterObject)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Task<RelationalDataReader> ExecuteReaderAsync(
                 RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = default)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
+
+            public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+                => throw new NotImplementedException();
 
             public object ExecuteScalar(RelationalCommandParameterObject parameterObject)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
 
             public Task<object> ExecuteScalarAsync(
                 RelationalCommandParameterObject parameterObject,
                 CancellationToken cancellationToken = default)
-            {
-                throw new NotImplementedException();
-            }
+                => throw new NotImplementedException();
+
+            public void PopulateFrom(IRelationalCommand command)
+                => throw new NotImplementedException();
         }
     }
 }

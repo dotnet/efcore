@@ -1,8 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using JetBrains.Annotations;
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalQueryContextDependencies
+    public sealed record RelationalQueryContextDependencies
     {
         /// <summary>
         ///     <para>
@@ -56,45 +55,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalQueryContextDependencies(
-            [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory)
+            IRelationalConnection relationalConnection,
+            IRelationalQueryStringFactory relationalQueryStringFactory)
         {
             Check.NotNull(relationalConnection, nameof(relationalConnection));
-            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
+            Check.NotNull(relationalQueryStringFactory, nameof(relationalQueryStringFactory));
 
             RelationalConnection = relationalConnection;
-#pragma warning disable 618
-            ExecutionStrategyFactory = executionStrategyFactory;
-#pragma warning restore 618
+            RelationalQueryStringFactory = relationalQueryStringFactory;
         }
 
         /// <summary>
         ///     The connection.
         /// </summary>
-        public IRelationalConnection RelationalConnection { get; }
+        public IRelationalConnection RelationalConnection { get; init; }
 
         /// <summary>
-        ///     The execution strategy.
+        ///     A factory for creating a readable query string from a <see cref="DbCommand" />
         /// </summary>
-        [Obsolete("Moved to QueryContextDependencies")]
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="relationalConnection"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryContextDependencies With([NotNull] IRelationalConnection relationalConnection)
-#pragma warning disable 618
-            => new RelationalQueryContextDependencies(relationalConnection, ExecutionStrategyFactory);
-#pragma warning restore 618
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalQueryContextDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            => new RelationalQueryContextDependencies(RelationalConnection, executionStrategyFactory);
+        public IRelationalQueryStringFactory RelationalQueryStringFactory { get; init; }
     }
 }

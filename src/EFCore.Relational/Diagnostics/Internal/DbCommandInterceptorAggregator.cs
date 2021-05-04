@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         {
             private readonly IDbCommandInterceptor[] _interceptors;
 
-            public CompositeDbCommandInterceptor([NotNull] IEnumerable<IDbCommandInterceptor> interceptors)
+            public CompositeDbCommandInterceptor(IEnumerable<IDbCommandInterceptor> interceptors)
             {
                 _interceptors = interceptors.ToArray();
             }
@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -107,13 +107,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].ReaderExecutingAsync(command, eventData, result, cancellationToken);
+                    result = await _interceptors[i].ReaderExecutingAsync(command, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
             }
 
-            public async Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public async ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -121,13 +122,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].ScalarExecutingAsync(command, eventData, result, cancellationToken);
+                    result = await _interceptors[i].ScalarExecutingAsync(command, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
             }
 
-            public async Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -135,7 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].NonQueryExecutingAsync(command, eventData, result, cancellationToken);
+                    result = await _interceptors[i].NonQueryExecutingAsync(command, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -154,10 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public object ScalarExecuted(
+            public object? ScalarExecuted(
                 DbCommand command,
                 CommandExecutedEventData eventData,
-                object result)
+                object? result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -180,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async Task<DbDataReader> ReaderExecutedAsync(
+            public async ValueTask<DbDataReader> ReaderExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 DbDataReader result,
@@ -188,27 +191,29 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].ReaderExecutedAsync(command, eventData, result, cancellationToken);
+                    result = await _interceptors[i].ReaderExecutedAsync(command, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
             }
 
-            public async Task<object> ScalarExecutedAsync(
+            public async ValueTask<object?> ScalarExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
-                object result,
+                object? result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].ScalarExecutedAsync(command, eventData, result, cancellationToken);
+                    result = await _interceptors[i].ScalarExecutedAsync(command, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
             }
 
-            public async Task<int> NonQueryExecutedAsync(
+            public async ValueTask<int> NonQueryExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 int result,
@@ -216,7 +221,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    result = await _interceptors[i].NonQueryExecutedAsync(command, eventData, result, cancellationToken);
+                    result = await _interceptors[i].NonQueryExecutedAsync(command, eventData, result, cancellationToken)
+                        .ConfigureAwait(false);
                 }
 
                 return result;
@@ -231,11 +237,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             public async Task CommandFailedAsync(
-                DbCommand command, CommandErrorEventData eventData, CancellationToken cancellationToken = default)
+                DbCommand command,
+                CommandErrorEventData eventData,
+                CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
-                    await _interceptors[i].CommandFailedAsync(command, eventData, cancellationToken);
+                    await _interceptors[i].CommandFailedAsync(command, eventData, cancellationToken)
+                        .ConfigureAwait(false);
                 }
             }
 

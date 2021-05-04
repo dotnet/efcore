@@ -7,8 +7,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel
 {
     public class ComplexNavigationsContext : PoolableDbContext
     {
-        public static readonly string StoreName = "ComplexNavigations";
-
         public ComplexNavigationsContext(DbContextOptions options)
             : base(options)
         {

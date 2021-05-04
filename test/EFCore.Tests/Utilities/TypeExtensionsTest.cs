@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -170,7 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public virtual int VertrauenII { get; protected set; }
             public virtual int TalkToMe { protected get; set; }
 
-            public virtual int NoMoreAffairs => 1995;
+            public virtual int NoMoreAffairs
+                => 1995;
 
             public virtual int Singing
             {
@@ -192,7 +192,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             private int MySister { get; set; }
             protected override int TinyTears { get; set; }
 
-            public override int SnowyInFSharpMinor => 1995;
+            public override int SnowyInFSharpMinor
+                => 1995;
 
             public override int Seaweed
             {
@@ -202,7 +203,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public override int VertrauenII { get; protected set; }
             public override int TalkToMe { protected get; set; }
 
-            public override int NoMoreAffairs => 1995;
+            public override int NoMoreAffairs
+                => 1995;
 
             public override int Singing
             {
@@ -222,7 +224,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             private int MySister { get; set; }
             protected override int TinyTears { get; set; }
 
-            public override int SnowyInFSharpMinor => 1995;
+            public override int SnowyInFSharpMinor
+                => 1995;
 
             public override int Seaweed
             {
@@ -232,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             public override int VertrauenII { get; protected set; }
             public override int TalkToMe { protected get; set; }
 
-            public override int NoMoreAffairs => 1995;
+            public override int NoMoreAffairs
+                => 1995;
 
             public override int Singing
             {

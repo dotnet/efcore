@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         IRelationalConnection,
         IRelationalCommand,
         IReadOnlyDictionary<string, object>,
-        IDiagnosticsLogger<DbLoggerCategory.Database.Command>>;
+        IRelationalCommandDiagnosticsLogger>;
     using CommandFunc = Func<
         IRelationalConnection,
         IRelationalCommand,
         IReadOnlyDictionary<string, object>,
-        IDiagnosticsLogger<DbLoggerCategory.Database.Command>,
+        IRelationalCommandDiagnosticsLogger,
         Task>;
 
     public class RelationalCommandTest
@@ -822,6 +822,79 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Disposes_command_on_exception_in_reader(bool async)
+        {
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor());
+
+            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
+
+            var options = CreateOptions(optionsExtension);
+
+            var fakeConnection = new FakeRelationalConnection(options);
+
+            var relationalCommand = ReaderThrowingRelationalCommand.Create();
+
+            if (async)
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () => await relationalCommand.ExecuteReaderAsync(
+                        new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
+            }
+            else
+            {
+                Assert.Throws<InvalidOperationException>(
+                    () => relationalCommand.ExecuteReader(
+                        new RelationalCommandParameterObject(fakeConnection, null, null, null, null)));
+            }
+
+            Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
+        }
+
+        private class ReaderThrowingRelationalCommand : RelationalCommand
+        {
+            public ReaderThrowingRelationalCommand(
+                RelationalCommandBuilderDependencies dependencies,
+                string commandText,
+                IReadOnlyList<IRelationalParameter> parameters)
+                : base(dependencies, commandText, parameters)
+            {
+            }
+
+            protected override RelationalDataReader CreateRelationalDataReader()
+                => new ThrowingRelationalReader(this);
+
+            public static IRelationalCommand Create(string commandText = "Command Text")
+                => new ReaderThrowingRelationalCommand(
+                    new RelationalCommandBuilderDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
+                    commandText,
+                    Array.Empty<IRelationalParameter>());
+
+            private class ThrowingRelationalReader : RelationalDataReader
+            {
+                public ThrowingRelationalReader(IRelationalCommand relationalCommand)
+                    : base(relationalCommand)
+                {
+                }
+
+                public override void Initialize(
+                    IRelationalConnection relationalConnection,
+                    DbCommand command,
+                    DbDataReader reader,
+                    Guid commandId,
+                    IRelationalCommandDiagnosticsLogger logger)
+                    => throw new InvalidOperationException("Bang!");
+            }
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(CommandActions))]
         public async Task Closes_managed_connections_on_exception(
@@ -935,11 +1008,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 logFactory,
                 new FakeLoggingOptions(false),
                 new DiagnosticListener("Fake"),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -992,11 +1067,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 logFactory,
                 new FakeLoggingOptions(true),
                 new DiagnosticListener("Fake"),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 commandText: "Logged Command",
@@ -1049,11 +1126,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var diagnostic = new List<Tuple<string, object>>();
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -1119,11 +1198,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var logger = new DiagnosticsLogger<DbLoggerCategory.Database.Command>(
+            var logger = new RelationalCommandDiagnosticsLogger(
                 new ListLoggerFactory(),
                 new FakeLoggingOptions(false),
                 new ListDiagnosticSource(diagnostic),
-                new TestRelationalLoggingDefinitions());
+                new TestRelationalLoggingDefinitions(),
+                new NullDbContextLogger(),
+                CreateOptions());
 
             var relationalCommand = CreateRelationalCommand(
                 parameters: new[]
@@ -1171,7 +1252,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private const string ConnectionString = "Fake Connection String";
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         private static IDbContextOptions CreateOptions(
             RelationalOptionsExtension optionsExtension = null)
@@ -1203,7 +1284,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public bool IsSensitiveDataLoggingEnabled { get; }
             public bool IsSensitiveDataLoggingWarned { get; set; }
-            public WarningsConfiguration WarningsConfiguration => null;
+
+            public WarningsConfiguration WarningsConfiguration
+                => null;
         }
 
         private IRelationalCommand CreateRelationalCommand(

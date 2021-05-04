@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition<TParam> : EventDefinitionBase
     {
-        private readonly Action<ILogger, TParam, Exception> _logAction;
+        private readonly Action<ILogger, TParam, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -27,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
         /// </param>
         public EventDefinition(
-            [NotNull] ILoggingOptions loggingOptions,
+            ILoggingOptions loggingOptions,
             EventId eventId,
             LogLevel level,
-            [NotNull] string eventIdCode,
-            [NotNull] Func<LogLevel, Action<ILogger, TParam, Exception>> logActionFunc)
+            string eventIdCode,
+            Func<LogLevel, Action<ILogger, TParam, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotNull(logActionFunc, nameof(logActionFunc));
@@ -46,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="arg"> The message argument. </param>
         /// <returns> The message string. </returns>
         public virtual string GenerateMessage(
-            [CanBeNull] TParam arg)
+            TParam arg)
         {
             var extractor = new MessageExtractingLogger();
             _logAction(extractor, arg, null);
@@ -58,15 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
         /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="warningBehavior"> Whether the event should be logged, thrown as an exception or ignored. </param>
         /// <param name="arg"> Message argument. </param>
         public virtual void Log<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            WarningBehavior warningBehavior,
-            [CanBeNull] TParam arg)
+            IDiagnosticsLogger<TLoggerCategory> logger,
+            TParam arg)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
-            switch (warningBehavior)
+            switch (WarningBehavior)
             {
                 case WarningBehavior.Log:
                     _logAction(logger.Logger, arg, null);

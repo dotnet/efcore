@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public OperationLogger([NotNull] string categoryName, [NotNull] IOperationReporter reporter)
+        public OperationLogger(string categoryName, IOperationReporter reporter)
         {
             _categoryName = categoryName;
             _reporter = reporter;
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IDisposable BeginScope<TState>(TState state)
-            => null;
+            => NullScope.Instance;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             LogLevel logLevel,
             EventId eventId,
             TState state,
-            Exception exception,
-            Func<TState, Exception, string> formatter)
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
         {
             // Only show SQL when verbose
             if (_categoryName == DbLoggerCategory.Database.Command.Name
@@ -92,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
         }
 
-        private static string GetMessage<TState>(TState state, Exception exception, Func<TState, Exception, string> formatter)
+        private static string GetMessage<TState>(TState state, Exception? exception, Func<TState, Exception?, string>? formatter)
         {
             var builder = new StringBuilder();
             if (formatter != null)
@@ -112,6 +111,19 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             }
 
             return builder.ToString();
+        }
+
+        private sealed class NullScope : IDisposable
+        {
+            public static NullScope Instance { get; } = new NullScope();
+
+            private NullScope()
+            {
+            }
+
+            public void Dispose()
+            {
+            }
         }
     }
 }

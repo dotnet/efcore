@@ -17,8 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
     {
-        private static readonly string _eol = Environment.NewLine;
-
         public QueryLoggingSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         {
             Fixture = fixture;
@@ -30,113 +28,136 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public virtual void Queryable_simple()
         {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Set<Customer>()
-                        .ToList();
+            using var context = CreateContext();
+            var customers
+                = context.Set<Customer>()
+                    .ToList();
 
-                Assert.NotNull(customers);
-                Assert.StartsWith(
-                    "queryContext => new QueryingEnumerable<Customer>(",
-                    Fixture.TestSqlLoggerFactory.Log[0].Message);
-            }
+            Assert.NotNull(customers);
+
+            Assert.StartsWith(
+                "Compiling query expression: ",
+                Fixture.TestSqlLoggerFactory.Log[0].Message);
+            Assert.StartsWith(
+                "Generated query execution expression: " + Environment.NewLine + "'queryContext => new SingleQueryingEnumerable<Customer>(",
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Queryable_simple_split()
+        {
+            using var context = CreateContext();
+            var customers
+                = context.Set<Customer>().AsSplitQuery()
+                    .ToList();
+
+            Assert.NotNull(customers);
+            Assert.StartsWith(
+                "Generated query execution expression: " + Environment.NewLine + "'queryContext => new SplitQueryingEnumerable<Customer>(",
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
         }
 
         [ConditionalFact]
         public virtual void Queryable_with_parameter_outputs_parameter_value_logging_warning()
         {
-            using (var context = CreateContext())
-            {
-                context.GetInfrastructure().GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Query>>()
-                    .Options.IsSensitiveDataLoggingWarned = false;
-                // ReSharper disable once ConvertToConstant.Local
-                var city = "Redmond";
+            using var context = CreateContext();
+            context.GetInfrastructure().GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Query>>()
+                .Options.IsSensitiveDataLoggingWarned = false;
+            // ReSharper disable once ConvertToConstant.Local
+            var city = "Redmond";
 
-                var customers
-                    = context.Customers
-                        .Where(c => c.City == city)
-                        .ToList();
-
-                Assert.NotNull(customers);
-                Assert.Contains(
-                    CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#17498")]
-        public virtual void Query_with_ignored_include_should_log_warning()
-        {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Customers
-                        .Include(c => c.Orders)
-                        .Select(c => c.CustomerID)
-                        .ToList();
-
-                Assert.NotNull(customers);
-                Assert.Contains(
-#pragma warning disable CS0612 // Type or member is obsolete
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("[c].Orders"),
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-#pragma warning restore CS0612 // Type or member is obsolete
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue#17498")]
-        public virtual void Include_navigation()
-        {
-            using (var context = CreateContext())
-            {
-                var customers
-                    = context.Set<Customer>()
-                        .Include(c => c.Orders)
-                        .ToList();
-
-                Assert.NotNull(customers);
-
-                Assert.Equal(
-                    "Compiling query model: " + _eol + "'(from Customer c in DbSet<Customer>" + _eol + @"select [c]).Include(""Orders"")'"
-                    ,
-                    Fixture.TestSqlLoggerFactory.Log[0].Message);
-                Assert.Equal(
-                    "Including navigation: '[c].Orders'"
-                    ,
-                    Fixture.TestSqlLoggerFactory.Log[1].Message);
-                Assert.StartsWith(
-                    "Optimized query model: "
-                    + _eol
-                    + "'from Customer c in DbSet<Customer>"
-                    + _eol
-                    + @"order by EF.Property(?[c]?, ""CustomerID"") asc"
-                    + _eol
-                    + "select Customer _Include("
-                    ,
-                    Fixture.TestSqlLoggerFactory.Log[2].Message);
-            }
-        }
-
-        [ConditionalFact(Skip = "Issue #16752")]
-        public virtual void GroupBy_Include_collection_ignored()
-        {
-            using (var context = CreateContext())
-            {
-                var orders = context.Orders
-                    .GroupBy(o => o.OrderID)
-                    .Select(g => g.OrderBy(o => o.OrderID).FirstOrDefault())
-                    .Include(o => o.OrderDetails)
+            var customers
+                = context.Customers
+                    .Where(c => c.City == city)
                     .ToList();
 
-                Assert.NotNull(orders);
-                Assert.Contains(
-#pragma warning disable CS0612 // Type or member is obsolete
-                    CoreResources.LogIgnoredInclude(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(
-#pragma warning restore CS0612 // Type or member is obsolete
-                        "{from Order o in [g] orderby [o].OrderID asc select [o] => FirstOrDefault()}.OrderDetails"),
-                    Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
-            }
+            Assert.NotNull(customers);
+            Assert.Contains(
+                CoreResources.LogSensitiveDataLoggingEnabled(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log.Select(l => l.Message));
+        }
+
+        [ConditionalFact]
+        public virtual void Include_navigation()
+        {
+            using var context = CreateContext();
+            var customers
+                = context.Set<Customer>()
+                    .Where(c => c.CustomerID == "ALFKI")
+                    .Include(c => c.Orders)
+                    .ToList();
+
+            Assert.NotNull(customers);
+
+            Assert.Equal(
+                "Including navigation: 'Customer.Orders'.",
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Skip_without_order_by()
+        {
+            using var context = CreateContext();
+            var customers = context.Set<Customer>().Skip(85).ToList();
+
+            Assert.NotNull(customers);
+
+            Assert.Equal(
+                CoreResources.LogRowLimitingOperationWithoutOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Take_without_order_by()
+        {
+            using var context = CreateContext();
+            var customers = context.Set<Customer>().Take(5).ToList();
+
+            Assert.NotNull(customers);
+
+            Assert.Equal(
+                CoreResources.LogRowLimitingOperationWithoutOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void FirstOrDefault_without_filter_order_by()
+        {
+            using var context = CreateContext();
+            var customer = context.Set<Customer>().FirstOrDefault();
+
+            Assert.NotNull(customer);
+
+            Assert.Equal(
+                CoreResources.LogFirstWithoutOrderByAndFilter(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Distinct_used_after_order_by()
+        {
+            using var context = CreateContext();
+            var customers = context.Set<Customer>().OrderBy(x => x.Address).Distinct().Take(5).ToList();
+
+            Assert.NotEmpty(customers);
+
+            Assert.Equal(
+                CoreResources.LogDistinctAfterOrderByWithoutRowLimitingOperatorWarning(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log[1].Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Include_collection_does_not_generate_warning()
+        {
+            using var context = CreateContext();
+            var customer = context.Set<Customer>().Include(e => e.Orders).AsSplitQuery().Single(e => e.CustomerID == "ALFKI");
+
+            Assert.NotNull(customer);
+            Assert.Equal(6, customer.Orders.Count);
+
+            Assert.DoesNotContain(
+                CoreResources.LogRowLimitingOperationWithoutOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log.Select(e => e.Message));
         }
 
         [ConditionalFact]
@@ -170,6 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(1, loggerFactory2.Log.Count(e => e.Id == RelationalEventId.CommandExecuted));
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        protected NorthwindContext CreateContext()
+            => Fixture.CreateContext();
     }
 }

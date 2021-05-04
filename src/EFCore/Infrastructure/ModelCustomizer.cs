@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     <para>
     ///         Builds the model for a given context. This implementation builds the model by calling
-    ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> on the context.
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on the context.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="ModelCustomizer" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public ModelCustomizer([NotNull] ModelCustomizerDependencies dependencies)
+        public ModelCustomizer(ModelCustomizerDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         /// <summary>
         ///     Performs additional configuration of the model in addition to what is discovered by convention. This default implementation
-        ///     builds the model for a given context by calling <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />
+        ///     builds the model for a given context by calling <see cref="DbContext.OnModelCreating(ModelBuilder)" />
         ///     on the context.
         /// </summary>
         /// <param name="modelBuilder">

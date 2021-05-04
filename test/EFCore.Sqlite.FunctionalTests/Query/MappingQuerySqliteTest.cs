@@ -52,11 +52,13 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private static readonly string EOL = Environment.NewLine;
 
-        private string Sql => Fixture.TestSqlLoggerFactory.Sql;
+        private string Sql
+            => Fixture.TestSqlLoggerFactory.Sql;
 
         public class MappingQuerySqliteFixture : MappingQueryFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteNorthwindTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteNorthwindTestStoreFactory.Instance;
 
             protected override string DatabaseSchema { get; } = null;
 

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on sequences.
     ///     See also <see cref="CreateSequenceOperation" /> and <see cref="AlterSequenceOperation" />.
     /// </summary>
-    public class SequenceOperation : MigrationOperation
+    public abstract class SequenceOperation : MigrationOperation
     {
         /// <summary>
         ///     The amount to increment by when generating the next value in the sequence, defaulting to 1.
@@ -15,12 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         public virtual int IncrementBy { get; set; } = 1;
 
         /// <summary>
-        ///     The maximum value of the sequence, or <c>null</c> if not specified.
+        ///     The maximum value of the sequence, or <see langword="null" /> if not specified.
         /// </summary>
         public virtual long? MaxValue { get; set; }
 
         /// <summary>
-        ///     The minimum value of the sequence, or <c>null</c> if not specified.
+        ///     The minimum value of the sequence, or <see langword="null" /> if not specified.
         /// </summary>
         public virtual long? MinValue { get; set; }
 

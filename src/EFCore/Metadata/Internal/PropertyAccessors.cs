@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -13,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    // Sealed for perf
     public sealed class PropertyAccessors
     {
         /// <summary>
@@ -22,11 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public PropertyAccessors(
-            [NotNull] Delegate currentValueGetter,
-            [NotNull] Delegate preStoreGeneratedCurrentValueGetter,
-            [CanBeNull] Delegate originalValueGetter,
-            [NotNull] Delegate relationshipSnapshotGetter,
-            [CanBeNull] Func<ValueBuffer, object> valueBufferGetter)
+            Delegate currentValueGetter,
+            Delegate preStoreGeneratedCurrentValueGetter,
+            Delegate? originalValueGetter,
+            Delegate relationshipSnapshotGetter,
+            Func<ValueBuffer, object>? valueBufferGetter)
         {
             CurrentValueGetter = currentValueGetter;
             PreStoreGeneratedCurrentValueGetter = preStoreGeneratedCurrentValueGetter;
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Delegate OriginalValueGetter { get; }
+        public Delegate? OriginalValueGetter { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,6 +73,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Func<ValueBuffer, object> ValueBufferGetter { get; }
+        public Func<ValueBuffer, object>? ValueBufferGetter { get; }
     }
 }

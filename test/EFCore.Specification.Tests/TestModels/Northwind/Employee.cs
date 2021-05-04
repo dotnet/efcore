@@ -7,7 +7,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 {
     public class Employee
     {
-        public uint EmployeeID { get; set; }
+        private uint? _employeeId;
+
+        public uint EmployeeID
+        {
+            get => _employeeId ?? (uint)0;
+            set => _employeeId = value;
+        }
+
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string Title { get; set; }
@@ -28,7 +35,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
         public Employee Manager { get; set; }
 
-        protected bool Equals(Employee other) => EmployeeID == other.EmployeeID;
+        protected bool Equals(Employee other)
+            => EmployeeID == other.EmployeeID;
 
         public override bool Equals(object obj)
         {
@@ -43,8 +51,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
                 && Equals((Employee)obj);
         }
 
-        public override int GetHashCode() => EmployeeID.GetHashCode();
+        public override int GetHashCode()
+            => EmployeeID.GetHashCode();
 
-        public override string ToString() => "Employee " + EmployeeID;
+        public override string ToString()
+            => "Employee " + EmployeeID;
     }
 }

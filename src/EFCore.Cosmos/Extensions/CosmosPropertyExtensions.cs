@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -10,20 +9,20 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Extension methods for <see cref="IProperty" /> for Cosmos metadata.
+    ///     Property extension methods for Cosmos metadata.
     /// </summary>
     public static class CosmosPropertyExtensions
     {
         /// <summary>
-        ///     Returns the property name used when targeting Cosmos.
+        ///     Returns the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The property name used when targeting Cosmos. </returns>
-        public static string GetPropertyName([NotNull] this IProperty property) =>
-            (string)property[CosmosAnnotationNames.PropertyName]
-            ?? GetDefaultPropertyName(property);
+        /// <returns> Returns the property name that the property is mapped to when targeting Cosmos. </returns>
+        public static string GetJsonPropertyName(this IReadOnlyProperty property)
+            => (string?)property[CosmosAnnotationNames.PropertyName]
+                ?? GetDefaultJsonPropertyName(property);
 
-        private static string GetDefaultPropertyName(IProperty property)
+        private static string GetDefaultJsonPropertyName(IReadOnlyProperty property)
         {
             var entityType = property.DeclaringEntityType;
             var ownership = entityType.FindOwnership();
@@ -45,34 +44,43 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Sets the property name used when targeting Cosmos.
+        ///     Sets the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="name"> The name to set. </param>
-        public static void SetPropertyName([NotNull] this IMutableProperty property, [CanBeNull] string name)
+        public static void SetJsonPropertyName(this IMutableProperty property, string? name)
             => property.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
                 name);
 
         /// <summary>
-        ///     Sets the property name used when targeting Cosmos.
+        ///     Sets the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="name"> The name to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        public static void SetPropertyName(
-            [NotNull] this IConventionProperty property, [CanBeNull] string name, bool fromDataAnnotation = false)
-            => property.SetOrRemoveAnnotation(
+        /// <returns> The configured value. </returns>
+        public static string? SetJsonPropertyName(
+            this IConventionProperty property,
+            string? name,
+            bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(
                 CosmosAnnotationNames.PropertyName,
                 name,
                 fromDataAnnotation);
 
+            return name;
+        }
+
         /// <summary>
-        ///     Gets the <see cref="ConfigurationSource" /> for the property name used when targeting Cosmos.
+        ///     Gets the <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> The <see cref="ConfigurationSource" /> for the property name used when targeting Cosmos. </returns>
-        public static ConfigurationSource? GetPropertyNameConfigurationSource([NotNull] this IConventionProperty property)
+        /// <returns>
+        ///     The <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.
+        /// </returns>
+        public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionProperty property)
             => property.FindAnnotation(CosmosAnnotationNames.PropertyName)?.GetConfigurationSource();
     }
 }

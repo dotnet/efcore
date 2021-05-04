@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 {
@@ -29,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ConventionDispatcher([NotNull] ConventionSet conventionSet)
+        public ConventionDispatcher(ConventionSet conventionSet)
         {
             _immediateConventionScope = new ImmediateConventionScope(conventionSet, this);
             _scope = _immediateConventionScope;
@@ -50,16 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionModelBuilder OnModelFinalized([NotNull] IConventionModelBuilder modelBuilder)
-            => _immediateConventionScope.OnModelFinalized(modelBuilder);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IConventionModelBuilder OnModelInitialized([NotNull] IConventionModelBuilder modelBuilder)
+        public virtual IConventionModelBuilder OnModelInitialized(IConventionModelBuilder modelBuilder)
             => _immediateConventionScope.OnModelInitialized(modelBuilder);
 
         /// <summary>
@@ -68,11 +60,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionAnnotation OnModelAnnotationChanged(
-            [NotNull] IConventionModelBuilder modelBuilder,
-            [NotNull] string name,
-            [CanBeNull] IConventionAnnotation annotation,
-            [CanBeNull] IConventionAnnotation oldAnnotation)
+        public virtual IConventionModelBuilder OnModelFinalizing(IConventionModelBuilder modelBuilder)
+            => _immediateConventionScope.OnModelFinalizing(modelBuilder);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionAnnotation? OnModelAnnotationChanged(
+            IConventionModelBuilder modelBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
         {
             if (CoreAnnotationNames.AllNames.Contains(name))
             {
@@ -92,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionEntityTypeBuilder OnEntityTypeAdded([NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
+        public virtual IConventionEntityTypeBuilder? OnEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder)
             => _scope.OnEntityTypeAdded(entityTypeBuilder);
 
         /// <summary>
@@ -101,8 +102,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string OnEntityTypeIgnored(
-            [NotNull] IConventionModelBuilder modelBuilder, [NotNull] string name, [CanBeNull] Type type)
+        public virtual string? OnEntityTypeIgnored(
+            IConventionModelBuilder modelBuilder,
+            string name,
+            Type? type)
             => _scope.OnEntityTypeIgnored(modelBuilder, name, type);
 
         /// <summary>
@@ -111,8 +114,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionEntityType OnEntityTypeRemoved(
-            [NotNull] IConventionModelBuilder modelBuilder, [NotNull] IConventionEntityType type)
+        public virtual IConventionEntityType? OnEntityTypeRemoved(
+            IConventionModelBuilder modelBuilder,
+            IConventionEntityType type)
             => _scope.OnEntityTypeRemoved(modelBuilder, type);
 
         /// <summary>
@@ -121,9 +125,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string OnEntityTypeMemberIgnored(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [NotNull] string name)
+        public virtual string? OnEntityTypeMemberIgnored(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name)
             => _scope.OnEntityTypeMemberIgnored(entityTypeBuilder, name);
 
         /// <summary>
@@ -132,10 +136,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionEntityType OnEntityTypeBaseTypeChanged(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] IConventionEntityType newBaseType,
-            [CanBeNull] IConventionEntityType previousBaseType)
+        public virtual IConventionEntityType? OnEntityTypeBaseTypeChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? previousBaseType)
             => _scope.OnEntityTypeBaseTypeChanged(entityTypeBuilder, newBaseType, previousBaseType);
 
         /// <summary>
@@ -144,11 +148,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionAnnotation OnEntityTypeAnnotationChanged(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [NotNull] string name,
-            [CanBeNull] IConventionAnnotation annotation,
-            [CanBeNull] IConventionAnnotation oldAnnotation)
+        public virtual IConventionAnnotation? OnEntityTypeAnnotationChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
         {
             if (CoreAnnotationNames.AllNames.Contains(name))
             {
@@ -168,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionRelationshipBuilder OnForeignKeyAdded([NotNull] IConventionRelationshipBuilder relationshipBuilder)
+        public virtual IConventionForeignKeyBuilder? OnForeignKeyAdded(IConventionForeignKeyBuilder relationshipBuilder)
             => _scope.OnForeignKeyAdded(relationshipBuilder);
 
         /// <summary>
@@ -177,8 +181,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionForeignKey OnForeignKeyRemoved(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionForeignKey foreignKey)
+        public virtual IConventionForeignKey? OnForeignKeyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionForeignKey foreignKey)
             => _scope.OnForeignKeyRemoved(entityTypeBuilder, foreignKey);
 
         /// <summary>
@@ -187,10 +192,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void OnForeignKeyPropertiesChanged(
-            [NotNull] InternalRelationshipBuilder relationshipBuilder,
-            [NotNull] IReadOnlyList<Property> oldDependentProperties,
-            [NotNull] Key oldPrincipalKey)
+        public virtual IReadOnlyList<IConventionProperty>? OnForeignKeyPropertiesChanged(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IReadOnlyList<IConventionProperty> oldDependentProperties,
+            IConventionKey oldPrincipalKey)
             => _scope.OnForeignKeyPropertiesChanged(
                 relationshipBuilder,
                 oldDependentProperties,
@@ -202,8 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionRelationshipBuilder OnForeignKeyUniquenessChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder)
+        public virtual bool? OnForeignKeyUniquenessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
             => _scope.OnForeignKeyUniquenessChanged(relationshipBuilder);
 
         /// <summary>
@@ -212,8 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionRelationshipBuilder OnForeignKeyRequirednessChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder)
+        public virtual bool? OnForeignKeyRequirednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
             => _scope.OnForeignKeyRequirednessChanged(relationshipBuilder);
 
         /// <summary>
@@ -222,8 +227,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionRelationshipBuilder OnForeignKeyOwnershipChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder)
+        public virtual bool? OnForeignKeyDependentRequirednessChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
+            => _scope.OnForeignKeyDependentRequirednessChanged(relationshipBuilder);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool? OnForeignKeyOwnershipChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
             => _scope.OnForeignKeyOwnershipChanged(relationshipBuilder);
 
         /// <summary>
@@ -232,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionRelationshipBuilder OnForeignKeyPrincipalEndChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder)
+        public virtual IConventionForeignKeyBuilder? OnForeignKeyPrincipalEndChanged(
+            IConventionForeignKeyBuilder relationshipBuilder)
             => _scope.OnForeignKeyPrincipalEndChanged(relationshipBuilder);
 
         /// <summary>
@@ -242,11 +257,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionAnnotation OnForeignKeyAnnotationChanged(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder,
-            [NotNull] string name,
-            [CanBeNull] IConventionAnnotation annotation,
-            [CanBeNull] IConventionAnnotation oldAnnotation)
+        public virtual IConventionAnnotation? OnForeignKeyAnnotationChanged(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
         {
             if (CoreAnnotationNames.AllNames.Contains(name))
             {
@@ -266,9 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionNavigation OnNavigationAdded(
-            [NotNull] IConventionRelationshipBuilder relationshipBuilder, [NotNull] IConventionNavigation navigation)
-            => _scope.OnNavigationAdded(relationshipBuilder, navigation);
+        public virtual IConventionNavigationBuilder? OnNavigationAdded(IConventionNavigationBuilder navigationBuilder)
+            => _scope.OnNavigationAdded(navigationBuilder);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -276,11 +290,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string OnNavigationRemoved(
-            [NotNull] IConventionEntityTypeBuilder sourceEntityTypeBuilder,
-            [NotNull] IConventionEntityTypeBuilder targetEntityTypeBuilder,
-            [NotNull] string navigationName,
-            [CanBeNull] MemberInfo memberInfo)
+        public virtual string? OnNavigationRemoved(
+            IConventionEntityTypeBuilder sourceEntityTypeBuilder,
+            IConventionEntityTypeBuilder targetEntityTypeBuilder,
+            string navigationName,
+            MemberInfo? memberInfo)
             => _scope.OnNavigationRemoved(
                 sourceEntityTypeBuilder,
                 targetEntityTypeBuilder,
@@ -293,7 +307,102 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionKeyBuilder OnKeyAdded([NotNull] IConventionKeyBuilder keyBuilder)
+        public virtual IConventionAnnotation? OnNavigationAnnotationChanged(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            IConventionNavigation navigation,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnNavigationAnnotationChanged(
+                relationshipBuilder,
+                navigation,
+                name,
+                annotation,
+                oldAnnotation);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionSkipNavigationBuilder? OnSkipNavigationAdded(
+            IConventionSkipNavigationBuilder navigationBuilder)
+            => _scope.OnSkipNavigationAdded(navigationBuilder);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionForeignKey? OnSkipNavigationForeignKeyChanged(
+            IConventionSkipNavigationBuilder navigationBuilder,
+            IConventionForeignKey? foreignKey,
+            IConventionForeignKey? oldForeignKey)
+            => _scope.OnSkipNavigationForeignKeyChanged(navigationBuilder, foreignKey, oldForeignKey);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionSkipNavigation? OnSkipNavigationInverseChanged(
+            IConventionSkipNavigationBuilder navigationBuilder,
+            IConventionSkipNavigation? inverse,
+            IConventionSkipNavigation? oldInverse)
+            => _scope.OnSkipNavigationInverseChanged(navigationBuilder, inverse, oldInverse);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionSkipNavigation? OnSkipNavigationRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionSkipNavigation navigation)
+            => _scope.OnSkipNavigationRemoved(entityTypeBuilder, navigation);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionAnnotation? OnSkipNavigationAnnotationChanged(
+            IConventionSkipNavigationBuilder navigationBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            if (CoreAnnotationNames.AllNames.Contains(name))
+            {
+                return annotation;
+            }
+
+            return _scope.OnSkipNavigationAnnotationChanged(
+                navigationBuilder,
+                name,
+                annotation,
+                oldAnnotation);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IConventionKeyBuilder? OnKeyAdded(IConventionKeyBuilder keyBuilder)
             => _scope.OnKeyAdded(keyBuilder);
 
         /// <summary>
@@ -302,7 +411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionKey OnKeyRemoved([NotNull] IConventionEntityTypeBuilder entityTypeBuilder, [NotNull] IConventionKey key)
+        public virtual IConventionKey? OnKeyRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionKey key)
             => _scope.OnKeyRemoved(entityTypeBuilder, key);
 
         /// <summary>
@@ -311,11 +420,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionAnnotation OnKeyAnnotationChanged(
-            [NotNull] IConventionKeyBuilder keyBuilder,
-            [NotNull] string name,
-            [CanBeNull] IConventionAnnotation annotation,
-            [CanBeNull] IConventionAnnotation oldAnnotation)
+        public virtual IConventionAnnotation? OnKeyAnnotationChanged(
+            IConventionKeyBuilder keyBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
         {
             if (CoreAnnotationNames.AllNames.Contains(name))
             {
@@ -335,10 +444,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionKey OnPrimaryKeyChanged(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [CanBeNull] IConventionKey newPrimaryKey,
-            [CanBeNull] IConventionKey previousPrimaryKey)
+        public virtual IConventionKey? OnPrimaryKeyChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey? newPrimaryKey,
+            IConventionKey? previousPrimaryKey)
             => _scope.OnEntityTypePrimaryKeyChanged(entityTypeBuilder, newPrimaryKey, previousPrimaryKey);
 
         /// <summary>
@@ -347,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionIndexBuilder OnIndexAdded([NotNull] IConventionIndexBuilder indexBuilder)
+        public virtual IConventionIndexBuilder? OnIndexAdded(IConventionIndexBuilder indexBuilder)
             => _scope.OnIndexAdded(indexBuilder);
 
         /// <summary>
@@ -356,7 +465,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void OnIndexRemoved([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] Index index)
+        public virtual IConventionIndex? OnIndexRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionIndex index)
             => _scope.OnIndexRemoved(entityTypeBuilder, index);
 
         /// <summary>
@@ -365,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionIndexBuilder OnIndexUniquenessChanged([NotNull] IConventionIndexBuilder indexBuilder)
+        public virtual bool? OnIndexUniquenessChanged(IConventionIndexBuilder indexBuilder)
             => _scope.OnIndexUniquenessChanged(indexBuilder);
 
         /// <summary>
@@ -374,11 +485,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionAnnotation OnIndexAnnotationChanged(
-            [NotNull] IConventionIndexBuilder indexBuilder,
-            [NotNull] string name,
-            [CanBeNull] IConventionAnnotation annotation,
-            [CanBeNull] IConventionAnnotation oldAnnotation)
+        public virtual IConventionAnnotation? OnIndexAnnotationChanged(
+            IConventionIndexBuilder indexBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
         {
             if (CoreAnnotationNames.AllNames.Contains(name))
             {
@@ -398,7 +509,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionPropertyBuilder OnPropertyAdded([NotNull] IConventionPropertyBuilder propertyBuilder)
+        public virtual IConventionPropertyBuilder? OnPropertyAdded(IConventionPropertyBuilder propertyBuilder)
             => _scope.OnPropertyAdded(propertyBuilder);
 
         /// <summary>
@@ -407,8 +518,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionPropertyBuilder OnPropertyNullableChanged([NotNull] IConventionPropertyBuilder propertyBuilder)
-            => _scope.OnPropertyNullableChanged(propertyBuilder);
+        public virtual IConventionProperty? OnPropertyRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionProperty property)
+            => _scope.OnPropertyRemoved(entityTypeBuilder, property);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -416,8 +529,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual FieldInfo OnPropertyFieldChanged(
-            [NotNull] InternalPropertyBuilder propertyBuilder, [CanBeNull] FieldInfo newFieldInfo, [CanBeNull] FieldInfo oldFieldInfo)
+        public virtual bool? OnPropertyNullableChanged(IConventionPropertyBuilder propertyBuilder)
+            => _scope.OnPropertyNullabilityChanged(propertyBuilder);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual FieldInfo? OnPropertyFieldChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            FieldInfo? newFieldInfo,
+            FieldInfo? oldFieldInfo)
             => _scope.OnPropertyFieldChanged(propertyBuilder, newFieldInfo, oldFieldInfo);
 
         /// <summary>
@@ -426,11 +550,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionAnnotation OnPropertyAnnotationChanged(
-            [NotNull] IConventionPropertyBuilder propertyBuilder,
-            [NotNull] string name,
-            [CanBeNull] IConventionAnnotation annotation,
-            [CanBeNull] IConventionAnnotation oldAnnotation)
+        public virtual IConventionAnnotation? OnPropertyAnnotationChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
         {
             if (CoreAnnotationNames.AllNames.Contains(name))
             {
@@ -450,7 +574,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionBatch DelayConventions() => new ConventionBatch(this);
+        public virtual IConventionBatch DelayConventions()
+            => new ConventionBatch(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -458,19 +583,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual T Run<T>(Func<T> func, ref ForeignKey foreignKey)
+        public virtual T Track<T>(Func<T> func, [DisallowNull] ref IConventionForeignKey? foreignKey)
         {
             var batch = DelayConventions();
-            using (var foreignKeyReference = Tracker.Track(foreignKey))
-            {
-                var result = func();
-                batch.Dispose();
-                foreignKey = foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
-                return result;
-            }
+            using var foreignKeyReference = Tracker.Track(foreignKey);
+            var result = func();
+            batch.Dispose();
+            foreignKey = foreignKeyReference.Object is null || !foreignKeyReference.Object.IsInModel
+                ? null
+                : foreignKeyReference.Object;
+            return result;
         }
 
-        private class ConventionBatch : IConventionBatch
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [Conditional("DEBUG")]
+        public virtual void AssertNoScope()
+        {
+            Check.DebugAssert(_scope == _immediateConventionScope, "Expected no active convention scopes");
+        }
+
+        private sealed class ConventionBatch : IConventionBatch
         {
             private readonly ConventionDispatcher _dispatcher;
             private int? _runCount;
@@ -481,7 +618,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 if (_dispatcher._scope == _dispatcher._immediateConventionScope)
                 {
                     _runCount = 0;
-                    dispatcher._scope = new ConventionScope(_dispatcher._scope);
+                    dispatcher._scope = new DelayedConventionScope(_dispatcher._scope);
                 }
             }
 
@@ -505,14 +642,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                         return;
                     }
 
-                    _dispatcher._scope = currentScope.Parent;
+                    _dispatcher._scope = currentScope.Parent!;
 
                     if (currentScope.Children == null)
                     {
                         return;
                     }
-
-                    currentScope.MakeReadonly();
 
                     if (currentScope.Parent != _dispatcher._immediateConventionScope
                         || currentScope.GetLeafCount() == 0)
@@ -521,23 +656,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     }
 
                     // Capture all nested convention invocations to unwind the stack
-                    _dispatcher._scope = new ConventionScope(_dispatcher._immediateConventionScope);
-                    new RunVisitor(_dispatcher).VisitConventionScope(currentScope);
+                    _dispatcher._scope = new DelayedConventionScope(_dispatcher._immediateConventionScope);
+                    currentScope.Run(_dispatcher);
                 }
             }
 
-            public ForeignKey Run(ForeignKey foreignKey)
+            public IConventionForeignKey? Run(IConventionForeignKey foreignKey)
             {
                 if (_runCount == null)
                 {
                     return foreignKey;
                 }
 
-                using (var foreignKeyReference = _dispatcher.Tracker.Track(foreignKey))
-                {
-                    Run();
-                    return foreignKeyReference.Object?.Builder == null ? null : foreignKeyReference.Object;
-                }
+                using var foreignKeyReference = _dispatcher.Tracker.Track(foreignKey);
+                Run();
+                return foreignKeyReference.Object is null || !foreignKeyReference.Object.IsInModel
+                    ? null
+                    : foreignKeyReference.Object;
             }
 
             public void Dispose()
@@ -549,12 +684,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             }
 
             /// <inheritdoc />
-            IConventionForeignKey IConventionBatch.Run(IConventionForeignKey foreignKey)
-                => Run((ForeignKey)foreignKey);
-
-            /// <inheritdoc />
             IMetadataReference<IConventionForeignKey> IConventionBatch.Track(IConventionForeignKey foreignKey)
-                => _dispatcher.Tracker.Track((ForeignKey)foreignKey);
+                => _dispatcher.Tracker.Track(foreignKey);
         }
     }
 }

@@ -3,28 +3,10 @@
 
 using System;
 
+#nullable enable
+
 namespace JetBrains.Annotations
 {
-    [AttributeUsage(
-        AttributeTargets.Method
-        | AttributeTargets.Parameter
-        | AttributeTargets.Property
-        | AttributeTargets.Delegate
-        | AttributeTargets.Field)]
-    internal sealed class NotNullAttribute : Attribute
-    {
-    }
-
-    [AttributeUsage(
-        AttributeTargets.Method
-        | AttributeTargets.Parameter
-        | AttributeTargets.Property
-        | AttributeTargets.Delegate
-        | AttributeTargets.Field)]
-    internal sealed class CanBeNullAttribute : Attribute
-    {
-    }
-
     [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class InvokerParameterNameAttribute : Attribute
     {
@@ -42,12 +24,12 @@ namespace JetBrains.Annotations
 
         public bool ForceFullStates { get; }
 
-        public ContractAnnotationAttribute([NotNull] string contract)
+        public ContractAnnotationAttribute(string contract)
             : this(contract, false)
         {
         }
 
-        public ContractAnnotationAttribute([NotNull] string contract, bool forceFullStates)
+        public ContractAnnotationAttribute(string contract, bool forceFullStates)
         {
             Contract = contract;
             ForceFullStates = forceFullStates;
@@ -73,7 +55,8 @@ namespace JetBrains.Annotations
         }
 
         public UsedImplicitlyAttribute(
-            ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags)
+            ImplicitUseKindFlags useKindFlags,
+            ImplicitUseTargetFlags targetFlags)
         {
             UseKindFlags = useKindFlags;
             TargetFlags = targetFlags;
@@ -86,10 +69,9 @@ namespace JetBrains.Annotations
     [AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Delegate)]
     internal sealed class StringFormatMethodAttribute : Attribute
     {
-        public StringFormatMethodAttribute([NotNull] string formatParameterName)
+        public StringFormatMethodAttribute(string formatParameterName)
             => FormatParameterName = formatParameterName;
 
-        [NotNull]
         public string FormatParameterName { get; }
     }
 

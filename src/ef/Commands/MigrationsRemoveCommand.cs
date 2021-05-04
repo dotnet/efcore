@@ -8,15 +8,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     // ReSharper disable once ArrangeTypeModifiers
     internal partial class MigrationsRemoveCommand
     {
-        protected override int Execute()
+        protected override int Execute(string[] args)
         {
-            var result = CreateExecutor().RemoveMigration(Context.Value(), _force.HasValue());
-            if (_json.HasValue())
+            using var executor = CreateExecutor(args);
+            var result = executor.RemoveMigration(Context!.Value(), _force!.HasValue());
+
+            if (_json!.HasValue())
             {
                 ReportJsonResults(result);
             }
 
-            return base.Execute();
+            return base.Execute(args);
         }
 
         private static void ReportJsonResults(IDictionary result)

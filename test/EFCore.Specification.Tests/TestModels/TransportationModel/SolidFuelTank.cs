@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 && base.Equals(other)
                 && GrainGeometry == other.GrainGeometry;
 
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), GrainGeometry);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), GrainGeometry);
     }
 }

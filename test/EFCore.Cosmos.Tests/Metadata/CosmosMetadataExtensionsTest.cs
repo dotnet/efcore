@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -61,7 +60,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(((IConventionEntityType)entityType).GetPartitionKeyPropertyNameConfigurationSource());
         }
 
-        private static ModelBuilder CreateModelBuilder() => new ModelBuilder(new ConventionSet());
+        [ConditionalFact]
+        public void Can_get_and_set_etag_name()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var entityType = modelBuilder
+                .Entity<Customer>().Metadata;
+
+            Assert.Null(entityType.GetETagPropertyName());
+
+            ((IConventionEntityType)entityType).SetETagPropertyName("etag");
+            Assert.Equal("etag", entityType.GetETagPropertyName());
+            Assert.Equal(
+                ConfigurationSource.Convention, ((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
+
+            entityType.SetETagPropertyName("etag");
+            Assert.Equal("etag", entityType.GetETagPropertyName());
+            Assert.Equal(
+                ConfigurationSource.Explicit, ((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
+
+            entityType.SetETagPropertyName(null);
+            Assert.Null(entityType.GetETagPropertyName());
+            Assert.Null(((IConventionEntityType)entityType).GetETagPropertyNameConfigurationSource());
+        }
+
+        private static ModelBuilder CreateModelBuilder()
+            => new();
 
         private class Customer
         {

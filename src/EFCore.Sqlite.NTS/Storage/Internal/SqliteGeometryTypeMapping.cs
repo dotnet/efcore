@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -25,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         where TGeometry : Geometry
     {
         private static readonly MethodInfo _getBytes
-            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })
+            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!
                 .MakeGenericMethod(typeof(byte[]));
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         [UsedImplicitly]
         public SqliteGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
-            : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter()), storeType)
+            : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter(storeType)), storeType)
         {
         }
 
@@ -48,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected SqliteGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            ValueConverter<TGeometry, byte[]> converter)
+            ValueConverter<TGeometry, byte[]>? converter)
             : base(parameters, converter)
         {
         }
@@ -76,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             builder
                 .Append("GeomFromText('")
                 .Append(geometry.AsText())
-                .Append("'");
+                .Append('\'');
 
             if (geometry.SRID != 0)
             {
@@ -85,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     .Append(geometry.SRID);
             }
 
-            builder.Append(")");
+            builder.Append(')');
 
             return builder.ToString();
         }
@@ -127,11 +128,62 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             => typeof(WKTReader);
 
         private static GaiaGeoReader CreateReader(NtsGeometryServices geometryServices)
-            => new GaiaGeoReader(
-                geometryServices.DefaultCoordinateSequenceFactory,
-                geometryServices.DefaultPrecisionModel);
+            => new(geometryServices.DefaultCoordinateSequenceFactory, geometryServices.DefaultPrecisionModel);
 
-        private static GaiaGeoWriter CreateWriter()
-            => new GaiaGeoWriter { HandleOrdinates = Ordinates.XY };
+        private static GaiaGeoWriter CreateWriter(string storeType)
+        {
+            Ordinates handleOrdinates;
+            switch (storeType.ToUpperInvariant())
+            {
+                case "POINT":
+                case "LINESTRING":
+                case "POLYGON":
+                case "MULTIPOINT":
+                case "MULTILINESTRING":
+                case "MULTIPOLYGON":
+                case "GEOMETRYCOLLECTION":
+                case "GEOMETRY":
+                    handleOrdinates = Ordinates.XY;
+                    break;
+
+                case "POINTZ":
+                case "LINESTRINGZ":
+                case "POLYGONZ":
+                case "MULTIPOINTZ":
+                case "MULTILINESTRINGZ":
+                case "MULTIPOLYGONZ":
+                case "GEOMETRYCOLLECTIONZ":
+                case "GEOMETRYZ":
+                    handleOrdinates = Ordinates.XYZ;
+                    break;
+
+                case "POINTM":
+                case "LINESTRINGM":
+                case "POLYGONM":
+                case "MULTIPOINTM":
+                case "MULTILINESTRINGM":
+                case "MULTIPOLYGONM":
+                case "GEOMETRYCOLLECTIONM":
+                case "GEOMETRYM":
+                    handleOrdinates = Ordinates.XYM;
+                    break;
+
+                case "POINTZM":
+                case "LINESTRINGZM":
+                case "POLYGONZM":
+                case "MULTIPOINTZM":
+                case "MULTILINESTRINGZM":
+                case "MULTIPOLYGONZM":
+                case "GEOMETRYCOLLECTIONZM":
+                case "GEOMETRYZM":
+                    handleOrdinates = Ordinates.XYZM;
+                    break;
+
+                default:
+                    throw new ArgumentException(SqliteNTSStrings.InvalidGeometryType(storeType), nameof(storeType));
+            }
+
+            return new GaiaGeoWriter { HandleOrdinates = handleOrdinates };
+        }
     }
 }

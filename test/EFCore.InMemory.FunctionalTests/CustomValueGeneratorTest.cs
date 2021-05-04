@@ -21,22 +21,20 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_use_custom_value_generators()
         {
-            using (var context = new CustomValueGeneratorContext())
+            using var context = new CustomValueGeneratorContext();
+            var entities = new List<SomeEntity>();
+            for (var i = 0; i < CustomGuidValueGenerator.SpecialGuids.Length; i++)
             {
-                var entities = new List<SomeEntity>();
-                for (var i = 0; i < CustomGuidValueGenerator.SpecialGuids.Length; i++)
-                {
-                    entities.Add(
-                        context.Add(
-                            new SomeEntity { Name = _names[i] }).Entity);
-                }
-
-                Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
-
-                Assert.Equal(CustomGuidValueGenerator.SpecialGuids, entities.Select(e => e.SpecialId));
-
-                Assert.Equal(_names.Select((n, i) => n + " - " + (i + 1)), entities.Select(e => e.SpecialString));
+                entities.Add(
+                    context.Add(
+                        new SomeEntity { Name = _names[i] }).Entity);
             }
+
+            Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
+
+            Assert.Equal(CustomGuidValueGenerator.SpecialGuids, entities.Select(e => e.SpecialId));
+
+            Assert.Equal(_names.Select((n, i) => n + " - " + (i + 1)), entities.Select(e => e.SpecialString));
         }
 
         private class CustomValueGeneratorContext : DbContext
@@ -71,22 +69,20 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_use_custom_value_generator_from_annotated_type()
         {
-            using (var context = new CustomValueGeneratorContextAnnotateType())
+            using var context = new CustomValueGeneratorContextAnnotateType();
+            var entities = new List<SomeEntity>();
+            for (var i = 0; i < CustomGuidValueGenerator.SpecialGuids.Length; i++)
             {
-                var entities = new List<SomeEntity>();
-                for (var i = 0; i < CustomGuidValueGenerator.SpecialGuids.Length; i++)
-                {
-                    entities.Add(
-                        context.Add(
-                            new SomeEntity { Name = _names[i] }).Entity);
-                }
-
-                Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
-
-                Assert.Equal(CustomGuidValueGenerator.SpecialGuids, entities.Select(e => e.SpecialId));
-
-                Assert.Equal(_names.Select((n, i) => n + " - " + (i + 1)), entities.Select(e => e.SpecialString));
+                entities.Add(
+                    context.Add(
+                        new SomeEntity { Name = _names[i] }).Entity);
             }
+
+            Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
+
+            Assert.Equal(CustomGuidValueGenerator.SpecialGuids, entities.Select(e => e.SpecialId));
+
+            Assert.Equal(_names.Select((n, i) => n + " - " + (i + 1)), entities.Select(e => e.SpecialString));
         }
 
         private class CustomValueGeneratorContextAnnotateType : DbContext
@@ -115,22 +111,20 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_use_custom_value_generator_from_annotated_factory()
         {
-            using (var context = new CustomValueGeneratorContextAnnotateFactory())
+            using var context = new CustomValueGeneratorContextAnnotateFactory();
+            var entities = new List<SomeEntity>();
+            for (var i = 0; i < CustomGuidValueGenerator.SpecialGuids.Length; i++)
             {
-                var entities = new List<SomeEntity>();
-                for (var i = 0; i < CustomGuidValueGenerator.SpecialGuids.Length; i++)
-                {
-                    entities.Add(
-                        context.Add(
-                            new SomeEntity { Name = _names[i] }).Entity);
-                }
-
-                Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
-
-                Assert.Equal(CustomGuidValueGenerator.SpecialGuids, entities.Select(e => e.SpecialId));
-
-                Assert.Equal(_names.Select((n, i) => n + " - " + (i + 1)), entities.Select(e => e.SpecialString));
+                entities.Add(
+                    context.Add(
+                        new SomeEntity { Name = _names[i] }).Entity);
             }
+
+            Assert.Equal(entities.Select(e => e.Id), entities.OrderBy(e => ToCounter(e.Id)).Select(e => e.Id));
+
+            Assert.Equal(CustomGuidValueGenerator.SpecialGuids, entities.Select(e => e.SpecialId));
+
+            Assert.Equal(_names.Select((n, i) => n + " - " + (i + 1)), entities.Select(e => e.SpecialString));
         }
 
         private class CustomValueGeneratorContextAnnotateFactory : DbContext
@@ -152,16 +146,16 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             var factory = new CustomValueGeneratorFactory();
 
-                            b.Property(e => e.Id).HasValueGenerator((p, e) => factory.Create(p));
+                            b.Property(e => e.Id).HasValueGenerator(factory.Create);
 
                             b.Property(e => e.SpecialId)
-                                .Metadata.SetValueGeneratorFactory((p, e) => factory.Create(p));
+                                .Metadata.SetValueGeneratorFactory(factory.Create);
 
                             b.Property(e => e.SpecialId)
                                 .HasAnnotation("SpecialGuid", true)
                                 .ValueGeneratedOnAdd();
 
-                            b.Property(e => e.SpecialString).HasValueGenerator((p, e) => factory.Create(p));
+                            b.Property(e => e.SpecialString).HasValueGenerator(factory.Create);
                         });
         }
 
@@ -219,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public override ValueGenerator Create(IProperty property, IEntityType entityType)
-                => _factory.Create(property);
+                => _factory.Create(property, entityType);
         }
 
         private class CustomGuidValueGenerator : ValueGenerator<Guid>
@@ -241,7 +235,8 @@ namespace Microsoft.EntityFrameworkCore
             public override Guid Next(EntityEntry entry)
                 => SpecialGuids[Interlocked.Increment(ref _counter)];
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         private class SomeEntityStringValueGenerator : ValueGenerator<string>
@@ -251,17 +246,18 @@ namespace Microsoft.EntityFrameworkCore
             public override string Next(EntityEntry entry)
                 => ((SomeEntity)entry.Entity).Name + " - " + Interlocked.Increment(ref _counter);
 
-            public override bool GeneratesTemporaryValues => false;
+            public override bool GeneratesTemporaryValues
+                => false;
         }
 
         private class CustomValueGeneratorFactory : ValueGeneratorFactory
         {
-            public override ValueGenerator Create(IProperty property)
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
             {
                 if (property.ClrType == typeof(Guid))
                 {
                     return property["SpecialGuid"] != null
-                        ? (ValueGenerator)new CustomGuidValueGenerator()
+                        ? new CustomGuidValueGenerator()
                         : new SequentialGuidValueGenerator();
                 }
 

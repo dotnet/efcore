@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -31,11 +32,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Logger = new TestSqlLogger(shouldLogCategory(DbLoggerCategory.Database.Command.Name));
         }
 
-        public IReadOnlyList<string> SqlStatements => ((TestSqlLogger)Logger).SqlStatements;
-        public IReadOnlyList<string> Parameters => ((TestSqlLogger)Logger).Parameters;
-        public string Sql => string.Join(_eol + _eol, SqlStatements);
+        public IReadOnlyList<string> SqlStatements
+            => ((TestSqlLogger)Logger).SqlStatements;
 
-        public void AssertBaseline(string[] expected)
+        public IReadOnlyList<string> Parameters
+            => ((TestSqlLogger)Logger).Parameters;
+
+        public string Sql
+            => string.Join(_eol + _eol, SqlStatements);
+
+        public void AssertBaseline(string[] expected, bool assertOrder = true)
         {
             if (_proceduralQueryGeneration)
             {
@@ -44,9 +50,24 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             try
             {
-                for (var i = 0; i < expected.Length; i++)
+                if (assertOrder)
                 {
-                    Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
+                    for (var i = 0; i < expected.Length; i++)
+                    {
+                        Assert.Equal(expected[i], SqlStatements[i], ignoreLineEndingDifferences: true);
+                    }
+
+                    Assert.Empty(SqlStatements.Skip(expected.Length));
+                }
+                else
+                {
+                    foreach (var expectedFragment in expected)
+                    {
+                        var normalizedExpectedFragment = NormalizeLineEndings(expectedFragment);
+                        Assert.Contains(
+                            normalizedExpectedFragment,
+                            SqlStatements);
+                    }
                 }
             }
             catch
@@ -55,11 +76,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     new[] { _eol },
                     StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
 
-                var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
-                var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
-                var lineNumber = lineIndex > 0 ? methodCallLine.Substring(lineIndex) : "";
-
-                const string indent = FileNewLine + "                ";
+                var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
+                var testName = methodCallLine.Substring(0, indexMethodEnding);
+                var parts = methodCallLine[indexMethodEnding..].Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                var fileName = parts[1][..^5];
+                var lineNumber = int.Parse(parts[2]);
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
@@ -68,6 +89,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
+                const string indent = FileNewLine + "                ";
 
                 var newBaseLine = $@"            AssertSql(
                 {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
@@ -82,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 Logger.TestOutputHelper?.WriteLine("---- New Baseline -------------------------------------------------------------------");
                 Logger.TestOutputHelper?.WriteLine(newBaseLine);
 
-                var contents = testInfo + newBaseLine + FileNewLine + FileNewLine;
+                var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
                 File.AppendAllText(logFile, contents);
 
@@ -94,10 +116,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             private readonly bool _shouldLogCommands;
 
-            public TestSqlLogger(bool shouldLogCommands) => _shouldLogCommands = shouldLogCommands;
+            public TestSqlLogger(bool shouldLogCommands)
+                => _shouldLogCommands = shouldLogCommands;
 
-            public List<string> SqlStatements { get; } = new List<string>();
-            public List<string> Parameters { get; } = new List<string>();
+            public List<string> SqlStatements { get; } = new();
+            public List<string> Parameters { get; } = new();
+
+            private StringBuilder _stringBuilder = new();
 
             protected override void UnsafeClear()
             {
@@ -108,7 +133,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }
 
             protected override void UnsafeLog<TState>(
-                LogLevel logLevel, EventId eventId, string message, TState state, Exception exception)
+                LogLevel logLevel,
+                EventId eventId,
+                string message,
+                TState state,
+                Exception exception)
             {
                 if ((eventId.Id == RelationalEventId.CommandExecuted.Id
                     || eventId.Id == RelationalEventId.CommandError.Id
@@ -119,7 +148,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         base.UnsafeLog(logLevel, eventId, message, state, exception);
                     }
 
-                    if (message != null
+                    if (!IsRecordingSuspended
+                        && message != null
                         && eventId.Id != RelationalEventId.CommandExecuting.Id)
                     {
                         var structure = (IReadOnlyList<KeyValuePair<string, object>>)state;
@@ -130,7 +160,37 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                         if (!string.IsNullOrWhiteSpace(parameters))
                         {
                             Parameters.Add(parameters);
-                            parameters = parameters.Replace(", ", _eol) + _eol + _eol;
+
+                            _stringBuilder.Clear();
+
+                            var inQuotes = false;
+                            var inCurlies = false;
+                            for (var i = 0; i < parameters.Length; i++)
+                            {
+                                var c = parameters[i];
+                                switch (c)
+                                {
+                                    case '\'':
+                                        inQuotes = !inQuotes;
+                                        goto default;
+                                    case '{':
+                                        inCurlies = true;
+                                        goto default;
+                                    case '}':
+                                        inCurlies = false;
+                                        goto default;
+                                    case ',' when parameters[i + 1] == ' ' && !inQuotes && !inCurlies:
+                                        _stringBuilder.Append(_eol);
+                                        i++;
+                                        continue;
+                                    default:
+                                        _stringBuilder.Append(c);
+                                        continue;
+                                }
+                            }
+
+                            _stringBuilder.Append(_eol).Append(_eol);
+                            parameters = _stringBuilder.ToString();
                         }
 
                         SqlStatements.Add(parameters + commandText);

@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel
                 && base.Equals(other)
                 && LicenseType == other.LicenseType;
 
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
     }
 }

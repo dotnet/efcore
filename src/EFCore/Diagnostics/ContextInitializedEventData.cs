@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -20,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The <see cref="DbContext" /> that is initialized. </param>
         /// <param name="contextOptions"> The <see cref="DbContextOptions" /> being used. </param>
         public ContextInitializedEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbContext context,
-            [NotNull] DbContextOptions contextOptions)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbContext context,
+            DbContextOptions contextOptions)
             : base(eventDefinition, messageGenerator)
         {
             Context = context;

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -12,7 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerHistoryRepositoryTest
     {
-        private static string EOL => Environment.NewLine;
+        private static string EOL
+            => Environment.NewLine;
 
         [ConditionalFact]
         public void GetCreateScript_works()
@@ -156,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         private static IHistoryRepository CreateHistoryRepository(string schema = null)
-            => new DbContext(
+            => new TestDbContext(
                     new DbContextOptionsBuilder()
                         .UseInternalServiceProvider(SqlServerTestHelpers.Instance.CreateServiceProvider())
                         .UseSqlServer(
@@ -164,5 +166,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             b => b.MigrationsHistoryTable(HistoryRepository.DefaultTableName, schema))
                         .Options)
                 .GetService<IHistoryRepository>();
+
+        private class TestDbContext : DbContext
+        {
+            public TestDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Blog> Blogs { get; set; }
+
+            [DbFunction("TableFunction")]
+            public IQueryable<TableFunction> TableFunction()
+                => FromExpression(() => TableFunction());
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+            }
+
+        }
+
+        private class Blog
+        {
+            public int Id { get; set; }
+        }
+
+        private class TableFunction
+        {
+            public int Id { get; set; }
+            public int BlogId { get; set; }
+            public Blog Blog { get; set; }
+        }
     }
 }

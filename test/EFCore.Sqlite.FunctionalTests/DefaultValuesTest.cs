@@ -35,10 +35,14 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override string StoreName { get; } = "DefaultKettleChips";
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
+
         protected override Type ContextType { get; } = typeof(ChipsContext);
 
-        private ChipsContext CreateChipsContext() => (ChipsContext)CreateContext();
+        private ChipsContext CreateChipsContext()
+            => (ChipsContext)CreateContext();
 
         private class ChipsContext : PoolableDbContext
         {

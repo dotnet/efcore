@@ -1,5 +1,5 @@
 ﻿<#
     Session["ResourceFile"] = "CosmosStrings.resx";
-    Session["NoDiagnostics"] = true;
+    Session["LoggingDefinitionsClass"] = "Diagnostics.Internal.CosmosLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class PropertyValuesSqlServerFixture : PropertyValuesFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqlServerTestStoreFactory.Instance;
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {

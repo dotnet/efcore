@@ -368,7 +368,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData("Scott", 1, 0)]
         [InlineData("C#", 3, 3)]
         public virtual async Task SearchController_Search(
-            string searchTerm, int totalCount, int sessionCount)
+            string searchTerm,
+            int totalCount,
+            int sessionCount)
         {
             await ExecuteWithStrategyInTransactionAsync(
                 async context =>
@@ -492,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore
             await ExecuteWithStrategyInTransactionAsync(
                 async context =>
                 {
-                    var track = context.Tracks.AsNoTracking().First();
+                    var track = context.Tracks.AsNoTracking().OrderBy(e => e.Id).First();
 
                     var controller = new SessionsController(context);
 
@@ -757,7 +759,8 @@ namespace Microsoft.EntityFrameworkCore
 
         protected TFixture Fixture { get; }
 
-        protected ApplicationDbContext CreateContext() => Fixture.CreateContext();
+        protected ApplicationDbContext CreateContext()
+            => Fixture.CreateContext();
 
         protected virtual Task ExecuteWithStrategyInTransactionAsync(
             Func<ApplicationDbContext, Task> testOperation,
@@ -780,20 +783,21 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override string StoreName { get; } = "ConferencePlanner";
 
-            protected override bool UsePooling => false;
+            protected override bool UsePooling
+                => false;
 
             protected override void Seed(ApplicationDbContext context)
             {
                 var attendees1 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "sonicrainboom@sample.com",
                         FirstName = "Rainbow",
                         LastName = "Dash",
                         UserName = "RainbowDash"
                     },
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "solovely@sample.com",
                         FirstName = "Flutter",
@@ -804,14 +808,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 var attendees2 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "applesforever@sample.com",
                         FirstName = "Apple",
                         LastName = "Jack",
                         UserName = "Applejack"
                     },
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "precious@sample.com",
                         FirstName = "Rarity",
@@ -822,14 +826,14 @@ namespace Microsoft.EntityFrameworkCore
 
                 var attendees3 = new List<TestModels.ConferencePlanner.Attendee>
                 {
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "princess@sample.com",
                         FirstName = "Twilight",
                         LastName = "Sparkle",
                         UserName = "Princess"
                     },
-                    new TestModels.ConferencePlanner.Attendee
+                    new()
                     {
                         EmailAddress = "pinkie@sample.com",
                         FirstName = "Pinkie",

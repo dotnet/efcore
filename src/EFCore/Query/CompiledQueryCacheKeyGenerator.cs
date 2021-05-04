@@ -3,9 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     Initializes a new instance of the <see cref="CompiledQueryCacheKeyGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public CompiledQueryCacheKeyGenerator([NotNull] CompiledQueryCacheKeyGeneratorDependencies dependencies)
+        public CompiledQueryCacheKeyGenerator(CompiledQueryCacheKeyGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -60,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="query"> The query to get the cache key for. </param>
         /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
         /// <returns> The cache key. </returns>
-        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
-            => new CompiledQueryCacheKey(
+        protected CompiledQueryCacheKey GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
+            => new(
                 Check.NotNull(query, nameof(query)),
                 Dependencies.Model,
                 Dependencies.CurrentContext.Context.ChangeTracker.QueryTrackingBehavior,
@@ -77,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        protected readonly struct CompiledQueryCacheKey
+        protected readonly struct CompiledQueryCacheKey : IEquatable<CompiledQueryCacheKey>
         {
             private readonly Expression _query;
             private readonly IModel _model;
@@ -92,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             /// <param name="queryTrackingBehavior"> The tracking behavior for results of the query. </param>
             /// <param name="async"> A value indicating whether the query will be executed asynchronously. </param>
             public CompiledQueryCacheKey(
-                [NotNull] Expression query,
-                [NotNull] IModel model,
+                Expression query,
+                IModel model,
                 QueryTrackingBehavior queryTrackingBehavior,
                 bool async)
             {
@@ -110,18 +108,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             ///     The object to compare this key to.
             /// </param>
             /// <returns>
-            ///     True if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise false.
+            ///     <see langword="true" /> if the object is a <see cref="CompiledQueryCacheKey" /> and is for the same query, otherwise
+            ///     <see langword="false" />.
             /// </returns>
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
+                => obj is CompiledQueryCacheKey other && Equals(other);
+
+            /// <summary>
+            ///     Indicates whether the current object is equal to another object of the same type.
+            /// </summary>
+            /// <param name="other">
+            ///     An object to compare with this object.
+            /// </param>
+            /// <returns>
+            ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
+            /// </returns>
+            public bool Equals(CompiledQueryCacheKey other)
             {
-                if (obj is null
-                    || !(obj is CompiledQueryCacheKey))
-                {
-                    return false;
-                }
-
-                var other = (CompiledQueryCacheKey)obj;
-
                 return ReferenceEquals(_model, other._model)
                     && _queryTrackingBehavior == other._queryTrackingBehavior
                     && _async == other._async

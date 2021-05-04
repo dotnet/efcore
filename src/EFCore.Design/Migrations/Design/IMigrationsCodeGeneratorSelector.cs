@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     /// <summary>
@@ -15,6 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="language"> The programming language. </param>
         /// <returns> The <see cref="IMigrationsCodeGenerator" />. </returns>
-        IMigrationsCodeGenerator Select([CanBeNull] string language);
+        IMigrationsCodeGenerator Select(string? language);
     }
 }

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -25,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="messageFormat"> The parameterized message definition. </param>
         public FallbackEventDefinition(
-            [NotNull] ILoggingOptions loggingOptions,
+            ILoggingOptions loggingOptions,
             EventId eventId,
             LogLevel level,
-            [NotNull] string eventIdCode,
-            [NotNull] string messageFormat)
+            string eventIdCode,
+            string messageFormat)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotEmpty(messageFormat, nameof(messageFormat));
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="logAction"> A delegate that will log the message to an <see cref="ILogger" />. </param>
         /// <returns> The message string. </returns>
-        public virtual string GenerateMessage([NotNull] Action<ILogger> logAction)
+        public virtual string GenerateMessage(Action<ILogger> logAction)
         {
             Check.NotNull(logAction, nameof(logAction));
 
@@ -57,15 +56,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
         /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="warningBehavior"> Whether the event should be logged, thrown as an exception or ignored. </param>
         /// <param name="logAction"> A delegate that will log the message to an <see cref="ILogger" />. </param>
         public virtual void Log<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            WarningBehavior warningBehavior,
-            [NotNull] Action<ILogger> logAction)
+            IDiagnosticsLogger<TLoggerCategory> logger,
+            Action<ILogger> logAction)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
-            switch (warningBehavior)
+            switch (WarningBehavior)
             {
                 case WarningBehavior.Log:
                     logAction(logger.Logger);

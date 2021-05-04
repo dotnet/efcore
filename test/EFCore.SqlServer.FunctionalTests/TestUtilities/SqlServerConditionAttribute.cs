@@ -22,24 +22,15 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public ValueTask<bool> IsMetAsync()
         {
             var isMet = true;
-            if (Conditions.HasFlag(SqlServerCondition.SupportsSequences))
-            {
-                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true;
-            }
-
-            if (Conditions.HasFlag(SqlServerCondition.SupportsOffset))
-            {
-                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-            }
 
             if (Conditions.HasFlag(SqlServerCondition.SupportsHiddenColumns))
             {
-                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsHiddenColumns)) ?? false;
+                isMet &= TestEnvironment.IsHiddenColumnsSupported;
             }
 
             if (Conditions.HasFlag(SqlServerCondition.SupportsMemoryOptimized))
             {
-                isMet &= TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsMemoryOptimized)) ?? false;
+                isMet &= TestEnvironment.IsMemoryOptimizedTablesSupported;
             }
 
             if (Conditions.HasFlag(SqlServerCondition.IsSqlAzure))
@@ -55,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             if (Conditions.HasFlag(SqlServerCondition.SupportsAttach))
             {
                 var defaultConnection = new SqlConnectionStringBuilder(TestEnvironment.DefaultConnection);
-                isMet &= defaultConnection.DataSource.Contains("(localdb)")
+                isMet &= defaultConnection.DataSource.Contains("(localdb)", StringComparison.OrdinalIgnoreCase)
                     || defaultConnection.UserInstance;
             }
 
@@ -66,20 +57,26 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             if (Conditions.HasFlag(SqlServerCondition.SupportsFullTextSearch))
             {
-                isMet &= TestEnvironment.IsFullTestSearchSupported;
+                isMet &= TestEnvironment.IsFullTextSearchSupported;
+            }
+
+            if (Conditions.HasFlag(SqlServerCondition.SupportsOnlineIndexes))
+            {
+                isMet &= TestEnvironment.IsOnlineIndexingSupported;
             }
 
             return new ValueTask<bool>(isMet);
         }
 
-        public string SkipReason =>
-            // ReSharper disable once UseStringInterpolation
-            string.Format(
-                "The test SQL Server does not meet these conditions: '{0}'",
-                string.Join(
-                    ", ", Enum.GetValues(typeof(SqlServerCondition))
-                        .Cast<Enum>()
-                        .Where(f => Conditions.HasFlag(f))
-                        .Select(f => Enum.GetName(typeof(SqlServerCondition), f))));
+        public string SkipReason
+            =>
+                // ReSharper disable once UseStringInterpolation
+                string.Format(
+                    "The test SQL Server does not meet these conditions: '{0}'",
+                    string.Join(
+                        ", ", Enum.GetValues(typeof(SqlServerCondition))
+                            .Cast<Enum>()
+                            .Where(f => Conditions.HasFlag(f))
+                            .Select(f => Enum.GetName(typeof(SqlServerCondition), f))));
     }
 }

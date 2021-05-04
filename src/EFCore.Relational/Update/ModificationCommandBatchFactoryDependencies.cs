@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ModificationCommandBatchFactoryDependencies
+    public sealed record ModificationCommandBatchFactoryDependencies
     {
         /// <summary>
         ///     <para>
@@ -56,12 +55,12 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         [EntityFrameworkInternal]
         public ModificationCommandBatchFactoryDependencies(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
-            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            IRelationalCommandBuilderFactory commandBuilderFactory,
+            ISqlGenerationHelper sqlGenerationHelper,
+            IUpdateSqlGenerator updateSqlGenerator,
+            IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            ICurrentDbContext currentContext,
+            IRelationalCommandDiagnosticsLogger logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
@@ -80,115 +79,31 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     A logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; }
+        public IRelationalCommandDiagnosticsLogger Logger { get; init; }
 
         /// <summary>
         ///     The command builder factory.
         /// </summary>
-        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
+        public IRelationalCommandBuilderFactory CommandBuilderFactory { get; init; }
 
         /// <summary>
         ///     The SQL generator helper.
         /// </summary>
-        public ISqlGenerationHelper SqlGenerationHelper { get; }
+        public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
         /// <summary>
         ///     The update SQL generator.
         /// </summary>
-        public IUpdateSqlGenerator UpdateSqlGenerator { get; }
+        public IUpdateSqlGenerator UpdateSqlGenerator { get; init; }
 
         /// <summary>
         ///     The value buffer factory.
         /// </summary>
-        public IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
+        public IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; init; }
 
         /// <summary>
         ///     Contains the <see cref="DbContext" /> currently in use.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModificationCommandBatchFactoryDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
-            => new ModificationCommandBatchFactoryDependencies(
-                CommandBuilderFactory,
-                SqlGenerationHelper,
-                UpdateSqlGenerator,
-                ValueBufferFactoryFactory,
-                CurrentContext,
-                logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="valueBufferFactoryFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModificationCommandBatchFactoryDependencies With([NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
-            => new ModificationCommandBatchFactoryDependencies(
-                CommandBuilderFactory,
-                SqlGenerationHelper,
-                UpdateSqlGenerator,
-                valueBufferFactoryFactory,
-                CurrentContext,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="commandBuilderFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModificationCommandBatchFactoryDependencies With([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
-            => new ModificationCommandBatchFactoryDependencies(
-                commandBuilderFactory,
-                SqlGenerationHelper,
-                UpdateSqlGenerator,
-                ValueBufferFactoryFactory,
-                CurrentContext,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlGenerationHelper"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModificationCommandBatchFactoryDependencies With([NotNull] ISqlGenerationHelper sqlGenerationHelper)
-            => new ModificationCommandBatchFactoryDependencies(
-                CommandBuilderFactory,
-                sqlGenerationHelper,
-                UpdateSqlGenerator,
-                ValueBufferFactoryFactory,
-                CurrentContext,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="updateSqlGenerator"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModificationCommandBatchFactoryDependencies With([NotNull] IUpdateSqlGenerator updateSqlGenerator)
-            => new ModificationCommandBatchFactoryDependencies(
-                CommandBuilderFactory,
-                SqlGenerationHelper,
-                updateSqlGenerator,
-                ValueBufferFactoryFactory,
-                CurrentContext,
-                Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ModificationCommandBatchFactoryDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new ModificationCommandBatchFactoryDependencies(
-                CommandBuilderFactory,
-                SqlGenerationHelper,
-                UpdateSqlGenerator,
-                ValueBufferFactoryFactory,
-                currentContext,
-                Logger);
+        public ICurrentDbContext CurrentContext { get; init; }
     }
 }

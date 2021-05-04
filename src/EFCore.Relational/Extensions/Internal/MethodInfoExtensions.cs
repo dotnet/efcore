@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string DisplayName([NotNull] this MethodInfo methodInfo)
-            => $"{methodInfo.DeclaringType.ShortDisplayName()}.{methodInfo.Name}";
+        public static string DisplayName(this MethodInfo methodInfo)
+            => $"{methodInfo.DeclaringType!.ShortDisplayName()}.{methodInfo.Name}";
     }
 }

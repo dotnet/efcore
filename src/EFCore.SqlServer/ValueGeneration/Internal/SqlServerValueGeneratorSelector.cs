@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         private readonly ISqlServerSequenceValueGeneratorFactory _sequenceFactory;
         private readonly ISqlServerConnection _connection;
         private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+        private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,11 +40,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerValueGeneratorSelector(
-            [NotNull] ValueGeneratorSelectorDependencies dependencies,
-            [NotNull] ISqlServerSequenceValueGeneratorFactory sequenceFactory,
-            [NotNull] ISqlServerConnection connection,
-            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            ValueGeneratorSelectorDependencies dependencies,
+            ISqlServerSequenceValueGeneratorFactory sequenceFactory,
+            ISqlServerConnection connection,
+            IRawSqlCommandBuilder rawSqlCommandBuilder,
+            IRelationalCommandDiagnosticsLogger commandLogger)
             : base(dependencies)
         {
             _sequenceFactory = sequenceFactory;
@@ -60,7 +59,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual ISqlServerValueGeneratorCache Cache => (ISqlServerValueGeneratorCache)base.Cache;
+        public new virtual ISqlServerValueGeneratorCache Cache
+            => (ISqlServerValueGeneratorCache)base.Cache;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

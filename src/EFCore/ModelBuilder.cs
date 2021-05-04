@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         model externally and set it on a <see cref="DbContextOptions" /> instance that is passed to the context constructor.
     ///     </para>
     /// </summary>
-    public class ModelBuilder : IInfrastructure<InternalModelBuilder>
+    public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
 
@@ -35,13 +34,43 @@ namespace Microsoft.EntityFrameworkCore
         ///     apply a set of conventions.
         /// </summary>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
-        public ModelBuilder([NotNull] ConventionSet conventions)
+        public ModelBuilder(ConventionSet conventions)
+            : this(conventions, null, true)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
+        ///     apply a set of conventions.
+        /// </summary>
+        /// <param name="conventions"> The conventions to be applied to the model. </param>
+        /// <param name="modelDependencies"> The dependencies object for the model. </param>
+        public ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies)
+            : this(conventions, modelDependencies, true)
+        {
+            Check.NotNull(modelDependencies, nameof(modelDependencies));
+        }
+
+        private ModelBuilder(ConventionSet conventions, ModelDependencies? modelDependencies, bool _)
         {
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new InternalModelBuilder(new Model(conventions));
+            _builder = new Model(conventions, modelDependencies).Builder;
 
             _builder.Metadata.SetProductVersion(ProductInfo.GetVersion());
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="ModelBuilder" /> class with no conventions.
+        ///     </para>
+        ///     <para>
+        ///         Warning: conventions are typically needed to build a correct model.
+        ///     </para>
+        /// </summary>
+        public ModelBuilder()
+        {
+            _builder = new Model().Builder;
         }
 
         /// <summary>
@@ -51,7 +80,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public ModelBuilder([NotNull] IMutableModel model)
+        [Obsolete]
+        public ModelBuilder(IMutableModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -61,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The model being configured.
         /// </summary>
-        public virtual IMutableModel Model => Builder.Metadata;
+        public virtual IMutableModel Model
+            => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the model. If an annotation with the key specified in
@@ -70,10 +101,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same <see cref="ModelBuilder" /> instance so that multiple configuration calls can be chained. </returns>
-        public virtual ModelBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public virtual ModelBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
 
             Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -89,7 +119,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalModelBuilder IInfrastructure<InternalModelBuilder>.Instance => _builder;
+        IConventionModelBuilder IInfrastructure<IConventionModelBuilder>.Instance
+            => _builder;
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -99,7 +130,31 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
             where TEntity : class
-            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+            => new(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
+        ///     </para>
+        ///     <para>
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The CLR type of the entity type to be configured. </typeparam>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual EntityTypeBuilder<TEntity> SharedTypeEntity<TEntity>(string name)
+            where TEntity : class
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            return new EntityTypeBuilder<TEntity>(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
+        }
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -107,11 +162,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="type"> The entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder Entity([NotNull] Type type)
+        public virtual EntityTypeBuilder Entity(Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -121,11 +176,35 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="name"> The name of the entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder Entity([NotNull] string name)
+        public virtual EntityTypeBuilder Entity(string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit)!.Metadata);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
+        ///     </para>
+        ///     <para>
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="type"> The CLR type of the entity type to be configured. </param>
+        /// <returns> An object that can be used to configure the entity type. </returns>
+        public virtual EntityTypeBuilder SharedTypeEntity(string name, Type type)
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(type, nameof(type));
+
+            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -144,12 +223,49 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
+        public virtual ModelBuilder Entity<TEntity>(Action<EntityTypeBuilder<TEntity>> buildAction)
             where TEntity : class
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity<TEntity>());
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
+        ///     </para>
+        ///     <para>
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows configuration of the entity type to be done inline in the method call rather
+        ///         than being chained after a call to <see cref="Entity{TEntity}()" />. This allows additional
+        ///         configuration at the model level to be chained after configuration for the entity type.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The CLR type of the entity type to be configured. </typeparam>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder SharedTypeEntity<TEntity>(
+            string name,
+            Action<EntityTypeBuilder<TEntity>> buildAction)
+            where TEntity : class
+        {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(SharedTypeEntity<TEntity>(name));
 
             return this;
         }
@@ -170,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity([NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
+        public virtual ModelBuilder Entity(Type type, Action<EntityTypeBuilder> buildAction)
         {
             Check.NotNull(type, nameof(type));
             Check.NotNull(buildAction, nameof(buildAction));
@@ -197,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityTypeBuilder> buildAction)
+        public virtual ModelBuilder Entity(string name, Action<EntityTypeBuilder> buildAction)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(buildAction, nameof(buildAction));
@@ -208,91 +324,39 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns an object that can be used to configure a given query type in the model.
-        ///     If the query type is not already part of the model, it will be added to the model.
-        /// </summary>
-        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
-        /// <returns> An object that can be used to configure the query type. </returns>
-        [Obsolete("Use Entity<TEntity>().HasNoKey() instead")]
-        public virtual QueryTypeBuilder<TQuery> Query<TQuery>()
-            where TQuery : class
-        {
-            var builder = Builder.Entity(typeof(TQuery), ConfigurationSource.Explicit);
-            if (builder.Metadata.BaseType == null)
-            {
-                builder.HasNoKey(ConfigurationSource.Explicit);
-            }
-
-            return new QueryTypeBuilder<TQuery>(builder.Metadata);
-        }
-
-        /// <summary>
-        ///     Returns an object that can be used to configure a given query type in the model.
-        ///     If the query type is not already part of the model, it will be added to the model.
-        /// </summary>
-        /// <param name="type"> The query type to be configured. </param>
-        /// <returns> An object that can be used to configure the query type. </returns>
-        [Obsolete("Use Entity(type).HasNoKey() instead")]
-        public virtual EntityTypeBuilder Query([NotNull] Type type)
-        {
-            var builder = Builder.Entity(Check.NotNull(type, nameof(type)), ConfigurationSource.Explicit);
-            if (builder.Metadata.BaseType == null)
-            {
-                builder.HasNoKey(ConfigurationSource.Explicit);
-            }
-
-            return new EntityTypeBuilder(builder.Metadata);
-        }
-
-        /// <summary>
         ///     <para>
-        ///         Performs configuration of a given query type in the model. If the query type is not already part
-        ///         of the model, it will be added to the model.
+        ///         Returns an object that can be used to configure a given shared type entity type in the model.
         ///     </para>
         ///     <para>
-        ///         This overload allows configuration of the query type to be done in line in the method call rather
-        ///         than being chained after a call to <see cref="Query{TQuery}()" />. This allows additional
-        ///         configuration at the model level to be chained after configuration for the query type.
+        ///         If an entity type with the provided name is not already part of the model, a new entity type with provided CLR
+        ///         type will be added to the model as shared type entity type.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        ///     <para>
+        ///         This overload allows configuration of the entity type to be done in line in the method call rather
+        ///         than being chained after a call to <see cref="Entity(string)" />. This allows additional
+        ///         configuration at the model level to be chained after configuration for the entity type.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
-        /// <param name="buildAction"> An action that performs configuration of the query type. </param>
+        /// <param name="name"> The name of the entity type to be configured. </param>
+        /// <param name="type"> The CLR type of the entity type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the entity type. </param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        [Obsolete("Use Entity<TEntity>().HasNoKey() instead")]
-        public virtual ModelBuilder Query<TQuery>([NotNull] Action<QueryTypeBuilder<TQuery>> buildAction)
-            where TQuery : class
+        public virtual ModelBuilder SharedTypeEntity(
+            string name,
+            Type type,
+            Action<EntityTypeBuilder> buildAction)
         {
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(type, nameof(type));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(Query<TQuery>());
-
-            return this;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         Performs configuration of a given query type in the model. If the query type is not already part
-        ///         of the model, it will be added to the model.
-        ///     </para>
-        ///     <para>
-        ///         This overload allows configuration of the query type to be done in line in the method call rather
-        ///         than being chained after a call to <see cref="Query{TQuery}()" />. This allows additional
-        ///         configuration at the model level to be chained after configuration for the query type.
-        ///     </para>
-        /// </summary>
-        /// <param name="type"> The query type to be configured. </param>
-        /// <param name="buildAction"> An action that performs configuration of the query type. </param>
-        /// <returns>
-        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        /// </returns>
-        [Obsolete("Use Entity(type).HasNoKey() instead")]
-        public virtual ModelBuilder Query([NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
-        {
-            Check.NotNull(buildAction, nameof(buildAction));
-
-            buildAction(Query(type));
+            buildAction(SharedTypeEntity(name, type));
 
             return this;
         }
@@ -301,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Excludes the given entity type from the model. This method is typically used to remove types from
         ///     the model that were added by convention.
         /// </summary>
-        /// <typeparam name="TEntity"> The  entity type to be removed from the model. </typeparam>
+        /// <typeparam name="TEntity"> The entity type to be removed from the model. </typeparam>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
@@ -310,18 +374,35 @@ namespace Microsoft.EntityFrameworkCore
             => Ignore(typeof(TEntity));
 
         /// <summary>
-        ///     Excludes the given entity type from the model. This method is typically used to remove types from
+        ///     Excludes an entity type with given CLR type from the model. This method is typically used to remove types from
         ///     the model that were added by convention.
         /// </summary>
         /// <param name="type"> The entity type to be removed from the model. </param>
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Ignore([NotNull] Type type)
+        public virtual ModelBuilder Ignore(Type type)
         {
             Check.NotNull(type, nameof(type));
 
             Builder.Ignore(type, ConfigurationSource.Explicit);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Excludes an entity type with the given name from the model. This method is typically used to remove types from
+        ///     the model that were added by convention.
+        /// </summary>
+        /// <param name="typeName"> The name of the entity type to be removed from the model. </param>
+        /// <returns>
+        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelBuilder Ignore(string typeName)
+        {
+            Check.NotEmpty(typeName, nameof(typeName));
+
+            Builder.Ignore(typeName, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -334,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder ApplyConfiguration<TEntity>([NotNull] IEntityTypeConfiguration<TEntity> configuration)
+        public virtual ModelBuilder ApplyConfiguration<TEntity>(IEntityTypeConfiguration<TEntity> configuration)
             where TEntity : class
         {
             Check.NotNull(configuration, nameof(configuration));
@@ -345,26 +426,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Applies configuration that is defined in an <see cref="IQueryTypeConfiguration{TQuery}" /> instance.
-        /// </summary>
-        /// <typeparam name="TQuery"> The query type to be configured. </typeparam>
-        /// <param name="configuration"> The configuration to be applied. </param>
-        /// <returns>
-        ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
-        /// </returns>
-        [Obsolete("Use IEntityTypeConfiguration<TEntity> instead")]
-        public virtual ModelBuilder ApplyConfiguration<TQuery>([NotNull] IQueryTypeConfiguration<TQuery> configuration)
-            where TQuery : class
-        {
-            Check.NotNull(configuration, nameof(configuration));
-
-            configuration.Configure(Query<TQuery>());
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> and <see cref="IQueryTypeConfiguration{TEntity}" />
+        ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> />
         ///     instances that are defined in provided assembly.
         /// </summary>
         /// <param name="assembly"> The assembly to scan. </param>
@@ -373,7 +435,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder ApplyConfigurationsFromAssembly(
-            [NotNull] Assembly assembly, [CanBeNull] Func<Type, bool> predicate = null)
+            Assembly assembly,
+            Func<Type, bool>? predicate = null)
         {
             var applyEntityConfigurationMethod = typeof(ModelBuilder)
                 .GetMethods()
@@ -382,12 +445,7 @@ namespace Microsoft.EntityFrameworkCore
                         && e.ContainsGenericParameters
                         && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
                         == typeof(IEntityTypeConfiguration<>));
-            var applyQueryConfigurationMethod = typeof(ModelBuilder).GetMethods().Single(
-                e => e.Name == nameof(ApplyConfiguration)
-                    && e.ContainsGenericParameters
-#pragma warning disable CS0618 // Type or member is obsolete
-                    && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>));
-#pragma warning restore CS0618 // Type or member is obsolete
+
             foreach (var type in assembly.GetConstructibleTypes())
             {
                 // Only accept types that contain a parameterless constructor, are not abstract and satisfy a predicate if it was used.
@@ -407,13 +465,6 @@ namespace Microsoft.EntityFrameworkCore
                     if (@interface.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
                     {
                         var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
-                        target.Invoke(this, new[] { Activator.CreateInstance(type) });
-                    }
-#pragma warning disable CS0618 // Type or member is obsolete
-                    else if (@interface.GetGenericTypeDefinition() == typeof(IQueryTypeConfiguration<>))
-#pragma warning restore CS0618 // Type or member is obsolete
-                    {
-                        var target = applyQueryConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
                         target.Invoke(this, new[] { Activator.CreateInstance(type) });
                     }
                 }
@@ -440,7 +491,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     separate owned type instances.
         /// </summary>
         /// <param name="type"> The entity type to be configured. </param>
-        public virtual OwnedEntityTypeBuilder Owned([NotNull] Type type)
+        public virtual OwnedEntityTypeBuilder Owned(Type type)
         {
             Check.NotNull(type, nameof(type));
 
@@ -459,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            Builder.Metadata.SetChangeTrackingStrategy(changeTrackingStrategy);
+            Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -491,10 +542,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
-        /// <returns> The finalized <see cref="IModel" />. </returns>
-        public virtual IModel FinalizeModel() => Builder.Metadata.FinalizeModel();
+        /// <returns> The finalized model. </returns>
+        public virtual IModel FinalizeModel()
+            => Builder.Metadata.FinalizeModel();
 
-        private InternalModelBuilder Builder => this.GetInfrastructure();
+        private InternalModelBuilder Builder
+            => (InternalModelBuilder)this.GetInfrastructure();
 
         #region Hidden System.Object members
 
@@ -503,22 +556,25 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString() => base.ToString();
+        public override string? ToString()
+            => base.ToString();
 
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
         /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> true if the specified object is equal to the current object; otherwise, false. </returns>
+        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object? obj)
+            => base.Equals(obj);
 
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
         /// <returns> A hash code for the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+            => base.GetHashCode();
 
         #endregion
     }

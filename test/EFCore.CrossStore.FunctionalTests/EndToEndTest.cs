@@ -21,9 +21,11 @@ namespace Microsoft.EntityFrameworkCore
         protected CrossStoreFixture Fixture { get; }
         protected abstract ITestStoreFactory TestStoreFactory { get; }
         protected TestStore TestStore { get; }
-        public void Dispose() => TestStore.Dispose();
 
-        [ConditionalFact(Skip = "#18682")]
+        public void Dispose()
+            => TestStore.Dispose();
+
+        [ConditionalFact]
         public virtual void Can_save_changes_and_query()
         {
             int secondId;
@@ -69,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected CrossStoreContext CreateContext() => Fixture.CreateContext(TestStore);
+        protected CrossStoreContext CreateContext()
+            => Fixture.CreateContext(TestStore);
     }
 
     public class InMemoryEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
@@ -79,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
     }
 
     [SqlServerConfiguredCondition]
@@ -90,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
     }
 
     public class SqliteEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
@@ -100,6 +105,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

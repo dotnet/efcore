@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public abstract partial class ModelBuilderTest
     {
-        private class BigMak
+        protected class BigMak
         {
             public int Id { get; set; }
             public int AlternateKey { get; set; }
@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Bun Bun { get; set; }
         }
 
-        private class Ingredient
+        protected class Ingredient
         {
             public static readonly PropertyInfo BurgerIdProperty = typeof(Ingredient).GetProperty("BurgerId");
 
@@ -34,15 +34,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public BigMak BigMak { get; set; }
         }
 
-        private class Pickle : Ingredient
+        protected class Pickle : Ingredient
         {
         }
 
-        private class Bun : Ingredient
+        protected class Bun : Ingredient
         {
         }
 
-        private class Whoopper
+        protected class SesameBun : Bun
+        {
+        }
+
+        protected class Whoopper
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
@@ -56,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Mustard Mustard { get; set; }
         }
 
-        private class Tomato
+        protected class Tomato
         {
             public int Id { get; set; }
 
@@ -65,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Whoopper Whoopper { get; set; }
         }
 
-        private class ToastedBun
+        protected class ToastedBun
         {
             public int Id { get; set; }
 
@@ -74,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Whoopper Whoopper { get; set; }
         }
 
-        private class Mustard
+        protected class Mustard
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }
@@ -141,12 +145,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int? CustomerId { get; set; }
             public Guid AnotherCustomerId { get; set; }
             public Customer Customer { get; set; }
-
             public OrderCombination OrderCombination { get; set; }
-
             public OrderDetails Details { get; set; }
             public ICollection<Product> Products { get; set; }
-
             public event PropertyChangedEventHandler PropertyChanged;
 
             protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -158,18 +159,49 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
         }
 
+        private class OrderProduct
+        {
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+
+            public int OrderId { get; set; }
+            public int ProductId { get; set; }
+            public virtual Order Order { get; set; }
+            public virtual Product Product { get; set; }
+        }
+
         [NotMapped]
         protected class Product
         {
             public int Id { get; set; }
+
+            [NotMapped]
             public Order Order { get; set; }
+
+            [NotMapped]
+            public virtual ICollection<Order> Orders { get; set; }
+
+            public virtual ICollection<Category> Categories { get; set; }
         }
 
         protected class ProductCategory
         {
+            public int ProductId { get; set; }
+            public int CategoryId { get; set; }
+            public virtual Product Product { get; set; }
+            public virtual Category Category { get; set; }
+        }
+
+        protected class CategoryBase
+        {
             public int Id { get; set; }
             public string Name { get; set; }
-            public ICollection<Product> Products { get; set; }
+        }
+
+        protected class Category : CategoryBase
+        {
+            public virtual ICollection<ProductCategory> ProductCategories { get; set; }
+            public virtual ICollection<Product> Products { get; set; }
         }
 
         [Owned]
@@ -285,9 +317,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class SelfRefManyToOne
         {
             public int Id { get; set; }
+            public int SelfRefId { get; set; }
             public SelfRefManyToOne SelfRef1 { get; set; }
             public ICollection<SelfRefManyToOne> SelfRef2 { get; set; }
-            public int SelfRefId { get; set; }
+
+            [NotMapped]
+            public ManyToManyRelated Related { get; set; }
+
+            [NotMapped]
+            public ICollection<ManyToManyRelated> Relateds { get; set; }
+        }
+
+        protected class ManyToManyRelated
+        {
+            public int Id { get; set; }
+            public ICollection<SelfRefManyToOne> DirectlyRelatedSelfRefs { get; set; }
+            public ICollection<SelfRefManyToOne> RelatedSelfRefs { get; set; }
         }
 
         protected class User
@@ -596,6 +641,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class PrincipalTypeWithKeyAnnotation
         {
             public int Id { get; set; }
+
+            [NotMapped]
+            public BaseTypeWithKeyAnnotation Navigation { get; set; }
         }
 
         protected class CityViewModel
@@ -658,6 +706,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int Id { get; set; }
             public IList<Friendship> Friendships { get; set; }
+        }
+
+        public class EntityWithFields
+        {
+            public long Id;
+            public int CompanyId;
+            public int TenantId;
+            public KeylessEntityWithFields KeylessEntity;
+        }
+
+        public class KeylessEntityWithFields
+        {
+            public string FirstName;
+            public string LastName;
         }
 
         protected class QueryResult
@@ -727,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class PrincipalShadowFk
         {
             public Guid PrincipalShadowFkId { get; set; }
-            public List<DependentShadowFk> Dependends { get; set; }
+            public List<DependentShadowFk> Dependents { get; set; }
         }
 
         protected class BaseOwner
@@ -768,6 +830,339 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 get => Property;
                 set => Property = value;
             }
+        }
+
+        protected class IndexedClass
+        {
+            private int _required;
+            private string _optional;
+
+            public int Id { get; set; }
+
+            public object this[string name]
+            {
+                get
+                {
+                    if (string.Equals(name, "Required", StringComparison.Ordinal))
+                    {
+                        return _required;
+                    }
+
+                    if (string.Equals(name, "Optional", StringComparison.Ordinal))
+                    {
+                        return _optional;
+                    }
+
+                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(IndexedClass)}.");
+                }
+
+                set
+                {
+                    if (string.Equals(name, "Required", StringComparison.Ordinal))
+                    {
+                        _required = (int)value;
+                    }
+                    else if (string.Equals(name, "Optional", StringComparison.Ordinal))
+                    {
+                        _optional = (string)value;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(IndexedClass)}.");
+                    }
+                }
+            }
+        }
+
+        protected class IndexedClassByDictionary
+        {
+            private readonly Dictionary<string, object> _indexerData = new();
+
+            public int Id { get; set; }
+
+            public object this[string name]
+            {
+                get => _indexerData[name];
+                set => _indexerData[name] = value;
+            }
+        }
+
+        protected class OneToManyNavPrincipal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<NavDependent> Dependents { get; set; }
+        }
+
+        protected class OneToOneNavPrincipal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public NavDependent Dependent { get; set; }
+        }
+
+        protected class ManyToManyNavPrincipal
+        {
+            private readonly List<NavDependent> _randomField;
+
+            public ManyToManyNavPrincipal()
+            {
+                _randomField = new List<NavDependent>();
+            }
+
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            [BackingField("_randomField")]
+            public List<NavDependent> Dependents { get; set; }
+        }
+
+        protected class NavDependent
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public OneToManyNavPrincipal OneToManyPrincipal { get; set; }
+            public OneToOneNavPrincipal OneToOnePrincipal { get; set; }
+            public List<ManyToManyNavPrincipal> ManyToManyPrincipals { get; set; }
+        }
+
+        protected class OneToManyNavPrincipalOwner
+        {
+            public int Id { get; set; }
+            public string Description { get; set; }
+
+            public List<OwnedOneToManyNavDependent> OwnedDependents { get; set; }
+        }
+
+        protected class OneToOneNavPrincipalOwner
+        {
+            public int Id { get; set; }
+            public string Description { get; set; }
+
+            public OwnedNavDependent OwnedDependent { get; set; }
+        }
+
+        protected class OwnedNavDependent
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+
+            public OneToOneNavPrincipalOwner OneToOneOwner { get; set; }
+        }
+
+        protected class OwnedOneToManyNavDependent
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+
+            public OneToManyNavPrincipalOwner OneToManyOwner { get; set; }
+        }
+
+        protected class OwnerOfOwnees
+        {
+            public string Id { get; private set; }
+
+            public Ownee2 AnOwnee2 { get; private set; }
+            public Ownee1 Ownee1 { get; private set; }
+        }
+
+        protected class Ownee1
+        {
+            public Ownee3 NewOwnee3 { get; private set; }
+        }
+
+        protected class Ownee2
+        {
+            public Ownee3 Ownee3 { get; private set; }
+        }
+
+        protected class Ownee3
+        {
+            public string Name { get; private set; }
+        }
+
+        protected class OneToManyPrincipalWithField
+        {
+            public int Id;
+            public Guid AlternateKey;
+            public string Name;
+
+            public IEnumerable<DependentWithField> Dependents;
+        }
+
+        protected class OneToOnePrincipalWithField
+        {
+            public int Id;
+            public string Name;
+
+            public DependentWithField Dependent;
+        }
+
+        protected class ManyToManyPrincipalWithField
+        {
+            public int Id;
+            public string Name;
+
+            public List<DependentWithField> Dependents;
+        }
+
+        protected class ManyToManyJoinWithFields
+        {
+            public int ManyToManyPrincipalWithFieldId;
+            public int DependentWithFieldId;
+
+            public ManyToManyPrincipalWithField ManyToManyPrincipalWithField { get; set; }
+            public DependentWithField DependentWithField { get; set; }
+        }
+
+        protected class DependentWithField
+        {
+            public int DependentWithFieldId;
+
+            public int? OneToManyPrincipalId;
+            public Guid AnotherOneToManyPrincipalId;
+            public OneToManyPrincipalWithField OneToManyPrincipal { get; set; }
+            public int OneToOnePrincipalId;
+            public OneToOnePrincipalWithField OneToOnePrincipal { get; set; }
+            public List<ManyToManyPrincipalWithField> ManyToManyPrincipals { get; set; }
+        }
+
+        protected class OneToManyOwnerWithField
+        {
+            public int Id;
+            public Guid AlternateKey;
+            public string Description;
+
+            public List<OneToManyOwnedWithField> OwnedDependents { get; set; }
+        }
+
+        protected class OneToManyOwnedWithField
+        {
+            public string FirstName;
+            public string LastName;
+
+            public int OneToManyOwnerId;
+            public OneToManyOwnerWithField OneToManyOwner { get; set; }
+        }
+
+        protected class OneToOneOwnerWithField
+        {
+            public int Id;
+            public Guid AlternateKey;
+            public string Description;
+
+            public OneToOneOwnedWithField OwnedDependent { get; set; }
+        }
+
+        protected class OneToOneOwnedWithField
+        {
+            public string FirstName;
+            public string LastName;
+
+            public int OneToOneOwnerId;
+            public OneToOneOwnerWithField OneToOneOwner { get; set; }
+        }
+
+        protected class ImplicitManyToManyA
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<ImplicitManyToManyB> Bs { get; set; }
+        }
+
+        protected class ImplicitManyToManyB
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<ImplicitManyToManyA> As { get; set; }
+        }
+
+        protected class ReferenceNavigationToSharedType
+        {
+            public int Id { get; set; }
+            public Dictionary<string, object> Navigation { get; set; }
+        }
+
+        protected class CollectionNavigationToSharedType
+        {
+            public int Id { get; set; }
+            public List<Dictionary<string, object>> Navigation { get; set; }
+        }
+
+        protected class AmbiguousManyToManyImplicitLeft
+        {
+            public int Id { get; set; }
+            public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = new();
+            public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = new();
+        }
+
+        protected class AmbiguousManyToManyImplicitRight
+        {
+            public int Id { get; set; }
+            public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new();
+            public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new();
+        }
+
+        protected class AmbiguousInversePropertyLeft
+        {
+            public int Id { get; set; }
+            public List<AmbiguousInversePropertyRight> BaseRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
+        {
+            public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRight
+        {
+            public int Id { get; set; }
+
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeft> BaseLefts { get; set; }
+        }
+
+        protected class AmbiguousInversePropertyRightDerived : AmbiguousInversePropertyRight
+        {
+            [InverseProperty("BaseRights")]
+            public List<AmbiguousInversePropertyLeftDerived> DerivedLefts { get; set; }
+        }
+
+        protected class OwnerOfSharedType
+        {
+            public int Id { get; set; }
+            public Dictionary<string, object> Reference { get; set; }
+            public List<Dictionary<string, object>> Collection { get; set; }
+            public NestedOwnerOfSharedType OwnedNavigation { get; set; }
+        }
+
+        protected class NestedOwnerOfSharedType
+        {
+            public int Id { get; set; }
+            public Dictionary<string, object> Reference { get; set; }
+            public List<Dictionary<string, object>> Collection { get; set; }
+        }
+
+        protected class Dr
+        {
+            public int Id { get; set; }
+
+            public Dre Dre { get; set; }
+
+            public ICollection<DreJr> Jrs { get; set; }
+        }
+
+        protected class Dre
+        {
+        }
+
+        protected class DreJr : Dre
+        {
         }
     }
 }

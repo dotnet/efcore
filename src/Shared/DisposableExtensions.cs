@@ -3,13 +3,14 @@
 
 using System;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Utilities
 {
     internal static class DisposableExtensions
     {
-        public static ValueTask DisposeAsyncIfAvailable([CanBeNull] this IDisposable disposable)
+        public static ValueTask DisposeAsyncIfAvailable(this IDisposable? disposable)
         {
             if (disposable != null)
             {

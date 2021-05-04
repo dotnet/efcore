@@ -25,20 +25,18 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void InMemory_database_does_not_use_temp_values()
         {
-            using (var context = CreateContext())
-            {
-                var entry = context.Add(new TestTemp());
+            using var context = CreateContext();
+            var entry = context.Add(new TestTemp());
 
-                Assert.False(entry.Property(e => e.Id).IsTemporary);
-                Assert.False(entry.Property(e => e.NotId).IsTemporary);
+            Assert.False(entry.Property(e => e.Id).IsTemporary);
+            Assert.False(entry.Property(e => e.NotId).IsTemporary);
 
-                var tempValue = entry.Property(e => e.Id).CurrentValue;
+            var tempValue = entry.Property(e => e.Id).CurrentValue;
 
-                context.SaveChanges();
+            context.SaveChanges();
 
-                Assert.False(entry.Property(e => e.Id).IsTemporary);
-                Assert.Equal(tempValue, entry.Property(e => e.Id).CurrentValue);
-            }
+            Assert.False(entry.Property(e => e.Id).IsTemporary);
+            Assert.Equal(tempValue, entry.Property(e => e.Id).CurrentValue);
         }
 
         protected override void ExecuteWithStrategyInTransaction(Action<DbContext> testOperation)
@@ -47,11 +45,13 @@ namespace Microsoft.EntityFrameworkCore
             Fixture.Reseed();
         }
 
-        protected override bool EnforcesFKs => false;
+        protected override bool EnforcesFKs
+            => false;
 
         public class StoreGeneratedFixupInMemoryFixture : StoreGeneratedFixupFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));

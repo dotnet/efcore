@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -34,22 +35,20 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var results = async
-                        ? await context.Set<Singularity>().ToListAsync()
-                        : context.Set<Singularity>().ToList();
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var results = async
+                    ? await context.Set<Singularity>().ToListAsync()
+                    : context.Set<Singularity>().ToList();
 
-                    Assert.Equal(2, results.Count);
-                    Assert.Equal(77, results[0].Id);
-                    Assert.Equal(88, results[1].Id);
-                    Assert.Equal("Black Hole", results[0].Type);
-                    Assert.Equal("Bing Bang", results[1].Type);
+                Assert.Equal(2, results.Count);
+                Assert.Equal(77, results[0].Id);
+                Assert.Equal(88, results[1].Id);
+                Assert.Equal("Black Hole", results[0].Type);
+                Assert.Equal("Bing Bang", results[1].Type);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
 
             return interceptor.CommandText;
@@ -77,24 +76,22 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var result = async
-                        ? await command.ExecuteScalarAsync(commandParameterObject)
-                        : command.ExecuteScalar(commandParameterObject);
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var result = async
+                    ? await command.ExecuteScalarAsync(commandParameterObject)
+                    : command.ExecuteScalar(commandParameterObject);
 
-                    Assert.Equal(1, Convert.ToInt32(result));
+                Assert.Equal(1, Convert.ToInt32(result));
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(sql, interceptor.CommandText);
+                AssertSql(sql, interceptor.CommandText);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
         }
 
@@ -118,22 +115,21 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    string nonQuery =
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        var result = async
-                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                            : context.Database.ExecuteSqlRaw(nonQuery);
+                    using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                    var result = async
+                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                        : context.Database.ExecuteSqlRaw(nonQuery);
 
-                        Assert.Equal(1, result);
+                    Assert.Equal(1, result);
 
-                        AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                        AssertSql(nonQuery, interceptor.CommandText);
+                    AssertSql(nonQuery, interceptor.CommandText);
 
-                        AssertExecutedEvents(listener);
-                    }
+                    AssertExecutedEvents(listener);
                 }
             }
         }
@@ -156,24 +152,22 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<SuppressingReaderCommandInterceptor>(inject);
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var results = async
-                        ? await context.Set<Singularity>().ToListAsync()
-                        : context.Set<Singularity>().ToList();
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var results = async
+                    ? await context.Set<Singularity>().ToListAsync()
+                    : context.Set<Singularity>().ToList();
 
-                    Assert.Equal(3, results.Count);
-                    Assert.Equal(977, results[0].Id);
-                    Assert.Equal(988, results[1].Id);
-                    Assert.Equal(999, results[2].Id);
-                    Assert.Equal("<977>", results[0].Type);
-                    Assert.Equal("<988>", results[1].Type);
-                    Assert.Equal("<999>", results[2].Type);
+                Assert.Equal(3, results.Count);
+                Assert.Equal(977, results[0].Id);
+                Assert.Equal(988, results[1].Id);
+                Assert.Equal(999, results[2].Id);
+                Assert.Equal("<977>", results[0].Type);
+                Assert.Equal("<988>", results[1].Type);
+                Assert.Equal("<999>", results[2].Type);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
 
             return interceptor.CommandText;
@@ -196,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader());
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -204,7 +198,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult(InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
+                return new ValueTask<InterceptionResult<DbDataReader>>(
+                    InterceptionResult<DbDataReader>.SuppressWithResult(new FakeDbDataReader()));
             }
         }
 
@@ -218,22 +213,20 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<SuppressingCreateCommandInterceptor>(inject);
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var results = async
-                        ? await context.Set<Singularity>().ToListAsync()
-                        : context.Set<Singularity>().ToList();
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var results = async
+                    ? await context.Set<Singularity>().ToListAsync()
+                    : context.Set<Singularity>().ToList();
 
-                    Assert.Equal(2, results.Count);
-                    Assert.Equal(77, results[0].Id);
-                    Assert.Equal(88, results[1].Id);
-                    Assert.Equal("Black Hole", results[0].Type);
-                    Assert.Equal("Bing Bang", results[1].Type);
+                Assert.Equal(2, results.Count);
+                Assert.Equal(77, results[0].Id);
+                Assert.Equal(88, results[1].Id);
+                Assert.Equal("Black Hole", results[0].Type);
+                Assert.Equal("Bing Bang", results[1].Type);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
         }
 
@@ -265,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.ReaderExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -291,24 +284,22 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var result = async
-                        ? await command.ExecuteScalarAsync(commandParameterObject)
-                        : command.ExecuteScalar(commandParameterObject);
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var result = async
+                    ? await command.ExecuteScalarAsync(commandParameterObject)
+                    : command.ExecuteScalar(commandParameterObject);
 
-                    Assert.Equal(SuppressingScalarCommandInterceptor.InterceptedResult, result);
+                Assert.Equal(SuppressingScalarCommandInterceptor.InterceptedResult, result);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(sql, interceptor.CommandText);
+                AssertSql(sql, interceptor.CommandText);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
         }
 
@@ -331,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<object>.SuppressWithResult(InterceptedResult);
             }
 
-            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -339,8 +330,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult(
-                    InterceptionResult<object>.SuppressWithResult(InterceptedResult));
+                return new ValueTask<InterceptionResult<object>>(InterceptionResult<object>.SuppressWithResult(InterceptedResult));
             }
         }
 
@@ -356,22 +346,21 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    string nonQuery =
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        var result = async
-                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                            : context.Database.ExecuteSqlRaw(nonQuery);
+                    using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                    var result = async
+                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                        : context.Database.ExecuteSqlRaw(nonQuery);
 
-                        Assert.Equal(2, result);
+                    Assert.Equal(2, result);
 
-                        AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                        AssertSql(nonQuery, interceptor.CommandText);
+                    AssertSql(nonQuery, interceptor.CommandText);
 
-                        AssertExecutedEvents(listener);
-                    }
+                    AssertExecutedEvents(listener);
                 }
             }
         }
@@ -393,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<int>.SuppressWithResult(2);
             }
 
-            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -401,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult(InterceptionResult<int>.SuppressWithResult(2));
+                return new ValueTask<InterceptionResult<int>>(InterceptionResult<int>.SuppressWithResult(2));
             }
         }
 
@@ -415,22 +404,20 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<MutatingReaderCommandInterceptor>(inject);
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var results = async
-                        ? await context.Set<Singularity>().ToListAsync()
-                        : context.Set<Singularity>().ToList();
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var results = async
+                    ? await context.Set<Singularity>().ToListAsync()
+                    : context.Set<Singularity>().ToList();
 
-                    Assert.Equal(2, results.Count);
-                    Assert.Equal(77, results[0].Id);
-                    Assert.Equal(88, results[1].Id);
-                    Assert.Equal("Black Hole?", results[0].Type);
-                    Assert.Equal("Bing Bang?", results[1].Type);
+                Assert.Equal(2, results.Count);
+                Assert.Equal(77, results[0].Id);
+                Assert.Equal(88, results[1].Id);
+                Assert.Equal("Black Hole?", results[0].Type);
+                Assert.Equal("Bing Bang?", results[1].Type);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
 
             return interceptor.CommandText;
@@ -453,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.ReaderExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -482,24 +469,22 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var result = async
-                        ? await command.ExecuteScalarAsync(commandParameterObject)
-                        : command.ExecuteScalar(commandParameterObject);
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var result = async
+                    ? await command.ExecuteScalarAsync(commandParameterObject)
+                    : command.ExecuteScalar(commandParameterObject);
 
-                    Assert.Equal(2, Convert.ToInt32(result));
+                Assert.Equal(2, Convert.ToInt32(result));
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(MutatingScalarCommandInterceptor.MutatedSql, interceptor.CommandText);
+                AssertSql(MutatingScalarCommandInterceptor.MutatedSql, interceptor.CommandText);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
         }
 
@@ -522,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.ScalarExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -541,38 +526,40 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_non_query_to_mutate_command(bool async, bool inject)
         {
-            var (context, interceptor) = CreateContext<MutatingNonQueryCommandInterceptor>(inject);
+            var interceptor = new MutatingNonQueryCommandInterceptor(this);
+            var context = inject ? CreateContext(null, interceptor) : CreateContext(interceptor);
             using (context)
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    string nonQuery =
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        var result = async
-                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                            : context.Database.ExecuteSqlRaw(nonQuery);
+                    using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                    var result = async
+                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                        : context.Database.ExecuteSqlRaw(nonQuery);
 
-                        Assert.Equal(0, result);
+                    Assert.Equal(0, result);
 
-                        AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                        AssertSql(MutatingNonQueryCommandInterceptor.MutatedSql, interceptor.CommandText);
+                    AssertSql(interceptor.MutatedSql, interceptor.CommandText);
 
-                        AssertExecutedEvents(listener);
-                    }
+                    AssertExecutedEvents(listener);
                 }
             }
         }
 
         protected class MutatingNonQueryCommandInterceptor : CommandInterceptorBase
         {
-            public const string MutatedSql = "DELETE FROM Singularity WHERE Id = 78";
+            public readonly string MutatedSql;
 
-            public MutatingNonQueryCommandInterceptor()
+            public MutatingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
                 : base(DbCommandMethod.ExecuteNonQuery)
             {
+                MutatedSql =
+                    testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
             }
 
             public override InterceptionResult<int> NonQueryExecuting(
@@ -585,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore
                 return base.NonQueryExecuting(command, eventData, result);
             }
 
-            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -607,22 +594,20 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<QueryReplacingReaderCommandInterceptor>(inject);
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var results = async
-                        ? await context.Set<Singularity>().ToListAsync()
-                        : context.Set<Singularity>().ToList();
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var results = async
+                    ? await context.Set<Singularity>().ToListAsync()
+                    : context.Set<Singularity>().ToList();
 
-                    Assert.Equal(2, results.Count);
-                    Assert.Equal(77, results[0].Id);
-                    Assert.Equal(88, results[1].Id);
-                    Assert.Equal("Black Hole?", results[0].Type);
-                    Assert.Equal("Bing Bang?", results[1].Type);
+                Assert.Equal(2, results.Count);
+                Assert.Equal(77, results[0].Id);
+                Assert.Equal(88, results[1].Id);
+                Assert.Equal("Black Hole?", results[0].Type);
+                Assert.Equal("Bing Bang?", results[1].Type);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
 
             return interceptor.CommandText;
@@ -646,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<DbDataReader>.SuppressWithResult(CreateNewCommand(command).ExecuteReader());
             }
 
-            public override async Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override async ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -682,24 +667,22 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var result = async
-                        ? await command.ExecuteScalarAsync(commandParameterObject)
-                        : command.ExecuteScalar(commandParameterObject);
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var result = async
+                    ? await command.ExecuteScalarAsync(commandParameterObject)
+                    : command.ExecuteScalar(commandParameterObject);
 
-                    Assert.Equal(2, Convert.ToInt32(result));
+                Assert.Equal(2, Convert.ToInt32(result));
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(sql, interceptor.CommandText);
+                AssertSql(sql, interceptor.CommandText);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
         }
 
@@ -721,7 +704,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<object>.SuppressWithResult(CreateNewCommand(command).ExecuteScalar());
             }
 
-            public override async Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override async ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -749,36 +732,39 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_non_query_to_replace_execution(bool async, bool inject)
         {
-            var (context, interceptor) = CreateContext<QueryReplacingNonQueryCommandInterceptor>(inject);
+            var interceptor = new QueryReplacingNonQueryCommandInterceptor(this);
+            var context = inject ? CreateContext(null, interceptor) : CreateContext(interceptor);
             using (context)
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
+                    string nonQuery =
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        var result = async
-                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                            : context.Database.ExecuteSqlRaw(nonQuery);
+                    using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                    var result = async
+                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                        : context.Database.ExecuteSqlRaw(nonQuery);
 
-                        Assert.Equal(1, result);
+                    Assert.Equal(1, result);
 
-                        AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                        AssertSql(nonQuery, interceptor.CommandText);
+                    AssertSql(nonQuery, interceptor.CommandText);
 
-                        AssertExecutedEvents(listener);
-                    }
+                    AssertExecutedEvents(listener);
                 }
             }
         }
 
         protected class QueryReplacingNonQueryCommandInterceptor : CommandInterceptorBase
         {
-            public QueryReplacingNonQueryCommandInterceptor()
+            private readonly string commandText;
+
+            public QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
                 : base(DbCommandMethod.ExecuteNonQuery)
             {
+                commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
             }
 
             public override InterceptionResult<int> NonQueryExecuting(
@@ -792,7 +778,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptionResult<int>.SuppressWithResult(CreateNewCommand(command).ExecuteNonQuery());
             }
 
-            public override async Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override async ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -808,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var newCommand = command.Connection.CreateCommand();
                 newCommand.Transaction = command.Transaction;
-                newCommand.CommandText = "DELETE FROM Singularity WHERE Id = 77";
+                newCommand.CommandText = commandText;
 
                 return newCommand;
             }
@@ -824,28 +810,26 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<ResultReplacingReaderCommandInterceptor>(inject);
             using (context)
             {
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var results = async
-                        ? await context.Set<Singularity>().ToListAsync()
-                        : context.Set<Singularity>().ToList();
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var results = async
+                    ? await context.Set<Singularity>().ToListAsync()
+                    : context.Set<Singularity>().ToList();
 
-                    Assert.Equal(5, results.Count);
-                    Assert.Equal(77, results[0].Id);
-                    Assert.Equal(88, results[1].Id);
-                    Assert.Equal(977, results[2].Id);
-                    Assert.Equal(988, results[3].Id);
-                    Assert.Equal(999, results[4].Id);
-                    Assert.Equal("Black Hole", results[0].Type);
-                    Assert.Equal("Bing Bang", results[1].Type);
-                    Assert.Equal("<977>", results[2].Type);
-                    Assert.Equal("<988>", results[3].Type);
-                    Assert.Equal("<999>", results[4].Type);
+                Assert.Equal(5, results.Count);
+                Assert.Equal(77, results[0].Id);
+                Assert.Equal(88, results[1].Id);
+                Assert.Equal(977, results[2].Id);
+                Assert.Equal(988, results[3].Id);
+                Assert.Equal(999, results[4].Id);
+                Assert.Equal("Black Hole", results[0].Type);
+                Assert.Equal("Bing Bang", results[1].Type);
+                Assert.Equal("<977>", results[2].Type);
+                Assert.Equal("<988>", results[3].Type);
+                Assert.Equal("<999>", results[4].Type);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
 
             return interceptor.CommandText;
@@ -868,7 +852,7 @@ namespace Microsoft.EntityFrameworkCore
                 return new CompositeFakeDbDataReader(result, new FakeDbDataReader());
             }
 
-            public override Task<DbDataReader> ReaderExecutedAsync(
+            public override ValueTask<DbDataReader> ReaderExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 DbDataReader result,
@@ -876,7 +860,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult<DbDataReader>(new CompositeFakeDbDataReader(result, new FakeDbDataReader()));
+                return new ValueTask<DbDataReader>(new CompositeFakeDbDataReader(result, new FakeDbDataReader()));
             }
         }
 
@@ -892,16 +876,32 @@ namespace Microsoft.EntityFrameworkCore
                 _secondReader = secondReader;
             }
 
-            public override int FieldCount => _firstReader.FieldCount;
-            public override int RecordsAffected => _firstReader.RecordsAffected + _secondReader.RecordsAffected;
-            public override bool HasRows => _firstReader.HasRows || _secondReader.HasRows;
-            public override bool IsClosed => _firstReader.IsClosed;
-            public override int Depth => _firstReader.Depth;
+            public override int FieldCount
+                => _firstReader.FieldCount;
 
-            public override string GetDataTypeName(int ordinal) => _firstReader.GetDataTypeName(ordinal);
-            public override Type GetFieldType(int ordinal) => _firstReader.GetFieldType(ordinal);
-            public override string GetName(int ordinal) => _firstReader.GetName(ordinal);
-            public override bool NextResult() => _firstReader.NextResult() || _secondReader.NextResult();
+            public override int RecordsAffected
+                => _firstReader.RecordsAffected + _secondReader.RecordsAffected;
+
+            public override bool HasRows
+                => _firstReader.HasRows || _secondReader.HasRows;
+
+            public override bool IsClosed
+                => _firstReader.IsClosed;
+
+            public override int Depth
+                => _firstReader.Depth;
+
+            public override string GetDataTypeName(int ordinal)
+                => _firstReader.GetDataTypeName(ordinal);
+
+            public override Type GetFieldType(int ordinal)
+                => _firstReader.GetFieldType(ordinal);
+
+            public override string GetName(int ordinal)
+                => _firstReader.GetName(ordinal);
+
+            public override bool NextResult()
+                => _firstReader.NextResult() || _secondReader.NextResult();
 
             public override async Task<bool> NextResultAsync(CancellationToken cancellationToken)
                 => await _firstReader.NextResultAsync(cancellationToken) || await _secondReader.NextResultAsync(cancellationToken);
@@ -961,24 +961,22 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
-                using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                {
-                    var result = async
-                        ? await command.ExecuteScalarAsync(commandParameterObject)
-                        : command.ExecuteScalar(commandParameterObject);
+                using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                var result = async
+                    ? await command.ExecuteScalarAsync(commandParameterObject)
+                    : command.ExecuteScalar(commandParameterObject);
 
-                    Assert.Equal(ResultReplacingScalarCommandInterceptor.InterceptedResult, result);
+                Assert.Equal(ResultReplacingScalarCommandInterceptor.InterceptedResult, result);
 
-                    AssertNormalOutcome(context, interceptor, async);
+                AssertNormalOutcome(context, interceptor, async);
 
-                    AssertSql(sql, interceptor.CommandText);
+                AssertSql(sql, interceptor.CommandText);
 
-                    AssertExecutedEvents(listener);
-                }
+                AssertExecutedEvents(listener);
             }
         }
 
@@ -1001,7 +999,7 @@ namespace Microsoft.EntityFrameworkCore
                 return InterceptedResult;
             }
 
-            public override Task<object> ScalarExecutedAsync(
+            public override ValueTask<object> ScalarExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 object result,
@@ -1009,7 +1007,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
 
-                return Task.FromResult<object>(InterceptedResult);
+                return new ValueTask<object>(InterceptedResult);
             }
         }
 
@@ -1025,22 +1023,21 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
+                    string nonQuery =
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
-                    using (var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId))
-                    {
-                        var result = async
-                            ? await context.Database.ExecuteSqlRawAsync(nonQuery)
-                            : context.Database.ExecuteSqlRaw(nonQuery);
+                    using var listener = Fixture.SubscribeToDiagnosticListener(context.ContextId);
+                    var result = async
+                        ? await context.Database.ExecuteSqlRawAsync(nonQuery)
+                        : context.Database.ExecuteSqlRaw(nonQuery);
 
-                        Assert.Equal(7, result);
+                    Assert.Equal(7, result);
 
-                        AssertNormalOutcome(context, interceptor, async);
+                    AssertNormalOutcome(context, interceptor, async);
 
-                        AssertSql(nonQuery, interceptor.CommandText);
+                    AssertSql(nonQuery, interceptor.CommandText);
 
-                        AssertExecutedEvents(listener);
-                    }
+                    AssertExecutedEvents(listener);
                 }
             }
         }
@@ -1062,7 +1059,7 @@ namespace Microsoft.EntityFrameworkCore
                 return 7;
             }
 
-            public override async Task<int> NonQueryExecutedAsync(
+            public override async ValueTask<int> NonQueryExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 int result,
@@ -1081,7 +1078,7 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true, true)]
         public virtual async Task Intercept_query_that_throws(bool async, bool inject)
         {
-            const string badSql = "SELECT * FROM TheVoid";
+            string badSql = NormalizeDelimitersInRawString("SELECT * FROM [TheVoid]");
 
             var (context, interceptor) = CreateContext<PassiveReaderCommandInterceptor>(inject);
             using (context)
@@ -1117,7 +1114,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -1150,7 +1147,7 @@ namespace Microsoft.EntityFrameworkCore
             var (context, interceptor) = CreateContext<PassiveNonQueryCommandInterceptor>(inject);
             using (context)
             {
-                const string nonQuery = "DELETE FROM TheVoid WHERE Id = 555";
+                string nonQuery = NormalizeDelimitersInRawString("DELETE FROM [TheVoid] WHERE [Id] = 555");
 
                 try
                 {
@@ -1201,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append("SELECT 1").Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -1225,7 +1222,8 @@ namespace Microsoft.EntityFrameworkCore
             {
                 using (context.Database.BeginTransaction())
                 {
-                    const string nonQuery = "DELETE FROM Singularity WHERE Id = 77";
+                    string nonQuery =
+                        NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
                     var exception = async
                         ? await Assert.ThrowsAsync<Exception>(() => context.Database.ExecuteSqlRawAsync(nonQuery))
@@ -1246,7 +1244,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -1263,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -1280,7 +1278,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new Exception("Bang!");
             }
 
-            public override Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -1297,10 +1295,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appInterceptor = new ResultReplacingReaderCommandInterceptor();
             var injectedInterceptor = new MutatingReaderCommandInterceptor();
-            using (var context = CreateContext(appInterceptor, injectedInterceptor))
-            {
-                await TestCompoisteQueryInterceptors(context, appInterceptor, injectedInterceptor, async);
-            }
+            using var context = CreateContext(appInterceptor, injectedInterceptor);
+            await TestCompoisteQueryInterceptors(context, appInterceptor, injectedInterceptor, async);
         }
 
         private static async Task TestCompoisteQueryInterceptors(
@@ -1324,19 +1320,17 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_scalar_with_one_app_and_one_injected_interceptor(bool async)
         {
-            using (var context = CreateContext(
+            using var context = CreateContext(
                 new ResultReplacingScalarCommandInterceptor(),
-                new MutatingScalarCommandInterceptor()))
-            {
-                await TestCompositeScalarInterceptors(context, async);
-            }
+                new MutatingScalarCommandInterceptor());
+            await TestCompositeScalarInterceptors(context, async);
         }
 
         private static async Task TestCompositeScalarInterceptors(UniverseContext context, bool async)
         {
             var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append("SELECT 1").Build();
             var connection = context.GetService<IRelationalConnection>();
-            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
             var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -1352,19 +1346,18 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_non_query_one_app_and_one_injected_interceptor(bool async)
         {
-            using (var context = CreateContext(
+            using var context = CreateContext(
                 new ResultReplacingNonQueryCommandInterceptor(),
-                new MutatingNonQueryCommandInterceptor()))
-            {
-                await TestCompositeNonQueryInterceptors(context, async);
-            }
+                new MutatingNonQueryCommandInterceptor(this));
+            await TestCompositeNonQueryInterceptors(context, async);
         }
 
-        private static async Task TestCompositeNonQueryInterceptors(UniverseContext context, bool async)
+        private async Task TestCompositeNonQueryInterceptors(UniverseContext context, bool async)
         {
             using (context.Database.BeginTransaction())
             {
-                const string nonQuery = "DELETE FROM Singularity WHERE Id = 78";
+                string nonQuery =
+                    NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
 
                 Assert.Equal(
                     7,
@@ -1382,10 +1375,8 @@ namespace Microsoft.EntityFrameworkCore
             var injectedInterceptor1 = new MutatingReaderCommandInterceptor();
             var injectedInterceptor2 = new ResultReplacingReaderCommandInterceptor();
 
-            using (var context = CreateContext(null, injectedInterceptor1, injectedInterceptor2))
-            {
-                await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
-            }
+            using var context = CreateContext(null, injectedInterceptor1, injectedInterceptor2);
+            await TestCompoisteQueryInterceptors(context, injectedInterceptor2, injectedInterceptor1, async);
         }
 
         [ConditionalTheory]
@@ -1393,12 +1384,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_scalar_with_two_injected_interceptors(bool async)
         {
-            using (var context = CreateContext(
+            using var context = CreateContext(
                 null,
-                new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor()))
-            {
-                await TestCompositeScalarInterceptors(context, async);
-            }
+                new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor());
+            await TestCompositeScalarInterceptors(context, async);
         }
 
         [ConditionalTheory]
@@ -1406,12 +1395,10 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_non_query_with_two_injected_interceptors(bool async)
         {
-            using (var context = CreateContext(
+            using var context = CreateContext(
                 null,
-                new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor()))
-            {
-                await TestCompositeNonQueryInterceptors(context, async);
-            }
+                new MutatingNonQueryCommandInterceptor(this), new ResultReplacingNonQueryCommandInterceptor());
+            await TestCompositeNonQueryInterceptors(context, async);
         }
 
         [ConditionalTheory]
@@ -1419,15 +1406,13 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_query_with_explicitly_composed_app_interceptor(bool async)
         {
-            using (var context = CreateContext(
-                new IInterceptor[] { new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor() }))
-            {
-                var results = async
-                    ? await context.Set<Singularity>().ToListAsync()
-                    : context.Set<Singularity>().ToList();
+            using var context = CreateContext(
+                new IInterceptor[] { new MutatingReaderCommandInterceptor(), new ResultReplacingReaderCommandInterceptor() });
+            var results = async
+                ? await context.Set<Singularity>().ToListAsync()
+                : context.Set<Singularity>().ToList();
 
-                AssertCompositeResults(results);
-            }
+            AssertCompositeResults(results);
         }
 
         private static void AssertCompositeResults(List<Singularity> results)
@@ -1450,11 +1435,9 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_scalar_with_explicitly_composed_app_interceptor(bool async)
         {
-            using (var context = CreateContext(
-                new IInterceptor[] { new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor() }))
-            {
-                await TestCompositeScalarInterceptors(context, async);
-            }
+            using var context = CreateContext(
+                new IInterceptor[] { new MutatingScalarCommandInterceptor(), new ResultReplacingScalarCommandInterceptor() });
+            await TestCompositeScalarInterceptors(context, async);
         }
 
         [ConditionalTheory]
@@ -1462,23 +1445,29 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(true)]
         public virtual async Task Intercept_non_query_with_explicitly_composed_app_interceptor(bool async)
         {
-            using (var context = CreateContext(
-                new IInterceptor[] { new MutatingNonQueryCommandInterceptor(), new ResultReplacingNonQueryCommandInterceptor() }))
-            {
-                await TestCompositeNonQueryInterceptors(context, async);
-            }
+            using var context = CreateContext(
+                new IInterceptor[] { new MutatingNonQueryCommandInterceptor(this), new ResultReplacingNonQueryCommandInterceptor() });
+            await TestCompositeNonQueryInterceptors(context, async);
         }
 
         private class WrappingDbCommand : DbCommand
         {
             private readonly DbCommand _command;
 
-            public WrappingDbCommand(DbCommand command) => _command = command;
+            public WrappingDbCommand(DbCommand command)
+                => _command = command;
 
-            public override void Cancel() => _command.Cancel();
-            public override int ExecuteNonQuery() => _command.ExecuteNonQuery();
-            public override object ExecuteScalar() => _command.ExecuteScalar();
-            public override void Prepare() => _command.Prepare();
+            public override void Cancel()
+                => _command.Cancel();
+
+            public override int ExecuteNonQuery()
+                => _command.ExecuteNonQuery();
+
+            public override object ExecuteScalar()
+                => _command.ExecuteScalar();
+
+            public override void Prepare()
+                => _command.Prepare();
 
             public override string CommandText
             {
@@ -1510,7 +1499,8 @@ namespace Microsoft.EntityFrameworkCore
                 set => _command.Connection = value;
             }
 
-            protected override DbParameterCollection DbParameterCollection => _command.Parameters;
+            protected override DbParameterCollection DbParameterCollection
+                => _command.Parameters;
 
             protected override DbTransaction DbTransaction
             {
@@ -1524,8 +1514,11 @@ namespace Microsoft.EntityFrameworkCore
                 set => _command.DesignTimeVisible = value;
             }
 
-            protected override DbParameter CreateDbParameter() => _command.CreateParameter();
-            protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => _command.ExecuteReader();
+            protected override DbParameter CreateDbParameter()
+                => _command.CreateParameter();
+
+            protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+                => _command.ExecuteReader();
         }
 
         private class FakeDbDataReader : DbDataReader
@@ -1553,34 +1546,71 @@ namespace Microsoft.EntityFrameworkCore
             public override string GetString(int ordinal)
                 => _strings[_index - 1];
 
-            public override bool GetBoolean(int ordinal) => throw new NotImplementedException();
-            public override byte GetByte(int ordinal) => throw new NotImplementedException();
+            public override bool GetBoolean(int ordinal)
+                => throw new NotImplementedException();
+
+            public override byte GetByte(int ordinal)
+                => throw new NotImplementedException();
 
             public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length)
                 => throw new NotImplementedException();
 
-            public override char GetChar(int ordinal) => throw new NotImplementedException();
+            public override char GetChar(int ordinal)
+                => throw new NotImplementedException();
 
             public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length)
                 => throw new NotImplementedException();
 
-            public override string GetDataTypeName(int ordinal) => throw new NotImplementedException();
-            public override DateTime GetDateTime(int ordinal) => throw new NotImplementedException();
-            public override decimal GetDecimal(int ordinal) => throw new NotImplementedException();
-            public override double GetDouble(int ordinal) => throw new NotImplementedException();
-            public override Type GetFieldType(int ordinal) => throw new NotImplementedException();
-            public override float GetFloat(int ordinal) => throw new NotImplementedException();
-            public override Guid GetGuid(int ordinal) => throw new NotImplementedException();
-            public override short GetInt16(int ordinal) => throw new NotImplementedException();
-            public override long GetInt64(int ordinal) => throw new NotImplementedException();
-            public override string GetName(int ordinal) => throw new NotImplementedException();
-            public override int GetOrdinal(string name) => throw new NotImplementedException();
-            public override object GetValue(int ordinal) => throw new NotImplementedException();
-            public override int GetValues(object[] values) => throw new NotImplementedException();
-            public override object this[int ordinal] => throw new NotImplementedException();
-            public override object this[string name] => throw new NotImplementedException();
-            public override bool NextResult() => throw new NotImplementedException();
-            public override IEnumerator GetEnumerator() => throw new NotImplementedException();
+            public override string GetDataTypeName(int ordinal)
+                => throw new NotImplementedException();
+
+            public override DateTime GetDateTime(int ordinal)
+                => throw new NotImplementedException();
+
+            public override decimal GetDecimal(int ordinal)
+                => throw new NotImplementedException();
+
+            public override double GetDouble(int ordinal)
+                => throw new NotImplementedException();
+
+            public override Type GetFieldType(int ordinal)
+                => throw new NotImplementedException();
+
+            public override float GetFloat(int ordinal)
+                => throw new NotImplementedException();
+
+            public override Guid GetGuid(int ordinal)
+                => throw new NotImplementedException();
+
+            public override short GetInt16(int ordinal)
+                => throw new NotImplementedException();
+
+            public override long GetInt64(int ordinal)
+                => throw new NotImplementedException();
+
+            public override string GetName(int ordinal)
+                => throw new NotImplementedException();
+
+            public override int GetOrdinal(string name)
+                => throw new NotImplementedException();
+
+            public override object GetValue(int ordinal)
+                => throw new NotImplementedException();
+
+            public override int GetValues(object[] values)
+                => throw new NotImplementedException();
+
+            public override object this[int ordinal]
+                => throw new NotImplementedException();
+
+            public override object this[string name]
+                => throw new NotImplementedException();
+
+            public override bool NextResult()
+                => throw new NotImplementedException();
+
+            public override IEnumerator GetEnumerator()
+                => throw new NotImplementedException();
         }
 
         private static void AssertNormalOutcome(DbContext context, CommandInterceptorBase interceptor, bool async)
@@ -1691,7 +1721,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
+            public virtual ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<DbDataReader> result,
@@ -1701,10 +1731,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuting(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<DbDataReader>>(result);
             }
 
-            public virtual Task<InterceptionResult<object>> ScalarExecutingAsync(
+            public virtual ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<object> result,
@@ -1714,10 +1744,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuting(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<object>>(result);
             }
 
-            public virtual Task<InterceptionResult<int>> NonQueryExecutingAsync(
+            public virtual ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
                 DbCommand command,
                 CommandEventData eventData,
                 InterceptionResult<int> result,
@@ -1727,7 +1757,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuting(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<InterceptionResult<int>>(result);
             }
 
             public virtual DbDataReader ReaderExecuted(
@@ -1766,7 +1796,7 @@ namespace Microsoft.EntityFrameworkCore
                 return result;
             }
 
-            public virtual Task<DbDataReader> ReaderExecutedAsync(
+            public virtual ValueTask<DbDataReader> ReaderExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 DbDataReader result,
@@ -1776,10 +1806,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuted(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<DbDataReader>(result);
             }
 
-            public virtual Task<object> ScalarExecutedAsync(
+            public virtual ValueTask<object> ScalarExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 object result,
@@ -1789,10 +1819,10 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuted(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<object>(result);
             }
 
-            public virtual Task<int> NonQueryExecutedAsync(
+            public virtual ValueTask<int> NonQueryExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
                 int result,
@@ -1802,7 +1832,7 @@ namespace Microsoft.EntityFrameworkCore
                 AsyncCalled = true;
                 AssertExecuted(command, eventData);
 
-                return Task.FromResult(result);
+                return new ValueTask<int>(result);
             }
 
             public void CommandFailed(
@@ -1904,5 +1934,8 @@ namespace Microsoft.EntityFrameworkCore
                 FailedCalled = true;
             }
         }
+
+        private string NormalizeDelimitersInRawString(string sql)
+            => ((RelationalTestStore)Fixture.TestStore).NormalizeDelimitersInRawString(sql);
     }
 }

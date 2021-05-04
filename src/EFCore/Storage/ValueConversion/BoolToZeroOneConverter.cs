@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public BoolToZeroOneConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public BoolToZeroOneConverter(ConverterMappingHints? mappingHints = null)
             : base(Zero(), One(), null, mappingHints)
         {
         }
@@ -27,18 +26,42 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(bool), typeof(TProvider), i => new BoolToZeroOneConverter<TProvider>(i.MappingHints));
+            = new(typeof(bool), typeof(TProvider), i => new BoolToZeroOneConverter<TProvider>(i.MappingHints));
 
         private static TProvider Zero()
         {
+            var type = typeof(TProvider).UnwrapNullableType();
+
             CheckTypeSupported(
-                typeof(TProvider).UnwrapNullableType(),
+                type,
                 typeof(BoolToZeroOneConverter<TProvider>),
                 typeof(int), typeof(short), typeof(long), typeof(sbyte),
                 typeof(uint), typeof(ushort), typeof(ulong), typeof(byte),
                 typeof(decimal), typeof(double), typeof(float));
 
-            return Activator.CreateInstance<TProvider>();
+            return (TProvider)(type == typeof(int)
+                ? 0
+                : type == typeof(short)
+                    ? (short)0
+                    : type == typeof(long)
+                        ? (long)0
+                        : type == typeof(sbyte)
+                            ? (sbyte)0
+                            : type == typeof(uint)
+                                ? (uint)0
+                                : type == typeof(ushort)
+                                    ? (ushort)0
+                                    : type == typeof(ulong)
+                                        ? (ulong)0
+                                        : type == typeof(byte)
+                                            ? (byte)0
+                                            : type == typeof(decimal)
+                                                ? (decimal)0
+                                                : type == typeof(double)
+                                                    ? (double)0
+                                                    : type == typeof(float)
+                                                        ? (float)0
+                                                        : (object)0);
         }
 
         private static TProvider One()

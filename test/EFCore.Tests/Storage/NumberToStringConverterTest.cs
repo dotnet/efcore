@@ -12,8 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class NumberToStringConverterTest
     {
-        private static readonly NumberToStringConverter<ulong> _ulongToNaturalString
-            = new NumberToStringConverter<ulong>();
+        private static readonly NumberToStringConverter<ulong> _ulongToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_ulongs_to_natural_strings()
@@ -44,9 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ulong.MaxValue, converter("18446744073709551615"));
             Assert.Equal((ulong)77, converter("77"));
-            Assert.Equal((ulong)0, converter("-1"));
             Assert.Equal((ulong)0, converter("0"));
-            Assert.Equal((ulong)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -56,13 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ulong.MaxValue, converter("18446744073709551615"));
             Assert.Equal((ulong)77, converter("77"));
-            Assert.Equal((ulong)0, converter("-1"));
             Assert.Equal((ulong)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<long> _longToNaturalString
-            = new NumberToStringConverter<long>();
+        private static readonly NumberToStringConverter<long> _longToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_longs_to_natural_strings()
@@ -100,7 +102,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-9223372036854775809"));
+            Assert.Throws<OverflowException>(() => converter("9223372036854775808"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -113,11 +119,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((long)77, converter("77"));
             Assert.Equal((long)-77, converter("-77"));
             Assert.Equal((long)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-9223372036854775809"));
+            Assert.Throws<OverflowException>(() => converter("9223372036854775808"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<uint> _uintToNaturalString
-            = new NumberToStringConverter<uint>();
+        private static readonly NumberToStringConverter<uint> _uintToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_uints_to_natural_strings()
@@ -148,9 +157,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(uint.MaxValue, converter("4294967295"));
             Assert.Equal((uint)77, converter("77"));
-            Assert.Equal((uint)0, converter("-1"));
             Assert.Equal((uint)0, converter("0"));
-            Assert.Equal((uint)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("4294967296"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -160,13 +172,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(uint.MaxValue, converter("4294967295"));
             Assert.Equal((uint)77, converter("77"));
-            Assert.Equal((uint)0, converter("-1"));
             Assert.Equal((uint)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("4294967296"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<int> _intToNaturalString
-            = new NumberToStringConverter<int>();
+        private static readonly NumberToStringConverter<int> _intToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_ints_to_natural_strings()
@@ -204,7 +218,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-2147483649"));
+            Assert.Throws<OverflowException>(() => converter("2147483648"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -216,12 +234,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(int.MinValue, converter("-2147483648"));
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
-            Assert.Equal(0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-2147483649"));
+            Assert.Throws<OverflowException>(() => converter("2147483648"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<ushort> _ushortToNaturalString
-            = new NumberToStringConverter<ushort>();
+        private static readonly NumberToStringConverter<ushort> _ushortToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_ushorts_to_natural_strings()
@@ -252,9 +272,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ushort.MaxValue, converter("65535"));
             Assert.Equal((ushort)77, converter("77"));
-            Assert.Equal((ushort)0, converter("-1"));
             Assert.Equal((ushort)0, converter("0"));
-            Assert.Equal((ushort)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("65536"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -264,13 +287,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(ushort.MaxValue, converter("65535"));
             Assert.Equal((ushort)77, converter("77"));
-            Assert.Equal((ushort)0, converter("-1"));
             Assert.Equal((ushort)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("65536"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<short> _shortToNaturalString
-            = new NumberToStringConverter<short>();
+        private static readonly NumberToStringConverter<short> _shortToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_shorts_to_natural_strings()
@@ -308,7 +333,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-32769"));
+            Assert.Throws<OverflowException>(() => converter("32768"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -321,11 +350,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((short)77, converter("77"));
             Assert.Equal((short)-77, converter("-77"));
             Assert.Equal((short)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-32769"));
+            Assert.Throws<OverflowException>(() => converter("32768"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<byte> _byteToNaturalString
-            = new NumberToStringConverter<byte>();
+        private static readonly NumberToStringConverter<byte> _byteToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_bytes_to_natural_strings()
@@ -356,9 +388,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(byte.MaxValue, converter("255"));
             Assert.Equal((byte)77, converter("77"));
-            Assert.Equal((byte)0, converter("-1"));
             Assert.Equal((byte)0, converter("0"));
-            Assert.Equal((byte)0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("256"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -368,13 +402,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(byte.MaxValue, converter("255"));
             Assert.Equal((byte)77, converter("77"));
-            Assert.Equal((byte)0, converter("-1"));
             Assert.Equal((byte)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-1"));
+            Assert.Throws<OverflowException>(() => converter("256"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<sbyte> _sbyteToNaturalString
-            = new NumberToStringConverter<sbyte>();
+        private static readonly NumberToStringConverter<sbyte> _sbyteToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_sbytes_to_natural_strings()
@@ -412,7 +447,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(77, converter("77"));
             Assert.Equal(-77, converter("-77"));
             Assert.Equal(0, converter("0"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
         [ConditionalFact]
@@ -425,11 +464,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((sbyte)77, converter("77"));
             Assert.Equal((sbyte)-77, converter("-77"));
             Assert.Equal((sbyte)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
-        private static readonly NumberToStringConverter<decimal> _decimalToNaturalString
-            = new NumberToStringConverter<decimal>();
+        private static readonly NumberToStringConverter<decimal> _decimalToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_decimals_to_natural_strings()
@@ -455,11 +497,45 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((decimal)0.000000001, converter("0.000000001"));
             Assert.Equal((decimal)0.00000000000000000001, converter("0.00000000000000000001"));
             Assert.Equal((decimal)-0.00000000000000000001, converter("-0.00000000000000000001"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Throws<OverflowException>(() => converter("-79228162514264337593543950336"));
+            Assert.Throws<OverflowException>(() => converter("79228162514264337593543950336"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
-        private static readonly NumberToStringConverter<double> _doubleToNaturalString
-            = new NumberToStringConverter<double>();
+        [ConditionalFact]
+        public void Can_convert_decimals_to_natural_strings_object()
+        {
+            var converter = _decimalToNaturalString.ConvertToProvider;
+
+            Assert.Equal("79228162514264337593543950335", converter(decimal.MaxValue));
+            Assert.Equal("-79228162514264337593543950335", converter(decimal.MinValue));
+            Assert.Equal("-792264.3375935", converter((decimal)-792264.3375935));
+            Assert.Equal("0.000000001", converter((decimal)0.000000001));
+            Assert.Equal("0.00000000000000000001", converter((decimal)0.00000000000000000001));
+            Assert.Equal("-0.00000000000000000001", converter((decimal)-0.00000000000000000001));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_natural_strings_to_decimals_object()
+        {
+            var converter = _decimalToNaturalString.ConvertFromProvider;
+
+            Assert.Equal(decimal.MaxValue, converter("79228162514264337593543950335"));
+            Assert.Equal(decimal.MinValue, converter("-79228162514264337593543950335"));
+            Assert.Equal((decimal)-792264.3375935, converter("-792264.3375935"));
+            Assert.Equal((decimal)0.000000001, converter("0.000000001"));
+            Assert.Equal((decimal)0.00000000000000000001, converter("0.00000000000000000001"));
+            Assert.Equal((decimal)-0.00000000000000000001, converter("-0.00000000000000000001"));
+
+            Assert.Throws<OverflowException>(() => converter("-79228162514264337593543950336"));
+            Assert.Throws<OverflowException>(() => converter("79228162514264337593543950336"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Null(converter(null));
+        }
+
+        private static readonly NumberToStringConverter<double> _doubleToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_doubles_to_natural_strings()
@@ -485,11 +561,45 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(0.000000001, converter("1E-09"));
             Assert.Equal(0.00000000000000000001, converter("1E-20"));
             Assert.Equal(-0.00000000000000000001, converter("-1E-20"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Equal(double.PositiveInfinity, converter("1.7976931348623157E+309"));
+            Assert.Equal(double.NegativeInfinity, converter("-1.7976931348623157E+309"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
-        private static readonly NumberToStringConverter<float> _floatToNaturalString
-            = new NumberToStringConverter<float>();
+        [ConditionalFact]
+        public void Can_convert_doubles_to_natural_strings_object()
+        {
+            var converter = _doubleToNaturalString.ConvertToProvider;
+
+            Assert.Equal("1.7976931348623157E+308", converter(double.MaxValue));
+            Assert.Equal("-1.7976931348623157E+308", converter(double.MinValue));
+            Assert.Equal("-792264.3375935", converter(-792264.3375935));
+            Assert.Equal("1E-09", converter(0.000000001));
+            Assert.Equal("1E-20", converter(0.00000000000000000001));
+            Assert.Equal("-1E-20", converter(-0.00000000000000000001));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_natural_strings_to_doubles_object()
+        {
+            var converter = _doubleToNaturalString.ConvertFromProvider;
+
+            Assert.Equal(double.MaxValue, converter("1.7976931348623157E+308"));
+            Assert.Equal(double.MinValue, converter("-1.7976931348623157E+308"));
+            Assert.Equal(-792264.3375935, converter("-792264.3375935"));
+            Assert.Equal(0.000000001, converter("1E-09"));
+            Assert.Equal(0.00000000000000000001, converter("1E-20"));
+            Assert.Equal(-0.00000000000000000001, converter("-1E-20"));
+
+            Assert.Equal(double.PositiveInfinity, converter("1.7976931348623157E+309"));
+            Assert.Equal(double.NegativeInfinity, converter("-1.7976931348623157E+309"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Null(converter(null));
+        }
+
+        private static readonly NumberToStringConverter<float> _floatToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_floats_to_natural_strings()
@@ -515,11 +625,45 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((float)0.000000001, converter("1E-09"));
             Assert.Equal((float)0.00000000000000000001, converter("1E-20"));
             Assert.Equal((float)-0.00000000000000000001, converter("-1E-20"));
-            Assert.Equal(0, converter(null));
+
+            Assert.Equal(float.PositiveInfinity, converter("3.40282347E+39"));
+            Assert.Equal(float.NegativeInfinity, converter("-3.40282347E+39"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Throws<ArgumentNullException>(() => converter(null));
         }
 
-        private static readonly NumberToStringConverter<sbyte?> _nullableSbyteToNaturalString
-            = new NumberToStringConverter<sbyte?>();
+        [ConditionalFact]
+        public void Can_convert_floats_to_natural_strings_object()
+        {
+            var converter = _floatToNaturalString.ConvertToProvider;
+
+            Assert.Equal("3.4028235E+38", converter(float.MaxValue));
+            Assert.Equal("-3.4028235E+38", converter(float.MinValue));
+            Assert.Equal("-79.3335", converter((float)-79.3335));
+            Assert.Equal("1E-09", converter((float)0.000000001));
+            Assert.Equal("1E-20", converter((float)0.00000000000000000001));
+            Assert.Equal("-1E-20", converter((float)-0.00000000000000000001));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_natural_strings_to_floats_object()
+        {
+            var converter = _floatToNaturalString.ConvertFromProvider;
+
+            Assert.Equal(float.MaxValue, converter("3.40282347E+38"));
+            Assert.Equal(float.MinValue, converter("-3.40282347E+38"));
+            Assert.Equal((float)-79.3335, converter("-79.3335"));
+            Assert.Equal((float)0.000000001, converter("1E-09"));
+            Assert.Equal((float)0.00000000000000000001, converter("1E-20"));
+            Assert.Equal((float)-0.00000000000000000001, converter("-1E-20"));
+
+            Assert.Equal(float.PositiveInfinity, converter("3.40282347E+39"));
+            Assert.Equal(float.NegativeInfinity, converter("-3.40282347E+39"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
+            Assert.Null(converter(null));
+        }
+
+        private static readonly NumberToStringConverter<sbyte?> _nullableSbyteToNaturalString = new();
 
         [ConditionalFact]
         public void Can_convert_nullable_sbytes_to_natural_strings()
@@ -557,6 +701,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((sbyte?)77, converter("77"));
             Assert.Equal((sbyte?)-77, converter("-77"));
             Assert.Equal((sbyte?)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -570,6 +718,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal((sbyte)77, converter("77"));
             Assert.Equal((sbyte)-77, converter("-77"));
             Assert.Equal((sbyte?)0, converter("0"));
+
+            Assert.Throws<OverflowException>(() => converter("-129"));
+            Assert.Throws<OverflowException>(() => converter("128"));
+            Assert.Throws<FormatException>(() => converter("Not a number"));
             Assert.Null(converter(null));
         }
 
@@ -580,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CoreStrings.ConverterBadType(
                     typeof(StringNumberConverter<Guid, string, Guid>).ShortDisplayName(),
                     "Guid",
-                    "int, long, short, byte, uint, ulong, ushort, sbyte, decimal, float, double"),
+                    "'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte', 'decimal', 'float', 'double'"),
                 Assert.Throws<InvalidOperationException>(
                     () => new NumberToStringConverter<Guid>()).Message);
         }

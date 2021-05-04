@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class RelationalShapedQueryCompilingExpressionVisitorDependencies
+    public sealed record RelationalShapedQueryCompilingExpressionVisitorDependencies
     {
         /// <summary>
         ///     <para>
@@ -55,67 +55,44 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalShapedQueryCompilingExpressionVisitorDependencies(
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            IRelationalParameterBasedSqlProcessorFactory relationalParameterBasedSqlProcessorFactory)
         {
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(relationalParameterBasedSqlProcessorFactory, nameof(relationalParameterBasedSqlProcessorFactory));
 
             QuerySqlGeneratorFactory = querySqlGeneratorFactory;
+#pragma warning disable CS0618 // Type or member is obsolete
             SqlExpressionFactory = sqlExpressionFactory;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
+#pragma warning restore CS0618 // Type or member is obsolete
+            RelationalParameterBasedSqlProcessorFactory = relationalParameterBasedSqlProcessorFactory;
         }
 
         /// <summary>
         ///     The SQL generator factory.
         /// </summary>
-        public IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; }
+        public IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; init; }
 
         /// <summary>
         ///     The SQL expression factory.
         /// </summary>
-        public ISqlExpressionFactory SqlExpressionFactory { get; }
+        [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
+        public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
         /// <summary>
         ///     The parameter name-generator factory.
         /// </summary>
-        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
+        [Obsolete("Use the service from " + nameof(RelationalParameterBasedSqlProcessorDependencies) + ".")]
+        public IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; init; }
 
         /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
+        ///     The SQL processor based on parameter values.
         /// </summary>
-        /// <param name="querySqlGeneratorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalShapedQueryCompilingExpressionVisitorDependencies With(
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
-            => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
-                querySqlGeneratorFactory,
-                SqlExpressionFactory,
-                ParameterNameGeneratorFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="sqlExpressionFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalShapedQueryCompilingExpressionVisitorDependencies With([NotNull] ISqlExpressionFactory sqlExpressionFactory)
-            => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
-                QuerySqlGeneratorFactory,
-                sqlExpressionFactory,
-                ParameterNameGeneratorFactory);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="parameterNameGeneratorFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public RelationalShapedQueryCompilingExpressionVisitorDependencies With(
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
-            => new RelationalShapedQueryCompilingExpressionVisitorDependencies(
-                QuerySqlGeneratorFactory,
-                SqlExpressionFactory,
-                parameterNameGeneratorFactory);
+        public IRelationalParameterBasedSqlProcessorFactory RelationalParameterBasedSqlProcessorFactory { get; init; }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Xunit;
 
@@ -120,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new() { Id = 1 } }
                         })
                     .Entity;
 
@@ -208,11 +210,15 @@ namespace Microsoft.EntityFrameworkCore
         protected class Email
         {
             private readonly string _value;
-            private Email(string value) => _value = value;
 
-            public static Email Create(string value) => new Email(value);
+            private Email(string value)
+                => _value = value;
 
-            public static implicit operator string(Email email) => email._value;
+            public static Email Create(string value)
+                => new(value);
+
+            public static implicit operator string(Email email)
+                => email._value;
         }
 
         [ConditionalFact]
@@ -244,7 +250,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected struct Fuel
         {
-            public Fuel(double volume) => Volume = volume;
+            public Fuel(double volume)
+                => Volume = volume;
+
             public double Volume { get; }
         }
 
@@ -359,16 +367,17 @@ namespace Microsoft.EntityFrameworkCore
 
             public static OrderId Parse(string stringValue)
             {
-                return new OrderId(stringValue);
+                return new(stringValue);
             }
 
-            public static explicit operator string(OrderId orderId) => orderId.StringValue;
+            public static explicit operator string(OrderId orderId)
+                => orderId.StringValue;
         }
 
         [ConditionalTheory]
         [InlineData(true)]
         [InlineData(false)]
-        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
+        public virtual async Task Can_query_custom_type_not_mapped_by_default_equality(bool async)
         {
             using (var context = CreateContext())
             {
@@ -384,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore
                             && c.IsTest == false
                             && c.Discriminator == new Dictionary<string, string>());
 
-                var result = isAsync ? await query.SingleAsync() : query.Single();
+                var result = async ? await query.SingleAsync() : query.Single();
                 Assert.NotNull(result);
                 context.Remove(result);
                 context.SaveChanges();
@@ -402,90 +411,158 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual void Field_on_derived_type_retrieved_via_cast_applies_value_converter()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Blog>()
-                    .Where(b => b.BlogId == 2)
-                    .Select(
-                        x => new
-                        {
-                            x.BlogId,
-                            x.Url,
-                            RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
-                        }).ToList();
+            using var context = CreateContext();
+            var query = context.Set<Blog>()
+                .Where(b => b.BlogId == 2)
+                .Select(
+                    x => new
+                    {
+                        x.BlogId,
+                        x.Url,
+                        RssUrl = x is RssBlog ? ((RssBlog)x).RssUrl : null
+                    }).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://rssblog.com/rss", result.RssUrl);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://rssblog.com/rss", result.RssUrl);
         }
 
         [ConditionalFact]
         public virtual void Value_conversion_is_appropriately_used_for_join_condition()
         {
-            using (var context = CreateContext())
-            {
-                var blogId = 1;
-                var query = (from b in context.Set<Blog>()
-                             join p in context.Set<Post>()
-                                 on new
-                                 {
-                                     BlogId = (int?)b.BlogId,
-                                     b.IsVisible,
-                                     AnotherId = b.BlogId
-                                 }
-                                 equals new
-                                 {
-                                     p.BlogId,
-                                     IsVisible = true,
-                                     AnotherId = blogId
-                                 }
-                             where b.IsVisible
-                             select b.Url).ToList();
+            using var context = CreateContext();
+            var blogId = 1;
+            var query = (from b in context.Set<Blog>()
+                         join p in context.Set<Post>()
+                             on new
+                             {
+                                 BlogId = (int?)b.BlogId,
+                                 b.IsVisible,
+                                 AnotherId = b.BlogId
+                             }
+                             equals new
+                             {
+                                 p.BlogId,
+                                 IsVisible = true,
+                                 AnotherId = blogId
+                             }
+                         where b.IsVisible
+                         select b.Url).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result);
         }
 
         [ConditionalFact]
         public virtual void Value_conversion_is_appropriately_used_for_left_join_condition()
         {
-            using (var context = CreateContext())
-            {
-                var blogId = 1;
-                var query = (from b in context.Set<Blog>()
-                             join p in context.Set<Post>()
-                                 on new
-                                 {
-                                     BlogId = (int?)b.BlogId,
-                                     b.IsVisible,
-                                     AnotherId = b.BlogId
-                                 }
-                                 equals new
-                                 {
-                                     p.BlogId,
-                                     IsVisible = true,
-                                     AnotherId = blogId
-                                 } into g
-                             from p in g.DefaultIfEmpty()
-                             where b.IsVisible
-                             select b.Url).ToList();
+            using var context = CreateContext();
+            var blogId = 1;
+            var query = (from b in context.Set<Blog>()
+                         join p in context.Set<Post>()
+                             on new
+                             {
+                                 BlogId = (int?)b.BlogId,
+                                 b.IsVisible,
+                                 AnotherId = b.BlogId
+                             }
+                             equals new
+                             {
+                                 p.BlogId,
+                                 IsVisible = true,
+                                 AnotherId = blogId
+                             } into g
+                         from p in g.DefaultIfEmpty()
+                         where b.IsVisible
+                         select b.Url).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result);
         }
 
         [ConditionalFact]
         public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used()
         {
-            using (var context = CreateContext())
-            {
-                var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => b.IsVisible).ToList();
 
-                var result = Assert.Single(query);
-                Assert.Equal("http://blog.com", result.Url);
-            }
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => !b.IsVisible).ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://rssblog.com", result.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
+        {
+            using var context = CreateContext();
+            var query1 = context.Set<Blog>().Where(b => b.IsVisible).ToList();
+            var query2 = context.Set<Blog>().Where(b => b.IsVisible != true).ToList();
+
+            var result1 = Assert.Single(query1);
+            Assert.Equal("http://blog.com", result1.Url);
+
+            var result2 = Assert.Single(query2);
+            Assert.Equal("http://rssblog.com", result2.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var result = context.Set<Blog>().Select(b => b.IsVisible).ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Contains(true, result);
+            Assert.Contains(false, result);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_conditional_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => (b.IsVisible ? "Foo" : "Bar") == "Foo").ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Select_conditional_bool_with_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var result = context.Set<Blog>().Select(b => b.IsVisible ? "Foo" : "Bar").ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Contains("Foo", result);
+            Assert.Contains("Bar", result);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => EF.Property<bool>(b, "IsVisible")).ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
+        }
+
+        [ConditionalFact]
+        public virtual void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => !(bool)b["IndexerVisible"]).ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://blog.com", result.Url);
         }
 
         [ConditionalFact]
@@ -496,12 +573,62 @@ namespace Microsoft.EntityFrameworkCore
                 () => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
         }
 
+        [ConditionalFact]
+        public virtual void Value_conversion_on_enum_collection_contains()
+        {
+            using var context = CreateContext();
+            var group = MessageGroup.SomeGroup;
+            var query = context.Set<User23059>()
+                .Where(x => !x.IsSoftDeleted && (x.MessageGroups.Contains(group) || x.MessageGroups.Contains(MessageGroup.All)))
+                .ToList();
+
+            Assert.Single(query);
+        }
+
+        protected class User23059
+        {
+            public int Id { get; set; }
+            public bool IsSoftDeleted { get; set; }
+            public List<MessageGroup> MessageGroups { get; set; }
+        }
+
+        protected enum MessageGroup
+        {
+            All,
+            SomeGroup
+        }
+
         protected class Blog
         {
+            private bool _indexerVisible;
+
             public int BlogId { get; set; }
             public string Url { get; set; }
             public bool IsVisible { get; set; }
             public List<Post> Posts { get; set; }
+
+            public object this[string name]
+            {
+                get
+                {
+                    if (!string.Equals(name, "IndexerVisible", StringComparison.Ordinal))
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(Blog)}.");
+                    }
+
+                    return _indexerVisible;
+                }
+
+                set
+                {
+                    if (!string.Equals(name, "IndexerVisible", StringComparison.Ordinal))
+                    {
+                        throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(Blog)}.");
+                    }
+
+                    _indexerVisible = (bool)value;
+                }
+            }
         }
 
         protected class RssBlog : Blog
@@ -528,20 +655,116 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual void Collection_property_as_scalar()
+        public virtual void Collection_property_as_scalar_Any()
+        {
+            using var context = CreateContext();
+            Assert.Contains(
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                Assert.Throws<InvalidOperationException>(
+                        () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_property_as_scalar_Count_member()
         {
             using var context = CreateContext();
             Assert.Equal(
-                @"The LINQ expression 'DbSet<CollectionScalar>    .Where(c => c.Tags        .Any())' could not be translated. Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to either AsEnumerable(), AsAsyncEnumerable(), ToList(), or ToListAsync(). See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                CoreStrings.TranslationFailed(
+                    @"DbSet<CollectionScalar>()    .Where(c => c.Tags.Count == 2)"),
                 Assert.Throws<InvalidOperationException>(
-                    () => context.Set<CollectionScalar>().Where(e => e.Tags.Any()).ToList())
-                    .Message.Replace("\r","").Replace("\n",""));
+                        () => context.Set<CollectionScalar>().Where(e => e.Tags.Count == 2).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
         }
 
         protected class CollectionScalar
         {
             public int Id { get; set; }
             public List<string> Tags { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Collection_enum_as_string_Contains()
+        {
+            using var context = CreateContext();
+            var sameRole = Roles.Seller;
+            Assert.Contains(
+                @"See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.",
+                Assert.Throws<InvalidOperationException>(
+                        () => context.Set<CollectionEnum>().Where(e => e.Roles.Contains(sameRole)).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
+        }
+
+        protected class CollectionEnum
+        {
+            public int Id { get; set; }
+            public ICollection<Roles> Roles { get; set; }
+        }
+
+        protected enum Roles
+        {
+            Customer,
+            Seller
+        }
+
+        public override void Object_to_string_conversion() { }
+
+        [ConditionalFact]
+        public virtual void Optional_owned_with_converter_reading_non_nullable_column()
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                "Nullable object must have a value.",
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Set<Parent>().Select(e => new { e.OwnedWithConverter.Value }).ToList()).Message);
+        }
+
+        protected class Parent
+        {
+            public int Id { get; set; }
+            public OwnedWithConverter OwnedWithConverter { get; set; }
+        }
+
+        protected class OwnedWithConverter
+        {
+            public int Value { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Id_object_as_entity_key()
+        {
+            using var context = CreateContext();
+            var books = context.Set<Book>().Where(b => b.Id == new BookId(1)).ToList();
+
+            Assert.Equal("Book1", Assert.Single(books).Value);
+        }
+
+        public class Book
+        {
+            public BookId Id { get; set; }
+
+            public string Value { get; set; }
+
+            public Book(BookId id)
+            {
+                Id = id;
+            }
+        }
+
+        public class BookId
+        {
+            public readonly int Id;
+
+            public BookId(int id)
+            {
+                Id = id;
+            }
+
+            public override bool Equals(object obj)
+                => obj is BookId item && Id == item.Id;
+
+            public override int GetHashCode()
+                => Id.GetHashCode();
         }
 
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
@@ -847,21 +1070,28 @@ namespace Microsoft.EntityFrameworkCore
                         var property = b.Property(e => e.Id)
                             .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
 
+#pragma warning disable 618
                         property.SetKeyValueComparer(caseInsensitiveComparer);
+#pragma warning restore 618
                     });
 
                 modelBuilder.Entity<StringForeignKeyDataType>(
                     b =>
                     {
-                        var property = b.Property(e => e.StringKeyDataTypeId)
-                            .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
-
-                        property.SetKeyValueComparer(caseInsensitiveComparer);
+                        b.Property(e => e.StringKeyDataTypeId)
+                            .HasConversion(
+                                v => "KeyValue=" + v,
+                                v => v.Substring(9),
+                                caseInsensitiveComparer);
                     });
 
                 modelBuilder.Entity<MaxLengthDataTypes>(
                     b =>
                     {
+                        var bytesComparer = new ValueComparer<byte[]>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode());
+
                         b.Property(e => e.String3)
                             .HasConversion(
                                 new ValueConverter<string, string>(
@@ -875,33 +1105,28 @@ namespace Microsoft.EntityFrameworkCore
                             .HasConversion(
                                 new ValueConverter<byte[], byte[]>(
                                     v => v.Reverse().Concat(new byte[] { 4, 20 }).ToArray(),
-                                    v => v.Reverse().Skip(2).ToArray()))
+                                    v => v.Reverse().Skip(2).ToArray()),
+                                bytesComparer)
                             .HasMaxLength(7);
 
                         b.Property(e => e.ByteArray9000)
                             .HasConversion(
-                                BytesToStringConverter.DefaultInfo.Create())
+                                BytesToStringConverter.DefaultInfo.Create(),
+                                bytesComparer)
                             .HasMaxLength(LongStringLength * 2);
-
-                        var bytesComparer = new ValueComparer<byte[]>(
-                            (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode());
-
-                        b.Property(e => e.ByteArray5).Metadata.SetValueComparer(bytesComparer);
-                        b.Property(e => e.ByteArray9000).Metadata.SetValueComparer(bytesComparer);
                     });
 
                 modelBuilder.Entity<StringListDataType>(
                     b =>
                     {
-                        b.Property(e => e.Strings).HasConversion(v => string.Join(",", v), v => v.Split(new[] { ',' }).ToList());
+                        b.Property(e => e.Strings).HasConversion(
+                            v => string.Join(",", v),
+                            v => v.Split(new[] { ',' }).ToList(),
+                            new ValueComparer<IList<string>>(
+                                (v1, v2) => v1.SequenceEqual(v2),
+                                v => v.GetHashCode()));
+
                         b.Property(e => e.Id).ValueGeneratedNever();
-
-                        var comparer = new ValueComparer<IList<string>>(
-                            (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode());
-
-                        b.Property(e => e.Strings).Metadata.SetValueComparer(comparer);
                     });
 
                 modelBuilder.Entity<Order>(
@@ -918,13 +1143,11 @@ namespace Microsoft.EntityFrameworkCore
                         b.HasKey(c => c.CounterId);
                         b.Property(c => c.Discriminator).HasConversion(
                             d => StringToDictionarySerializer.Serialize(d),
-                            json => StringToDictionarySerializer.Deserialize(json));
-
-                        var comparer = new ValueComparer<IDictionary<string, string>>(
-                            (v1, v2) => v1.SequenceEqual(v2),
-                            v => v.GetHashCode());
-
-                        b.Property(e => e.Discriminator).Metadata.SetValueComparer(comparer);
+                            json => StringToDictionarySerializer.Deserialize(json),
+                            new ValueComparer<IDictionary<string, string>>(
+                                (v1, v2) => v1.SequenceEqual(v2),
+                                v => v.GetHashCode(),
+                                v => (IDictionary<string, string>)new Dictionary<string, string>(v)));
                     });
 
                 var urlConverter = new UrlSchemeRemover();
@@ -933,12 +1156,15 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Url).HasConversion(urlConverter);
                         b.Property(e => e.IsVisible).HasConversion(new BoolToStringConverter("N", "Y"));
+                        b.IndexerProperty(typeof(bool), "IndexerVisible").HasConversion(new BoolToStringConverter("Nay", "Aye"));
+
                         b.HasData(
-                            new Blog
+                            new
                             {
                                 BlogId = 1,
                                 Url = "http://blog.com",
-                                IsVisible = true
+                                IsVisible = true,
+                                IndexerVisible = false,
                             });
                     });
 
@@ -947,12 +1173,13 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.RssUrl).HasConversion(urlConverter);
                         b.HasData(
-                            new RssBlog
+                            new
                             {
                                 BlogId = 2,
                                 Url = "http://rssblog.com",
                                 RssUrl = "http://rssblog.com/rss",
-                                IsVisible = false
+                                IsVisible = false,
+                                IndexerVisible = true,
                             });
                     });
 
@@ -977,23 +1204,71 @@ namespace Microsoft.EntityFrameworkCore
                     {
                         b.Property(e => e.Tags).HasConversion(
                             c => string.Join(",", c),
-                            s => s.Split(',', StringSplitOptions.None).ToList()).Metadata
-                            .SetValueComparer(new ListOfStringComparer());
+                            s => s.Split(',', StringSplitOptions.None).ToList(),
+                            new ValueComparer<List<string>>(favorStructuralComparisons: true));
 
-                        b.HasData(new CollectionScalar
-                        {
-                            Id = 1,
-                            Tags = new List<string> { "A", "B", "C" }
-                        });
+                        b.HasData(
+                            new CollectionScalar
+                            {
+                                Id = 1,
+                                Tags = new List<string>
+                                {
+                                    "A",
+                                    "B",
+                                    "C"
+                                }
+                            });
                     });
-            }
 
-            private class ListOfStringComparer : ValueComparer<List<string>>
-            {
-                public ListOfStringComparer()
-                    : base(favorStructuralComparisons: true)
-                {
-                }
+                modelBuilder.Entity<CollectionEnum>(
+                    b =>
+                    {
+                        b.Property(e => e.Roles).HasConversion(
+                            new RolesToStringConveter(),
+                            new ValueComparer<ICollection<Roles>>(favorStructuralComparisons: true));
+
+                        b.HasData(new CollectionEnum { Id = 1, Roles = new List<Roles> { Roles.Seller } });
+                    });
+
+                modelBuilder.Entity<Parent>(
+                    b =>
+                    {
+                        b.OwnsOne(
+                            e => e.OwnedWithConverter,
+                            ob =>
+                            {
+                                ob.Property(i => i.Value).HasConversion<string>();
+                                ob.HasData(new { ParentId = 1, Value = 42 });
+                            });
+
+                        b.HasData(
+                            new Parent { Id = 1 },
+                            new Parent { Id = 2 });
+                    });
+
+                modelBuilder.Entity<Book>(
+                    b =>
+                    {
+                        b.HasKey(e => e.Id);
+                        b.Property(e => e.Id).HasConversion(
+                            e => e.Id,
+                            e => new BookId(e));
+
+                        b.HasData(new Book(new BookId(1)) { Value = "Book1" });
+                    });
+
+                modelBuilder.Entity<User23059>(
+                    b =>
+                    {
+                        b.Property(e => e.MessageGroups).HasConversion(
+                            v => string.Join(',', v),
+                            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => Enum.Parse<MessageGroup>(x)).ToList(),
+                            new ValueComparer<List<MessageGroup>>(favorStructuralComparisons: true));
+
+                        b.HasData(
+                            new User23059 { Id = 1, IsSoftDeleted = true, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } },
+                            new User23059 { Id = 2, IsSoftDeleted = false, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } });
+                    });
             }
 
             private static class StringToDictionarySerializer
@@ -1038,6 +1313,18 @@ namespace Microsoft.EntityFrameworkCore
             {
                 public UrlSchemeRemover()
                     : base(x => x.Remove(0, 7), x => "http://" + x)
+                {
+                }
+            }
+
+            private class RolesToStringConveter : ValueConverter<ICollection<Roles>, string>
+            {
+                public RolesToStringConveter()
+                    : base(
+                        v => string.Join(";", v.Select(f => f.ToString())),
+                        v => v.Length > 0
+                            ? v.Split(new[] { ';' }).Select(f => (Roles)Enum.Parse(typeof(Roles), f)).ToList()
+                            : new List<Roles>())
                 {
                 }
             }

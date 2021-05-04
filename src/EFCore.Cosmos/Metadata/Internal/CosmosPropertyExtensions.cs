@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
 {
@@ -20,16 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsOrdinalKeyProperty(this IProperty property)
+        public static bool IsOrdinalKeyProperty(this IReadOnlyProperty property)
         {
-            Debug.Assert(property.DeclaringEntityType.IsOwned());
-            Debug.Assert(property.GetPropertyName().Length == 0);
+            Check.DebugAssert(
+                property.DeclaringEntityType.IsOwned(), $"Expected {property.DeclaringEntityType.DisplayName()} to be owned.");
+            Check.DebugAssert(property.GetJsonPropertyName().Length == 0, $"Expected {property.Name} to be non-persisted.");
 
-            return property.IsPrimaryKey()
+            return property.FindContainingPrimaryKey() is IReadOnlyKey key
+                && key.Properties.Count > 1
                 && !property.IsForeignKey()
                 && property.ClrType == typeof(int)
-                && property.ValueGenerated == ValueGenerated.OnAdd
-                && property.DeclaringEntityType.FindPrimaryKey().Properties.Count > 1;
+                && property.ValueGenerated == ValueGenerated.OnAdd;
         }
     }
 }

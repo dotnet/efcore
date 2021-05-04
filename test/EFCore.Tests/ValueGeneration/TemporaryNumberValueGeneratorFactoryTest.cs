@@ -5,14 +5,20 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration
 {
     public class TemporaryNumberValueGeneratorFactoryTest
     {
-        private static readonly IMutableModel _model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
+        private static readonly IModel _model = BuildModel();
+
+        public static IModel BuildModel()
+        {
+            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            builder.Entity<AnEntity>();
+            return (IModel)builder.Model;
+        }
 
         [ConditionalFact]
         public void Can_create_factories_for_all_integer_types()
@@ -38,16 +44,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         private static object CreateAndUseFactory(IProperty property)
-            => new TemporaryNumberValueGeneratorFactory().Create(property).Next(null);
+            => new TemporaryNumberValueGeneratorFactory().Create(property, property.DeclaringEntityType).Next(null);
 
         [ConditionalFact]
         public void Throws_for_non_integer_property()
         {
-            var property = _model.FindEntityType(typeof(AnEntity)).FindProperty("BadCheese");
+            var entityType = _model.FindEntityType(typeof(AnEntity));
+            var property = entityType.FindProperty("BadCheese");
 
             Assert.Equal(
                 CoreStrings.InvalidValueGeneratorFactoryProperty(nameof(TemporaryNumberValueGeneratorFactory), "BadCheese", "AnEntity"),
-                Assert.Throws<ArgumentException>(() => new TemporaryNumberValueGeneratorFactory().Create(property)).Message);
+                Assert.Throws<ArgumentException>(() => new TemporaryNumberValueGeneratorFactory().Create(property, entityType)).Message);
         }
 
         private class AnEntity

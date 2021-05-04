@@ -13,9 +13,10 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     ///     Provides methods to access the contents of a blob.
     /// </summary>
+    /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
     public class SqliteBlob : Stream
     {
-        private sqlite3_blob _blob;
+        private sqlite3_blob? _blob;
         private readonly sqlite3 _db;
         private long _position;
 
@@ -27,6 +28,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string tableName,
@@ -46,6 +48,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="columnName">The name of the column containing the blob.</param>
         /// <param name="rowid">The rowid of the row containing the blob.</param>
         /// <param name="readOnly">A value indicating whether the blob is read-only.</param>
+        /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/blob-io">BLOB I/O</seealso>
         public SqliteBlob(
             SqliteConnection connection,
             string databaseName,
@@ -59,17 +62,17 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.SqlBlobRequiresOpenConnection);
             }
 
-            if (string.IsNullOrEmpty(tableName))
+            if (tableName is null)
             {
                 throw new ArgumentNullException(nameof(tableName));
             }
 
-            if (string.IsNullOrEmpty(columnName))
+            if (columnName is null)
             {
                 throw new ArgumentNullException(nameof(columnName));
             }
 
-            _db = connection.Handle;
+            _db = connection.Handle!;
             CanWrite = !readOnly;
             var rc = sqlite3_blob_open(
                 _db,
@@ -87,21 +90,23 @@ namespace Microsoft.Data.Sqlite
         ///     Gets a value indicating whether the current stream supports reading.
         ///     Always true.
         /// </summary>
-        /// <value>true if the stream supports reading; otherwise, false.</value>
-        public override bool CanRead => true;
+        /// <value><see langword="true" /> if the stream supports reading; otherwise, <see langword="false" />. </value>
+        public override bool CanRead
+            => true;
 
         /// <summary>
         ///     Gets a value indicating whether the current stream supports writing.
         /// </summary>
-        /// <value>true if the stream supports writing; otherwise, false.</value>
+        /// <value><see langword="true" /> if the stream supports writing; otherwise, <see langword="false" />. </value>
         public override bool CanWrite { get; }
 
         /// <summary>
         ///     Gets a value indicating whether the current stream supports seeking.
         ///     Always true.
         /// </summary>
-        /// <value>true if the stream supports seeking; otherwise, false.</value>
-        public override bool CanSeek => true;
+        /// <value><see langword="true" /> if the stream supports seeking; otherwise, <see langword="false" />. </value>
+        public override bool CanSeek
+            => true;
 
         /// <summary>
         ///     Gets the length in bytes of the stream.
@@ -162,6 +167,28 @@ namespace Microsoft.Data.Sqlite
                 throw new ArgumentException(Resources.InvalidOffsetAndCount);
             }
 
+            return Read(buffer.AsSpan(offset, count));
+        }
+
+        /// <summary>
+        ///     Reads a sequence of bytes from the current stream and advances the position within the stream by the
+        ///     number of bytes read.
+        /// </summary>
+        /// <param name="buffer">
+        ///     A region of memory. When this method returns, the contents of this region are replaced by the bytes read
+        ///     from the current source.
+        /// </param>
+        /// <returns>
+        ///     The total number of bytes read into the buffer. This can be less than the number of bytes allocated in
+        ///     the buffer if that many bytes are not currently available, or zero (0) if the end of the stream has been
+        ///     reached.
+        /// </returns>
+#if NET
+        public override int Read(Span<byte> buffer)
+#else
+        public virtual int Read(Span<byte> buffer)
+#endif
+        {
             if (_blob == null)
             {
                 throw new ObjectDisposedException(objectName: null);
@@ -173,12 +200,13 @@ namespace Microsoft.Data.Sqlite
                 position = Length;
             }
 
+            var count = buffer.Length;
             if (position + count > Length)
             {
                 count = (int)(Length - position);
             }
 
-            var rc = sqlite3_blob_read(_blob, buffer.AsSpan(offset, count), (int)position);
+            var rc = sqlite3_blob_read(_blob, buffer.Slice(0, count), (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
             return count;
@@ -193,11 +221,6 @@ namespace Microsoft.Data.Sqlite
         /// <param name="count">The number of bytes to be written to the current stream.</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (!CanWrite)
-            {
-                throw new NotSupportedException(Resources.WriteNotSupported);
-            }
-
             if (buffer == null)
             {
                 throw new ArgumentNullException(nameof(buffer));
@@ -224,18 +247,40 @@ namespace Microsoft.Data.Sqlite
                 throw new ObjectDisposedException(objectName: null);
             }
 
+            Write(buffer.AsSpan(offset, count));
+        }
+
+        /// <summary>
+        ///     Writes a sequence of bytes to the current stream and advances the current position within this stream by
+        ///     the number of bytes written.
+        /// </summary>
+        /// <param name="buffer">
+        ///     A region of memory. This method copies the contents of this region to the current stream.
+        /// </param>
+#if NET
+        public override void Write(ReadOnlySpan<byte> buffer)
+#else
+        public virtual void Write(ReadOnlySpan<byte> buffer)
+#endif
+        {
+            if (!CanWrite)
+            {
+                throw new NotSupportedException(Resources.WriteNotSupported);
+            }
+
             var position = _position;
             if (position > Length)
             {
                 position = Length;
             }
 
+            var count = buffer.Length;
             if (position + count > Length)
             {
                 throw new NotSupportedException(Resources.ResizeNotSupported);
             }
 
-            var rc = sqlite3_blob_write(_blob, buffer.AsSpan(offset, count), (int)position);
+            var rc = sqlite3_blob_write(_blob, buffer.Slice(0, count), (int)position);
             SqliteException.ThrowExceptionForRC(rc, _db);
             _position += count;
         }
@@ -276,7 +321,7 @@ namespace Microsoft.Data.Sqlite
         ///     Releases any resources used by the blob and closes it.
         /// </summary>
         /// <param name="disposing">
-        ///     true to release managed and unmanaged resources; false to release only unmanaged resources.
+        ///     true to release managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.
         /// </param>
         protected override void Dispose(bool disposing)
         {

@@ -1,9 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
+using System.Collections.Generic;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
@@ -33,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         /// <param name="sqlGenerationHelper"> SQL command generation helper service. </param>
         public SqlServerIndexConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies,
+            ISqlGenerationHelper sqlGenerationHelper)
         {
             _sqlGenerationHelper = sqlGenerationHelper;
             Dependencies = dependencies;
@@ -55,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (oldBaseType == null
@@ -75,7 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexAdded(
-            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            IConventionIndexBuilder indexBuilder,
+            IConventionContext<IConventionIndexBuilder> context)
             => SetIndexFilter(indexBuilder);
 
         /// <summary>
@@ -84,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="indexBuilder"> The builder for the index. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessIndexUniquenessChanged(
-            IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
+            IConventionIndexBuilder indexBuilder,
+            IConventionContext<bool?> context)
             => SetIndexFilter(indexBuilder);
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessPropertyNullabilityChanged(
             IConventionPropertyBuilder propertyBuilder,
-            IConventionContext<IConventionPropertyBuilder> context)
+            IConventionContext<bool?> context)
         {
             foreach (var index in propertyBuilder.Metadata.GetContainingIndexes())
             {
@@ -113,8 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessIndexAnnotationChanged(
             IConventionIndexBuilder indexBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == SqlServerAnnotationNames.Clustered)
@@ -134,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == RelationalAnnotationNames.ColumnName)
@@ -152,13 +153,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var index = indexBuilder.Metadata;
             if (index.IsUnique
                 && index.IsClustered() != true
-                && index.Properties
-                    .Any(property => property.IsColumnNullable()))
+                && GetNullableColumns(index) is List<string> nullableColumns
+                && nullableColumns.Count > 0)
             {
                 if (columnNameChanged
                     || index.GetFilter() == null)
                 {
-                    indexBuilder.HasFilter(CreateIndexFilter(index));
+                    indexBuilder.HasFilter(CreateIndexFilter(nullableColumns));
                 }
             }
             else
@@ -172,13 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return indexBuilder;
         }
 
-        private string CreateIndexFilter(IIndex index)
+        private string CreateIndexFilter(List<string> nullableColumns)
         {
-            var nullableColumns = index.Properties
-                .Where(property => property.IsColumnNullable())
-                .Select(property => property.GetColumnName())
-                .ToList();
-
             var builder = new StringBuilder();
             for (var i = 0; i < nullableColumns.Count; i++)
             {
@@ -193,6 +189,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             return builder.ToString();
+        }
+
+        private List<string>? GetNullableColumns(IReadOnlyIndex index)
+        {
+            var tableName = index.DeclaringEntityType.GetTableName();
+            if (tableName == null)
+            {
+                return null;
+            }
+
+            var nullableColumns = new List<string>();
+            var table = StoreObjectIdentifier.Table(tableName, index.DeclaringEntityType.GetSchema());
+            foreach (var property in index.Properties)
+            {
+                var columnName = property.GetColumnName(table);
+                if (columnName == null)
+                {
+                    return null;
+                }
+
+                if (!property.IsColumnNullable(table))
+                {
+                    continue;
+                }
+
+                nullableColumns.Add(columnName);
+            }
+
+            return nullableColumns;
         }
     }
 }

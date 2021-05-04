@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -15,15 +14,13 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        // Disabled: In-memory database is case-sensitive
-        public override void Can_insert_and_read_back_with_case_insensitive_string_key()
+        public override void Optional_datetime_reading_null_from_database()
         {
         }
 
-        [ConditionalTheory(Skip = "Issue#14042")]
-        public override Task Can_query_custom_type_not_mapped_by_default_equality(bool isAsync)
+        // Disabled: In-memory database is case-sensitive
+        public override void Can_insert_and_read_back_with_case_insensitive_string_key()
         {
-            return base.Can_query_custom_type_not_mapped_by_default_equality(isAsync);
         }
 
         [ConditionalFact(Skip = "Issue#17050")]
@@ -32,28 +29,48 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact(Skip = "Issue#17050")]
-        public override void Collection_property_as_scalar()
+        public override void Collection_property_as_scalar_Any()
         {
-            base.Collection_property_as_scalar();
+            base.Collection_property_as_scalar_Any();
+        }
+
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_property_as_scalar_Count_member()
+        {
+            base.Collection_property_as_scalar_Count_member();
+        }
+
+        [ConditionalFact(Skip = "Issue#17050")]
+        public override void Collection_enum_as_string_Contains()
+        {
+            base.Collection_enum_as_string_Contains();
         }
 
         public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
         {
-            public override bool StrictEquality => true;
+            public override bool StrictEquality
+                => true;
 
-            public override bool SupportsAnsi => false;
+            public override bool SupportsAnsi
+                => false;
 
-            public override bool SupportsUnicodeToAnsiConversion => true;
+            public override bool SupportsUnicodeToAnsiConversion
+                => true;
 
-            public override bool SupportsLargeStringComparisons => true;
+            public override bool SupportsLargeStringComparisons
+                => true;
 
-            protected override ITestStoreFactory TestStoreFactory => InMemoryTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => InMemoryTestStoreFactory.Instance;
 
-            public override bool SupportsBinaryKeys => false;
+            public override bool SupportsBinaryKeys
+                => false;
 
-            public override bool SupportsDecimalComparisons => true;
+            public override bool SupportsDecimalComparisons
+                => true;
 
-            public override DateTime DefaultDateTime => new DateTime();
+            public override DateTime DefaultDateTime
+                => new();
         }
     }
 }

@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using JetBrains.Annotations;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] DbContext context)
+            DbContext context)
             : this(context, DefaultMaxRetryCount)
         {
         }
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies)
+            ExecutionStrategyDependencies dependencies)
             : this(dependencies, DefaultMaxRetryCount)
         {
         }
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] DbContext context,
+            DbContext context,
             int maxRetryCount)
             : this(context, maxRetryCount, DefaultMaxDelay)
         {
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosExecutionStrategy(
-            [NotNull] ExecutionStrategyDependencies dependencies,
+            ExecutionStrategyDependencies dependencies,
             int maxRetryCount)
             : this(dependencies, maxRetryCount, DefaultMaxDelay)
         {
@@ -75,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosExecutionStrategy([NotNull] DbContext context, int maxRetryCount, TimeSpan maxRetryDelay)
+        public CosmosExecutionStrategy(DbContext context, int maxRetryCount, TimeSpan maxRetryDelay)
             : base(context, maxRetryCount, maxRetryDelay)
         {
         }
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosExecutionStrategy([NotNull] ExecutionStrategyDependencies dependencies, int maxRetryCount, TimeSpan maxRetryDelay)
+        public CosmosExecutionStrategy(ExecutionStrategyDependencies dependencies, int maxRetryCount, TimeSpan maxRetryDelay)
             : base(dependencies, maxRetryCount, maxRetryDelay)
         {
         }
@@ -97,28 +96,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool ShouldRetryOn(Exception exception)
+        protected override bool ShouldRetryOn(Exception? exception)
         {
-            if (exception is CosmosException cosmosException)
+            return exception switch
             {
-                return IsTransient(cosmosException.StatusCode);
-            }
-
-            if (exception is HttpException httpException)
-            {
-                return IsTransient(httpException.Response.StatusCode);
-            }
-
-            if (exception is WebException webException)
-            {
-                return IsTransient(((HttpWebResponse)webException.Response).StatusCode);
-            }
-
-            return false;
+                CosmosException cosmosException => IsTransient(cosmosException.StatusCode),
+                HttpException httpException => IsTransient(httpException.Response.StatusCode),
+                WebException webException => IsTransient(((HttpWebResponse)webException.Response!).StatusCode),
+                _ => false
+            };
 
             static bool IsTransient(HttpStatusCode statusCode)
                 => statusCode == HttpStatusCode.ServiceUnavailable
-                   || statusCode == (HttpStatusCode)429; // TooManyRequests
+                    || statusCode == HttpStatusCode.TooManyRequests;
         }
 
         /// <summary>
@@ -130,67 +120,99 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         protected override TimeSpan? GetNextDelay(Exception lastException)
         {
             var baseDelay = base.GetNextDelay(lastException);
-            if (baseDelay == null)
-            {
-                return null;
-            }
-
-            return CallOnWrappedException(lastException, GetDelayFromException)
-                   ?? baseDelay;
+            return baseDelay == null
+                ? null
+                : CallOnWrappedException(lastException, GetDelayFromException)
+                    ?? baseDelay;
         }
 
-        private static TimeSpan? GetDelayFromException(Exception exception)
+        private static TimeSpan? GetDelayFromException(Exception? exception)
         {
-            if (exception is CosmosException cosmosException)
+            switch (exception)
             {
-                return cosmosException.RetryAfter;
-            }
+                case CosmosException cosmosException:
+                    return cosmosException.RetryAfter;
 
-            if (exception is HttpException httpException)
-            {
-                if (httpException.Response.Headers.TryGetValues("x-ms-retry-after-ms", out var values))
+                case HttpException httpException:
                 {
-                    var delayString = values.Single();
-                    return TimeSpan.FromMilliseconds(int.Parse(delayString));
-                }
-
-                var retryDate = httpException.Response.Headers.RetryAfter.Date;
-                if (retryDate != null)
-                {
-                    var delay = retryDate.Value.Subtract(DateTime.Now);
-                    return delay <= TimeSpan.Zero ? TimeSpan.FromMilliseconds(1) : delay;
-                }
-
-                return httpException.Response.Headers.RetryAfter.Delta;
-            }
-
-            if (exception is WebException webException)
-            {
-                var response = (HttpWebResponse)webException.Response;
-
-                var delayString = response.Headers.GetValues("x-ms-retry-after-ms")?.Single();
-                if (delayString != null)
-                {
-                    return TimeSpan.FromMilliseconds(int.Parse(delayString));
-                }
-
-                delayString = response.Headers.GetValues("Retry-After")?.Single();
-                if (delayString != null)
-                {
-                    if (int.TryParse(delayString, out var intDelay))
+                    if (httpException.Response.Headers.TryGetValues("x-ms-retry-after-ms", out var values)
+                        && TryParseMsRetryAfter(values.FirstOrDefault(), out var delay))
                     {
-                        return TimeSpan.FromSeconds(intDelay);
+                        return delay;
                     }
 
-                    if (DateTime.TryParse(delayString, CultureInfo.InvariantCulture, DateTimeStyles.None, out var retryDate))
+                    if (httpException.Response.Headers.TryGetValues("Retry-After", out values)
+                        && TryParseRetryAfter(values.FirstOrDefault(), out delay))
                     {
-                        var delay = retryDate.Subtract(DateTime.Now);
-                        return delay <= TimeSpan.Zero ? TimeSpan.FromMilliseconds(1) : delay;
+                        return delay;
                     }
+
+                    return null;
                 }
+
+                case WebException webException:
+                {
+                    var response = (HttpWebResponse)webException.Response!;
+
+                    var delayString = response.Headers.GetValues("x-ms-retry-after-ms")?.FirstOrDefault();
+                    if (TryParseMsRetryAfter(delayString, out var delay))
+                    {
+                        return delay;
+                    }
+
+                    delayString = response.Headers.GetValues("Retry-After")?.FirstOrDefault();
+                    if (TryParseRetryAfter(delayString, out delay))
+                    {
+                        return delay;
+                    }
+
+                    return null;
+                }
+
+                default:
+                    return null;
             }
 
-            return null;
+            static bool TryParseMsRetryAfter(string? delayString, out TimeSpan delay)
+            {
+                delay = default;
+                if (delayString == null)
+                {
+                    return false;
+                }
+
+                if (int.TryParse(delayString, out var intDelay))
+                {
+                    delay = TimeSpan.FromMilliseconds(intDelay);
+                    return true;
+                }
+
+                return false;
+            }
+
+            static bool TryParseRetryAfter(string? delayString, out TimeSpan delay)
+            {
+                delay = default;
+                if (delayString == null)
+                {
+                    return false;
+                }
+
+                if (int.TryParse(delayString, out var intDelay))
+                {
+                    delay = TimeSpan.FromSeconds(intDelay);
+                    return true;
+                }
+
+                if (DateTimeOffset.TryParse(delayString, CultureInfo.InvariantCulture, DateTimeStyles.None, out var retryDate))
+                {
+                    delay = retryDate.Subtract(DateTimeOffset.Now);
+                    delay = delay <= TimeSpan.Zero ? TimeSpan.FromMilliseconds(1) : delay;
+                    return true;
+                }
+
+                return false;
+            }
         }
     }
 }

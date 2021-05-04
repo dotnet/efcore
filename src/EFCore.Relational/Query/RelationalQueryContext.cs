@@ -1,14 +1,21 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System.Data.Common;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     The principal data structure used by a compiled relational query during execution.
+    ///     <para>
+    ///         The principal data structure used by a compiled relational query during execution.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public class RelationalQueryContext : QueryContext
     {
@@ -21,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="relationalDependencies"> The relational-specific dependencies to use. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this class. </param>
         public RelationalQueryContext(
-            [NotNull] QueryContextDependencies dependencies,
-            [NotNull] RelationalQueryContextDependencies relationalDependencies)
+            QueryContextDependencies dependencies,
+            RelationalQueryContextDependencies relationalDependencies)
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
@@ -34,9 +41,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Relational-specific dependencies.
+        ///     Parameter object containing relational service dependencies.
         /// </summary>
         protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
+
+        /// <summary>
+        ///     A factory for creating a readable query string from a <see cref="DbCommand" />
+        /// </summary>
+        public virtual IRelationalQueryStringFactory RelationalQueryStringFactory
+            => RelationalDependencies.RelationalQueryStringFactory;
 
         /// <summary>
         ///     Gets the active relational connection.
@@ -46,5 +59,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </value>
         public virtual IRelationalConnection Connection
             => RelationalDependencies.RelationalConnection;
+
+        /// <summary>
+        ///     The command logger to use while executing the query.
+        /// </summary>
+        public new virtual IRelationalCommandDiagnosticsLogger CommandLogger
+            => (IRelationalCommandDiagnosticsLogger)base.CommandLogger;
     }
 }

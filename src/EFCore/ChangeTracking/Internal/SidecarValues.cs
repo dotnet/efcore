@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _values = valuesFactory;
             }
 
-            public bool TryGetValue(int index, out object value)
+            public bool TryGetValue(int index, out object? value)
             {
                 if (IsEmpty)
                 {
@@ -33,11 +32,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public T GetValue<T>(int index)
-                => IsEmpty ? default : _values.GetValue<T>(index);
+                => IsEmpty ? default! : _values.GetValue<T>(index);
 
-            public void SetValue(IProperty property, object value, int index)
+            public void SetValue(IProperty property, object? value, int index)
             {
-                Debug.Assert(!IsEmpty);
+                Check.DebugAssert(!IsEmpty, "sidecar is empty");
 
                 if (value == null
                     && !property.ClrType.IsNullableType())
@@ -50,14 +49,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _values[index] = SnapshotValue(property, value);
             }
 
-            private static object SnapshotValue(IProperty property, object value)
+            private static object? SnapshotValue(IProperty property, object? value)
             {
-                var comparer = property.GetValueComparer() ?? property.FindTypeMapping()?.Comparer;
+                var comparer = property.GetValueComparer();
 
                 return comparer == null ? value : comparer.Snapshot(value);
             }
 
-            public bool IsEmpty => _values == null;
+            public bool IsEmpty
+                => _values == null;
         }
     }
 }

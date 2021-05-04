@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Proxies.Internal;
@@ -32,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
         public static IServiceCollection AddEntityFrameworkProxies(
-            [NotNull] this IServiceCollection serviceCollection)
+            this IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 

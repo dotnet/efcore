@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="extensions"> The extensions that store the configured options. </param>
         public DbContextOptions(
-            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
+            IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
             : base(extensions)
         {
         }
@@ -61,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The type of context that these options are for (<typeparamref name="TContext" />).
         /// </summary>
-        public override Type ContextType => typeof(TContext);
+        public override Type ContextType
+            => typeof(TContext);
     }
 }

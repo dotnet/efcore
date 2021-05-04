@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
@@ -48,19 +47,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             = Expression.Parameter(typeof(DbDataReader), "dataReader");
 
         private static readonly MethodInfo _getFieldValueMethod =
-            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) });
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
         private static readonly MethodInfo _isDbNullMethod =
-            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) });
+            typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
 
         private static readonly MethodInfo _throwReadValueExceptionMethod
-            = typeof(TypedRelationalValueBufferFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException));
+            = typeof(TypedRelationalValueBufferFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public TypedRelationalValueBufferFactoryFactory([NotNull] RelationalValueBufferFactoryDependencies dependencies)
+        public TypedRelationalValueBufferFactoryFactory(RelationalValueBufferFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -72,17 +71,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual RelationalValueBufferFactoryDependencies Dependencies { get; }
 
-        private readonly struct CacheKey
+        private readonly struct CacheKey : IEquatable<CacheKey>
         {
             public CacheKey(IReadOnlyList<TypeMaterializationInfo> materializationInfo)
                 => TypeMaterializationInfo = materializationInfo;
 
             public IReadOnlyList<TypeMaterializationInfo> TypeMaterializationInfo { get; }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj is CacheKey cacheKey && Equals(cacheKey);
 
-            private bool Equals(CacheKey other)
+            public bool Equals(CacheKey other)
                 => TypeMaterializationInfo.SequenceEqual(other.TypeMaterializationInfo);
 
             public override int GetHashCode()
@@ -98,8 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
         }
 
-        private readonly ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory> _cache
-            = new ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory>();
+        private readonly ConcurrentDictionary<CacheKey, TypedRelationalValueBufferFactory> _cache = new();
 
         /// <summary>
         ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
@@ -122,7 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="types"> Types and mapping for the values to be read. </param>
         /// <returns> The value buffer assignment expressions. </returns>
-        public virtual IReadOnlyList<Expression> CreateAssignmentExpressions([NotNull] IReadOnlyList<TypeMaterializationInfo> types)
+        [Obsolete]
+        public virtual IReadOnlyList<Expression> CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
             => Check.NotNull(types, nameof(types))
                 .Select(
                     (mi, i) =>
@@ -150,7 +149,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ThrowReadValueException<TValue>(
-            Exception exception, object value, IPropertyBase property = null)
+            Exception exception,
+            object? value,
+            IPropertyBase? property = null)
         {
             var expectedType = typeof(TValue);
             var actualType = value?.GetType();
@@ -165,19 +166,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 message
                     = exception is NullReferenceException
                     || Equals(value, DBNull.Value)
-                        ? CoreStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
+                        ? RelationalStrings.ErrorMaterializingPropertyNullReference(entityType, propertyName, expectedType)
                         : exception is InvalidCastException
                             ? CoreStrings.ErrorMaterializingPropertyInvalidCast(entityType, propertyName, expectedType, actualType)
-                            : CoreStrings.ErrorMaterializingProperty(entityType, propertyName);
+                            : RelationalStrings.ErrorMaterializingProperty(entityType, propertyName);
             }
             else
             {
                 message
                     = exception is NullReferenceException
-                        ? CoreStrings.ErrorMaterializingValueNullReference(expectedType)
+                        ? RelationalStrings.ErrorMaterializingValueNullReference(expectedType)
                         : exception is InvalidCastException
-                            ? CoreStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
-                            : CoreStrings.ErrorMaterializingValue;
+                            ? RelationalStrings.ErrorMaterializingValueInvalidCast(expectedType, actualType)
+                            : RelationalStrings.ErrorMaterializingValue;
             }
 
             throw new InvalidOperationException(message, exception);
@@ -192,14 +193,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             var getMethod = materializationInfo.Mapping.GetDataReaderMethod();
 
+#pragma warning disable CS0612 // Type or member is obsolete
             index = materializationInfo.Index == -1 ? index : materializationInfo.Index;
+#pragma warning restore CS0612 // Type or member is obsolete
 
             var indexExpression = Expression.Constant(index);
 
             Expression valueExpression
                 = Expression.Call(
                     getMethod.DeclaringType != typeof(DbDataReader)
-                        ? Expression.Convert(dataReaderExpression, getMethod.DeclaringType)
+                        ? Expression.Convert(dataReaderExpression, getMethod.DeclaringType!)
                         : dataReaderExpression,
                     getMethod,
                     indexExpression);
@@ -250,19 +253,39 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 valueExpression = Expression.TryCatch(valueExpression, catchBlock);
             }
 
-            if (box && valueExpression.Type.GetTypeInfo().IsValueType)
+            if (box && valueExpression.Type.IsValueType)
             {
                 valueExpression = Expression.Convert(valueExpression, typeof(object));
             }
 
-            if (property?.IsNullable != false
-                || property.DeclaringEntityType.BaseType != null
+#pragma warning disable CS0612 // Type or member is obsolete
+            if (materializationInfo.IsNullable != false
                 || materializationInfo.IsFromLeftOuterJoin != false)
             {
+#pragma warning restore CS0612 // Type or member is obsolete
+
+                Expression replaceExpression;
+                if (converter?.ConvertsNulls == true)
+                {
+                    replaceExpression = ReplacingExpressionVisitor.Replace(
+                        converter.ConvertFromProviderExpression.Parameters.Single(),
+                        Expression.Default(converter.ProviderClrType),
+                        converter.ConvertFromProviderExpression.Body);
+
+                    if (replaceExpression.Type != valueExpression.Type)
+                    {
+                        replaceExpression = Expression.Convert(replaceExpression, valueExpression.Type);
+                    }
+                }
+                else
+                {
+                    replaceExpression = Expression.Default(valueExpression.Type);
+                }
+
                 valueExpression
                     = Expression.Condition(
                         Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
-                        Expression.Default(valueExpression.Type),
+                        replaceExpression,
                         valueExpression);
             }
 

@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore
 
         public class NotificationEntitiesSqliteFixture : NotificationEntitiesFixtureBase
         {
-            protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+            protected override ITestStoreFactory TestStoreFactory
+                => SqliteTestStoreFactory.Instance;
         }
     }
 }

@@ -1,37 +1,24 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryTestBase<ComplexNavigationsQuerySqliteFixture>
+    public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqliteFixture>
     {
         public ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture)
             : base(fixture)
         {
         }
 
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(bool isAsync)
-        {
-            return base.SelectMany_with_navigation_filter_paging_and_explicit_DefaultIfEmpty(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Project_collection_navigation_nested_with_take(bool isAsync)
-        {
-            return base.Project_collection_navigation_nested_with_take(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue #17230")]
-        public override Task Include_inside_subquery(bool isAsync)
-        {
-            return base.Include_inside_subquery(isAsync);
-        }
-
-        // Sqlite does not support cross/outer apply
-        public override Task SelectMany_with_outside_reference_to_joined_table_correctly_translated_to_apply(bool async) => null;
+        public override async Task Let_let_contains_from_outer_let(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Let_let_contains_from_outer_let(async))).Message);
     }
 }

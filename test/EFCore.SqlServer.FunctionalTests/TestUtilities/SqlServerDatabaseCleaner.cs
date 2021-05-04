@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -21,15 +22,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     loggerFactory,
                     new LoggingOptions(),
                     new DiagnosticListener("Fake"),
-                    new SqlServerLoggingDefinitions()));
+                    new SqlServerLoggingDefinitions(),
+                    new NullDbContextLogger()));
 
-        protected override bool AcceptTable(DatabaseTable table) => !(table is DatabaseView);
+        protected override bool AcceptTable(DatabaseTable table)
+            => !(table is DatabaseView);
 
         protected override bool AcceptIndex(DatabaseIndex index)
             => false;
 
         private readonly string _dropViewsSql = @"
-DECLARE @name VARCHAR(MAX) = '__dummy__', @SQL VARCHAR(MAX) = '';
+DECLARE @name varchar(max) = '__dummy__', @SQL varchar(max) = '';
 
 WHILE @name IS NOT NULL
 BEGIN
@@ -58,7 +61,7 @@ END";
                 + @"
 GO
 
-DECLARE @SQL VARCHAR(MAX) = '';
+DECLARE @SQL varchar(max) = '';
 SELECT @SQL = @SQL + 'DROP FUNCTION ' + QUOTENAME(ROUTINE_SCHEMA) + '.' + QUOTENAME(ROUTINE_NAME) + ';'
   FROM [INFORMATION_SCHEMA].[ROUTINES] WHERE ROUTINE_TYPE = 'FUNCTION' AND ROUTINE_BODY = 'SQL';
 EXEC (@SQL);

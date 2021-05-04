@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Checks whether or not the history table exists.
         /// </summary>
-        /// <returns> <c>True</c> if the table already exists, <c>false</c> otherwise. </returns>
+        /// <returns> <see langword="true" /> if the table already exists, <see langword="false" /> otherwise. </returns>
         bool Exists();
 
         /// <summary>
@@ -38,8 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
-        ///     <c>True</c> if the table already exists, <c>false</c> otherwise.
+        ///     <see langword="true" /> if the table already exists, <see langword="false" /> otherwise.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -56,6 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A task that represents the asynchronous operation. The task result contains
         ///     the list of applied migrations, as <see cref="HistoryRow" /> entities.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default);
 
@@ -76,14 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="row"> The row to insert, represented as a <see cref="HistoryRow" /> entity. </param>
         /// <returns> The generated SQL. </returns>
-        string GetInsertScript([NotNull] HistoryRow row);
+        string GetInsertScript(HistoryRow row);
 
         /// <summary>
         ///     Generates a SQL script to delete a row from the history table.
         /// </summary>
         /// <param name="migrationId"> The migration identifier of the row to delete. </param>
         /// <returns> The generated SQL. </returns>
-        string GetDeleteScript([NotNull] string migrationId);
+        string GetDeleteScript(string migrationId);
 
         /// <summary>
         ///     Generates a SQL Script that will <c>BEGIN</c> a block
@@ -91,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="migrationId"> The migration identifier. </param>
         /// <returns> The generated SQL. </returns>
-        string GetBeginIfNotExistsScript([NotNull] string migrationId);
+        string GetBeginIfNotExistsScript(string migrationId);
 
         /// <summary>
         ///     Generates a SQL Script that will <c>BEGIN</c> a block
@@ -99,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="migrationId"> The migration identifier. </param>
         /// <returns> The generated SQL. </returns>
-        string GetBeginIfExistsScript([NotNull] string migrationId);
+        string GetBeginIfExistsScript(string migrationId);
 
         /// <summary>
         ///     Generates a SQL script to <c>END</c> the SQL block.

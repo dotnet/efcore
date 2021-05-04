@@ -204,7 +204,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static ICollection<ChangedOnlyNotificationEntity> CreateCollection(
-            bool ourCollection, params ChangedOnlyNotificationEntity[] items)
+            bool ourCollection,
+            params ChangedOnlyNotificationEntity[] items)
             => ourCollection
                 ? (ICollection<ChangedOnlyNotificationEntity>)new ObservableHashSet<ChangedOnlyNotificationEntity>(items)
                 : new ObservableCollection<ChangedOnlyNotificationEntity>(items);
@@ -428,8 +429,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Same(entries[2], testListener.CollectionChanged.Skip(2).Single().Item1);
         }
 
-        [ConditionalFact]
-        public void Entries_are_unsubscribed_when_context_is_disposed()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Entries_are_unsubscribed_when_context_is_disposed_or_cleared(bool useClear)
         {
             var context = InMemoryTestHelpers.Instance.CreateContext(
                 new ServiceCollection().AddScoped<IChangeDetector, TestPropertyListener>(),
@@ -458,7 +461,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             Assert.Equal(2, testListener.Changing.Count);
             Assert.Equal(2, testListener.Changed.Count);
 
-            context.Dispose();
+            if (useClear)
+            {
+                context.ChangeTracker.Clear();
+            }
+            else
+            {
+                context.Dispose();
+            }
 
             entities[5].Name = "Carmack";
             Assert.Equal(2, testListener.Changing.Count);
@@ -471,10 +481,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class TestPropertyListener : IChangeDetector
         {
-            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } =
-                new List<Tuple<InternalEntityEntry, IPropertyBase>>();
-
-            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = new List<Tuple<InternalEntityEntry, IPropertyBase>>();
+            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changing { get; } = new();
+            public List<Tuple<InternalEntityEntry, IPropertyBase>> Changed { get; } = new();
 
             public void PropertyChanged(InternalEntityEntry entry, IPropertyBase property, bool setModified)
                 => Changed.Add(Tuple.Create(entry, property));
@@ -501,17 +509,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class TestNavigationListener : INavigationFixer
         {
-            public List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
-                = new List<Tuple<InternalEntityEntry, INavigation, IEnumerable<object>, IEnumerable<object>>>();
+            public List<Tuple<InternalEntityEntry, INavigationBase, IEnumerable<object>, IEnumerable<object>>> CollectionChanged { get; }
+                = new();
+
+            public void BeginAttachGraph()
+            {
+            }
+
+            public void CompleteAttachGraph()
+            {
+            }
+
+            public void AbortAttachGraph()
+            {
+            }
 
             public void NavigationReferenceChanged(
-                InternalEntityEntry entry, INavigation navigation, object oldValue, object newValue)
+                InternalEntityEntry entry,
+                INavigationBase navigationBase,
+                object oldValue,
+                object newValue)
             {
             }
 
             public void NavigationCollectionChanged(
-                InternalEntityEntry entry, INavigation navigation, IEnumerable<object> added, IEnumerable<object> removed)
-                => CollectionChanged.Add(Tuple.Create(entry, navigation, added, removed));
+                InternalEntityEntry entry,
+                INavigationBase navigationBase,
+                IEnumerable<object> added,
+                IEnumerable<object> removed)
+                => CollectionChanged.Add(Tuple.Create(entry, navigationBase, added, removed));
 
             public void TrackedFromQuery(InternalEntityEntry entry)
             {
@@ -526,9 +552,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             public void KeyPropertyChanged(
-                InternalEntityEntry entry, IProperty property, IReadOnlyList<IKey> containingPrincipalKeys,
-                IReadOnlyList<IForeignKey> containingForeignKeys,
-                object oldValue, object newValue)
+                InternalEntityEntry entry,
+                IProperty property,
+                IEnumerable<IKey> containingPrincipalKeys,
+                IEnumerable<IForeignKey> containingForeignKeys,
+                object oldValue,
+                object newValue)
             {
             }
         }

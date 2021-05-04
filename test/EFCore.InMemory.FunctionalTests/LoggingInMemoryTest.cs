@@ -12,8 +12,10 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInMemoryDatabase("LoggingInMemoryTest")
                 .UseInternalServiceProvider(services.AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
 
-        protected override string ProviderName => "Microsoft.EntityFrameworkCore.InMemory";
+        protected override string ProviderName
+            => "Microsoft.EntityFrameworkCore.InMemory";
 
-        protected override string DefaultOptions => "StoreName=LoggingInMemoryTest ";
+        protected override string DefaultOptions
+            => "StoreName=LoggingInMemoryTest ";
     }
 }

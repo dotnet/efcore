@@ -4,14 +4,13 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     public class ExpressionPrinterTest
     {
-        private readonly ExpressionPrinter _expressionPrinter = new ExpressionPrinter();
+        private readonly ExpressionPrinter _expressionPrinter = new();
 
         [ConditionalFact]
         public void UnaryExpression_printed_correctly()
@@ -166,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Assert.Equal(
                 "\"Foobar\""
-+ @".Substring(
+                + @".Substring(
     startIndex: 0, 
     length: 4)",
                 _expressionPrinter.Print(
@@ -174,7 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Expression.Constant("Foobar"),
                         typeof(string).GetMethods().Single(m => m.Name == nameof(string.Substring) && m.GetParameters().Count() == 2),
                         Expression.Constant(0),
-                        Expression.Constant(4))));
+                        Expression.Constant(4))),
+                ignoreLineEndingDifferences: true);
         }
 
         [ConditionalFact]
@@ -194,7 +194,18 @@ namespace Microsoft.EntityFrameworkCore.Query
     .Select(x => x.ToString())
     .AsEnumerable()
     .Where(x => x.Length > 1)",
-                _expressionPrinter.Print(expr.Body));
+                _expressionPrinter.Print(expr.Body),
+                ignoreLineEndingDifferences: true);
+        }
+
+        [ConditionalFact]
+        public void Enumerable_Constant_printed_correctly()
+        {
+            Assert.Equal(
+                @"int[] { 1, 2, 3 }",
+                _expressionPrinter.Print(
+                    Expression.Constant(
+                        new[] { 1, 2, 3 })));
         }
     }
 }

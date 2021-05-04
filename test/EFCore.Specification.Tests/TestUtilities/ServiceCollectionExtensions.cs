@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static readonly MethodInfo _addDbContextPool
             = typeof(EntityFrameworkServiceCollectionExtensions)
-                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddDbContextPool))
+                .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory))
                 .Single(
                     mi => mi.GetParameters().Length == 3
                         && mi.GetParameters()[1].ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)
