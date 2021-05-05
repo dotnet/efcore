@@ -490,6 +490,26 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
             AssertSql(" ");
         }
 
+        public override async Task Filter_on_indexer_using_closure(bool async)
+        {
+            await base.Filter_on_indexer_using_closure(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""ZipCode""] = 38654))");
+        }
+
+        public override async Task Filter_on_indexer_using_function_argument(bool async)
+        {
+            await base.Filter_on_indexer_using_function_argument(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""ZipCode""] = 38654))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -882,6 +882,37 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filter_on_indexer_using_closure(bool async)
+        {
+            var zipCode = "ZipCode";
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<OwnedPerson>().Where(p => (int)p.PersonAddress[zipCode] == 38654));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Filter_on_indexer_using_function_argument(bool async)
+        {
+            var zipCode = "ZipCode";
+
+            Func<bool, string, Task> myFunc = async (b, n) =>
+            {
+                using var ctx = CreateContext();
+
+                var query = async
+                    ? await ctx.Set<OwnedPerson>().Where(p => (int)p.PersonAddress[n] == 38654).ToListAsync()
+                    : ctx.Set<OwnedPerson>().Where(p => (int)p.PersonAddress[n] == 38654).ToList();
+
+                Assert.Single(query);
+            };
+
+            await myFunc(async, zipCode);
+        }
+
         protected virtual DbContext CreateContext()
             => Fixture.CreateContext();
 

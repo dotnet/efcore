@@ -2248,6 +2248,26 @@ FROM [Customers] AS [c]
 WHERE ([c].[Region] <> N'WA') AND [c].[Region] IS NOT NULL");
         }
 
+        public override async Task Filter_with_EF_Property_using_closure_for_property_name(bool async)
+        {
+            await base.Filter_with_EF_Property_using_closure_for_property_name(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task Filter_with_EF_Property_using_function_for_property_name(bool async)
+        {
+            await base.Filter_with_EF_Property_using_function_for_property_name(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

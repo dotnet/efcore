@@ -2178,6 +2178,26 @@ WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))"
             return AssertTranslationFailed(() => base.Where_equals_method_string_with_ignore_case(async));
         }
 
+        public override async Task Filter_with_EF_Property_using_closure_for_property_name(bool async)
+        {
+            await base.Filter_with_EF_Property_using_closure_for_property_name(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
+        public override async Task Filter_with_EF_Property_using_function_for_property_name(bool async)
+        {
+            await base.Filter_with_EF_Property_using_function_for_property_name(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
