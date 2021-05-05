@@ -278,12 +278,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 case ProjectionBindingExpression projectionBindingExpression
                     when projectionBindingExpression.ProjectionMember != null:
-                    return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                        .GetMappedProjection(projectionBindingExpression.ProjectionMember);
-
-                //case ProjectionBindingExpression projectionBindingExpression
-                //    when projectionBindingExpression.Index is int index:
-                //    return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).Projection[index];
+                    return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression);
 
                 case InMemoryGroupByShaperExpression inMemoryGroupByShaperExpression:
                     return new GroupingElementExpression(
@@ -747,9 +742,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 }
 
                 return ProcessSingleResultScalar(
-                    subquery.ServerQueryExpression,
-                    subquery.GetMappedProjection(projectionBindingExpression.ProjectionMember),
-                    subquery.CurrentParameter,
+                    subquery,
+                    subquery.GetProjection(projectionBindingExpression),
                     methodCallExpression.Type);
             }
 
@@ -1209,23 +1203,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 Expression readValueExpression;
                 var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
-                if (projectionBindingExpression.ProjectionMember != null)
-                {
-                    var entityProjectionExpression = (EntityProjectionExpression)inMemoryQueryExpression.GetMappedProjection(
-                        projectionBindingExpression.ProjectionMember);
-                    readValueExpression = entityProjectionExpression.BindProperty(property);
-                }
-                else
-                {
-                    // This has to be index map since entities cannot map to just integer index
-                    var index = projectionBindingExpression.IndexMap![property];
-                    readValueExpression = inMemoryQueryExpression.Projection[index];
-                }
+                var entityProjectionExpression = (EntityProjectionExpression)inMemoryQueryExpression.GetProjection(
+                    projectionBindingExpression);
+                readValueExpression = entityProjectionExpression.BindProperty(property);
 
                 return ProcessSingleResultScalar(
-                    inMemoryQueryExpression.ServerQueryExpression,
+                    inMemoryQueryExpression,
                     readValueExpression,
-                    inMemoryQueryExpression.CurrentParameter,
                     type);
             }
 
@@ -1233,36 +1217,40 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         }
 
         private static Expression ProcessSingleResultScalar(
-            Expression serverQuery,
+            InMemoryQueryExpression inMemoryQueryExpression,
             Expression readValueExpression,
-            Expression valueBufferParameter,
             Type type)
         {
-            var singleResult = ((LambdaExpression)((NewExpression)serverQuery).Arguments[0]).Body;
-            if (readValueExpression is UnaryExpression unaryExpression
+            if (inMemoryQueryExpression.ServerQueryExpression is not NewExpression)
+            {
+                // The terminating operator is not applied
+                // It is of FirstOrDefault kind
+                // So we change to single column projection and then apply it.
+                inMemoryQueryExpression.ReplaceProjection(new Dictionary<ProjectionMember, Expression>
+                {
+                    { new ProjectionMember(), readValueExpression }
+                });
+                inMemoryQueryExpression.ApplyProjection();
+            }
+
+            var serverQuery = inMemoryQueryExpression.ServerQueryExpression;
+            serverQuery = ((LambdaExpression)((NewExpression)serverQuery).Arguments[0]).Body;
+            if (serverQuery is UnaryExpression unaryExpression
                 && unaryExpression.NodeType == ExpressionType.Convert
                 && unaryExpression.Type == typeof(object))
             {
-                readValueExpression = unaryExpression.Operand;
+                serverQuery = unaryExpression.Operand;
             }
 
             var valueBufferVariable = Expression.Variable(typeof(ValueBuffer));
-            var replacedReadExpression = ReplacingExpressionVisitor.Replace(
-                valueBufferParameter,
-                valueBufferVariable,
-                readValueExpression);
-
-            replacedReadExpression = replacedReadExpression.Type == type
-                ? replacedReadExpression
-                : Expression.Convert(replacedReadExpression, type);
-
+            var readExpression = valueBufferVariable.CreateValueBufferReadValueExpression(type, index: 0, property: null);
             return Expression.Block(
                 variables: new[] { valueBufferVariable },
-                Expression.Assign(valueBufferVariable, singleResult),
+                Expression.Assign(valueBufferVariable, serverQuery),
                 Expression.Condition(
                     Expression.MakeMemberAccess(valueBufferVariable, _valueBufferIsEmpty),
                     Expression.Default(type),
-                    replacedReadExpression));
+                    readExpression));
         }
 
         [UsedImplicitly]

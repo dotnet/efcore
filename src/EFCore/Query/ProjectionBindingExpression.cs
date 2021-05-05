@@ -66,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryExpression"> The query expression to get the value from. </param>
         /// <param name="indexMap"> The index map to bind with query expression projection for ValueBuffer. </param>
+        [Obsolete("The dictionary should be stored in client projection in query expression and access via index based binding.")]
         public ProjectionBindingExpression(
             Expression queryExpression,
             IReadOnlyDictionary<IProperty, int> indexMap)
@@ -96,6 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The projection member to bind if binding is via index map for a value buffer.
         /// </summary>
+        [Obsolete("The dictionary should be stored in client projection in query expression and access via index based binding.")]
         public virtual IReadOnlyDictionary<IProperty, int>? IndexMap { get; }
 
         /// <inheritdoc />
@@ -127,6 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 expressionPrinter.Append(Index.ToString()!);
             }
+#pragma warning disable CS0618 // Type or member is obsolete
             else if (IndexMap != null)
             {
                 using (expressionPrinter.Indent())
@@ -137,6 +140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <inheritdoc />
@@ -153,10 +157,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ?? projectionBindingExpression.ProjectionMember == null)
                 && Index == projectionBindingExpression.Index
                 // Using reference equality here since if we are this far, we don't need to compare this.
+#pragma warning disable CS0618 // Type or member is obsolete
                 && IndexMap == projectionBindingExpression.IndexMap;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <inheritdoc />
         public override int GetHashCode()
+#pragma warning disable CS0618 // Type or member is obsolete
             => HashCode.Combine(QueryExpression, ProjectionMember, Index, IndexMap);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }
