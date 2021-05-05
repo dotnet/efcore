@@ -983,7 +983,7 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = null))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalTheory]
         public override async Task Where_string_length(bool async)
         {
             await base.Where_string_length(async);
@@ -991,7 +991,7 @@ WHERE ((c[""Discriminator""] = ""Employee"") AND (c[""ReportsTo""] = null))");
             AssertSql(
                 @"SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (LENGTH(c[""City""]) = 6))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]

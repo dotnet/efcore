@@ -232,7 +232,7 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             await base.Select_anonymous_constant_in_expression(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""]
+                @"SELECT VALUE {""CustomerID"" : c[""CustomerID""], ""Expression"" : (LENGTH(c[""CustomerID""]) + 5)}
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
@@ -535,7 +535,7 @@ ORDER BY c[""OrderID""]");
             await base.Select_non_matching_value_types_from_length_introduces_explicit_cast(async);
 
             AssertSql(
-                @"SELECT c[""CustomerID""]
+                @"SELECT LENGTH(c[""CustomerID""]) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))
 ORDER BY c[""OrderID""]");
