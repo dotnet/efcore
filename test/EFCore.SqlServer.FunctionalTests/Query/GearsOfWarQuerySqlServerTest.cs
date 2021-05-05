@@ -3610,6 +3610,31 @@ FROM [Gears] AS [g]
 ORDER BY [g].[SquadId], [g].[Nickname]");
         }
 
+        public override async Task ToString_boolean_property_non_nullable(bool async)
+        {
+            await base.ToString_boolean_property_non_nullable(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [w].[IsAutomatic] = CAST(0 AS bit) THEN N'False'
+    ELSE N'True'
+END
+FROM [Weapons] AS [w]");
+        }
+
+        public override async Task ToString_boolean_property_nullable(bool async)
+        {
+            await base.ToString_boolean_property_nullable(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [f].[Eradicated] = CAST(0 AS bit) THEN N'False'
+    WHEN [f].[Eradicated] = CAST(1 AS bit) THEN N'True'
+    ELSE NULL
+END
+FROM [Factions] AS [f]");
+        }
+
         public override async Task Correlated_collections_naked_navigation_with_ToList(bool async)
         {
             await base.Correlated_collections_naked_navigation_with_ToList(async);

@@ -72,10 +72,41 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(logger, nameof(logger));
 
-            return method.Name == nameof(ToString)
-                && arguments.Count == 0
-                && instance != null
-                && _typeMapping.TryGetValue(instance.Type, out var storeType)
+            if (instance == null || method.Name != nameof(ToString) || arguments.Count != 0)
+            {
+                return null;
+            }
+
+            if (instance.Type == typeof(bool))
+            {
+                if (instance is ColumnExpression columnExpression && columnExpression.IsNullable)
+                {
+                    return _sqlExpressionFactory.Case(
+                        new[]
+                        {
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(false)),
+                                _sqlExpressionFactory.Constant(false.ToString())),
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(true)),
+                                _sqlExpressionFactory.Constant(true.ToString()))
+                            },
+                        _sqlExpressionFactory.Constant(null));
+                }
+                else
+                {
+                    return _sqlExpressionFactory.Case(
+                        new[]
+                        {
+                            new CaseWhenClause(
+                                _sqlExpressionFactory.Equal(instance, _sqlExpressionFactory.Constant(false)),
+                                _sqlExpressionFactory.Constant(false.ToString()))
+                            },
+                        _sqlExpressionFactory.Constant(true.ToString()));
+                }
+            }
+
+            return _typeMapping.TryGetValue(instance.Type, out var storeType)
                     ? _sqlExpressionFactory.Function(
                         "CONVERT",
                         new[] { _sqlExpressionFactory.Fragment(storeType), instance },
