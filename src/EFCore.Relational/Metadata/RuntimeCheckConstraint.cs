@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a check constraint in the <see cref="IEntityType" />.
     /// </summary>
-    public class SlimCheckConstraint : AnnotatableBase, ICheckConstraint
+    public class RuntimeCheckConstraint : AnnotatableBase, ICheckConstraint
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimCheckConstraint(
+        public RuntimeCheckConstraint(
             string name,
-            SlimEntityType entityType,
+            RuntimeEntityType entityType,
             string sql)
         {
             EntityType = entityType;
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type on which this check constraint is defined.
         /// </summary>
-        public virtual SlimEntityType EntityType { get; }
+        public virtual RuntimeEntityType EntityType { get; }
 
         /// <summary>
         ///     Gets the name of the check constraint in the database.

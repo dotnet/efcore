@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -24,6 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     may be defined on a base type).
         /// </summary>
         new IEntityType DeclaringEntityType { get; }
+
+        /// <summary>
+        ///     Returns the type of the key property for simple keys, or an object array for composite keys.
+        /// </summary>
+        /// <returns> The key type. </returns>
+        Type GetKeyType()
+            => Properties.Count > 1 ? typeof(object[]) : Properties.First().ClrType;
 
         /// <summary>
         ///     Gets all foreign keys that target a given primary or alternate key.

@@ -745,9 +745,41 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task Substring_with_zero_startindex(bool async)
+        public override async Task Substring_with_one_arg_with_zero_startindex(bool async)
         {
-            await base.Substring_with_zero_startindex(async);
+            await base.Substring_with_one_arg_with_zero_startindex(async);
+
+            AssertSql(
+                @"SELECT c[""ContactName""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (SUBSTRING(c[""CustomerID""], 0, LENGTH(c[""CustomerID""])) = ""ALFKI""))");
+        }
+
+        public override async Task Substring_with_one_arg_with_constant(bool async)
+        {
+            await base.Substring_with_one_arg_with_constant(async);
+
+            AssertSql(
+                @"SELECT c[""ContactName""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (SUBSTRING(c[""CustomerID""], 1, LENGTH(c[""CustomerID""])) = ""LFKI""))");
+        }
+
+        public override async Task Substring_with_one_arg_with_closure(bool async)
+        {
+            await base.Substring_with_one_arg_with_closure(async);
+
+            AssertSql(
+                @"@__start_0='2'
+
+SELECT c[""ContactName""]
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (SUBSTRING(c[""CustomerID""], @__start_0, LENGTH(c[""CustomerID""])) = ""FKI""))");
+        }
+
+        public override async Task Substring_with_two_args_with_zero_startindex(bool async)
+        {
+            await base.Substring_with_two_args_with_zero_startindex(async);
 
             AssertSql(
                 @"SELECT SUBSTRING(c[""ContactName""], 0, 3) AS c
@@ -755,9 +787,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task Substring_with_zero_length(bool async)
+        public override async Task Substring_with_two_args_with_zero_length(bool async)
         {
-            await base.Substring_with_zero_length(async);
+            await base.Substring_with_two_args_with_zero_length(async);
 
             AssertSql(
                 @"SELECT SUBSTRING(c[""ContactName""], 2, 0) AS c
@@ -765,9 +797,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task Substring_with_constant(bool async)
+        public override async Task Substring_with_two_args_with_constant(bool async)
         {
-            await base.Substring_with_constant(async);
+            await base.Substring_with_two_args_with_constant(async);
 
             AssertSql(
                 @"SELECT SUBSTRING(c[""ContactName""], 1, 3) AS c
@@ -775,9 +807,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task Substring_with_closure(bool async)
+        public override async Task Substring_with_two_args_with_closure(bool async)
         {
-            await base.Substring_with_closure(async);
+            await base.Substring_with_two_args_with_closure(async);
 
             AssertSql(
                 @"@__start_0='2'
@@ -787,9 +819,9 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
-        public override async Task Substring_with_Index_of(bool async)
+        public override async Task Substring_with_two_args_with_Index_of(bool async)
         {
-            await base.Substring_with_Index_of(async);
+            await base.Substring_with_two_args_with_Index_of(async);
 
             AssertSql(
                 @"SELECT c[""ContactName""]

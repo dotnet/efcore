@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Base type for navigations and properties.
     /// </summary>
-    public abstract class SlimPropertyBase : AnnotatableBase, IRuntimePropertyBase
+    public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBase
     {
         private readonly PropertyInfo? _propertyInfo;
         private readonly FieldInfo? _fieldInfo;
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected SlimPropertyBase(
+        protected RuntimePropertyBase(
             string name,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type that this property-like object belongs to.
         /// </summary>
-        public abstract SlimEntityType DeclaringEntityType { get; }
+        public abstract RuntimeEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the type of value that this property-like object holds.

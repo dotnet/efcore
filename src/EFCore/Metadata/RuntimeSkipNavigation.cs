@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a navigation property that is part of a relationship
     ///     that is forwarded through a third entity type.
     /// </summary>
-    public class SlimSkipNavigation : SlimPropertyBase, IRuntimeSkipNavigation
+    public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     {
-        private readonly SlimForeignKey _foreignKey;
+        private readonly RuntimeForeignKey _foreignKey;
         private readonly bool _isOnDependent;
         private readonly bool _isCollection;
 
@@ -34,14 +34,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimSkipNavigation(
+        public RuntimeSkipNavigation(
             string name,
             Type clrType,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
-            SlimEntityType declaringEntityType,
-            SlimEntityType targetEntityType,
-            SlimForeignKey foreignKey,
+            RuntimeEntityType declaringEntityType,
+            RuntimeEntityType targetEntityType,
+            RuntimeForeignKey foreignKey,
             bool collection,
             bool onDependent,
             PropertyAccessMode propertyAccessMode,
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             _foreignKey = foreignKey;
             if (foreignKey.ReferencingSkipNavigations == null)
             {
-                foreignKey.ReferencingSkipNavigations = new SortedSet<SlimSkipNavigation>(SkipNavigationComparer.Instance) { this };
+                foreignKey.ReferencingSkipNavigations = new SortedSet<RuntimeSkipNavigation>(SkipNavigationComparer.Instance) { this };
             }
             else
             {
@@ -77,18 +77,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type that this property belongs to.
         /// </summary>
-        public override SlimEntityType DeclaringEntityType { get; }
+        public override RuntimeEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the entity type that this navigation property will hold an instance(s) of.
         /// </summary>
-        public virtual SlimEntityType TargetEntityType { get; }
+        public virtual RuntimeEntityType TargetEntityType { get; }
 
         /// <summary>
         ///     Gets or sets the inverse navigation.
         /// </summary>
         [DisallowNull]
-        public virtual SlimSkipNavigation? Inverse { get; set; }
+        public virtual RuntimeSkipNavigation? Inverse { get; set; }
 
         /// <summary>
         ///     Returns a string that represents the current object.

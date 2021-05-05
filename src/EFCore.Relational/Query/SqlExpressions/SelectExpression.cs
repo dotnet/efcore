@@ -410,8 +410,28 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 EntityShaperNullableMarkingExpressionVisitor? entityShaperNullableMarkingExpressionVisitor = null;
                 CloningExpressionVisitor? cloningExpressionVisitor = null;
                 var pushdownOccurred = false;
-                if (_clientProjections.Any(e => e is ShapedQueryExpression))
+                var containsCollection = false;
+                var containsSingleResult = false;
+                foreach (var projection in _clientProjections)
                 {
+                    if (projection is ShapedQueryExpression sqe)
+                    {
+                        if (sqe.ResultCardinality == ResultCardinality.Enumerable)
+                        {
+                            containsCollection = true;
+                        }
+                        if (sqe.ResultCardinality == ResultCardinality.Single
+                            || sqe.ResultCardinality == ResultCardinality.SingleOrDefault)
+                        {
+                            containsSingleResult = true;
+                        }
+                    }
+                }
+
+                if (containsSingleResult
+                    || (querySplittingBehavior == QuerySplittingBehavior.SingleQuery && containsCollection))
+                {
+                    // Pushdown outer since we will be adding join to this
                     if (Limit != null
                         || Offset != null
                         || IsDistinct
@@ -420,24 +440,41 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         PushdownIntoSubqueryInternal();
                         pushdownOccurred = true;
                     }
+
                     entityShaperNullableMarkingExpressionVisitor = new();
+                }
+
+                if (containsSingleResult || containsCollection)
+                {
                     cloningExpressionVisitor = new();
                 }
 
                 SelectExpression? baseSelectExpression = null;
-                if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery
-                    && _clientProjections.Any(e => e is ShapedQueryExpression sqe && sqe.ResultCardinality == ResultCardinality.Enumerable))
+                if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery && containsCollection)
                 {
                     baseSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(this);
-                    if (pushdownOccurred
-                        && (resultCardinality == ResultCardinality.Single
-                            || resultCardinality == ResultCardinality.SingleOrDefault)
-                        && baseSelectExpression.Tables[0] is SelectExpression nestedSelectExpression
-                        && nestedSelectExpression.Limit is SqlConstantExpression limitConstantExpression
-                            && limitConstantExpression.Value is int limitValue
-                            && limitValue == 2)
+                    if (resultCardinality == ResultCardinality.Single
+                        || resultCardinality == ResultCardinality.SingleOrDefault)
                     {
-                        nestedSelectExpression.Limit = new SqlConstantExpression(Constant(1), limitConstantExpression.TypeMapping);
+                        // Update limit since split queries don't need limit 2
+                        if (pushdownOccurred)
+                        {
+                            UpdateLimit((SelectExpression)baseSelectExpression.Tables[0]);
+                        }
+                        else
+                        {
+                            UpdateLimit(baseSelectExpression);
+                        }
+
+                        static void UpdateLimit(SelectExpression selectExpression)
+                        {
+                            if (selectExpression.Limit is SqlConstantExpression limitConstantExpression
+                                && limitConstantExpression.Value is int limitValue
+                                && limitValue == 2)
+                            {
+                                selectExpression.Limit = new SqlConstantExpression(Constant(1), limitConstantExpression.TypeMapping);
+                            }
+                        }
                     }
                 }
 
@@ -568,6 +605,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                 var outerSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(baseSelectExpression!);
                                 innerSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(this, outerSelectExpression)
                                     .Visit(innerSelectExpression);
+
+                                if (outerSelectExpression.Limit != null
+                                    || outerSelectExpression.Offset != null
+                                    || outerSelectExpression.IsDistinct
+                                    || outerSelectExpression._groupBy.Count > 0)
+                                {
+                                    // We do pushdown after making sure that inner contains references to outer only
+                                    // so that when we do pushdown, we can update inner and maintain graph
+                                    var sqlRemappingVisitor = outerSelectExpression.PushdownIntoSubqueryInternal();
+                                    innerSelectExpression = sqlRemappingVisitor.Remap(innerSelectExpression);
+                                }
 
                                 var actualParentIdentifier = _identifier.Take(outerSelectExpression._identifier.Count).ToList();
                                 var containsOrdering = innerSelectExpression.Orderings.Count > 0;

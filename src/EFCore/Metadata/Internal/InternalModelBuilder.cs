@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         {
                             return configurationSource == ConfigurationSource.Explicit
                                 ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name, clrType.ShortDisplayName()))
-                                : (InternalEntityTypeBuilder?)null;
+                                : null;
                         }
 
                         entityTypeSnapshot = InternalEntityTypeBuilder.DetachAllMembers(entityType);
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     return configurationSource == ConfigurationSource.Explicit
                         ? throw new InvalidOperationException(CoreStrings.ClashingSharedType(clrType.ShortDisplayName()))
-                        : (InternalEntityTypeBuilder?)null;
+                        : null;
                 }
 
                 entityType = Metadata.FindEntityType(clrType);
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return configurationSource == ConfigurationSource.Explicit
                         ? throw new InvalidOperationException(
                             CoreStrings.ClashingMismatchedSharedType(type.Name, entityType.ClrType.ShortDisplayName()))
-                        : (InternalEntityTypeBuilder?)null;
+                        : null;
                 }
             }
 

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a scalar property of an entity type.
     /// </summary>
-    public class SlimProperty : SlimPropertyBase, IProperty
+    public class RuntimeProperty : RuntimePropertyBase, IProperty
     {
         private readonly bool _isNullable;
         private readonly ValueGenerated _valueGenerated;
@@ -39,12 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimProperty(
+        public RuntimeProperty(
             string name,
             Type clrType,
             PropertyInfo? propertyInfo,
             FieldInfo? fieldInfo,
-            SlimEntityType declaringEntityType,
+            RuntimeEntityType declaringEntityType,
             PropertyAccessMode propertyAccessMode,
             bool nullable,
             bool concurrencyToken,
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the type that this property belongs to.
         /// </summary>
-        public override SlimEntityType DeclaringEntityType { get; }
+        public override RuntimeEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual SlimKey? PrimaryKey { get; set; }
+        public virtual RuntimeKey? PrimaryKey { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -125,22 +125,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual List<SlimKey>? Keys { get; set; }
+        public virtual List<RuntimeKey>? Keys { get; set; }
 
-        private IEnumerable<SlimKey> GetContainingKeys()
-            => Keys ?? Enumerable.Empty<SlimKey>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [EntityFrameworkInternal]
-        public virtual List<SlimForeignKey>? ForeignKeys { get; set; }
-
-        private IEnumerable<SlimForeignKey> GetContainingForeignKeys()
-            => ForeignKeys ?? Enumerable.Empty<SlimForeignKey>();
+        private IEnumerable<RuntimeKey> GetContainingKeys()
+            => Keys ?? Enumerable.Empty<RuntimeKey>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -149,10 +137,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual List<SlimIndex>? Indexes { get; set; }
+        public virtual List<RuntimeForeignKey>? ForeignKeys { get; set; }
 
-        private IEnumerable<SlimIndex> GetContainingIndexes()
-            => Indexes ?? Enumerable.Empty<SlimIndex>();
+        private IEnumerable<RuntimeForeignKey> GetContainingForeignKeys()
+            => ForeignKeys ?? Enumerable.Empty<RuntimeForeignKey>();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public virtual List<RuntimeIndex>? Indexes { get; set; }
+
+        private IEnumerable<RuntimeIndex> GetContainingIndexes()
+            => Indexes ?? Enumerable.Empty<RuntimeIndex>();
 
         private CoreTypeMapping TypeMapping
             => NonCapturingLazyInitializer.EnsureInitialized(

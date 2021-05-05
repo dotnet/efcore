@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents property facet overrides for a particular table-like store object.
     /// </summary>
-    public class SlimRelationalPropertyOverrides : AnnotatableBase, IRelationalPropertyOverrides
+    public class RuntimeRelationalPropertyOverrides : AnnotatableBase, IRelationalPropertyOverrides
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimRelationalPropertyOverrides(
-            SlimProperty property,
+        public RuntimeRelationalPropertyOverrides(
+            RuntimeProperty property,
             string? columnName,
             bool columnNameOverriden)
         {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the property for which the overrides are applied.
         /// </summary>
-        public virtual SlimProperty Property { get; }
+        public virtual RuntimeProperty Property { get; }
 
         /// <inheritdoc/>
         IProperty IRelationalPropertyOverrides.Property

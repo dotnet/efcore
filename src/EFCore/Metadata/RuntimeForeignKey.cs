@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relationship where a foreign key composed of properties on the dependent entity type
     ///     references a corresponding primary or alternate key on the principal entity type.
     /// </summary>
-    public class SlimForeignKey : AnnotatableBase, IRuntimeForeignKey
+    public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
     {
         private readonly DeleteBehavior _deleteBehavior;
         private readonly bool _isUnique;
@@ -35,11 +35,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public SlimForeignKey(
-            IReadOnlyList<SlimProperty> dependentProperties,
-            SlimKey principalKey,
-            SlimEntityType dependentEntityType,
-            SlimEntityType principalEntityType,
+        public RuntimeForeignKey(
+            IReadOnlyList<RuntimeProperty> dependentProperties,
+            RuntimeKey principalKey,
+            RuntimeEntityType dependentEntityType,
+            RuntimeEntityType principalEntityType,
             DeleteBehavior deleteBehavior,
             bool unique,
             bool required,
@@ -60,32 +60,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the foreign key properties in the dependent entity.
         /// </summary>
-        public virtual IReadOnlyList<SlimProperty> Properties { get; }
+        public virtual IReadOnlyList<RuntimeProperty> Properties { get; }
 
         /// <summary>
         ///     Gets the primary or alternate key that the relationship targets.
         /// </summary>
-        public virtual SlimKey PrincipalKey { get; }
+        public virtual RuntimeKey PrincipalKey { get; }
 
         /// <summary>
         ///     Gets the dependent entity type. This may be different from the type that <see cref="Properties" />
         ///     are defined on when the relationship is defined a derived type in an inheritance hierarchy (since the properties
         ///     may be defined on a base type).
         /// </summary>
-        public virtual SlimEntityType DeclaringEntityType { get; }
+        public virtual RuntimeEntityType DeclaringEntityType { get; }
 
         /// <summary>
         ///     Gets the principal entity type that this relationship targets. This may be different from the type that
         ///     <see cref="PrincipalKey" /> is defined on when the relationship targets a derived type in an inheritance
         ///     hierarchy (since the key is defined on the base type of the hierarchy).
         /// </summary>
-        public virtual SlimEntityType PrincipalEntityType { get; }
+        public virtual RuntimeEntityType PrincipalEntityType { get; }
 
         [DisallowNull]
-        private SlimNavigation? DependentToPrincipal { get; set; }
+        private RuntimeNavigation? DependentToPrincipal { get; set; }
 
         [DisallowNull]
-        private SlimNavigation? PrincipalToDependent { get; set; }
+        private RuntimeNavigation? PrincipalToDependent { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         [EntityFrameworkInternal]
         public virtual void AddNavigation(
-            SlimNavigation navigation,
+            RuntimeNavigation navigation,
             bool onDependent)
         {
             if (onDependent)
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual SortedSet<SlimSkipNavigation>? ReferencingSkipNavigations { get; set; }
+        public virtual SortedSet<RuntimeSkipNavigation>? ReferencingSkipNavigations { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -258,7 +258,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <inheritdoc />
         [DebuggerStepThrough]
         IEnumerable<IReadOnlySkipNavigation> IReadOnlyForeignKey.GetReferencingSkipNavigations()
-            => ReferencingSkipNavigations ?? Enumerable.Empty<SlimSkipNavigation>();
+            => ReferencingSkipNavigations ?? Enumerable.Empty<RuntimeSkipNavigation>();
 
         /// <inheritdoc />
         [DebuggerStepThrough]
