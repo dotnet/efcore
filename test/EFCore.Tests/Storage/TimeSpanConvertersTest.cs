@@ -34,6 +34,38 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 converter("10.07:30:18.3330000"));
 
             Assert.Equal(new TimeSpan(), converter("00:00:00"));
+
+            Assert.Throws<ArgumentNullException>(() => converter(null));
+            Assert.Throws<FormatException>(() => converter("Not a timespan"));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_TimeSpan_to_string_object()
+        {
+            var converter = _timeSpanToString.ConvertToProvider;
+
+            Assert.Equal(
+                "10.07:30:18.3330000",
+                converter(new TimeSpan(10, 7, 30, 15, 3333)));
+
+            Assert.Equal("00:00:00", converter(new TimeSpan()));
+
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_string_to_TimeSpan_object()
+        {
+            var converter = _timeSpanToString.ConvertFromProvider;
+
+            Assert.Equal(
+                new TimeSpan(10, 7, 30, 15, 3333),
+                converter("10.07:30:18.3330000"));
+
+            Assert.Equal(new TimeSpan(), converter("00:00:00"));
+
+            Assert.Throws<FormatException>(() => converter("Not a timespan"));
+            Assert.Null(converter(null));
         }
 
         private static readonly TimeSpanToTicksConverter _timeSpanToTicks = new();
@@ -56,6 +88,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new TimeSpan(), converter(0));
         }
 
+        [ConditionalFact]
+        public void Can_convert_TimeSpan_to_ticks_object()
+        {
+            var converter = _timeSpanToTicks.ConvertToProvider;
+
+            Assert.Equal(8910183330000, converter(new TimeSpan(10, 7, 30, 15, 3333)));
+            Assert.Equal(0L, converter(new TimeSpan()));
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_ticks_to_TimeSpan_object()
+        {
+            var converter = _timeSpanToTicks.ConvertFromProvider;
+
+            Assert.Equal(new TimeSpan(10, 7, 30, 15, 3333), converter(8910183330000));
+            Assert.Equal(new TimeSpan(), converter(0));
+            Assert.Null(converter(null));
+        }
+
         private static readonly CompositeValueConverter<TimeSpan, long, uint> _timeSpanToIntTicks
             = (CompositeValueConverter<TimeSpan, long, uint>)new TimeSpanToTicksConverter().ComposeWith(
                 new CastingConverter<long, uint>());
@@ -76,6 +128,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             Assert.Equal(new TimeSpan(0, 0, 0, 15, 3333), converter(183330000));
             Assert.Equal(new TimeSpan(), converter(0));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_TimeSpan_to_int_ticks_object()
+        {
+            var converter = _timeSpanToIntTicks.ConvertToProvider;
+
+            Assert.Equal((uint)183330000, converter(new TimeSpan(0, 0, 0, 15, 3333)));
+            Assert.Equal((uint)0, converter(new TimeSpan()));
+            Assert.Null(converter(null));
+        }
+
+        [ConditionalFact]
+        public void Can_convert_int_ticks_to_TimeSpan_object()
+        {
+            var converter = _timeSpanToIntTicks.ConvertFromProvider;
+
+            Assert.Equal(new TimeSpan(0, 0, 0, 15, 3333), converter(183330000));
+            Assert.Equal(new TimeSpan(), converter(0));
+            Assert.Null(converter(null));
         }
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,5 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The raw SQL command builder.
         /// </summary>
         IRawSqlCommandBuilder RawSqlCommandBuilder { get; }
+
+        /// <summary>
+        ///     A command logger.
+        /// </summary>
+        new IRelationalCommandDiagnosticsLogger CommandLogger { get; }
     }
 }

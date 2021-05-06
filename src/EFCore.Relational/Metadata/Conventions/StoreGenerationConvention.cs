@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionProperty property,
             in StoreObjectIdentifier storeObject)
         {
-            if (property.GetDefaultValue(storeObject) != null)
+            if (property.TryGetDefaultValue(storeObject, out _))
             {
                 if (property.GetDefaultValueSql(storeObject) != null)
                 {

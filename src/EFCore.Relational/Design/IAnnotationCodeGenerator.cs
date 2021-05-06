@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
-    ///     Implemented by database providers to control which <see cref="IAnnotation" />s need to
+    ///     Implemented by database providers to control which annotations need to
     ///     have code generated (as opposed to being handled by convention) and then to generate
     ///     the code if needed.
     /// </summary>

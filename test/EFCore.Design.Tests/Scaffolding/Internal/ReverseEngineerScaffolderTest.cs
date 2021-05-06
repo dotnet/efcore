@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     typeof(ReverseEngineerScaffolderTest).Assembly,
                     new TestOperationReporter(),
                     new string[0])
-                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
+                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .BuildServiceProvider()
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     typeof(ReverseEngineerScaffolderTest).Assembly,
                     new TestOperationReporter(),
                     new string[0])
-                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
+                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
                 .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
                 .BuildServiceProvider()
@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     typeof(ReverseEngineerScaffolderTest).Assembly,
                     new TestOperationReporter(),
                     new string[0])
-                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
+                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
                 .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
                 .BuildServiceProvider()

@@ -101,14 +101,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             EnsureServices(services);
             EnsureMigrationsAssembly(services);
 
-            var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
+            using var scope = services.CreateScope();
+            var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
             var migration =
                 string.IsNullOrEmpty(@namespace)
                     ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language)
                     : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
-            var files = scaffolder.Save(_projectDir, migration, outputDir);
-
-            return files;
+            return scaffolder.Save(_projectDir, migration, outputDir);
         }
 
         // if outputDir is a subfolder of projectDir, then use each subfolder as a subnamespace
@@ -246,7 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             EnsureServices(services);
             EnsureMigrationsAssembly(services);
 
-            var scaffolder = services.GetRequiredService<IMigrationsScaffolder>();
+            using var scope = services.CreateScope();
+            var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
             var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
 

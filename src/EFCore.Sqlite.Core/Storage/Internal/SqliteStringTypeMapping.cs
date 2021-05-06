@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                                 startIndexes.Add(builder.Length);
                             }
 
-                            builder.Append("'");
+                            builder.Append('\'');
                             openApostrophe = true;
                         }
 
@@ -187,11 +187,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 }
 
                 var mid = start + count / 2;
-                newBuilder.Append("(");
+                newBuilder.Append('(');
                 GenerateBalancedTree(start, mid);
                 newBuilder.Append(" || ");
                 GenerateBalancedTree(mid, end);
-                newBuilder.Append(")");
+                newBuilder.Append(')');
             }
         }
     }

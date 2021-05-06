@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -242,8 +243,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> DisableConcurrencyDetection(bool concurrencyDetectionDisabled = true)
-            => (DbContextOptionsBuilder<TContext>)base.DisableConcurrencyDetection(concurrencyDetectionDisabled);
+        public new virtual DbContextOptionsBuilder<TContext> EnableThreadSafetyChecks(bool checksEnabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableThreadSafetyChecks(checksEnabled);
 
         /// <summary>
         ///     <para>
@@ -465,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
         ///     </para>
         ///     <para>
-        ///         A single interceptor instance can implement multiple different interceptor interfaces. I will be registered as
+        ///         A single interceptor instance can implement multiple different interceptor interfaces. It will be registered as
         ///         an interceptor for all interfaces that it implements.
         ///     </para>
         ///     <para>
@@ -507,5 +508,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> AddInterceptors(params IInterceptor[] interceptors)
             => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures how long EF Core will cache logging configuration in certain high-performance paths. This makes
+        ///         EF Core skip potentially costly logging checks, but means that runtime logging changes (e.g. registering a
+        ///         new <see cref="DiagnosticListener" /> may not be taken into account right away).
+        ///     </para>
+        ///     <para>
+        ///         Defaults to one second.
+        ///     </para>
+        /// </summary>
+        /// <param name="loggingConfigCacheTime"> The maximum time period over which to skip logging checks before checking again. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> LoggingConfigCacheTime(TimeSpan loggingConfigCacheTime)
+            => (DbContextOptionsBuilder<TContext>)base.LoggingConfigCacheTime(loggingConfigCacheTime);
     }
 }

@@ -52,8 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 comparer: new ValueComparer<byte[]>(
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
                     v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
-                    // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-                    v => v == null ? null! : v.ToArray()),
+                    v => v == null ? null : v.ToArray()),
                 storeTypePostfix: StoreTypePostfix.None);
 
         private readonly IntTypeMapping _int
@@ -247,8 +246,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-            => FindRawMapping(mappingInfo)?.Clone(mappingInfo)
-                ?? base.FindMapping(mappingInfo);
+            => base.FindMapping(mappingInfo) ?? FindRawMapping(mappingInfo)?.Clone(mappingInfo);
 
         private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
         {
@@ -302,10 +300,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     var isFixedLength = mappingInfo.IsFixedLength == true;
                     var maxSize = isAnsi ? 8000 : 4000;
 
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)(isAnsi ? 900 : 450) : null);
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
                     if (size > maxSize)
                     {
-                        size = isFixedLength ? maxSize : (int?)null;
+                        size = isFixedLength ? maxSize : null;
                     }
 
                     if (size == null
@@ -336,10 +334,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
                     var isFixedLength = mappingInfo.IsFixedLength == true;
 
-                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? (int?)900 : null);
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
                     if (size > 8000)
                     {
-                        size = isFixedLength ? 8000 : (int?)null;
+                        size = isFixedLength ? 8000 : null;
                     }
 
                     return size == null

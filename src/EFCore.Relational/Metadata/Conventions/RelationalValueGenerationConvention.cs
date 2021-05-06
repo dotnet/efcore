@@ -153,9 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return valueGenerated
                 ?? (property.GetComputedColumnSql(storeObject) != null
                     ? ValueGenerated.OnAddOrUpdate
-                    : property.GetDefaultValue(storeObject) != null || property.GetDefaultValueSql(storeObject) != null
+                    : property.TryGetDefaultValue(storeObject, out _) || property.GetDefaultValueSql(storeObject) != null
                         ? ValueGenerated.OnAdd
-                        : (ValueGenerated?)null);
+                        : null);
         }
     }
 }

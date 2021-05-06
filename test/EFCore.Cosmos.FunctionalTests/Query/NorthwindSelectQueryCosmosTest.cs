@@ -1302,6 +1302,12 @@ ORDER BY c[""OrderID""]");
             return base.Take_on_correlated_collection_in_first(async);
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Client_projection_via_ctor_arguments(bool async)
+        {
+            return base.Client_projection_via_ctor_arguments(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

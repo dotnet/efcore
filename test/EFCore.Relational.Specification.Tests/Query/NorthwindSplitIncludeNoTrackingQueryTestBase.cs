@@ -119,34 +119,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Single(context.ChangeTracker.Entries());
         }
 
-        public override Task Include_collection_with_last_no_orderby(bool async)
+        public override async Task Include_collection_with_last_no_orderby(bool async)
         {
-            return AssertTranslationFailedWithDetails(
-                () => base.Include_collection_with_last_no_orderby(async), RelationalStrings.MissingOrderingInSelectExpression);
-        }
-
-        [ConditionalTheory(Skip = "Issue#22283 Collection Include on nested collection")]
-        public override Task Multi_level_includes_are_applied_with_take(bool async)
-        {
-            return base.Multi_level_includes_are_applied_with_take(async);
-        }
-
-        [ConditionalTheory(Skip = "Issue#22283 Collection Include on nested collection")]
-        public override Task Multi_level_includes_are_applied_with_skip(bool async)
-        {
-            return base.Multi_level_includes_are_applied_with_skip(async);
-        }
-
-        [ConditionalTheory(Skip = "Issue#22283 Collection Include on nested collection")]
-        public override Task Multi_level_includes_are_applied_with_skip_take(bool async)
-        {
-            return base.Multi_level_includes_are_applied_with_skip_take(async);
-        }
-
-        [ConditionalTheory(Skip = "Issue#22283 Collection Include on nested entity")]
-        public override Task Include_in_let_followed_by_FirstOrDefault(bool async)
-        {
-            return base.Include_in_let_followed_by_FirstOrDefault(async);
+            Assert.Equal(
+                RelationalStrings.LastUsedWithoutOrderBy(nameof(Queryable.Last)),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Include_collection_with_last_no_orderby(async))).Message);
         }
 
         protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)

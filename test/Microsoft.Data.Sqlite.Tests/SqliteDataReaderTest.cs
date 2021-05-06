@@ -1294,6 +1294,18 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetOrdinal_throws_when_ambiguous()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+
+            using var reader = connection.ExecuteReader("SELECT 1 AS Id, 2 AS ID");
+            var ex = Assert.Throws<InvalidOperationException>(() => reader.GetOrdinal("id"));
+
+            Assert.Contains(Resources.AmbiguousColumnName("id", "Id", "ID"), ex.Message);
+        }
+
+        [Fact]
         public void GetOrdinal_throws_when_closed()
         {
             X_throws_when_closed(r => r.GetOrdinal(null!), nameof(SqliteDataReader.GetOrdinal));
@@ -1583,19 +1595,22 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact]
-        public void Item_by_name_works()
+        [Theory]
+        [InlineData("SELECT 1 AS Id;", "Id", 1L)]
+        [InlineData("SELECT 1 AS Id;", "id", 1L)]
+        [InlineData("SELECT 1 AS Id, 2 AS id;", "id", 2L)]
+        public void Item_by_name_works(string query, string column, long expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
+                using (var reader = connection.ExecuteReader(query))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    Assert.Equal(1L, reader["Id"]);
+                    Assert.Equal(expected, reader[column]);
                 }
             }
         }

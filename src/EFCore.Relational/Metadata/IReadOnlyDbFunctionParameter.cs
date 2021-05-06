@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool PropagatesNullability { get; }
 
         /// <summary>
-        ///     Gets the <see cref="RelationalTypeMapping" /> for this parameter.
+        ///     Gets the type mapping for this parameter.
         /// </summary>
         RelationalTypeMapping? TypeMapping { get; }
 
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Append("DbFunctionParameter: ");
 
             builder.Append(Name)
-                .Append(" ")
+                .Append(' ')
                 .Append(StoreType);
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)

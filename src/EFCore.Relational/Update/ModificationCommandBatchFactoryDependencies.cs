@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             IUpdateSqlGenerator updateSqlGenerator,
             IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             ICurrentDbContext currentContext,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger)
+            IRelationalCommandDiagnosticsLogger logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     A logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command> Logger { get; init; }
+        public IRelationalCommandDiagnosticsLogger Logger { get; init; }
 
         /// <summary>
         ///     The command builder factory.

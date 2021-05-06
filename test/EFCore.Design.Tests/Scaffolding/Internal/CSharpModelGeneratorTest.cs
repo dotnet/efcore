@@ -3,6 +3,7 @@
 
 using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,12 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private static IModelCodeGenerator CreateGenerator()
-            => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddEntityFrameworkDesignTimeServices()
+        {
+            var testAssembly = typeof(CSharpModelGeneratorTest).Assembly;
+            var reporter = new TestOperationReporter();
+            return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
+        }
     }
 }

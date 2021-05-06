@@ -1322,7 +1322,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     o =>
                         context.Customers
                             .FromSqlRaw(
-                                @"SELECT * FROM ""Customers"" WHERE ""City"" = @city",
+                                NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = @city"),
                                 // ReSharper disable once FormatStringProblem
                                 CreateDbParameter("@city", "London"))
                             .Select(c => c.CustomerID)
@@ -1344,7 +1344,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     o =>
                         context.Customers
                             .FromSqlRaw(
-                                @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
+                                NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
                                 // ReSharper disable once FormatStringProblem
                                 CreateDbParameter(null, "London"))
                             .Select(c => c.CustomerID)
@@ -1366,7 +1366,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     o =>
                         context.Customers
                             .FromSqlRaw(
-                                @"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
+                                NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0}"),
                                 // ReSharper disable once FormatStringProblem
                                 CreateDbParameter("@city", "London"))
                             .Select(c => c.CustomerID)
@@ -1391,7 +1391,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     o =>
                         context.Customers
                             .FromSqlRaw(
-                                @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = @title",
+                                NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = @title"),
                                 city,
                                 // ReSharper disable once FormatStringProblem
                                 CreateDbParameter("@title", title))
@@ -1408,7 +1408,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                     o =>
                         context.Customers
                             .FromSqlRaw(
-                                @"SELECT * FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = {1}",
+                                NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = @city AND [ContactTitle] = {1}"),
                                 // ReSharper disable once FormatStringProblem
                                 CreateDbParameter("@city", city),
                                 title)

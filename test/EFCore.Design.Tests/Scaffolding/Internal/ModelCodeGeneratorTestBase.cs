@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
@@ -26,13 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
 
-            var model = modelBuilder.FinalizeModel();
+            var model = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true, skipValidation: true);
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-
-            var generator = services
+            var generator = CreateServices()
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 
@@ -71,6 +68,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 var compiledModel = context.Model;
                 assertModel(compiledModel);
             }
+        }
+
+        protected static IServiceCollection CreateServices()
+        {
+            var testAssembly = typeof(ModelCodeGeneratorTestBase).Assembly;
+            var reporter = new TestOperationReporter();
+            var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer");
+            return services;
         }
 
         protected static void AssertFileContents(

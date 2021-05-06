@@ -44,16 +44,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         private static object CreateAndUseFactory(IProperty property)
-            => new TemporaryNumberValueGeneratorFactory().Create(property).Next(null);
+            => new TemporaryNumberValueGeneratorFactory().Create(property, property.DeclaringEntityType).Next(null);
 
         [ConditionalFact]
         public void Throws_for_non_integer_property()
         {
-            var property = _model.FindEntityType(typeof(AnEntity)).FindProperty("BadCheese");
+            var entityType = _model.FindEntityType(typeof(AnEntity));
+            var property = entityType.FindProperty("BadCheese");
 
             Assert.Equal(
                 CoreStrings.InvalidValueGeneratorFactoryProperty(nameof(TemporaryNumberValueGeneratorFactory), "BadCheese", "AnEntity"),
-                Assert.Throws<ArgumentException>(() => new TemporaryNumberValueGeneratorFactory().Create(property)).Message);
+                Assert.Throws<ArgumentException>(() => new TemporaryNumberValueGeneratorFactory().Create(property, entityType)).Message);
         }
 
         private class AnEntity

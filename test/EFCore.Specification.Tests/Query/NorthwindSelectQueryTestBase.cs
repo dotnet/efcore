@@ -2317,5 +2317,61 @@ namespace Microsoft.EntityFrameworkCore.Query
               asserter: (e, a) => AssertCollection(e.Orders, a.Orders, ordered: true,
                 elementAsserter: (ee, aa) => AssertEqual(ee.Title, aa.Title)));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Client_projection_via_ctor_arguments(bool async)
+        {
+            return AssertSingle(
+              async,
+              ss =>
+               ss.Set<Customer>()
+                    .Where(c => c.CustomerID == "ALFKI")
+                    .Include(c => c.Orders)
+                    .Select(c => new CustomerDetailsWithCount(c.CustomerID, c.City,
+                        c.Orders.Select(o => new OrderInfo(o.OrderID, o.OrderDate)).ToList(), c.Orders.Count)),
+              asserter: (e, a) =>
+              {
+                  Assert.Equal(e.CustomerID, a.CustomerID);
+                  Assert.Equal(e.City, a.City);
+                  AssertCollection(e.OrderInfos, a.OrderInfos,
+                      elementSorter: i => i.OrderID,
+                      elementAsserter: (ie, ia) =>
+                      {
+                          Assert.Equal(ie.OrderID, ia.OrderID);
+                          Assert.Equal(ie.OrderDate, ia.OrderDate);
+                      });
+                  Assert.Equal(e.OrderCount, a.OrderCount);
+              });
+        }
+
+        private class CustomerDetailsWithCount
+        {
+            public CustomerDetailsWithCount(string customerID, string city, List<OrderInfo> orderInfos, int orderCount)
+            {
+                CustomerID = customerID;
+                City = city;
+                OrderInfos = orderInfos;
+                OrderCount = orderCount;
+            }
+
+            public string CustomerID { get; }
+            public string City { get; }
+            public List<OrderInfo> OrderInfos { get; }
+            public int OrderCount { get; }
+        }
+
+        private class OrderInfo
+        {
+            public OrderInfo(int orderID, DateTime? orderDate)
+            {
+                OrderID = orderID;
+                OrderDate = orderDate;
+            }
+
+            public int OrderID { get; }
+            public DateTime? OrderDate { get; }
+        }
+
     }
 }

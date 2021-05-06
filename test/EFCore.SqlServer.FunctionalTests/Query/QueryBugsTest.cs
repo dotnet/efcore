@@ -1752,11 +1752,11 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                     @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
 WHERE ([e].[Permission] & CAST(17179869184 AS bigint)) = CAST(17179869184 AS bigint)");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.Entity.Where(e => e.PermissionShort.HasFlag(MyContext8538.PermissionShort.READ_WRITE)).ToList();
 
                 Assert.Single(query);
@@ -1783,11 +1783,11 @@ WHERE ([e].[PermissionShort] & CAST(4 AS smallint)) = CAST(4 AS smallint)");
                     @"SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
 WHERE ([e].[Permission] & [e].[Permission]) = [e].[Permission]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.Entity.Where(e => e.PermissionByte.HasFlag(e.PermissionByte)).ToList();
 
                 Assert.Equal(3, query.Count);
@@ -1900,11 +1900,11 @@ WHERE [e].[Id] = @__id_0",
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = @__id_0");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 context.Cache.Compact(1);
 
                 var id = 0;
@@ -1931,11 +1931,11 @@ WHERE [e].[Id] = @__id_0",
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = @__id_0");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 context.Cache.Compact(1);
 
                 var id = 0;
@@ -2217,11 +2217,11 @@ ORDER BY [m].[Id], [a].[Id]");
                     @"SELECT TOP(2) [foo].[AddOne]([w].[Val])
 FROM [foo].[Widgets] AS [w]
 WHERE [w].[Val] = 1");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var result = context.Widgets.Where(w => w.Val == 1).Select(w => MyContext9214.AddTwo(w.Val)).Single();
 
                 Assert.Equal(3, result);
@@ -2593,11 +2593,11 @@ LEFT JOIN [Configuration9468] AS [c0] ON [c].[ConfigurationId] = [c0].[Id]");
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[Id] = [c].[Parent10635Id]
 ORDER BY [p].[Id], [c].[Id]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.Parents.OrderBy(p => p.Id).Select(p => p.Children.ToList()).ToList();
 
                 AssertSql(
@@ -4251,11 +4251,11 @@ ORDER BY [p].[Id]");
 FROM [Bases] AS [b]
 LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
 ORDER BY [b].[Id]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var result = context.Bases.AsNoTracking().Include(p => ((MyContext16233.DerivedType16233)p).Reference).OrderBy(b => b.Id).ToList();
 
                 Assert.Equal(3, result.Count);
@@ -4785,11 +4785,11 @@ FROM [EntitiesWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
     SELECT 1
     FROM [EntitiesWithQueryFilterSelfReference] AS [e0]) AND (([e].[Name] <> N'Foo') OR [e].[Name] IS NULL)");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.EntitiesReferencingEntityWithQueryFilterSelfReference.Where(e => e.Name != "Foo");
                 var result = query.ToList();
 
@@ -5036,12 +5036,12 @@ WHERE [p].[Id] = @__id_0");
                     @"SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
 WHERE [f].[String] = N'1337'");
-                ClearLog();
             }
 
             //Access_property_of_closure
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 // Verify no client eval
                 var bar = new MyContext6864.Bar6864(1337);
                 var result = context.Foos.Where(f => f.String == bar.Value).ToList();
@@ -5054,12 +5054,12 @@ WHERE [f].[String] = N'1337'");
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
 WHERE [f].[String] = @__bar_Value_0");
-                ClearLog();
             }
 
             //Implicitly_cast_closure
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 // Verify no client eval
                 var bar = new MyContext6864.Bar6864(1337);
                 var result = context.Foos.Where(f => f.String == bar.ToString()).ToList();
@@ -5072,12 +5072,12 @@ WHERE [f].[String] = @__bar_Value_0");
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
 WHERE [f].[String] = @__ToString_0");
-                ClearLog();
             }
 
             //Implicitly_cast_closure
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 // Verify no client eval
                 var bar = new MyContext6864.Bar6864(1337);
                 var result = context.Foos.Where(f => f.String == bar).ToList();
@@ -5090,12 +5090,12 @@ WHERE [f].[String] = @__ToString_0");
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
 WHERE [f].[String] = @__p_0");
-                ClearLog();
             }
 
             // Implicitly_cast_return_value
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 // Verify no client eval
                 var result = context.Foos.Where(f => f.String == new MyContext6864.Bar6864(1337).Clone()).ToList();
 
@@ -5265,11 +5265,11 @@ FROM [Blogs] AS [b]");
                     @"SELECT TOP(1) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var personsToFind = await context.Persons.Where(p => p.Age >= 21)
                     .Select(p => new MyContext17644.PersonDetailView17644 { Name = p.Name, Age = p.Age })
                     .FirstOrDefaultAsync<MyContext17644.PersonView17644>();
@@ -5278,11 +5278,11 @@ WHERE [p].[Age] >= 21");
                     @"SELECT TOP(1) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var personsToFind = await context.Persons.Where(p => p.Age >= 21)
                     .Select(p => new MyContext17644.PersonDetailView17644 { Name = p.Name, Age = p.Age })
                     .SingleAsync<MyContext17644.PersonView17644>();
@@ -5291,11 +5291,11 @@ WHERE [p].[Age] >= 21");
                     @"SELECT TOP(2) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var personsToFind = await context.Persons.Where(p => p.Age >= 21)
                     .Select(p => new MyContext17644.PersonDetailView17644 { Name = p.Name, Age = p.Age })
                     .SingleOrDefaultAsync<MyContext17644.PersonView17644>();
@@ -5304,11 +5304,11 @@ WHERE [p].[Age] >= 21");
                     @"SELECT TOP(2) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var personsToFind = await context.Persons.Where(p => p.Age >= 21)
                     .OrderBy(p => p.Id)
                     .Select(p => new MyContext17644.PersonDetailView17644 { Name = p.Name, Age = p.Age })
@@ -5319,11 +5319,11 @@ WHERE [p].[Age] >= 21");
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21
 ORDER BY [p].[Id] DESC");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var personsToFind = await context.Persons.Where(p => p.Age >= 21)
                     .OrderBy(p => p.Id)
                     .Select(p => new MyContext17644.PersonDetailView17644 { Name = p.Name, Age = p.Age })
@@ -5661,11 +5661,11 @@ OUTER APPLY (
         WHERE ([c1].[StartDate] <= [a].[DateTime]) AND ([a].[DateTime] < [c1].[EndDate]))) AND ([a0].[Id] = [a1].[ActivityTypeId])
 ) AS [t]
 ORDER BY [a].[Id], [a0].[Id], [t].[Id], [t].[Id0]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var users = context.Activities
                     .Select(
                         a => new
@@ -5791,7 +5791,7 @@ INNER JOIN [ActivityType12456] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]");
                     .SingleAsync();
 
                 AssertSql(
-                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0] AS [Id], [t1].[Id1] AS [Id], [t1].[IsPastTradeDeadline]
+                    @"SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
 FROM (
     SELECT TOP(2) [t].[Id]
     FROM [Trades] AS [t]
@@ -6082,12 +6082,12 @@ WHERE EXISTS (
 SELECT TOP(1) [m].[Id], [m].[Name], [m].[NavigationEntityId]
 FROM [MockEntities] AS [m]
 WHERE [m].[Id] = @__id_0");
-                ClearLog();
             }
 
             // object
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var queryBase = (IQueryable)context.MockEntities;
                 var query = queryBase.Cast<object>().Count();
 
@@ -6096,12 +6096,12 @@ WHERE [m].[Id] = @__id_0");
                 AssertSql(
                     @"SELECT COUNT(*)
 FROM [MockEntities] AS [m]");
-                ClearLog();
             }
 
             // non_implemented_interface
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var queryBase = (IQueryable)context.MockEntities;
                 var id = 1;
 
@@ -6299,11 +6299,11 @@ WHERE (
     FROM [Customers] AS [c0]
     LEFT JOIN [CustomerMemberships] AS [c1] ON [c0].[Id] = [c1].[CustomerId]
     WHERE [c1].[Id] IS NOT NULL AND ([c0].[Id] = [c].[CustomerId])) > 0");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.Set<IssueContext19708.CustomerView19708>().ToList();
 
                 Assert.Collection(
@@ -6450,11 +6450,11 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]");
 SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = @__id_0");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var originalQuery = context.Entities.Select(a => new IssueContext20097.MyModel20097 { Id = a.Id });
                 var query = originalQuery.Where<IssueContext20097.IHaveId20097>(a => a.Id == 1).ToList();
 
@@ -6464,11 +6464,11 @@ WHERE [e].[Id] = @__id_0");
                     @"SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var originalQuery = context.Entities.Select(a => new IssueContext20097.MyModel20097 { Id = a.Id });
                 var query = originalQuery.Where(a => ((IssueContext20097.IHaveId20097)a).Id == 1).ToList();
 
@@ -6478,11 +6478,11 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
                     @"SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var originalQuery = context.Entities.Select(a => new IssueContext20097.MyModel20097 { Id = a.Id });
                 var query = originalQuery.Where(a => (a as IssueContext20097.IHaveId20097).Id == 1).ToList();
 
@@ -6492,11 +6492,11 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
                     @"SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var originalQuery = context.Entities.Select(a => new IssueContext20097.MyModel20097 { Id = a.Id });
                 var query = originalQuery.Where(a => ((IssueContext20097.IHaveId20097)a).Id == 1).ToList();
                 Assert.Single(query);
@@ -6505,7 +6505,6 @@ WHERE [e].[Id] = CAST(1 AS bigint)");
                     @"SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)");
-                ClearLog();
             }
         }
 
@@ -6630,11 +6629,11 @@ FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id], [c].[Id]"
                     });
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var result = context.Parents.Include(p => p.Children1).AsSplitQuery().ToList();
 
                 AssertSql(
@@ -6649,11 +6648,11 @@ FROM [Parents] AS [p]
 INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]"
                     });
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
 
                 AssertSql(
@@ -6690,11 +6689,11 @@ FROM [Parents] AS [p]
 INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]"
                     });
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var result = context.Parents.Include(p => p.Children1).AsSingleQuery().ToList();
 
                 AssertSql(
@@ -6705,11 +6704,11 @@ FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id], [c].[Id]"
                     });
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
 
                 AssertSql(
@@ -6897,7 +6896,7 @@ ORDER BY [p].[Id], [c].[Id], [a].[Id]"
                 Assert.Single(result.SkipOtherSide);
 
                 AssertSql(
-                    @"SELECT [p].[Id], [p].[OwnedReference_Id], [r].[Id], [r].[ParentId], [c].[Id], [c].[ParentId], [t].[Id], [t].[ParentId], [t].[OtherSideId]
+                    @"SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [t].[Id], [t].[ParentId], [t].[OtherSideId]
 FROM [Parents] AS [p]
 LEFT JOIN [Reference21540] AS [r] ON [p].[Id] = [r].[ParentId]
 LEFT JOIN [Collection21540] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -6907,11 +6906,11 @@ LEFT JOIN (
     INNER JOIN [OtherSide21540] AS [o] ON [j].[OtherSideId] = [o].[Id]
 ) AS [t] ON [p].[Id] = [t].[ParentId]
 ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId], [t].[Id]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var query = context.Parents.AsNoTracking().IgnoreAutoIncludes().ToList();
 
                 var result = Assert.Single(query);
@@ -8138,11 +8137,11 @@ LEFT JOIN [DependentOneToOne] AS [d] ON [p].[Id] = [d].[PrincipalId]",
                     @"SELECT [d].[Id], [d].[PrincipalId], [p].[Id]
 FROM [DependentOneToOne] AS [d]
 INNER JOIN [PrincipalOneToOne] AS [p] ON [d].[PrincipalId] = [p].[Id]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var principals = context.Set<MyContext22568.PrincipalOneToMany>().ToList();
                 Assert.Single(principals);
                 Assert.NotNull(principals[0].Dependents);
@@ -8165,11 +8164,11 @@ FROM [DependentOneToMany] AS [d]
 INNER JOIN [PrincipalOneToMany] AS [p] ON [d].[PrincipalId] = [p].[Id]
 LEFT JOIN [DependentOneToMany] AS [d0] ON [p].[Id] = [d0].[PrincipalId]
 ORDER BY [d].[Id], [p].[Id], [d0].[Id]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 Assert.Equal(
                     CoreStrings.AutoIncludeNavigationCycle("'PrincipalManyToMany.Dependents', 'DependentManyToMany.Principals'"),
                     Assert.Throws<InvalidOperationException>(() => context.Set<MyContext22568.PrincipalManyToMany>().ToList()).Message);
@@ -8187,11 +8186,11 @@ FROM [PrincipalManyToMany] AS [p]",
                     //
                     @"SELECT [d].[Id]
 FROM [DependentManyToMany] AS [d]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 Assert.Equal(
                     CoreStrings.AutoIncludeNavigationCycle("'CycleA.Bs', 'CycleB.C', 'CycleC.As'"),
                     Assert.Throws<InvalidOperationException>(() => context.Set<MyContext22568.CycleA>().ToList()).Message);
@@ -8407,11 +8406,11 @@ LEFT JOIN (
     WHERE [p].[Name] LIKE N'%2%'
 ) AS [t] ON [b].[Id] = [t].[BlogId]
 ORDER BY [b].[Id], [t].[Id]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var result = context.Blogs.Select(
                     e => new
                     {
@@ -8492,29 +8491,27 @@ FROM [Blogs] AS [b]");
                 Assert.Equal("B", owner.Owned2.Value);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t].[Owner23211Id], [t].[Value], [t].[Owner23211Id0], [t].[Value0]
+                    @"SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id], [o1].[Value]
+FROM [Owner23211] AS [o]
+LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
+LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
+ORDER BY [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id]",
+                    //
+                    @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
 FROM (
-    SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id] AS [Owner23211Id0], [o1].[Value] AS [Value0]
+    SELECT TOP(1) [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id] AS [Owner23211Id0]
     FROM [Owner23211] AS [o]
     LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
     LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
     ORDER BY [o].[Id]
 ) AS [t]
-ORDER BY [t].[Id]",
-                    //
-                    @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id]
-FROM (
-    SELECT TOP(1) [o].[Id]
-    FROM [Owner23211] AS [o]
-    ORDER BY [o].[Id]
-) AS [t]
 INNER JOIN [Dependent23211] AS [d] ON [t].[Id] = [d].[Owner23211Id]
-ORDER BY [t].[Id]");
-                ClearLog();
+ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]");
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 var owner = context.Set<MyContext23211.SecondOwner23211>().Include(e => e.Dependents).AsSplitQuery().OrderBy(e => e.Id).Single();
                 Assert.NotNull(owner.Dependents);
                 Assert.Equal(2, owner.Dependents.Count);
@@ -8522,23 +8519,20 @@ ORDER BY [t].[Id]");
                 Assert.Equal("A", owner.Owned.Value);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t].[SecondOwner23211Id], [t].[Value]
+                    @"SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
+FROM [SecondOwner23211] AS [s]
+LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
+ORDER BY [s].[Id], [o].[SecondOwner23211Id]",
+                    //
+                    @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id], [t].[SecondOwner23211Id]
 FROM (
-    SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
+    SELECT TOP(1) [s].[Id], [o].[SecondOwner23211Id]
     FROM [SecondOwner23211] AS [s]
     LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
     ORDER BY [s].[Id]
 ) AS [t]
-ORDER BY [t].[Id]",
-                    //
-                    @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id]
-FROM (
-    SELECT TOP(1) [s].[Id]
-    FROM [SecondOwner23211] AS [s]
-    ORDER BY [s].[Id]
-) AS [t]
 INNER JOIN [SecondDependent23211] AS [s0] ON [t].[Id] = [s0].[SecondOwner23211Id]
-ORDER BY [t].[Id]");
+ORDER BY [t].[Id], [t].[SecondOwner23211Id]");
             }
         }
 
@@ -8796,11 +8790,11 @@ SELECT [a0].[Id], [a0].[a], [a0].[a1], [a0].[forkey], [b0].[Id] AS [Id0], [b0].[
 FROM [B] AS [b0]
 LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]
 WHERE [a0].[Id] IS NULL");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 Expression<Func<MyContext19253.A19253, string>> leftKeySelector = x => x.forkey;
                 Expression<Func<MyContext19253.B19253, string>> rightKeySelector = y => y.forkey;
 
@@ -8846,11 +8840,11 @@ SELECT [a0].[Id], [a0].[a], [a0].[a1], [a0].[forkey], [b0].[Id] AS [Id0], [b0].[
 FROM [B] AS [b0]
 LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]
 WHERE [a0].[Id] IS NULL");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 Expression<Func<MyContext19253.A19253, string>> leftKeySelector = x => x.forkey;
                 Expression<Func<MyContext19253.B19253, string>> rightKeySelector = y => y.forkey;
 
@@ -8894,11 +8888,11 @@ EXCEPT
 SELECT [a0].[Id], [a0].[a], [a0].[a1], [a0].[forkey], [b0].[Id] AS [Id0], [b0].[b], [b0].[b1], [b0].[forkey] AS [forkey0]
 FROM [B] AS [b0]
 LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]");
-                ClearLog();
             }
 
             using (var context = contextFactory.CreateContext())
             {
+                ClearLog();
                 Expression<Func<MyContext19253.A19253, string>> leftKeySelector = x => x.forkey;
                 Expression<Func<MyContext19253.B19253, string>> rightKeySelector = y => y.forkey;
 
@@ -9627,27 +9621,27 @@ ORDER BY [t].[Id], [t].[Id0], [t].[Id1], [p0].[Id], [t0].[Id]");
 
             // Verify the valid generated SQL
             AssertSql(
-                @"SELECT [t0].[c], [t0].[Id], [t1].[Rate], [t1].[UserRateText], [t1].[UserId], [t1].[Id], [t1].[Id0]
+                @"SELECT [t].[Id], [t1].[Rate], [t1].[UserRateText], [t1].[UserId], [t1].[Id], [t1].[Id0], [t].[c]
 FROM (
     SELECT TOP(2) (
         SELECT COUNT(*)
         FROM [Cars] AS [c]
-        INNER JOIN [Taxis] AS [t] ON [c].[Id] = [t].[CarId]
-        WHERE ([u].[Id] = [c].[EUserId]) AND (([t].[ReportText] <> N'') OR [t].[ReportText] IS NULL)) AS [c], [u].[Id]
+        INNER JOIN [Taxis] AS [t0] ON [c].[Id] = [t0].[CarId]
+        WHERE ([u].[Id] = [c].[EUserId]) AND (([t0].[ReportText] <> N'') OR [t0].[ReportText] IS NULL)) AS [c], [u].[Id]
     FROM [Users] AS [u]
-) AS [t0]
+) AS [t]
 OUTER APPLY (
     SELECT [t2].[UserRate] AS [Rate], [t2].[UserTextRate] AS [UserRateText], [u0].[Id] AS [UserId], [t2].[Id], [t2].[Id0], [t2].[DateArrived]
     FROM (
         SELECT TOP(12) [c0].[Id], [t3].[Id] AS [Id0], [t3].[DateArrived], [t3].[UserEUserId], [t3].[UserRate], [t3].[UserTextRate]
         FROM [Cars] AS [c0]
         INNER JOIN [Taxis] AS [t3] ON [c0].[Id] = [t3].[CarId]
-        WHERE [t0].[Id] = [c0].[EUserId]
+        WHERE [t].[Id] = [c0].[EUserId]
         ORDER BY [t3].[DateArrived] DESC
     ) AS [t2]
     LEFT JOIN [Users] AS [u0] ON [t2].[UserEUserId] = [u0].[Id]
 ) AS [t1]
-ORDER BY [t0].[Id], [t1].[DateArrived] DESC, [t1].[Id], [t1].[Id0], [t1].[UserId]");
+ORDER BY [t].[Id], [t1].[DateArrived] DESC, [t1].[Id], [t1].[Id0], [t1].[UserId]");
         }
 
         [ConditionalFact]
@@ -9671,23 +9665,23 @@ ORDER BY [t0].[Id], [t1].[DateArrived] DESC, [t1].[Id], [t1].[Id0], [t1].[UserId
 
             // Verify the valid generated SQL
             AssertSql(
-                @"SELECT [t].[Id], [t0].[Rate], [t0].[UserRateText], [t0].[UserId], [t0].[Id], [t0].[Id0]
+                @"SELECT [t].[Id], [t1].[Rate], [t1].[UserRateText], [t1].[UserId], [t1].[Id], [t1].[Id0]
 FROM (
     SELECT TOP(2) [u].[Id]
     FROM [Users] AS [u]
 ) AS [t]
 OUTER APPLY (
-    SELECT [t1].[UserRate] AS [Rate], [t1].[UserTextRate] AS [UserRateText], [u0].[Id] AS [UserId], [t1].[Id], [t1].[Id0], [t1].[DateArrived]
+    SELECT [t0].[UserRate] AS [Rate], [t0].[UserTextRate] AS [UserRateText], [u0].[Id] AS [UserId], [t0].[Id], [t0].[Id0], [t0].[DateArrived]
     FROM (
         SELECT TOP(12) [c].[Id], [t2].[Id] AS [Id0], [t2].[DateArrived], [t2].[UserEUserId], [t2].[UserRate], [t2].[UserTextRate]
         FROM [Cars] AS [c]
         INNER JOIN [Taxis] AS [t2] ON [c].[Id] = [t2].[CarId]
         WHERE [t].[Id] = [c].[EUserId]
         ORDER BY [t2].[DateArrived] DESC
-    ) AS [t1]
-    LEFT JOIN [Users] AS [u0] ON [t1].[UserEUserId] = [u0].[Id]
-) AS [t0]
-ORDER BY [t].[Id], [t0].[DateArrived] DESC, [t0].[Id], [t0].[Id0], [t0].[UserId]");
+    ) AS [t0]
+    LEFT JOIN [Users] AS [u0] ON [t0].[UserEUserId] = [u0].[Id]
+) AS [t1]
+ORDER BY [t].[Id], [t1].[DateArrived] DESC, [t1].[Id], [t1].[Id0], [t1].[UserId]");
         }
 
         private class EUser
@@ -10097,6 +10091,73 @@ ORDER BY [t].[Id]");
 
         #endregion
 
+        #region Issue24569
+
+        // TODO: Remove when JSON is first class and we have proper tests. See issue#4021
+
+        [ConditionalFact]
+        public virtual async Task Builtin_tvf_translated_correctly()
+        {
+            var contextFactory = await InitializeAsync<MyContext24569>(seed: c => c.Seed());
+
+            using (var context = contextFactory.CreateContext())
+            {
+                var query = await (from c in context.Cars
+                                   from j in context.OpenJson(c.Json, "$.items")
+                                   select new { c, j }).ToListAsync();
+
+                AssertSql(
+                    new[] {
+                    @"SELECT [c].[Id], [c].[Json], [o].[Value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]" });
+            }
+        }
+
+        protected class MyContext24569 : DbContext
+        {
+            public DbSet<Car24569> Cars { get; set; }
+
+            public MyContext24569(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.HasDbFunction(() => OpenJson(string.Empty, string.Empty)).HasStoreType("nvarchar(max)");
+            }
+
+            [DbFunction("OPENJSON", IsBuiltIn = true)]
+            public IQueryable<JsonResult> OpenJson(string column, string jsonPath)
+                => FromExpression(() => OpenJson(column, jsonPath));
+
+            public void Seed()
+            {
+                Cars.Add(new Car24569
+                {
+                    Json = @"{ ""name"": ""test"", ""items"": [{""id"": 1}, {""id"": 2}] }",
+                });
+
+                SaveChanges();
+            }
+
+            public class Car24569
+            {
+                public int Id { get; set; }
+
+                public string Json { get; set; }
+            }
+
+            [Keyless]
+            public class JsonResult
+            {
+                public string Value { get; set; }
+            }
+        }
+
+        #endregion
+
         protected override string StoreName => "QueryBugsTest";
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
@@ -10113,7 +10174,7 @@ ORDER BY [t].[Id]");
         protected override TestStore CreateTestStore()
             => SqlServerTestStore.CreateInitialized(StoreName, multipleActiveResultSets: true);
 
-        private static readonly FieldInfo querySplittingBehaviorFieldInfo =
+        private static readonly FieldInfo _querySplittingBehaviorFieldInfo =
             typeof(RelationalOptionsExtension).GetField("_querySplittingBehavior", BindingFlags.NonPublic | BindingFlags.Instance);
 
         protected DbContextOptionsBuilder ClearQuerySplittingBehavior(DbContextOptionsBuilder optionsBuilder)
@@ -10125,7 +10186,7 @@ ORDER BY [t].[Id]");
             }
             else
             {
-                querySplittingBehaviorFieldInfo.SetValue(extension, null);
+                _querySplittingBehaviorFieldInfo.SetValue(extension, null);
             }
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);

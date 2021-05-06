@@ -112,6 +112,24 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task ToString_boolean_property_non_nullable(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Weapon>().Select(w => w.IsAutomatic.ToString()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task ToString_boolean_property_nullable(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<LocustHorde>().Select(lh => lh.Eradicated.ToString()));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
         {
             return Assert.ThrowsAsync<InvalidOperationException>(

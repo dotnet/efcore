@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             ReplaceConvention(
                 conventionSet.ModelFinalizedConventions,
-                (SlimModelConvention)new RelationalSlimModelConvention(Dependencies, RelationalDependencies));
+                (RuntimeModelConvention)new RelationalRuntimeModelConvention(Dependencies, RelationalDependencies));
 
             return conventionSet;
         }

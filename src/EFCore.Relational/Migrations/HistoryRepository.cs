@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(stringTypeMapping.GenerateSqlLiteral(row.MigrationId))
                 .Append(", ")
                 .Append(stringTypeMapping.GenerateSqlLiteral(row.ProductVersion))
-                .Append(")")
+                .Append(')')
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .ToString();
         }

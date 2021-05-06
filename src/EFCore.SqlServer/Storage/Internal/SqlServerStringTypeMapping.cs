@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 builder.Append('N');
                             }
 
-                            builder.Append("'");
+                            builder.Append('\'');
                             openApostrophe = true;
                         }
                         builder.Append("''");

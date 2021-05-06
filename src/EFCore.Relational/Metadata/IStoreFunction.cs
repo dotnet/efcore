@@ -84,13 +84,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(EntityTypeMappings.FirstOrDefault()?.EntityType.DisplayName() ?? "");
             }
 
-            builder.Append(" ");
+            builder.Append(' ');
 
             if (Schema != null)
             {
                 builder
                     .Append(Schema)
-                    .Append(".");
+                    .Append('.');
             }
 
             builder.Append(Name);

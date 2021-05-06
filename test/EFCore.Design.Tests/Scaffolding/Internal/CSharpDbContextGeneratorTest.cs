@@ -170,12 +170,8 @@ namespace TestNamespace
         [ConditionalFact]
         public void Required_options_to_GenerateModel_are_not_null()
         {
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-            services.AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>();
-
-            var generator = services
+            var generator = CreateServices()
+                .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 
@@ -207,12 +203,8 @@ namespace TestNamespace
         [ConditionalFact]
         public void Plugins_work()
         {
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices();
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-            services.AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>();
-
-            var generator = services
+            var generator = CreateServices()
+                .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 

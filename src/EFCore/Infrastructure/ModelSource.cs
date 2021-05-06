@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> The model to be used. </returns>
-        [Obsolete("Use the overload with IModelCreationDependencies")]
+        [Obsolete("Use the overload with ModelCreationDependencies")]
         public virtual IModel GetModel(
             DbContext context,
             IConventionSetBuilder conventionSetBuilder)
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
         /// <returns> The model to be used. </returns>
-        [Obsolete("Use the overload with IModelCreationDependencies")]
+        [Obsolete("Use the overload with ModelCreationDependencies")]
         public virtual IModel GetModel(
             DbContext context,
             IConventionSetBuilder conventionSetBuilder,
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> The model to be used. </returns>
-        [Obsolete("Use the overload with IModelCreationDependencies")]
+        [Obsolete("Use the overload with ModelCreationDependencies")]
         protected virtual IModel CreateModel(
             DbContext context,
             IConventionSetBuilder conventionSetBuilder)

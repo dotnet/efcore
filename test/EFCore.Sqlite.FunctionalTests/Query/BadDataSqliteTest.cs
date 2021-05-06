@@ -183,10 +183,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return reader;
                     }
 
-                    public override void PopulateFromTemplate(IRelationalCommand templateCommand)
+                    public override void PopulateFrom(IRelationalCommand command)
                     {
-                        base.PopulateFromTemplate(templateCommand);
-                        _values = ((BadDataRelationalCommand)templateCommand)._values;
+                        base.PopulateFrom(command);
+                        _values = ((BadDataRelationalCommand)command)._values;
                     }
 
                     private class BadDataRelationalDataReader : RelationalDataReader

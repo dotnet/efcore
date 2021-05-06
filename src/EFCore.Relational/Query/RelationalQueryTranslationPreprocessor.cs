@@ -44,15 +44,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return expression;
         }
-
-        /// <inheritdoc />
-        public override Expression Process(Expression query)
-        {
-            query = base.Process(query);
-
-            return _relationalQueryCompilationContext.QuerySplittingBehavior == QuerySplittingBehavior.SplitQuery
-                ? new SplitIncludeRewritingExpressionVisitor().Visit(query)
-                : query;
-        }
     }
 }

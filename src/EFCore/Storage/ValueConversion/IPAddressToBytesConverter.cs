@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts a <see cref="IPAddress" /> to and from a <see cref="byte" />.
     /// </summary>
-    public class IPAddressToBytesConverter : ValueConverter<IPAddress, byte[]>
+    public class IPAddressToBytesConverter : ValueConverter<IPAddress?, byte[]?>
     {
         private static readonly ConverterMappingHints _defaultHints = new(size: 16);
 
@@ -21,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// </param>
         public IPAddressToBytesConverter(ConverterMappingHints? mappingHints = null)
             : base(
-                // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-                v => v == null ? default! : v.GetAddressBytes(),
-                v => v == null ? default! : new IPAddress(v),
+                v => v == null ? default : v.GetAddressBytes(),
+                v => v == null ? default : new IPAddress(v),
+                convertsNulls: true,
                 _defaultHints.With(mappingHints))
         {
         }

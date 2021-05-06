@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         bool AreDetailedErrorsEnabled { get; }
 
         /// <summary>
-        ///     Reflects the option set by <see cref="DbContextOptionsBuilder.DisableConcurrencyDetection" />.
+        ///     Reflects the option set by <see cref="DbContextOptionsBuilder.EnableThreadSafetyChecks" />.
         /// </summary>
-        bool IsConcurrencyDetectionEnabled { get; }
+        bool AreThreadSafetyChecksEnabled { get; }
     }
 }

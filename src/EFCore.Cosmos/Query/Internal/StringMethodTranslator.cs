@@ -51,7 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
 
-        private static readonly MethodInfo _substringMethodInfo
+        private static readonly MethodInfo _substringMethodInfoWithOneArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int) });
+
+        private static readonly MethodInfo _substringMethodInfoWithTwoArgs
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
 
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
@@ -156,7 +159,17 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return TranslateSystemFunction("TRIM", method.ReturnType, instance);
                 }
 
-                if (_substringMethodInfo.Equals(method))
+                if (_substringMethodInfoWithOneArg.Equals(method))
+                {
+                    return TranslateSystemFunction(
+                        "SUBSTRING",
+                        method.ReturnType,
+                        instance,
+                        arguments[0],
+                        TranslateSystemFunction("LENGTH", typeof(int), instance));
+                }
+
+                if (_substringMethodInfoWithTwoArgs.Equals(method))
                 {
                     return TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, arguments[0], arguments[1]);
                 }

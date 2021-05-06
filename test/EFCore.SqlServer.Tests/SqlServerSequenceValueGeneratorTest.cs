@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
                 state,
                 CreateConnection(),
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
+                new FakeRelationalCommandDiagnosticsLogger());
 
             for (var i = 1; i <= 27; i++)
             {
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var tests = new Func<Task>[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
                 state,
                 CreateConnection(),
-                new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>());
+                new FakeRelationalCommandDiagnosticsLogger());
 
             Assert.False(generator.GeneratesTemporaryValues);
         }
@@ -281,7 +281,7 @@ namespace Microsoft.EntityFrameworkCore
                 public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
                     => throw new NotImplementedException();
 
-                public void PopulateFromTemplate(IRelationalCommand templateCommand)
+                public void PopulateFrom(IRelationalCommand command)
                     => throw new NotImplementedException();
             }
         }
