@@ -39,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public string? RuntimeFrameworkVersion { get; set; }
         public string? TargetFileName { get; set; }
         public string? TargetFrameworkMoniker { get; set; }
+        public string? Nullable { get; set; }
 
         public static Project FromFile(
             string file,
@@ -133,7 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 RootNamespace = metadata["RootNamespace"],
                 RuntimeFrameworkVersion = metadata["RuntimeFrameworkVersion"],
                 TargetFileName = metadata["TargetFileName"],
-                TargetFrameworkMoniker = metadata["TargetFrameworkMoniker"]
+                TargetFrameworkMoniker = metadata["TargetFrameworkMoniker"],
+                Nullable = metadata["Nullable"]
             };
         }
 
