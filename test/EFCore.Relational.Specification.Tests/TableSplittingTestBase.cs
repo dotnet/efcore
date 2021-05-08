@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.QueryModel;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -545,6 +546,48 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(0, vehicle.SeatingCapacity);
                 Assert.Equal("Heat-seeking", vehicle.Operator.Details.Type);
                 Assert.Null(vehicle.Operator.Name);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Warn_When_Save_Optional_dependent_with_null_values()
+        {
+            await InitializeAsync(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity<MeterReadingDetails>(
+                        dob =>
+                        {
+                            dob.ToTable("MeterReadings");
+                            dob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
+                        });
+
+                    modelBuilder.Entity<MeterReading>(
+                        ob =>
+                        {
+                            ob.ToTable("MeterReadings");
+                            ob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
+                            ob.HasOne(o => o.MeterReadingDetails).WithOne()
+                                .HasForeignKey<MeterReadingDetails>(o => o.Id);
+                        });
+                }
+                );
+
+            using (var context = CreateContext())
+            {
+                var scooterEntry = context.Add(
+                    new MeterReading
+                    {
+                        MeterReadingDetails = new MeterReadingDetails()
+                    });
+
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var reading = context.Set<MeterReading>().Include(o => o.MeterReadingDetails).OrderBy(o => o.Id).First();
+                Assert.Null(reading.MeterReadingDetails);
             }
         }
 
