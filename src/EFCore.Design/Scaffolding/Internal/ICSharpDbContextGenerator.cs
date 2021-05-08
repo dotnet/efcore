@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string? contextNamespace,
             string? modelNamespace,
             bool useDataAnnotations,
+            bool useNullableReferenceTypes,
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring);
     }

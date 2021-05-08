@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     ModelNamespace = finalModelNamespace,
                     ContextNamespace = finalContextNamespace,
                     Language = _language,
-                    Nullable = _nullable,
+                    UseNullableReferenceTypes = _nullable,
                     ContextDir = MakeDirRelative(outputDir, outputContextDir),
                     ContextName = dbContextClassName,
                     SuppressOnConfiguring = suppressOnConfiguring
