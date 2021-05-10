@@ -145,7 +145,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 128. </param>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContext>(
             this IServiceCollection serviceCollection,
@@ -187,7 +187,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 128. </param>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
@@ -241,7 +241,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 128. </param>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContext>(
             this IServiceCollection serviceCollection,
@@ -292,7 +292,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 128. </param>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
@@ -814,7 +814,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 128. </param>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
@@ -858,7 +858,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 128. </param>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
