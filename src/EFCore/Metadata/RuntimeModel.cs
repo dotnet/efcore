@@ -42,13 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Initializes this model instance.
-        /// </summary>
-        protected virtual void Initialize()
-        {
-        }
-
-        /// <summary>
         ///     Sets a value indicating whether <see cref="ChangeTracker.DetectChanges" /> should be called.
         /// </summary>
         public virtual void SetSkipDetectChanges(bool skipDetectChanges)

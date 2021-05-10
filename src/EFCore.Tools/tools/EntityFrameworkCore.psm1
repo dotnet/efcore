@@ -366,6 +366,80 @@ function Remove-Migration
 }
 
 #
+# Optimize-DbContext
+#
+
+Register-TabExpansion Optimize-DbContext @{
+    Provider = { param($x) GetProviders $x.Project }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+    OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
+    ContextDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
+}
+
+<#
+.SYNOPSIS
+    Generates a compiled version of the model used by the DbContext.
+
+.DESCRIPTION
+    Generates a compiled version of the model used by the DbContext.
+
+.PARAMETER OutputDir
+    The directory to put files in. Paths are relative to the project directory.
+
+.PARAMETER Namespace
+    The namespace to use. Matches the directory by default.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    about_EntityFrameworkCore
+#>
+function Optimize-DbContext
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [string] $OutputDir,
+        [string] $Namespace,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Args)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    $params = 'dbcontext', 'optimize'
+
+    if ($OutputDir)
+    {
+        $params += '--output-dir', $OutputDir
+    }
+
+    if ($Namespace)
+    {
+        $params += '--namespace', $Namespace
+    }
+
+    if ($Context)
+    {
+        $params += '--context', $Context
+    }
+
+    EF $dteProject $dteStartupProject $params $Args
+}
+
+#
 # Scaffold-DbContext
 #
 

@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var serviceProvider = TestHelpers.CreateContextServices();
                 var modelRuntimeInitializer = serviceProvider.GetRequiredService<IModelRuntimeInitializer>();
 
-                return modelRuntimeInitializer.Initialize(ModelBuilder.FinalizeModel(), designTime: true, ValidationLogger);
+                return modelRuntimeInitializer.Initialize((IModel)ModelBuilder.Model, designTime: true, ValidationLogger);
             }
 
             public virtual string GetDisplayName(Type entityType)

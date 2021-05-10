@@ -66,6 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 reporter,
                 assembly,
                 startupAssembly,
+                projectDir,
+                rootNamespace,
+                language,
+                nullable,
                 _args);
 
             _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);

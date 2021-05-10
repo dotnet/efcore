@@ -3659,6 +3659,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     using Microsoft.EntityFrameworkCore.Migrations;
                     using NetTopologySuite.Geometries;
 
+                    #nullable disable
+
                     public static class OperationsFactory
                     {
                         public static void Create(MigrationBuilder mb)

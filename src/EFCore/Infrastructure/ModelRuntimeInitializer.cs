@@ -53,6 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             bool designTime = true,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null)
         {
+            if (model is Model mutableModel
+                && !mutableModel.IsReadOnly)
+            {
+                model = mutableModel.FinalizeModel();
+            }
+
             if (model.ModelDependencies == null)
             {
                 model = model.GetOrAddRuntimeAnnotationValue(

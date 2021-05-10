@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var sourceModelBuilder = CreateModelBuilder(skipSourceConventions);
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
-            var sourceModel = sourceModelBuilder.FinalizeModel();
+            var sourceModel = (IModel)sourceModelBuilder.Model;
             var sourceOptionsBuilder = TestHelpers
                 .AddProviderOptions(new DbContextOptionsBuilder())
                 .UseModel(sourceModel)
@@ -66,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var targetModelBuilder = CreateModelBuilder(skipConventions: false);
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
-            var targetModel = targetModelBuilder.FinalizeModel();
+            var targetModel = (IModel)targetModelBuilder.Model;
             var targetOptionsBuilder = TestHelpers
                 .AddProviderOptions(new DbContextOptionsBuilder())
                 .UseModel(targetModel)
@@ -89,8 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
             if (assertActionDown != null)
             {
-                modelDiffer = CreateModelDiffer(sourceOptionsBuilder.Options);
-
                 var operationsDown = modelDiffer.GetDifferences(targetModel.GetRelationalModel(), sourceModel.GetRelationalModel());
                 assertActionDown(operationsDown);
             }
