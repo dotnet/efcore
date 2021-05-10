@@ -177,6 +177,28 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
             }
 
+            [ConditionalFact]
+            public virtual void No_alternate_key_is_created_if_id_is_partition_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey));
+                modelBuilder.Entity<Customer>()
+                    .Ignore(b => b.Details)
+                    .Ignore(b => b.Orders)
+                    .HasPartitionKey(b => b.AlternateKey)
+                    .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
+
+                var model = modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+
+                Assert.Equal(
+                    new[] { nameof(Customer.AlternateKey) },
+                    entity.FindPrimaryKey().Properties.Select(p => p.Name));
+                Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            }
+
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance);
         }
