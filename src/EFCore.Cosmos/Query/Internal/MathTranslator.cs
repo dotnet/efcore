@@ -54,7 +54,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Truncate), new[] { typeof(decimal) }), "TRUNC" },
             { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Truncate), new[] { typeof(double) }), "TRUNC" },
             { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Round), new[] { typeof(decimal) }), "ROUND" },
-            { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Round), new[] { typeof(double) }), "ROUND" }
+            { typeof(Math).GetRequiredRuntimeMethod(nameof(Math.Round), new[] { typeof(double) }), "ROUND" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Abs), new[] { typeof(float) }), "ABS" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Ceiling), new[] { typeof(float) }), "CEILING" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Floor), new[] { typeof(float) }), "FLOOR" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Pow), new[] { typeof(float), typeof(float) }), "POWER" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Exp), new[] { typeof(float) }), "EXP" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Log10), new[] { typeof(float) }), "LOG10" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Log), new[] { typeof(float) }), "LOG" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Log), new[] { typeof(float), typeof(float) }), "LOG" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Sqrt), new[] { typeof(float) }), "SQRT" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Acos), new[] { typeof(float) }), "ACOS" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Asin), new[] { typeof(float) }), "ASIN" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Atan), new[] { typeof(float) }), "ATAN" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Atan2), new[] { typeof(float), typeof(float) }), "ATN2" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Cos), new[] { typeof(float) }), "COS" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Sin), new[] { typeof(float) }), "SIN" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Tan), new[] { typeof(float) }), "TAN" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Sign), new[] { typeof(float) }), "SIGN" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Truncate), new[] { typeof(float) }), "TRUNC" },
+            { typeof(MathF).GetRequiredRuntimeMethod(nameof(MathF.Round), new[] { typeof(float) }), "ROUND" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
