@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var userTransaction = connection.CurrentTransaction;
             if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
             {
-                throw new NotSupportedException("User transaction is not supported with a TransactionSuppressed migrations");
+                throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
             }
 
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
@@ -108,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var userTransaction = connection.CurrentTransaction;
             if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
             {
-                throw new NotSupportedException("User transaction is not supported with a TransactionSuppressed migrations");
+                throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
             }
 
             var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
