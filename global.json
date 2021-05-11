@@ -1,15 +1,15 @@
 {
   "tools": {
-    "dotnet": "3.1.114",
+    "dotnet": "3.1.115",
     "runtimes": {
       "dotnet": [
-        "2.1.27",
+        "2.1.28",
         "$(MicrosoftNETCoreAppInternalPackageVersion)"
       ]
     }
   },
   "sdk": {
-    "version": "3.1.114"
+    "version": "3.1.115"
   },
   "msbuild-sdks": {
     "Microsoft.DotNet.Arcade.Sdk": "1.0.0-beta.21161.1"
