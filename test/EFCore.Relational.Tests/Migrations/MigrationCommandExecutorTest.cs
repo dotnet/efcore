@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -130,15 +131,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             {
                 if (async)
                 {
-                    await Assert.ThrowsAsync<NotSupportedException>(
+                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                        (await Assert.ThrowsAsync<NotSupportedException>(
                         async ()
-                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection));
+                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
                 }
                 else
                 {
-                    Assert.Throws<NotSupportedException>(
-                        ()
-                            => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection));
+                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                        Assert.Throws<NotSupportedException>(
+                            ()
+                                => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
                 }
 
                 tx.Rollback();
