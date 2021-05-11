@@ -7,6 +7,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.QueryModel
     {
         public int Id { get; set; }
         public MeterReadingStatus? ReadingStatus { get; set; }
-        public MeterReadingDetails MeterReadingDetails { get; set; }
+        public MeterReadingDetail MeterReadingDetails { get; set; }
     }
 }

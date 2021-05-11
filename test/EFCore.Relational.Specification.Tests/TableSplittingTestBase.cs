@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.QueryModel;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -552,10 +554,10 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public virtual async Task Warn_When_Save_Optional_dependent_with_null_values()
         {
-            await InitializeAsync(
+            await InitializeSharedAsync(
                 modelBuilder =>
                 {
-                    modelBuilder.Entity<MeterReadingDetails>(
+                    modelBuilder.Entity<MeterReadingDetail>(
                         dob =>
                         {
                             dob.ToTable("MeterReadings");
@@ -568,26 +570,26 @@ namespace Microsoft.EntityFrameworkCore
                             ob.ToTable("MeterReadings");
                             ob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
                             ob.HasOne(o => o.MeterReadingDetails).WithOne()
-                                .HasForeignKey<MeterReadingDetails>(o => o.Id);
+                                .HasForeignKey<MeterReadingDetail>(o => o.Id);
                         });
-                }
+                }, seed: false
                 );
 
-            using (var context = CreateContext())
+            using (var context = CreateSharedContext())
             {
                 var scooterEntry = context.Add(
                     new MeterReading
                     {
-                        MeterReadingDetails = new MeterReadingDetails()
+                        MeterReadingDetails = new MeterReadingDetail()
                     });
 
-                context.SaveChanges();
-            }
+                var expected = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail));
 
-            using (var context = CreateContext())
-            {
-                var reading = context.Set<MeterReading>().Include(o => o.MeterReadingDetails).OrderBy(o => o.Id).First();
-                Assert.Null(reading.MeterReadingDetails);
+                context.SaveChanges();
+
+                var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
+
+                Assert.Equal(expected, log.Message);
             }
         }
 
@@ -595,6 +597,7 @@ namespace Microsoft.EntityFrameworkCore
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
         protected ContextFactory<TransportationContext> ContextFactory { get; private set; }
+        protected ContextFactory<SharedTableContext> SharedContextFactory { get; private set; }
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
@@ -623,14 +626,27 @@ namespace Microsoft.EntityFrameworkCore
                 onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.Seed() : null);
         }
 
+        protected async Task InitializeSharedAsync(Action<ModelBuilder> onModelCreating, bool seed = true)
+        {
+            SharedContextFactory = await InitializeAsync<SharedTableContext>(
+                onModelCreating,
+                shouldLogCategory: _ => true,
+                onConfiguring: options => options.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)
+                ));
+        }
+
         protected virtual TransportationContext CreateContext()
             => ContextFactory.CreateContext();
+
+        protected virtual SharedTableContext CreateSharedContext()
+            => SharedContextFactory.CreateContext();
 
         public override void Dispose()
         {
             base.Dispose();
 
             ContextFactory = null;
+            SharedContextFactory = null;
         }
     }
 }
