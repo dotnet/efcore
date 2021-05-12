@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 using Xunit;
 using Xunit.Abstractions;
@@ -52,5 +54,21 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory(Skip = "issue #24325")]
         public override Task Correlated_collection_with_distinct_3_levels(bool async)
             => base.Correlated_collection_with_distinct_3_levels(async);
+
+        public override async Task Projecting_correlated_collection_followed_by_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_correlated_collection_followed_by_Distinct(async))).Message;
+
+            Assert.Equal(InMemoryStrings.DistinctOnSubqueryNotSupported, message);
+        }
+
+        public override async Task Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(async))).Message;
+
+            Assert.Equal(InMemoryStrings.DistinctOnSubqueryNotSupported, message);
+        }
     }
 }

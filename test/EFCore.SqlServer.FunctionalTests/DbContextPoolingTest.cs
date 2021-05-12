@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
             using var scope = serviceProvider.CreateScope();
 
             Assert.Equal(
-                128,
+                1024,
                 scope.ServiceProvider
                     .GetRequiredService<PooledContext>()
                     .GetService<IDbContextOptions>()
@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore
             using var scope = serviceProvider.CreateScope();
 
             Assert.Equal(
-                128,
+                1024,
                 ((DbContext)scope.ServiceProvider
                     .GetRequiredService<IPooledContext>())
                 .GetService<IDbContextOptions>()
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore
             using var context = serviceProvider.GetRequiredService<IDbContextFactory<PooledContext>>().CreateDbContext();
 
             Assert.Equal(
-                128,
+                1024,
                 context.GetService<IDbContextOptions>()
                     .FindExtension<CoreOptionsExtension>().MaxPoolSize);
         }

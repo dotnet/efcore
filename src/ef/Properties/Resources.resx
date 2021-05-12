@@ -276,6 +276,9 @@
   <data name="NoTransactionsDescription" xml:space="preserve">
     <value>Don't generate SQL transaction statements.</value>
   </data>
+  <data name="NullableDescription" xml:space="preserve">
+    <value>Enable nullable reference types.</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>Options: {options}</value>
   </data>

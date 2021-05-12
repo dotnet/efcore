@@ -51,6 +51,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public virtual string? Language { get; set; }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether nullable reference types are enabled.
+        /// </summary>
+        /// <value> A value indicating whether nullable reference types are enabled. </value>
+        public virtual bool Nullable { get; set; }
+
+        /// <summary>
         ///     Gets or sets the DbContext output directory.
         /// </summary>
         /// <value> The DbContext output directory. </value>

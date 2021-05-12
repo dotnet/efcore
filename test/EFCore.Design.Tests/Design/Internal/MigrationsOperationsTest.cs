@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 "projectDir",
                 "RootNamespace",
                 "C#",
+                nullable: false,
                 args: null);
         }
 
