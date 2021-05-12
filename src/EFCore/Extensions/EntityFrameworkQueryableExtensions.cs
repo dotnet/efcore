@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -2562,7 +2563,11 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo TagWithMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetRequiredDeclaredMethod(nameof(TagWith));
+                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 2);
+
+        internal static readonly MethodInfo TagWithCallerInfoMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 3);
 
         /// <summary>
         ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations
@@ -2591,6 +2596,37 @@ namespace Microsoft.EntityFrameworkCore
                             method: TagWithMethodInfo.MakeGenericMethod(typeof(T)),
                             arg0: source.Expression,
                             arg1: Expression.Constant(tag)))
+                    : source;
+        }
+
+        /// <summary>
+        ///     Adds a tag to the collection of tags associated with an EF LINQ query with source file name and line
+        ///     where method was called that can provide contextual tracing information at different points in the query pipeline.
+        /// </summary>
+        /// <typeparam name="T"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <param name="fromFile">file name where the method was called</param>
+        /// <param name="onLine">file line number where the method was called</param>
+        /// <returns> A new query annotated with the given tag. </returns>
+        /// <exception cref="ArgumentNullException">
+        ///     <paramref name="source" />
+        /// </exception>
+        public static IQueryable<T> TagWith<T>(
+            this IQueryable<T> source,
+            [NotParameterized][CallerFilePath] string? fromFile = null,
+            [NotParameterized][CallerLineNumber] int onLine = 0)
+        {
+            Check.NotNull(source, nameof(source));
+
+            return
+                source.Provider is EntityQueryProvider
+                    ? source.Provider.CreateQuery<T>(
+                        Expression.Call(
+                            instance: null,
+                            method: TagWithCallerInfoMethodInfo.MakeGenericMethod(typeof(T)),
+                            arg0: source.Expression,
+                            arg1: Expression.Constant(fromFile),
+                            arg2: Expression.Constant(onLine)))
                     : source;
         }
 

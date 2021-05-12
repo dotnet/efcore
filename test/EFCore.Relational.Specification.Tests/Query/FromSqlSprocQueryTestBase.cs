@@ -460,5 +460,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract string TenMostExpensiveProductsSproc { get; }
 
         protected abstract string CustomerOrderHistorySproc { get; }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
+        {
+            using var context = CreateContext();
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .TagWith();
+
+            var actual = query.ToQueryString().Split(Environment.NewLine).First();
+
+            Assert.StartsWith(@"-- file: ", actual);
+            Assert.EndsWith(@"EFCore.Relational.Specification.Tests\Query\FromSqlSprocQueryTestBase.cs:473", actual);
+        }
     }
 }

@@ -211,6 +211,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return visitedExpression;
             }
 
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.TagWithCallerInfoMethodInfo)
+            {
+                var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+
+                var fileName = methodCallExpression.Arguments[1].GetConstantValue<string>();
+                var lineNo = methodCallExpression.Arguments[2].GetConstantValue<int>();
+                _queryCompilationContext.AddTag($"file: {fileName}:{lineNo}");
+
+                return visitedExpression;
+            }
+
             if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo)
             {
                 var visitedExpression = Visit(methodCallExpression.Arguments[0]);
