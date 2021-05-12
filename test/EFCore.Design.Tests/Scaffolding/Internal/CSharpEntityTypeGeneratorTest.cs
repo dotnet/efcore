@@ -670,14 +670,7 @@ namespace TestNamespace
         public int? NonRequiredInt { get; set; }
         public string? NonRequiredString { get; set; }
         public int RequiredInt { get; set; }
-
-        private string? _requiredString;
-
-        public string RequiredString
-        {
-            get => _requiredString ?? throw new InvalidOperationException(""Uninitialized property: "" + nameof(RequiredString));
-            set => _requiredString = value;
-        }
+        public string RequiredString { get; set; } = null!;
     }
 }
 ",
@@ -806,15 +799,8 @@ namespace TestNamespace
         public int Id { get; set; }
         public string? OptionalNavigationWithReferenceForeignKeyId { get; set; }
         public int? OptionalNavigationWithValueForeignKeyId { get; set; }
+        public string RequiredNavigationWithReferenceForeignKeyId { get; set; } = null!;
         public int RequiredNavigationWithValueForeignKeyId { get; set; }
-
-        private string? _requiredNavigationWithReferenceForeignKeyId;
-
-        public string RequiredNavigationWithReferenceForeignKeyId
-        {
-            get => _requiredNavigationWithReferenceForeignKeyId ?? throw new InvalidOperationException(""Uninitialized property: "" + nameof(RequiredNavigationWithReferenceForeignKeyId));
-            set => _requiredNavigationWithReferenceForeignKeyId = value;
-        }
 
         [ForeignKey(nameof(OptionalNavigationWithReferenceForeignKeyId))]
         [InverseProperty(nameof(Dependent2.Entity))]
@@ -822,26 +808,12 @@ namespace TestNamespace
         [ForeignKey(nameof(OptionalNavigationWithValueForeignKeyId))]
         [InverseProperty(nameof(Dependent4.Entity))]
         public virtual Dependent4? OptionalNavigationWithValueForeignKey { get; set; }
-
-        private Dependent1? _requiredNavigationWithReferenceForeignKey;
-
         [ForeignKey(nameof(RequiredNavigationWithReferenceForeignKeyId))]
         [InverseProperty(nameof(Dependent1.Entity))]
-        public virtual Dependent1 RequiredNavigationWithReferenceForeignKey
-        {
-            get => _requiredNavigationWithReferenceForeignKey ?? throw new InvalidOperationException(""Uninitialized navigation: "" + nameof(RequiredNavigationWithReferenceForeignKey));
-            set => _requiredNavigationWithReferenceForeignKey = value;
-        }
-
-        private Dependent3? _requiredNavigationWithValueForeignKey;
-
+        public virtual Dependent1 RequiredNavigationWithReferenceForeignKey { get; set; } = null!;
         [ForeignKey(nameof(RequiredNavigationWithValueForeignKeyId))]
         [InverseProperty(nameof(Dependent3.Entity))]
-        public virtual Dependent3 RequiredNavigationWithValueForeignKey
-        {
-            get => _requiredNavigationWithValueForeignKey ?? throw new InvalidOperationException(""Uninitialized navigation: "" + nameof(RequiredNavigationWithValueForeignKey));
-            set => _requiredNavigationWithValueForeignKey = value;
-        }
+        public virtual Dependent3 RequiredNavigationWithValueForeignKey { get; set; } = null!;
     }
 }
 ",
@@ -901,15 +873,8 @@ namespace TestNamespace
         public int Id { get; set; }
         public string? OptionalNavigationWithReferenceForeignKeyId { get; set; }
         public int? OptionalNavigationWithValueForeignKeyId { get; set; }
+        public string RequiredNavigationWithReferenceForeignKeyId { get; set; } = null!;
         public int RequiredNavigationWithValueForeignKeyId { get; set; }
-
-        private string? _requiredNavigationWithReferenceForeignKeyId;
-
-        public string RequiredNavigationWithReferenceForeignKeyId
-        {
-            get => _requiredNavigationWithReferenceForeignKeyId ?? throw new InvalidOperationException(""Uninitialized property: "" + nameof(RequiredNavigationWithReferenceForeignKeyId));
-            set => _requiredNavigationWithReferenceForeignKeyId = value;
-        }
 
         [ForeignKey(nameof(OptionalNavigationWithReferenceForeignKeyId))]
         [InverseProperty(nameof(Dependent2.Entity))]
@@ -917,26 +882,12 @@ namespace TestNamespace
         [ForeignKey(nameof(OptionalNavigationWithValueForeignKeyId))]
         [InverseProperty(nameof(Dependent4.Entity))]
         public virtual Dependent4? OptionalNavigationWithValueForeignKey { get; set; }
-
-        private Dependent1? _requiredNavigationWithReferenceForeignKey;
-
         [ForeignKey(nameof(RequiredNavigationWithReferenceForeignKeyId))]
         [InverseProperty(nameof(Dependent1.Entity))]
-        public virtual Dependent1 RequiredNavigationWithReferenceForeignKey
-        {
-            get => _requiredNavigationWithReferenceForeignKey ?? throw new InvalidOperationException(""Uninitialized navigation: "" + nameof(RequiredNavigationWithReferenceForeignKey));
-            set => _requiredNavigationWithReferenceForeignKey = value;
-        }
-
-        private Dependent3? _requiredNavigationWithValueForeignKey;
-
+        public virtual Dependent1 RequiredNavigationWithReferenceForeignKey { get; set; } = null!;
         [ForeignKey(nameof(RequiredNavigationWithValueForeignKeyId))]
         [InverseProperty(nameof(Dependent3.Entity))]
-        public virtual Dependent3 RequiredNavigationWithValueForeignKey
-        {
-            get => _requiredNavigationWithValueForeignKey ?? throw new InvalidOperationException(""Uninitialized navigation: "" + nameof(RequiredNavigationWithValueForeignKey));
-            set => _requiredNavigationWithValueForeignKey = value;
-        }
+        public virtual Dependent3 RequiredNavigationWithValueForeignKey { get; set; } = null!;
     }
 }
 ",

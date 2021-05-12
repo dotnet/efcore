@@ -176,10 +176,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                _sb.Append($"public virtual DbSet<{entityType.Name}> {entityType.GetDbSetName()}");
-                _sb.Append(_useNullableReferenceTypes
-                    ? $" => Set<{entityType.Name}>();"
-                    : " { get; set; }");
+                _sb.Append($"public virtual DbSet<{entityType.Name}> {entityType.GetDbSetName()} {{ get; set; }}");
+
+                if (_useNullableReferenceTypes)
+                {
+                    _sb.Append(" = null!;");
+                }
+
                 _sb.AppendLine();
             }
 

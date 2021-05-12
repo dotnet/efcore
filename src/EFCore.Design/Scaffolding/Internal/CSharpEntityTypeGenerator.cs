@@ -269,21 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var autoProperties = _useNullableReferenceTypes
-                ? entityType.GetProperties()
-                    .Where(p => p.ClrType.IsValueType || p.IsNullable)
-                    .OrderBy(p => p.GetColumnOrdinal())
-                    .ToArray()
-                : entityType.GetProperties().ToArray();
-
-            var backingFieldProperties = _useNullableReferenceTypes
-                ? entityType.GetProperties()
-                    .Where(p => !p.ClrType.IsValueType && !p.IsNullable)
-                    .OrderBy(p => p.GetColumnOrdinal())
-                    .ToArray()
-                : Array.Empty<IProperty>();
-
-            foreach (var property in autoProperties)
+            foreach (var property in entityType.GetProperties().OrderBy(p => p.GetColumnOrdinal()))
             {
                 GenerateComment(property.GetComment());
 
@@ -292,61 +278,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     GeneratePropertyDataAnnotations(property);
                 }
 
-                if (!_useNullableReferenceTypes || property.ClrType.IsValueType)
-                {
-                    _sb.AppendLine($"public {_code.Reference(property.ClrType)} {property.Name} {{ get; set; }}");
-                }
-                else
-                {
-                    Check.DebugAssert(property.IsNullable, "Non-nullable reference property should have a backing field");
-
-                    _sb.AppendLine($"public {_code.Reference(property.ClrType)}? {property.Name} {{ get; set; }}");
-                }
-            }
-
-            if (backingFieldProperties.Any())
-            {
-                Check.DebugAssert(_useNullableReferenceTypes,
-                    "Backing field properties should only be generated when using nullable reference types");
-
-                var appendLeadingLine = autoProperties.Any();
-
-                foreach (var property in backingFieldProperties)
-                {
-                    Check.DebugAssert(!property.IsNullable && !property.ClrType.IsValueType,
-                        "Only non-nullable reference properties should have a backing field");
-
-                    if (appendLeadingLine)
-                    {
-                        _sb.AppendLine();
-                    }
-                    else
-                    {
-                        appendLeadingLine = true;
-                    }
-
-                    var backingFieldName = "_" + char.ToLower(property.Name[0], CultureInfo.InvariantCulture) + property.Name[1..];
-
-                    _sb
-                        .AppendLine($"private {_code.Reference(property.ClrType)}? {backingFieldName};")
-                        .AppendLine();
-
-                    GenerateComment(property.GetComment());
-
-                    if (_useDataAnnotations)
-                    {
-                        GeneratePropertyDataAnnotations(property);
-                    }
-
-                    _sb
-                        .AppendLine($"public {_code.Reference(property.ClrType)} {property.Name}")
-                        .AppendLine("{")
-                        .IncrementIndent()
-                        .AppendLine($"get => {backingFieldName} ?? throw new InvalidOperationException(\"Uninitialized property: \" + nameof({property.Name}));")
-                        .AppendLine($"set => {backingFieldName} = value;")
-                        .DecrementIndent()
-                        .AppendLine("}");
-                }
+                _sb.AppendLine(
+                    !_useNullableReferenceTypes || property.ClrType.IsValueType
+                        ? $"public {_code.Reference(property.ClrType)} {property.Name} {{ get; set; }}"
+                        : property.IsNullable
+                            ? $"public {_code.Reference(property.ClrType)}? {property.Name} {{ get; set; }}"
+                            : $"public {_code.Reference(property.ClrType)} {property.Name} {{ get; set; }} = null!;");
             }
         }
 
@@ -492,82 +429,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var autoPropertyNavigations = _useNullableReferenceTypes
-                ? entityType.GetNavigations()
-                    .Where(n => n.IsCollection || !n.ForeignKey.IsRequired)
-                    .OrderBy(n => n.IsOnDependent ? 0 : 1)
-                    .ThenBy(n => n.IsCollection ? 1 : 0)
-                    .ToArray()
-                : entityType.GetNavigations().ToArray();
+            var sortedNavigations = entityType.GetNavigations()
+                .OrderBy(n => n.IsOnDependent ? 0 : 1)
+                .ThenBy(n => n.IsCollection ? 1 : 0)
+                .ToList();
 
-            var backingFieldNavigations = _useNullableReferenceTypes
-                ? entityType.GetNavigations()
-                    .Where(n => !n.IsCollection && n.ForeignKey.IsRequired)
-                    .OrderBy(n => n.IsOnDependent ? 0 : 1)
-                    .ThenBy(n => n.IsCollection ? 1 : 0)
-                    .ToArray()
-                : Array.Empty<INavigation>();
-
-            if (autoPropertyNavigations.Any())
+            if (sortedNavigations.Any())
             {
                 _sb.AppendLine();
 
-                foreach (var navigation in autoPropertyNavigations)
+                foreach (var navigation in sortedNavigations)
                 {
+                    if (_useDataAnnotations)
+                    {
+                        GenerateNavigationDataAnnotations(navigation);
+                    }
+
                     var referencedTypeName = navigation.TargetEntityType.Name;
                     var navigationType = navigation.IsCollection ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
 
-                    if (_useDataAnnotations)
-                    {
-                        GenerateNavigationDataAnnotations(navigation);
-                    }
-
-                    if (_useNullableReferenceTypes && !navigation.IsCollection)
-                    {
-                        Check.DebugAssert(!navigation.ForeignKey.IsRequired, "Required reference navigations should have a backing field");
-
-                        _sb.AppendLine($"public virtual {navigationType}? {navigation.Name} {{ get; set; }}");
-                    }
-                    else
-                    {
-                        _sb.AppendLine($"public virtual {navigationType} {navigation.Name} {{ get; set; }}");
-                    }
-                }
-            }
-
-            if (backingFieldNavigations.Any())
-            {
-                Check.DebugAssert(_useNullableReferenceTypes,
-                    "Backing field navigation should only be generated when using nullable reference types");
-
-                foreach (var navigation in backingFieldNavigations)
-                {
-                    Check.DebugAssert(!navigation.IsCollection && navigation.ForeignKey.IsRequired,
-                        "Only required reference navigations should have a backing field");
-
-                    var navigationType = navigation.TargetEntityType.Name;
-
-                    var backingFieldName = "_" + char.ToLower(navigation.Name[0], CultureInfo.InvariantCulture) + navigation.Name[1..];
-
-                    _sb
-                        .AppendLine()
-                        .AppendLine($"private {navigationType}? {backingFieldName};")
-                        .AppendLine();
-
-                    if (_useDataAnnotations)
-                    {
-                        GenerateNavigationDataAnnotations(navigation);
-                    }
-
-                    _sb
-                        .AppendLine($"public virtual {navigationType} {navigation.Name}")
-                        .AppendLine("{")
-                        .IncrementIndent()
-                        .AppendLine(
-                            $"get => {backingFieldName} ?? throw new InvalidOperationException(\"Uninitialized navigation: \" + nameof({navigation.Name}));")
-                        .AppendLine($"set => {backingFieldName} = value;")
-                        .DecrementIndent()
-                        .AppendLine("}");
+                    _sb.AppendLine(
+                        !_useNullableReferenceTypes || navigation.IsCollection
+                            ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }}"
+                            : navigation.ForeignKey.IsRequired
+                                ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }} = null!;"
+                                : $"public virtual {navigationType}? {navigation.Name} {{ get; set; }}");
                 }
             }
         }

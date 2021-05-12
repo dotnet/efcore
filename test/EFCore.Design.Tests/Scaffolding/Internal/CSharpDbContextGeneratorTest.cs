@@ -162,7 +162,25 @@ namespace TestNamespace
         }
 
         [ConditionalFact]
-        public void DbSets_are_initialized_with_nrt()
+        public void DbSets_without_nrt()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity"),
+                new ModelCodeGenerationOptions
+                {
+                    UseNullableReferenceTypes = false,
+                    SuppressConnectionStringWarning = true,
+                    SuppressOnConfiguring = true
+                },
+                code =>
+                {
+                    Assert.Contains("DbSet<Entity> Entity { get; set; }" + Environment.NewLine, code.ContextFile.Code);
+                },
+                null);
+        }
+
+        [ConditionalFact]
+        public void DbSets_with_nrt()
         {
             Test(
                 modelBuilder => modelBuilder.Entity("Entity"),
@@ -174,7 +192,7 @@ namespace TestNamespace
                 },
                 code =>
                 {
-                    Assert.Contains("DbSet<Entity> Entity => Set<Entity>();", code.ContextFile.Code);
+                    Assert.Contains("DbSet<Entity> Entity { get; set; } = null!;", code.ContextFile.Code);
                 },
                 null);
         }
