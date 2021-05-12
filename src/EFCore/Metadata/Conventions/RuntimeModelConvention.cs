@@ -65,6 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var runtimeProperty = Create(property, runtimeEntityType);
                     CreateAnnotations(property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
                         convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
+
+                    foreach (var pseudoProperty in property.GetPseudoProperties())
+                    {
+                        var nestedRuntimeProperty = Create(pseudoProperty, runtimeProperty);
+                        CreateAnnotations(pseudoProperty, nestedRuntimeProperty, static (convention, annotations, source, target, runtime) =>
+                            convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
+                    }
                 }
 
                 foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
@@ -268,6 +275,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 property.ClrType,
                 property.PropertyInfo,
                 property.FieldInfo,
+                property.GetPropertyAccessMode(),
+                property.IsNullable,
+                property.IsConcurrencyToken,
+                property.ValueGenerated,
+                property.GetBeforeSaveBehavior(),
+                property.GetAfterSaveBehavior(),
+                property.GetMaxLength(),
+                property.IsUnicode(),
+                property.GetPrecision(),
+                property.GetScale(),
+                property.GetProviderClrType(),
+                property.GetValueGeneratorFactory(),
+                property.GetValueConverter(),
+                property.GetValueComparer(),
+                property.GetKeyValueComparer(),
+                property.GetTypeMapping());
+
+        private RuntimeProperty Create(IPseudoProperty property, RuntimeProperty runtimeProperty)
+            => runtimeProperty.AddPseudoProperty(
+                property.Name,
+                property.ClrType,
+                property.PropertyInfo,
+                property.FieldInfo,
+                runtimeProperty,
+                property.ValueExtractor,
                 property.GetPropertyAccessMode(),
                 property.IsNullable,
                 property.IsConcurrencyToken,

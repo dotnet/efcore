@@ -739,50 +739,66 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var unorderedGroups = new Dictionary<PropertyInfo, SortedDictionary<int, IProperty>>();
             var types = new Dictionary<Type, SortedDictionary<int, PropertyInfo>>();
 
-            foreach (var property in entityType.GetDeclaredProperties())
+            foreach (var declaredProperty in entityType.GetDeclaredProperties())
             {
-                var clrProperty = property.PropertyInfo;
-                if (clrProperty == null
-                    || clrProperty.IsIndexerProperty())
+                var pseudoProperties = declaredProperty.GetPseudoProperties();
+                if (pseudoProperties.Any())
                 {
-                    if (property.IsPrimaryKey())
+                    foreach (var pseudoProperty in pseudoProperties)
                     {
-                        leastPriorityPrimaryKeyProperties.Add(property);
-
-                        continue;
+                        ProcessProperty(pseudoProperty);
                     }
-
-                    var foreignKey = property.GetContainingForeignKeys()
-                        .FirstOrDefault(fk => fk.DependentToPrincipal?.PropertyInfo != null);
-                    if (foreignKey == null)
-                    {
-                        leastPriorityProperties.Add(property);
-
-                        continue;
-                    }
-
-                    clrProperty = foreignKey.DependentToPrincipal!.PropertyInfo!;
-                    var groupIndex = foreignKey.Properties.IndexOf(property);
-
-                    unorderedGroups.GetOrAddNew(clrProperty).Add(groupIndex, property);
                 }
                 else
                 {
-                    if (property.IsPrimaryKey())
-                    {
-                        primaryKeyPropertyGroups.Add(clrProperty, property);
-                    }
-
-                    groups.Add(
-                        clrProperty, new List<IProperty> { property });
+                    ProcessProperty(declaredProperty);
                 }
 
-                var clrType = clrProperty.DeclaringType!;
-                var index = clrType.GetTypeInfo().DeclaredProperties
-                    .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
+                void ProcessProperty(IProperty property)
+                {
+                    var clrProperty = property.PropertyInfo;
+                    if (clrProperty == null
+                        || clrProperty.IsIndexerProperty())
+                    {
+                        if (property.IsPrimaryKey())
+                        {
+                            leastPriorityPrimaryKeyProperties.Add(property);
 
-                Check.DebugAssert(clrType != null, "clrType is null");
-                types.GetOrAddNew(clrType)[index] = clrProperty;
+                            return;
+                        }
+
+                        var foreignKey = property.GetContainingForeignKeys()
+                            .FirstOrDefault(fk => fk.DependentToPrincipal?.PropertyInfo != null);
+                        if (foreignKey == null)
+                        {
+                            leastPriorityProperties.Add(property);
+
+                            return;
+                        }
+
+                        clrProperty = foreignKey.DependentToPrincipal!.PropertyInfo!;
+                        var groupIndex = foreignKey.Properties.IndexOf(property);
+
+                        unorderedGroups.GetOrAddNew(clrProperty).Add(groupIndex, property);
+                    }
+                    else
+                    {
+                        if (property.IsPrimaryKey())
+                        {
+                            primaryKeyPropertyGroups.Add(clrProperty, property);
+                        }
+
+                        groups.Add(
+                            clrProperty, new List<IProperty> { property });
+                    }
+
+                    var clrType = clrProperty.DeclaringType!;
+                    var index = clrType.GetTypeInfo().DeclaredProperties
+                        .IndexOf(clrProperty, PropertyInfoEqualityComparer.Instance);
+
+                    Check.DebugAssert(clrType != null, "clrType is null");
+                    types.GetOrAddNew(clrType)[index] = clrProperty;
+                }
             }
 
             foreach (var group in unorderedGroups)

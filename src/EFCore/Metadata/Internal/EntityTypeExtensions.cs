@@ -241,6 +241,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     storeGenerationIndex: property.MayBeStoreGenerated() ? storeGenerationIndex++ : -1);
 
                 ((IRuntimePropertyBase)property).PropertyIndexes = indexes;
+
+                foreach (var pseudoProperty in property.GetPseudoProperties())
+                {
+                    indexes = new PropertyIndexes(
+                        index: -1,
+                        originalValueIndex: -1,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
+
+                    ((IRuntimePropertyBase)pseudoProperty).PropertyIndexes = indexes;
+                }
             }
 
             var isNotifying = entityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot;

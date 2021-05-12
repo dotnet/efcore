@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private ValueGenerated? _valueGenerated;
         private CoreTypeMapping? _typeMapping;
         private InternalPropertyBuilder? _builder;
+        private List<PseudoProperty>? _pseudoProperties;
 
         private ConfigurationSource? _typeConfigurationSource;
         private ConfigurationSource? _isNullableConfigurationSource;
@@ -940,6 +941,78 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Index> GetContainingIndexes()
             => Indexes ?? Enumerable.Empty<Index>();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void AddPseudoProperty(PseudoProperty property)
+            => (_pseudoProperties ??= new()).Add(property);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        void IConventionProperty.AddPseudoProperty(IConventionPseudoProperty property)
+            => AddPseudoProperty((PseudoProperty)property);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        void IMutableProperty.AddPseudoProperty(IMutablePseudoProperty property)
+            => AddPseudoProperty((PseudoProperty)property);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IReadOnlyList<PseudoProperty> GetPseudoProperties()
+            => (_pseudoProperties ?? (IReadOnlyList<PseudoProperty>)Array.Empty<PseudoProperty>());
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IReadOnlyList<IPseudoProperty> IProperty.GetPseudoProperties()
+            => GetPseudoProperties();
+        
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IReadOnlyList<IReadOnlyProperty> IReadOnlyProperty.GetPseudoProperties()
+            => GetPseudoProperties();
+        
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IReadOnlyList<IMutablePseudoProperty> IMutableProperty.GetPseudoProperties()
+            => GetPseudoProperties();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        IReadOnlyList<IConventionProperty> IConventionProperty.GetPseudoProperties()
+            => GetPseudoProperties();
 
         /// <summary>
         ///     Runs the conventions when an annotation was set or removed.

@@ -85,6 +85,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IMutableIndex> GetContainingIndexes();
 
         /// <summary>
+        ///     Adds a pseudo-property below this property. For relational databases, pseudo-properties represent
+        ///     the columns in the database when a single property maps to multiple columns.
+        /// </summary>
+        /// <param name="property"> The pseudo-property. </param>
+        void AddPseudoProperty(IMutablePseudoProperty property);
+
+        /// <summary>
+        ///     Gets any pseudo-properties inside this property. For relational providers, each of these
+        ///     pseudo-properties maps to a column when the top-level property maps to multiple columns.
+        /// </summary>
+        /// <returns> The list of pseudo-properties. </returns>
+        new IReadOnlyList<IMutablePseudoProperty> GetPseudoProperties();
+
+        /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
         ///     is included).
         /// </summary>

@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
                 .Append('_')
                 .Append(principalTableName)
                 .Append('_')
-                .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnBaseName()), "_")
+                .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnBaseName())!, "_")
                 .ToString();
 
             return Uniquifier.Truncate(name, foreignKey.DeclaringEntityType.Model.GetMaxIdentifierLength());

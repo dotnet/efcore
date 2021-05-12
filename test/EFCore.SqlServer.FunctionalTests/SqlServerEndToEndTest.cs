@@ -8,6 +8,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -20,6 +22,76 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
+        public static class Your
+        {
+            public static string ConnectionString = @"Data Source=(LocalDb)\MSSQLLocalDB;Database=Blogs;";
+        }
+
+        public class Foo
+        {
+            public int Id { get; set; }
+            public string Bar { get; set; }
+        }
+
+        public class SomeDbContext : DbContext
+        {
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder
+                    .UseSqlServer(Your.ConnectionString)
+                    .EnableSensitiveDataLogging();
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                var entityType = modelBuilder.Entity<Foo>().Metadata;
+                var property = (Property)modelBuilder.Entity<Foo>().Property(e => e.Bar).Metadata;
+
+                property.AddPseudoProperty(new PseudoProperty(
+                    "Left",
+                    typeof(string),
+                    null,
+                    null,
+                    (EntityType)entityType,
+                    property,
+                    v => ((string)v).Split(' ').First(),
+                    ConfigurationSource.Explicit,
+                    ConfigurationSource.Explicit));
+
+                property.AddPseudoProperty(new PseudoProperty(
+                    "Right",
+                    typeof(string),
+                    null,
+                    null,
+                    (EntityType)entityType,
+                    property,
+                    v => ((string)v).Split(' ').Last(),
+                    ConfigurationSource.Explicit,
+                    ConfigurationSource.Explicit));
+            }
+        }
+
+        [ConditionalFact]
+            public void Main()
+            {
+                using (var context = new SomeDbContext())
+                {
+                    var model = context.Model;
+                    context.Database.EnsureDeleted();
+                    context.Database.EnsureCreated();
+
+                    context.Add(new Foo { Bar = "One Two"});
+                    context.SaveChanges();
+                }
+            }
+
+
+
+
+
+
+
+
+
+
         private const string DatabaseName = "SqlServerEndToEndTest";
 
         protected SqlServerFixture Fixture { get; }

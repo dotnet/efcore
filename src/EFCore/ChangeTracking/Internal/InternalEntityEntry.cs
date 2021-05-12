@@ -808,9 +808,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public object? ReadPropertyValue(IPropertyBase propertyBase)
-            => propertyBase.IsShadowProperty()
-                ? _shadowValues[propertyBase.GetShadowIndex()]
-                : propertyBase.GetGetter().GetClrValue(Entity);
+            => propertyBase.IsPseudoProperty
+                ? ((IPseudoProperty)propertyBase).ValueExtractor(
+                    ReadPropertyValue(((IPseudoProperty)propertyBase).OuterProperty))
+                : propertyBase.IsShadowProperty()
+                    ? _shadowValues[propertyBase.GetShadowIndex()]
+                    : propertyBase.GetGetter().GetClrValue(Entity);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

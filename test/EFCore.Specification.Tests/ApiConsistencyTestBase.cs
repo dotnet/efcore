@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore
                             + $"{readonlyMethod.DeclaringType.Name}.{readonlyMethod.Name}({Format(readonlyMethod.GetParameters())})";
                     }
 
-                    if (mutableMethod.ReturnType.TryGetSequenceType() != expectedReturnTypes.Mutable)
+                    if (!expectedReturnTypes.Mutable.IsAssignableFrom(mutableMethod.ReturnType.TryGetSequenceType()))
                     {
                         return $"{mutableMethod.DeclaringType.Name}.{mutableMethod.Name}({Format(mutableMethod.GetParameters())})"
                             + $" expected to have a return type that derives from IEnumerable<{expectedReturnTypes.Mutable}>.";

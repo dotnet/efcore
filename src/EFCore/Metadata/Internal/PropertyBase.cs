@@ -235,6 +235,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ?.Value;
 
         /// <summary>
+        ///     Checks whether or not this property is an <see cref="IsPseudoProperty"/>.
+        /// </summary>
+        /// <returns> <see langword="true" /> if the property is a pseudo-property; <see langword="false" /> otherwise. </returns>
+        public virtual bool IsPseudoProperty
+            => false;
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that

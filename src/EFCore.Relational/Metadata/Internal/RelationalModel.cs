@@ -262,10 +262,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in entityType.GetProperties())
             {
+                var pseudoProperties = property.GetPseudoProperties();
+                if (pseudoProperties.Any())
+                {
+                    foreach (var pseudoProperty in pseudoProperties)
+                    {
+                        MakeColumnMapping(pseudoProperty);
+                    }
+                }
+                else
+                {
+                    MakeColumnMapping(property);
+                }
+            }
+
+            if (entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings)
+                is not List<TableMappingBase> tableMappings)
+            {
+                tableMappings = new List<TableMappingBase>();
+                entityType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
+            }
+
+            if (tableMapping.ColumnMappings.Count != 0
+                || tableMappings.Count == 0)
+            {
+                tableMappings.Add(tableMapping);
+                defaultTable.EntityTypeMappings.Add(tableMapping);
+            }
+
+            tableMappings.Reverse();
+            
+            void MakeColumnMapping(IProperty property)
+            {
                 var columnName = property.GetColumnBaseName();
                 if (columnName == null)
                 {
-                    continue;
+                    return;
                 }
 
                 var column = (ColumnBase?)defaultTable.FindColumn(columnName);
@@ -293,22 +325,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 columnMappings.Add(columnMapping);
             }
-
-            if (entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings)
-                is not List<TableMappingBase> tableMappings)
-            {
-                tableMappings = new List<TableMappingBase>();
-                entityType.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultMappings, tableMappings);
-            }
-
-            if (tableMapping.ColumnMappings.Count != 0
-                || tableMappings.Count == 0)
-            {
-                tableMappings.Add(tableMapping);
-                defaultTable.EntityTypeMappings.Add(tableMapping);
-            }
-
-            tableMappings.Reverse();
         }
 
         private static void AddTables(RelationalModel databaseModel, IEntityType entityType)
@@ -355,10 +371,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     };
                     foreach (var property in mappedType.GetProperties())
                     {
+                        var pseudoProperties = property.GetPseudoProperties();
+                        if (pseudoProperties.Any())
+                        {
+                            foreach (var pseudoProperty in pseudoProperties)
+                            {
+                                MakeColumnMapping(pseudoProperty);
+                            }
+                        }
+                        else
+                        {
+                            MakeColumnMapping(property);
+                        }
+                    }
+
+                    mappedType = mappedType.BaseType;
+
+                    tableMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings)
+                        as List<TableMapping>;
+                    if (tableMappings == null)
+                    {
+                        tableMappings = new List<TableMapping>();
+                        entityType.AddRuntimeAnnotation(RelationalAnnotationNames.TableMappings, tableMappings);
+                    }
+
+                    if (tableMapping.ColumnMappings.Count != 0
+                        || tableMappings.Count == 0)
+                    {
+                        tableMappings.Add(tableMapping);
+                        table.EntityTypeMappings.Add(tableMapping);
+                    }
+
+                    void MakeColumnMapping(IProperty property)
+                    {
                         var columnName = property.GetColumnName(mappedTable);
                         if (columnName == null)
                         {
-                            continue;
+                            return;
                         }
 
                         var column = (Column?)table.FindColumn(columnName);
@@ -385,23 +434,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
 
                         columnMappings.Add(columnMapping);
-                    }
-
-                    mappedType = mappedType.BaseType;
-
-                    tableMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableMappings)
-                        as List<TableMapping>;
-                    if (tableMappings == null)
-                    {
-                        tableMappings = new List<TableMapping>();
-                        entityType.AddRuntimeAnnotation(RelationalAnnotationNames.TableMappings, tableMappings);
-                    }
-
-                    if (tableMapping.ColumnMappings.Count != 0
-                        || tableMappings.Count == 0)
-                    {
-                        tableMappings.Add(tableMapping);
-                        table.EntityTypeMappings.Add(tableMapping);
                     }
                 }
 
@@ -446,10 +478,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 };
                 foreach (var property in mappedType.GetProperties())
                 {
+                    var pseudoProperties = property.GetPseudoProperties();
+                    if (pseudoProperties.Any())
+                    {
+                        foreach (var pseudoProperty in pseudoProperties)
+                        {
+                            MakeColumnMapping(pseudoProperty);
+                        }
+                    }
+                    else
+                    {
+                        MakeColumnMapping(property);
+                    }
+                }
+
+                mappedType = mappedType.BaseType;
+
+                viewMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewMappings) as List<ViewMapping>;
+                if (viewMappings == null)
+                {
+                    viewMappings = new List<ViewMapping>();
+                    entityType.AddRuntimeAnnotation(RelationalAnnotationNames.ViewMappings, viewMappings);
+                }
+
+                if (viewMapping.ColumnMappings.Count != 0
+                    || viewMappings.Count == 0)
+                {
+                    viewMappings.Add(viewMapping);
+                    view.EntityTypeMappings.Add(viewMapping);
+                }
+
+                void MakeColumnMapping(IProperty property)
+                {
                     var columnName = property.GetColumnName(mappedView);
                     if (columnName == null)
                     {
-                        continue;
+                        return;
                     }
 
                     var column = (ViewColumn?)view.FindColumn(columnName);
@@ -476,22 +540,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     columnMappings.Add(columnMapping);
-                }
-
-                mappedType = mappedType.BaseType;
-
-                viewMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewMappings) as List<ViewMapping>;
-                if (viewMappings == null)
-                {
-                    viewMappings = new List<ViewMapping>();
-                    entityType.AddRuntimeAnnotation(RelationalAnnotationNames.ViewMappings, viewMappings);
-                }
-
-                if (viewMapping.ColumnMappings.Count != 0
-                    || viewMappings.Count == 0)
-                {
-                    viewMappings.Add(viewMapping);
-                    view.EntityTypeMappings.Add(viewMapping);
                 }
             }
 
@@ -551,10 +599,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var property in mappedType.GetProperties())
                 {
+                    var pseudoProperties = property.GetPseudoProperties();
+                    if (pseudoProperties.Any())
+                    {
+                        foreach (var pseudoProperty in pseudoProperties)
+                        {
+                            MakeColumnMapping(pseudoProperty);
+                        }
+                    }
+                    else
+                    {
+                        MakeColumnMapping(property);
+                    }
+                }
+
+                mappedType = mappedType.BaseType;
+
+                queryMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.SqlQueryMappings) as List<SqlQueryMapping>;
+                if (queryMappings == null)
+                {
+                    queryMappings = new List<SqlQueryMapping>();
+                    entityType.AddRuntimeAnnotation(RelationalAnnotationNames.SqlQueryMappings, queryMappings);
+                }
+
+                if (queryMapping.ColumnMappings.Count != 0
+                    || queryMappings.Count == 0)
+                {
+                    queryMappings.Add(queryMapping);
+                    sqlQuery.EntityTypeMappings.Add(queryMapping);
+                }
+
+                void MakeColumnMapping(IProperty property)
+                {
                     var columnName = property.GetColumnName(mappedQuery);
                     if (columnName == null)
                     {
-                        continue;
+                        return;
                     }
 
                     var column = (SqlQueryColumn?)sqlQuery.FindColumn(columnName);
@@ -581,22 +661,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
 
                     columnMappings.Add(columnMapping);
-                }
-
-                mappedType = mappedType.BaseType;
-
-                queryMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.SqlQueryMappings) as List<SqlQueryMapping>;
-                if (queryMappings == null)
-                {
-                    queryMappings = new List<SqlQueryMapping>();
-                    entityType.AddRuntimeAnnotation(RelationalAnnotationNames.SqlQueryMappings, queryMappings);
-                }
-
-                if (queryMapping.ColumnMappings.Count != 0
-                    || queryMappings.Count == 0)
-                {
-                    queryMappings.Add(queryMapping);
-                    sqlQuery.EntityTypeMappings.Add(queryMapping);
                 }
             }
 
@@ -700,10 +764,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             foreach (var property in mappedType.GetProperties())
             {
+                var pseudoProperties = property.GetPseudoProperties();
+                if (pseudoProperties.Any())
+                {
+                    foreach (var pseudoProperty in pseudoProperties)
+                    {
+                        MakeColumnMapping(pseudoProperty);
+                    }
+                }
+                else
+                {
+                    MakeColumnMapping(property);
+                }
+            }
+
+            void MakeColumnMapping(IProperty property)
+            {
                 var columnName = property.GetColumnName(mappedFunction);
                 if (columnName == null)
                 {
-                    continue;
+                    return;
                 }
 
                 var column = (FunctionColumn?)storeFunction.FindColumn(columnName);

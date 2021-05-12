@@ -75,6 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public IClrCollectionAccessor GetCollectionAccessor()
                 => throw new NotImplementedException();
 
+            public bool IsPseudoProperty
+                => false;
+
             public PropertyAccessMode GetPropertyAccessMode()
                 => throw new NotImplementedException();
 

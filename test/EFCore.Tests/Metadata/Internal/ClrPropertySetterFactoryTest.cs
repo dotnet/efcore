@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(property, new ClrPropertySetterFactory().Create(property));
         }
 
-        private class FakeProperty : Annotatable, IProperty, IClrPropertySetter
+        private class FakeProperty : Annotatable,  IProperty, IClrPropertySetter
         {
             public string Name { get; }
             public ITypeBase DeclaringType { get; }
@@ -54,6 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             public IEnumerable<IIndex> GetContainingIndexes()
                 => throw new NotImplementedException();
+
+            public IReadOnlyList<IPseudoProperty> GetPseudoProperties()
+                => throw new NotImplementedException();
+
+            IReadOnlyList<IReadOnlyProperty> IReadOnlyProperty.GetPseudoProperties()
+                => GetPseudoProperties();
 
             public IEnumerable<IKey> GetContainingKeys()
                 => throw new NotImplementedException();
@@ -120,6 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             IEnumerable<IReadOnlyKey> IReadOnlyProperty.GetContainingKeys()
                 => throw new NotImplementedException();
+
+            public bool IsPseudoProperty
+                => false;
 
             public PropertyAccessMode GetPropertyAccessMode()
                 => throw new NotImplementedException();

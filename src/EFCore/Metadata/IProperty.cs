@@ -85,6 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IIndex> GetContainingIndexes();
 
         /// <summary>
+        ///     Gets any pseudo-properties inside this property. For relational providers, each of these
+        ///     pseudo-properties maps to a column when the top-level property maps to multiple columns.
+        /// </summary>
+        /// <returns> The list of pseudo-properties. </returns>
+        new IReadOnlyList<IPseudoProperty> GetPseudoProperties();
+
+        /// <summary>
         ///     Gets the primary key that uses this property (including a composite primary key in which this property
         ///     is included).
         /// </summary>

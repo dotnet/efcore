@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
                     .Append("AK_")
                     .Append(tableName)
                     .Append('_')
-                    .AppendJoin(key.Properties.Select(p => p.GetColumnBaseName()), "_")
+                    .AppendJoin(key.Properties.Select(p => p.GetColumnBaseName())!, "_")
                     .ToString();
 
             return Uniquifier.Truncate(name, key.DeclaringEntityType.Model.GetMaxIdentifierLength());

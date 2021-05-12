@@ -249,6 +249,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IReadOnlyIndex> GetContainingIndexes();
 
         /// <summary>
+        ///     Gets any pseudo-properties inside this property. For relational providers, each of these
+        ///     pseudo-properties maps to a column when the top-level property maps to multiple columns.
+        /// </summary>
+        /// <returns> The list of pseudo-properties. </returns>
+        IReadOnlyList<IReadOnlyProperty> GetPseudoProperties();
+        
+        /// <summary>
         ///     Gets a value indicating whether this property is used as the primary key (or part of a composite primary key).
         /// </summary>
         /// <returns> <see langword="true" /> if the property is used as the primary key, otherwise <see langword="false" />. </returns>

@@ -168,7 +168,9 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
                 typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
                 typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
-                typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType))
+                typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType)),
+                typeof(IMutableProperty).GetMethod(nameof(IMutableProperty.AddPseudoProperty)),
+                typeof(IConventionProperty).GetMethod(nameof(IConventionProperty.AddPseudoProperty))
             };
         }
     }

@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private readonly ValueComparer _valueComparer;
         private readonly ValueComparer _keyValueComparer;
         private CoreTypeMapping? _typeMapping;
+        private List<RuntimePseudoProperty>? _pseudoProperties;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -199,7 +200,83 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [DebuggerStepThrough]
             get => _isConcurrencyToken;
         }
+        
+        /// <summary>
+        ///     Gets any pseudo-properties inside this property. For relational providers, each of these
+        ///     pseudo-properties maps to a column when the top-level property maps to multiple columns.
+        /// </summary>
+        /// <returns> The list of pseudo-properties. </returns>
+        public virtual IReadOnlyList<RuntimePseudoProperty> GetPseudoProperties()
+            => (_pseudoProperties ?? (IReadOnlyList<RuntimePseudoProperty>)Array.Empty<RuntimePseudoProperty>());
 
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual RuntimeProperty AddPseudoProperty(
+            string name,
+            Type propertyType,
+            PropertyInfo? propertyInfo,
+            FieldInfo? fieldInfo,
+            RuntimeProperty outerProperty,
+            Func<object?, object?> valueExtractor,
+            PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
+            bool nullable = false,
+            bool concurrencyToken = false,
+            ValueGenerated valueGenerated = ValueGenerated.Never,
+            PropertySaveBehavior beforeSaveBehavior = PropertySaveBehavior.Save,
+            PropertySaveBehavior afterSaveBehavior = PropertySaveBehavior.Save,
+            int? maxLength = null,
+            bool? unicode = null,
+            int? precision = null,
+            int? scale = null,
+            Type? providerPropertyType = null,
+            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null,
+            ValueConverter? valueConverter = null,
+            ValueComparer? valueComparer = null,
+            ValueComparer? keyValueComparer = null,
+            CoreTypeMapping? typeMapping = null)
+        {
+            var property = new RuntimePseudoProperty(
+                name,
+                propertyType,
+                propertyInfo,
+                fieldInfo,
+                outerProperty,
+                valueExtractor,
+                DeclaringEntityType,
+                propertyAccessMode,
+                nullable,
+                concurrencyToken,
+                valueGenerated,
+                beforeSaveBehavior,
+                afterSaveBehavior,
+                maxLength,
+                unicode,
+                precision,
+                scale,
+                providerPropertyType,
+                valueGeneratorFactory,
+                valueConverter,
+                valueComparer,
+                keyValueComparer,
+                typeMapping);
+
+            (_pseudoProperties ??= new()).Add(property);
+
+            return property;
+        }
+
+        /// <inheritdoc/>
+        IReadOnlyList<IPseudoProperty> IProperty.GetPseudoProperties()
+            => GetPseudoProperties();
+        
+        /// <inheritdoc/>
+        IReadOnlyList<IReadOnlyProperty> IReadOnlyProperty.GetPseudoProperties()
+            => GetPseudoProperties();
+        
         /// <inheritdoc/>
         [DebuggerStepThrough]
         int? IReadOnlyProperty.GetMaxLength() => (int?)this[CoreAnnotationNames.MaxLength];

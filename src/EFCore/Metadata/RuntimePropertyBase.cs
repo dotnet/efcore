@@ -64,6 +64,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         protected abstract Type ClrType { get; }
 
+        /// <summary>
+        ///     Checks whether or not this property is an <see cref="IsPseudoProperty"/>.
+        /// </summary>
+        /// <returns> <see langword="true" /> if the property is a pseudo-property; <see langword="false" /> otherwise. </returns>
+        public virtual bool IsPseudoProperty
+            => false;
+
         /// <inheritdoc/>
         PropertyInfo? IReadOnlyPropertyBase.PropertyInfo
         {
