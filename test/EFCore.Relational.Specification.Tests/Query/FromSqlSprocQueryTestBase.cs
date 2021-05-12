@@ -69,6 +69,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
+        public virtual void From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
+        {
+            using var context = CreateContext();
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .TagWith("SampleFileName", 13);
+
+            var actual = query.ToQueryString().Split(Environment.NewLine).First();
+
+            Assert.Equal("-- file: SampleFileName:13", actual);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
         public virtual async Task From_sql_queryable_stored_procedure_projection(bool async)
         {
             using var context = CreateContext();
@@ -461,22 +477,5 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected abstract string TenMostExpensiveProductsSproc { get; }
 
         protected abstract string CustomerOrderHistorySproc { get; }
-
-        [ConditionalTheory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
-        {
-            using var context = CreateContext();
-            var query = context
-                .Set<MostExpensiveProduct>()
-                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                .TagWith();
-
-            var actual = query.ToQueryString().Split(Environment.NewLine).First();
-
-            Assert.StartsWith(@"-- file: ", actual);
-            Assert.EndsWith($"EFCore.Relational.Specification.Tests{Path.DirectorySeparatorChar}Query{Path.DirectorySeparatorChar}FromSqlSprocQueryTestBase.cs:474", actual);
-        }
     }
 }
