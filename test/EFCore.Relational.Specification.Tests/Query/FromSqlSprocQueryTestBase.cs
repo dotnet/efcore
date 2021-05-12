@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -475,7 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var actual = query.ToQueryString().Split(Environment.NewLine).First();
 
             Assert.StartsWith(@"-- file: ", actual);
-            Assert.EndsWith(@"EFCore.Relational.Specification.Tests\Query\FromSqlSprocQueryTestBase.cs:473", actual);
+            Assert.EndsWith($"EFCore.Relational.Specification.Tests{Path.DirectorySeparatorChar}Query{Path.DirectorySeparatorChar}FromSqlSprocQueryTestBase.cs:474", actual);
         }
     }
 }
