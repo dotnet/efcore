@@ -11,7 +11,9 @@ namespace Microsoft.EntityFrameworkCore
         [ModuleInitializer]
         internal static void Initialize()
         {
-            CultureInfo.CurrentCulture = CultureInfo.CreateSpecificCulture("en-US");
+            var enUsCulture = CultureInfo.CreateSpecificCulture("en-US");
+            CultureInfo.CurrentCulture = enUsCulture;
+            CultureInfo.DefaultThreadCurrentCulture = enUsCulture;
         }
     }
 }
