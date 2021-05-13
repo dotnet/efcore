@@ -88,7 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
             }
 
-            // TODO: Honor options.Nullable (issue #15520)
             var generatedCode = CSharpDbContextGenerator.WriteCode(
                 model,
                 options.ContextName,
@@ -96,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 options.ContextNamespace,
                 options.ModelNamespace,
                 options.UseDataAnnotations,
+                options.UseNullableReferenceTypes,
                 options.SuppressConnectionStringWarning,
                 options.SuppressOnConfiguring);
 
@@ -114,8 +114,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                // TODO: Honor options.Nullable (issue #15520)
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, options.ModelNamespace, options.UseDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(
+                    entityType,
+                    options.ModelNamespace,
+                    options.UseDataAnnotations,
+                    options.UseNullableReferenceTypes);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.Name + FileExtension;

@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Gets or sets a value indicating whether nullable reference types are enabled.
         /// </summary>
         /// <value> A value indicating whether nullable reference types are enabled. </value>
-        public virtual bool Nullable { get; set; }
+        public virtual bool UseNullableReferenceTypes { get; set; }
 
         /// <summary>
         ///     Gets or sets the DbContext output directory.
