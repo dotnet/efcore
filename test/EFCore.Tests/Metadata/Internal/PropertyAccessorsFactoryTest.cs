@@ -26,10 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
-            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new IndexedClass();
-            var entry = factory.Create(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
+            var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
             var propertyAccessors = new PropertyAccessorsFactory().Create((IProperty)propertyA);
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
@@ -53,10 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
-            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new NonIndexedClass();
-            var entry = factory.Create(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
+            var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
             var propertyAccessors = new PropertyAccessorsFactory().Create((IProperty)propA);
             Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));

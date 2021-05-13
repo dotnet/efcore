@@ -5,7 +5,7 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    public abstract partial class InternalEntityEntry
+    public sealed partial class InternalEntityEntry
     {
         internal enum PropertyFlag
         {

@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                var internalEntityEntry = new InternalEntityEntryFactory().Create(
+                var internalEntityEntry = new InternalEntityEntry(
                     _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
