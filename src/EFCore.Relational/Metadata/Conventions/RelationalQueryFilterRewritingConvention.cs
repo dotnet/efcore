@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -34,10 +35,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var queryFilter = entityType.GetQueryFilter();
-                if (queryFilter != null)
+                var queryFilters = entityType.GetQueryFilters();
+                if (queryFilters != null)
                 {
-                    entityType.SetQueryFilter((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryFilter));
+                    var rewritedQueryfilters = new Dictionary<string, LambdaExpression>();
+                    foreach (var queryfilter in queryFilters)
+                    {
+                        rewritedQueryfilters.Add(queryfilter.Key,
+                            (LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, queryfilter.Value));
+                    }
+
+                    entityType.SetQueryFilters(rewritedQueryfilters);
                 }
 
 #pragma warning disable CS0618 // Type or member is obsolete

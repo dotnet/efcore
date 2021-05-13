@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="filter"> The LINQ predicate expression. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasQueryFilter(LambdaExpression? filter)
-            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
+            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter("", filter);
 
         /// <summary>
         ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
@@ -227,7 +227,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="filter"> The LINQ predicate expression. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> HasQueryFilter(Expression<Func<TEntity, bool>>? filter)
-            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(filter);
+            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter("", filter);
+
+        /// <summary>
+        ///     Specifies a named LINQ predicate expression that will automatically be applied to any queries targeting
+        ///     this entity type.
+        /// </summary>
+        /// <param name="name">The name of the LINQ predicate expression. </param>
+        /// <param name="filter"> The LINQ predicate expression. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public new virtual EntityTypeBuilder<TEntity> HasQueryFilter(string name, LambdaExpression? filter)
+            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(name, filter);
+
+        /// <summary>
+        ///     Specifies a named LINQ predicate expression that will automatically be applied to any queries targeting
+        ///     this entity type.
+        /// </summary>
+        /// <param name="name">The name of the LINQ predicate expression. </param>
+        /// <param name="filter"> The LINQ predicate expression. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual EntityTypeBuilder<TEntity> HasQueryFilter(string name, Expression<Func<TEntity, bool>>? filter)
+            => (EntityTypeBuilder<TEntity>)base.HasQueryFilter(name, filter);
 
         /// <summary>
         ///     Configures a query used to provide data for a keyless entity type.

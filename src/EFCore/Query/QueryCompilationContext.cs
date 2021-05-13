@@ -137,6 +137,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual bool IgnoreQueryFilters { get; internal set; }
 
         /// <summary>
+        ///     The set of named query filters that are ignored in this query.
+        /// </summary>
+        public virtual ISet<string> IgnoredQueryFilters { get; } = new HashSet<string>();
+
+        /// <summary>
         ///     A value indicating whether eager loaded navigations are ignored in this query.
         /// </summary>
         public virtual bool IgnoreAutoIncludes { get; internal set; }
@@ -165,6 +170,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotEmpty(tag, nameof(tag));
 
             Tags.Add(tag);
+        }
+
+        /// <summary>
+        ///     Adds a query filter the should be ignored <see cref="IgnoredQueryFilters" />.
+        /// </summary>
+        /// <param name="name"> The name of the query filter to ignore. </param>
+        public virtual void AddIgnoredQueryFilters(string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            IgnoredQueryFilters.Add(name);
         }
 
         /// <summary>

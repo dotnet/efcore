@@ -46,7 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<MethodCallChainFilter>().HasQueryFilter(e => e.Tenant == GetFlag().GetId());
             modelBuilder.Entity<ComplexFilter>().HasQueryFilter(x => x.IsEnabled == Property && (Tenant + GetId() > 0));
             modelBuilder.Entity<ShortCircuitFilter>()
-                .HasQueryFilter(x => !x.IsDeleted && (IsModerated == null || IsModerated == x.IsModerated));
+               .HasQueryFilter("SoftDelete", x => !x.IsDeleted);
+            modelBuilder.Entity<ShortCircuitFilter>()
+                .HasQueryFilter(x => IsModerated == null || IsModerated == x.IsModerated);
             modelBuilder.Entity<PrincipalSetFilter>()
                 .HasQueryFilter(p => Dependents.Any(d => d.PrincipalSetFilterId == p.Id));
 

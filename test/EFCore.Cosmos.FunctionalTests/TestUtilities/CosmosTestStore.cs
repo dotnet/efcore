@@ -568,6 +568,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 throw new NotImplementedException();
             }
+            public LambdaExpression GetQueryFilter(string name)
+            {
+                throw new NotImplementedException();
+            }
+            public IDictionary<string, LambdaExpression> GetQueryFilters()
+            {
+                throw new NotImplementedException();
+            }
 
             public IEnumerable<IForeignKey> GetReferencingForeignKeys()
                 => throw new NotImplementedException();

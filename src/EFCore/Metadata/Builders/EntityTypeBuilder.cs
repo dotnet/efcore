@@ -247,8 +247,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="filter"> The LINQ predicate expression. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasQueryFilter(LambdaExpression? filter)
+            => HasQueryFilter("", filter);
+
+        /// <summary>
+        ///     Specifies a named LINQ predicate expression that will automatically be applied to any queries targeting
+        ///     this entity type.
+        /// </summary>
+        /// <param name="name"> The name of the LINQ predicate expression. </param>
+        /// <param name="filter"> The LINQ predicate expression. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        public virtual EntityTypeBuilder HasQueryFilter(string name, LambdaExpression? filter)
         {
-            Builder.HasQueryFilter(filter, ConfigurationSource.Explicit);
+            Builder.HasQueryFilter(name, filter, ConfigurationSource.Explicit);
 
             return this;
         }

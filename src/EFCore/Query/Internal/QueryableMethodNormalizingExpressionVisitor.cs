@@ -211,6 +211,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return visitedExpression;
             }
 
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFilterMethodInfo)
+            {
+                var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+                _queryCompilationContext.AddIgnoredQueryFilters(methodCallExpression.Arguments[1].GetConstantValue<string>());
+
+                return visitedExpression;
+            }
+
             if (genericMethodDefinition == EntityFrameworkQueryableExtensions.IgnoreQueryFiltersMethodInfo)
             {
                 var visitedExpression = Visit(methodCallExpression.Arguments[0]);

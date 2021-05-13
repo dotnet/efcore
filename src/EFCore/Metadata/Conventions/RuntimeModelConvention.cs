@@ -246,10 +246,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 annotations.Remove(CoreAnnotationNames.NavigationAccessMode);
                 annotations.Remove(CoreAnnotationNames.DiscriminatorProperty);
 
-                if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilter))
+                if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilters))
                 {
-                    annotations[CoreAnnotationNames.QueryFilter] =
-                        new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)queryFilter!);
+                    var result = new Dictionary<string, LambdaExpression>();
+                    foreach(var queryFilter in (Dictionary<string, LambdaExpression>)queryFilters!)
+                    { 
+                        result.Add(queryFilter.Key, 
+                            (LambdaExpression)new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite(queryFilter.Value!));
+
+                    }
+                    annotations[CoreAnnotationNames.QueryFilter] = result;
                 }
 
 #pragma warning disable CS0612 // Type or member is obsolete

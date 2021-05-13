@@ -83,10 +83,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         LambdaExpression? SetQueryFilter(LambdaExpression? queryFilter, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />.
+        ///     Sets a named LINQ expression filter automatically applied to queries for this entity type.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter" />. </returns>
+        /// <param name="name"> The name of the expression filter. </param>
+        /// <param name="queryFilter"> The LINQ expression filter. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured filter. </returns>
+        LambdaExpression? SetQueryFilter(string name, LambdaExpression? queryFilter, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter()" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilter()" />. </returns>
         ConfigurationSource? GetQueryFilterConfigurationSource();
+
+        /// <summary>
+        ///     Sets the LINQ expression filters automatically applied to queries for this entity type.
+        /// </summary>
+        /// <param name="queryFilters"> The LINQ expression filters. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured filters. </returns>
+        Dictionary<string, LambdaExpression>? SetQueryFilters(Dictionary<string, LambdaExpression>? queryFilters, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns the configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters()" />.
+        /// </summary>
+        /// <returns> The configuration source for <see cref="IReadOnlyEntityType.GetQueryFilters()" />. </returns>
+        ConfigurationSource? GetQueryFiltersConfigurationSource();
 
         /// <summary>
         ///     Returns the property that will be used for storing a discriminator value.

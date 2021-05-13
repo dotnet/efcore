@@ -165,6 +165,31 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_named_query_opt_out(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .IgnoreQueryFilter("HasOrder")
+                    .IgnoreQueryFilter("Quantity"),
+                entryCount: 2155);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_single_named_query_opt_out(bool async)
+        {
+            return AssertQuery(
+                async,                
+                ss => ss.Set<OrderDetail>()
+                    .IgnoreQueryFilter("HasOrder"),
+                ss  => ss.Set<OrderDetail>()
+                    .Where(od => od.Quantity > 50),
+                entryCount: 159);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Included_many_to_one_query2(bool async)
         {
             return AssertFilteredQuery(

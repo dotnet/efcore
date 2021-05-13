@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependenciesType);
 
         /// <summary>
-        ///     The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type '{rootType}'.
+        ///     Filter expressions cannot be specified for entity type '{entityType}'. Filter may only be applied to the root entity type '{rootType}'.
         /// </summary>
         public static string BadFilterDerivedType(object? filter, object? entityType, object? rootType)
             => string.Format(
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType, clrType);
 
         /// <summary>
-        ///     The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned.
+        ///     Filter expressions cannot be specified for owned entity type '{entityType}'. Filter may only be applied to an entity type that is not owned.
         /// </summary>
         public static string BadFilterOwnedType(object? filter, object? entityType)
             => string.Format(

@@ -146,12 +146,34 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 ORDER BY [c].[CustomerID], [o].[OrderID]");
         }
 
+        public override async Task Include_named_query_opt_out(bool async)
+        {
+            await base.Include_named_query_opt_out(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]");
+        }
+
+        public override async Task Include_single_named_query_opt_out(bool async)
+        {
+            await base.Include_single_named_query_opt_out(async);
+
+            AssertSql(
+                @"@__ef_filter___quantity_0='50'
+
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[Quantity] > @__ef_filter___quantity_0");
+        }
+
+
         public override async Task Included_many_to_one_query(bool async)
         {
             await base.Included_many_to_one_query(async);
 
             AssertSql(
-                @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
+                @"@__ef_filter__TenantPrefix_0 ='B' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM [Orders] AS [o]

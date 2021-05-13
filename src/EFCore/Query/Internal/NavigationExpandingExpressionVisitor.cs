@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
         private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
 
-        private readonly Dictionary<IEntityType, LambdaExpression> _parameterizedQueryFilterPredicateCache
+        private readonly Dictionary<IEntityType, Dictionary<string, LambdaExpression>> _parameterizedQueryFiltersPredicateCache
             = new();
 
         private readonly Parameters _parameters = new();
@@ -1411,44 +1411,58 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 var sequenceType = navigationExpansionExpression.Type.GetSequenceType();
                 var rootEntityType = entityType.GetRootType();
-                var queryFilter = rootEntityType.GetQueryFilter();
-                if (queryFilter != null)
+                var queryFilters = rootEntityType.GetQueryFilters();
+                if (queryFilters != null)
                 {
-                    if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
+                    if (!_parameterizedQueryFiltersPredicateCache.TryGetValue(rootEntityType, out var entityTypeQueryFilterCache))
                     {
-                        filterPredicate = queryFilter;
-                        filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(filterPredicate);
-                        filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
+                        entityTypeQueryFilterCache = new();
 
-                        // We need to do entity equality, but that requires a full method call on a query root to properly flow the
-                        // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
-                        var filterWrapper = Expression.Call(
-                            QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
-                            new QueryRootExpression(rootEntityType),
-                            filterPredicate);
-                        filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
+                        foreach (var queryFilter in queryFilters)
+                        {
+                            var filterPredicate = queryFilter.Value;
+                            filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(filterPredicate);
+                            filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
 
-                        _parameterizedQueryFilterPredicateCache[rootEntityType] = filterPredicate;
+                            // We need to do entity equality, but that requires a full method call on a query root to properly flow the
+                            // entity information through. Construct a MethodCall wrapper for the predicate with the proper query root.
+                            var filterWrapper = Expression.Call(
+                                QueryableMethods.Where.MakeGenericMethod(rootEntityType.ClrType),
+                                new QueryRootExpression(rootEntityType),
+                                filterPredicate);
+                            filterPredicate = filterWrapper.Arguments[1].UnwrapLambdaFromQuote();
+
+                            entityTypeQueryFilterCache.Add(queryFilter.Key, filterPredicate);
+                        }
+
+                        _parameterizedQueryFiltersPredicateCache[rootEntityType] = entityTypeQueryFilterCache;
                     }
 
-                    filterPredicate =
-                        (LambdaExpression)new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(
-                            filterPredicate);
-
-                    // if we are constructing EntityQueryable of a derived type, we need to re-map filter predicate to the correct derived type
-                    var filterPredicateParameter = filterPredicate.Parameters[0];
-                    if (filterPredicateParameter.Type != sequenceType)
+                    Expression filteredResult = navigationExpansionExpression;
+                    foreach (var queryFilter in entityTypeQueryFilterCache)
                     {
-                        var newFilterPredicateParameter = Expression.Parameter(sequenceType, filterPredicateParameter.Name);
-                        var newFilterPredicateBody = ReplacingExpressionVisitor.Replace(
-                            filterPredicateParameter, newFilterPredicateParameter, filterPredicate.Body);
-                        filterPredicate = Expression.Lambda(newFilterPredicateBody, newFilterPredicateParameter);
-                    }
+                        if (!_queryCompilationContext.IgnoredQueryFilters.Contains(queryFilter.Key))
+                        {
+                            var filterPredicate =
+                                (LambdaExpression)new SelfReferenceEntityQueryableRewritingExpressionVisitor(this, entityType).Visit(
+                                    queryFilter.Value);
 
-                    var filteredResult = Expression.Call(
-                        QueryableMethods.Where.MakeGenericMethod(sequenceType),
-                        navigationExpansionExpression,
-                        filterPredicate);
+                            // if we are constructing EntityQueryable of a derived type, we need to re-map filter predicate to the correct derived type
+                            var filterPredicateParameter = filterPredicate.Parameters[0];
+                            if (filterPredicateParameter.Type != sequenceType)
+                            {
+                                var newFilterPredicateParameter = Expression.Parameter(sequenceType, filterPredicateParameter.Name);
+                                var newFilterPredicateBody = ReplacingExpressionVisitor.Replace(
+                                    filterPredicateParameter, newFilterPredicateParameter, filterPredicate.Body);
+                                filterPredicate = Expression.Lambda(newFilterPredicateBody, newFilterPredicateParameter);
+                            }
+
+                            filteredResult = Expression.Call(
+                                QueryableMethods.Where.MakeGenericMethod(sequenceType),
+                                filteredResult,
+                                filterPredicate);
+                        }
+                    }
 
                     return Visit(filteredResult);
                 }

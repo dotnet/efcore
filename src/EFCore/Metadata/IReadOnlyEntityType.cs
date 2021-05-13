@@ -69,6 +69,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         LambdaExpression? GetQueryFilter();
 
         /// <summary>
+        ///     Gets a named LINQ expression filter automatically applied to queries for this entity type.
+        /// </summary>
+        /// <param name="name">The name of the LINQ expression.</param>
+        /// <returns> The LINQ expression filter. </returns>
+        LambdaExpression? GetQueryFilter(string name);
+
+        /// <summary>
+        ///     Gets the LINQ expression filters automatically applied to queries for this entity type.
+        /// </summary>
+        /// <returns> The LINQ expression filters. </returns>
+        IDictionary<string, LambdaExpression>? GetQueryFilters();
+
+        /// <summary>
         ///     Returns the property that will be used for storing a discriminator value.
         /// </summary>
         /// <returns> The property that will be used for storing a discriminator value. </returns>

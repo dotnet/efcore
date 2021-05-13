@@ -933,13 +933,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                if (entityType.GetQueryFilter() != null)
+                if (entityType.GetQueryFilters() != null)
                 {
                     if (entityType.BaseType != null)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.BadFilterDerivedType(
-                                entityType.GetQueryFilter(),
+                                entityType.GetQueryFilters(),
                                 entityType.DisplayName(),
                                 entityType.GetRootType().DisplayName()));
                     }
@@ -947,7 +947,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (entityType.IsOwned())
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.BadFilterOwnedType(entityType.GetQueryFilter(), entityType.DisplayName()));
+                            CoreStrings.BadFilterOwnedType(entityType.GetQueryFilters(), entityType.DisplayName()));
                     }
                 }
 
@@ -956,8 +956,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         n => !n.IsCollection
                             && n.ForeignKey.IsRequired
                             && n.IsOnDependent
-                            && n.ForeignKey.PrincipalEntityType.GetQueryFilter() != null
-                            && n.ForeignKey.DeclaringEntityType.GetQueryFilter() == null).FirstOrDefault();
+                            && n.ForeignKey.PrincipalEntityType.GetQueryFilters() != null
+                            && n.ForeignKey.DeclaringEntityType.GetQueryFilters() == null).FirstOrDefault();
 
                 if (requiredNavigationWithQueryFilter != null)
                 {

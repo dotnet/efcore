@@ -92,7 +92,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
 
             modelBuilder.Entity<Customer>().HasQueryFilter(c => c.CompanyName.StartsWith(TenantPrefix));
             modelBuilder.Entity<Order>().HasQueryFilter(o => o.Customer != null && o.Customer.CompanyName != null);
-            modelBuilder.Entity<OrderDetail>().HasQueryFilter(od => od.Order != null && EF.Property<short>(od, "Quantity") > _quantity);
+            modelBuilder.Entity<OrderDetail>().HasQueryFilter("HasOrder", od => od.Order != null);
+            modelBuilder.Entity<OrderDetail>().HasQueryFilter("Quantity", od => EF.Property<short>(od, "Quantity") > _quantity);
             modelBuilder.Entity<Employee>().HasQueryFilter(e => e.Address.StartsWith("A"));
             modelBuilder.Entity<Product>().HasQueryFilter(p => ClientMethod(p));
             modelBuilder.Entity<CustomerQueryWithQueryFilter>().HasQueryFilter(cq => cq.CompanyName.StartsWith(SearchTerm));

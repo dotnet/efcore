@@ -817,7 +817,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <inheritdoc/>
         [DebuggerStepThrough]
         LambdaExpression? IReadOnlyEntityType.GetQueryFilter()
-            => (LambdaExpression?)this[CoreAnnotationNames.QueryFilter];
+            => this.GetQueryFilter("");
+
+        /// <inheritdoc/>
+        [DebuggerStepThrough]
+        LambdaExpression? IReadOnlyEntityType.GetQueryFilter(string name)
+            => this.GetQueryFilter(name);
+
+        private LambdaExpression? GetQueryFilter(string name)
+        {
+            var queryFilters = (Dictionary<string, LambdaExpression>?)this[CoreAnnotationNames.QueryFilter];
+
+            if (queryFilters != null && name != null && queryFilters.ContainsKey(name))
+            {
+                return queryFilters[name];
+            }
+
+            return null;
+        }
+
+        /// <inheritdoc/>
+        [DebuggerStepThrough]
+        IDictionary<string, LambdaExpression>? IReadOnlyEntityType.GetQueryFilters()
+            => (Dictionary<string, LambdaExpression>?)this[CoreAnnotationNames.QueryFilter];
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
