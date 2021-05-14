@@ -69,13 +69,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public virtual void From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
+        public virtual async Task From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
         {
             using var context = CreateContext();
             var query = context
                 .Set<MostExpensiveProduct>()
                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
                 .TagWith("SampleFileName", 13);
+
+            var queryResult = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
 
             var actual = query.ToQueryString().Split(Environment.NewLine).First();
 

@@ -2605,8 +2605,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="T"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <param name="fromFile">file name where the method was called</param>
-        /// <param name="onLine">file line number where the method was called</param>
+        /// <param name="fromFile"> The file name where the method was called</param>
+        /// <param name="onLine"> The file line number where the method was called</param>
         /// <returns> A new query annotated with the given tag. </returns>
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" />
