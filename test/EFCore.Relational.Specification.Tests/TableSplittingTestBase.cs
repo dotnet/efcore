@@ -552,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public virtual async Task Warn_When_Save_Optional_dependent_with_null_values()
+        public virtual async Task Warn_when_save_optional_dependent_with_null_values()
         {
             await InitializeSharedAsync(
                 modelBuilder =>
@@ -575,22 +575,61 @@ namespace Microsoft.EntityFrameworkCore
                 }, seed: false
                 );
 
-            using (var context = CreateSharedContext())
-            {
-                var scooterEntry = context.Add(
-                    new MeterReading
+            using var context = CreateSharedContext();
+            var scooterEntry = context.Add(
+                new MeterReading
+                {
+                    MeterReadingDetails = new MeterReadingDetail()
+                });
+
+            var expected = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail));
+
+            context.SaveChanges();
+
+            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
+
+            Assert.Equal(expected, log.Message);
+        }
+
+        [ConditionalFact]
+        public virtual async Task No_warn_when_save_optional_dependent_at_least_one_non_null()
+        {
+            await InitializeSharedAsync(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity<MeterReadingDetail>(
+                        dob =>
+                        {
+                            dob.ToTable("MeterReadings");
+                            dob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
+                        });
+
+                    modelBuilder.Entity<MeterReading>(
+                        ob =>
+                        {
+                            ob.ToTable("MeterReadings");
+                            ob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
+                            ob.HasOne(o => o.MeterReadingDetails).WithOne()
+                                .HasForeignKey<MeterReadingDetail>(o => o.Id);
+                        });
+                }, seed: false
+                );
+
+            using var context = CreateSharedContext();
+            var scooterEntry = context.Add(
+                new MeterReading
+                {
+                    MeterReadingDetails = new MeterReadingDetail()
                     {
-                        MeterReadingDetails = new MeterReadingDetail()
-                    });
+                        CurrentRead = "123"
+                    }
+                });
 
-                var expected = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail));
+            context.SaveChanges();
 
-                context.SaveChanges();
+            var log = TestSqlLoggerFactory.Log.SingleOrDefault(l => l.Level == Extensions.Logging.LogLevel.Warning);
 
-                var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
-
-                Assert.Equal(expected, log.Message);
-            }
+            Assert.Null(log.Message);
         }
 
         protected override string StoreName { get; } = "TableSplittingTest";

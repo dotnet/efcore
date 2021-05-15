@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             entry,
                             (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
-                        isOptionalWithAllNull = sharedCommandsMap.IsOptional(entry);
+                        isOptionalWithAllNull = sharedCommandsMap.IsOptionalWithNull(entry);
 
                         if (!isMainEntry && isOptionalWithAllNull)
                         {

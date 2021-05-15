@@ -80,9 +80,49 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsOptional(IUpdateEntry entry)
+        public virtual bool IsOptionalWithNull(IUpdateEntry entry)
         {
-            return true;
+            var principalEntityTypesMap = new Dictionary<IEntityType, bool>();
+
+            var optional = GetPrincipalEntityTypes(entry.EntityType);
+
+            var nullableWithNull = true;
+
+            if (!optional)
+            {
+                return false;
+            }
+
+            foreach (var property in entry.EntityType.GetProperties())
+            {
+                if (property.IsPrimaryKey())
+                {
+                    continue;
+                }
+
+                if(property.IsNullable && entry.GetCurrentValue(property) is not null)
+                {
+                    nullableWithNull = false;
+                }
+            }
+
+            bool GetPrincipalEntityTypes(IEntityType entityType)
+            {
+                if (!principalEntityTypesMap.TryGetValue(entityType, out var optional))
+                {
+                    foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey()!.Properties))
+                    {
+                        var principalEntityType = foreignKey.PrincipalEntityType;
+                        var innerOptional = GetPrincipalEntityTypes(principalEntityType.GetRootType());
+
+                        optional |= !foreignKey.IsRequiredDependent | innerOptional;
+                    }
+                }
+
+                return optional;
+            }
+
+            return nullableWithNull;
         }
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
