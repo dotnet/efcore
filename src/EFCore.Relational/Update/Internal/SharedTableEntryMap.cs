@@ -85,7 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             var optional = _table.IsOptional(entry.EntityType);
 
             var nullableWithNull = true;
-            var hasNullable = false;
 
             if (!optional)
             {
@@ -94,18 +93,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             foreach (var property in entry.EntityType.GetProperties())
             {
-                if (!property.IsNullable | property.IsConcurrencyToken)
+                if (property.IsPrimaryKey())
                 {
                     continue;
                 }
-                hasNullable = true;
+
                 if(entry.GetCurrentValue(property) is not null)
                 {
                     nullableWithNull = false;
                 }
             }
 
-            return nullableWithNull && hasNullable;
+            return nullableWithNull;
         }
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
