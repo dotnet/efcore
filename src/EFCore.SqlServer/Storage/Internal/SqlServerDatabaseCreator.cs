@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                     null,
                                     null,
                                     Dependencies.CurrentContext.Context,
-                                    Dependencies.CommandLogger, CommandSource.Migration))!
+                                    Dependencies.CommandLogger, CommandSource.Migrations))!
                         != 0);
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 null,
                                 null,
                                 Dependencies.CurrentContext.Context,
-                                Dependencies.CommandLogger, CommandSource.Migration),
+                                Dependencies.CommandLogger, CommandSource.Migrations),
                             cancellationToken: ct)
                         .ConfigureAwait(false))!
                     != 0, cancellationToken);
@@ -217,7 +217,7 @@ SELECT 1 ELSE SELECT 0");
                                         null,
                                         null,
                                         Dependencies.CurrentContext.Context,
-                                        Dependencies.CommandLogger, CommandSource.Migration));
+                                        Dependencies.CommandLogger, CommandSource.Migrations));
 
                             return true;
                         }
@@ -278,7 +278,7 @@ SELECT 1 ELSE SELECT 0");
                                         null,
                                         null,
                                         Dependencies.CurrentContext.Context,
-                                        Dependencies.CommandLogger, CommandSource.Migration),
+                                        Dependencies.CommandLogger, CommandSource.Migrations),
                                     ct)
                                 .ConfigureAwait(false);
 

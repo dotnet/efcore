@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         SaveChanges,
 
         /// <summary>
-        /// Migration
+        /// Migrations
         /// </summary>
-        Migration,
+        Migrations,
 
         /// <summary>
         /// FromSqlQuery
@@ -42,8 +42,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ExecuteSqlRaw,
 
         /// <summary>
-        /// HiLoValueGenerator
+        /// ValueGenerator
         /// </summary>
-        HiLoValueGenerator
+        ValueGenerator,
+
+        /// <summary>
+        /// Scaffolding
+        /// </summary>
+        Scaffolding,
+
+        /// <summary>
+        /// BulkUpdate
+        /// </summary>
+        BulkUpdate
     }
 }

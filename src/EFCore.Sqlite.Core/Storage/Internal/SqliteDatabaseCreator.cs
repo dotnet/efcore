@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         null,
                         null,
                         null,
-                        Dependencies.CommandLogger, CommandSource.Migration));
+                        Dependencies.CommandLogger, CommandSource.Migrations));
 
             Dependencies.Connection.Close();
         }
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         null,
                         null,
                         null,
-                        Dependencies.CommandLogger, CommandSource.Migration))!;
+                        Dependencies.CommandLogger, CommandSource.Migrations))!;
 
             return count != 0;
         }
