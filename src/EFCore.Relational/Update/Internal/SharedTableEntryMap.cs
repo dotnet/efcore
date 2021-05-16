@@ -82,11 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         /// </summary>
         public virtual bool IsOptionalWithNull(IUpdateEntry entry)
         {
-            var principalEntityTypesMap = new Dictionary<IEntityType, bool>();
-
-            var optional = GetPrincipalEntityTypes(entry.EntityType);
+            var optional = _table.IsOptional(entry.EntityType);
 
             var nullableWithNull = true;
+            var hasNullable = false;
 
             if (!optional)
             {
@@ -95,34 +94,18 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             foreach (var property in entry.EntityType.GetProperties())
             {
-                if (property.IsPrimaryKey())
+                if (!property.IsNullable | property.IsConcurrencyToken)
                 {
                     continue;
                 }
-
+                hasNullable = true;
                 if(entry.GetCurrentValue(property) is not null)
                 {
                     nullableWithNull = false;
                 }
             }
 
-            bool GetPrincipalEntityTypes(IEntityType entityType)
-            {
-                if (!principalEntityTypesMap.TryGetValue(entityType, out var optional))
-                {
-                    foreach (var foreignKey in entityType.FindForeignKeys(entityType.FindPrimaryKey()!.Properties))
-                    {
-                        var principalEntityType = foreignKey.PrincipalEntityType;
-                        var innerOptional = GetPrincipalEntityTypes(principalEntityType.GetRootType());
-
-                        optional |= !foreignKey.IsRequiredDependent | innerOptional;
-                    }
-                }
-
-                return optional;
-            }
-
-            return nullableWithNull;
+            return nullableWithNull && hasNullable;
         }
 
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
