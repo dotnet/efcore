@@ -179,6 +179,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
+        ///     The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.
+        /// </summary>
+        public static string BadValueComparerType(object? givenType, object? expectedType)
+            => string.Format(
+                GetString("BadValueComparerType", nameof(givenType), nameof(expectedType)),
+                givenType, expectedType);
+
+        /// <summary>
+        ///     The type '{givenType}' cannot be used as a value converter because it does not inherit from '{expectedType}'. Make sure to inherit value converters from '{expectedType}'.
+        /// </summary>
+        public static string BadValueConverterType(object? givenType, object? expectedType)
+            => string.Format(
+                GetString("BadValueConverterType", nameof(givenType), nameof(expectedType)),
+                givenType, expectedType);
+
+        /// <summary>
         ///     The type '{givenType}' cannot be used as a value generator because it does not inherit from '{expectedType}'. Make sure to inherit value generators from '{expectedType}'.
         /// </summary>
         public static string BadValueGeneratorType(object? givenType, object? expectedType)
@@ -210,18 +226,42 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType);
 
         /// <summary>
+        ///     Cannot convert string value '{value}' from the database to any value in the mapped '{enumType}' enum.
+        /// </summary>
+        public static string CannotConvertEnumValue(object? value, object? enumType)
+            => string.Format(
+                GetString("CannotConvertEnumValue", nameof(value), nameof(enumType)),
+                value, enumType);
+
+        /// <summary>
         ///     Unable to convert a queryable method to an enumerable method. This is likely an issue in Entity Framework, please file an issue at https://go.microsoft.com/fwlink/?linkid=2142044.
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
             => GetString("CannotConvertQueryableToEnumerableMethod");
 
         /// <summary>
-        ///     Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of 'HasValueGenerator' that accepts a delegate.
+        ///     Cannot create an instance of value comparer type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.
         /// </summary>
-        public static string CannotCreateValueGenerator(object? generatorType)
+        public static string CannotCreateValueComparer(object? generatorType, object? method)
             => string.Format(
-                GetString("CannotCreateValueGenerator", nameof(generatorType)),
-                generatorType);
+                GetString("CannotCreateValueComparer", nameof(generatorType), nameof(method)),
+                generatorType, method);
+
+        /// <summary>
+        ///     Cannot create an instance of value converter type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.
+        /// </summary>
+        public static string CannotCreateValueConverter(object? generatorType, object? method)
+            => string.Format(
+                GetString("CannotCreateValueConverter", nameof(generatorType), nameof(method)),
+                generatorType, method);
+
+        /// <summary>
+        ///     Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.
+        /// </summary>
+        public static string CannotCreateValueGenerator(object? generatorType, object? method)
+            => string.Format(
+                GetString("CannotCreateValueGenerator", nameof(generatorType), nameof(method)),
+                generatorType, method);
 
         /// <summary>
         ///     The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.
@@ -2301,6 +2341,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 retryLimit, strategy);
 
         /// <summary>
+        ///     The requested configuration is not stored in the read-optimized model, please use 'DbContext.GetService&lt;IDesignTimeModel&gt;().Model'.
+        /// </summary>
+        public static string RuntimeModelMissingData
+            => GetString("RuntimeModelMissingData");
+
+        /// <summary>
         ///     While registering a runtime parameter, the lambda expression must have only one parameter which must be same as 'QueryCompilationContext.QueryContextParameter' expression.
         /// </summary>
         public static string RuntimeParameterMissingParameter
@@ -2568,12 +2614,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SkipNavigationWrongType", nameof(navigation), nameof(entityType), nameof(otherEntityType)),
                 navigation, entityType, otherEntityType);
-
-        /// <summary>
-        ///     The requested configuration is not stored in the read-optimized model, please use 'DbContext.DesignTimeModel'.
-        /// </summary>
-        public static string SlimModelMissingData
-            => GetString("SlimModelMissingData");
 
         /// <summary>
         ///     The property '{1_entityType}.{0_property}' cannot be assigned a value generated by the database. Store-generated values can only be assigned to properties configured to use store-generated values.
@@ -2985,7 +3025,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{1_entityType}.{0_property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+        ///     The property '{entityType}.{property}' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
         /// </summary>
         public static EventDefinition<string, string> LogCollectionWithoutComparer(IDiagnosticsLogger logger)
         {
@@ -3485,7 +3525,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Unable to find navigation '{1_navigation}' specified in string based include path '{0_navigationChain}'.
+        ///     Unable to find navigation '{navigation}' specified in string based include path '{navigationChain}'.
         /// </summary>
         public static EventDefinition<object, object> LogInvalidIncludePath(IDiagnosticsLogger logger)
         {
@@ -3510,7 +3550,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An attempt was made to lazy-load navigation '{1_entityType}.{0_navigation}' after the associated DbContext was disposed.
+        ///     An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed.
         /// </summary>
         public static EventDefinition<string, string> LogLazyLoadOnDisposedContext(IDiagnosticsLogger logger)
         {
@@ -3685,7 +3725,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The navigation '{1_entityType}.{0_navigation}' is being lazy-loaded.
+        ///     The navigation '{entityType}.{navigation}' is being lazy-loaded.
         /// </summary>
         public static EventDefinition<string, string> LogNavigationLazyLoading(IDiagnosticsLogger logger)
         {
@@ -4442,7 +4482,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The property '{1_entityType}.{0_property}' was created in shadow state because there are no eligible CLR members with a matching name.
+        ///     The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.
         /// </summary>
         public static EventDefinition<string, string> LogShadowPropertyCreated(IDiagnosticsLogger logger)
         {

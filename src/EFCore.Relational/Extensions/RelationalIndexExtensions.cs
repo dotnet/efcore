@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore
             var baseName = new StringBuilder()
                 .Append("IX_")
                 .Append(tableName)
-                .Append("_")
+                .Append('_')
                 .AppendJoin(index.Properties.Select(p => p.GetColumnBaseName()), "_")
                 .ToString();
 
@@ -125,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore
             var baseName = new StringBuilder()
                 .Append("IX_")
                 .Append(storeObject.Name)
-                .Append("_")
+                .Append('_')
                 .AppendJoin(columnNames, "_")
                 .ToString();
 

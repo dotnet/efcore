@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public string TargetDir { get; set; }
         public ICollection<string> Sources { get; set; } = new List<string>();
+        public bool NullableReferenceTypes { get; set; }
 
         public BuildFileResult Build()
         {
@@ -52,7 +53,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 projectName,
                 Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s)),
                 references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+                new CSharpCompilationOptions(
+                    OutputKind.DynamicallyLinkedLibrary,
+                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable));
 
             var targetPath = Path.Combine(TargetDir ?? Path.GetTempPath(), projectName + ".dll");
 
@@ -83,8 +86,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 projectName,
                 Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s)),
                 references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
+                new CSharpCompilationOptions(
+                    OutputKind.DynamicallyLinkedLibrary,
+                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable));
             Assembly assembly;
             using (var stream = new MemoryStream())
             {

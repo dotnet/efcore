@@ -282,32 +282,41 @@ namespace Microsoft.EntityFrameworkCore
                 null);
         }
 
-        [ConditionalFact(Skip = "Issue#23411")]
+        [ConditionalFact]
         public virtual Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
             return ConcurrencyTestAsync(
                 c =>
-                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell"))),
+                {
+                    c.Teams.Include(e => e.Sponsors).Load();
+                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA")));
+                },
                 (c, ex) =>
                 {
                     var entry = ex.Entries.Single();
-                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                    Assert.IsAssignableFrom<TeamSponsor>(entry.Entity);
                 },
                 null);
         }
 
-        [ConditionalFact(Skip = "Issue#23411")]
+        [ConditionalFact]
         public virtual Task Attempting_to_add_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()
         {
-            return ConcurrencyTestAsync(
-                c =>
-                    c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Remove(c.Sponsors.Single(s => s.Name.Contains("FIA"))),
+            return ConcurrencyTestAsync<DbUpdateException>(
+                Change,
+                Change,
                 (c, ex) =>
                 {
                     var entry = ex.Entries.Single();
-                    Assert.IsAssignableFrom<Team>(entry.Entity);
+                    Assert.IsAssignableFrom<TeamSponsor>(entry.Entity);
                 },
                 null);
+
+            void Change(F1Context c)
+            {
+                c.Teams.Include(e => e.Sponsors).Load();
+                c.Teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(c.Sponsors.Single(s => s.Name.Contains("Shell")));
+            }
         }
 
         #endregion
@@ -707,11 +716,27 @@ namespace Microsoft.EntityFrameworkCore
         ///     again. Finally, a new context is created and the validator is called so that the state of
         ///     the database at the end of the process can be validated.
         /// </summary>
-        protected virtual async Task ConcurrencyTestAsync(
+        protected virtual Task ConcurrencyTestAsync(
             Action<F1Context> storeChange,
             Action<F1Context> clientChange,
             Action<F1Context, DbUpdateConcurrencyException> resolver,
             Action<F1Context> validator)
+            => ConcurrencyTestAsync<DbUpdateConcurrencyException>(storeChange, clientChange, resolver, validator);
+
+        /// <summary>
+        ///     Runs the two actions with two different contexts and calling
+        ///     SaveChanges such that storeChange will succeed and the store will reflect this change, and
+        ///     then clientChange will result in a concurrency exception.
+        ///     After the exception is caught the resolver action is called, after which SaveChanges is called
+        ///     again. Finally, a new context is created and the validator is called so that the state of
+        ///     the database at the end of the process can be validated.
+        /// </summary>
+        protected virtual async Task ConcurrencyTestAsync<TException>(
+            Action<F1Context> storeChange,
+            Action<F1Context> clientChange,
+            Action<F1Context, TException> resolver,
+            Action<F1Context> validator)
+            where TException : DbUpdateException
         {
             using var c = CreateF1Context();
             await c.Database.CreateExecutionStrategy().ExecuteAsync(
@@ -726,11 +751,14 @@ namespace Microsoft.EntityFrameworkCore
                     await innerContext.SaveChangesAsync();
 
                     var updateException =
-                        await Assert.ThrowsAnyAsync<DbUpdateConcurrencyException>(() => context.SaveChangesAsync());
+                        await Assert.ThrowsAnyAsync<TException>(() => context.SaveChangesAsync());
 
-                    Assert.Equal(
-                        LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
-                            l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                    if (typeof(TException) == typeof(DbUpdateConcurrencyException))
+                    {
+                        Assert.Equal(
+                            LogLevel.Debug, Fixture.ListLoggerFactory.Log.Single(
+                                l => l.Id == CoreEventId.OptimisticConcurrencyException).Level);
+                    }
                     Fixture.ListLoggerFactory.Clear();
 
                     resolver(context, updateException);

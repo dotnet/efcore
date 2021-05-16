@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
 
             // TODO: [Name] shouldn't be selected multiple times and no joins are needed
             AssertSql(
-                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t0].[Name], [t0].[Type], [t2].[Name], [t2].[Computed], [t2].[Description], [t2].[Engine_Discriminator], [t4].[Name], [t4].[Capacity], [t4].[FuelTank_Discriminator], [t4].[FuelType], [t4].[GrainGeometry]
+                @"SELECT [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t0].[Name], [t0].[Active], [t0].[Type], [t2].[Name], [t2].[Computed], [t2].[Description], [t2].[Engine_Discriminator], [t4].[Name], [t4].[Capacity], [t4].[FuelTank_Discriminator], [t4].[FuelType], [t4].[GrainGeometry]
 FROM [Vehicles] AS [v]
 LEFT JOIN (
     SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
@@ -32,14 +32,14 @@ LEFT JOIN (
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]
 LEFT JOIN (
-    SELECT [v2].[Name], [v2].[Type]
+    SELECT [v2].[Name], [v2].[Active], [v2].[Type]
     FROM [Vehicles] AS [v2]
     INNER JOIN (
         SELECT [v3].[Name]
         FROM [Vehicles] AS [v3]
         INNER JOIN [Vehicles] AS [v4] ON [v3].[Name] = [v4].[Name]
     ) AS [t1] ON [v2].[Name] = [t1].[Name]
-    WHERE [v2].[Type] IS NOT NULL
+    WHERE [v2].[Active] IS NOT NULL
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 LEFT JOIN (
     SELECT [v5].[Name], [v5].[Computed], [v5].[Description], [v5].[Engine_Discriminator]
@@ -49,7 +49,7 @@ LEFT JOIN (
         FROM [Vehicles] AS [v6]
         WHERE [v6].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t3] ON [v5].[Name] = [t3].[Name]
-    WHERE [v5].[Engine_Discriminator] IS NOT NULL AND [v5].[Computed] IS NOT NULL
+    WHERE [v5].[Computed] IS NOT NULL AND [v5].[Engine_Discriminator] IS NOT NULL
 ) AS [t2] ON [v].[Name] = [t2].[Name]
 LEFT JOIN (
     SELECT [v7].[Name], [v7].[Capacity], [v7].[FuelTank_Discriminator], [v7].[FuelType], [v7].[GrainGeometry]
@@ -59,7 +59,7 @@ LEFT JOIN (
         FROM [Vehicles] AS [v8]
         WHERE [v8].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t5] ON [v7].[Name] = [t5].[Name]
-    WHERE [v7].[FuelTank_Discriminator] IS NOT NULL
+    WHERE [v7].[Capacity] IS NOT NULL AND [v7].[FuelTank_Discriminator] IS NOT NULL
     UNION
     SELECT [v9].[Name], [v9].[Capacity], [v9].[FuelTank_Discriminator], [v9].[FuelType], [v9].[GrainGeometry]
     FROM [Vehicles] AS [v9]
@@ -73,7 +73,7 @@ LEFT JOIN (
         ) AS [t7] ON [v10].[Name] = [t7].[Name]
         WHERE [v10].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
     ) AS [t6] ON [v9].[Name] = [t6].[Name]
-    WHERE [v9].[FuelTank_Discriminator] IS NOT NULL
+    WHERE [v9].[Capacity] IS NOT NULL AND [v9].[FuelTank_Discriminator] IS NOT NULL
 ) AS [t4] ON [t2].[Name] = [t4].[Name]
 ORDER BY [v].[Name]");
         }
@@ -120,7 +120,7 @@ INNER JOIN (
     FROM [Vehicles] AS [v0]
     WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[FuelTank_Discriminator] IS NOT NULL
+WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL
 UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelTank_Discriminator], [v1].[FuelType], [v1].[GrainGeometry]
 FROM [Vehicles] AS [v1]
@@ -134,7 +134,7 @@ INNER JOIN (
     ) AS [t1] ON [v2].[Name] = [t1].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t0] ON [v1].[Name] = [t0].[Name]
-WHERE [v1].[FuelTank_Discriminator] IS NOT NULL");
+WHERE [v1].[Capacity] IS NOT NULL AND [v1].[FuelTank_Discriminator] IS NOT NULL");
         }
 
         public override async Task Can_query_shared_derived_nonhierarchy()
@@ -149,7 +149,7 @@ INNER JOIN (
     FROM [Vehicles] AS [v0]
     WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[FuelType] IS NOT NULL OR [v].[Capacity] IS NOT NULL
+WHERE [v].[Capacity] IS NOT NULL
 UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelType]
 FROM [Vehicles] AS [v1]
@@ -163,7 +163,7 @@ INNER JOIN (
     ) AS [t1] ON [v2].[Name] = [t1].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t0] ON [v1].[Name] = [t0].[Name]
-WHERE [v1].[FuelType] IS NOT NULL OR [v1].[Capacity] IS NOT NULL");
+WHERE [v1].[Capacity] IS NOT NULL");
         }
 
         public override async Task Can_query_shared_derived_nonhierarchy_all_required()
@@ -178,7 +178,7 @@ INNER JOIN (
     FROM [Vehicles] AS [v0]
     WHERE [v0].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
 ) AS [t] ON [v].[Name] = [t].[Name]
-WHERE [v].[FuelType] IS NOT NULL AND [v].[Capacity] IS NOT NULL
+WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelType] IS NOT NULL
 UNION
 SELECT [v1].[Name], [v1].[Capacity], [v1].[FuelType]
 FROM [Vehicles] AS [v1]
@@ -192,7 +192,7 @@ INNER JOIN (
     ) AS [t1] ON [v2].[Name] = [t1].[Name]
     WHERE [v2].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
 ) AS [t0] ON [v1].[Name] = [t0].[Name]
-WHERE [v1].[FuelType] IS NOT NULL AND [v1].[Capacity] IS NOT NULL");
+WHERE [v1].[Capacity] IS NOT NULL AND [v1].[FuelType] IS NOT NULL");
         }
 
         public override async Task Can_change_dependent_instance_non_derived()
@@ -241,6 +241,32 @@ LEFT JOIN (
     INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
 ) AS [t] ON [v].[Name] = [t].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
+        }
+
+        public override async Task Optional_dependent_materialized_when_no_properties()
+        {
+            await base.Optional_dependent_materialized_when_no_properties();
+
+            AssertSql(
+                @"SELECT TOP(1) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [t].[Name], [t].[Operator_Discriminator], [t].[Operator_Name], [t].[LicenseType], [t0].[Name], [t0].[Active], [t0].[Type]
+FROM [Vehicles] AS [v]
+LEFT JOIN (
+    SELECT [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
+    FROM [Vehicles] AS [v0]
+    INNER JOIN [Vehicles] AS [v1] ON [v0].[Name] = [v1].[Name]
+) AS [t] ON [v].[Name] = [t].[Name]
+LEFT JOIN (
+    SELECT [v2].[Name], [v2].[Active], [v2].[Type]
+    FROM [Vehicles] AS [v2]
+    INNER JOIN (
+        SELECT [v3].[Name]
+        FROM [Vehicles] AS [v3]
+        INNER JOIN [Vehicles] AS [v4] ON [v3].[Name] = [v4].[Name]
+    ) AS [t1] ON [v2].[Name] = [t1].[Name]
+    WHERE [v2].[Active] IS NOT NULL
+) AS [t0] ON [t].[Name] = [t0].[Name]
+WHERE [v].[Name] = N'AIM-9M Sidewinder'
+ORDER BY [v].[Name]");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

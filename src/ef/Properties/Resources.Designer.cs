@@ -3,7 +3,6 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using JetBrains.Annotations;
 
 #nullable enable
 
@@ -355,6 +354,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         /// </summary>
         public static string NoTransactionsDescription
             => GetString("NoTransactionsDescription");
+
+        /// <summary>
+        ///     Enable nullable reference types.
+        /// </summary>
+        public static string NullableDescription
+            => GetString("NullableDescription");
 
         /// <summary>
         ///     Options: {options}

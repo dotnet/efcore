@@ -19,6 +19,11 @@
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.1" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.1" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.35.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="ProtoTest.proto" />
   </ItemGroup>
 
 </Project>

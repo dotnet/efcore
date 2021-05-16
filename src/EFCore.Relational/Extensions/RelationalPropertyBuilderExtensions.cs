@@ -751,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore
                 fromDataAnnotation);
 
         /// <summary>
-        ///     Configures the property to use the given collation. The database column will be be created with the given
+        ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -768,7 +768,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Configures the property to use the given collation. The database column will be be created with the given
+        ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
@@ -780,7 +780,7 @@ namespace Microsoft.EntityFrameworkCore
             => (PropertyBuilder<TProperty>)UseCollation((PropertyBuilder)propertyBuilder, collation);
 
         /// <summary>
-        ///     Configures the property to use the given collation. The database column will be be created with the given
+        ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>

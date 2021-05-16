@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             builder
                 .Append("GeomFromText('")
                 .Append(geometry.AsText())
-                .Append("'");
+                .Append('\'');
 
             if (geometry.SRID != 0)
             {
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                     .Append(geometry.SRID);
             }
 
-            builder.Append(")");
+            builder.Append(')');
 
             return builder.ToString();
         }

@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Returns the <see cref="CoreTypeMapping" /> for the given property.
+        ///     Returns the type mapping for this property.
         /// </summary>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         CoreTypeMapping? FindTypeMapping();
@@ -390,11 +390,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 && ((AnnotatableBase)this).IsReadOnly)
             {
                 var indexes = ((IProperty)this).GetPropertyIndexes();
-                builder.Append(" ").Append(indexes.Index);
-                builder.Append(" ").Append(indexes.OriginalValueIndex);
-                builder.Append(" ").Append(indexes.RelationshipIndex);
-                builder.Append(" ").Append(indexes.ShadowIndex);
-                builder.Append(" ").Append(indexes.StoreGenerationIndex);
+                builder.Append(' ').Append(indexes.Index);
+                builder.Append(' ').Append(indexes.OriginalValueIndex);
+                builder.Append(' ').Append(indexes.RelationshipIndex);
+                builder.Append(' ').Append(indexes.ShadowIndex);
+                builder.Append(' ').Append(indexes.StoreGenerationIndex);
             }
 
             if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)

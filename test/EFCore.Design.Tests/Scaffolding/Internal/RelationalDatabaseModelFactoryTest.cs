@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             var assembly = typeof(RelationalDatabaseModelFactoryTest).Assembly;
             _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, new string[0])
-                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
+                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
                 .BuildServiceProvider()
                 .GetRequiredService<IScaffoldingModelFactory>();

@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(INavigationBase), () => navigationBase },
                 { typeof(IForeignKey), () => foreignKey },
                 { typeof(IReadOnlyForeignKey), () => foreignKey },
-                { typeof(InternalEntityEntry), () => new FakeInternalEntityEntry(entityType) },
+                { typeof(InternalEntityEntry), () => new InternalEntityEntry(new FakeStateManager(), entityType, null!) },
                 { typeof(ISet<object>), () => new HashSet<object>() },
                 {
                     typeof(IList<IDictionary<string, string>>),
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TestEventLogging(
                 typeof(CoreEventId),
                 typeof(CoreLoggerExtensions),
-                typeof(TestLoggingDefinitions),
+                new TestLoggingDefinitions(),
                 fakeFactories);
         }
 
@@ -91,16 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             public object GetService(Type serviceType)
                 => null;
-        }
-
-        private class FakeInternalEntityEntry : InternalEntityEntry
-        {
-            public FakeInternalEntityEntry(IEntityType entityType)
-                : base(new FakeStateManager(), entityType)
-            {
-            }
-
-            public override object Entity { get; }
         }
 
         private class FakeNavigationBase : PropertyBase, INavigationBase

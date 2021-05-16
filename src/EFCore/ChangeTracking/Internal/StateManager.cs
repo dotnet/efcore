@@ -47,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private bool _changeDetectorInitialized;
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
-        private readonly IInternalEntityEntryFactory _internalEntityEntryFactory;
         private readonly IInternalEntityEntrySubscriber _internalEntityEntrySubscriber;
         private readonly IModel _model;
         private readonly IDatabase _database;
@@ -63,13 +62,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Dependencies = dependencies;
 
-            _internalEntityEntryFactory = dependencies.InternalEntityEntryFactory;
             _internalEntityEntrySubscriber = dependencies.InternalEntityEntrySubscriber;
             InternalEntityEntryNotifier = dependencies.InternalEntityEntryNotifier;
             ValueGenerationManager = dependencies.ValueGenerationManager;
             _model = dependencies.Model;
             _database = dependencies.Database;
-            _concurrencyDetector = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled
+            _concurrencyDetector = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled
                 ? dependencies.ConcurrencyDetector
                 : null;
             Context = dependencies.CurrentContext.Context;
@@ -86,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _changeTrackingLogger = dependencies.ChangeTrackingLogger;
             _changeDetectorInitialized = false;
         }
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -178,7 +175,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IModel Model => _model;
+        public virtual IModel Model
+            => _model;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -227,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
-                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
+                entry = new(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
@@ -269,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
-                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
+                entry = new(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
@@ -306,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
 
             var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
-            var entry = _internalEntityEntryFactory.Create(this, entityType, entity, shadowPropertyValueBuffer);
+            var entry = new InternalEntityEntry(this, entityType, entity, shadowPropertyValueBuffer);
 
             UpdateReferenceMaps(entry, EntityState.Detached, null);
 
@@ -356,8 +354,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     : _model.FindRuntimeEntityType(clrType)!;
 
             var newEntry = valueBuffer.IsEmpty
-                ? _internalEntityEntryFactory.Create(this, entityType, entity)
-                : _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
+                ? new InternalEntityEntry(this, entityType, entity)
+                : new InternalEntityEntry(this, entityType, entity, valueBuffer);
 
             foreach (var key in baseEntityType.GetKeys())
             {
@@ -641,6 +639,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual void ResetState()
         {
             Clear();
+            Dependencies.NavigationFixer.AbortAttachGraph();
 
             Tracked = null;
             StateChanged = null;
@@ -675,7 +674,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task ResetStateAsync(CancellationToken cancellationToken = default)
         {
             ResetState();
@@ -689,16 +688,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual void BeginAttachGraph()
+            => Dependencies.NavigationFixer.BeginAttachGraph();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void CompleteAttachGraph()
+            => Dependencies.NavigationFixer.CompleteAttachGraph();
+        
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void AbortAttachGraph()
+            => Dependencies.NavigationFixer.AbortAttachGraph();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void RecordReferencedUntrackedEntity(
             object referencedEntity,
             INavigationBase navigation,
             InternalEntityEntry referencedFromEntry)
         {
-            if (_referencedUntrackedEntities == null)
-            {
-                _referencedUntrackedEntities
-                    = new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
-            }
+            _referencedUntrackedEntities ??=
+                new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
 
             if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
             {
@@ -887,6 +910,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             return ((IEnumerable<object>)navigationValue)
+                // ReSharper disable once RedundantEnumerableCastCall
                 .Select(v => TryGetEntry(v, foreignKey.DeclaringEntityType)).Where(e => e != null).Cast<IUpdateEntry>();
         }
 
@@ -1029,7 +1053,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                         else if (!principalIsDetached)
                         {
-                            foreach (var dependentProperty in fk.Properties)
+                            fk.GetPropertiesWithMinimalOverlapIfPossible(out var fkProperties, out _);
+
+                            foreach (var dependentProperty in fkProperties)
                             {
                                 dependent.SetProperty(
                                     dependentProperty, null, isMaterialization: false, setModified: true, isCascadeDelete: true);
@@ -1125,9 +1151,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
             => Context.Database.AutoTransactionsEnabled
                 ? Dependencies.ExecutionStrategyFactory.Create().Execute(
-                        (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
-                        (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
-                        null)
+                    (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
+                    (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
+                    null)
                 : SaveChanges(this, acceptAllChangesOnSuccess);
 
         private static int SaveChanges(StateManager stateManager, bool acceptAllChangesOnSuccess)

@@ -63,7 +63,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         [EntityFrameworkInternal]
         public StateManagerDependencies(
-            IInternalEntityEntryFactory internalEntityEntryFactory,
             IInternalEntityEntrySubscriber internalEntityEntrySubscriber,
             IInternalEntityEntryNotifier internalEntityEntryNotifier,
             IValueGenerationManager valueGenerationManager,
@@ -78,9 +77,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             ICoreSingletonOptions coreSingletonOptions,
             ILoggingOptions loggingOptions,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
-            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger)
+            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger,
+            INavigationFixer navigationFixer)
         {
-            InternalEntityEntryFactory = internalEntityEntryFactory;
             InternalEntityEntrySubscriber = internalEntityEntrySubscriber;
             InternalEntityEntryNotifier = internalEntityEntryNotifier;
             ValueGenerationManager = valueGenerationManager;
@@ -96,15 +95,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
             ChangeTrackingLogger = changeTrackingLogger;
+            NavigationFixer = navigationFixer;
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public IInternalEntityEntryFactory InternalEntityEntryFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -227,5 +219,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> ChangeTrackingLogger { get; init; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public INavigationFixer NavigationFixer { get; init; }
     }
 }

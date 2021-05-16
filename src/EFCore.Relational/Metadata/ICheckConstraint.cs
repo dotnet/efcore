@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             builder.Append(Name)
                 .Append(" \"")
                 .Append(Sql)
-                .Append("\"");
+                .Append('"');
 
             if ((options & MetadataDebugStringOptions.SingleLine) == 0)
             {

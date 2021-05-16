@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+            var concurrencyDetector = facadeDependencies.CoreOptions.AreThreadSafetyChecksEnabled
                 ? facadeDependencies.ConcurrencyDetector
                 : null;
             var logger = facadeDependencies.CommandLogger;
@@ -398,7 +398,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(parameters, nameof(parameters));
 
             var facadeDependencies = GetFacadeDependencies(databaseFacade);
-            var concurrencyDetector = facadeDependencies.CoreOptions.IsConcurrencyDetectionEnabled
+            var concurrencyDetector = facadeDependencies.CoreOptions.AreThreadSafetyChecksEnabled
                 ? facadeDependencies.ConcurrencyDetector
                 : null;
             var logger = facadeDependencies.CommandLogger;
@@ -434,7 +434,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <para>
         ///         This connection should not be disposed if it was created by Entity Framework. Connections are created by
-        ///         Entity Framework when a connection string rather than a DbConnection object is passed to the the 'UseMyProvider'
+        ///         Entity Framework when a connection string rather than a DbConnection object is passed to the 'UseMyProvider'
         ///         method for the database provider in use. Conversely, the application is responsible for disposing a DbConnection
         ///         passed to Entity Framework in 'UseMyProvider'.
         ///     </para>

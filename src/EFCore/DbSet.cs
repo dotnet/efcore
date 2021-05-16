@@ -521,6 +521,17 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
+        ///     Returns an <see cref="IAsyncEnumerator{T}" /> which when enumerated will asynchronously execute a query against
+        ///     the database.
+        /// </summary>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> that may be used to cancel the asynchronous iteration.
+        /// </param>
+        /// <returns> The query results. </returns>
+        public virtual IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => ((IAsyncEnumerable<TEntity>)this).GetAsyncEnumerator(cancellationToken);
+
+        /// <summary>
         ///     Gets the IQueryable element type.
         /// </summary>
         Type IQueryable.ElementType

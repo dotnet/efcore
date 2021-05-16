@@ -49,9 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.Unicode,
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.ValueGeneratorFactoryType,
                 CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ValueConverter,
+                CoreAnnotationNames.ValueConverterType,
                 CoreAnnotationNames.ValueComparer,
+                CoreAnnotationNames.ValueComparerType,
 #pragma warning disable 618
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
@@ -976,10 +979,13 @@ namespace MyNamespace
         }
 
         private static IMigrationsCodeGenerator CreateMigrationsCodeGenerator()
-            => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddEntityFrameworkDesignTimeServices()
+        {
+            var testAssembly = typeof(CSharpMigrationsGeneratorTest).Assembly;
+            var reporter = new TestOperationReporter();
+            return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+                .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
                 .BuildServiceProvider()
                 .GetRequiredService<IMigrationsCodeGenerator>();
+        }
     }
 }

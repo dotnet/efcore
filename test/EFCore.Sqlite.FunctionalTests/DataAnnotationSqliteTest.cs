@@ -96,12 +96,12 @@ namespace Microsoft.EntityFrameworkCore
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
             AssertSql(
-                @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
+                @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""AdditionalDetails_Value"", ""s"".""Details_Name"", ""s"".""Details_Value""
 FROM ""Sample"" AS ""s""
 WHERE ""s"".""Unique_No"" = 1
 LIMIT 1",
                 //
-                @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""Details_Name""
+                @"SELECT ""s"".""Unique_No"", ""s"".""MaxLengthProperty"", ""s"".""Name"", ""s"".""RowVersion"", ""s"".""AdditionalDetails_Name"", ""s"".""AdditionalDetails_Value"", ""s"".""Details_Name"", ""s"".""Details_Value""
 FROM ""Sample"" AS ""s""
 WHERE ""s"".""Unique_No"" = 1
 LIMIT 1",
@@ -134,10 +134,12 @@ SELECT changes();");
 @p1='Third' (Nullable = false) (Size = 5)
 @p2='00000000-0000-0000-0000-000000000003' (DbType = String)
 @p3='Third Additional Name' (Size = 21)
-@p4='Third Name' (Size = 10)
+@p4='0' (Nullable = true) (DbType = String)
+@p5='Third Name' (Size = 10)
+@p6='0' (Nullable = true) (DbType = String)
 
-INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""Details_Name"")
-VALUES (@p0, @p1, @p2, @p3, @p4);
+INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"", ""AdditionalDetails_Name"", ""AdditionalDetails_Value"", ""Details_Name"", ""Details_Value"")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 SELECT ""Unique_No""
 FROM ""Sample""
 WHERE changes() = 1 AND ""rowid"" = last_insert_rowid();");

@@ -33,7 +33,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private static readonly MethodInfo _toUpperMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
-        private static readonly MethodInfo _substringMethodInfo
+        private static readonly MethodInfo _substringMethodInfoWithOneArg
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int) });
+
+        private static readonly MethodInfo _substringMethodInfoWithTwoArgs
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
 
         private static readonly MethodInfo _isNullOrEmptyMethodInfo
@@ -190,7 +193,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         instance.TypeMapping);
                 }
 
-                if (_substringMethodInfo.Equals(method))
+                if (_substringMethodInfoWithOneArg.Equals(method))
+                {
+                    return _sqlExpressionFactory.Function(
+                        "SUBSTRING",
+                        new[]
+                        {
+                            instance,
+                            _sqlExpressionFactory.Add(
+                                arguments[0],
+                                _sqlExpressionFactory.Constant(1)),
+                            _sqlExpressionFactory.Function(
+                                "LEN",
+                                new[] { instance },
+                                nullable: true,
+                                argumentsPropagateNullability: new[] { true },
+                                typeof(int))
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true, true, true },
+                        method.ReturnType,
+                        instance.TypeMapping);
+                }
+
+                if (_substringMethodInfoWithTwoArgs.Equals(method))
                 {
                     return _sqlExpressionFactory.Function(
                         "SUBSTRING",

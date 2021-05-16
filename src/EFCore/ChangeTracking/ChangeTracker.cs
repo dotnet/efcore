@@ -328,9 +328,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
             var rootEntry = StateManager.GetOrCreateEntry(rootEntity);
 
-            GraphIterator.TraverseGraph(
-                new EntityEntryGraphNode<TState>(rootEntry, state, null, null),
-                callback);
+            try
+            {
+                rootEntry.StateManager.BeginAttachGraph();
+
+                GraphIterator.TraverseGraph(
+                    new EntityEntryGraphNode<TState>(rootEntry, state, null, null),
+                    callback);
+
+                rootEntry.StateManager.CompleteAttachGraph();
+            }
+            catch
+            {
+                rootEntry.StateManager.AbortAttachGraph();
+                throw;
+            }
         }
 
         private IStateManager StateManager { get; }

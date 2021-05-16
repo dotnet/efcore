@@ -822,14 +822,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             private static void EscapeAndQuote(StringBuilder builder, object? value)
             {
-                builder.Append("'");
+                builder.Append('\'');
 
                 if (value != null)
                 {
                     builder.Append(value.ToString()!.Replace("'", "''"));
                 }
 
-                builder.Append("'");
+                builder.Append('\'');
             }
         }
     }

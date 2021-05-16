@@ -217,7 +217,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     {
                         if (rebuilds.Remove((renameTableOperation.Name, renameTableOperation.Schema), out var rebuild))
                         {
-                            rebuilds.Add((renameTableOperation.NewName ?? renameTableOperation.Name, renameTableOperation.NewSchema), rebuild);
+                            rebuilds.Add(
+                                (renameTableOperation.NewName ?? renameTableOperation.Name, renameTableOperation.NewSchema), rebuild);
                         }
 
                         operations.Add(renameTableOperation);
@@ -309,6 +310,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                 foreach (var column in table.Columns)
                 {
+                    if (!column.TryGetDefaultValue(out var defaultValue))
+                    {
+                        defaultValue = null;
+                    }
+
                     var addColumnOperation = new AddColumnOperation
                     {
                         Name = column.Name,
@@ -317,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         DefaultValue = rebuild.Value.AddColumnsDeferred.TryGetValue(column.Name, out var originalOperation)
                             && !originalOperation.IsNullable
                                 ? originalOperation.DefaultValue
-                                : column.DefaultValue,
+                                : defaultValue,
                         DefaultValueSql = column.DefaultValueSql,
                         ComputedColumnSql = column.ComputedColumnSql,
                         IsStored = column.IsStored,
@@ -409,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         selectBuilder
                             .Append(", ")
                             .Append(defaultValueTypeMapping.GenerateSqlLiteral(defaultValue))
-                            .Append(")");
+                            .Append(')');
                     }
                 }
 
@@ -812,7 +818,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         #region Invalid migration operations
-
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
         ///     are not yet supported.
@@ -984,11 +989,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(operation.Collation);
             }
         }
-
         #endregion
 
         #region Ignored schema operations
-
         /// <summary>
         ///     Ignored, since schemas are not supported by SQLite and are silently ignored to improve testing compatibility.
         /// </summary>
@@ -1008,11 +1011,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected override void Generate(DropSchemaOperation operation, IModel? model, MigrationCommandListBuilder builder)
         {
         }
-
         #endregion
 
         #region Sequences not supported
-
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since SQLite does not support sequences.
         /// </summary>
@@ -1057,7 +1058,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropSequenceOperation operation, IModel? model, MigrationCommandListBuilder builder)
             => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
-
         #endregion
 
         private sealed class RebuildContext
@@ -1065,8 +1065,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             public ICollection<MigrationOperation> OperationsToReplace { get; } = new List<MigrationOperation>();
             public IDictionary<string, AddColumnOperation> AddColumnsDeferred { get; } = new Dictionary<string, AddColumnOperation>();
             public ICollection<string> DropColumnsDeferred { get; } = new HashSet<string>();
-            public IDictionary<string, AlterColumnOperation> AlterColumnsDeferred = new Dictionary<string, AlterColumnOperation>();
-            public IDictionary<string, RenameColumnOperation> RenameColumnsDeferred = new Dictionary<string, RenameColumnOperation>();
+            public readonly IDictionary<string, AlterColumnOperation> AlterColumnsDeferred = new Dictionary<string, AlterColumnOperation>();
+
+            public readonly IDictionary<string, RenameColumnOperation> RenameColumnsDeferred =
+                new Dictionary<string, RenameColumnOperation>();
+
             public ICollection<string> CreateIndexesDeferred { get; } = new HashSet<string>();
             public ICollection<MigrationOperation> OperationsToWarnFor { get; } = new List<MigrationOperation>();
         }

@@ -701,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var siblingNavigations = newEntityReference.IncludePaths.Keys
                     .Where(
                         n => !castEntityType.IsAssignableFrom(n.DeclaringEntityType)
-                            && !n.DeclaringEntityType.IsAssignableFrom(castEntityType)).ToList();
+                            && !n.DeclaringEntityType.IsAssignableFrom(castEntityType));
 
                 foreach (var navigation in siblingNavigations)
                 {

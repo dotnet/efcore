@@ -30,6 +30,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             => GetString("DefaultIfEmptyAppliedAfterProjection");
 
         /// <summary>
+        ///     Using 'Distinct' operation on a projection containing a subquery is not supported.
+        /// </summary>
+        public static string DistinctOnSubqueryNotSupported
+            => GetString("DistinctOnSubqueryNotSupported");
+
+        /// <summary>
         ///     The specified entity type '{derivedType}' is not derived from '{entityType}'.
         /// </summary>
         public static string InvalidDerivedTypeInEntityProjection(object? derivedType, object? entityType)
@@ -58,6 +64,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
             => string.Format(
                 GetString("NullabilityErrorExceptionSensitive", nameof(requiredProperties), nameof(entityType), nameof(keyValue)),
                 requiredProperties, entityType, keyValue);
+
+        /// <summary>
+        ///     Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.
+        /// </summary>
+        public static string SetOperationsNotAllowedAfterClientEvaluation
+            => GetString("SetOperationsNotAllowedAfterClientEvaluation");
 
         /// <summary>
         ///     Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.

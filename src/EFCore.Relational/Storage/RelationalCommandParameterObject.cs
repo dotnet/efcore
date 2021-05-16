@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IReadOnlyDictionary<string, object?>? parameterValues,
             IReadOnlyList<ReaderColumn>? readerColumns,
             DbContext? context,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger)
+            IRelationalCommandDiagnosticsLogger? logger)
             : this(connection, parameterValues, readerColumns, context, logger, detailedErrorsEnabled: false)
         {
         }
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IReadOnlyDictionary<string, object?>? parameterValues,
             IReadOnlyList<ReaderColumn>? readerColumns,
             DbContext? context,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger,
+            IRelationalCommandDiagnosticsLogger? logger,
             CommandSource commandSource)
             : this(connection, parameterValues, readerColumns, context, logger, detailedErrorsEnabled: false, commandSource)
         {
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IReadOnlyDictionary<string, object?>? parameterValues,
             IReadOnlyList<ReaderColumn>? readerColumns,
             DbContext? context,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger,
+            IRelationalCommandDiagnosticsLogger? logger,
             bool detailedErrorsEnabled) : this(connection, parameterValues, readerColumns, context,
                                                logger, detailedErrorsEnabled, CommandSource.Unknown)
         {
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IReadOnlyDictionary<string, object?>? parameterValues,
             IReadOnlyList<ReaderColumn>? readerColumns,
             DbContext? context,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command>? logger,
+            IRelationalCommandDiagnosticsLogger? logger,
             bool detailedErrorsEnabled,
             CommandSource commandSource)
         {
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     A logger, or <see langword="null"/> if no logger is available.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Database.Command>? Logger { get; }
+        public IRelationalCommandDiagnosticsLogger? Logger { get; }
 
         /// <summary>
         ///     A value indicating if detailed errors are enabled.

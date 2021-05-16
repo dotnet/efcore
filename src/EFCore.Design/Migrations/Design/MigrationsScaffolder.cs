@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     if (!string.IsNullOrEmpty(rootNamespace))
                     {
                         builder.Append(rootNamespace);
-                        builder.Append(".");
+                        builder.Append('.');
                     }
 
                     builder.Append("Migrations.");

@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             typeof(BitConverter).GetMethod(
                                 "To" + type.Name,
                                 new[] { typeof(byte[]), typeof(int) })!,
-                            EnsureEndian(param),
+                            EnsureEndian(HandleEmptyArray(param)),
                             Expression.Constant(0));
 
             if (typeof(TNumber).IsNullableType())
@@ -123,6 +123,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                     Expression.Constant(default(TNumber), typeof(TNumber)),
                     output),
                 param);
+        }
+
+        private static Expression HandleEmptyArray(Expression expression)
+        {
+            if (!typeof(TNumber).IsInteger())
+            {
+                return expression;
+            }
+
+            return Expression.Condition(
+                Expression.Equal(Expression.ArrayLength(expression), Expression.Constant(0)),
+                Expression.NewArrayBounds(typeof(byte), Expression.Constant(GetByteCount())),
+                expression);
         }
 
         private static Expression EnsureEndian(Expression expression)

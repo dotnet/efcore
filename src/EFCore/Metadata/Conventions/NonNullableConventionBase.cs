@@ -96,46 +96,55 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             // No attribute on the member, try to find a NullableContextAttribute on the declaring type
             var type = memberInfo.DeclaringType;
-            if (type != null)
+            if (type is not null)
             {
-                if (state.TypeCache.TryGetValue(type, out var cachedTypeNonNullable))
+                // We currently don't calculate support nullability for generic properties, since calculating that is complex
+                // (depends on the nullability of generic type argument).
+                // However, we special case Dictionary as it's used for property bags, and specifically don't identify its indexer
+                // as non-nullable.
+                if (memberInfo is PropertyInfo property
+                    && property.IsIndexerProperty()
+                    && type.IsGenericType
+                    && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                 {
-                    return cachedTypeNonNullable;
+                    return false;
                 }
 
-                if (Attribute.GetCustomAttributes(type)
-                    .FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute contextAttr)
-                {
-                    var attributeType = contextAttr.GetType();
-
-                    if (attributeType != state.NullableContextAttrType)
-                    {
-                        state.NullableContextFlagFieldInfo = attributeType.GetField("Flag");
-                        state.NullableContextAttrType = attributeType;
-                    }
-
-                    if (state.NullableContextFlagFieldInfo?.GetValue(contextAttr) is byte flag)
-                    {
-                        // We currently don't calculate support nullability for generic properties, since calculating that is complex
-                        // (depends on the nullability of generic type argument).
-                        // However, we special case Dictionary as it's used for property bags, and specifically don't identify its indexer
-                        // as non-nullable.
-                        if (memberInfo is PropertyInfo property
-                            && property.IsIndexerProperty()
-                            && type.IsGenericType
-                            && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                        {
-                            return false;
-                        }
-
-                        return state.TypeCache[type] = flag == 1;
-                    }
-                }
-
-                return state.TypeCache[type] = false;
+                return DoesTypeHaveNonNullableContext(type, state);
             }
 
             return false;
+        }
+
+        private bool DoesTypeHaveNonNullableContext(Type type, NonNullabilityConventionState state)
+        {
+            if (state.TypeCache.TryGetValue(type, out var cachedTypeNonNullable))
+            {
+                return cachedTypeNonNullable;
+            }
+
+            if (Attribute.GetCustomAttributes(type)
+                .FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute contextAttr)
+            {
+                var attributeType = contextAttr.GetType();
+
+                if (attributeType != state.NullableContextAttrType)
+                {
+                    state.NullableContextFlagFieldInfo = attributeType.GetField("Flag");
+                    state.NullableContextAttrType = attributeType;
+                }
+
+                if (state.NullableContextFlagFieldInfo?.GetValue(contextAttr) is byte flag)
+                {
+                    return state.TypeCache[type] = flag == 1;
+                }
+            }
+            else if (type.IsNested)
+            {
+                return state.TypeCache[type] = DoesTypeHaveNonNullableContext(type.DeclaringType!, state);
+            }
+
+            return state.TypeCache[type] = false;
         }
 
         private NonNullabilityConventionState GetOrInitializeState(IConventionModelBuilder modelBuilder)

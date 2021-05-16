@@ -55,9 +55,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContext<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -102,9 +100,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -149,16 +145,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize">
-        ///     Sets the maximum number of instances retained by the pool.
-        /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
             where TContext : DbContext
             => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
 
@@ -195,16 +187,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize">
-        ///     Sets the maximum number of instances retained by the pool.
-        /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
             where TContextImplementation : DbContext, TContextService
             where TContextService : class
         {
@@ -253,16 +241,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize">
-        ///     Sets the maximum number of instances retained by the pool.
-        /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
             where TContext : DbContext
             => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
 
@@ -308,16 +292,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize">
-        ///     Sets the maximum number of instances retained by the pool.
-        /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
             where TContextImplementation : DbContext, TContextService
             where TContextService : class
         {
@@ -381,9 +361,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContext<TContext>(
             this IServiceCollection serviceCollection,
             ServiceLifetime contextLifetime,
@@ -411,9 +389,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             ServiceLifetime contextLifetime,
@@ -470,9 +446,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContext<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
@@ -527,9 +501,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </param>
         /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
         /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
@@ -600,9 +572,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
         /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -659,9 +629,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
         /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -727,9 +695,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
         /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
@@ -794,9 +760,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
         /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
@@ -850,16 +814,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize">
-        ///     Sets the maximum number of instances retained by the pool.
-        /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
             where TContext : DbContext
         {
             Check.NotNull(optionsAction, nameof(optionsAction));
@@ -898,16 +858,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         will not be called.
         ///     </para>
         /// </param>
-        /// <param name="poolSize">
-        ///     Sets the maximum number of instances retained by the pool.
-        /// </param>
-        /// <returns>
-        ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
+        /// <returns> The same service collection so that multiple calls can be chained. </returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-            int poolSize = 128)
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
             where TContext : DbContext
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
@@ -916,7 +872,8 @@ namespace Microsoft.Extensions.DependencyInjection
             AddPoolingOptions<TContext>(serviceCollection, optionsAction, poolSize);
 
             serviceCollection.TryAddSingleton<IDbContextPool<TContext>, DbContextPool<TContext>>();
-            serviceCollection.TryAddSingleton<IDbContextFactory<TContext>, PooledDbContextFactory<TContext>>();
+            serviceCollection.TryAddSingleton<IDbContextFactory<TContext>>(
+                sp => new PooledDbContextFactory<TContext>(sp.GetRequiredService<IDbContextPool<TContext>>()));
 
             return serviceCollection;
         }

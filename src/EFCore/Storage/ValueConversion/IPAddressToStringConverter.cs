@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts a <see cref="IPAddress" /> to and from a <see cref="string" />.
     /// </summary>
-    public class IPAddressToStringConverter : ValueConverter<IPAddress, string>
+    public class IPAddressToStringConverter : ValueConverter<IPAddress?, string?>
     {
         // IPv4-mapped IPv6 addresses can go up to 45 bytes, e.g. 0000:0000:0000:0000:0000:ffff:192.168.1.1
         private static readonly ConverterMappingHints _defaultHints = new(size: 45);
@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             : base(
                 ToString(),
                 ToIPAddress(),
+                convertsNulls: true,
                 _defaultHints.With(mappingHints))
         {
         }
@@ -36,12 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public static ValueConverterInfo DefaultInfo { get; }
             = new(typeof(IPAddress), typeof(string), i => new IPAddressToStringConverter(i.MappingHints), _defaultHints);
 
-        private static new Expression<Func<IPAddress, string>> ToString()
-            // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-            => v => v == null ? default! : v.ToString();
+        private static new Expression<Func<IPAddress?, string?>> ToString()
+            => v => v == null ? default : v.ToString();
 
-        private static Expression<Func<string, IPAddress>> ToIPAddress()
-            // TODO-NULLABLE: Null is already sanitized externally, clean up as part of #13850
-            => v => v == null ? default! : IPAddress.Parse(v);
+        private static Expression<Func<string?, IPAddress?>> ToIPAddress()
+            => v => v == null ? default : IPAddress.Parse(v);
     }
 }

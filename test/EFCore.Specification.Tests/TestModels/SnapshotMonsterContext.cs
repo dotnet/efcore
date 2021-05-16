@@ -107,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
         public class ConcurrencyInfo : IConcurrencyInfo
         {
+            public bool Active { get; set; }
             public string Token { get; set; }
             public DateTime? QueriedDateTime { get; set; }
         }
@@ -120,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels
                 MobilePhone = new Phone();
             }
 
+            public bool Active { get; set; }
             public string Email { get; set; }
 
             public IPhone HomePhone { get; set; }

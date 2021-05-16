@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="builder">The <see cref="StringBuilder" /> to write generated string to.</param>
         /// <param name="name">The candidate name for the parameter.</param>
         public virtual void GenerateParameterName(StringBuilder builder, string name)
-            => builder.Append("@").Append(name);
+            => builder.Append('@').Append(name);
 
         /// <summary>
         ///     Generates a valid parameter placeholder name for the given candidate name.
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             if (!string.IsNullOrEmpty(schema))
             {
                 DelimitIdentifier(builder, schema);
-                builder.Append(".");
+                builder.Append('.');
             }
 
             DelimitIdentifier(builder, name);
@@ -192,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
-                    builder.Append(SingleLineCommentToken).Append(" ").AppendLine(line);
+                    builder.Append(SingleLineCommentToken).Append(' ').AppendLine(line);
                 }
             }
 
@@ -208,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => "SAVEPOINT " + DelimitIdentifier(name) + StatementTerminator;
 
         /// <summary>
-        ///     Generates an SQL statement which which rolls back to a savepoint with the given name.
+        ///     Generates an SQL statement which rolls back to a savepoint with the given name.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be rolled back to. </param>
         /// <returns> An SQL string to roll back the savepoint. </returns>
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => "ROLLBACK TO " + DelimitIdentifier(name) + StatementTerminator;
 
         /// <summary>
-        ///     Generates an SQL statement which which releases a savepoint with the given name.
+        ///     Generates an SQL statement which releases a savepoint with the given name.
         /// </summary>
         /// <param name="name"> The name of the savepoint to be released. </param>
         /// <returns> An SQL string to release the savepoint. </returns>

@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             if (property.GetJsonPropertyName() == ""
                 && type == typeof(int))
             {
-                return new TemporaryNumberValueGeneratorFactory().Create(property);
+                return new TemporaryNumberValueGeneratorFactory().Create(property, entityType);
             }
 
             return base.Create(property, entityType);

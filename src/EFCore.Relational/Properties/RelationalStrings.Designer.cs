@@ -894,6 +894,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sqlExpression);
 
         /// <summary>
+        ///     Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+        /// </summary>
+        public static string OptionalDependentWithDependentWithoutIdentifyingProperty(object? entityType)
+            => string.Format(
+                GetString("OptionalDependentWithDependentWithoutIdentifyingProperty", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
         /// </summary>
         public static string ParameterNotObjectArray(object? parameter)
@@ -1052,14 +1060,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
                 memberType, member, entityType);
-
-        /// <summary>
-        ///     The query has been configured to use '{splitQueryEnumValue}', but contains a collection in the 'Select' call which could not be split into a separate query. Remove '{splitQueryMethodName}' if applied, or add '{singleQueryMethodName}' to the query.
-        /// </summary>
-        public static string UnableToSplitCollectionProjectionInSplitQuery(object? splitQueryEnumValue, object? splitQueryMethodName, object? singleQueryMethodName)
-            => string.Format(
-                GetString("UnableToSplitCollectionProjectionInSplitQuery", nameof(splitQueryEnumValue), nameof(splitQueryMethodName), nameof(singleQueryMethodName)),
-                splitQueryEnumValue, splitQueryMethodName, singleQueryMethodName);
 
         /// <summary>
         ///     Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.
@@ -2211,6 +2211,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+        /// </summary>
+        public static EventDefinition<string> LogOptionalDependentWithoutIdentifyingProperty(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingProperty;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingProperty,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                            _resourceManager.GetString("LogOptionalDependentWithoutIdentifyingProperty")!)));
+            }
+
+            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

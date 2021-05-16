@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
                 CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 
-            public void PopulateFromTemplate(IRelationalCommand templateCommand)
+            public void PopulateFrom(IRelationalCommand command)
                 => throw new NotImplementedException();
         }
     }

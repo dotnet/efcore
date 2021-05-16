@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> An expression used to create individual elements of the collection. </param>
         /// <param name="navigation"> A navigation associated with this collection, if any. </param>
         /// <param name="elementType"> The clr type of individual elements in the collection. </param>
+        [Obsolete("Use ctor without collectionId")]
         public RelationalCollectionShaperExpression(
             int collectionId,
             Expression parentIdentifier,
@@ -91,9 +92,50 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Creates a new instance of the <see cref="RelationalCollectionShaperExpression" /> class.
+        /// </summary>
+        /// <param name="parentIdentifier"> An identifier for the parent element. </param>
+        /// <param name="outerIdentifier"> An identifier for the outer element. </param>
+        /// <param name="selfIdentifier"> An identifier for the element in the collection. </param>
+        /// <param name="parentIdentifierValueComparers"> A list of value comparers to compare parent identifier. </param>
+        /// <param name="outerIdentifierValueComparers"> A list of value comparers to compare outer identifier. </param>
+        /// <param name="selfIdentifierValueComparers"> A list of value comparers to compare self identifier. </param>
+        /// <param name="innerShaper"> An expression used to create individual elements of the collection. </param>
+        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
+        /// <param name="elementType"> The clr type of individual elements in the collection. </param>
+        public RelationalCollectionShaperExpression(
+            Expression parentIdentifier,
+            Expression outerIdentifier,
+            Expression selfIdentifier,
+            IReadOnlyList<ValueComparer>? parentIdentifierValueComparers,
+            IReadOnlyList<ValueComparer>? outerIdentifierValueComparers,
+            IReadOnlyList<ValueComparer>? selfIdentifierValueComparers,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType)
+        {
+            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
+            Check.NotNull(outerIdentifier, nameof(outerIdentifier));
+            Check.NotNull(selfIdentifier, nameof(selfIdentifier));
+            Check.NotNull(innerShaper, nameof(innerShaper));
+            Check.NotNull(elementType, nameof(elementType));
+
+            ParentIdentifier = parentIdentifier;
+            OuterIdentifier = outerIdentifier;
+            SelfIdentifier = selfIdentifier;
+            ParentIdentifierValueComparers = parentIdentifierValueComparers;
+            OuterIdentifierValueComparers = outerIdentifierValueComparers;
+            SelfIdentifierValueComparers = selfIdentifierValueComparers;
+            InnerShaper = innerShaper;
+            Navigation = navigation;
+            ElementType = elementType;
+        }
+
+        /// <summary>
         ///     A unique id for this collection shaper.
         /// </summary>
-        public virtual int CollectionId { get; }
+        [Obsolete("CollectionId are not stored in shaper anymore. Shaper compiler assigns it as needed.")]
+        public virtual int? CollectionId { get; }
 
         /// <summary>
         ///     The identifier for the parent element.
@@ -186,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || selfIdentifier != SelfIdentifier
                 || innerShaper != InnerShaper
                     ? new RelationalCollectionShaperExpression(
-                        CollectionId, parentIdentifier, outerIdentifier, selfIdentifier,
+                        parentIdentifier, outerIdentifier, selfIdentifier,
                         ParentIdentifierValueComparers, OuterIdentifierValueComparers, SelfIdentifierValueComparers,
                         innerShaper, Navigation, ElementType)
                     : this;
@@ -200,7 +242,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.AppendLine("RelationalCollectionShaper:");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine($"CollectionId: {CollectionId}");
                 expressionPrinter.Append("ParentIdentifier:");
                 expressionPrinter.Visit(ParentIdentifier);
                 expressionPrinter.AppendLine();

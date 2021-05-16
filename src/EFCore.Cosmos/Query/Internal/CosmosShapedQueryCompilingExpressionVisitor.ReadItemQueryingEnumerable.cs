@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             private readonly Type _contextType;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
             private readonly bool _standAloneStateManager;
-            private readonly bool _concurrencyDetectionEnabled;
+            private readonly bool _threadSafetyChecksEnabled;
 
             public ReadItemQueryingEnumerable(
                 CosmosQueryContext cosmosQueryContext,
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 Func<CosmosQueryContext, JObject, T> shaper,
                 Type contextType,
                 bool standAloneStateManager,
-                bool concurrencyDetectionEnabled)
+                bool threadSafetyChecksEnabled)
             {
                 _cosmosQueryContext = cosmosQueryContext;
                 _readItemExpression = readItemExpression;
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 _contextType = contextType;
                 _queryLogger = _cosmosQueryContext.QueryLogger;
                 _standAloneStateManager = standAloneStateManager;
-                _concurrencyDetectionEnabled = concurrencyDetectionEnabled;
+                _threadSafetyChecksEnabled = threadSafetyChecksEnabled;
             }
 
             public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var entityEntry = Activator.CreateInstance(_readItemExpression.EntityType.ClrType);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                var internalEntityEntry = new InternalEntityEntryFactory().Create(
+                var internalEntityEntry = new InternalEntityEntry(
                     _cosmosQueryContext.Context.GetDependencies().StateManager, _readItemExpression.EntityType, entityEntry);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     _readItemEnumerable = readItemEnumerable;
                     _cancellationToken = cancellationToken;
 
-                    _concurrencyDetector = readItemEnumerable._concurrencyDetectionEnabled
+                    _concurrencyDetector = readItemEnumerable._threadSafetyChecksEnabled
                         ? _cosmosQueryContext.ConcurrencyDetector
                         : null;
                 }

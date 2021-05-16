@@ -760,6 +760,36 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<NotSupportedException>(() => ((IListSource)context.Gus.Local).GetList()).Message);
         }
 
+        [ConditionalFact]
+        public void Can_enumerate_with_foreach()
+        {
+            using var context = new EarlyLearningCenter();
+            foreach (var _ in context.Categories)
+            {
+                throw new Exception("DbSet should be empty");
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Can_enumerate_with_await_foreach()
+        {
+            using var context = new EarlyLearningCenter();
+            await foreach (var _ in context.Categories)
+            {
+                throw new Exception("DbSet should be empty");
+            }
+        }
+
+        [ConditionalFact]
+        public async Task Can_enumerate_with_await_foreach_with_cancellation()
+        {
+            using var context = new EarlyLearningCenter();
+            await foreach (var _ in context.Categories.AsAsyncEnumerable().WithCancellation(default))
+            {
+                throw new Exception("DbSet should be empty");
+            }
+        }
+
         private class Curious
         {
             public string George { get; set; }

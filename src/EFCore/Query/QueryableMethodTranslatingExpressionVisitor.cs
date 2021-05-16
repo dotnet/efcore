@@ -660,7 +660,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a <see cref="ShapedQueryExpression" /> for the given entity type.
         /// </summary>
-        /// <param name="entityType"> The the entity type. </param>
+        /// <param name="entityType"> The entity type. </param>
         /// <returns> A shaped query expression for the given entity type. </returns>
         protected abstract ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType);
 

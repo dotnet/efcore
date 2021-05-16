@@ -167,6 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 {
                     nameof(Order.AlternateId),
                     nameof(Order.CustomerId),
+                    "Details_Active",
                     "Details_BillingAddress_City",
                     "Details_BillingAddress_Street",
                     "Details_ShippingAddress_City",
@@ -283,6 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     nameof(Order.Id),
                     nameof(Order.AlternateId),
                     nameof(Order.CustomerId),
+                    "Details_Active",
                     "Details_BillingAddress_City",
                     "Details_BillingAddress_Street",
                     "Details_ShippingAddress_City",
@@ -971,6 +973,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public int OrderId { get; set; }
             public Order Order { get; set; }
             public Guid AlternateId { get; set; }
+            public bool Active { get; set; }
 
             public DateTime OrderDate { get; set; }
             public DateDetails DateDetails { get; set; }

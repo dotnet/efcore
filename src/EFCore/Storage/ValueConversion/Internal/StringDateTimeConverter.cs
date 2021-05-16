@@ -54,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected static Expression<Func<string, DateTime>> ToDateTime()
-            => v => v == null ? default : DateTime.Parse(v, CultureInfo.InvariantCulture);
+            => v => DateTime.Parse(v, CultureInfo.InvariantCulture);
     }
 }

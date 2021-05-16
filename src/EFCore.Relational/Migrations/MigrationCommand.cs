@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public MigrationCommand(
             IRelationalCommand relationalCommand,
             DbContext? context,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> logger,
+            IRelationalCommandDiagnosticsLogger logger,
             bool transactionSuppressed = false)
         {
             Check.NotNull(relationalCommand, nameof(relationalCommand));
@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     The associated command logger.
         /// </summary>
-        public virtual IDiagnosticsLogger<DbLoggerCategory.Database.Command> CommandLogger { get; }
+        public virtual IRelationalCommandDiagnosticsLogger CommandLogger { get; }
 
         /// <summary>
         ///     Executes the command and returns the number of rows affected.

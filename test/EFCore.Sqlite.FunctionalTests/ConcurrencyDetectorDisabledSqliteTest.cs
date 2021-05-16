@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
                 => (TestSqlLoggerFactory)ListLoggerFactory;
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => builder.DisableConcurrencyDetection();
+                => builder.EnableThreadSafetyChecks(enableChecks: false);
         }
     }
 }

@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                     || propertyType == typeof(float)
                     || propertyType == typeof(double))
                 {
-                    return _numberFactory.Create(property);
+                    return _numberFactory.Create(property, entityType);
                 }
 
                 if (propertyType == typeof(DateTime))

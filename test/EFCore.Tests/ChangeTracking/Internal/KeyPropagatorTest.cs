@@ -360,7 +360,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         if (property.ValueGenerated == ValueGenerated.OnAdd)
                         {
-                            property.SetValueGeneratorFactory((p, _) => new TemporaryNumberValueGeneratorFactory().Create(p));
+                            property.SetValueGeneratorFactory(new TemporaryNumberValueGeneratorFactory().Create);
                         }
                     }
                 }

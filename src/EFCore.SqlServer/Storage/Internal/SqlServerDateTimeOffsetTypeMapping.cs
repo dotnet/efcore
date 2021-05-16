@@ -38,12 +38,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerDateTimeOffsetTypeMapping(
             string storeType,
-            DbType? dbType = System.Data.DbType.DateTimeOffset)
+            DbType? dbType = System.Data.DbType.DateTimeOffset,
+            StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
             : base(
                 new RelationalTypeMappingParameters(
                     new CoreTypeMappingParameters(typeof(DateTimeOffset)),
                     storeType,
-                    StoreTypePostfix.Precision,
+                    storeTypePostfix,
                     dbType))
         {
         }

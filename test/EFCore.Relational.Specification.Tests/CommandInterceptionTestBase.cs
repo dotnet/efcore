@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -469,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -667,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -961,7 +961,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -1114,7 +1114,7 @@ namespace Microsoft.EntityFrameworkCore
 
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append(sql).Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -1198,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore
             {
                 var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append("SELECT 1").Build();
                 var connection = context.GetService<IRelationalConnection>();
-                var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+                var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
                 var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 
@@ -1330,7 +1330,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var command = context.GetService<IRelationalCommandBuilderFactory>().Create().Append("SELECT 1").Build();
             var connection = context.GetService<IRelationalConnection>();
-            var logger = context.GetService<IDiagnosticsLogger<DbLoggerCategory.Database.Command>>();
+            var logger = context.GetService<IRelationalCommandDiagnosticsLogger>();
 
             var commandParameterObject = new RelationalCommandParameterObject(connection, null, null, context, logger);
 

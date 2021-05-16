@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
@@ -24,12 +25,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public SingleResultShaperExpression(
             Expression projection,
-            Expression innerShaper,
-            Type type)
+            Expression innerShaper)
         {
             Projection = projection;
             InnerShaper = innerShaper;
-            Type = type;
+            Type = innerShaper.Type;
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         public virtual SingleResultShaperExpression Update(Expression projection, Expression innerShaper)
             => projection != Projection || innerShaper != InnerShaper
-                ? new SingleResultShaperExpression(projection, innerShaper, Type)
+                ? new SingleResultShaperExpression(projection, innerShaper)
                 : this;
 
         /// <summary>

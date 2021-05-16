@@ -18,10 +18,21 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(ServiceLifetime.Scoped)]
         [InlineData(ServiceLifetime.Transient)]
         public void Factory_creates_new_context_instance(ServiceLifetime lifetime)
+            => ContextFactoryTest<WoolacombeContext>(lifetime);
+
+        [ConditionalTheory]
+        [InlineData(ServiceLifetime.Singleton)]
+        [InlineData(ServiceLifetime.Scoped)]
+        [InlineData(ServiceLifetime.Transient)]
+        public void Factory_creates_new_context_instance_with_additional_parameterless_constructor(ServiceLifetime lifetime)
+            => ContextFactoryTest<GruntaContext>(lifetime);
+
+        private static void ContextFactoryTest<TContext>(ServiceLifetime lifetime)
+            where TContext : DbContext
         {
             var serviceProvider = (IServiceProvider)new ServiceCollection()
-                .AddDbContextFactory<WoolacombeContext>(
-                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                .AddDbContextFactory<TContext>(
+                    b => b.UseInMemoryDatabase(nameof(TContext)),
                     lifetime)
                 .BuildServiceProvider(validateScopes: true);
 
@@ -30,14 +41,14 @@ namespace Microsoft.EntityFrameworkCore
                 serviceProvider = serviceProvider.CreateScope().ServiceProvider;
             }
 
-            var contextFactory = serviceProvider.GetService<IDbContextFactory<WoolacombeContext>>();
+            var contextFactory = serviceProvider.GetService<IDbContextFactory<TContext>>();
 
             using var context1 = contextFactory.CreateDbContext();
             using var context2 = contextFactory.CreateDbContext();
 
             Assert.NotSame(context1, context2);
-            Assert.Equal(nameof(WoolacombeContext), GetStoreName(context1));
-            Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
+            Assert.Equal(nameof(TContext), GetStoreName(context1));
+            Assert.Equal(nameof(TContext), GetStoreName(context2));
         }
 
         [ConditionalFact]
@@ -164,6 +175,18 @@ namespace Microsoft.EntityFrameworkCore
                 serviceCollection.Single(e => e.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
         }
 
+        private class GruntaContext : DbContext
+        {
+            public GruntaContext()
+            {
+            }
+
+            public GruntaContext(DbContextOptions<GruntaContext> options)
+                : base(options)
+            {
+            }
+        }
+
         private class WoolacombeContext : DbContext
         {
             public WoolacombeContext(DbContextOptions<WoolacombeContext> options)
@@ -187,6 +210,10 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CroydeContext : DbContext
         {
+            public CroydeContext()
+            {
+            }
+
             public CroydeContext(DbContextOptions options)
                 : base(options)
             {

@@ -263,10 +263,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 || materializationInfo.IsFromLeftOuterJoin != false)
             {
 #pragma warning restore CS0612 // Type or member is obsolete
+
+                Expression replaceExpression;
+                if (converter?.ConvertsNulls == true)
+                {
+                    replaceExpression = ReplacingExpressionVisitor.Replace(
+                        converter.ConvertFromProviderExpression.Parameters.Single(),
+                        Expression.Default(converter.ProviderClrType),
+                        converter.ConvertFromProviderExpression.Body);
+
+                    if (replaceExpression.Type != valueExpression.Type)
+                    {
+                        replaceExpression = Expression.Convert(replaceExpression, valueExpression.Type);
+                    }
+                }
+                else
+                {
+                    replaceExpression = Expression.Default(valueExpression.Type);
+                }
+
                 valueExpression
                     = Expression.Condition(
                         Expression.Call(dataReaderExpression, _isDbNullMethod, indexExpression),
-                        Expression.Default(valueExpression.Type),
+                        replaceExpression,
                         valueExpression);
             }
 

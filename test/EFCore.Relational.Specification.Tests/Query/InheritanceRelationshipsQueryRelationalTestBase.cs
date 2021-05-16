@@ -285,5 +285,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertCollection(e.BaseCollectionOnBase, a.BaseCollectionOnBase);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_on_derived_type_with_queryable_Cast_split(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<BaseInheritanceRelationshipEntity>()
+                        .AsSplitQuery()
+                        .Where(b => b.Id >= 4)
+                        .Cast<DerivedInheritanceRelationshipEntity>()
+                        .Include(e => e.DerivedCollectionOnDerived),
+                elementAsserter: (e, a) =>
+                {
+                    AssertInclude(e, a, new ExpectedInclude<DerivedInheritanceRelationshipEntity>(i => i.DerivedCollectionOnDerived));
+                });
+        }
     }
 }

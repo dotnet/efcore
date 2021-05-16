@@ -969,5 +969,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                         .Take(2)),
                 entryCount: 2);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_in_collection_projection_with_FirstOrDefault_on_top_level(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<Customer>()
+                    .Select(c => new
+                    {
+                        Orders = c.Orders.OrderBy(e => e.OrderDate).Take(1)
+                            .Select(o => new
+                            {
+                                Title = o.CustomerID == o.Customer.City ? "A" : "B"
+                            }).ToList()
+                    }),
+                asserter: (e, a) => AssertCollection(e.Orders, a.Orders, ordered: true));
+        }
     }
 }

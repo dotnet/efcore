@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var assembly = typeof(ReverseEngineeringConfigurationTests).Assembly;
             var reverseEngineer = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
-                .Build(SqlServerTestHelpers.Instance.CreateContext())
+                .Build("Microsoft.EntityFrameworkCore.SqlServer")
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             Assert.Equal(

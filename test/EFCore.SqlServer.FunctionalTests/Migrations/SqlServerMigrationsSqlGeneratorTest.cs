@@ -18,6 +18,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
         [ConditionalFact]
+        public void CreateIndexOperation_unique_online()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Schema = "dbo",
+                    Columns = new[] { "FirstName", "LastName" },
+                    IsUnique = true,
+                    [SqlServerAnnotationNames.CreatedOnline] = true
+                });
+
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL WITH (ONLINE = ON);
+");
+        }
+
+        [ConditionalFact]
         public virtual void AddColumnOperation_identity_legacy()
         {
             Generate(

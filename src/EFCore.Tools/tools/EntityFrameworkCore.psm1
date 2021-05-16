@@ -1110,6 +1110,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     $targetPath = Join-Path $targetDir $targetFileName
     $rootNamespace = GetProperty $project.Properties 'RootNamespace'
     $language = GetLanguage $project
+    $nullable = GetNullable $project
 
     $params += '--verbose',
         '--no-color',
@@ -1128,6 +1129,11 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     if ($rootNamespace -ne $null)
     {
         $params += '--root-namespace', $rootNamespace
+    }
+
+    if ($nullable -in 'enable', 'annotations')
+    {
+        $params += '--nullable'
     }
 
     $arguments = ToArguments $params
@@ -1273,6 +1279,16 @@ function GetLanguage($project)
     }
 
     return GetMSBuildProperty $project 'Language'
+}
+
+function GetNullable($project)
+{
+    if (IsCpsProject $project)
+    {
+        return GetCpsProperty $project 'Nullable'
+    }
+
+    return GetMSBuildProperty $project 'Nullable'
 }
 
 function GetVsHierarchy($project)

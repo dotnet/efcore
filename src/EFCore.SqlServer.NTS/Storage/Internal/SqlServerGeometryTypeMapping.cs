@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 .Append(defaultSrid ? "Parse" : "STGeomFromText")
                 .Append("('")
                 .Append(WKTWriter.ForMicrosoftSqlServer().Write(geometry))
-                .Append("'");
+                .Append('\'');
 
             if (!defaultSrid)
             {
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     .Append(geometry.SRID);
             }
 
-            builder.Append(")");
+            builder.Append(')');
 
             return builder.ToString();
         }

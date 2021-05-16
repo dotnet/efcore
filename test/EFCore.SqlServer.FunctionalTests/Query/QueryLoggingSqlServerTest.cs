@@ -147,6 +147,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalFact]
+        public virtual void Include_collection_does_not_generate_warning()
+        {
+            using var context = CreateContext();
+            var customer = context.Set<Customer>().Include(e => e.Orders).AsSplitQuery().Single(e => e.CustomerID == "ALFKI");
+
+            Assert.NotNull(customer);
+            Assert.Equal(6, customer.Orders.Count);
+
+            Assert.DoesNotContain(
+                CoreResources.LogRowLimitingOperationWithoutOrderBy(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage(),
+                Fixture.TestSqlLoggerFactory.Log.Select(e => e.Message));
+        }
+
+        [ConditionalFact]
         public void SelectExpression_does_not_use_an_old_logger()
         {
             DbContextOptions CreateOptions(ListLoggerFactory listLoggerFactory)

@@ -18,6 +18,197 @@ namespace Microsoft.EntityFrameworkCore
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
         [ConditionalFact]
+        public virtual void Avoid_nulling_shared_FK_property_when_deleting()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var root = context
+                        .Set<SharedFkRoot>()
+                        .Include(e => e.Parents)
+                        .Include(e => e.Dependants)
+                        .Single();
+
+                    Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                    var dependent = root.Dependants.Single();
+                    var parent = root.Parents.Single();
+
+                    Assert.Same(root, dependent.Root);
+                    Assert.Same(parent, dependent.Parent);
+                    Assert.Same(root, parent.Root);
+                    Assert.Same(dependent, parent.Dependant);
+
+                    Assert.Equal(root.Id, dependent.RootId);
+                    Assert.Equal(root.Id, parent.RootId);
+                    Assert.Equal(dependent.Id, parent.DependantId);
+
+                    context.Remove(dependent);
+
+                    Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                    if (Fixture.ForceClientNoAction)
+                    {
+                        Assert.Equal(EntityState.Unchanged, context.Entry(root).State);
+                        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                        Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+
+                        Assert.Same(root, dependent.Root);
+                        Assert.Same(parent, dependent.Parent);
+                        Assert.Same(root, parent.Root);
+                        Assert.Same(dependent, parent.Dependant);
+
+                        Assert.Equal(root.Id, dependent.RootId);
+                        Assert.Equal(root.Id, parent.RootId);
+                        Assert.Equal(parent.Id, parent.DependantId);
+
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        Assert.Same(root, dependent.Root);
+                        Assert.Same(parent, dependent.Parent);
+                        Assert.Same(root, parent.Root);
+                        Assert.Null(parent.Dependant);
+
+                        Assert.Equal(root.Id, dependent.RootId);
+                        Assert.Equal(root.Id, parent.RootId);
+                        Assert.Null(parent.DependantId);
+
+                        context.SaveChanges();
+
+                        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                        Assert.Equal(EntityState.Unchanged, context.Entry(root).State);
+                        Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                        Assert.Equal(EntityState.Detached, context.Entry(dependent).State);
+
+                        Assert.Same(root, dependent.Root);
+                        Assert.Same(parent, dependent.Parent);
+                        Assert.Same(root, parent.Root);
+                        Assert.Null(parent.Dependant);
+
+                        Assert.Equal(root.Id, dependent.RootId);
+                        Assert.Equal(root.Id, parent.RootId);
+                        Assert.Null(parent.DependantId);
+                    }
+                },
+                context =>
+                {
+                    if (!Fixture.ForceClientNoAction)
+                    {
+                        var root = context
+                            .Set<SharedFkRoot>()
+                            .Include(e => e.Parents)
+                            .Include(e => e.Dependants)
+                            .Single();
+
+                        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                        Assert.Empty(root.Dependants);
+                        var parent = root.Parents.Single();
+
+                        Assert.Same(root, parent.Root);
+                        Assert.Null(parent.Dependant);
+
+                        Assert.Equal(root.Id, parent.RootId);
+                        Assert.Null(parent.DependantId);
+                    }
+                });
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Avoid_nulling_shared_FK_property_when_nulling_navigation(bool nullPrincipal)
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var root = context
+                        .Set<SharedFkRoot>()
+                        .Include(e => e.Parents)
+                        .Include(e => e.Dependants)
+                        .Single();
+
+                    Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                    var dependent = root.Dependants.Single();
+                    var parent = root.Parents.Single();
+
+                    Assert.Same(root, dependent.Root);
+                    Assert.Same(parent, dependent.Parent);
+                    Assert.Same(root, parent.Root);
+                    Assert.Same(dependent, parent.Dependant);
+
+                    Assert.Equal(root.Id, dependent.RootId);
+                    Assert.Equal(root.Id, parent.RootId);
+                    Assert.Equal(dependent.Id, parent.DependantId);
+
+                    if (nullPrincipal)
+                    {
+                        dependent.Parent = null;
+                    }
+                    else
+                    {
+                        parent.Dependant = null;
+                    }
+
+                    context.ChangeTracker.DetectChanges();
+
+                    Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                    Assert.Equal(EntityState.Unchanged, context.Entry(root).State);
+                    Assert.Equal(EntityState.Modified, context.Entry(parent).State);
+                    Assert.Equal(EntityState.Unchanged, context.Entry(dependent).State);
+
+                    Assert.Same(root, dependent.Root);
+                    Assert.Null(dependent.Parent);
+                    Assert.Same(root, parent.Root);
+                    Assert.Null(parent.Dependant);
+
+                    Assert.Equal(root.Id, dependent.RootId);
+                    Assert.Equal(root.Id, parent.RootId);
+                    Assert.Null(parent.DependantId);
+
+                    context.SaveChanges();
+
+                    Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                    Assert.Same(root, dependent.Root);
+                    Assert.Null(dependent.Parent);
+                    Assert.Same(root, parent.Root);
+                    Assert.Null(parent.Dependant);
+
+                    Assert.Equal(root.Id, dependent.RootId);
+                    Assert.Equal(root.Id, parent.RootId);
+                    Assert.Null(parent.DependantId);
+                },
+                context =>
+                {
+                    var root = context
+                        .Set<SharedFkRoot>()
+                        .Include(e => e.Parents)
+                        .Include(e => e.Dependants)
+                        .Single();
+
+                    Assert.Equal(3, context.ChangeTracker.Entries().Count());
+
+                    var dependent = root.Dependants.Single();
+                    var parent = root.Parents.Single();
+
+                    Assert.Same(root, dependent.Root);
+                    Assert.Null(dependent.Parent);
+                    Assert.Same(root, parent.Root);
+                    Assert.Null(parent.Dependant);
+
+                    Assert.Equal(root.Id, dependent.RootId);
+                    Assert.Equal(root.Id, parent.RootId);
+                    Assert.Null(parent.DependantId);
+                });
+        }
+
+        [ConditionalFact]
         public virtual void Mutating_discriminator_value_throws_by_convention()
         {
             ExecuteWithStrategyInTransaction(

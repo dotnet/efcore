@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
         private readonly ISqlServerConnection _connection;
         private readonly ISequence _sequence;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
+        private readonly IRelationalCommandDiagnosticsLogger _commandLogger;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
             ISqlServerUpdateSqlGenerator sqlGenerator,
             SqlServerSequenceValueGeneratorState generatorState,
             ISqlServerConnection connection,
-            IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
+            IRelationalCommandDiagnosticsLogger commandLogger)
             : base(generatorState)
         {
             _sequence = generatorState.Sequence;

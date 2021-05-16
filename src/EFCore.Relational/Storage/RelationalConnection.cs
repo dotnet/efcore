@@ -690,23 +690,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private void OpenInternal(bool errorsExpected)
         {
+            var logger = Dependencies.ConnectionLogger;
             var startTime = DateTimeOffset.UtcNow;
-            _stopwatch.Restart();
-
-            var interceptionResult = Dependencies.ConnectionLogger.ConnectionOpening(this, startTime);
 
             try
             {
-                if (!interceptionResult.IsSuppressed)
+                if (logger.ShouldLogConnectionOpen(startTime))
+                {
+                    _stopwatch.Restart();
+
+                    var interceptionResult = logger.ConnectionOpening(this, startTime);
+
+                    if (!interceptionResult.IsSuppressed)
+                    {
+                        OpenDbConnection(errorsExpected);
+                    }
+
+                    logger.ConnectionOpened(this, startTime, _stopwatch.Elapsed);
+                }
+                else
                 {
                     OpenDbConnection(errorsExpected);
                 }
-
-                Dependencies.ConnectionLogger.ConnectionOpened(this, startTime, _stopwatch.Elapsed);
             }
             catch (Exception e)
             {
-                Dependencies.ConnectionLogger.ConnectionError(this, e, startTime, _stopwatch.Elapsed, errorsExpected);
+                logger.ConnectionError(this, e, startTime, _stopwatch.Elapsed, errorsExpected);
 
                 throw;
             }
@@ -727,30 +736,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         private async Task OpenInternalAsync(bool errorsExpected, CancellationToken cancellationToken)
         {
+            var logger = Dependencies.ConnectionLogger;
             var startTime = DateTimeOffset.UtcNow;
-            _stopwatch.Restart();
-
-            var interceptionResult
-                = await Dependencies.ConnectionLogger.ConnectionOpeningAsync(this, startTime, cancellationToken)
-                    .ConfigureAwait(false);
 
             try
             {
-                if (!interceptionResult.IsSuppressed)
+                if (logger.ShouldLogConnectionOpen(startTime))
+                {
+                    _stopwatch.Restart();
+
+                    var interceptionResult
+                        = await logger.ConnectionOpeningAsync(this, startTime, cancellationToken).ConfigureAwait(false);
+
+                    if (!interceptionResult.IsSuppressed)
+                    {
+                        await OpenDbConnectionAsync(errorsExpected, cancellationToken).ConfigureAwait(false);
+                    }
+
+                    await logger.ConnectionOpenedAsync(this, startTime, _stopwatch.Elapsed, cancellationToken).ConfigureAwait(false);
+                }
+                else
                 {
                     await OpenDbConnectionAsync(errorsExpected, cancellationToken).ConfigureAwait(false);
                 }
-
-                await Dependencies.ConnectionLogger.ConnectionOpenedAsync(this, startTime, _stopwatch.Elapsed, cancellationToken)
-                    .ConfigureAwait(false);
             }
             catch (Exception e)
             {
-                await Dependencies.ConnectionLogger.ConnectionErrorAsync(
+                await logger.ConnectionErrorAsync(
                         this,
                         e,
                         startTime,
-                        _stopwatch.Elapsed,
+                        DateTimeOffset.UtcNow - startTime,
                         errorsExpected,
                         cancellationToken)
                     .ConfigureAwait(false);
@@ -842,21 +858,30 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (DbConnectionState != ConnectionState.Closed)
                 {
+                    var logger = Dependencies.ConnectionLogger;
                     var startTime = DateTimeOffset.UtcNow;
-                    _stopwatch.Restart();
-
-                    var interceptionResult = Dependencies.ConnectionLogger.ConnectionClosing(this, startTime);
 
                     try
                     {
-                        if (!interceptionResult.IsSuppressed)
+                        if (logger.ShouldLogConnectionClose(startTime))
                         {
-                            CloseDbConnection();
+                            _stopwatch.Restart();
+
+                            var interceptionResult = Dependencies.ConnectionLogger.ConnectionClosing(this, startTime);
+
+                            if (!interceptionResult.IsSuppressed)
+                            {
+                                CloseDbConnection();
+                            }
+
+                            Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, _stopwatch.Elapsed);
+                        }
+                        else
+                        {
+                            CloseDbConnectionAsync();
                         }
 
                         wasClosed = true;
-
-                        Dependencies.ConnectionLogger.ConnectionClosed(this, startTime, _stopwatch.Elapsed);
                     }
                     catch (Exception e)
                     {
@@ -901,26 +926,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 if (DbConnectionState != ConnectionState.Closed)
                 {
+                    var logger = Dependencies.ConnectionLogger;
                     var startTime = DateTimeOffset.UtcNow;
-                    _stopwatch.Restart();
-
-                    var interceptionResult = await Dependencies.ConnectionLogger.ConnectionClosingAsync(this, startTime)
-                        .ConfigureAwait(false);
 
                     try
                     {
-                        if (!interceptionResult.IsSuppressed)
+                        if (logger.ShouldLogConnectionClose(startTime))
+                        {
+                            _stopwatch.Restart();
+
+                            var interceptionResult = await Dependencies.ConnectionLogger.ConnectionClosingAsync(this, startTime)
+                                .ConfigureAwait(false);
+
+                            if (!interceptionResult.IsSuppressed)
+                            {
+                                await CloseDbConnectionAsync().ConfigureAwait(false);
+                            }
+
+                            await Dependencies.ConnectionLogger.ConnectionClosedAsync(this, startTime, _stopwatch.Elapsed)
+                                .ConfigureAwait(false);
+                        }
+                        else
                         {
                             await CloseDbConnectionAsync().ConfigureAwait(false);
                         }
 
                         wasClosed = true;
-
-                        await Dependencies.ConnectionLogger.ConnectionClosedAsync(
-                                this,
-                                startTime,
-                                _stopwatch.Elapsed)
-                            .ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
@@ -928,7 +959,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 this,
                                 e,
                                 startTime,
-                                _stopwatch.Elapsed,
+                                DateTimeOffset.UtcNow - startTime,
                                 false)
                             .ConfigureAwait(false);
 

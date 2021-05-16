@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 var unmappedProperty = entityType.GetDeclaredProperties().FirstOrDefault(
                     p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
-                            // Use a better condition of non-persisted properties when issue#14121 is implemented
+                            // Use a better condition for non-persisted properties when issue #14121 is implemented
                             || !p.IsImplicitlyCreated())
                         && p.FindTypeMapping() == null);
 
@@ -1098,7 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
 
-                    entry = new InternalClrEntityEntry(null!, entityType, seedDatum);
+                    entry = new InternalEntityEntry(null!, entityType, seedDatum);
                     identityMap.Add(keyValues, entry);
                 }
             }

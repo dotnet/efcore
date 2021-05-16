@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore
             context.Add(
                 new FuelTank
                 {
-                    Capacity = "10000 l",
+                    Capacity = 10000_1,
                     FuelType = "Gas",
                     VehicleName = "Fuel transport"
                 });
@@ -528,6 +528,23 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(2, bike.SeatingCapacity);
                 Assert.Equal("repairman", bike.Operator.Name);
                 Assert.Equal("Repair", ((LicensedOperator)bike.Operator).LicenseType);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Optional_dependent_materialized_when_no_properties()
+        {
+            await InitializeAsync(OnModelCreating);
+
+            using (var context = CreateContext())
+            {
+                var vehicle = context.Set<Vehicle>()
+                    .Where(e => e.Name == "AIM-9M Sidewinder")
+                    .OrderBy(e => e.Name)
+                    .Include(e => e.Operator.Details).First();
+                Assert.Equal(0, vehicle.SeatingCapacity);
+                Assert.Equal("Heat-seeking", vehicle.Operator.Details.Type);
+                Assert.Null(vehicle.Operator.Name);
             }
         }
 

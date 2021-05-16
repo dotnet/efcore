@@ -613,6 +613,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public EntityState ChangingState;
             public EntityState ChangedState;
 
+            public void BeginAttachGraph()
+            {
+            }
+
+            public void CompleteAttachGraph()
+            {
+            }
+
+            public void AbortAttachGraph()
+            {
+            }
+
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry,
                 INavigationBase navigationBase,

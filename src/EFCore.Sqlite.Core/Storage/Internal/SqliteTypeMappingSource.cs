@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
         {
-            var mapping = FindRawMapping(mappingInfo);
+            var mapping = base.FindMapping(mappingInfo) ?? FindRawMapping(mappingInfo);
 
             return mapping != null
                 && mappingInfo.StoreTypeName != null
@@ -156,10 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 return mapping;
             }
 
-            mapping = base.FindMapping(mappingInfo);
-
-            if (mapping == null
-                && storeTypeName != null)
+            if (storeTypeName != null)
             {
                 var affinityTypeMapping = _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null);
 
@@ -175,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 }
             }
 
-            return mapping;
+            return null;
         }
 
         private readonly Func<string, RelationalTypeMapping?>[] _typeRules =

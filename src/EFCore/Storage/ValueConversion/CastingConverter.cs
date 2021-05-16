@@ -40,7 +40,15 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
-        public CastingConverter(ConverterMappingHints? mappingHints = null)
+        public CastingConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter.
+        /// </summary>
+        public CastingConverter(ConverterMappingHints? mappingHints)
             : base(
                 Convert<TModel, TProvider>(),
                 Convert<TProvider, TModel>(),

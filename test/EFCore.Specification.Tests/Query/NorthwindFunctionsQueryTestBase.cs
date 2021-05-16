@@ -1322,7 +1322,42 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Substring_with_zero_startindex(bool async)
+        public virtual Task Substring_with_one_arg_with_zero_startindex(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.Substring(0) == "ALFKI")
+                    .Select(c => c.ContactName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Substring_with_one_arg_with_constant(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.Substring(1) == "LFKI")
+                    .Select(c => c.ContactName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Substring_with_one_arg_with_closure(bool async)
+        {
+            var start = 2;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.Substring(start) == "FKI")
+                    .Select(c => c.ContactName));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Substring_with_two_args_with_zero_startindex(bool async)
         {
             return AssertQuery(
                 async,
@@ -1331,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Substring_with_zero_length(bool async)
+        public virtual Task Substring_with_two_args_with_zero_length(bool async)
         {
             return AssertQuery(
                 async,
@@ -1340,7 +1375,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Substring_with_constant(bool async)
+        public virtual Task Substring_with_two_args_with_constant(bool async)
         {
             return AssertQuery(
                 async,
@@ -1349,7 +1384,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Substring_with_closure(bool async)
+        public virtual Task Substring_with_two_args_with_closure(bool async)
         {
             var start = 2;
 
@@ -1360,7 +1395,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Substring_with_Index_of(bool async)
+        public virtual Task Substring_with_two_args_with_Index_of(bool async)
         {
             return AssertQuery(
                 async,

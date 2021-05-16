@@ -29,5 +29,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public virtual ICollection<EntityOne> OneSkipShared { get; set; }
 
         public virtual ICollection<EntityCompositeKey> CompositeKeySkipShared { get; set; }
+
+        public virtual int? ExtraId { get; set; }
+        public virtual JoinOneToTwoExtra Extra { get; set; }
     }
 }

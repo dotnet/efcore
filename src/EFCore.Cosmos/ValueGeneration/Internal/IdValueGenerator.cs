@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                 && !primaryKey.Properties.Contains(entityType.FindDiscriminatorProperty()))
             {
                 AppendString(builder, discriminator);
-                builder.Append("|");
+                builder.Append('|');
             }
 
             var partitionKey = entityType.GetPartitionKeyPropertyName();
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
 
                 AppendString(builder, value);
 
-                builder.Append("|");
+                builder.Append('|');
             }
 
             builder.Remove(builder.Length - 1, 1);
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                     foreach (var item in enumerable)
                     {
                         builder.Append(item.ToString()!.Replace("|", "^|"));
-                        builder.Append("|");
+                        builder.Append('|');
                     }
 
                     return;
