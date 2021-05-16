@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     continue;
                 }
 
-                if(property.IsNullable && entry.GetCurrentValue(property) is not null)
+                if(entry.GetCurrentValue(property) is not null)
                 {
                     nullableWithNull = false;
                 }

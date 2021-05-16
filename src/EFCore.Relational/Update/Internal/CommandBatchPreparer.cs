@@ -184,7 +184,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                     ModificationCommand command;
                     var isMainEntry = true;
-                    var isOptionalWithAllNull = true;
                     if (table.IsShared)
                     {
                         if (sharedTablesCommandsMap == null)
@@ -202,11 +201,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             entry,
                             (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
-                        isOptionalWithAllNull = sharedCommandsMap.IsOptionalWithNull(entry);
 
-                        if (!isMainEntry && isOptionalWithAllNull)
+                        if (!isMainEntry)
                         {
-                            Dependencies.UpdateLogger.OptionalDependentWithAllNullPropertiesWarning(entry.EntityType);
+                            if(sharedCommandsMap.IsOptionalWithNull(entry))
+                            {
+                                Dependencies.UpdateLogger.OptionalDependentWithAllNullPropertiesWarning(entry.EntityType);
+                            }
                         }
                     }
                     else
