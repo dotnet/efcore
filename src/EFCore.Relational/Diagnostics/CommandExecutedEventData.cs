@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="logParameterValues"> Indicates whether or not the application allows logging of parameter values. </param>
         /// <param name="startTime"> The start time of this event. </param>
         /// <param name="duration"> The duration this event. </param>
+        [Obsolete("Use the overload with CommandSource")]
         public CommandExecutedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

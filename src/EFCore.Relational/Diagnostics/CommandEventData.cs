@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
         /// <param name="logParameterValues"> Indicates whether or not the application allows logging of parameter values. </param>
         /// <param name="startTime"> The start time of this event. </param>
+        [Obsolete("Use the overload with CommandSource")]
         public CommandEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

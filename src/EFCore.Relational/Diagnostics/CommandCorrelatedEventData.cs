@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
         /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
         /// <param name="startTime"> The start time of this event. </param>
+        [Obsolete("Use the overload with CommandSource")]
         public CommandCorrelatedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,
