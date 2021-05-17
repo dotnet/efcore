@@ -31,6 +31,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 [dbo].[Ten Most Expensive Products]");
         }
 
+        public override async Task From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
+        {
+            await base.From_sql_queryable_stored_procedure_with_caller_info_tag(async);
+
+            AssertSql(
+                @"-- file: SampleFileName:13
+
+[dbo].[Ten Most Expensive Products]");
+        }
+
         public override async Task From_sql_queryable_stored_procedure_with_parameter(bool async)
         {
             await base.From_sql_queryable_stored_procedure_with_parameter(async);

@@ -194,6 +194,13 @@ namespace System
             return method;
         }
 
+        public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name, Func<MethodInfo, bool> methodSelector)
+        {
+            var method = type.GetTypeInfo().GetDeclaredMethods(name).Single(methodSelector);
+
+            return method;
+        }
+
         public static PropertyInfo GetRequiredDeclaredProperty(this Type type, string name)
         {
             var property = type.GetTypeInfo().GetDeclaredProperty(name);
