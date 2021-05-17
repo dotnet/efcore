@@ -54,12 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Type targetClrType,
             InversePropertyAttribute attribute)
         {
-            var entityType = (EntityType)entityTypeBuilder.Metadata;
-            var navigationName = navigationMemberInfo.GetSimpleMemberName();
-            if (entityTypeBuilder.IsIgnored(navigationName, fromDataAnnotation: true)
-                || entityType.FindPropertiesInHierarchy(navigationName).Cast<IConventionPropertyBase>()
-                    .Concat(entityType.FindServicePropertiesInHierarchy(navigationName))
-                    .Any(m => !ConfigurationSource.DataAnnotation.Overrides(m.GetConfigurationSource())))
+            if (!entityTypeBuilder.CanHaveNavigation(navigationMemberInfo, fromDataAnnotation: true))
             {
                 return;
             }
@@ -87,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
-                || !Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo)!
+                || !Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityTypeBuilder.Metadata)[inverseNavigationPropertyInfo]
                     .IsAssignableFrom(entityType.ClrType))
             {
                 throw new InvalidOperationException(
@@ -306,10 +301,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
+            var navigationName = navigationMemberInfo.GetSimpleMemberName();
             var leastDerivedEntityTypes = modelBuilder.Metadata.FindLeastDerivedEntityTypes(declaringType);
             foreach (var leastDerivedEntityType in leastDerivedEntityTypes)
             {
-                if (leastDerivedEntityType.Builder.IsIgnored(navigationMemberInfo.GetSimpleMemberName(), fromDataAnnotation: true))
+                if (leastDerivedEntityType.Builder.IsIgnored(navigationName, fromDataAnnotation: true))
                 {
                     continue;
                 }

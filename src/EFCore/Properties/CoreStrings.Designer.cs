@@ -2670,6 +2670,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression, details);
 
         /// <summary>
+        ///     The type '{type}' has been configured as '{typeConfiguration}', this conflicts with type '{otherType}' configured as '{otherTypeConfiguration}'. All base types and implemented interfaces must have the same configuration type.
+        /// </summary>
+        public static string TypeConfigurationConflict(object? type, object? typeConfiguration, object? otherType, object? otherTypeConfiguration)
+            => string.Format(
+                GetString("TypeConfigurationConflict", nameof(type), nameof(typeConfiguration), nameof(otherType), nameof(otherTypeConfiguration)),
+                type, typeConfiguration, otherType, otherTypeConfiguration);
+
+        /// <summary>
         ///     The type '{type}' has not been configured as a shared type in the model. Before calling 'UsingEntity' add the entity type in the model as a shared entity.
         /// </summary>
         public static string TypeNotMarkedAsShared(object? type)
@@ -2692,6 +2700,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnableToSetIsUnique", nameof(isUnique), "1_navigationName", "2_entityType"),
                 isUnique, navigationName, entityType);
+
+        /// <summary>
+        ///     The type '{type}' cannot be configured as '{configuration}'. The current model building logic is unable to honor this configuration.
+        /// </summary>
+        public static string UnconfigurableType(object? type, object? configuration)
+            => string.Format(
+                GetString("UnconfigurableType", nameof(type), nameof(configuration)),
+                type, configuration);
 
         /// <summary>
         ///     Unhandled expression node type '{nodeType}'.

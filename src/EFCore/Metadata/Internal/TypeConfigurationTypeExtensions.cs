@@ -1,9 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Reflection;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
@@ -12,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static class TypeBaseExtensions
+    public static class TypeConfigurationTypeExtensions
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,8 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties(this IReadOnlyTypeBase type)
-            => ((TypeBase)type).GetRuntimeProperties();
+        public static bool? IsEntityType(this TypeConfigurationType? configurationType)
+            => configurationType == null
+                ? null
+                : configurationType.Value.IsEntityType();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields(this IReadOnlyTypeBase type)
-            => ((TypeBase)type).GetRuntimeFields();
+        public static bool IsEntityType(this TypeConfigurationType configurationType)
+            => configurationType == TypeConfigurationType.EntityType
+                || configurationType == TypeConfigurationType.SharedTypeEntityType
+                || configurationType == TypeConfigurationType.OwnedEntityType;
     }
 }

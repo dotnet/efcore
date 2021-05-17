@@ -333,8 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="typeName"> The name of the entity type that could be ignored. </param>
         /// <returns> <see langword="true" /> if the given entity type name is ignored. </returns>
-        bool IsIgnored(string typeName)
-            => FindIgnoredConfigurationSource(typeName) != null;
+        bool IsIgnored(string typeName);
 
         /// <summary>
         ///     Indicates whether the given entity type is ignored.
@@ -342,6 +341,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The entity type that might be ignored. </param>
         /// <returns> <see langword="true" /> if the given entity type is ignored. </returns>
         bool IsIgnored(Type type);
+
+        /// <summary>
+        ///     Indicates whether entity types and properties with the given type should be ignored.
+        ///     This configuration is independent from <see cref="IsIgnored(Type)"/>
+        /// </summary>
+        /// <param name="type"> The entity type that might be ignored. </param>
+        /// <returns> <see langword="true" /> if the given entity type is ignored. </returns>
+        bool IsIgnoredType(Type type);
 
         /// <summary>
         ///     Indicates whether the given entity type name is ignored.

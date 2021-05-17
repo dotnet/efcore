@@ -1457,6 +1457,9 @@
   <data name="TranslationFailedWithDetails" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated. Additional information: {details} Either rewrite the query in a form that can be translated, or switch to client evaluation explicitly by inserting a call to 'AsEnumerable', 'AsAsyncEnumerable', 'ToList', or 'ToListAsync'. See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.</value>
   </data>
+  <data name="TypeConfigurationConflict" xml:space="preserve">
+    <value>The type '{type}' has been configured as '{typeConfiguration}', this conflicts with type '{otherType}' configured as '{otherTypeConfiguration}'. All base types and implemented interfaces must have the same configuration type.</value>
+  </data>
   <data name="TypeNotMarkedAsShared" xml:space="preserve">
     <value>The type '{type}' has not been configured as a shared type in the model. Before calling 'UsingEntity' add the entity type in the model as a shared entity.</value>
   </data>
@@ -1465,6 +1468,9 @@
   </data>
   <data name="UnableToSetIsUnique" xml:space="preserve">
     <value>Unable to set 'IsUnique' to '{isUnique}' on the relationship associated with the navigation '{2_entityType}.{1_navigationName}' because the navigation has the opposite multiplicity.</value>
+  </data>
+  <data name="UnconfigurableType" xml:space="preserve">
+    <value>The type '{type}' cannot be configured as '{configuration}'. The current model building logic is unable to honor this configuration.</value>
   </data>
   <data name="UnhandledExpressionNode" xml:space="preserve">
     <value>Unhandled expression node type '{nodeType}'.</value>

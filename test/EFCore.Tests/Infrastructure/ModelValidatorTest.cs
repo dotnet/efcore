@@ -1111,7 +1111,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_duplicate_seeds(bool sensitiveDataLoggingEnabled)
         {
-            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
             modelBuilder.Entity<A>().HasData(
                 new A { Id = 1 });
             modelBuilder.Entity<D>().HasData(
@@ -1130,7 +1130,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_incompatible_values(bool sensitiveDataLoggingEnabled)
         {
-            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
             modelBuilder.Entity<A>(
                 e =>
                 {
@@ -1151,7 +1151,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_reference_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
-            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
             modelBuilder.Entity<SampleEntity>(
                 e =>
                 {
@@ -1181,7 +1181,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_reference_navigations_in_seeds2(bool sensitiveDataLoggingEnabled)
         {
-            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
             modelBuilder.Entity<Order>(
                 e =>
                 {
@@ -1213,7 +1213,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [InlineData(false)]
         public virtual void Detects_collection_navigations_in_seeds(bool sensitiveDataLoggingEnabled)
         {
-            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled);
+            var modelBuilder = CreateConventionalModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
             modelBuilder.Entity<SampleEntity>(
                 e =>
                 {

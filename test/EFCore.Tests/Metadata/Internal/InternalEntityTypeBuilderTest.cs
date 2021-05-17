@@ -2199,22 +2199,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKeyBuilder = dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);
 
-            Assert.True(dependentEntityBuilder.CanHaveNavigation(Order.CustomerProperty.Name, ConfigurationSource.Convention));
+            Assert.True(dependentEntityBuilder.CanHaveNavigation(
+                Order.CustomerProperty.Name, Order.CustomerProperty.GetMemberType(), ConfigurationSource.Convention));
 
             foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
                 Order.CustomerProperty.Name,
                 pointsToPrincipal: true,
                 ConfigurationSource.DataAnnotation);
 
-            Assert.True(dependentEntityBuilder.CanHaveNavigation(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
-            Assert.True(principalEntityBuilder.CanHaveNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
+            Assert.True(dependentEntityBuilder.CanHaveNavigation(
+                Order.CustomerProperty.Name, Order.CustomerProperty.GetMemberType(), ConfigurationSource.Explicit));
+            Assert.True(principalEntityBuilder.CanHaveNavigation(
+                Customer.OrdersProperty.Name, Customer.OrdersProperty.GetMemberType(), ConfigurationSource.Convention));
 
             foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
                 Customer.OrdersProperty.Name,
                 pointsToPrincipal: false,
                 ConfigurationSource.DataAnnotation);
 
-            Assert.True(principalEntityBuilder.CanHaveNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
+            Assert.True(principalEntityBuilder.CanHaveNavigation(
+                Customer.OrdersProperty.Name, Customer.OrdersProperty.GetMemberType(), ConfigurationSource.Explicit));
 
             var newForeignKeyBuilder = dependentEntityBuilder
                 .HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention).HasNavigation(

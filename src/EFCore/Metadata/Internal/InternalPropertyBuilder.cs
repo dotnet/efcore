@@ -459,6 +459,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (CanSetConversion(converter, configurationSource))
             {
+                Metadata.SetProviderClrType(null, configurationSource);
                 Metadata.SetValueConverter(converter, configurationSource);
 
                 return this;
@@ -476,11 +477,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool CanSetConversion(
             ValueConverter? converter,
             ConfigurationSource? configurationSource)
-            => configurationSource == ConfigurationSource.Explicit
+            => (configurationSource == ConfigurationSource.Explicit
                 || (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
                     && Metadata.CheckValueConverter(converter) == null)
                 || (Metadata[CoreAnnotationNames.ValueConverterType] == null
-                    && (ValueConverter?)Metadata[CoreAnnotationNames.ValueConverter] == converter);
+                    && (ValueConverter?)Metadata[CoreAnnotationNames.ValueConverter] == converter))
+                && configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -492,6 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (CanSetConversion(providerClrType, configurationSource))
             {
+                Metadata.SetValueConverter((ValueConverter?)null, configurationSource);
                 Metadata.SetProviderClrType(providerClrType, configurationSource);
 
                 return this;
@@ -507,8 +510,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetConversion(Type? providerClrType, ConfigurationSource? configurationSource)
-            => configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
-                || Metadata.GetProviderClrType() == providerClrType;
+            => (configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
+                || Metadata.GetProviderClrType() == providerClrType)
+                && configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource());
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -520,6 +524,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (CanSetConverter(converterType, configurationSource))
             {
+                Metadata.SetProviderClrType(null, configurationSource);
                 Metadata.SetValueConverter(converterType, configurationSource);
 
                 return this;

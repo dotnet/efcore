@@ -84,7 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     if (mapping == null)
                     {
                         var sourceType = info.ClrType;
-
                         if (sourceType != null)
                         {
                             foreach (var converterInfo in Dependencies

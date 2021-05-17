@@ -672,7 +672,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         removeOppositeNavigation = true;
                     }
-                    else if (!dependentEntityType.Builder.CanHaveNavigation(navigationToPrincipalName, configurationSource))
+                    else if ((configurationSource != ConfigurationSource.Explicit || !shouldThrow)
+                        && (!configurationSource.HasValue
+                            || !dependentEntityType.Builder.CanAddNavigation(
+                                navigationToPrincipalName, navigationToPrincipal.Value.MemberInfo?.GetMemberType(), configurationSource.Value)))
                     {
                         return false;
                     }
@@ -702,7 +705,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         removeOppositeNavigation = true;
                     }
-                    else if (!principalEntityType.Builder.CanHaveNavigation(navigationToDependentName, configurationSource))
+                    else if ((configurationSource != ConfigurationSource.Explicit || !shouldThrow)
+                        && (!configurationSource.HasValue
+                            || !principalEntityType.Builder.CanAddNavigation(
+                                navigationToDependentName, navigationToDependent.Value.MemberInfo?.GetMemberType(), configurationSource.Value)))
                     {
                         return false;
                     }
@@ -804,8 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             conflictingNavigationsFound = compatibleRelationship != null
                 || resolvableRelationships.Any(
-                    r =>
-                        (r.Resolution & (Resolution.ResetToDependent | Resolution.ResetToPrincipal)) != 0);
+                    r => (r.Resolution & (Resolution.ResetToDependent | Resolution.ResetToPrincipal)) != 0);
 
             if (shouldBeUnique == null
                 && (Metadata.IsUnique || configurationSource.OverridesStrictly(Metadata.GetIsUniqueConfigurationSource()))

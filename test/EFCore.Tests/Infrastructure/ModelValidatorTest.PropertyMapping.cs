@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -58,12 +59,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Throws_when_nonprimitive_value_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder();
-            modelBuilder.Entity(typeof(NonPrimitiveValueTypePropertyEntity));
+            modelBuilder.Entity(typeof(NonPrimitiveValueTypePropertyEntity)).HasNoKey();
 
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(
                     typeof(NonPrimitiveValueTypePropertyEntity).ShortDisplayName(), "Property", typeof(CancellationToken).Name),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Does_not_throw_when_nonprimitive_value_type_property_type_is_ignored()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder(
+                configurationBuilder => configurationBuilder.IgnoreAny<CancellationToken>());
+            modelBuilder.Entity(typeof(NonPrimitiveValueTypePropertyEntity)).HasNoKey();
+
+            Validate(modelBuilder);
         }
 
         [ConditionalFact]
@@ -141,6 +152,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Does_not_throw_when_navigation_type_is_ignored()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder(
+                configurationBuilder => configurationBuilder.IgnoreAny<PrimitivePropertyEntity>());
+            modelBuilder.Entity(typeof(NavigationEntity)).HasNoKey();
+
+            Validate(modelBuilder);
+        }
+
+        [ConditionalFact]
         public virtual void Does_not_throw_when_navigation_target_entity_is_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder();
@@ -171,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Throws_when_interface_type_property_is_not_added_or_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder();
-            modelBuilder.Entity(typeof(InterfaceNavigationEntity));
+            modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
 
             Assert.Equal(
                 CoreStrings.InterfacePropertyNotAdded(
@@ -179,6 +200,36 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "Navigation",
                     typeof(IList<INavigationEntity>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Does_not_throw_when_interface_collection_type_property_type_is_ignored()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder(
+                configurationBuilder => configurationBuilder.IgnoreAny<INavigationEntity>());
+            modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
+
+            Validate(modelBuilder);
+        }
+
+        [ConditionalFact]
+        public virtual void Does_not_throw_when_interface_generic_type_property_type_is_ignored()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder(
+                configurationBuilder => configurationBuilder.IgnoreAny(typeof(IList<>)));
+            modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
+
+            Validate(modelBuilder);
+        }
+
+        [ConditionalFact]
+        public virtual void Does_not_throw_when_interface_base_type_property_type_is_ignored()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder(
+                configurationBuilder => configurationBuilder.IgnoreAny<IEnumerable>());
+            modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
+
+            Validate(modelBuilder);
         }
 
         [ConditionalFact]
