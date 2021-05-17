@@ -3,12 +3,10 @@
 
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -79,12 +77,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var model = (IMutableModel)new Model();
-            var property = model.AddEntityType("MyType").AddProperty("MyProp", typeof(string));
-            property.IsNullable = nullable;
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
 
-            RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>()
-                .Initialize(model.FinalizeModel(), designTime: false, validationLogger: null);
+            modelBuilder.Entity("MyType").Property<string>("MyProp").IsRequired(!nullable);
+
+            var model = modelBuilder.FinalizeModel(designTime: false, skipValidation: true);
+
+            var property = model.GetEntityTypes().Single().FindProperty("MyProp");
 
             var parameterBuilder = new RelationalCommandBuilder(
                 new RelationalCommandBuilderDependencies(typeMapper));

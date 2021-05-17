@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             Assert.Equal(
                 CoreStrings.EntityRequiresKey("Order (Dictionary<string, object>)"),
-                Assert.Throws<InvalidOperationException>(() => InMemoryTestHelpers.Instance.Finalize(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
         [ConditionalFact]
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             Assert.Equal(
                 CoreStrings.EntityRequiresKey("Customer (Dictionary<string, object>)"),
-                Assert.Throws<InvalidOperationException>(() => InMemoryTestHelpers.Instance.Finalize(modelBuilder)).Message);
+                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
         [ConditionalFact]
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Throws<InvalidOperationException>(() => orderEntityType.HasOne(typeof(Customer), "CustomerNavigation")).Message);
         }
 
-        protected virtual ModelBuilder CreateModelBuilder()
+        protected virtual TestHelpers.TestModelBuilder CreateModelBuilder()
             => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         protected class Order

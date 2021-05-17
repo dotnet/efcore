@@ -438,6 +438,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Override this method to set defaults and configure conventions before they run. This method is invoked before
+        ///     <see cref="OnModelCreating"/>.
+        /// </summary>
+        /// <remarks>
+        ///     If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)" />)
+        ///     then this method will not be run.
+        /// </remarks>
+        /// <param name="configurationBuilder">
+        ///     The builder being used to set defaults and configure conventions that will be used to build the model for this context.
+        /// </param>
+        protected internal virtual void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+        }
+
+        /// <summary>
         ///     Override this method to further configure the model that was discovered by convention from the entity types
         ///     exposed in <see cref="DbSet{TEntity}" /> properties on your derived context. The resulting model may be cached
         ///     and re-used for subsequent instances of your derived context.

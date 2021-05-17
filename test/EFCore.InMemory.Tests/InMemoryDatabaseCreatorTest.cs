@@ -126,27 +126,5 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
             public string Name { get; set; }
         }
-
-        private static IModel CreateModel()
-        {
-            var modelBuilder = new ModelBuilder();
-
-            modelBuilder.Entity<Test>(
-                b =>
-                {
-                    b.HasKey(c => c.Id);
-                    b.Property(c => c.Name);
-
-                    b.HasData(new Test { Id = 1 });
-                });
-
-            return modelBuilder.FinalizeModel();
-        }
-
-        private class Test
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-        }
     }
 }

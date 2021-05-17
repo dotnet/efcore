@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -73,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(index.GetFilter());
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
 
         public class SqlServerGenericInheritance : GenericInheritance
@@ -258,26 +259,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
 
         public class SqlServerGenericOneToMany : GenericOneToMany
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
 
         public class SqlServerGenericManyToOne : GenericManyToOne
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
 
         public class SqlServerGenericOneToOne : GenericOneToOne
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
 
         public class SqlServerGenericManyToMany : GenericManyToMany
@@ -338,8 +339,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
 
         public class SqlServerGenericOwnedTypes : GenericOwnedTypes
@@ -699,8 +700,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey().Properties.Single().Name);
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(SqlServerTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
     }
 }

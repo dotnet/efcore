@@ -199,7 +199,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.DebugAssert(context != null, "context == null");
 
-            var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet(), modelDependencies);
+            var modelConfigurationBuilder = new ModelConfigurationBuilder(conventionSetBuilder.CreateConventionSet());
+
+            context.ConfigureConventions(modelConfigurationBuilder);
+
+            var modelBuilder = modelConfigurationBuilder.CreateModelBuilder(modelDependencies);
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 

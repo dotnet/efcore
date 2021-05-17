@@ -128,11 +128,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
             var modelBuilder = CreateModelBuilder();
-            var idProperty = modelBuilder.Entity<Customer>().Property(e => e.Id).Metadata;
-            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
+            modelBuilder.Entity<Customer>().Property(e => e.Id);
+            var model = modelBuilder.FinalizeModel();
+
+            var idProperty = model.FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Id));
 
             Assert.Equal(
-                7, new ClrPropertyGetterFactory().Create((IPropertyBase)idProperty).GetClrValue(
+                7, new ClrPropertyGetterFactory().Create(idProperty).GetClrValue(
                     new Customer { Id = 7 }));
         }
 
@@ -150,7 +152,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Customer>().Property(e => e.Id);
             var fuelProperty = modelBuilder.Entity<Customer>().Property(e => e.Fuel).Metadata;
-            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
+            modelBuilder.FinalizeModel();
 
             Assert.Equal(
                 new Fuel(1.0),
@@ -174,13 +176,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             modelBuilder.Entity<IndexedClass>().Property(e => e.Id);
             var propertyA = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyA", typeof(string));
             var propertyB = modelBuilder.Entity<IndexedClass>().Metadata.AddIndexerProperty("PropertyB", typeof(int));
-            InMemoryTestHelpers.Instance.Finalize(modelBuilder);
+            modelBuilder.FinalizeModel();
 
             Assert.Equal("ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
             Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValue(new IndexedClass { Id = 7 }));
         }
 
-        private static ModelBuilder CreateModelBuilder()
+        private static TestHelpers.TestModelBuilder CreateModelBuilder()
             => InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
         private class Customer

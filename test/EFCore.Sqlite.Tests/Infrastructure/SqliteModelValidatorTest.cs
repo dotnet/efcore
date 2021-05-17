@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(Animal), nameof(Animal.Id),
                     nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
-                modelBuilder.Model);
+                modelBuilder);
         }
 
         public override void Detects_duplicate_columns_in_derived_types_with_different_types()
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder.Model);
+                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 SqliteStrings.DuplicateColumnNameSridMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
         }
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder.Model);
+                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyWarning(
                 SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"),
-                modelBuilder.Model);
+                modelBuilder);
         }
 
         [ConditionalFact]
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyWarning(
                 SqliteResources.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"),
-                modelBuilder.Model);
+                modelBuilder);
         }
 
         protected override TestHelpers TestHelpers
