@@ -2563,11 +2563,15 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo TagWithMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 2);
+                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 2
+                    && mi.GetParameters().Select(p => p.ParameterType)
+                        .SequenceEqual(new Type[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string) }));
 
         internal static readonly MethodInfo TagWithCallerInfoMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 3);
+                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 3
+                    && mi.GetParameters().Select(p => p.ParameterType)
+                        .SequenceEqual(new Type[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string), typeof(int) }));
 
         /// <summary>
         ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations
