@@ -17,8 +17,8 @@ Add-Migration
 Drop-Database
 Get-DbContext
 Get-Migration
-Remove-Migration
 Optimize-DbContext
+Remove-Migration
 Scaffold-DbContext
 Script-Migration
 Update-Database

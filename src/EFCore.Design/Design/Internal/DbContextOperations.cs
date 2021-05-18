@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IReadOnlyList<string> Optimize(string? outputDir, string? modelNamespace, string? contextType)
+        public virtual void Optimize(string? outputDir, string? modelNamespace, string? contextType)
         {
             using var context = CreateContext(contextType);
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
 
-            var scaffoldedModel = scaffolder.ScaffoldModel(
+            scaffolder.ScaffoldModel(
                 context.GetService<IDesignTimeModel>().Model,
                 outputDir,
                 new CompiledModelCodeGenerationOptions
@@ -175,8 +175,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 _reporter.WriteWarning(DesignStrings.CompiledModelCustomCacheKeyFactory(cacheKeyFactory.GetType().ShortDisplayName()));
             }
-
-            return scaffoldedModel;
         }
 
         private string? GetNamespaceFromOutputPath(string directoryPath)

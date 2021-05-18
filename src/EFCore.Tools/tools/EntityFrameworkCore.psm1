@@ -370,11 +370,9 @@ function Remove-Migration
 #
 
 Register-TabExpansion Optimize-DbContext @{
-    Provider = { param($x) GetProviders $x.Project }
     Project = { GetProjects }
     StartupProject = { GetProjects }
     OutputDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
-    ContextDir = { <# Disabled. Otherwise, paths would be relative to the solution directory. #> }
 }
 
 <#
