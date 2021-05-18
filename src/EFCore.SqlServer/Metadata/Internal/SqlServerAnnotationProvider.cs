@@ -41,8 +41,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IRelationalModel model)
+        public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
         {
+            if (!designTime)
+            {
+                yield break;
+            }
+
             var maxSize = model.Model.GetDatabaseMaxSize();
             var serviceTier = model.Model.GetServiceTierSql();
             var performanceLevel = model.Model.GetPerformanceLevelSql();
@@ -90,8 +95,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(ITable table)
+        public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
         {
+            if (!designTime)
+            {
+                yield break;
+            }
+
             // Model validation ensures that these facets are the same on all mapped entity types
             if (table.EntityTypeMappings.First().EntityType.IsMemoryOptimized())
             {
@@ -105,8 +115,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IUniqueConstraint constraint)
+        public override IEnumerable<IAnnotation> For(IUniqueConstraint constraint, bool designTime)
         {
+            if (!designTime)
+            {
+                yield break;
+            }
+
             // Model validation ensures that these facets are the same on all mapped keys
             var key = constraint.MappedKeys.First();
 
@@ -124,19 +139,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(ITableIndex index)
+        public override IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
         {
+            if (!designTime)
+            {
+                yield break;
+            }
+
             // Model validation ensures that these facets are the same on all mapped indexes
             var modelIndex = index.MappedIndexes.First();
-
-            var table = index.Table;
-
-            if (modelIndex.IsClustered(StoreObjectIdentifier.Table(table.Name, table.Schema)) is bool isClustered)
+            var table = StoreObjectIdentifier.Table(index.Table.Name, index.Table.Schema);
+            if (modelIndex.IsClustered(table) is bool isClustered)
             {
                 yield return new Annotation(SqlServerAnnotationNames.Clustered, isClustered);
             }
 
-            if (modelIndex.GetIncludeProperties() is IReadOnlyList<string> includeProperties)
+            if (modelIndex.GetIncludeProperties(table) is IReadOnlyList<string> includeProperties)
             {
                 var includeColumns = includeProperties
                     .Select(
@@ -149,12 +167,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                     includeColumns);
             }
 
-            if (modelIndex.IsCreatedOnline() is bool isOnline)
+            if (modelIndex.IsCreatedOnline(table) is bool isOnline)
             {
                 yield return new Annotation(SqlServerAnnotationNames.CreatedOnline, isOnline);
             }
 
-            if (modelIndex.GetFillFactor() is int fillFactor)
+            if (modelIndex.GetFillFactor(table) is int fillFactor)
             {
                 yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
             }
@@ -166,12 +184,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IColumn column)
+        public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
         {
+            if (!designTime)
+            {
+                yield break;
+            }
+
             var table = StoreObjectIdentifier.Table(column.Table.Name, column.Table.Schema);
             var identityProperty = column.PropertyMappings.Where(
-                    m =>
-                        m.TableMapping.IsSharedTablePrincipal && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
+                    m => m.TableMapping.IsSharedTablePrincipal && m.TableMapping.EntityType == m.Property.DeclaringEntityType)
                 .Select(m => m.Property)
                 .FirstOrDefault(
                     p => p.GetValueGenerationStrategy(table)

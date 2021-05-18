@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -18,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <returns> <see langword="true" /> if the key is clustered. </returns>
         public static bool? IsClustered(this IReadOnlyKey key)
-            => (bool?)key[SqlServerAnnotationNames.Clustered];
+            => key is RuntimeKey
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)key[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
         ///     Returns a value indicating whether the key is clustered.
@@ -28,6 +32,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the key is clustered. </returns>
         public static bool? IsClustered(this IReadOnlyKey key, in StoreObjectIdentifier storeObject)
         {
+            if (key is RuntimeKey)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
             var annotation = key.FindAnnotation(SqlServerAnnotationNames.Clustered);
             if (annotation != null)
             {

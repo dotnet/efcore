@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -21,20 +22,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private readonly bool _isCyclic;
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Initializes a new instance of the <see cref="RuntimeSequence"/> class.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="name"> The sequence name. </param>
+        /// <param name="model"> The model. </param>
+        /// <param name="type"> The type of values generated. </param>
+        /// <param name="schema"> The schema. </param>
+        /// <param name="startValue"> The initial value. </param>
+        /// <param name="incrementBy"> The value increment. </param>
+        /// <param name="cyclic"> Whether the sequence is cyclic. </param>
+        /// <param name="minValue"> The minimum value. </param>
+        /// <param name="maxValue"> The maximum value. </param>
         public RuntimeSequence(
             string name,
-            string? schema,
             RuntimeModel model,
             Type type,
-            long startValue,
-            int incrementBy,
-            bool cyclic,
+            string? schema = null,
+            long startValue = Sequence.DefaultStartValue,
+            int incrementBy = Sequence.DefaultIncrementBy,
+            bool cyclic = false,
             long? minValue = null,
             long? maxValue = null)
         {

@@ -2240,7 +2240,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             isOwnership ??= !oldRelationshipInverted
                 && (Metadata.GetIsOwnershipConfigurationSource()?.Overrides(configurationSource) ?? false)
                     ? Metadata.IsOwnership
-                    : (bool?)null;
+                    : null;
 
             deleteBehavior ??= ((Metadata.GetDeleteBehaviorConfigurationSource()?.Overrides(configurationSource) ?? false)
                 ? Metadata.DeleteBehavior

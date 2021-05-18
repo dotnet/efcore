@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -24,13 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string name,
             Table table,
             IReadOnlyList<Column> columns,
-            string? filter,
             bool unique)
         {
             Name = name;
             Table = table;
             Columns = columns;
-            Filter = filter;
             IsUnique = unique;
         }
 
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool IsUnique { get; }
 
         /// <inheritdoc />
-        public virtual string? Filter { get; }
+        public virtual string? Filter => MappedIndexes.First().GetFilter(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

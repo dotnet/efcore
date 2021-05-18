@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         long? MaxValue { get; }
 
         /// <summary>
-        ///     Gets the <see cref="Type" /> of values returned by the sequence.
+        ///     Gets the type of values returned by the sequence.
         /// </summary>
         Type Type { get; }
 

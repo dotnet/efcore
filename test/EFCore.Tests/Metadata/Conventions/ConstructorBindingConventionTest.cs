@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(
                 CoreStrings.ConstructorConflict(
                     "BlogConflict(string, int)",
-                    "BlogConflict(string, Nullable<Guid>)"),
+                    "BlogConflict(string, Guid?)"),
                 Assert.Throws<InvalidOperationException>(
                     () => GetBinding<BlogConflict>()).Message);
         }
@@ -681,11 +681,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var constructors = new[]
             {
                 CoreStrings.ConstructorBindingFailed("did", "BlogNone(string title, int did)"),
-                CoreStrings.ConstructorBindingFailed("notTitle", "BlogNone(string notTitle, Nullable<Guid> shadow, int id)"),
-                CoreStrings.ConstructorBindingFailed("dummy", "BlogNone(string title, Nullable<Guid> shadow, bool dummy, int id)"),
+                CoreStrings.ConstructorBindingFailed("notTitle", "BlogNone(string notTitle, Guid? shadow, int id)"),
+                CoreStrings.ConstructorBindingFailed("dummy", "BlogNone(string title, Guid? shadow, bool dummy, int id)"),
                 CoreStrings.ConstructorBindingFailed(
                     "dummy', 'description",
-                    "BlogNone(string title, Nullable<Guid> shadow, bool dummy, int id, string description)")
+                    "BlogNone(string title, Guid? shadow, bool dummy, int id, string description)")
             };
 
             Assert.Equal(

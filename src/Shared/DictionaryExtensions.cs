@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 #nullable enable
 
@@ -30,6 +31,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             this IReadOnlyDictionary<TKey, TValue> source,
             TKey key)
             => !source.TryGetValue(key, out var value) ? default : value;
+
+        public static bool TryGetAndRemove<TKey, TValue, TReturn>(
+            this IDictionary<TKey, TValue> source,
+            TKey key,
+            [NotNullWhen(true)] out TReturn annotationValue)
+        {
+            if (source.TryGetValue(key, out var value)
+                && value != null)
+            {
+                source.Remove(key);
+                annotationValue = (TReturn)(object)value;
+                return true;
+            }
+
+            annotationValue = default!;
+            return false;
+        }
 
         public static void Remove<TKey, TValue>(
             this IDictionary<TKey, TValue> source,

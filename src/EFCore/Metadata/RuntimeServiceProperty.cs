@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -98,11 +97,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             [DebuggerStepThrough]
             get => DeclaringEntityType;
         }
-
-        /// <inheritdoc />
-        [DebuggerStepThrough]
-        PropertyAccessMode IReadOnlyPropertyBase.GetPropertyAccessMode()
-            => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
-                ?? PropertyAccessMode.PreferField);
     }
 }

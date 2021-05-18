@@ -2149,7 +2149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = CreateModel();
             var entityType = model.AddEntityType(typeof(Customer));
             var property = entityType.AddIndexerProperty("Nation", typeof(string));
-            var itemProperty = entityType.AddProperty("Item", typeof(string));
+            entityType.AddProperty("Item", typeof(string));
             var indexerPropertyInfo = typeof(Customer).GetRuntimeProperty("Item");
             Assert.NotNull(indexerPropertyInfo);
 
@@ -3075,7 +3075,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public string Mane { get; set; }
 
             public object this[string name]
-                => null;
+            {
+                get => null;
+                set { }
+            }
 
             public ICollection<Order> Orders { get; set; }
             public ICollection<Order> MoreOrders { get; set; }

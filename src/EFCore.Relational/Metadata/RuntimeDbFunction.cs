@@ -33,31 +33,39 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private IStoreFunction? _storeFunction;
 
         /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        ///     Initializes a new instance of the <see cref="RuntimeDbFunction"/> class.
         /// </summary>
-        [EntityFrameworkInternal]
+        /// <param name="modelName"> The model name. </param>
+        /// <param name="model"> The model. </param>
+        /// <param name="returnType"> The return type. </param>
+        /// <param name="storeName"> The store name. </param>
+        /// <param name="schema"> The store schema. </param>
+        /// <param name="storeType"> The store type. </param>
+        /// <param name="methodInfo"> The mapped <see cref="MethodInfo"/>. </param>
+        /// <param name="scalar"> Whether the return type is scalar. </param>
+        /// <param name="aggregate"> Whether the function is an aggregate. </param>
+        /// <param name="nullable"> Whether the function is nullable. </param>
+        /// <param name="builtIn"> Whether the function is built-in. </param>
+        /// <param name="typeMapping"> The type mapping for the return value. </param>
+        /// <param name="translation"> The function translation. </param>
         public RuntimeDbFunction(
             string modelName,
             RuntimeModel model,
-            MethodInfo? methodInfo,
             Type returnType,
-            bool scalar,
-            bool aggregate,
-            bool nullable,
-            bool builtIn,
             string storeName,
-            string? schema,
-            string? storeType,
+            string? schema = null,
+            string? storeType = null,
+            MethodInfo? methodInfo = null,
+            bool scalar = false,
+            bool aggregate = false,
+            bool nullable = false,
+            bool builtIn = false,
             RelationalTypeMapping? typeMapping = null,
             Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation = null)
         {
             ModelName = modelName;
             Model = model;
             _returnType = returnType;
-            _methodInfo = methodInfo;
             _isScalar = scalar;
             _isAggregate = aggregate;
             _isNullable = nullable;
@@ -65,6 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             _storeName = storeName;
             _schema = schema;
             _storeType = storeType;
+            _methodInfo = methodInfo;
             _typeMapping = typeMapping;
             _translation = translation;
         }
@@ -78,6 +87,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the name of the function in the model.
         /// </summary>
         public virtual string ModelName { get; }
+
+        /// <summary>
+        ///     Gets or sets the type mapping for the function's return type.
+        /// </summary>
+        /// <returns> The type mapping. </returns>
+        public virtual RelationalTypeMapping? TypeMapping
+        {
+            get => _isScalar
+                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
+                    {
+                        var relationalTypeMappingSource =
+                            (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
+                        return !string.IsNullOrEmpty(dbFunction._storeType)
+                                    ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                                    : relationalTypeMappingSource.FindMapping(dbFunction._returnType)!;
+                    })
+                    : _typeMapping;
+            set => _typeMapping = value;
+        }
 
         /// <summary>
         ///     Adds a parameter to the function.
@@ -95,7 +123,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             string storeType,
             RelationalTypeMapping? typeMapping = null)
         {
-            var runtimeFunctionParameter = new RuntimeDbFunctionParameter(this,
+            var runtimeFunctionParameter = new RuntimeDbFunctionParameter(
+                this,
                 name,
                 clrType,
                 propagatesNullability,
@@ -240,16 +269,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         RelationalTypeMapping? IReadOnlyDbFunction.TypeMapping
         {
             [DebuggerStepThrough]
-            get => _isScalar
-                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
-                        {
-                            var relationalTypeMappingSource =
-                                (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
-                            return !string.IsNullOrEmpty(dbFunction._storeType)
-                                        ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
-                                        : relationalTypeMappingSource.FindMapping(dbFunction._returnType)!;
-                        })
-                    : _typeMapping;
+            get => TypeMapping;
         }
     }
 }

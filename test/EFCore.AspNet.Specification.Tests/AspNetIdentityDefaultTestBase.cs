@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Property: IdentityUser.Email (string) MaxLength(256)",
                         "Property: IdentityUser.EmailConfirmed (bool) Required",
                         "Property: IdentityUser.LockoutEnabled (bool) Required",
-                        "Property: IdentityUser.LockoutEnd (Nullable<DateTimeOffset>)",
+                        "Property: IdentityUser.LockoutEnd (DateTimeOffset?)",
                         "Property: IdentityUser.NormalizedEmail (string) Index MaxLength(256)",
                         "Property: IdentityUser.NormalizedUserName (string) Index MaxLength(256)",
                         "Property: IdentityUser.PasswordHash (string)",

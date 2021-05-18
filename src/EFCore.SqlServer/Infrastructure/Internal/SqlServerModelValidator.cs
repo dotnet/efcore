@@ -363,7 +363,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
                 }
             }
 
-            if (property.IsSparse() != duplicateProperty.IsSparse())
+            if (property.IsSparse(storeObject) != duplicateProperty.IsSparse(storeObject))
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.DuplicateColumnSparsenessMismatch(

@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
                         model.ModelDependencies = initializer.Dependencies.ModelDependencies;
 
-                        initializer.InitializeModel(model, preValidation: true);
+                        initializer.InitializeModel(model, designTime, preValidation: true);
 
                         if (validationLogger != null
                             && model is IConventionModel)
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             initializer.Dependencies.ModelValidator.Validate(model, validationLogger);
                         }
 
-                        initializer.InitializeModel(model, preValidation: false);
+                        initializer.InitializeModel(model, designTime, preValidation: false);
 
                         if (!designTime
                             && model is Model mutableModel)
@@ -111,11 +111,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes the given model with runtime dependencies.
         /// </summary>
         /// <param name="model"> The model to initialize. </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration. </param>
         /// <param name="preValidation">
         ///     <see langword="true"/> indicates that only pre-validation initialization should be performed;
         ///     <see langword="false"/> indicates that only post-validation initialization should be performed.
         /// </param>
-        protected virtual void InitializeModel(IModel model, bool preValidation)
+        protected virtual void InitializeModel(IModel model, bool designTime, bool preValidation)
         {
         }
     }

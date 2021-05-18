@@ -117,6 +117,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 newPropertyBuilder.HasField(Metadata.FieldInfo, oldFieldInfoConfigurationSource.Value);
             }
 
+            var propertyAccessModeConfigurationSource = Metadata.GetPropertyAccessModeConfigurationSource();
+            if (propertyAccessModeConfigurationSource.HasValue)
+            {
+                newPropertyBuilder.UsePropertyAccessMode(
+                    Metadata.GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
+            }
+
             return newPropertyBuilder;
         }
 

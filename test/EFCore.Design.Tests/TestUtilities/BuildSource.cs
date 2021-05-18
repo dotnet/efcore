@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         };
 
         public string TargetDir { get; set; }
-        public ICollection<string> Sources { get; set; } = new List<string>();
+        public Dictionary<string, string> Sources { get; set; } = new Dictionary<string, string>();
         public bool NullableReferenceTypes { get; set; }
 
         public BuildFileResult Build()
@@ -51,11 +51,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var compilation = CSharpCompilation.Create(
                 projectName,
-                Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s)),
+                Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s.Value).WithFilePath(s.Key)),
                 references,
-                new CSharpCompilationOptions(
-                    OutputKind.DynamicallyLinkedLibrary,
-                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable));
+                CreateOptions());
 
             var targetPath = Path.Combine(TargetDir ?? Path.GetTempPath(), projectName + ".dll");
 
@@ -65,7 +63,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 if (!result.Success)
                 {
                     throw new InvalidOperationException(
-                        $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
+                        $@"Build failed:
+{string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
             }
 
@@ -84,11 +83,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             var compilation = CSharpCompilation.Create(
                 projectName,
-                Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s)),
+                Sources.Select(s => SyntaxFactory.ParseSyntaxTree(s.Value).WithFilePath(s.Key)),
                 references,
-                new CSharpCompilationOptions(
-                    OutputKind.DynamicallyLinkedLibrary,
-                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable));
+                CreateOptions());
+
             Assembly assembly;
             using (var stream = new MemoryStream())
             {
@@ -96,7 +94,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 if (!result.Success)
                 {
                     throw new InvalidOperationException(
-                        $"Build failed. Diagnostics: {string.Join(Environment.NewLine, result.Diagnostics)}");
+                        $@"Build failed:
+{string.Join(Environment.NewLine, result.Diagnostics)}");
                 }
 
                 assembly = Assembly.Load(stream.ToArray());
@@ -104,5 +103,17 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return assembly;
         }
+
+        private CSharpCompilationOptions CreateOptions()
+            => new CSharpCompilationOptions(
+                    OutputKind.DynamicallyLinkedLibrary,
+                    nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable,
+                    reportSuppressedDiagnostics: false,
+                    specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>()
+                    {
+                        { "CS1701", ReportDiagnostic.Suppress },
+                        { "CS1702", ReportDiagnostic.Suppress },
+                        { "CS1705", ReportDiagnostic.Suppress }
+                    });
     }
 }

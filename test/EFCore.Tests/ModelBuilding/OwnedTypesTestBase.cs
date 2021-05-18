@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Ignore(d => d.Id)
                     .Property<int>("foo");
 
-                var model = modelBuilder.FinalizeModel(designTime: true);
+                var model = modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
@@ -400,7 +400,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 entityBuilder.WithOwner(o => o.Customer)
                     .HasPrincipalKey(c => c.AlternateKey);
 
-                var model = modelBuilder.FinalizeModel(designTime: true);
+                var model = modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(Customer));
                 var ownership = owner.FindNavigation(nameof(Customer.Orders)).ForeignKey;
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         }
                     });
 
-                var model = modelBuilder.FinalizeModel(designTime: true);
+                var model = modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;
@@ -617,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             });
                     });
 
-                var model = modelBuilder.FinalizeModel(designTime: true);
+                var model = modelBuilder.FinalizeModel();
 
                 var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Orders)).ForeignKey;
                 var owned = ownership.DeclaringEntityType;

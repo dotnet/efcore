@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Type ClrType { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this entity type can share its <seealso cref="ClrType"/> with other entities.
+        ///     Gets a value indicating whether this entity type is mapped to a <see cref="Type"/> that
+        ///     other entity types are also mapped to.
         /// </summary>
         bool HasSharedClrType { get; }
 
@@ -137,9 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <returns> The access mode being used. </returns>
-        PropertyAccessMode GetPropertyAccessMode()
-            => (PropertyAccessMode?)this[CoreAnnotationNames.PropertyAccessMode]
-                ?? Model.GetPropertyAccessMode();
+        PropertyAccessMode GetPropertyAccessMode();
 
         /// <summary>
         ///     <para>
@@ -151,14 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     </para>
         /// </summary>
         /// <returns> The access mode being used. </returns>
-        PropertyAccessMode GetNavigationAccessMode()
-            => (PropertyAccessMode?)this[CoreAnnotationNames.NavigationAccessMode]
-                ?? GetPropertyAccessMode();
+        PropertyAccessMode GetNavigationAccessMode();
 
         /// <summary>
-        ///     Returns the <seealso cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists.
+        ///     Returns the <see cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists.
         /// </summary>
-        /// <returns> The <seealso cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists. </returns>
+        /// <returns> The <see cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists. </returns>
         PropertyInfo? FindIndexerPropertyInfo();
     }
 }

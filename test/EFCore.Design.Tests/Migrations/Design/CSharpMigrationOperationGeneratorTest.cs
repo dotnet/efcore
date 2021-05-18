@@ -3653,7 +3653,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 Sources =
                 {
-                    @"
+                    {
+                        "Migration.cs",
+                        @"
                     using Microsoft.EntityFrameworkCore.Migrations;
                     using NetTopologySuite.Geometries;
 
@@ -3667,6 +3669,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 "
+                    }
                 }
             };
 

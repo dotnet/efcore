@@ -767,6 +767,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 newPropertyBuilder.HasField(Metadata.FieldInfo, oldFieldInfoConfigurationSource.Value);
             }
 
+            var oldTypeMappingConfigurationSource = Metadata.GetTypeMappingConfigurationSource();
+            if (oldTypeMappingConfigurationSource.HasValue
+                && newPropertyBuilder.CanSetTypeMapping(Metadata.TypeMapping, oldTypeMappingConfigurationSource))
+            {
+                newPropertyBuilder.HasTypeMapping(Metadata.TypeMapping, oldTypeMappingConfigurationSource.Value);
+            }
+
             return newPropertyBuilder;
         }
 

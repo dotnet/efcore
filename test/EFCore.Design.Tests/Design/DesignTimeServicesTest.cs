@@ -253,7 +253,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite"),
                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions")
                 },
-                Sources = { assemblyCode }
+                Sources = { { "Startup.cs", assemblyCode } }
             };
 
             return build.BuildInMemory();

@@ -1538,13 +1538,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         c.HasData(customers);
                     });
 
-                modelBuilder.FinalizeModel();
+                var finalModel = modelBuilder.FinalizeModel();
 
                 var customer = model.FindEntityType(typeof(Beta));
                 var data = customer.GetSeedData();
                 Assert.Equal(2, data.Count());
                 Assert.Equal(-1, data.First()[nameof(Beta.Id)]);
                 Assert.Equal(-2, data.Last()[nameof(Beta.Id)]);
+
+                var _ = finalModel.ToDebugString();
             }
 
             [ConditionalFact]
@@ -1667,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         b.HasData(new { Id = -1, Required = 2 });
                     });
 
-                var model = modelBuilder.FinalizeModel(designTime: true);
+                var model = modelBuilder.FinalizeModel();
 
                 var entityType = model.FindEntityType(typeof(IndexedClassByDictionary));
                 var data = Assert.Single(entityType.GetSeedData());

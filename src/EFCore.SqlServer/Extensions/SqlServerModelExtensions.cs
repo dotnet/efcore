@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -120,7 +122,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The default identity seed. </returns>
         public static int GetIdentitySeed(this IReadOnlyModel model)
-            => (int?)model[SqlServerAnnotationNames.IdentitySeed] ?? 1;
+            => model is RuntimeModel
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (int?)model[SqlServerAnnotationNames.IdentitySeed] ?? 1;
 
         /// <summary>
         ///     Sets the default identity seed.
@@ -163,7 +167,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The default identity increment. </returns>
         public static int GetIdentityIncrement(this IReadOnlyModel model)
-            => (int?)model[SqlServerAnnotationNames.IdentityIncrement] ?? 1;
+            => model is RuntimeModel
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (int?)model[SqlServerAnnotationNames.IdentityIncrement] ?? 1;
 
         /// <summary>
         ///     Sets the default identity increment.
@@ -255,7 +261,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The maximum size of the database. </returns>
         public static string? GetDatabaseMaxSize(this IReadOnlyModel model)
-            => (string?)model[SqlServerAnnotationNames.MaxDatabaseSize];
+            => model is RuntimeModel
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)model[SqlServerAnnotationNames.MaxDatabaseSize];
 
         /// <summary>
         ///     Sets the maximum size of the database.
@@ -296,7 +304,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The service tier of the database. </returns>
         public static string? GetServiceTierSql(this IReadOnlyModel model)
-            => (string?)model[SqlServerAnnotationNames.ServiceTierSql];
+            => model is RuntimeModel
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)model[SqlServerAnnotationNames.ServiceTierSql];
 
         /// <summary>
         ///     Sets the service tier of the database.
@@ -337,7 +347,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The performance level of the database. </returns>
         public static string? GetPerformanceLevelSql(this IReadOnlyModel model)
-            => (string?)model[SqlServerAnnotationNames.PerformanceLevelSql];
+            => model is RuntimeModel
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)model[SqlServerAnnotationNames.PerformanceLevelSql];
 
         /// <summary>
         ///     Sets the performance level of the database.

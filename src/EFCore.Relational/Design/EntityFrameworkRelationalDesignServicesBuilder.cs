@@ -77,10 +77,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
             TryAdd<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
+            TryAdd<ICSharpRuntimeAnnotationCodeGenerator, RelationalCSharpRuntimeAnnotationCodeGenerator>();
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<AnnotationCodeGeneratorDependencies>()
-                .AddDependencySingleton<ProviderCodeGeneratorDependencies>();
+                .AddDependencySingleton<ProviderCodeGeneratorDependencies>()
+                .AddDependencySingleton<RelationalCSharpRuntimeAnnotationCodeGeneratorDependencies>();
 
             return base.TryAddCoreServices();
         }
