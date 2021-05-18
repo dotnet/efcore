@@ -42,6 +42,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         }
 
         public static BuildReference ByPath(string path)
-            => new BuildReference(new[] { MetadataReference.CreateFromFile(path) }, path: path);
+            => new(new[] { MetadataReference.CreateFromFile(path) }, path: path);
     }
 }

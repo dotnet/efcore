@@ -13,15 +13,15 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             Template = template;
             OptionType = optionType;
-            Values = new List<string>();
+            Values = new List<string?>();
 
             foreach (var part in Template.Split(new[] { ' ', '|' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                if (part.StartsWith("--"))
+                if (part.StartsWith("--", StringComparison.Ordinal))
                 {
                     LongName = part.Substring(2);
                 }
-                else if (part.StartsWith("-"))
+                else if (part.StartsWith("-", StringComparison.Ordinal))
                 {
                     var optName = part.Substring(1);
 
@@ -36,14 +36,14 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         ShortName = optName;
                     }
                 }
-                else if (part.StartsWith("<")
-                         && part.EndsWith(">"))
+                else if (part.StartsWith("<", StringComparison.Ordinal)
+                         && part.EndsWith(">", StringComparison.Ordinal))
                 {
                     ValueName = part.Substring(1, part.Length - 2);
                 }
                 else if (optionType == CommandOptionType.MultipleValue
-                         && part.StartsWith("<")
-                         && part.EndsWith(">..."))
+                         && part.StartsWith("<", StringComparison.Ordinal)
+                         && part.EndsWith(">...", StringComparison.Ordinal))
                 {
                     ValueName = part.Substring(1, part.Length - 5);
                 }
@@ -62,16 +62,16 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public string Template { get; set; }
-        public string ShortName { get; set; }
-        public string LongName { get; set; }
-        public string SymbolName { get; set; }
-        public string ValueName { get; set; }
-        public string Description { get; set; }
-        public List<string> Values { get; }
+        public string? ShortName { get; set; }
+        public string? LongName { get; set; }
+        public string? SymbolName { get; set; }
+        public string? ValueName { get; set; }
+        public string? Description { get; set; }
+        public List<string?> Values { get; }
         public bool? BoolValue { get; private set; }
         public CommandOptionType OptionType { get; }
 
-        public bool TryParse(string value)
+        public bool TryParse(string? value)
         {
             switch (OptionType)
             {
@@ -126,7 +126,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
         public bool HasValue() => Values.Count > 0;
 
-        public string Value() => HasValue() ? Values[0] : null;
+        public string? Value() => HasValue() ? Values[0] : null;
 
         private static bool IsEnglishLetter(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }

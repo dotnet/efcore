@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private byte _indent;
         private bool _indentPending = true;
 
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
+        private readonly StringBuilder _stringBuilder = new();
 
         /// <summary>
         ///     The current length of the built string.
@@ -36,11 +36,59 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual IndentedStringBuilder Append([NotNull] string value)
+        public virtual IndentedStringBuilder Append(string value)
         {
             DoIndent();
 
             _stringBuilder.Append(value);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Appends the current indent and then the given char to the string being built.
+        /// </summary>
+        /// <param name="value"> The char to append. </param>
+        /// <returns> This builder so that additional calls can be chained. </returns>
+        public virtual IndentedStringBuilder Append(char value)
+        {
+            DoIndent();
+
+            _stringBuilder.Append(value);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Appends the current indent and then the given strings to the string being built.
+        /// </summary>
+        /// <param name="value"> The strings to append. </param>
+        /// <returns> This builder so that additional calls can be chained. </returns>
+        public virtual IndentedStringBuilder Append(IEnumerable<string> value)
+        {
+            DoIndent();
+
+            foreach (var str in value)
+            {
+                _stringBuilder.Append(str);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Appends the current indent and then the given chars to the string being built.
+        /// </summary>
+        /// <param name="value"> The chars to append. </param>
+        /// <returns> This builder so that additional calls can be chained. </returns>
+        public virtual IndentedStringBuilder Append(IEnumerable<char> value)
+        {
+            DoIndent();
+
+            foreach (var chr in value)
+            {
+                _stringBuilder.Append(chr);
+            }
 
             return this;
         }
@@ -66,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="value"> The string to append. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual IndentedStringBuilder AppendLine([NotNull] string value)
+        public virtual IndentedStringBuilder AppendLine(string value)
         {
             if (value.Length != 0)
             {
@@ -87,12 +135,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="value"> The string to append. </param>
         /// <param name="skipFinalNewline"> If true, then the terminating new line is not added after the last line. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual IndentedStringBuilder AppendLines([NotNull] string value, bool skipFinalNewline = false)
+        public virtual IndentedStringBuilder AppendLines(string value, bool skipFinalNewline = false)
         {
             using (var reader = new StringReader(value))
             {
                 var first = true;
-                string line;
+                string? line;
                 while ((line = reader.ReadLine()) != null)
                 {
                     if (first)
@@ -115,6 +163,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 AppendLine();
             }
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Appends the current indent and additional indent if provided.
+        /// </summary>
+        /// <returns> This builder so that additional calls can be chained. </returns>
+        public virtual IndentedStringBuilder AppendIndent()
+        {
+            _stringBuilder.Append(' ', _indent  * IndentSize);
 
             return this;
         }
@@ -174,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (_indentPending && _indent > 0)
             {
-                _stringBuilder.Append(new string(' ', _indent * IndentSize));
+                AppendIndent();
             }
 
             _indentPending = false;

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -27,12 +26,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="added"> The entities added to the collection. </param>
         /// <param name="removed"> The entities removed from the collection. </param>
         public SkipCollectionChangedEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] EntityEntry entityEntry,
-            [NotNull] ISkipNavigation navigation,
-            [NotNull] IEnumerable<object> added,
-            [NotNull] IEnumerable<object> removed)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            EntityEntry entityEntry,
+            ISkipNavigation navigation,
+            IEnumerable<object> added,
+            IEnumerable<object> removed)
             : base(eventDefinition, messageGenerator, navigation)
         {
             Check.NotNull(entityEntry, nameof(entityEntry));
@@ -49,6 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     to or removed from.
         /// </summary>
         public virtual EntityEntry EntityEntry { get; }
+
+        /// <summary>
+        ///     The navigation.
+        /// </summary>
+        public new virtual ISkipNavigation Navigation => (ISkipNavigation)base.Navigation;
 
         /// <summary>
         ///     The entities added to the collection.

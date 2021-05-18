@@ -4,7 +4,6 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -26,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
         /// <param name="startTime"> The start time of this event. </param>
         public CommandCorrelatedEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbConnection connection,
-            [CanBeNull] DbContext context,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbConnection connection,
+            DbContext? context,
             DbCommandMethod executeMethod,
             Guid commandId,
             Guid connectionId,

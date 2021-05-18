@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -25,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         [DebuggerStepThrough]
         [EntityFrameworkInternal]
         public EntityEntryGraphNode(
-            [NotNull] InternalEntityEntry entry,
-            [CanBeNull] TState state,
-            [CanBeNull] InternalEntityEntry sourceEntry,
-            [CanBeNull] INavigationBase inboundNavigation)
+            InternalEntityEntry entry,
+            TState? state,
+            InternalEntityEntry? sourceEntry,
+            INavigationBase? inboundNavigation)
             : base(entry, sourceEntry, inboundNavigation)
         {
             NodeState = state;
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Gets or sets state that will be available to all nodes that are visited after this node.
         /// </summary>
-        public virtual TState NodeState { get; [param: CanBeNull] set; }
+        public virtual TState? NodeState { get; set; }
 
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.

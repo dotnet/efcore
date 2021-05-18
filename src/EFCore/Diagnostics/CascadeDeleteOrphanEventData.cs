@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -25,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="parentEntityTypes"> The entity type to which the relationship was severed. </param>
         /// <param name="state"> The state that the child is transitioning to--usually 'Deleted'. </param>
         public CascadeDeleteOrphanEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] EntityEntry entityEntry,
-            [NotNull] IEntityType parentEntityTypes,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            EntityEntry entityEntry,
+            IEntityType parentEntityTypes,
             EntityState state)
             : base(eventDefinition, messageGenerator, entityEntry)
         {

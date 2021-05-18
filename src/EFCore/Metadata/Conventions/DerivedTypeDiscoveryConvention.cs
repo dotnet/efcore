@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="DerivedTypeDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public DerivedTypeDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public DerivedTypeDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (clrType == null
                 || entityType.HasSharedClrType
                 || entityType.HasDefiningNavigation()
-                || entityType.Model.FindIsOwnedConfigurationSource(clrType) != null
+                || entityType.Model.IsOwned(clrType)
                 || entityType.FindOwnership() != null)
             {
                 return;
@@ -49,10 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var directlyDerivedType in model.GetEntityTypes())
             {
                 if (directlyDerivedType != entityType
-                        && directlyDerivedType.HasClrType()
                         && !directlyDerivedType.HasSharedClrType
                         && !directlyDerivedType.HasDefiningNavigation()
-                        && model.FindIsOwnedConfigurationSource(directlyDerivedType.ClrType) == null
+                        && !model.IsOwned(directlyDerivedType.ClrType)
                         && directlyDerivedType.FindDeclaredOwnership() == null
                         && ((directlyDerivedType.BaseType == null && clrType.IsAssignableFrom(directlyDerivedType.ClrType))
                             || (directlyDerivedType.BaseType == entityType.BaseType && FindClosestBaseType(directlyDerivedType) == entityType)))

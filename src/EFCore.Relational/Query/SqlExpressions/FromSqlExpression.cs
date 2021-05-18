@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class FromSqlExpression : TableExpressionBase
+    public class FromSqlExpression : TableExpressionBase, ICloneable
     {
         /// <summary>
         ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="arguments"> A user-provided parameters to pass to the custom SQL. </param>
         /// <param name="alias"> A string alias for the table source. </param>
         [Obsolete("Use the constructor which takes alias as first argument.")]
-        public FromSqlExpression([NotNull] string sql, [NotNull] Expression arguments, [NotNull] string alias)
+        public FromSqlExpression(string sql, Expression arguments, string alias)
             : base(alias)
         {
             Check.NotEmpty(sql, nameof(sql));
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <param name="alias"> A string alias for the table source. </param>
         /// <param name="sql"> A user-provided custom SQL for the table source. </param>
         /// <param name="arguments"> A user-provided parameters to pass to the custom SQL. </param>
-        public FromSqlExpression([NotNull] string alias, [NotNull] string sql, [NotNull] Expression arguments)
+        public FromSqlExpression(string alias, string sql, Expression arguments)
             : base(alias)
         {
             Check.NotEmpty(sql, nameof(sql));
@@ -50,6 +50,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             Sql = sql;
             Arguments = arguments;
+        }
+
+        /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
         }
 
         /// <summary>
@@ -68,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="arguments"> The <see cref="Arguments" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual FromSqlExpression Update([NotNull] Expression arguments)
+        public virtual FromSqlExpression Update(Expression arguments)
         {
             Check.NotNull(arguments, nameof(arguments));
 
@@ -86,6 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
+        public virtual object Clone() => new FromSqlExpression(Alias, Sql, Arguments);
+
+        /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
@@ -94,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is FromSqlExpression fromSqlExpression
@@ -102,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private bool Equals(FromSqlExpression fromSqlExpression)
             => base.Equals(fromSqlExpression)
-                && string.Equals(Sql, fromSqlExpression.Sql)
+                && Sql == fromSqlExpression.Sql
                 && ExpressionEqualityComparer.Instance.Equals(Arguments, fromSqlExpression.Arguments);
 
         /// <inheritdoc />

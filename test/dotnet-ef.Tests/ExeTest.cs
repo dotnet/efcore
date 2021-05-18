@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             var result = ToArguments(
                 new[]
                 {
+                    "",
                     "Good",
                     "Good\\",
                     "Needs quotes",
@@ -26,7 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 });
 
             Assert.Equal(
-                "Good "
+                "\"\" "
+                + "Good "
                 + "Good\\ "
                 + "\"Needs quotes\" "
                 + "\"Needs escaping\\\\\" "

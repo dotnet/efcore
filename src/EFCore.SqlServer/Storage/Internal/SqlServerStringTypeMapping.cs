@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -34,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerStringTypeMapping(
-            [CanBeNull] string storeType = null,
+            string? storeType = null,
             bool unicode = false,
             int? size = null,
             bool fixedLength = false,
@@ -170,12 +169,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var start = 0;
             int i;
             int length;
-            var concatenated = false;
             var openApostrophe = false;
             var lastConcatStartPoint = 0;
             var concatCount = 1;
             var concatStartList = new List<int>();
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23518", out var enabled) && enabled;
             for (i = 0; i < stringValue.Length; i++)
             {
                 var lineFeed = stringValue[i] == '\n';
@@ -233,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 builder.Append('N');
                             }
 
-                            builder.Append("'");
+                            builder.Append('\'');
                             openApostrophe = true;
                         }
                         builder.Append("''");
@@ -265,21 +262,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 builder.Append('\'');
             }
 
-            if (useOldBehavior)
+            for (var j = concatStartList.Count - 1; j >= 0; j--)
             {
-                if (concatenated)
-                {
-                    builder.Insert(0, "CONCAT(")
-                        .Append(')');
-                }
-            }
-            else
-            {
-                for (var j = concatStartList.Count - 1; j >= 0; j--)
-                {
-                    builder.Insert(concatStartList[j], "CONCAT(")
-                        .Append(')');
-                }
+                builder.Insert(concatStartList[j], "CONCAT(")
+                    .Append(')');
             }
 
             if (builder.Length == 0)
@@ -299,24 +285,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 if (builder.Length != 0)
                 {
                     builder.Append(", ");
-                    if (useOldBehavior)
+                    concatCount++;
+
+                    if (concatCount == 2)
                     {
-                        concatenated = true;
+                        concatStartList.Add(lastConcatStartPoint);
                     }
-                    else
+
+                    if (concatCount == 254)
                     {
-                        concatCount++;
-
-                        if (concatCount == 2)
-                        {
-                            concatStartList.Add(lastConcatStartPoint);
-                        }
-
-                        if (concatCount == 254)
-                        {
-                            lastConcatStartPoint = builder.Length;
-                            concatCount = 1;
-                        }
+                        lastConcatStartPoint = builder.Length;
+                        concatCount = 1;
                     }
                 }
             }

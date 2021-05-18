@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     /// </summary>
     public struct DbContextLease
     {
-        private IDbContextPool _contextPool;
+        private IDbContextPool? _contextPool;
         private readonly bool _standalone;
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static DbContextLease InactiveLease { get; } = new DbContextLease();
+        public static DbContextLease InactiveLease { get; } = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public DbContextLease([NotNull] IDbContextPool contextPool, bool standalone)
+        public DbContextLease(IDbContextPool contextPool, bool standalone)
         {
             _contextPool = contextPool;
             _standalone = standalone;
@@ -98,14 +98,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ValueTask ReleaseAsync()
-            => Release(out var pool, out var context) ? pool.ReturnAsync(context) : new ValueTask();
+            => Release(out var pool, out var context) ? pool.ReturnAsync(context) : default;
 
-        private bool Release(out IDbContextPool pool, out IDbContextPoolable context)
+        private bool Release([NotNullWhen(true)] out IDbContextPool? pool, [NotNullWhen(true)] out IDbContextPoolable? context)
         {
             pool = _contextPool;
             context = Context;
             _contextPool = null;
-            Context = null;
+            Context = null!;
 
             return pool != null;
         }

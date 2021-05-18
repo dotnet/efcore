@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
 {
     /// <summary>
     ///     Converts strings to and from arrays of bytes.
     /// </summary>
-    public class StringToBytesConverter : ValueConverter<string, byte[]>
+    public class StringToBytesConverter : ValueConverter<string?, byte[]?>
     {
         /// <summary>
         ///     Creates a new instance of this converter.
@@ -20,11 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public StringToBytesConverter(
-            [NotNull] Encoding encoding,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            Encoding encoding,
+            ConverterMappingHints? mappingHints = null)
             : base(
                 v => v == null ? null : encoding.GetBytes(v),
                 v => v == null ? null : encoding.GetString(v),
+                convertsNulls: true,
                 mappingHints)
         {
         }
@@ -33,6 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(string), typeof(byte[]), i => new StringToBytesConverter(Encoding.UTF8, i.MappingHints));
+            = new(typeof(string), typeof(byte[]), i => new StringToBytesConverter(Encoding.UTF8, i.MappingHints));
     }
 }

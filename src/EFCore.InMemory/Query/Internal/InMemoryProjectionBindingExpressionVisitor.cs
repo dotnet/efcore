@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -27,12 +27,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslatingExpressionVisitor;
 
         private InMemoryQueryExpression _queryExpression;
-        private bool _clientEval;
+        private bool _indexBasedBinding;
 
-        private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
-            = new Dictionary<ProjectionMember, Expression>();
+        private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
 
-        private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
+        private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
+        private List<Expression>? _clientProjections;
+        private readonly Stack<ProjectionMember> _projectionMembers = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,11 +42,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryProjectionBindingExpressionVisitor(
-            [NotNull] InMemoryQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
-            [NotNull] InMemoryExpressionTranslatingExpressionVisitor expressionTranslatingExpressionVisitor)
+            InMemoryQueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor,
+            InMemoryExpressionTranslatingExpressionVisitor expressionTranslatingExpressionVisitor)
         {
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
             _expressionTranslatingExpressionVisitor = expressionTranslatingExpressionVisitor;
+            _queryExpression = null!;
         }
 
         /// <summary>
@@ -54,32 +56,38 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Translate([NotNull] InMemoryQueryExpression queryExpression, [NotNull] Expression expression)
+        public virtual Expression Translate(InMemoryQueryExpression queryExpression, Expression expression)
         {
             _queryExpression = queryExpression;
-            _clientEval = false;
+            _indexBasedBinding = false;
 
             _projectionMembers.Push(new ProjectionMember());
 
             var expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_queryExpression, expression);
             var result = Visit(expandedExpression);
 
-            if (result == null)
+            if (result == QueryCompilationContext.NotTranslatedExpression)
             {
-                _clientEval = true;
+                _indexBasedBinding = true;
+                _projectionMapping.Clear();
+                _entityProjectionCache = new();
+                _clientProjections = new();
 
                 expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_queryExpression, expression);
                 result = Visit(expandedExpression);
 
+                _queryExpression.ReplaceProjection(_clientProjections);
+                _clientProjections = null;
+            }
+            else
+            {
+                _queryExpression.ReplaceProjection(_projectionMapping);
                 _projectionMapping.Clear();
             }
 
-            _queryExpression.ReplaceProjectionMapping(_projectionMapping);
-            _queryExpression = null;
-            _projectionMapping.Clear();
+            _queryExpression = null!;
             _projectionMembers.Clear();
-
-            result = MatchTypes(result, expression.Type);
+            result = MatchTypes(result!, expression.Type);
 
             return result;
         }
@@ -90,7 +98,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Expression Visit(Expression expression)
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression == null)
             {
@@ -110,33 +119,54 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     return parameter;
                 }
 
-                if (_clientEval)
+                if (_indexBasedBinding)
                 {
                     switch (expression)
                     {
                         case ConstantExpression _:
                             return expression;
 
+                        case ProjectionBindingExpression projectionBindingExpression:
+                            var mappedProjection = _queryExpression.GetProjection(projectionBindingExpression);
+                            if (mappedProjection is EntityProjectionExpression entityProjection)
+                            {
+                                return AddClientProjection(entityProjection, typeof(ValueBuffer));
+                            }
+
+                            if (mappedProjection is not InMemoryQueryExpression)
+                            {
+                                return AddClientProjection(mappedProjection, expression.Type.MakeNullable());
+                            }
+
+                            throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
+
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
-                            return AddCollectionProjection(
-                                _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                                    materializeCollectionNavigationExpression.Subquery),
+                        {
+                            var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                    materializeCollectionNavigationExpression.Subquery)!;
+                            _clientProjections!.Add(subquery.QueryExpression);
+                            return new CollectionResultShaperExpression(
+                                new ProjectionBindingExpression(_queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>)),
+                                subquery.ShaperExpression,
                                 materializeCollectionNavigationExpression.Navigation,
-                                null);
+                                materializeCollectionNavigationExpression.Navigation.ClrType.GetSequenceType());
+                        }
 
                         case MethodCallExpression methodCallExpression:
-                        {
                             if (methodCallExpression.Method.IsGenericMethod
                                 && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                                && methodCallExpression.Method.Name == nameof(Enumerable.ToList))
+                                && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
+                                && methodCallExpression.Arguments.Count == 1
+                                && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
                             {
-                                var subqueryTranslation = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                                var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                     methodCallExpression.Arguments[0]);
-
-                                if (subqueryTranslation != null)
+                                if (subquery != null)
                                 {
-                                    return AddCollectionProjection(
-                                        subqueryTranslation,
+                                    _clientProjections!.Add(subquery.QueryExpression);
+                                    return new CollectionResultShaperExpression(
+                                        new ProjectionBindingExpression(_queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>)),
+                                        subquery.ShaperExpression,
                                         null,
                                         methodCallExpression.Method.GetGenericArguments()[0]);
                                 }
@@ -146,37 +176,47 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                 var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(methodCallExpression);
                                 if (subquery != null)
                                 {
-                                    if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                    // This simplifies the check when subquery is translated and can be lifted as scalar.
+                                    var scalarTranslation = _expressionTranslatingExpressionVisitor.Translate(subquery);
+                                    if (scalarTranslation != null)
                                     {
-                                        return AddCollectionProjection(subquery, null, subquery.ShaperExpression.Type);
+                                        return AddClientProjection(scalarTranslation, expression.Type.MakeNullable());
                                     }
 
-                                    return new SingleResultShaperExpression(
-                                        new ProjectionBindingExpression(
-                                            _queryExpression,
-                                            _queryExpression.AddSubqueryProjection(subquery, out var innerShaper),
-                                            typeof(ValueBuffer)),
-                                        innerShaper,
-                                        subquery.ShaperExpression.Type);
+                                    if (subquery.ResultCardinality == ResultCardinality.Enumerable)
+                                    {
+                                        _clientProjections!.Add(subquery.QueryExpression);
+                                        var projectionBindingExpression = new ProjectionBindingExpression(
+                                            _queryExpression, _clientProjections.Count - 1, typeof(IEnumerable<ValueBuffer>));
+                                        return new CollectionResultShaperExpression(
+                                            projectionBindingExpression, subquery.ShaperExpression, navigation: null, subquery.ShaperExpression.Type);
+                                    }
+                                    else
+                                    {
+                                        _clientProjections!.Add(subquery.QueryExpression);
+                                        var projectionBindingExpression = new ProjectionBindingExpression(
+                                            _queryExpression, _clientProjections.Count - 1, typeof(ValueBuffer));
+                                        return new SingleResultShaperExpression(projectionBindingExpression, subquery.ShaperExpression);
+                                    }
                                 }
                             }
-
                             break;
-                        }
                     }
 
                     var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
-                    return translation == null
-                        ? base.Visit(expression)
-                        : new ProjectionBindingExpression(
-                            _queryExpression, _queryExpression.AddToProjection(translation), expression.Type.MakeNullable());
+                    if (translation != null)
+                    {
+                        return AddClientProjection(translation, expression.Type.MakeNullable());
+                    }
+
+                    return base.Visit(expression);
                 }
                 else
                 {
                     var translation = _expressionTranslatingExpressionVisitor.Translate(expression);
                     if (translation == null)
                     {
-                        return null;
+                        return QueryCompilationContext.NotTranslatedExpression;
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = translation;
@@ -237,18 +277,29 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 EntityProjectionExpression entityProjectionExpression;
                 if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
+                    if (projectionBindingExpression.ProjectionMember == null)
+                    {
+                        // We don't process binding with client projection
+                        return QueryCompilationContext.NotTranslatedExpression;
+                    }
+
                     entityProjectionExpression = (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
-                        .GetMappedProjection(projectionBindingExpression.ProjectionMember);
+                        .GetProjection(projectionBindingExpression);
                 }
                 else
                 {
                     entityProjectionExpression = (EntityProjectionExpression)entityShaperExpression.ValueBufferExpression;
                 }
 
-                if (_clientEval)
+                if (_indexBasedBinding)
                 {
-                    return entityShaperExpression.Update(
-                        new ProjectionBindingExpression(_queryExpression, _queryExpression.AddToProjection(entityProjectionExpression)));
+                    if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
+                    {
+                        entityProjectionBinding = AddClientProjection(entityProjectionExpression, typeof(ValueBuffer));
+                        _entityProjectionCache[entityProjectionExpression] = entityProjectionBinding;
+                    }
+
+                    return entityShaperExpression.Update(entityProjectionBinding);
                 }
 
                 _projectionMapping[_projectionMembers.Peek()] = entityProjectionExpression;
@@ -259,12 +310,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             if (extensionExpression is IncludeExpression includeExpression)
             {
-                return _clientEval
+                return _indexBasedBinding
                     ? base.VisitExtension(includeExpression)
-                    : null;
+                    : QueryCompilationContext.NotTranslatedExpression;
             }
 
-            throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
+            throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
         }
 
         /// <summary>
@@ -286,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             var expression = Visit(memberExpression.Expression);
             Expression updatedMemberExpression = memberExpression.Update(
-                expression != null ? MatchTypes(expression, memberExpression.Expression.Type) : expression);
+                expression != null ? MatchTypes(expression, memberExpression.Expression!.Type) : expression);
 
             if (expression?.Type.IsNullableValueType() == true)
             {
@@ -314,8 +365,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
         {
             var expression = memberAssignment.Expression;
-            Expression visitedExpression;
-            if (_clientEval)
+            Expression? visitedExpression;
+            if (_indexBasedBinding)
             {
                 visitedExpression = Visit(memberAssignment.Expression);
             }
@@ -325,9 +376,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _projectionMembers.Push(projectionMember);
 
                 visitedExpression = Visit(memberAssignment.Expression);
-                if (visitedExpression == null)
+                if (visitedExpression == QueryCompilationContext.NotTranslatedExpression)
                 {
-                    return null;
+                    return memberAssignment.Update(Expression.Convert(visitedExpression, memberAssignment.Expression.Type));
                 }
 
                 _projectionMembers.Pop();
@@ -349,9 +400,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             Check.NotNull(memberInitExpression, nameof(memberInitExpression));
 
             var newExpression = Visit(memberInitExpression.NewExpression);
-            if (newExpression == null)
+            if (newExpression == QueryCompilationContext.NotTranslatedExpression)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
@@ -359,13 +410,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 if (memberInitExpression.Bindings[i].BindingType != MemberBindingType.Assignment)
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
 
                 newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
-                if (newBindings[i] == null)
+                if (((MemberAssignment)newBindings[i]).Expression is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Convert
+                    && unaryExpression.Operand == QueryCompilationContext.NotTranslatedExpression)
                 {
-                    return null;
+                    return QueryCompilationContext.NotTranslatedExpression;
                 }
             }
 
@@ -389,11 +442,11 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             Expression updatedMethodCallExpression = methodCallExpression.Update(
-                @object != null ? MatchTypes(@object, methodCallExpression.Object.Type) : @object,
+                @object != null ? MatchTypes(@object, methodCallExpression.Object!.Type) : @object!,
                 arguments);
 
             if (@object?.Type.IsNullableType() == true
-                && !methodCallExpression.Object.Type.IsNullableType())
+                && !methodCallExpression.Object!.Type.IsNullableType())
             {
                 var nullableReturnType = methodCallExpression.Type.MakeNullable();
                 if (!methodCallExpression.Type.IsNullableType())
@@ -425,29 +478,29 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return newExpression;
             }
 
-            if (!_clientEval
+            if (!_indexBasedBinding
                 && newExpression.Members == null)
             {
-                return null;
+                return QueryCompilationContext.NotTranslatedExpression;
             }
 
             var newArguments = new Expression[newExpression.Arguments.Count];
             for (var i = 0; i < newArguments.Length; i++)
             {
                 var argument = newExpression.Arguments[i];
-                Expression visitedArgument;
-                if (_clientEval)
+                Expression? visitedArgument;
+                if (_indexBasedBinding)
                 {
                     visitedArgument = Visit(argument);
                 }
                 else
                 {
-                    var projectionMember = _projectionMembers.Peek().Append(newExpression.Members[i]);
+                    var projectionMember = _projectionMembers.Peek().Append(newExpression.Members![i]);
                     _projectionMembers.Push(projectionMember);
                     visitedArgument = Visit(argument);
-                    if (visitedArgument == null)
+                    if (visitedArgument == QueryCompilationContext.NotTranslatedExpression)
                     {
-                        return null;
+                        return QueryCompilationContext.NotTranslatedExpression;
                     }
 
                     _projectionMembers.Pop();
@@ -485,21 +538,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));
         }
 
-        private CollectionShaperExpression AddCollectionProjection(
-            ShapedQueryExpression subquery,
-            INavigationBase navigation,
-            Type elementType)
-            => new CollectionShaperExpression(
-                new ProjectionBindingExpression(
-                    _queryExpression,
-                    _queryExpression.AddSubqueryProjection(
-                        subquery,
-                        out var innerShaper),
-                    typeof(IEnumerable<ValueBuffer>)),
-                innerShaper,
-                navigation,
-                elementType);
-
         private static Expression MatchTypes(Expression expression, Type targetType)
         {
             if (targetType != expression.Type
@@ -511,6 +549,18 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             }
 
             return expression;
+        }
+
+        private ProjectionBindingExpression AddClientProjection(Expression expression, Type type)
+        {
+            var existingIndex = _clientProjections!.FindIndex(e => e.Equals(expression));
+            if (existingIndex == -1)
+            {
+                _clientProjections.Add(expression);
+                existingIndex = _clientProjections.Count - 1;
+            }
+
+            return new ProjectionBindingExpression(_queryExpression, existingIndex, type);
         }
     }
 }

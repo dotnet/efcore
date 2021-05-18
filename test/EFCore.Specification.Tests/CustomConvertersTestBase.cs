@@ -121,7 +121,8 @@ namespace Microsoft.EntityFrameworkCore
                 var principal = context.Add(
                         new NullablePrincipal
                         {
-                            Id = 1, Dependents = new List<NonNullableDependent> { new NonNullableDependent { Id = 1 } }
+                            Id = 1,
+                            Dependents = new List<NonNullableDependent> { new() { Id = 1 } }
                         })
                     .Entity;
 
@@ -214,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
                 => _value = value;
 
             public static Email Create(string value)
-                => new Email(value);
+                => new(value);
 
             public static implicit operator string(Email email)
                 => email._value;
@@ -366,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore
 
             public static OrderId Parse(string stringValue)
             {
-                return new OrderId(stringValue);
+                return new(stringValue);
             }
 
             public static explicit operator string(OrderId orderId)
@@ -489,6 +490,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            using var context = CreateContext();
+            var query = context.Set<Blog>().Where(b => !b.IsVisible).ToList();
+
+            var result = Assert.Single(query);
+            Assert.Equal("http://rssblog.com", result.Url);
+        }
+
+        [ConditionalFact]
         public virtual void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
         {
             using var context = CreateContext();
@@ -523,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal("http://blog.com", result.Url);
         }
 
-        [ConditionalFact(Skip = "Issue #21142")]
+        [ConditionalFact]
         public virtual void Select_conditional_bool_with_value_conversion_is_used()
         {
             using var context = CreateContext();
@@ -560,6 +571,31 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateContext();
             Assert.Throws<InvalidOperationException>(
                 () => context.Set<EntityWithValueWrapper>().SingleOrDefault(e => e.Wrapper.Value == "foo"));
+        }
+
+        [ConditionalFact]
+        public virtual void Value_conversion_on_enum_collection_contains()
+        {
+            using var context = CreateContext();
+            var group = MessageGroup.SomeGroup;
+            var query = context.Set<User23059>()
+                .Where(x => !x.IsSoftDeleted && (x.MessageGroups.Contains(group) || x.MessageGroups.Contains(MessageGroup.All)))
+                .ToList();
+
+            Assert.Single(query);
+        }
+
+        protected class User23059
+        {
+            public int Id { get; set; }
+            public bool IsSoftDeleted { get; set; }
+            public List<MessageGroup> MessageGroups { get; set; }
+        }
+
+        protected enum MessageGroup
+        {
+            All,
+            SomeGroup
         }
 
         protected class Blog
@@ -1219,6 +1255,19 @@ namespace Microsoft.EntityFrameworkCore
                             e => new BookId(e));
 
                         b.HasData(new Book(new BookId(1)) { Value = "Book1" });
+                    });
+
+                modelBuilder.Entity<User23059>(
+                    b =>
+                    {
+                        b.Property(e => e.MessageGroups).HasConversion(
+                            v => string.Join(',', v),
+                            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => Enum.Parse<MessageGroup>(x)).ToList(),
+                            new ValueComparer<List<MessageGroup>>(favorStructuralComparisons: true));
+
+                        b.HasData(
+                            new User23059 { Id = 1, IsSoftDeleted = true, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } },
+                            new User23059 { Id = 2, IsSoftDeleted = false, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } });
                     });
             }
 

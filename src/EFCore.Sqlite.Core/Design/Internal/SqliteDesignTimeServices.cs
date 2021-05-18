@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+
+[assembly: DesignTimeProviderServices("Microsoft.EntityFrameworkCore.Sqlite.Design.Internal.SqliteDesignTimeServices")]
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
 {
@@ -27,11 +25,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
-            => serviceCollection
-                .AddSingleton<LoggingDefinitions, SqliteLoggingDefinitions>()
-                .AddSingleton<IRelationalTypeMappingSource, SqliteTypeMappingSource>()
-                .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
-                .AddSingleton<IProviderConfigurationCodeGenerator, SqliteCodeGenerator>()
-                .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
+        {
+            serviceCollection.AddEntityFrameworkSqlite();
+            new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
+                .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, SqliteCSharpRuntimeAnnotationCodeGenerator>()
+                .TryAdd<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
+                .TryAdd<IProviderConfigurationCodeGenerator, SqliteCodeGenerator>()
+                .TryAddCoreServices();
+        }
     }
 }

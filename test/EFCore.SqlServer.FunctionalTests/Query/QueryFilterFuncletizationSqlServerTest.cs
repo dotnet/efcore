@@ -1,7 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -81,7 +85,21 @@ WHERE [m].[Tenant] = @__ef_filter__p_0");
 
         public override void DbContext_list_is_parameterized()
         {
-            base.DbContext_list_is_parameterized();
+            using var context = CreateContext();
+            // Default value of TenantIds is null InExpression over null values throws
+            Assert.Throws<NullReferenceException>(() => context.Set<ListFilter>().ToList());
+
+            context.TenantIds = new List<int>();
+            var query = context.Set<ListFilter>().ToList();
+            Assert.Empty(query);
+
+            context.TenantIds = new List<int> { 1 };
+            query = context.Set<ListFilter>().ToList();
+            Assert.Single(query);
+
+            context.TenantIds = new List<int> { 2, 3 };
+            query = context.Set<ListFilter>().ToList();
+            Assert.Equal(2, query.Count);
 
             AssertSql(
                 @"SELECT [l].[Id], [l].[Tenant]
@@ -176,20 +194,20 @@ WHERE ([c].[IsEnabled] = @__ef_filter__Property_0) AND (@__ef_filter__p_1 = CAST
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] <> CAST(1 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
+WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
                 //
                 @"@__ef_filter__p_0='False'
 @__ef_filter__IsModerated_1='False' (Nullable = true)
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] <> CAST(1 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
+WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND ((@__ef_filter__p_0 = CAST(1 AS bit)) OR (@__ef_filter__IsModerated_1 = [s].[IsModerated]))",
                 //
                 @"@__ef_filter__p_0='True'
 
 SELECT [s].[Id], [s].[IsDeleted], [s].[IsModerated]
 FROM [ShortCircuitFilter] AS [s]
-WHERE ([s].[IsDeleted] <> CAST(1 AS bit)) AND (@__ef_filter__p_0 = CAST(1 AS bit))");
+WHERE ([s].[IsDeleted] = CAST(0 AS bit)) AND (@__ef_filter__p_0 = CAST(1 AS bit))");
         }
 
         public override void EntityTypeConfiguration_DbContext_field_is_parameterized()

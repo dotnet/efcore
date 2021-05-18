@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -22,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entity"> The entity instance on which lazy-loading was initiated. </param>
         /// <param name="navigationPropertyName"> The navigation property name of the relationship to be loaded. </param>
         public LazyLoadingEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] DbContext context,
-            [NotNull] object entity,
-            [NotNull] string navigationPropertyName)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbContext context,
+            object entity,
+            string navigationPropertyName)
             : base(eventDefinition, messageGenerator, context)
         {
             Entity = entity;

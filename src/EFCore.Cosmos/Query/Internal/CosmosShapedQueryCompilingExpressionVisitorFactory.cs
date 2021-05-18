@@ -1,9 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -26,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosShapedQueryCompilingExpressionVisitorFactory(
-            [NotNull] ShapedQueryCompilingExpressionVisitorDependencies dependencies,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory,
-            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
+            ShapedQueryCompilingExpressionVisitorDependencies dependencies,
+            ISqlExpressionFactory sqlExpressionFactory,
+            IQuerySqlGeneratorFactory querySqlGeneratorFactory)
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));

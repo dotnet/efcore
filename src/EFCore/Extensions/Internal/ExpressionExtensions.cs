@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -30,8 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression MakeHasDefaultValue(
-            [NotNull] this Expression currentValueExpression,
-            [CanBeNull] IPropertyBase propertyBase)
+            this Expression currentValueExpression,
+            IReadOnlyPropertyBase? propertyBase)
         {
             if (!currentValueExpression.Type.IsValueType)
             {
@@ -46,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return Expression.Not(
                     Expression.Call(
                         currentValueExpression,
-                        currentValueExpression.Type.GetMethod("get_HasValue")));
+                        currentValueExpression.Type.GetRequiredMethod("get_HasValue")));
             }
 
-            var property = propertyBase as IProperty;
+            var property = propertyBase as IReadOnlyProperty;
             var clrType = propertyBase?.ClrType ?? currentValueExpression.Type;
             var comparer = property?.GetValueComparer()
                 ?? ValueComparer.CreateDefault(clrType, favorStructuralComparisons: false);
@@ -67,9 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyList<TMemberInfo> MatchMemberAccessList<TMemberInfo>(
-            [NotNull] this LambdaExpression lambdaExpression,
-            [NotNull] Func<Expression, Expression, TMemberInfo> memberMatcher)
+        public static IReadOnlyList<TMemberInfo>? MatchMemberAccessList<TMemberInfo>(
+            this LambdaExpression lambdaExpression,
+            Func<Expression, Expression, TMemberInfo?> memberMatcher)
             where TMemberInfo : MemberInfo
         {
             Check.DebugAssert(lambdaExpression.Body != null, "lambdaExpression.Body is null");
@@ -82,11 +82,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             if (RemoveConvert(lambdaExpression.Body) is NewExpression newExpression)
             {
                 var memberInfos
-                    = newExpression
+                    = (List<TMemberInfo>)newExpression
                         .Arguments
                         .Select(a => memberMatcher(a, parameterExpression))
                         .Where(p => p != null)
-                        .ToList();
+                        .ToList()!;
 
                 return memberInfos.Count != newExpression.Arguments.Count ? null : memberInfos;
             }
@@ -102,9 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static TMemberInfo MatchSimpleMemberAccess<TMemberInfo>(
-            [NotNull] this Expression parameterExpression,
-            [NotNull] Expression memberAccessExpression)
+        public static TMemberInfo? MatchSimpleMemberAccess<TMemberInfo>(
+            this Expression parameterExpression,
+            Expression memberAccessExpression)
             where TMemberInfo : MemberInfo
         {
             var memberInfos = MatchMemberAccess<TMemberInfo>(parameterExpression, memberAccessExpression);
@@ -112,18 +112,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return memberInfos?.Count == 1 ? memberInfos[0] : null;
         }
 
-        private static IReadOnlyList<TMemberInfo> MatchMemberAccess<TMemberInfo>(
+        private static IReadOnlyList<TMemberInfo>? MatchMemberAccess<TMemberInfo>(
             this Expression parameterExpression,
             Expression memberAccessExpression)
             where TMemberInfo : MemberInfo
         {
             var memberInfos = new List<TMemberInfo>();
 
-            MemberExpression memberExpression;
-
+            MemberExpression? memberExpression;
+            var unwrappedExpression = RemoveTypeAs(RemoveConvert(memberAccessExpression));
             do
             {
-                memberExpression = RemoveTypeAs(RemoveConvert(memberAccessExpression)) as MemberExpression;
+                memberExpression = unwrappedExpression as MemberExpression;
 
                 if (!(memberExpression?.Member is TMemberInfo memberInfo))
                 {
@@ -132,9 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 memberInfos.Insert(0, memberInfo);
 
-                memberAccessExpression = memberExpression.Expression;
+                unwrappedExpression = RemoveTypeAs(RemoveConvert(memberExpression.Expression));
             }
-            while (RemoveTypeAs(RemoveConvert(memberExpression.Expression)) != parameterExpression);
+            while (unwrappedExpression != parameterExpression);
 
             return memberInfos;
         }
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static Expression RemoveTypeAs([CanBeNull] this Expression expression)
+        public static Expression? RemoveTypeAs(this Expression? expression)
         {
             while (expression?.NodeType == ExpressionType.TypeAs)
             {
@@ -161,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsLogicalOperation([NotNull] this Expression expression)
+        public static bool IsLogicalOperation(this Expression expression)
         {
             Check.NotNull(expression, nameof(expression));
 
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static LambdaExpression GetLambdaOrNull([NotNull] this Expression expression)
+        public static LambdaExpression? GetLambdaOrNull(this Expression expression)
             => expression is LambdaExpression lambda
                 ? lambda
                 : expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote
@@ -188,12 +188,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static bool IsLogicalNot([NotNull] this UnaryExpression sqlUnaryExpression)
+        public static bool IsLogicalNot(this UnaryExpression sqlUnaryExpression)
             => sqlUnaryExpression.NodeType == ExpressionType.Not
                 && (sqlUnaryExpression.Type == typeof(bool)
                     || sqlUnaryExpression.Type == typeof(bool?));
 
-        private static Expression RemoveConvert(Expression expression)
+        [return: NotNullIfNotNull("expression")]
+        private static Expression? RemoveConvert(Expression? expression)
         {
             if (expression is UnaryExpression unaryExpression
                 && (expression.NodeType == ExpressionType.Convert
@@ -206,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private static readonly MethodInfo _objectEqualsMethodInfo
-            = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -215,9 +216,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static Expression BuildPredicate(
-            [NotNull] IReadOnlyList<IProperty> keyProperties,
+            IReadOnlyList<IReadOnlyProperty> keyProperties,
             ValueBuffer keyValues,
-            [NotNull] ParameterExpression entityParameter)
+            ParameterExpression entityParameter)
         {
             var keyValuesConstant = Expression.Constant(keyValues);
 
@@ -233,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             static Expression GenerateEqualExpression(
                 Expression entityParameterExpression,
                 Expression keyValuesConstantExpression,
-                IProperty property,
+                IReadOnlyProperty property,
                 int i)
                 => property.ClrType.IsValueType
                     && property.ClrType.UnwrapNullableType() is Type nonNullableType

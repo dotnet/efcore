@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -24,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public SharedTableConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
         }
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionModelBuilder> context)
         {
             var maxLength = modelBuilder.Metadata.GetMaxIdentifierLength();
-            var tables = new Dictionary<(string TableName, string Schema), List<IConventionEntityType>>();
+            var tables = new Dictionary<(string TableName, string? Schema), List<IConventionEntityType>>();
 
             TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
 
@@ -68,19 +67,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private static void TryUniquifyTableNames(
             IConventionModel model,
-            Dictionary<(string Name, string Schema), List<IConventionEntityType>> tables,
+            Dictionary<(string Name, string? Schema), List<IConventionEntityType>> tables,
             int maxLength)
         {
-            Dictionary<(string Name, string Schema), Dictionary<(string Name, string Schema), List<IConventionEntityType>>> clashingTables
+            Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>? clashingTables
                 = null;
             foreach (var entityType in model.GetEntityTypes())
             {
-                var table = (Name: entityType.GetTableName(), Schema: entityType.GetSchema());
-                if (table.Name == null
+                var tableName = entityType.GetTableName();
+                if (tableName == null
                     || entityType.FindPrimaryKey() == null)
                 {
                     continue;
                 }
+
+                var table = (Name: tableName, Schema: entityType.GetSchema());
 
                 if (!tables.TryGetValue(table, out var entityTypes))
                 {
@@ -101,22 +102,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (table.Name.Length == maxLength)
                 {
-                    var originalName = entityType.GetDefaultTableName(truncate: false);
+                    var originalName = entityType.GetDefaultTableName(truncate: false)!;
                     if (originalName.Length == maxLength)
                     {
                         continue;
                     }
 
-                    if (clashingTables == null)
-                    {
-                        clashingTables =
-                            new Dictionary<(string Name, string Schema),
-                                Dictionary<(string Name, string Schema), List<IConventionEntityType>>>();
-                    }
+                    clashingTables ??= new();
 
                     if (!clashingTables.TryGetValue(table, out var clashingSubTables))
                     {
-                        clashingSubTables = new Dictionary<(string Name, string Schema), List<IConventionEntityType>>();
+                        clashingSubTables = new Dictionary<(string Name, string? Schema), List<IConventionEntityType>>();
                         clashingTables[table] = clashingSubTables;
                     }
 
@@ -174,9 +170,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                var identifyingMemberInfo = property.PropertyInfo ?? (MemberInfo)property.FieldInfo;
+                var identifyingMemberInfo = property.PropertyInfo ?? (MemberInfo?)property.FieldInfo;
                 if ((identifyingMemberInfo != null
-                        && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo)otherProperty.FieldInfo))
+                        && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo?)otherProperty.FieldInfo))
                     || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
                     || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken)
                     || (!property.Builder.CanSetColumnName(null) && !otherProperty.Builder.CanSetColumnName(null)))
@@ -223,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private static string TryUniquify(
+        private static string? TryUniquify(
             IConventionProperty property,
             string columnName,
             Dictionary<string, IConventionProperty> properties,
@@ -305,12 +301,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IKey key,
-            [NotNull] IKey duplicateKey,
+            IReadOnlyKey key,
+            IReadOnlyKey duplicateKey,
             in StoreObjectIdentifier storeObject)
             => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
 
-        private static string TryUniquify<T>(
+        private static string? TryUniquify<T>(
             IConventionKey key,
             string keyName,
             Dictionary<string, T> keys,
@@ -375,12 +371,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IIndex index,
-            [NotNull] IIndex duplicateIndex,
+            IReadOnlyIndex index,
+            IReadOnlyIndex duplicateIndex,
             in StoreObjectIdentifier storeObject)
             => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
 
-        private static string TryUniquify<T>(
+        private static string? TryUniquify<T>(
             IConventionIndex index,
             string indexName,
             Dictionary<string, T> indexes,
@@ -466,12 +462,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> <see langword="true" /> if compatible </returns>
         protected virtual bool AreCompatible(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IForeignKey duplicateForeignKey,
+            IReadOnlyForeignKey foreignKey,
+            IReadOnlyForeignKey duplicateForeignKey,
             in StoreObjectIdentifier storeObject)
             => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
 
-        private static string TryUniquify<T>(
+        private static string? TryUniquify<T>(
             IConventionForeignKey foreignKey,
             string foreignKeyName,
             Dictionary<string, T> foreignKeys,

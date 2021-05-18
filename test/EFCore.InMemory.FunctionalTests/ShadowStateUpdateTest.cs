@@ -15,13 +15,14 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public async Task Can_add_update_delete_end_to_end_using_partial_shadow_state()
         {
-            IMutableModel model = InMemoryTestHelpers.Instance.CreateConventionBuilder().Model;
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var entityTypeBuilder = modelBuilder.Entity<Customer>();
+            entityTypeBuilder.Property<string>("Name");
 
-            var customerType = model.AddEntityType(typeof(Customer));
-            customerType.AddProperty("Name", typeof(string));
+            var customerType = (IEntityType)entityTypeBuilder.Metadata;
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model.FinalizeModel())
+                .UseModel(modelBuilder.FinalizeModel())
                 .UseInMemoryDatabase(nameof(ShadowStateUpdateTest))
                 .UseInternalServiceProvider(_fixture.ServiceProvider);
 

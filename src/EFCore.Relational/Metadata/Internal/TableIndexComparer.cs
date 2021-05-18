@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly TableIndexComparer Instance = new TableIndexComparer();
+        public static readonly TableIndexComparer Instance = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,8 +33,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(ITableIndex x, ITableIndex y)
+        public int Compare(ITableIndex? x, ITableIndex? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = StringComparer.Ordinal.Compare(x.Name, y.Name);
             if (result != 0)
             {
@@ -47,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return result;
             }
 
-            return result != 0 ? result : StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
+            return StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
         }
 
         /// <summary>
@@ -56,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(ITableIndex x, ITableIndex y)
+        public bool Equals(ITableIndex? x, ITableIndex? y)
             => Compare(x, y) == 0;
 
         /// <summary>

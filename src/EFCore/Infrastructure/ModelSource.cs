@@ -2,9 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,13 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelSource : IModelSource
     {
-        private readonly object _syncObject = new object();
+        private readonly object _syncObject = new();
 
         /// <summary>
         ///     Creates a new <see cref="ModelSource" /> instance.
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
-        public ModelSource([NotNull] ModelSourceDependencies dependencies)
+        public ModelSource(ModelSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> The model to be used. </returns>
-        [Obsolete("Use the overload with ModelDependencies")]
+        [Obsolete("Use the overload with ModelCreationDependencies")]
         public virtual IModel GetModel(
             DbContext context,
             IConventionSetBuilder conventionSetBuilder)
@@ -68,6 +68,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (!cache.TryGetValue(cacheKey, out model))
                     {
                         model = CreateModel(context, conventionSetBuilder);
+
+                        if (model is Model mutableModel
+                            && !mutableModel.IsReadOnly)
+                        {
+                            model = mutableModel.FinalizeModel();
+                        }
+
+                        model = model.GetOrAddRuntimeAnnotationValue(
+                            CoreAnnotationNames.ReadOnlyModel,
+                            static model => model!,
+                            model);
+
                         model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
                     }
                 }
@@ -83,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
         /// <returns> The model to be used. </returns>
+        [Obsolete("Use the overload with ModelCreationDependencies")]
         public virtual IModel GetModel(
             DbContext context,
             IConventionSetBuilder conventionSetBuilder,
@@ -98,6 +111,52 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (!cache.TryGetValue(cacheKey, out model))
                     {
                         model = CreateModel(context, conventionSetBuilder, modelDependencies);
+
+                        if (model is Model mutableModel
+                            && !mutableModel.IsReadOnly)
+                        {
+                            model = mutableModel.FinalizeModel();
+                        }
+
+                        model = model.GetOrAddRuntimeAnnotationValue(
+                            CoreAnnotationNames.ReadOnlyModel,
+                            static model => model!,
+                            model);
+
+                        model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
+                    }
+                }
+            }
+
+            return model;
+        }
+
+        /// <summary>
+        ///     Gets the model to be used.
+        /// </summary>
+        /// <param name="context"> The context the model is being produced for. </param>
+        /// <param name="modelCreationDependencies"> The dependencies object used during the creation of the model. </param>
+        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
+        /// <returns> The model to be used. </returns>
+        public virtual IModel GetModel(
+            DbContext context,
+            ModelCreationDependencies modelCreationDependencies,
+            bool designTime)
+        {
+            var cache = Dependencies.MemoryCache;
+            var cacheKey = Dependencies.ModelCacheKeyFactory.Create(context, designTime);
+            if (!cache.TryGetValue(cacheKey, out IModel model))
+            {
+                // Make sure OnModelCreating really only gets called once, since it may not be thread safe.
+                lock (_syncObject)
+                {
+                    if (!cache.TryGetValue(cacheKey, out model))
+                    {
+                        model = CreateModel(context, modelCreationDependencies.ConventionSetBuilder, modelCreationDependencies.ModelDependencies);
+
+                        model = modelCreationDependencies.ModelRuntimeInitializer.Initialize(
+                            model, designTime, modelCreationDependencies.ValidationLogger);
+
                         model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
                     }
                 }
@@ -112,10 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="context"> The context the model is being produced for. </param>
         /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
         /// <returns> The model to be used. </returns>
-        [Obsolete("Use the overload with ModelDependencies")]
+        [Obsolete("Use the overload with ModelCreationDependencies")]
         protected virtual IModel CreateModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder)
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder)
         {
             Check.NotNull(context, nameof(context));
 
@@ -123,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
-            return modelBuilder.FinalizeModel();
+            return (IModel)modelBuilder.Model;
         }
 
         /// <summary>
@@ -134,17 +193,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
         /// <returns> The model to be used. </returns>
         protected virtual IModel CreateModel(
-            [NotNull] DbContext context,
-            [NotNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] ModelDependencies modelDependencies)
+            DbContext context,
+            IConventionSetBuilder conventionSetBuilder,
+            ModelDependencies modelDependencies)
         {
-            Check.NotNull(context, nameof(context));
+            Check.DebugAssert(context != null, "context == null");
 
             var modelBuilder = new ModelBuilder(conventionSetBuilder.CreateConventionSet(), modelDependencies);
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
-            return modelBuilder.FinalizeModel();
+            return (IModel)modelBuilder.Model;
         }
     }
 }

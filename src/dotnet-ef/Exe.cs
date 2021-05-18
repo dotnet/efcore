@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public static int Run(
             string executable,
             IReadOnlyList<string> args,
-            string workingDirectory = null,
+            string? workingDirectory = null,
             bool interceptOutput = false)
         {
             var arguments = ToArguments(args);
@@ -28,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 startInfo.WorkingDirectory = workingDirectory;
             }
 
-            var process = Process.Start(startInfo);
+            var process = Process.Start(startInfo)!;
 
             if (interceptOutput)
             {
-                string line;
+                string? line;
                 while ((line = process.StandardOutput.ReadLine()) != null)
                 {
                     Reporter.WriteVerbose(line);
@@ -51,9 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 if (i != 0)
                 {
-                    builder.Append(" ");
+                    builder.Append(' ');
                 }
 
+                if (args[i].Length == 0)
+                {
+                    builder.Append("\"\"");
+
+                    continue;
+                }
                 if (args[i].IndexOf(' ') == -1)
                 {
                     builder.Append(args[i]);
@@ -61,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     continue;
                 }
 
-                builder.Append("\"");
+                builder.Append('"');
 
                 var pendingBackslashes = 0;
                 for (var j = 0; j < args[i].Length; j++)
@@ -107,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     builder.Append('\\', pendingBackslashes * 2);
                 }
 
-                builder.Append("\"");
+                builder.Append('"');
             }
 
             return builder.ToString();

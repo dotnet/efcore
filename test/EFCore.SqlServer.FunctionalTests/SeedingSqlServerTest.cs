@@ -7,14 +7,10 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class SeedingSqlServerTest : SeedingTestBase
     {
+        protected override TestStore TestStore => SqlServerTestStore.Create("SeedingTest");
+
         protected override SeedingContext CreateContextWithEmptyDatabase(string testId)
-        {
-            var context = new SeedingSqlServerContext(testId);
-
-            context.Database.EnsureClean();
-
-            return context;
-        }
+            => new SeedingSqlServerContext(testId);
 
         protected class SeedingSqlServerContext : SeedingContext
         {

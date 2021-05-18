@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -12,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// </summary>
     public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>, IEquatable<StoreObjectIdentifier>
     {
-        private StoreObjectIdentifier(StoreObjectType storeObjectType, string name, string schema = null)
+        private StoreObjectIdentifier(StoreObjectType storeObjectType, string name, string? schema = null)
         {
             StoreObjectType = storeObjectType;
             Name = name;
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="entityType"> The entity type. </param>
         /// <param name="type"> The store object type. </param>
         /// <returns> The store object id. </returns>
-        public static StoreObjectIdentifier? Create([NotNull] IEntityType entityType, StoreObjectType type)
+        public static StoreObjectIdentifier? Create(IReadOnlyEntityType entityType, StoreObjectType type)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -33,16 +32,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 case StoreObjectType.Table:
                     var tableName = entityType.GetTableName();
-                    return tableName == null ? (StoreObjectIdentifier?)null : Table(tableName, entityType.GetSchema());
+                    return tableName == null ? null : Table(tableName, entityType.GetSchema());
                 case StoreObjectType.View:
                     var viewName = entityType.GetViewName();
-                    return viewName == null ? (StoreObjectIdentifier?)null : View(viewName, entityType.GetViewSchema());
+                    return viewName == null ? null : View(viewName, entityType.GetViewSchema());
                 case StoreObjectType.SqlQuery:
                     var query = entityType.GetSqlQuery();
-                    return query == null ? (StoreObjectIdentifier?)null : SqlQuery(entityType);
+                    return query == null ? null : SqlQuery(entityType);
                 case StoreObjectType.Function:
                     var functionName = entityType.GetFunctionName();
-                    return functionName == null ? (StoreObjectIdentifier?)null : DbFunction(functionName);
+                    return functionName == null ? null : DbFunction(functionName);
                 default:
                     return null;
             }
@@ -54,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The table name. </param>
         /// <param name="schema"> The table schema. </param>
         /// <returns> The table id. </returns>
-        public static StoreObjectIdentifier Table([NotNull] string name, [CanBeNull] string schema)
+        public static StoreObjectIdentifier Table(string name, string? schema = null)
         {
             Check.NotNull(name, nameof(name));
 
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="name"> The view name. </param>
         /// <param name="schema"> The view schema. </param>
         /// <returns> The view id. </returns>
-        public static StoreObjectIdentifier View([NotNull] string name, [CanBeNull] string schema)
+        public static StoreObjectIdentifier View(string name, string? schema = null)
         {
             Check.NotNull(name, nameof(name));
 
@@ -79,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The SQL query id. </returns>
-        public static StoreObjectIdentifier SqlQuery([NotNull] IEntityType entityType)
+        public static StoreObjectIdentifier SqlQuery(IReadOnlyEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -91,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="name"> The SQL query name. </param>
         /// <returns> The SQL query id. </returns>
-        public static StoreObjectIdentifier SqlQuery([NotNull] string name)
+        public static StoreObjectIdentifier SqlQuery(string name)
         {
             Check.NotNull(name, nameof(name));
 
@@ -103,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="modelName"> The function model name. </param>
         /// <returns> The function id. </returns>
-        public static StoreObjectIdentifier DbFunction([NotNull] string modelName)
+        public static StoreObjectIdentifier DbFunction(string modelName)
         {
             Check.NotNull(modelName, nameof(modelName));
 
@@ -123,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the table-like store object schema.
         /// </summary>
-        public string Schema { get; }
+        public string? Schema { get; }
 
         /// <inheritdoc />
         public int CompareTo(StoreObjectIdentifier other)
@@ -154,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => StoreObjectType + " " + DisplayName();
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj is StoreObjectIdentifier identifier && Equals(identifier);
 
         /// <inheritdoc />

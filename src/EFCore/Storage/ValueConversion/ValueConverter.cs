@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
@@ -36,15 +35,46 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         protected ValueConverter(
-            [NotNull] LambdaExpression convertToProviderExpression,
-            [NotNull] LambdaExpression convertFromProviderExpression,
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            LambdaExpression convertToProviderExpression,
+            LambdaExpression convertFromProviderExpression,
+            ConverterMappingHints? mappingHints = null)
+            : this(convertToProviderExpression, convertFromProviderExpression, false, mappingHints)
+        {
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ValueConverter" /> class.
+        /// </summary>
+        /// <param name="convertToProviderExpression">
+        ///     The expression to convert objects when writing data to the store,
+        ///     exactly as supplied and may not handle
+        ///     nulls, boxing, and non-exact matches of simple types.
+        /// </param>
+        /// <param name="convertFromProviderExpression">
+        ///     The expression to convert objects when reading data from the store,
+        ///     exactly as supplied and may not handle
+        ///     nulls, boxing, and non-exact matches of simple types.
+        /// </param>
+        /// <param name="convertsNulls">
+        ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
+        ///     values always remain null.
+        /// </param>
+        /// <param name="mappingHints">
+        ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
+        ///     facets for the converted data.
+        /// </param>
+        protected ValueConverter(
+            LambdaExpression convertToProviderExpression,
+            LambdaExpression convertFromProviderExpression,
+            bool convertsNulls,
+            ConverterMappingHints? mappingHints = null)
         {
             Check.NotNull(convertToProviderExpression, nameof(convertToProviderExpression));
             Check.NotNull(convertFromProviderExpression, nameof(convertFromProviderExpression));
 
             ConvertToProviderExpression = convertToProviderExpression;
             ConvertFromProviderExpression = convertFromProviderExpression;
+            ConvertsNulls = convertsNulls;
             MappingHints = mappingHints;
         }
 
@@ -52,13 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Gets the function to convert objects when writing data to the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public abstract Func<object, object> ConvertToProvider { get; }
+        public abstract Func<object?, object?> ConvertToProvider { get; }
 
         /// <summary>
         ///     Gets the function to convert objects when reading data from the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
-        public abstract Func<object, object> ConvertFromProvider { get; }
+        public abstract Func<object?, object?> ConvertFromProvider { get; }
 
         /// <summary>
         ///     Gets the expression to convert objects when writing data to the store,
@@ -88,7 +118,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </summary>
-        public virtual ConverterMappingHints MappingHints { get; }
+        public virtual ConverterMappingHints? MappingHints { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
+        ///         values always remain null.
+        ///     </para>
+        ///     <para>
+        ///         By default, value converters do not handle nulls so that a value converter for a non-nullable property (such as
+        ///         a primary key) can be used for correlated nullable properties, such as any corresponding foreign key properties.
+        ///     </para>
+        /// </summary>
+        public virtual bool ConvertsNulls { get; }
 
         /// <summary>
         ///     Checks that the type used with a value converter is supported by that converter and throws if not.
@@ -98,9 +140,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="supportedTypes"> The types that are supported. </param>
         /// <returns> The given type. </returns>
         protected static Type CheckTypeSupported(
-            [NotNull] Type type,
-            [NotNull] Type converterType,
-            [NotNull] params Type[] supportedTypes)
+            Type type,
+            Type converterType,
+            params Type[] supportedTypes)
         {
             Check.NotNull(type, nameof(type));
             Check.NotNull(converterType, nameof(converterType));
@@ -125,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="secondConverter"> The second converter. </param>
         /// <returns> The composed converter. </returns>
         public virtual ValueConverter ComposeWith(
-            [CanBeNull] ValueConverter secondConverter)
+            ValueConverter? secondConverter)
         {
             if (secondConverter == null)
             {
@@ -150,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                             typeof(CastingConverter<,>).MakeGenericType(
                                 ProviderClrType,
                                 secondConverter.ModelClrType),
-                            MappingHints))
+                            MappingHints)!)
                     : this;
 
             return (ValueConverter)Activator.CreateInstance(
@@ -162,7 +204,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 secondConverter,
                 secondConverter.MappingHints == null
                     ? firstConverter.MappingHints
-                    : secondConverter.MappingHints.With(firstConverter.MappingHints));
+                    : secondConverter.MappingHints.With(firstConverter.MappingHints))!;
         }
     }
 }

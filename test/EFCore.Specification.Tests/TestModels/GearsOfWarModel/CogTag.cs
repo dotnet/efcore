@@ -15,5 +15,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public string GearNickName { get; set; }
         public int? GearSquadId { get; set; }
         public virtual Gear Gear { get; set; }
+        public DateTime IssueDate { get; set; }
     }
 }

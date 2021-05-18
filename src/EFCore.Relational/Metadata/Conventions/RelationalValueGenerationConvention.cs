@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -24,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public RelationalValueGenerationConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
         }
@@ -41,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             var property = propertyBuilder.Metadata;
@@ -67,8 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessEntityTypeAnnotationChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == RelationalAnnotationNames.TableName)
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var schema = entityTypeBuilder.Metadata.GetSchema();
                 ProcessTableChanged(
                     entityTypeBuilder,
-                    (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultTableName(),
+                    (string?)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultTableName(),
                     schema,
                     entityTypeBuilder.Metadata.GetTableName(),
                     schema);
@@ -87,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 ProcessTableChanged(
                     entityTypeBuilder,
                     tableName,
-                    (string)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultSchema(),
+                    (string?)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultSchema(),
                     tableName,
                     entityTypeBuilder.Metadata.GetSchema());
             }
@@ -95,10 +94,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void ProcessTableChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            string oldTable,
-            string oldSchema,
-            string newTable,
-            string newSchema)
+            string? oldTable,
+            string? oldSchema,
+            string? newTable,
+            string? newSchema)
         {
             var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             if (primaryKey == null)
@@ -122,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             foreach (var property in primaryKey.Properties)
             {
-                property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable, newSchema)));
+                property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable!, newSchema)));
             }
         }
 
@@ -148,15 +147,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The new store value generation strategy to set for the given property. </returns>
-        public static ValueGenerated? GetValueGenerated([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
+        public static ValueGenerated? GetValueGenerated(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var valueGenerated = GetValueGenerated(property);
             return valueGenerated
                 ?? (property.GetComputedColumnSql(storeObject) != null
                     ? ValueGenerated.OnAddOrUpdate
-                    : property.GetDefaultValue(storeObject) != null || property.GetDefaultValueSql(storeObject) != null
+                    : property.TryGetDefaultValue(storeObject, out _) || property.GetDefaultValueSql(storeObject) != null
                         ? ValueGenerated.OnAdd
-                        : (ValueGenerated?)null);
+                        : null);
         }
     }
 }

@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (entityType.FindProperty(nameof(BuiltInDataTypes.TestDateTimeOffset)) != null)
             {
-                var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
+                var param7 = new DateTimeOffset(new DateTime(), TimeSpan.Zero);
                 Assert.Same(
                     entity,
                     set.Where(e => e.Id == 11 && EF.Property<DateTimeOffset>(e, nameof(BuiltInDataTypes.TestDateTimeOffset)) == param7)
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore
                     TestDouble = -1.23456789,
                     TestDecimal = -1234567890.01M,
                     TestDateTime = Fixture.DefaultDateTime,
-                    TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                    TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.Zero),
                     TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                     TestSingle = -1.234F,
                     TestBoolean = true,

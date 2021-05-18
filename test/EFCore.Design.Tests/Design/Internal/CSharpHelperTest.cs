@@ -242,6 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [InlineData(typeof(MultiGeneric<int, int>), "MultiGeneric<int, int>")]
         [InlineData(typeof(NestedGeneric<int>), "CSharpHelperTest.NestedGeneric<int>")]
         [InlineData(typeof(Nested.DoubleNested), "CSharpHelperTest.Nested.DoubleNested")]
+        [InlineData(typeof(NestedGeneric<Nested.DoubleNested>), "CSharpHelperTest.NestedGeneric<CSharpHelperTest.Nested.DoubleNested>")]
         public void Reference_works(Type type, string expected)
             => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).Reference(type));
 
@@ -606,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private static SqlServerTypeMappingSource CreateTypeMappingSource(
             params IRelationalTypeMappingSourcePlugin[] plugins)
-            => new SqlServerTypeMappingSource(
+            => new(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 new RelationalTypeMappingSourceDependencies(
                     plugins));
@@ -696,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public string FactoryArg { get; }
 
         public SimpleTestType Create()
-            => new SimpleTestType();
+            => new();
 
         public object Create(string arg1)
             => new SimpleTestType(arg1);
@@ -705,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             => new SimpleTestType(arg1, arg2);
 
         public static SimpleTestType StaticCreate()
-            => new SimpleTestType();
+            => new();
 
         public static object StaticCreate(string arg1)
             => new SimpleTestType(arg1);

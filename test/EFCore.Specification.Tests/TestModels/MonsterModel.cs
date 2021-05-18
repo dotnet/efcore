@@ -62,12 +62,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels
 
     public interface IConcurrencyInfo
     {
+        bool Active { get; set; }
         string Token { get; set; }
         DateTime? QueriedDateTime { get; set; }
     }
 
     public interface IContactDetails
     {
+        bool Active { get; set; }
         string Email { get; set; }
 
         IPhone HomePhone { get; set; }

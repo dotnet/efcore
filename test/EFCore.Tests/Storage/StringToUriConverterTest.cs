@@ -9,8 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     public class StringToUriConverterTest
     {
-        private static readonly StringToUriConverter _stringToUri
-            = new StringToUriConverter();
+        private static readonly StringToUriConverter _stringToUri = new();
 
         [ConditionalFact]
         public void Can_convert_strings_to_uris()
@@ -21,8 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new Uri("/relative/path", UriKind.Relative), converter("/relative/path"));
             Assert.Equal(new Uri("ftp://www.github.com", UriKind.Absolute), converter("ftp://www.github.com/"));
             Assert.Equal(new Uri(".", UriKind.Relative), converter("."));
-            Assert.Null(converter("http:///"));
+
             Assert.Null(converter(null));
+            Assert.Throws<UriFormatException>(() => converter("http:///"));
         }
 
         [ConditionalFact]
@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(new Uri("/relative/path", UriKind.Relative), converter("/relative/path"));
             Assert.Equal(new Uri("ftp://www.github.com", UriKind.Absolute), converter("ftp://www.github.com/"));
             Assert.Equal(new Uri(".", UriKind.Relative), converter("."));
-            Assert.Null(converter("http:///"));
+
             Assert.Null(converter(null));
+            Assert.Throws<UriFormatException>(() => converter("http:///"));
         }
 
         [ConditionalFact]

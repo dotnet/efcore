@@ -6,7 +6,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityQueryProvider([NotNull] IQueryCompiler queryCompiler)
+        public EntityQueryProvider(IQueryCompiler queryCompiler)
         {
             _queryCompiler = queryCompiler;
             _genericExecuteMethod = queryCompiler.GetType()
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual IQueryable CreateQuery(Expression expression)
             => (IQueryable)_genericCreateQueryMethod
                 .MakeGenericMethod(expression.Type.GetSequenceType())
-                .Invoke(this, new object[] { expression });
+                .Invoke(this, new object[] { expression })!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public virtual object Execute(Expression expression)
             => _genericExecuteMethod.MakeGenericMethod(expression.Type)
-                .Invoke(_queryCompiler, new object[] { expression });
+                .Invoke(_queryCompiler, new object[] { expression })!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

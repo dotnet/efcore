@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class ExecutionStrategyDependencies
+    public sealed record ExecutionStrategyDependencies
     {
         /// <summary>
         ///     <para>
@@ -55,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         [EntityFrameworkInternal]
         public ExecutionStrategyDependencies(
-            [NotNull] ICurrentDbContext currentContext,
-            [CanBeNull] IDbContextOptions options,
-            [CanBeNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+            ICurrentDbContext currentContext,
+            IDbContextOptions options,
+            IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
         {
             Check.NotNull(currentContext, nameof(currentContext));
 
@@ -69,40 +68,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The options for the current <see cref="DbContext" /> instance.
         /// </summary>
-        public IDbContextOptions Options { get; }
+        public IDbContextOptions Options { get; init; }
 
         /// <summary>
         ///     Indirection to the current <see cref="DbContext" /> instance.
         /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     The logger.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; }
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new ExecutionStrategyDependencies(currentContext, Options, Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="options"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyDependencies With([NotNull] IDbContextOptions options)
-            => new ExecutionStrategyDependencies(CurrentContext, options, Logger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="logger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public ExecutionStrategyDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
-            => new ExecutionStrategyDependencies(CurrentContext, Options, logger);
+        public IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; init; }
     }
 }

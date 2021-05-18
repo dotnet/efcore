@@ -11,9 +11,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -23,8 +23,10 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -43,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
             var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var key = entityType.AddKey(property, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new List<Property> { property }, key, entityType, entityType, ConfigurationSource.Convention);
-            var index = new Metadata.Internal.Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
+            var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
 
             var fakeFactories = new Dictionary<Type, Func<object>>
@@ -53,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry>
                     {
-                        new InternalClrEntityEntry(
+                        new InternalEntityEntry(
                             contextServices.GetRequiredService<IStateManager>(),
                             entityType,
                             new object())
@@ -85,32 +87,38 @@ namespace Microsoft.EntityFrameworkCore
             TestEventLogging(
                 typeof(RelationalEventId),
                 typeof(RelationalLoggerExtensions),
-                typeof(TestRelationalLoggingDefinitions),
+                new[]
+                {
+                    typeof(IRelationalConnectionDiagnosticsLogger),
+                    typeof(IRelationalCommandDiagnosticsLogger)
+                },
+                new TestRelationalLoggingDefinitions(),
                 fakeFactories,
+                services => FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(services),
                 new Dictionary<string, IList<string>>
                 {
                     {
                         nameof(RelationalEventId.CommandExecuting),
                         new List<string>
                         {
-                            nameof(RelationalLoggerExtensions.CommandReaderExecuting),
-                            nameof(RelationalLoggerExtensions.CommandScalarExecuting),
-                            nameof(RelationalLoggerExtensions.CommandNonQueryExecuting),
-                            nameof(RelationalLoggerExtensions.CommandReaderExecutingAsync),
-                            nameof(RelationalLoggerExtensions.CommandScalarExecutingAsync),
-                            nameof(RelationalLoggerExtensions.CommandNonQueryExecutingAsync)
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandReaderExecuting),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandScalarExecuting),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandNonQueryExecuting),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandReaderExecutingAsync),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandScalarExecutingAsync),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandNonQueryExecutingAsync)
                         }
                     },
                     {
                         nameof(RelationalEventId.CommandExecuted),
                         new List<string>
                         {
-                            nameof(RelationalLoggerExtensions.CommandReaderExecutedAsync),
-                            nameof(RelationalLoggerExtensions.CommandScalarExecutedAsync),
-                            nameof(RelationalLoggerExtensions.CommandNonQueryExecutedAsync),
-                            nameof(RelationalLoggerExtensions.CommandReaderExecuted),
-                            nameof(RelationalLoggerExtensions.CommandScalarExecuted),
-                            nameof(RelationalLoggerExtensions.CommandNonQueryExecuted)
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandReaderExecutedAsync),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandScalarExecutedAsync),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandNonQueryExecutedAsync),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandReaderExecuted),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandScalarExecuted),
+                            nameof(IRelationalCommandDiagnosticsLogger.CommandNonQueryExecuted)
                         }
                     }
                 });
@@ -120,6 +128,7 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        [Migration("00000000000000_FakeMigration")]
         private class FakeMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
@@ -133,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            protected override void Print([NotNull] ExpressionPrinter expressionPrinter)
+            protected override void Print(ExpressionPrinter expressionPrinter)
                 => expressionPrinter.Append("FakeSqlExpression");
         }
 
@@ -142,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
             public void Migrate(string targetMigration = null)
                 => throw new NotImplementedException();
 
-            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new CancellationToken())
+            public Task MigrateAsync(string targetMigration = null, CancellationToken cancellationToken = new())
                 => throw new NotImplementedException();
 
             public string GenerateScript(
@@ -172,11 +181,9 @@ namespace Microsoft.EntityFrameworkCore
 
         private class FakeRelationalConnection : IRelationalConnection
         {
-            public string ConnectionString
-                => throw new NotImplementedException();
+            public string ConnectionString { get; set; }
 
-            public DbConnection DbConnection
-                => new FakeDbConnection();
+            public DbConnection DbConnection { get; set; } = new FakeDbConnection();
 
             public DbContext Context
                 => null;
@@ -257,6 +264,12 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public ValueTask DisposeAsync()
+                => throw new NotImplementedException();
+
+            public IRelationalCommand RentCommand()
+                => throw new NotImplementedException();
+
+            public void ReturnCommand(IRelationalCommand command)
                 => throw new NotImplementedException();
         }
 

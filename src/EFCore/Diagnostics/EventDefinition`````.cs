@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition<TParam1, TParam2, TParam3, TParam4, TParam5> : EventDefinitionBase
     {
-        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, Exception> _logAction;
+        private readonly Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -27,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </param>
         /// <param name="logActionFunc"> Function to create a cached delegate for logging the event. </param>
         public EventDefinition(
-            [NotNull] ILoggingOptions loggingOptions,
+            ILoggingOptions loggingOptions,
             EventId eventId,
             LogLevel level,
-            [NotNull] string eventIdCode,
-            [NotNull] Func<LogLevel, Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, Exception>> logActionFunc)
+            string eventIdCode,
+            Func<LogLevel, Action<ILogger, TParam1, TParam2, TParam3, TParam4, TParam5, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotNull(logActionFunc, nameof(logActionFunc));
@@ -50,11 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="arg5"> The fifth message argument. </param>
         /// <returns> The message string. </returns>
         public virtual string GenerateMessage(
-            [CanBeNull] TParam1 arg1,
-            [CanBeNull] TParam2 arg2,
-            [CanBeNull] TParam3 arg3,
-            [CanBeNull] TParam4 arg4,
-            [CanBeNull] TParam5 arg5)
+            TParam1 arg1,
+            TParam2 arg2,
+            TParam3 arg3,
+            TParam4 arg4,
+            TParam5 arg5)
         {
             var extractor = new MessageExtractingLogger();
             _logAction(extractor, arg1, arg2, arg3, arg4, arg5, null);
@@ -72,12 +71,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="arg4"> The fourth message argument. </param>
         /// <param name="arg5"> The fifth message argument. </param>
         public virtual void Log<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            [CanBeNull] TParam1 arg1,
-            [CanBeNull] TParam2 arg2,
-            [CanBeNull] TParam3 arg3,
-            [CanBeNull] TParam4 arg4,
-            [CanBeNull] TParam5 arg5)
+            IDiagnosticsLogger<TLoggerCategory> logger,
+            TParam1 arg1,
+            TParam2 arg2,
+            TParam3 arg3,
+            TParam4 arg4,
+            TParam5 arg5)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
             switch (WarningBehavior)

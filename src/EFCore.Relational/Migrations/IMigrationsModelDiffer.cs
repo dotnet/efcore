@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <returns>
         ///     <see langword="true" /> if there are any differences and <see langword="false" /> otherwise.
         /// </returns>
-        bool HasDifferences([CanBeNull] IRelationalModel source, [CanBeNull] IRelationalModel target);
+        bool HasDifferences(IRelationalModel? source, IRelationalModel? target);
 
         /// <summary>
         ///     Finds the differences between two models.
@@ -43,6 +42,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     A list of the operations that need to applied to the database to migrate it
         ///     from mapping to the source model so that is now mapping to the target model.
         /// </returns>
-        IReadOnlyList<MigrationOperation> GetDifferences([CanBeNull] IRelationalModel source, [CanBeNull] IRelationalModel target);
+        IReadOnlyList<MigrationOperation> GetDifferences(IRelationalModel? source, IRelationalModel? target);
     }
 }

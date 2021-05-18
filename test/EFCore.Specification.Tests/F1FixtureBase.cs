@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<Engine>(
                 b =>
                 {
+                    b.Property(e => e.Id).ValueGeneratedNever();
                     b.Property(e => e.EngineSupplierId).IsConcurrencyToken();
                     b.Property(e => e.Name).IsConcurrencyToken();
                     b.OwnsOne(
@@ -57,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
                         });
                 });
 
-            modelBuilder.Entity<EngineSupplier>();
+            modelBuilder.Entity<EngineSupplier>(b => b.HasKey(e => e.Name));
 
             modelBuilder.Entity<Gearbox>();
 
@@ -75,7 +76,10 @@ namespace Microsoft.EntityFrameworkCore
                     b.HasOne(e => e.Chassis).WithOne(e => e.Team).HasForeignKey<Chassis>(e => e.TeamId);
                 });
 
+            modelBuilder.Entity<Driver>(b => b.Property(e => e.Id).ValueGeneratedNever());
             modelBuilder.Entity<TestDriver>();
+
+            modelBuilder.Entity<Sponsor>(b => b.Property(e => e.Id).ValueGeneratedNever());
             modelBuilder.Entity<TitleSponsor>()
                 .OwnsOne(s => s.Details);
 

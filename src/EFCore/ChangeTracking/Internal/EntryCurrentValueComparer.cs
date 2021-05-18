@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntryCurrentValueComparer([NotNull] IPropertyBase property)
+        public EntryCurrentValueComparer(IPropertyBase property)
             : this(property, Comparer.Default)
         {
         }
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntryCurrentValueComparer([NotNull] IPropertyBase property, [NotNull] IComparer underlyingComparer)
+        public EntryCurrentValueComparer(IPropertyBase property, IComparer underlyingComparer)
         {
             _property = property;
             _underlyingComparer = underlyingComparer;
@@ -49,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual object GetPropertyValue([NotNull] IUpdateEntry entry)
+        protected virtual object? GetPropertyValue(IUpdateEntry entry)
             => entry.GetCurrentValue(_property);
 
         /// <summary>
@@ -58,8 +57,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(IUpdateEntry x, IUpdateEntry y)
-            => ComparePropertyValues(x.GetCurrentValue(_property), y.GetCurrentValue(_property));
+        public virtual int Compare(IUpdateEntry? x, IUpdateEntry? y)
+        {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
+            return ComparePropertyValues(x.GetCurrentValue(_property), y.GetCurrentValue(_property));
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual int ComparePropertyValues([CanBeNull] object x, [CanBeNull] object y)
+        protected virtual int ComparePropertyValues(object? x, object? y)
             => _underlyingComparer.Compare(x, y);
 
         /// <summary>
@@ -76,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool Equals(IUpdateEntry x, IUpdateEntry y)
+        public virtual bool Equals(IUpdateEntry? x, IUpdateEntry? y)
             => Compare(x, y) == 0;
 
         /// <summary>

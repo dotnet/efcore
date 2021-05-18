@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        new IConventionNavigationBuilder HasField([CanBeNull] string fieldName, bool fromDataAnnotation = false);
+        new IConventionNavigationBuilder? HasField(string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the backing field to use for this navigation.
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        new IConventionNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, bool fromDataAnnotation = false);
+        new IConventionNavigationBuilder? HasField(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this navigation.
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        new IConventionNavigationBuilder UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
+        new IConventionNavigationBuilder? UsePropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether this navigation can be configured to be automatically included in a query
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionNavigationBuilder AutoInclude(bool? autoInclude, bool fromDataAnnotation = false);
+        IConventionNavigationBuilder? AutoInclude(bool? autoInclude, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether this navigation requiredness can be configured
@@ -95,6 +94,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns>
         ///     The same builder instance if the requiredness was configured, <see langword="null" /> otherwise.
         /// </returns>
-        IConventionNavigationBuilder IsRequired(bool? required, bool fromDataAnnotation = false);
+        IConventionNavigationBuilder? IsRequired(bool? required, bool fromDataAnnotation = false);
     }
 }

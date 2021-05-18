@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
@@ -20,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Invoked when a result is available.
         /// </summary>
         /// <param name="value"> The result. </param>
-        void OnResult([CanBeNull] object value);
+        void OnResult(object? value);
 
         /// <summary>
         ///     Invoked when an error occurs.
@@ -31,6 +29,6 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <remarks>
         ///     When an <see cref="OperationException" /> is received, the stack trace should not be shown by default.
         /// </remarks>
-        void OnError([NotNull] string type, [NotNull] string message, [NotNull] string stackTrace);
+        void OnError(string type, string message, string stackTrace);
     }
 }

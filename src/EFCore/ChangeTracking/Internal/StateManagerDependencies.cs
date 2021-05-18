@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
-    public sealed class StateManagerDependencies
+    public sealed record StateManagerDependencies
     {
         /// <summary>
         ///     <para>
@@ -64,23 +63,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         [EntityFrameworkInternal]
         public StateManagerDependencies(
-            [NotNull] IInternalEntityEntryFactory internalEntityEntryFactory,
-            [NotNull] IInternalEntityEntrySubscriber internalEntityEntrySubscriber,
-            [NotNull] IInternalEntityEntryNotifier internalEntityEntryNotifier,
-            [NotNull] IValueGenerationManager valueGenerationManager,
-            [NotNull] IModel model,
-            [NotNull] IDatabase database,
-            [NotNull] IConcurrencyDetector concurrencyDetector,
-            [NotNull] ICurrentDbContext currentContext,
-            [NotNull] IEntityFinderSource entityFinderSource,
-            [NotNull] IDbSetSource setSource,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IExecutionStrategyFactory executionStrategyFactory,
-            [NotNull] ILoggingOptions loggingOptions,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger)
+            IInternalEntityEntrySubscriber internalEntityEntrySubscriber,
+            IInternalEntityEntryNotifier internalEntityEntryNotifier,
+            IValueGenerationManager valueGenerationManager,
+            IModel model,
+            IDatabase database,
+            IConcurrencyDetector concurrencyDetector,
+            ICurrentDbContext currentContext,
+            IEntityFinderSource entityFinderSource,
+            IDbSetSource setSource,
+            IEntityMaterializerSource entityMaterializerSource,
+            IExecutionStrategyFactory executionStrategyFactory,
+            ICoreSingletonOptions coreSingletonOptions,
+            ILoggingOptions loggingOptions,
+            IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
+            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger,
+            INavigationFixer navigationFixer)
         {
-            InternalEntityEntryFactory = internalEntityEntryFactory;
             InternalEntityEntrySubscriber = internalEntityEntrySubscriber;
             InternalEntityEntryNotifier = internalEntityEntryNotifier;
             ValueGenerationManager = valueGenerationManager;
@@ -92,9 +91,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             SetSource = setSource;
             EntityMaterializerSource = entityMaterializerSource;
             ExecutionStrategyFactory = executionStrategyFactory;
+            CoreSingletonOptions = coreSingletonOptions;
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
             ChangeTrackingLogger = changeTrackingLogger;
+            NavigationFixer = navigationFixer;
         }
 
         /// <summary>
@@ -103,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IInternalEntityEntryFactory InternalEntityEntryFactory { get; }
+        public IInternalEntityEntrySubscriber InternalEntityEntrySubscriber { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -111,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IInternalEntityEntrySubscriber InternalEntityEntrySubscriber { get; }
+        public IInternalEntityEntryNotifier InternalEntityEntryNotifier { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IInternalEntityEntryNotifier InternalEntityEntryNotifier { get; }
+        public IValueGenerationManager ValueGenerationManager { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IValueGenerationManager ValueGenerationManager { get; }
+        public IModel Model { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IModel Model { get; }
+        public IDatabase Database { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IDatabase Database { get; }
+        public IConcurrencyDetector ConcurrencyDetector { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -151,15 +152,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IConcurrencyDetector ConcurrencyDetector { get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public ICurrentDbContext CurrentContext { get; }
+        public ICurrentDbContext CurrentContext { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,7 +161,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public IDbSetSource SetSource { get; }
+        public IDbSetSource SetSource { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -177,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public IEntityFinderSource EntityFinderSource { get; }
+        public IEntityFinderSource EntityFinderSource { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -185,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IEntityMaterializerSource EntityMaterializerSource { get; }
+        public IEntityMaterializerSource EntityMaterializerSource { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -193,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IExecutionStrategyFactory ExecutionStrategyFactory { get; }
+        public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -201,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ILoggingOptions LoggingOptions { get; }
+        public ICoreSingletonOptions CoreSingletonOptions { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -209,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
+        public ILoggingOptions LoggingOptions { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -217,353 +210,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> ChangeTrackingLogger { get; }
+        public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; init; }
 
         /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="internalEntityEntryFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IInternalEntityEntryFactory internalEntityEntryFactory)
-            => new StateManagerDependencies(
-                internalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
+        public IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> ChangeTrackingLogger { get; init; }
 
         /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="internalEntityEntrySubscriber"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IInternalEntityEntrySubscriber internalEntityEntrySubscriber)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                internalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="internalEntityEntryNotifier"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IInternalEntityEntryNotifier internalEntityEntryNotifier)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                internalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="valueGenerationManager"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IValueGenerationManager valueGenerationManager)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                valueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="model"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IModel model)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="database"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IDatabase database)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="concurrencyDetector"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IConcurrencyDetector concurrencyDetector)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                concurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] ICurrentDbContext currentContext)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                currentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="entityFinderSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [EntityFrameworkInternal]
-        public StateManagerDependencies With([NotNull] IEntityFinderSource entityFinderSource)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                entityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="setSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        [EntityFrameworkInternal]
-        public StateManagerDependencies With([NotNull] IDbSetSource setSource)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                setSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="entityMaterializerSource"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IEntityMaterializerSource entityMaterializerSource)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                entityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="executionStrategyFactory"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IExecutionStrategyFactory executionStrategyFactory)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                executionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="loggingOptions"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] ILoggingOptions loggingOptions)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                loggingOptions,
-                UpdateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="updateLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                updateLogger,
-                ChangeTrackingLogger);
-
-        /// <summary>
-        ///     Clones this dependency parameter object with one service replaced.
-        /// </summary>
-        /// <param name="changeTrackingLogger"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
-        public StateManagerDependencies With([NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> changeTrackingLogger)
-            => new StateManagerDependencies(
-                InternalEntityEntryFactory,
-                InternalEntityEntrySubscriber,
-                InternalEntityEntryNotifier,
-                ValueGenerationManager,
-                Model,
-                Database,
-                ConcurrencyDetector,
-                CurrentContext,
-                EntityFinderSource,
-                SetSource,
-                EntityMaterializerSource,
-                ExecutionStrategyFactory,
-                LoggingOptions,
-                UpdateLogger,
-                changeTrackingLogger);
+        public INavigationFixer NavigationFixer { get; init; }
     }
 }

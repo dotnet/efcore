@@ -252,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.False(indexBuilder.Metadata.IsClustered());
 
             Assert.NotNull(indexBuilder.IsClustered(null, fromDataAnnotation: true));
-            Assert.Null(indexBuilder.Metadata.GetIsClusteredConfigurationSource());
+            Assert.Equal(ConfigurationSource.DataAnnotation, indexBuilder.Metadata.GetIsClusteredConfigurationSource());
         }
 
         [ConditionalFact]

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -30,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="projectionMember"> The projection member to bind with query expression. </param>
         /// <param name="type"> The clr type of value being read. </param>
         public ProjectionBindingExpression(
-            [NotNull] Expression queryExpression,
-            [NotNull] ProjectionMember projectionMember,
-            [NotNull] Type type)
+            Expression queryExpression,
+            ProjectionMember projectionMember,
+            Type type)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(projectionMember, nameof(projectionMember));
@@ -50,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="index"> The index to bind with query expression projection. </param>
         /// <param name="type"> The clr type of value being read. </param>
         public ProjectionBindingExpression(
-            [NotNull] Expression queryExpression,
+            Expression queryExpression,
             int index,
-            [NotNull] Type type)
+            Type type)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(type, nameof(type));
@@ -67,9 +66,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="queryExpression"> The query expression to get the value from. </param>
         /// <param name="indexMap"> The index map to bind with query expression projection for ValueBuffer. </param>
+        [Obsolete("The dictionary should be stored in client projection in query expression and access via index based binding.")]
         public ProjectionBindingExpression(
-            [NotNull] Expression queryExpression,
-            [NotNull] IDictionary<IProperty, int> indexMap)
+            Expression queryExpression,
+            IReadOnlyDictionary<IProperty, int> indexMap)
         {
             Check.NotNull(queryExpression, nameof(queryExpression));
             Check.NotNull(indexMap, nameof(indexMap));
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The projection member to bind if binding is via projection member.
         /// </summary>
-        public virtual ProjectionMember ProjectionMember { get; }
+        public virtual ProjectionMember? ProjectionMember { get; }
 
         /// <summary>
         ///     The projection member to bind if binding is via projection index.
@@ -97,7 +97,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The projection member to bind if binding is via index map for a value buffer.
         /// </summary>
-        public virtual IDictionary<IProperty, int> IndexMap { get; }
+        [Obsolete("The dictionary should be stored in client projection in query expression and access via index based binding.")]
+        public virtual IReadOnlyDictionary<IProperty, int>? IndexMap { get; }
 
         /// <inheritdoc />
         public override Type Type { get; }
@@ -126,9 +127,10 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
             else if (Index != null)
             {
-                expressionPrinter.Append(Index.ToString());
+                expressionPrinter.Append(Index.ToString()!);
             }
-            else
+#pragma warning disable CS0618 // Type or member is obsolete
+            else if (IndexMap != null)
             {
                 using (expressionPrinter.Indent())
                 {
@@ -138,10 +140,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 }
             }
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is ProjectionBindingExpression projectionBindingExpression
@@ -154,10 +157,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ?? projectionBindingExpression.ProjectionMember == null)
                 && Index == projectionBindingExpression.Index
                 // Using reference equality here since if we are this far, we don't need to compare this.
+#pragma warning disable CS0618 // Type or member is obsolete
                 && IndexMap == projectionBindingExpression.IndexMap;
+#pragma warning restore CS0618 // Type or member is obsolete
 
         /// <inheritdoc />
         public override int GetHashCode()
+#pragma warning disable CS0618 // Type or member is obsolete
             => HashCode.Combine(QueryExpression, ProjectionMember, Index, IndexMap);
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

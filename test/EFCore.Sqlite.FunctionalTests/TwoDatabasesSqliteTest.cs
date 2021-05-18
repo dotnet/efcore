@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
                 : optionsBuilder.UseSqlite();
 
         protected override TwoDatabasesWithDataContext CreateBackingContext(string databaseName)
-            => new TwoDatabasesWithDataContext(Fixture.CreateOptions(SqliteTestStore.Create(databaseName)));
+            => new(Fixture.CreateOptions(SqliteTestStore.Create(databaseName)));
 
         protected override string DummyConnectionString { get; } = "DataSource=DummyDatabase";
 

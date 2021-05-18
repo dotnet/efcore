@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextOptions = new DbContextOptionsBuilder()
                     .UseModel(modelBuilder.Model.FinalizeModel())
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK")
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultNullabilityCheckProvider)
+                    .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK", b => b.EnableNullabilityCheck(false))
                     .Options;
 
                 using (var context = new DbContext(contextOptions))
@@ -236,12 +236,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         public class InMemoryGenericOwnedTypes : GenericOwnedTypes
-        {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
-        }
-
-        public class InMemoryGenericKeylessEntities : GenericKeylessEntities
         {
             protected override TestModelBuilder CreateModelBuilder()
                 => CreateTestModelBuilder(InMemoryTestHelpers.Instance);

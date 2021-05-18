@@ -5,27 +5,28 @@ using System;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
-    public abstract partial class InternalEntityEntry
+    public sealed partial class InternalEntityEntry
     {
         internal enum PropertyFlag
         {
             Modified = 0,
             Null = 1,
             Unknown = 2,
-            IsLoaded = 3
+            IsLoaded = 3,
+            IsTemporary = 4
         }
 
         internal readonly struct StateData
         {
             private const int BitsPerInt = 32;
             private const int BitsForEntityState = 3;
-            private const int BitsForEntityFlags = 1;
-            private const int BitsForPropertyFlags = 4;
+            private const int BitsForEntityFlags = 5;
+            private const int BitsForPropertyFlags = 8;
             private const int BitsForAdditionalState = BitsForEntityState + BitsForEntityFlags;
             private const int EntityStateMask = 0x07;
-            private const int UnusedStateMask = 0x08; // So entity state uses even number of bits
+            private const int UnusedStateMask = 0xF8; // So entity state uses even number of bits
             private const int AdditionalStateMask = EntityStateMask | UnusedStateMask;
-            private const int PropertyFlagMask = 0x11111111;
+            private const int PropertyFlagMask = 0x01010101;
 
             private readonly int[] _bits;
 

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerPolygonMethodTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _getInteriorRingN = typeof(Polygon).GetRuntimeMethod(
+        private static readonly MethodInfo _getInteriorRingN = typeof(Polygon).GetRequiredRuntimeMethod(
             nameof(Polygon.GetInteriorRingN), new[] { typeof(int) });
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
@@ -35,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerPolygonMethodTranslator(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -48,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -60,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (Equals(method, _getInteriorRingN))
             {
+                Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 

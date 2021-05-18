@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private MemoryOptimizedContext CreateContext()
-            => new MemoryOptimizedContext(Fixture.CreateOptions(TestStore));
+            => new(Fixture.CreateOptions(TestStore));
 
         public class MemoryOptimizedTablesFixture : ServiceProviderFixtureBase
         {

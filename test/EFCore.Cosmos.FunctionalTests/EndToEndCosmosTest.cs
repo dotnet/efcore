@@ -923,10 +923,8 @@ OFFSET 0 LIMIT 1");
                 modelBuilder.Entity<Customer>(
                     cb =>
                     {
-                        var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
-
                         cb.Property(StoreKeyConvention.DefaultIdPropertyName)
-                            .HasValueGenerator((p, e) => valueGeneratorFactory.Create(p));
+                            .HasValueGeneratorFactory(typeof(CustomPartitionKeyIdValueGeneratorFactory));
 
                         cb.Property(c => c.PartitionKey).HasConversion<string>();
 
@@ -948,8 +946,6 @@ OFFSET 0 LIMIT 1");
                 modelBuilder.Entity<Customer>(
                     cb =>
                     {
-                        var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
-
                         cb.Property(StoreKeyConvention.DefaultIdPropertyName).HasValueGenerator((Type)null);
 
                         cb.Property(c => c.PartitionKey).HasConversion<string>();
@@ -985,8 +981,6 @@ OFFSET 0 LIMIT 1");
                 modelBuilder.Entity<Customer>(
                     cb =>
                     {
-                        var valueGeneratorFactory = new CustomPartitionKeyIdValueGeneratorFactory();
-
                         cb.HasNoDiscriminator();
                         cb.Property(c => c.Id).HasConversion<string>();
                         cb.HasPartitionKey(c => c.Id);

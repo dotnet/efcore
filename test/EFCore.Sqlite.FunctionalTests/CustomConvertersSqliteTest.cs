@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -59,6 +60,17 @@ FROM ""Blog"" AS ""b""
 WHERE ""b"".""IsVisible"" = 'Y'");
         }
 
+        [ConditionalFact]
+        public override void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
+
+            AssertSql(
+                @"SELECT ""b"".""BlogId"", ""b"".""Discriminator"", ""b"".""IndexerVisible"", ""b"".""IsVisible"", ""b"".""Url"", ""b"".""RssUrl""
+FROM ""Blog"" AS ""b""
+WHERE ""b"".""IsVisible"" = 'N'");
+        }
+
         public override void Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice()
         {
             base.Where_bool_with_value_conversion_inside_comparison_doesnt_get_converted_twice();
@@ -101,7 +113,14 @@ WHERE ""b"".""IsVisible"" = 'Y'");
             AssertSql(
                 @"SELECT ""b"".""BlogId"", ""b"".""Discriminator"", ""b"".""IndexerVisible"", ""b"".""IsVisible"", ""b"".""Url"", ""b"".""RssUrl""
 FROM ""Blog"" AS ""b""
-WHERE ""b"".""IndexerVisible"" <> 'Aye'");
+WHERE ""b"".""IndexerVisible"" = 'Nay'");
+        }
+
+        public override void Value_conversion_on_enum_collection_contains()
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(47),
+                Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
         }
 
         private void AssertSql(params string[] expected)
@@ -134,7 +153,7 @@ WHERE ""b"".""IndexerVisible"" <> 'Aye'");
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
         }
     }
 }

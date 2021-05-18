@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new ModificationCommandBatchFactoryDependencies(
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new ModificationCommandBatchFactoryDependencies(

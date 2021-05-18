@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -22,12 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public RelationshipSnapshot(
-            [NotNull] InternalForeignKeyBuilder relationship,
-            [CanBeNull] EntityType.Snapshot definedEntityTypeSnapshot,
-            [CanBeNull] List<(SkipNavigation, ConfigurationSource)> referencingSkipNavigations)
+            InternalForeignKeyBuilder relationship,
+            EntityType.Snapshot? ownedEntityTypeSnapshot,
+            List<(SkipNavigation, ConfigurationSource)>? referencingSkipNavigations)
         {
             Relationship = relationship;
-            DefinedEntityTypeSnapshot = definedEntityTypeSnapshot;
+            OwnedEntityTypeSnapshot = ownedEntityTypeSnapshot;
             ReferencingSkipNavigations = referencingSkipNavigations;
         }
 
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual EntityType.Snapshot DefinedEntityTypeSnapshot { [DebuggerStepThrough] get; }
+        public virtual EntityType.Snapshot? OwnedEntityTypeSnapshot { [DebuggerStepThrough] get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual List<(SkipNavigation SkipNavigation, ConfigurationSource ForeignKeyConfigurationSource)> ReferencingSkipNavigations
+        public virtual List<(SkipNavigation SkipNavigation, ConfigurationSource ForeignKeyConfigurationSource)>? ReferencingSkipNavigations
         {
             [DebuggerStepThrough] get;
         }
@@ -64,14 +63,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalForeignKeyBuilder Attach([CanBeNull] InternalEntityTypeBuilder entityTypeBuilder = null)
+        public virtual InternalForeignKeyBuilder? Attach(InternalEntityTypeBuilder? entityTypeBuilder = null)
         {
             entityTypeBuilder ??= Relationship.Metadata.DeclaringEntityType.Builder;
 
             var newRelationship = Relationship.Attach(entityTypeBuilder);
             if (newRelationship != null)
             {
-                DefinedEntityTypeSnapshot?.Attach(
+                OwnedEntityTypeSnapshot?.Attach(
                     newRelationship.Metadata.ResolveOtherEntityType(entityTypeBuilder.Metadata).Builder);
 
                 if (ReferencingSkipNavigations != null)
@@ -79,10 +78,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     foreach (var referencingNavigationTuple in ReferencingSkipNavigations)
                     {
                         var skipNavigation = referencingNavigationTuple.SkipNavigation;
-                        if (skipNavigation.Builder == null)
+                        if (!skipNavigation.IsInModel)
                         {
                             var navigationEntityType = skipNavigation.DeclaringEntityType;
-                            skipNavigation = navigationEntityType.Builder == null
+                            skipNavigation = !navigationEntityType.IsInModel
                                 ? null
                                 : navigationEntityType.FindSkipNavigation(skipNavigation.Name);
                         }

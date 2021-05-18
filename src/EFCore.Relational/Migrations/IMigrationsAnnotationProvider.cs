@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="model"> The database model. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] IRelationalModel model);
+        IEnumerable<IAnnotation> ForRemove(IRelationalModel model);
 
         /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="ITable" />
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="table"> The table. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] ITable table);
+        IEnumerable<IAnnotation> ForRemove(ITable table);
 
         /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="IColumn" />
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="column"> The column. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] IColumn column);
+        IEnumerable<IAnnotation> ForRemove(IColumn column);
 
         /// <summary>
         ///     Gets provider-specific annotations for the given <see cref="IView" />
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="view"> The view. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] IView view);
+        IEnumerable<IAnnotation> ForRemove(IView view);
 
         /// <summary>
         ///     Gets provider-specific annotations for the given <see cref="IViewColumn" />
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="column"> The column. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] IViewColumn column);
+        IEnumerable<IAnnotation> ForRemove(IViewColumn column);
 
         /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="IUniqueConstraint" />
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="constraint"> The unique constraint. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] IUniqueConstraint constraint);
+        IEnumerable<IAnnotation> ForRemove(IUniqueConstraint constraint);
 
         /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="ITableIndex" />
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] ITableIndex index);
+        IEnumerable<IAnnotation> ForRemove(ITableIndex index);
 
         /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="IForeignKeyConstraint" />
@@ -85,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] IForeignKeyConstraint foreignKey);
+        IEnumerable<IAnnotation> ForRemove(IForeignKeyConstraint foreignKey);
 
         /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="ISequence" />
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="sequence"> The sequence. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] ISequence sequence);
+        IEnumerable<IAnnotation> ForRemove(ISequence sequence);
 
         /// <summary>
         ///     Gets provider-specific Migrations annotations for the given <see cref="ICheckConstraint" />
@@ -101,6 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <param name="checkConstraint"> The check constraint. </param>
         /// <returns> The annotations. </returns>
-        IEnumerable<IAnnotation> ForRemove([NotNull] ICheckConstraint checkConstraint);
+        IEnumerable<IAnnotation> ForRemove(ICheckConstraint checkConstraint);
     }
 }

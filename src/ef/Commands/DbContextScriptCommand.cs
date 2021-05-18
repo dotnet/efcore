@@ -12,18 +12,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         protected override int Execute(string[] args)
         {
-            var sql = CreateExecutor(args).ScriptDbContext(Context.Value());
+            using var executor = CreateExecutor(args);
+            var sql = executor.ScriptDbContext(Context!.Value());
 
-            if (!_output.HasValue())
+            if (!_output!.HasValue())
             {
                 Reporter.WriteData(sql);
             }
             else
             {
-                var output = _output.Value();
-                if (WorkingDir.HasValue())
+                var output = _output.Value()!;
+                if (WorkingDir!.HasValue())
                 {
-                    output = Path.Combine(WorkingDir.Value(), output);
+                    output = Path.Combine(WorkingDir.Value()!, output);
                 }
 
                 var directory = Path.GetDirectoryName(output);

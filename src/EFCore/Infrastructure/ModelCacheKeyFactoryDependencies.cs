@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class ModelCacheKeyFactoryDependencies
+    public sealed record ModelCacheKeyFactoryDependencies
     {
         /// <summary>
         ///     <para>

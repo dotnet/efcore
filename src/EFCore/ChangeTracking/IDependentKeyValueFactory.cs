@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
@@ -27,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="key"> The key instance. </param>
         /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromBuffer(in ValueBuffer valueBuffer, out TKey key);
+        bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out TKey? key);
 
         /// <summary>
         ///     Attempts to create a key instance using foreign key values from the given <see cref="IUpdateEntry" />.
@@ -36,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="key"> The key instance. </param>
         /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromCurrentValues([NotNull] IUpdateEntry entry, out TKey key);
+        bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
         /// <summary>
         ///     Attempts to create a key instance from the given <see cref="IUpdateEntry" />
@@ -46,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="key"> The key instance. </param>
         /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromPreStoreGeneratedCurrentValues([NotNull] IUpdateEntry entry, out TKey key);
+        bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
         /// <summary>
         ///     Attempts to create a key instance using original foreign key values from the given <see cref="IUpdateEntry" />.
@@ -55,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="key"> The key instance. </param>
         /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromOriginalValues([NotNull] IUpdateEntry entry, out TKey key);
+        bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
         /// <summary>
         ///     Attempts to create a key instance from the given <see cref="IUpdateEntry" />
@@ -65,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="key"> The key instance. </param>
         /// <returns> <see langword="true" /> if the key instance was created; <see langword="false" /> otherwise. </returns>
         [ContractAnnotation("=>true, key:notnull; =>false, key:null")]
-        bool TryCreateFromRelationshipSnapshot([NotNull] IUpdateEntry entry, out TKey key);
+        bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key);
 
         /// <summary>
         ///     The <see cref="IEqualityComparer{T}" /> to use for comparing key instances.

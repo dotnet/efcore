@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator" /> class.
         /// </summary>
         /// <param name="dependencies"> The dependencies. </param>
-        public CSharpSnapshotGenerator([NotNull] CSharpSnapshotGeneratorDependencies dependencies)
+        public CSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -65,19 +64,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 using (stringBuilder.Indent())
                 {
-                    var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23456", out var enabled) && enabled;
-
                     // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
                     // providers, generating them as raw annotations instead.
-                    var ambiguousAnnotations = useOldBehavior
-                        ? Array.Empty<IAnnotation>()
-                        : RemoveAmbiguousFluentApiAnnotations(
-                            annotations,
-                            name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
-                                || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
-                                || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
-                                || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
-                                || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
+                    var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
+                        annotations,
+                        name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
+                            || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
+                            || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
+                            || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
+                            || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
 
                     foreach (var methodCallCodeFragment in
                         Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(model, annotations))
@@ -105,19 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateSequence(builderName, sequence, stringBuilder);
             }
 
-            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes()), stringBuilder);
-        }
-
-        private static IReadOnlyList<IEntityType> Sort(IEnumerable<IEntityType> entityTypes)
-        {
-            var entityTypeGraph = new Multigraph<IEntityType, int>();
-            entityTypeGraph.AddVertices(entityTypes);
-            foreach (var entityType in entityTypes.Where(et => et.BaseType != null))
-            {
-                entityTypeGraph.AddEdge(entityType.BaseType, entityType, 0);
-            }
-
-            return entityTypeGraph.TopologicalSort();
+            GenerateEntityTypes(builderName, model.GetEntityTypesInHierarchicalOrder(), stringBuilder);
         }
 
         /// <summary>
@@ -127,17 +110,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="entityTypes"> The entity types. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypes(
-            [NotNull] string builderName,
-            [NotNull] IReadOnlyList<IEntityType> entityTypes,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IReadOnlyList<IEntityType> entityTypes,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(builderName, nameof(builderName));
             Check.NotNull(entityTypes, nameof(entityTypes));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null))
+                e => e.FindOwnership() == null))
             {
                 stringBuilder.AppendLine();
 
@@ -145,8 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null
+                e => e.FindOwnership() == null
                     && (e.GetDeclaredForeignKeys().Any()
                         || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership))))
             {
@@ -156,8 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             foreach (var entityType in entityTypes.Where(
-                e => !e.HasDefiningNavigation()
-                    && e.FindOwnership() == null
+                e => e.FindOwnership() == null
                     && e.GetDeclaredNavigations().Any(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership)))
             {
                 stringBuilder.AppendLine();
@@ -173,24 +153,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityType(
-            [NotNull] string builderName,
-            [NotNull] IEntityType entityType,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEntityType entityType,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(builderName, nameof(builderName));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var ownership = entityType.FindOwnership();
-            var ownerNavigation = ownership?.PrincipalToDependent.Name;
+            var ownerNavigation = ownership?.PrincipalToDependent!.Name;
+
+            var entityTypeName = entityType.Name;
+            if (ownerNavigation != null
+                && entityType.HasSharedClrType
+                && entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ClrType.DisplayName();
+            }
 
             stringBuilder
                 .Append(builderName)
                 .Append(
                     ownerNavigation != null
-                        ? ownership.IsUnique ? ".OwnsOne(" : ".OwnsMany("
+                        ? ownership!.IsUnique ? ".OwnsOne(" : ".OwnsMany("
                         : ".Entity(")
-                .Append(Code.Literal(entityType.Name));
+                .Append(Code.Literal(entityTypeName));
 
             if (ownerNavigation != null)
             {
@@ -231,7 +219,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                     GenerateProperties(builderName, entityType.GetDeclaredProperties(), stringBuilder);
 
-                    GenerateKeys(builderName, entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
+                    GenerateKeys(
+                        builderName,
+                        entityType.GetDeclaredKeys(),
+                        entityType.BaseType == null ? entityType.FindPrimaryKey() : null,
+                        stringBuilder);
 
                     GenerateIndexes(builderName, entityType.GetDeclaredIndexes(), stringBuilder);
 
@@ -263,9 +255,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="ownerships"> The foreign keys identifying each entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateOwnedTypes(
-            [NotNull] string builderName,
-            [NotNull] IEnumerable<IForeignKey> ownerships,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEnumerable<IForeignKey> ownerships,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(ownerships, nameof(ownerships));
@@ -286,9 +278,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="ownership"> The foreign key identifying the entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateOwnedType(
-            [NotNull] string builderName,
-            [NotNull] IForeignKey ownership,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IForeignKey ownership,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(ownership, nameof(ownership));
@@ -304,9 +296,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypeRelationships(
-            [NotNull] string builderName,
-            [NotNull] IEntityType entityType,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEntityType entityType,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(builderName, nameof(builderName));
             Check.NotNull(entityType, nameof(entityType));
@@ -338,9 +330,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateRelationships(
-            [NotNull] string builderName,
-            [NotNull] IEntityType entityType,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEntityType entityType,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(builderName, nameof(builderName));
             Check.NotNull(entityType, nameof(entityType));
@@ -362,9 +354,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="baseType"> The base entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateBaseType(
-            [NotNull] string builderName,
-            [CanBeNull] IEntityType baseType,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEntityType? baseType,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
@@ -387,9 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="sequence"> The sequence. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateSequence(
-            [NotNull] string builderName,
-            [NotNull] ISequence sequence,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            ISequence sequence,
+            IndentedStringBuilder stringBuilder)
         {
             stringBuilder
                 .AppendLine()
@@ -474,9 +466,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="properties"> The properties. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateProperties(
-            [NotNull] string builderName,
-            [NotNull] IEnumerable<IProperty> properties,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEnumerable<IProperty> properties,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(properties, nameof(properties));
@@ -495,9 +487,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="property"> The property. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateProperty(
-            [NotNull] string builderName,
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IProperty property,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(property, nameof(property));
@@ -556,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GeneratePropertyAnnotations([NotNull] IProperty property, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GeneratePropertyAnnotations(IProperty property, IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
@@ -584,13 +576,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForDefaultValue(property, stringBuilder);
             annotations.Remove(RelationalAnnotationNames.DefaultValue);
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23456", out var enabled) && enabled;
-
             // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
             // providers, generating them as raw annotations instead.
-            var ambiguousAnnotations = useOldBehavior
-                ? Array.Empty<IAnnotation>()
-                : RemoveAmbiguousFluentApiAnnotations(
+            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
                 annotations,
                 name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
                     || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
@@ -609,7 +597,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateAnnotations(annotations.Values.Concat(ambiguousAnnotations), stringBuilder);
         }
 
-        private ValueConverter FindValueConverter(IProperty property)
+        private ValueConverter? FindValueConverter(IProperty property)
             => property.GetValueConverter()
                 ?? (property.FindTypeMapping()
                     ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
@@ -622,10 +610,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="primaryKey"> The primary key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateKeys(
-            [NotNull] string builderName,
-            [NotNull] IEnumerable<IKey> keys,
-            [CanBeNull] IKey primaryKey,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEnumerable<IKey> keys,
+            IKey? primaryKey,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(keys, nameof(keys));
@@ -656,9 +644,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="stringBuilder"> The builder code is added to. </param>
         /// <param name="primary">A value indicating whether the key is primary. </param>
         protected virtual void GenerateKey(
-            [NotNull] string builderName,
-            [NotNull] IKey key,
-            [NotNull] IndentedStringBuilder stringBuilder,
+            string builderName,
+            IKey key,
+            IndentedStringBuilder stringBuilder,
             bool primary = false)
         {
             Check.NotNull(builderName, nameof(builderName));
@@ -685,7 +673,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// </summary>
         /// <param name="key"> The key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateKeyAnnotations([NotNull] IKey key, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateKeyAnnotations(IKey key, IndentedStringBuilder stringBuilder)
         {
             var annotations = Dependencies.AnnotationCodeGenerator
                 .FilterIgnoredAnnotations(key.GetAnnotations())
@@ -709,9 +697,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="indexes"> The indexes. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateIndexes(
-            [NotNull] string builderName,
-            [NotNull] IEnumerable<IIndex> indexes,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEnumerable<IIndex> indexes,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(indexes, nameof(indexes));
@@ -730,9 +718,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="index"> The index. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateIndex(
-            [NotNull] string builderName,
-            [NotNull] IIndex index,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IIndex index,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(index, nameof(index));
@@ -782,20 +770,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="index"> The index. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateIndexAnnotations(
-            [NotNull] IIndex index,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IIndex index,
+            IndentedStringBuilder stringBuilder)
         {
             var annotations = Dependencies.AnnotationCodeGenerator
                 .FilterIgnoredAnnotations(index.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23456", out var enabled) && enabled;
-
             // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
             // providers, generating them as raw annotations instead.
-            var ambiguousAnnotations = useOldBehavior
-                ? Array.Empty<IAnnotation>()
-                : RemoveAmbiguousFluentApiAnnotations(
+            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
                 annotations,
                 name => name.EndsWith(":Include", StringComparison.Ordinal));
 
@@ -817,9 +801,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypeAnnotations(
-            [NotNull] string builderName,
-            [NotNull] IEntityType entityType,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEntityType entityType,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(entityType, nameof(entityType));
@@ -840,7 +824,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (tableNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
-                var tableName = (string)tableNameAnnotation?.Value ?? entityType.GetTableName();
+                var tableName = (string?)tableNameAnnotation?.Value ?? entityType.GetTableName();
                 if (tableName != null)
                 {
                     stringBuilder
@@ -891,7 +875,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (viewNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
-                var viewName = (string)viewNameAnnotation?.Value ?? entityType.GetViewName();
+                var viewName = (string?)viewNameAnnotation?.Value ?? entityType.GetViewName();
                 if (viewName != null)
                 {
                     stringBuilder
@@ -921,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             if (functionNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
-                var functionName = (string)functionNameAnnotation?.Value ?? entityType.GetFunctionName();
+                var functionName = (string?)functionNameAnnotation?.Value ?? entityType.GetFunctionName();
                 if (functionName != null)
                 {
                     stringBuilder
@@ -951,7 +935,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 if (discriminatorPropertyAnnotation?.Value != null)
                 {
-                    var discriminatorProperty = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value);
+                    var discriminatorProperty = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value)!;
                     var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                             .MakeNullable(discriminatorProperty.IsNullable)
                         ?? discriminatorProperty.ClrType;
@@ -983,7 +967,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (discriminatorValueAnnotation?.Value != null)
                 {
                     var value = discriminatorValueAnnotation.Value;
-                    var discriminatorProperty = entityType.GetDiscriminatorProperty();
+                    var discriminatorProperty = entityType.FindDiscriminatorProperty();
                     if (discriminatorProperty != null)
                     {
                         var valueConverter = FindValueConverter(discriminatorProperty);
@@ -1035,9 +1019,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateCheckConstraints(
-            [NotNull] string builderName,
-            [NotNull] IEntityType entityType,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEntityType entityType,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(entityType, nameof(entityType));
@@ -1060,9 +1044,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="checkConstraint"> The check constraint. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateCheckConstraint(
-            [NotNull] string builderName,
-            [NotNull] ICheckConstraint checkConstraint,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            ICheckConstraint checkConstraint,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(checkConstraint, nameof(checkConstraint));
@@ -1084,9 +1068,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="foreignKeys"> The foreign keys. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateForeignKeys(
-            [NotNull] string builderName,
-            [NotNull] IEnumerable<IForeignKey> foreignKeys,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEnumerable<IForeignKey> foreignKeys,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(foreignKeys, nameof(foreignKeys));
@@ -1107,9 +1091,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateForeignKey(
-            [NotNull] string builderName,
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IForeignKey foreignKey,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -1242,8 +1226,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateForeignKeyAnnotations(
-            [NotNull] IForeignKey foreignKey,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IForeignKey foreignKey,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
@@ -1270,9 +1254,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypeNavigations(
-            [NotNull] string builderName,
-            [NotNull] IEntityType entityType,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEntityType entityType,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(builderName, nameof(builderName));
             Check.NotNull(entityType, nameof(entityType));
@@ -1306,9 +1290,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="navigations"> The navigations. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateNavigations(
-            [NotNull] string builderName,
-            [NotNull] IEnumerable<INavigation> navigations,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEnumerable<INavigation> navigations,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(navigations, nameof(navigations));
@@ -1329,9 +1313,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="navigation"> The navigation. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateNavigation(
-            [NotNull] string builderName,
-            [NotNull] INavigation navigation,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            INavigation navigation,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(builderName, nameof(builderName));
             Check.NotNull(navigation, nameof(navigation));
@@ -1366,8 +1350,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="navigation"> The navigation. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateNavigationAnnotations(
-            [NotNull] INavigation navigation,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            INavigation navigation,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
@@ -1393,8 +1377,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="annotations"> The annotations. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateAnnotations(
-            [NotNull] IEnumerable<IAnnotation> annotations,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IEnumerable<IAnnotation> annotations,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
@@ -1412,8 +1396,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="annotation"> The annotation. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateAnnotation(
-            [NotNull] IAnnotation annotation,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IAnnotation annotation,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(annotation, nameof(annotation));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
@@ -1434,10 +1418,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="data"> The data to be seeded. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateData(
-            [NotNull] string builderName,
-            [NotNull] IEnumerable<IProperty> properties,
-            [NotNull] IEnumerable<IDictionary<string, object>> data,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            string builderName,
+            IEnumerable<IProperty> properties,
+            IEnumerable<IDictionary<string, object?>> data,
+            IndentedStringBuilder stringBuilder)
         {
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(data, nameof(data));
@@ -1512,8 +1496,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private void GenerateFluentApiForMaxLength(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IProperty property,
+            IndentedStringBuilder stringBuilder)
         {
             if (property.GetMaxLength() is int maxLength)
             {
@@ -1528,8 +1512,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private void GenerateFluentApiForPrecisionAndScale(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IProperty property,
+            IndentedStringBuilder stringBuilder)
         {
             if (property.GetPrecision() is int precision)
             {
@@ -1555,8 +1539,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private void GenerateFluentApiForIsUnicode(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IProperty property,
+            IndentedStringBuilder stringBuilder)
         {
             if (property.IsUnicode() is bool unicode)
             {
@@ -1571,11 +1555,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         private void GenerateFluentApiForDefaultValue(
-            [NotNull] IProperty property,
-            [NotNull] IndentedStringBuilder stringBuilder)
+            IProperty property,
+            IndentedStringBuilder stringBuilder)
         {
-            var defaultValue = property.GetDefaultValue();
-            if (defaultValue == null)
+            if (!property.TryGetDefaultValue(out var defaultValue))
             {
                 return;
             }
@@ -1604,7 +1587,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Dictionary<string, IAnnotation> annotations,
             Func<string, bool> annotationNameMatcher)
         {
-            List<IAnnotation> ambiguousAnnotations = null;
+            List<IAnnotation>? ambiguousAnnotations = null;
 
             foreach (var (name, annotation) in annotations)
             {
@@ -1616,7 +1599,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
             }
 
-            return (IReadOnlyList<IAnnotation>)ambiguousAnnotations ?? ImmutableList<IAnnotation>.Empty;
+            return (IReadOnlyList<IAnnotation>?)ambiguousAnnotations ?? ImmutableList<IAnnotation>.Empty;
         }
     }
 }

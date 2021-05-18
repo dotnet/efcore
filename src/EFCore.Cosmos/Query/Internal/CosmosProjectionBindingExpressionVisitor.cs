@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     /// <summary>
@@ -38,13 +40,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private readonly IDictionary<ProjectionMember, Expression> _projectionMapping
             = new Dictionary<ProjectionMember, Expression>();
 
-        private readonly Stack<ProjectionMember> _projectionMembers = new Stack<ProjectionMember>();
+        private readonly Stack<ProjectionMember> _projectionMembers = new();
 
+#pragma warning disable CS0618 // Type or member is obsolete
         private readonly IDictionary<ParameterExpression, CollectionShaperExpression> _collectionShaperMapping
             = new Dictionary<ParameterExpression, CollectionShaperExpression>();
+#pragma warning restore CS0618 // Type or member is obsolete
 
         private readonly Stack<INavigation> _includedNavigations
-            = new Stack<INavigation>();
+            = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CosmosProjectionBindingExpressionVisitor(
-            [NotNull] IModel model,
-            [NotNull] CosmosSqlTranslatingExpressionVisitor sqlTranslator)
+            IModel model,
+            CosmosSqlTranslatingExpressionVisitor sqlTranslator)
         {
             _model = model;
             _sqlTranslator = sqlTranslator;
@@ -66,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression Translate([NotNull] SelectExpression selectExpression, [NotNull] Expression expression)
+        public virtual Expression Translate(SelectExpression selectExpression, Expression expression)
         {
             _selectExpression = selectExpression;
             _clientEval = false;
@@ -203,11 +207,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
             }
 
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23309", out var isEnabled) && isEnabled))
-            {
-                ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
-                ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
-            }
+            ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
+            ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
 
             return conditionalExpression.Update(test, ifTrue, ifFalse);
         }
@@ -274,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return newIncludeExpression;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(extensionExpression.Print(), GetType().Name));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(extensionExpression.Print()));
             }
         }
 
@@ -339,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(memberExpression.Print(), GetType().Name));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()));
             }
 
             var navigationProjection = innerEntityProjection.BindMember(
@@ -367,7 +368,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                         nullable: true);
 
+#pragma warning disable CS0618 // Type or member is obsolete
                     return new CollectionShaperExpression(
+#pragma warning restore CS0618 // Type or member is obsolete
                         objectArrayProjectionExpression,
                         innerShaperExpression,
                         navigation,
@@ -375,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
 
                 default:
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(memberExpression.Print(), GetType().Name));
+                    throw new InvalidOperationException(CoreStrings.TranslationFailed(memberExpression.Print()));
             }
 
             Expression NullSafeUpdate(Expression expression)
@@ -532,7 +535,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         break;
 
                     default:
-                        throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
                 }
 
                 Expression navigationProjection;
@@ -571,7 +574,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
                             nullable: true);
 
+#pragma warning disable CS0618 // Type or member is obsolete
                         return new CollectionShaperExpression(
+#pragma warning restore CS0618 // Type or member is obsolete
                             objectArrayProjectionExpression,
                             innerShaperExpression,
                             navigation,
@@ -579,7 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     }
 
                     default:
-                        throw new InvalidOperationException(CoreStrings.QueryFailed(methodCallExpression.Print(), GetType().Name));
+                        throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
                 }
             }
 
@@ -600,7 +605,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                         case nameof(Queryable.Select)
                             when genericMethod == QueryableMethods.Select:
+#pragma warning disable CS0618 // Type or member is obsolete
                             if (!(visitedSource is CollectionShaperExpression shaper))
+#pragma warning restore CS0618 // Type or member is obsolete
                             {
                                 return null;
                             }
@@ -728,7 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             if (projectionBindingExpression.QueryExpression != _selectExpression)
             {
-                throw new InvalidOperationException(CoreStrings.QueryFailed(projectionBindingExpression.Print(), GetType().Name));
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
             }
         }
 

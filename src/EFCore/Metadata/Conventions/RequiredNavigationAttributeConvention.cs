@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="RequiredNavigationAttributeConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public RequiredNavigationAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public RequiredNavigationAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -39,21 +38,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public override void ProcessForeignKeyPrincipalEndChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
-            IEnumerable<RequiredAttribute> dependentToPrincipalAttributes,
-            IEnumerable<RequiredAttribute> principalToDependentAttributes,
+            IEnumerable<RequiredAttribute>? dependentToPrincipalAttributes,
+            IEnumerable<RequiredAttribute>? principalToDependentAttributes,
             IConventionContext<IConventionForeignKeyBuilder> context)
         {
             var fk = relationshipBuilder.Metadata;
             if (dependentToPrincipalAttributes != null
                 && dependentToPrincipalAttributes.Any())
             {
-                ProcessNavigation(fk.DependentToPrincipal.Builder);
+                ProcessNavigation(fk.DependentToPrincipal!.Builder);
             }
 
             if (principalToDependentAttributes != null
                 && principalToDependentAttributes.Any())
             {
-                ProcessNavigation(fk.PrincipalToDependent.Builder);
+                ProcessNavigation(fk.PrincipalToDependent!.Builder);
             }
 
             context.StopProcessingIfChanged(relationshipBuilder.Metadata.Builder);

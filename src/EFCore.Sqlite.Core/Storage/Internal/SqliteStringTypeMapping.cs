@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
@@ -22,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     Initializes a new instance of the <see cref="SqliteStringTypeMapping" /> class.
         /// </summary>
         /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="System.Data.DbType" /> to be used. </param>
+        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public SqliteStringTypeMapping(
-            [NotNull] string storeType,
+            string storeType,
             DbType? dbType = null,
             bool unicode = false,
             int? size = null)
@@ -62,12 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             var stringValue = (string)value;
             var builder = new StringBuilder();
 
-            var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23459", out var enabled) && enabled;
-
             var start = 0;
             int i;
             int length;
-            var concatenated = false;
             var openApostrophe = false;
             var lengths = new List<int>();
             var startIndexes = new List<int> { 0 };
@@ -85,16 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         {
                             if (builder.Length != 0)
                             {
-                                if (useOldBehavior)
-                                {
-                                    builder.Append(" || ");
-                                    concatenated = true;
-                                }
-                                else
-                                {
-                                    lengths.Add(builder.Length - startIndexes[^1]);
-                                    startIndexes.Add(builder.Length);
-                                }
+                                lengths.Add(builder.Length - startIndexes[^1]);
+                                startIndexes.Add(builder.Length);
                             }
 
                             builder.Append('\'');
@@ -114,16 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
                         if (builder.Length != 0)
                         {
-                            if (useOldBehavior)
-                            {
-                                builder.Append(" || ");
-                                concatenated = true;
-                            }
-                            else
-                            {
-                                lengths.Add(builder.Length - startIndexes[^1]);
-                                startIndexes.Add(builder.Length);
-                            }
+                            lengths.Add(builder.Length - startIndexes[^1]);
+                            startIndexes.Add(builder.Length);
                         }
 
                         builder
@@ -138,19 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                         {
                             if (builder.Length != 0)
                             {
-                                if (useOldBehavior)
-                                {
-                                    builder.Append(" || ");
-                                    concatenated = true;
-                                }
-                                else
-                                {
-                                    lengths.Add(builder.Length - startIndexes[^1]);
-                                    startIndexes.Add(builder.Length);
-                                }
+                                lengths.Add(builder.Length - startIndexes[^1]);
+                                startIndexes.Add(builder.Length);
                             }
 
-                            builder.Append("'");
+                            builder.Append('\'');
                             openApostrophe = true;
                         }
 
@@ -168,16 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 {
                     if (builder.Length != 0)
                     {
-                        if (useOldBehavior)
-                        {
-                            builder.Append(" || ");
-                            concatenated = true;
-                        }
-                        else
-                        {
-                            lengths.Add(builder.Length - startIndexes[^1]);
-                            startIndexes.Add(builder.Length);
-                        }
+                        lengths.Add(builder.Length - startIndexes[^1]);
+                        startIndexes.Add(builder.Length);
                     }
 
                     builder.Append('\'');
@@ -190,23 +154,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             if (openApostrophe)
             {
                 builder.Append('\'');
-            }
-
-            if (useOldBehavior)
-            {
-                if (concatenated)
-                {
-                    builder
-                        .Insert(0, '(')
-                        .Append(')');
-                }
-
-                if (builder.Length == 0)
-                {
-                    builder.Append("''");
-                }
-
-                return builder.ToString();
             }
 
             if (builder.Length != 0)
@@ -240,11 +187,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 }
 
                 var mid = start + count / 2;
-                newBuilder.Append("(");
+                newBuilder.Append('(');
                 GenerateBalancedTree(start, mid);
                 newBuilder.Append(" || ");
                 GenerateBalancedTree(mid, end);
-                newBuilder.Append(")");
+                newBuilder.Append(')');
             }
         }
     }

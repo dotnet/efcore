@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="foreignKeyBuilder"> The builder for the foreign key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessForeignKeyAdded(
-            [NotNull] IConventionForeignKeyBuilder foreignKeyBuilder,
-            [NotNull] IConventionContext<IConventionForeignKeyBuilder> context);
+            IConventionForeignKeyBuilder foreignKeyBuilder,
+            IConventionContext<IConventionForeignKeyBuilder> context);
     }
 }

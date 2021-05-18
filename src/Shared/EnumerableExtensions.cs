@@ -8,7 +8,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+
+#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Utilities
@@ -17,27 +18,27 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     internal static class EnumerableExtensions
     {
         public static IOrderedEnumerable<TSource> OrderByOrdinal<TSource>(
-            [NotNull] this IEnumerable<TSource> source,
-            [NotNull] Func<TSource, string> keySelector)
+            this IEnumerable<TSource> source,
+            Func<TSource, string> keySelector)
             => source.OrderBy(keySelector, StringComparer.Ordinal);
 
         public static IEnumerable<T> Distinct<T>(
-            [NotNull] this IEnumerable<T> source,
-            [NotNull] Func<T, T, bool> comparer)
+            this IEnumerable<T> source,
+            Func<T?, T?, bool> comparer)
             where T : class
             => source.Distinct(new DynamicEqualityComparer<T>(comparer));
 
         private sealed class DynamicEqualityComparer<T> : IEqualityComparer<T>
             where T : class
         {
-            private readonly Func<T, T, bool> _func;
+            private readonly Func<T?, T?, bool> _func;
 
-            public DynamicEqualityComparer(Func<T, T, bool> func)
+            public DynamicEqualityComparer(Func<T?, T?, bool> func)
             {
                 _func = func;
             }
 
-            public bool Equals(T x, T y)
+            public bool Equals(T? x, T? y)
                 => _func(x, y);
 
             public int GetHashCode(T obj)
@@ -45,13 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static string Join(
-            [NotNull] this IEnumerable<object> source,
-            [NotNull] string separator = ", ")
+            this IEnumerable<object> source,
+            string separator = ", ")
             => string.Join(separator, source);
 
         public static bool StructuralSequenceEqual<TSource>(
-            [NotNull] this IEnumerable<TSource> first,
-            [NotNull] IEnumerable<TSource> second)
+            this IEnumerable<TSource> first,
+            IEnumerable<TSource> second)
         {
             if (ReferenceEquals(first, second))
             {
@@ -74,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         }
 
         public static bool StartsWith<TSource>(
-            [NotNull] this IEnumerable<TSource> first,
-            [NotNull] IEnumerable<TSource> second)
+            this IEnumerable<TSource> first,
+            IEnumerable<TSource> second)
         {
             if (ReferenceEquals(first, second))
             {
@@ -98,25 +99,25 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             return true;
         }
 
-        public static int IndexOf<T>([NotNull] this IEnumerable<T> source, [NotNull] T item)
+        public static int IndexOf<T>(this IEnumerable<T> source, T item)
             => IndexOf(source, item, EqualityComparer<T>.Default);
 
         public static int IndexOf<T>(
-            [NotNull] this IEnumerable<T> source,
-            [NotNull] T item,
-            [NotNull] IEqualityComparer<T> comparer)
+            this IEnumerable<T> source,
+            T item,
+            IEqualityComparer<T> comparer)
             => source.Select(
                     (x, index) =>
                         comparer.Equals(item, x) ? index : -1)
                 .FirstOr(x => x != -1, -1);
 
-        public static T FirstOr<T>([NotNull] this IEnumerable<T> source, [NotNull] T alternate)
+        public static T FirstOr<T>(this IEnumerable<T> source, T alternate)
             => source.DefaultIfEmpty(alternate).First();
 
-        public static T FirstOr<T>([NotNull] this IEnumerable<T> source, [NotNull] Func<T, bool> predicate, [NotNull] T alternate)
+        public static T FirstOr<T>(this IEnumerable<T> source, Func<T, bool> predicate, T alternate)
             => source.Where(predicate).FirstOr(alternate);
 
-        public static bool Any([NotNull] this IEnumerable source)
+        public static bool Any(this IEnumerable source)
         {
             foreach (var _ in source)
             {
@@ -142,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         public static List<TSource> ToList<TSource>(this IEnumerable source)
             => source.OfType<TSource>().ToList();
 
-        public static string Format([NotNull] this IEnumerable<string> strings)
+        public static string Format(this IEnumerable<string> strings)
             => "{"
                 + string.Join(
                     ", ",

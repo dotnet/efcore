@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -17,12 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
     /// </summary>
     public class FormattingDbContextLogger : IDbContextLogger
     {
-        [NotNull]
         private readonly Action<string> _sink;
-
-        [NotNull]
         private readonly Func<EventId, LogLevel, bool> _filter;
-
         private readonly DbContextLoggerOptions _options;
 
         /// <summary>
@@ -32,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public FormattingDbContextLogger(
-            [NotNull] Action<string> sink,
-            [NotNull] Func<EventId, LogLevel, bool> filter,
+            Action<string> sink,
+            Func<EventId, LogLevel, bool> filter,
             DbContextLoggerOptions options)
         {
             _sink = sink;
@@ -81,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
 
                 if ((_options & DbContextLoggerOptions.Category) != 0)
                 {
-                    var lastDot = eventId.Name.LastIndexOf('.');
+                    var lastDot = eventId.Name!.LastIndexOf('.');
                     if (lastDot > 0)
                     {
                         messageBuilder.Append('(').Append(eventId.Name.Substring(0, lastDot)).Append(") ");

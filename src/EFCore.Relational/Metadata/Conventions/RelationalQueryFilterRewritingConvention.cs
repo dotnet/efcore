@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
@@ -21,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public RelationalQueryFilterRewritingConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
             DbSetAccessRewriter = new RelationalDbSetAccessRewritingExpressionVisitor(Dependencies.ContextType);
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
 
 #pragma warning disable CS0618 // Type or member is obsolete
-                var definingQuery = entityType.GetDefiningQuery();
+                var definingQuery = ((IEntityType)entityType).GetDefiningQuery();
                 if (definingQuery != null)
                 {
                     entityType.SetDefiningQuery((LambdaExpression)DbSetAccessRewriter.Rewrite(modelBuilder.Metadata, definingQuery));
@@ -80,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                     if (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw))
                     {
-                        sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value;
+                        sql = (string)((ConstantExpression)methodCallExpression.Arguments[1]).Value!;
                         argument = methodCallExpression.Arguments[2];
                     }
                     else

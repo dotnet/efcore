@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerParameterBasedSqlProcessorFactory(
-            [NotNull] RelationalParameterBasedSqlProcessorDependencies dependencies)
+            RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
             _dependencies = dependencies;
         }

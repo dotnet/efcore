@@ -1,12 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using JetBrains.Annotations;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected RelationalDatabaseCreator([NotNull] RelationalDatabaseCreatorDependencies dependencies)
+        protected RelationalDatabaseCreator(RelationalDatabaseCreatorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
@@ -59,13 +61,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Asynchronously determines whether the physical database exists. No attempt is made to determine if
         ///     the database contains the schema for the current model.
         /// </summary>
-        /// <param name="cancellationToken">
-        ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains
         ///     <see langword="true" /> if the database exists; otherwise <see langword="false" />.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -85,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task CreateAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -106,6 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task DeleteAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -130,6 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default)
             => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
                 GetCreateTablesCommands(), Dependencies.Connection, cancellationToken);
@@ -141,8 +145,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The generated commands. </returns>
         protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands(
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
-            => Dependencies.MigrationsSqlGenerator.Generate(
-                Dependencies.ModelDiffer.GetDifferences(null, Dependencies.Model.GetRelationalModel()), Dependencies.Model, options);
+        {
+            var model = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>().Model;
+            return Dependencies.MigrationsSqlGenerator.Generate(
+                Dependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel()),
+                model,
+                options);
+        }
 
         /// <summary>
         ///     Determines whether the database contains any tables. No attempt is made to determine if
@@ -160,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation. The task result contains
         ///     a value indicating whether any tables are present in the database.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -201,11 +211,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         the model for this context.
         ///     </para>
         /// </summary>
-        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" />
         ///     if the database is deleted, <see langword="false" /> if it did not exist.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
         {
             if (await ExistsAsync(cancellationToken).ConfigureAwait(false))
@@ -252,11 +263,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     exist then the database and all its schema are created. If the database exists, then no effort is made
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
-        /// <param name="cancellationToken">A <see cref="T:System.Threading.CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" />
         ///     if the database is created, <see langword="false" /> if it already existed.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
             var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
@@ -352,6 +364,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
         {
             try

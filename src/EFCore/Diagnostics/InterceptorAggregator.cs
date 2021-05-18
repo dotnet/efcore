@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -16,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     public abstract class InterceptorAggregator<TInterceptor> : IInterceptorAggregator
         where TInterceptor : class, IInterceptor
     {
-        private TInterceptor _interceptor;
+        private TInterceptor? _interceptor;
         private bool _resolved;
 
         /// <summary>
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors to combine. </param>
         /// <returns> The combined interceptor. </returns>
-        public virtual IInterceptor AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors)
+        public virtual IInterceptor? AggregateInterceptors(IReadOnlyList<IInterceptor> interceptors)
         {
             Check.NotNull(interceptors, nameof(interceptors));
 
@@ -68,6 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <param name="interceptors"> The interceptors to combine. </param>
         /// <returns> The combined interceptor. </returns>
-        protected abstract TInterceptor CreateChain([NotNull] IEnumerable<TInterceptor> interceptors);
+        protected abstract TInterceptor CreateChain(IEnumerable<TInterceptor> interceptors);
     }
 }

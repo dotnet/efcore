@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -25,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private readonly QueryCompilationContext _queryCompilationContext;
 
-        private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor
-            = new SelectManyVerifyingExpressionVisitor();
+        private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public QueryableMethodNormalizingExpressionVisitor([NotNull] QueryCompilationContext queryCompilationContext)
+        public QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext queryCompilationContext)
         {
             Check.NotNull(queryCompilationContext, nameof(Query));
 
@@ -61,16 +59,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return expression;
             }
 
-            Expression visitedExpression = null;
+            Expression? visitedExpression = null;
             if (method.DeclaringType == typeof(Enumerable))
             {
                 visitedExpression = TryConvertEnumerableToQueryable(methodCallExpression);
             }
 
-            if (methodCallExpression.Method.DeclaringType.IsGenericType
-                && (methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
-                    || methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
-                && string.Equals(nameof(List<int>.Contains), methodCallExpression.Method.Name))
+            if (method.DeclaringType != null
+                && method.DeclaringType.IsGenericType
+                && (method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
+                    || method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
+                && method.Name == nameof(List<int>.Contains))
             {
                 visitedExpression = TryConvertListContainsToQueryableContains(methodCallExpression);
             }
@@ -110,7 +109,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         return Expression.Call(newIncludeMethod, source, lambda);
                     }
 
-                    return methodCallExpression.Update(null, new[] { source, lambda });
+                    // TODO-Nullable bug
+                    return methodCallExpression.Update(null!, new[] { source, lambda });
                 }
             }
 
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private Expression ExtractQueryMetadata(MethodCallExpression methodCallExpression)
+        private Expression? ExtractQueryMetadata(MethodCallExpression methodCallExpression)
         {
             // We visit innerQueryable first so that we can get information in the same order operators are applied.
             var genericMethodDefinition = methodCallExpression.Method.GetGenericMethodDefinition();
@@ -206,7 +206,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (genericMethodDefinition == EntityFrameworkQueryableExtensions.TagWithMethodInfo)
             {
                 var visitedExpression = Visit(methodCallExpression.Arguments[0]);
-                _queryCompilationContext.AddTag((string)((ConstantExpression)methodCallExpression.Arguments[1]).Value);
+                _queryCompilationContext.AddTag(methodCallExpression.Arguments[1].GetConstantValue<string>());
+
+                return visitedExpression;
+            }
+
+            if (genericMethodDefinition == EntityFrameworkQueryableExtensions.TagWithCallerInfoMethodInfo)
+            {
+                var visitedExpression = Visit(methodCallExpression.Arguments[0]);
+
+                var fileName = methodCallExpression.Arguments[1].GetConstantValue<string>();
+                var lineNo = methodCallExpression.Arguments[2].GetConstantValue<int>();
+                _queryCompilationContext.AddTag($"file: {fileName}:{lineNo}");
 
                 return visitedExpression;
             }
@@ -252,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var enumerableMethod = methodCallExpression.Method;
             var enumerableParameters = enumerableMethod.GetParameters();
-            Type[] genericTypeArguments = null;
+            Type[] genericTypeArguments = Array.Empty<Type>();
             if (enumerableMethod.Name == nameof(Enumerable.Min)
                 || enumerableMethod.Name == nameof(Enumerable.Max))
             {
@@ -317,7 +328,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     if (CanConvertEnumerableToQueryable(enumerableParameterType, queryableParameterType))
                     {
                         var innerArgument = arguments[i];
-                        var genericType = innerArgument.Type.TryGetSequenceType();
+                        var genericType = innerArgument.Type.GetSequenceType();
 
                         // If innerArgument has ToList applied to it then unwrap it.
                         // Also preserve generic argument of ToList is applied to different type
@@ -362,7 +373,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 }
             }
 
-            return methodCallExpression.Update(Visit(methodCallExpression.Object), arguments);
+            // TODO-Nullable bug
+            return methodCallExpression.Update(Visit(methodCallExpression.Object)!, arguments);
         }
 
         private Expression TryConvertListContainsToQueryableContains(MethodCallExpression methodCallExpression)
@@ -373,17 +385,17 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return base.VisitMethodCall(methodCallExpression);
             }
 
-            var sourceType = methodCallExpression.Method.DeclaringType.GetGenericArguments()[0];
+            var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
 
             return Expression.Call(
                 QueryableMethods.Contains.MakeGenericMethod(sourceType),
                 Expression.Call(
                     QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
-                    methodCallExpression.Object),
+                    methodCallExpression.Object!),
                 methodCallExpression.Arguments[0]);
         }
 
-        private static bool ClientSource(Expression expression)
+        private static bool ClientSource(Expression? expression)
             => expression is ConstantExpression
                 || expression is MemberInitExpression
                 || expression is NewExpression
@@ -485,8 +497,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             // left join
                             return Expression.Call(
                                 QueryableExtensions.LeftJoinMethodInfo.MakeGenericMethod(
-                                    outer.Type.TryGetSequenceType(),
-                                    inner.Type.TryGetSequenceType(),
+                                    outer.Type.GetSequenceType(),
+                                    inner.Type.GetSequenceType(),
                                     outerKeySelector.ReturnType,
                                     resultSelector.ReturnType),
                                 outer,
@@ -499,8 +511,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // inner join
                         return Expression.Call(
                             QueryableMethods.Join.MakeGenericMethod(
-                                outer.Type.TryGetSequenceType(),
-                                inner.Type.TryGetSequenceType(),
+                                outer.Type.GetSequenceType(),
+                                inner.Type.GetSequenceType(),
                                 outerKeySelector.ReturnType,
                                 resultSelector.ReturnType),
                             outer,
@@ -519,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     //        innerKeySelector.Body);
 
                     //    inner = Expression.Call(
-                    //        QueryableMethods.Where.MakeGenericMethod(inner.Type.TryGetSequenceType()),
+                    //        QueryableMethods.Where.MakeGenericMethod(inner.Type.GetSequenceType()),
                     //        inner,
                     //        Expression.Quote(Expression.Lambda(correlationPredicate, innerParameter)));
 
@@ -599,8 +611,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             // left join
                             return Expression.Call(
                                 QueryableExtensions.LeftJoinMethodInfo.MakeGenericMethod(
-                                    outer.Type.TryGetSequenceType(),
-                                    inner.Type.TryGetSequenceType(),
+                                    outer.Type.GetSequenceType(),
+                                    inner.Type.GetSequenceType(),
                                     outerKeySelector.ReturnType,
                                     resultSelector.ReturnType),
                                 outer,
@@ -613,8 +625,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         // inner join
                         return Expression.Call(
                             QueryableMethods.Join.MakeGenericMethod(
-                                outer.Type.TryGetSequenceType(),
-                                inner.Type.TryGetSequenceType(),
+                                outer.Type.GetSequenceType(),
+                                inner.Type.GetSequenceType(),
                                 outerKeySelector.ReturnType,
                                 resultSelector.ReturnType),
                             outer,
@@ -631,10 +643,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
         {
-            private readonly List<ParameterExpression> _allowedParameters = new List<ParameterExpression>();
+            private readonly List<ParameterExpression> _allowedParameters = new();
             private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
 
-            private ParameterExpression _rootParameter;
+            private ParameterExpression? _rootParameter;
             private int _rootParameterCount;
             private bool _correlated;
 

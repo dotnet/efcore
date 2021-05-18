@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         {
             private readonly IDbCommandInterceptor[] _interceptors;
 
-            public CompositeDbCommandInterceptor([NotNull] IEnumerable<IDbCommandInterceptor> interceptors)
+            public CompositeDbCommandInterceptor(IEnumerable<IDbCommandInterceptor> interceptors)
             {
                 _interceptors = interceptors.ToArray();
             }
@@ -157,10 +157,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public object ScalarExecuted(
+            public object? ScalarExecuted(
                 DbCommand command,
                 CommandExecutedEventData eventData,
-                object result)
+                object? result)
             {
                 for (var i = 0; i < _interceptors.Length; i++)
                 {
@@ -198,10 +198,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 return result;
             }
 
-            public async ValueTask<object> ScalarExecutedAsync(
+            public async ValueTask<object?> ScalarExecutedAsync(
                 DbCommand command,
                 CommandExecutedEventData eventData,
-                object result,
+                object? result,
                 CancellationToken cancellationToken = default)
             {
                 for (var i = 0; i < _interceptors.Length; i++)

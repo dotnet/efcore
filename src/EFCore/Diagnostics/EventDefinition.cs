@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class EventDefinition : EventDefinitionBase
     {
-        private readonly Action<ILogger, Exception> _logAction;
+        private readonly Action<ILogger, Exception?> _logAction;
 
         /// <summary>
         ///     Creates an event definition instance.
@@ -27,11 +26,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
         /// </param>
         public EventDefinition(
-            [NotNull] ILoggingOptions loggingOptions,
+            ILoggingOptions loggingOptions,
             EventId eventId,
             LogLevel level,
-            [NotNull] string eventIdCode,
-            [NotNull] Func<LogLevel, Action<ILogger, Exception>> logActionFunc)
+            string eventIdCode,
+            Func<LogLevel, Action<ILogger, Exception?>> logActionFunc)
             : base(loggingOptions, eventId, level, eventIdCode)
         {
             Check.NotNull(logActionFunc, nameof(logActionFunc));
@@ -58,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="logger"> The logger to which the event should be logged. </param>
         /// <param name="exception"> Optional exception associated with the event. </param>
         public virtual void Log<TLoggerCategory>(
-            [NotNull] IDiagnosticsLogger<TLoggerCategory> logger,
-            [CanBeNull] Exception exception = null)
+            IDiagnosticsLogger<TLoggerCategory> logger,
+            Exception? exception = null)
             where TLoggerCategory : LoggerCategory<TLoggerCategory>, new()
         {
             switch (WarningBehavior)

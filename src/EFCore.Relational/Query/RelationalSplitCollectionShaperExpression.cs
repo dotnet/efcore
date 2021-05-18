@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -35,15 +34,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> An expression used to create individual elements of the collection. </param>
         /// <param name="navigation"> A navigation associated with this collection, if any. </param>
         /// <param name="elementType"> The clr type of individual elements in the collection. </param>
+        [Obsolete("Use ctor without collectionId")]
         public RelationalSplitCollectionShaperExpression(
             int collectionId,
-            [NotNull] Expression parentIdentifier,
-            [NotNull] Expression childIdentifier,
-            [NotNull] IReadOnlyList<ValueComparer> identifierValueComparers,
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase navigation,
-            [NotNull] Type elementType)
+            Expression parentIdentifier,
+            Expression childIdentifier,
+            IReadOnlyList<ValueComparer> identifierValueComparers,
+            SelectExpression selectExpression,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
             Check.NotNull(childIdentifier, nameof(childIdentifier));
@@ -62,9 +62,44 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
+        ///     Creates a new instance of the <see cref="RelationalCollectionShaperExpression" /> class.
+        /// </summary>
+        /// <param name="parentIdentifier"> An identifier for the parent element. </param>
+        /// <param name="childIdentifier"> An identifier for the child element. </param>
+        /// <param name="identifierValueComparers"> A list of value comparers to compare identifiers. </param>
+        /// <param name="selectExpression"> A SQL query to get values for this collection from database. </param>
+        /// <param name="innerShaper"> An expression used to create individual elements of the collection. </param>
+        /// <param name="navigation"> A navigation associated with this collection, if any. </param>
+        /// <param name="elementType"> The clr type of individual elements in the collection. </param>
+        public RelationalSplitCollectionShaperExpression(
+            Expression parentIdentifier,
+            Expression childIdentifier,
+            IReadOnlyList<ValueComparer> identifierValueComparers,
+            SelectExpression selectExpression,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType)
+        {
+            Check.NotNull(parentIdentifier, nameof(parentIdentifier));
+            Check.NotNull(childIdentifier, nameof(childIdentifier));
+            Check.NotEmpty(identifierValueComparers, nameof(identifierValueComparers));
+            Check.NotNull(innerShaper, nameof(innerShaper));
+            Check.NotNull(elementType, nameof(elementType));
+
+            ParentIdentifier = parentIdentifier;
+            ChildIdentifier = childIdentifier;
+            IdentifierValueComparers = identifierValueComparers;
+            SelectExpression = selectExpression;
+            InnerShaper = innerShaper;
+            Navigation = navigation;
+            ElementType = elementType;
+        }
+
+        /// <summary>
         ///     A unique id for this collection shaper.
         /// </summary>
-        public virtual int CollectionId { get; }
+        [Obsolete("CollectionId are not stored in shaper anymore. Shaper compiler assigns it as needed.")]
+        public virtual int? CollectionId { get; }
 
         /// <summary>
         ///     The identifier for the parent element.
@@ -94,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigationBase Navigation { get; }
+        public virtual INavigationBase? Navigation { get; }
 
         /// <summary>
         ///     The clr type of elements of the collection.
@@ -132,10 +167,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual RelationalSplitCollectionShaperExpression Update(
-            [NotNull] Expression parentIdentifier,
-            [NotNull] Expression childIdentifier,
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] Expression innerShaper)
+            Expression parentIdentifier,
+            Expression childIdentifier,
+            SelectExpression selectExpression,
+            Expression innerShaper)
         {
             Check.NotNull(parentIdentifier, nameof(parentIdentifier));
             Check.NotNull(childIdentifier, nameof(childIdentifier));
@@ -147,8 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 || selectExpression != SelectExpression
                 || innerShaper != InnerShaper
                     ? new RelationalSplitCollectionShaperExpression(
-                        CollectionId, parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper,
-                        Navigation, ElementType)
+                        parentIdentifier, childIdentifier, IdentifierValueComparers, selectExpression, innerShaper, Navigation, ElementType)
                     : this;
         }
 
@@ -160,7 +194,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             expressionPrinter.AppendLine("RelationalCollectionShaper:");
             using (expressionPrinter.Indent())
             {
-                expressionPrinter.AppendLine($"CollectionId: {CollectionId}");
                 expressionPrinter.Append("ParentIdentifier:");
                 expressionPrinter.Visit(ParentIdentifier);
                 expressionPrinter.AppendLine();

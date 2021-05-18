@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ForeignKeyIndexConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ForeignKeyIndexConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ForeignKeyIndexConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -86,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (!foreignKey.Properties.SequenceEqual(oldDependentProperties))
             {
                 OnForeignKeyRemoved(foreignKey.DeclaringEntityType, oldDependentProperties);
-                if (relationshipBuilder.Metadata.Builder != null)
+                if (relationshipBuilder.Metadata.IsInModel)
                 {
                     CreateIndex(foreignKey.Properties, foreignKey.IsUnique, foreignKey.DeclaringEntityType.Builder);
                 }
@@ -162,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="context"> Additional information associated with convention execution. </param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (entityTypeBuilder.Metadata.BaseType != newBaseType)
@@ -183,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
                 else if (newBaseType != null)
                 {
-                    var coveringKey = baseKeys.FirstOrDefault(
+                    var coveringKey = baseKeys!.FirstOrDefault(
                         k => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, k.Properties, coveringIndexUnique: true));
                     if (coveringKey != null)
                     {
@@ -191,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     }
                     else
                     {
-                        var coveringIndex = baseIndexes.FirstOrDefault(
+                        var coveringIndex = baseIndexes!.FirstOrDefault(
                             i => AreIndexedBy(foreignKey.Properties, foreignKey.IsUnique, i.Properties, i.IsUnique));
                         if (coveringIndex != null)
                         {
@@ -318,10 +317,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="unique"> Whether the index to create should be unique. </param>
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <returns> The created index. </returns>
-        protected virtual IConventionIndex CreateIndex(
-            [NotNull] IReadOnlyList<IConventionProperty> properties,
+        protected virtual IConventionIndex? CreateIndex(
+            IReadOnlyList<IConventionProperty> properties,
             bool unique,
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
+            IConventionEntityTypeBuilder entityTypeBuilder)
         {
             foreach (var key in entityTypeBuilder.Metadata.GetKeys())
             {
@@ -357,9 +356,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="coveringIndexUnique"> Whether the existing index is unique. </param>
         /// <returns> <see langword="true" /> if the existing index covers the given properties. </returns>
         protected virtual bool AreIndexedBy(
-            [NotNull] IReadOnlyList<IConventionProperty> properties,
+            IReadOnlyList<IConventionProperty> properties,
             bool unique,
-            [NotNull] IReadOnlyList<IConventionProperty> coveringIndexProperties,
+            IReadOnlyList<IConventionProperty> coveringIndexProperties,
             bool coveringIndexUnique)
             => (!unique && coveringIndexProperties.Select(p => p.Name).StartsWith(properties.Select(p => p.Name)))
                 || (unique && coveringIndexUnique && coveringIndexProperties.SequenceEqual(properties));
@@ -374,7 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var definition = CoreResources.LogRedundantIndexRemoved(Dependencies.Logger);
             if (!Dependencies.Logger.ShouldLog(definition)
-                && !Dependencies.Logger.DiagnosticSource.IsEnabled(definition.EventId.Name))
+                && !Dependencies.Logger.DiagnosticSource.IsEnabled(definition.EventId.Name!))
             {
                 return;
             }

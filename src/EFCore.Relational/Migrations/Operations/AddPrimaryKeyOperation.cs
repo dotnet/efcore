@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -18,29 +17,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     The table to which the key should be added.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; set; } = null!;
 
         /// <summary>
         ///     The name of the foreign key constraint.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
 
         /// <summary>
         ///     The ordered-list of column names for the columns that make up the primary key.
         /// </summary>
-        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; set; } = null!;
 
         /// <summary>
         ///     Creates a new <see cref="AddPrimaryKeyOperation" /> from the specified primary key.
         /// </summary>
         /// <param name="primaryKey"> The primary key. </param>
         /// <returns> The operation. </returns>
-        public static AddPrimaryKeyOperation CreateFrom([NotNull] IPrimaryKeyConstraint primaryKey)
+        public static AddPrimaryKeyOperation CreateFrom(IPrimaryKeyConstraint primaryKey)
         {
             Check.NotNull(primaryKey, nameof(primaryKey));
 

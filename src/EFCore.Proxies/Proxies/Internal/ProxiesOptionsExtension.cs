@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     /// </summary>
     public class ProxiesOptionsExtension : IDbContextOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
         private bool _useLazyLoadingProxies;
         private bool _useChangeTrackingProxies;
         private bool _checkEquality;
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected ProxiesOptionsExtension([NotNull] ProxiesOptionsExtension copyFrom)
+        protected ProxiesOptionsExtension(ProxiesOptionsExtension copyFrom)
         {
             _useLazyLoadingProxies = copyFrom._useLazyLoadingProxies;
             _useChangeTrackingProxies = copyFrom._useChangeTrackingProxies;
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual ProxiesOptionsExtension Clone()
-            => new ProxiesOptionsExtension(this);
+            => new(this);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -168,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)

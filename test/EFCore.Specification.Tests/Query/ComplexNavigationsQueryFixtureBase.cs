@@ -13,14 +13,207 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     public abstract class ComplexNavigationsQueryFixtureBase : SharedStoreFixtureBase<ComplexNavigationsContext>, IQueryFixtureBase
     {
+        private ComplexNavigationsDefaultData _expectedData;
+
         protected override string StoreName { get; } = "ComplexNavigations";
 
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
         public virtual ISetSource GetExpectedData()
-            => new ComplexNavigationsDefaultData();
+        {
+            if (_expectedData == null)
+            {
+                _expectedData = new ComplexNavigationsDefaultData();
+            }
 
+            return _expectedData;
+        }
+
+        public virtual Dictionary<(Type, string), Func<object, object>> GetShadowPropertyMappings()
+        {
+            var l1s = GetExpectedData().Set<Level1>().ToList();
+            var l2s = GetExpectedData().Set<Level2>().ToList();
+            var l3s = GetExpectedData().Set<Level3>().ToList();
+            var l4s = GetExpectedData().Set<Level4>().ToList();
+
+            var ib1s = GetExpectedData().Set<InheritanceBase1>().ToList();
+            var ib2s = GetExpectedData().Set<InheritanceBase2>().ToList();
+            var il1s = GetExpectedData().Set<InheritanceLeaf1>().ToList();
+            var il2s = GetExpectedData().Set<InheritanceLeaf2>().ToList();
+
+            return new Dictionary<(Type, string), Func<object, object>>
+            {
+                {
+                    (typeof(Level1), "OneToOne_Optional_Self1Id"),
+                    e => l1s.SingleOrDefault(l => l.Id == ((Level1)e)?.Id)?.OneToOne_Optional_Self1?.Id
+                },
+                {
+                    (typeof(Level1), "OneToMany_Required_Self_Inverse1Id"),
+                    e => l1s.SingleOrDefault(l => l.Id == ((Level1)e)?.Id)?.OneToMany_Required_Self_Inverse1?.Id
+                },
+                {
+                    (typeof(Level1), "OneToMany_Optional_Self_Inverse1Id"),
+                    e => l1s.SingleOrDefault(l => l.Id == ((Level1)e)?.Id)?.OneToMany_Optional_Self_Inverse1?.Id
+                },
+
+                {
+                    (typeof(Level2), "OneToOne_Optional_PK_Inverse2Id"),
+                    e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToOne_Optional_PK_Inverse2?.Id
+                },
+                {
+                    (typeof(Level2), "OneToMany_Required_Inverse2Id"),
+                    e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToMany_Required_Inverse2?.Id
+                },
+                {
+                    (typeof(Level2), "OneToMany_Optional_Inverse2Id"),
+                    e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToMany_Optional_Inverse2?.Id
+                },
+                {
+                    (typeof(Level2), "OneToOne_Optional_Self2Id"),
+                    e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToOne_Optional_Self2?.Id
+                },
+                {
+                    (typeof(Level2), "OneToMany_Required_Self_Inverse2Id"),
+                    e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToMany_Required_Self_Inverse2?.Id
+                },
+                {
+                    (typeof(Level2), "OneToMany_Optional_Self_Inverse2Id"),
+                    e => l2s.SingleOrDefault(l => l.Id == ((Level2)e)?.Id)?.OneToMany_Optional_Self_Inverse2?.Id
+                },
+
+                {
+                    (typeof(Level3), "OneToOne_Optional_PK_Inverse3Id"),
+                    e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToOne_Optional_PK_Inverse3?.Id
+                },
+                {
+                    (typeof(Level3), "OneToMany_Required_Inverse3Id"),
+                    e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToMany_Required_Inverse3?.Id
+                },
+                {
+                    (typeof(Level3), "OneToMany_Optional_Inverse3Id"),
+                    e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToMany_Optional_Inverse3?.Id
+                },
+                {
+                    (typeof(Level3), "OneToOne_Optional_Self3Id"),
+                    e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToOne_Optional_Self3?.Id
+                },
+                {
+                    (typeof(Level3), "OneToMany_Required_Self_Inverse3Id"),
+                    e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToMany_Required_Self_Inverse3?.Id
+                },
+                {
+                    (typeof(Level3), "OneToMany_Optional_Self_Inverse3Id"),
+                    e => l3s.SingleOrDefault(l => l.Id == ((Level3)e)?.Id)?.OneToMany_Optional_Self_Inverse3?.Id
+                },
+
+                {
+                    (typeof(Level4), "OneToOne_Optional_PK_Inverse4Id"),
+                    e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToOne_Optional_PK_Inverse4?.Id
+                },
+                {
+                    (typeof(Level4), "OneToMany_Required_Inverse4Id"),
+                    e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToMany_Required_Inverse4?.Id
+                },
+                {
+                    (typeof(Level4), "OneToMany_Optional_Inverse4Id"),
+                    e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToMany_Optional_Inverse4?.Id
+                },
+                {
+                    (typeof(Level4), "OneToOne_Optional_Self4Id"),
+                    e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToOne_Optional_Self4?.Id
+                },
+                {
+                    (typeof(Level4), "OneToMany_Required_Self_Inverse4Id"),
+                    e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToMany_Required_Self_Inverse4?.Id
+                },
+                {
+                    (typeof(Level4), "OneToMany_Optional_Self_Inverse4Id"),
+                    e => l4s.SingleOrDefault(l => l.Id == ((Level4)e)?.Id)?.OneToMany_Optional_Self_Inverse4?.Id
+                },
+
+                {
+                    (typeof(InheritanceBase1), "InheritanceBase2Id"),
+                    e => ((InheritanceBase1)e)?.Id == 1 ? 1 : null
+                },
+                {
+                    (typeof(InheritanceBase1), "InheritanceBase2Id1"),
+                    e => ((InheritanceBase1)e)?.Id == 1 ? null : 1
+                },
+
+                {
+                    (typeof(InheritanceBase2), "InheritanceLeaf2Id"),
+                    e => ((InheritanceBase2)e)?.Id == 1 ? 1 : null
+                },
+
+                {
+                    (typeof(InheritanceLeaf1), "DifferentTypeReference_InheritanceDerived1Id"),
+                    e =>
+                    {
+                        switch (((InheritanceLeaf1)e)?.Id)
+                        {
+                            case 1: return 1;
+                            case 2: return 2;
+                            default: return null;
+                        }
+                    }
+                },
+                {
+                    (typeof(InheritanceLeaf1), "InheritanceDerived1Id"),
+                    e =>
+                    {
+                        switch (((InheritanceLeaf1)e)?.Id)
+                        {
+                            case 1: return 1;
+                            case 2: return 2;
+                            case 3: return 2;
+                            default: return null;
+                        }
+                    }
+                },
+                {
+                    (typeof(InheritanceLeaf1), "InheritanceDerived1Id1"),
+                    e => ((InheritanceLeaf1)e)?.Id == 1 ? 1 : null
+                },
+                {
+                    (typeof(InheritanceLeaf1), "InheritanceDerived2Id"),
+                    e =>
+                    {
+                        switch (((InheritanceLeaf1)e)?.Id)
+                        {
+                            case 2: return 3;
+                            case 3: return 3;
+                            default: return null;
+                        }
+                    }
+                },
+                {
+                    (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived1Id"),
+                    e =>
+                    {
+                        switch (((InheritanceLeaf1)e)?.Id)
+                        {
+                            case 1: return 1;
+                            case 2: return 2;
+                            default: return null;
+                        }
+                    }
+                },
+                {
+                    (typeof(InheritanceLeaf1), "SameTypeReference_InheritanceDerived2Id"),
+                    e => ((InheritanceLeaf1)e)?.Id == 3 ? 3 : null
+                },
+
+                {
+                    (typeof(InheritanceLeaf2), "DifferentTypeReference_InheritanceDerived2Id"),
+                    e => ((InheritanceLeaf2)e)?.Id == 1 ? 3 : null
+                },
+                {
+                    (typeof(InheritanceLeaf2), "InheritanceDerived2Id"),
+                    e => ((InheritanceLeaf2)e)?.Id == 1 ? 3 : null
+                },
+            };
+        }
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
             {
@@ -354,6 +547,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (typeof(TEntity) == typeof(InheritanceBase2))
                 {
                     return (IQueryable<TEntity>)InheritanceBaseTwos.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(InheritanceLeaf1))
+                {
+                    return (IQueryable<TEntity>)InheritanceLeafOnes.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(InheritanceLeaf2))
+                {
+                    return (IQueryable<TEntity>)InheritanceLeafTwos.AsQueryable();
                 }
 
                 throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

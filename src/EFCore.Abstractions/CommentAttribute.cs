@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Marks a class, property or field with a comment which will be included in the SQL sent to the database .
+    ///     Marks a class, property or field with a comment to be set on the corresponding database table or column.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property | AttributeTargets.Field)]
     public sealed class CommentAttribute : Attribute
@@ -16,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="CommentAttribute" /> class.
         /// </summary>
-        /// <param name="comment">The comment.</param>
-        public CommentAttribute([NotNull] string comment)
+        /// <param name="comment"> The comment. </param>
+        public CommentAttribute(string comment)
         {
             Check.NotEmpty(comment, nameof(comment));
 
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     The Comment
+        ///     The comment to be configured.
         /// </summary>
         public string Comment { get; }
     }

@@ -71,6 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             QueryCompilationStarting,
             NavigationBaseIncluded,
             NavigationBaseIncludeIgnored,
+            DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
 
             // Infrastructure events
             SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -84,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DetachedLazyLoadingWarning,
             ServiceProviderDebugInfo,
             RedundantAddServicesCallWarning,
+            OldModelVersionWarning,
 
             // Model and ModelValidation events
             ShadowPropertyCreated = CoreBaseId + 600,
@@ -128,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 
         private static EventId MakeUpdateId(Id id)
-            => new EventId((int)id, _updatePrefix + id);
+            => new((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>
@@ -153,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
         private static EventId MakeQueryId(Id id)
-            => new EventId((int)id, _queryPrefix + id);
+            => new((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -287,10 +289,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId FirstWithoutOrderByAndFilterWarning
             = MakeQueryId(Id.FirstWithoutOrderByAndFilterWarning);
 
+        /// <summary>
+        ///     <para>
+        ///         The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before `Distinct` and after ordering then ordering will be used for it.
+        ///         Ordering(s) will be erased after `Distinct` and results afterwards would be unordered.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Query" /> category.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId DistinctAfterOrderByWithoutRowLimitingOperatorWarning
+            = MakeQueryId(Id.DistinctAfterOrderByWithoutRowLimitingOperatorWarning);
+
         private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 
         private static EventId MakeInfraId(Id id)
-            => new EventId((int)id, _infraPrefix + id);
+            => new((int)id, _infraPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -422,15 +436,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId RedundantAddServicesCallWarning = MakeInfraId(Id.RedundantAddServicesCallWarning);
 
+        /// <summary>
+        ///     <para>
+        ///         The model supplied in the context options was created with an older EF Core version.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ContextInitializedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OldModelVersionWarning = MakeInfraId(Id.OldModelVersionWarning);
+
         private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
 
         private static EventId MakeModelId(Id id)
-            => new EventId((int)id, _modelPrefix + id);
+            => new((int)id, _modelPrefix + id);
 
         private static readonly string _modelValidationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 
         private static EventId MakeModelValidationId(Id id)
-            => new EventId((int)id, _modelValidationPrefix + id);
+            => new((int)id, _modelValidationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -782,7 +809,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _changeTrackingPrefix = DbLoggerCategory.ChangeTracking.Name + ".";
 
         private static EventId MakeChangeTrackingId(Id id)
-            => new EventId((int)id, _changeTrackingPrefix + id);
+            => new((int)id, _changeTrackingPrefix + id);
 
         /// <summary>
         ///     <para>

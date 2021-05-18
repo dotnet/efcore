@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     a given <see cref="DbContextOptions" />.
         /// </summary>
         /// <param name="options"> The options to be configured. </param>
-        public DbContextOptionsBuilder([NotNull] DbContextOptions<TContext> options)
+        public DbContextOptionsBuilder(DbContextOptions<TContext> options)
             : base(options)
         {
         }
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseModel([NotNull] IModel model)
+        public new virtual DbContextOptionsBuilder<TContext> UseModel(IModel model)
             => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
 
         /// <summary>
@@ -69,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         for logging done by this context.
         ///     </para>
         ///     <para>
-        ///         There is no need to call this method when using one of the 'AddDbContext' methods.
-        ///         'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
+        ///         There is no need to call this method when using one of the <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext" />
+        ///         methods. 'AddDbContext' will ensure that the <see cref="ILoggerFactory" /> used by EF is obtained from the
         ///         application service provider.
         ///     </para>
         ///     <para>
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="loggerFactory"> The logger factory to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory([CanBeNull] ILoggerFactory loggerFactory)
+        public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory(ILoggerFactory? loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This overload allows the minimum level of logging and the log formatting to be controlled.
         ///         Use the
         ///         <see
-        ///             cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///             cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only specific events.
         ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only events in specific categories.
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
+            Action<string> action,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, minimumLevel, options);
@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] IEnumerable<EventId> events,
+            Action<string> action,
+            IEnumerable<EventId> events,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, events, minimumLevel, options);
@@ -168,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] IEnumerable<string> categories,
+            Action<string> action,
+            IEnumerable<string> categories,
             LogLevel minimumLevel = LogLevel.Debug,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, categories, minimumLevel, options);
@@ -195,8 +195,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Action<string> action,
-            [NotNull] Func<EventId, LogLevel, bool> filter,
+            Action<string> action,
+            Func<EventId, LogLevel, bool> filter,
             DbContextLoggerOptions? options = null)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(action, filter, options);
 
@@ -220,9 +220,31 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         // Filter comes first, logger second, otherwise it's hard to get the correct overload to resolve
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
-            [NotNull] Func<EventId, LogLevel, bool> filter,
-            [NotNull] Action<EventData> logger)
+            Func<EventId, LogLevel, bool> filter,
+            Action<EventData> logger)
             => (DbContextOptionsBuilder<TContext>)base.LogTo(filter, logger);
+
+        /// <summary>
+        ///     <para>
+        ///         Disables concurrency detection, which detects many cases of erroneous concurrent usage of a <see cref="DbContext" />
+        ///         instance and causes an informative exception to be thrown. This provides a minor performance improvement, but if a
+        ///         <see cref="DbContext" /> instance is used concurrently, the behavior will be undefined and the program may fail in
+        ///         unpredictable ways.
+        ///     </para>
+        ///     <para>
+        ///         Only disable concurrency detection after confirming that the performance gains are considerable, and the application has
+        ///         been thoroughly tested against concurrency bugs.
+        ///     </para>
+        ///     <para>
+        ///         Note that if the application is setting the internal service provider through a call to
+        ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+        ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+        ///         so that EF will manage the service providers and can create new instances as required.
+        ///     </para>
+        /// </summary>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> EnableThreadSafetyChecks(bool checksEnabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableThreadSafetyChecks(checksEnabled);
 
         /// <summary>
         ///     <para>
@@ -263,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="memoryCache"> The memory cache to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache([CanBeNull] IMemoryCache memoryCache)
+        public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache(IMemoryCache? memoryCache)
             => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
 
         /// <summary>
@@ -285,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider(IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
 
         /// <summary>
@@ -294,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="serviceProvider"> The service provider to be used. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider([CanBeNull] IServiceProvider serviceProvider)
+        public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider(IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseApplicationServiceProvider(serviceProvider);
 
         /// <summary>
@@ -345,7 +367,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="EntityFrameworkCore.QueryTrackingBehavior.TrackAll" />. This means the
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means the
         ///         change tracker will keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
@@ -382,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public new virtual DbContextOptionsBuilder<TContext> ConfigureWarnings(
-            [NotNull] Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
+            Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
             => (DbContextOptionsBuilder<TContext>)base.ConfigureWarnings(warningsConfigurationBuilderAction);
 
         /// <summary>
@@ -444,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
         ///     </para>
         ///     <para>
-        ///         A single interceptor instance can implement multiple different interceptor interfaces. I will be registered as
+        ///         A single interceptor instance can implement multiple different interceptor interfaces. It will be registered as
         ///         an interceptor for all interfaces that it implements.
         ///     </para>
         ///     <para>
@@ -460,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] IEnumerable<IInterceptor> interceptors)
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors(IEnumerable<IInterceptor> interceptors)
             => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
 
         /// <summary>
@@ -484,7 +506,22 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="interceptors"> The interceptors to add. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors([NotNull] params IInterceptor[] interceptors)
+        public new virtual DbContextOptionsBuilder<TContext> AddInterceptors(params IInterceptor[] interceptors)
             => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
+
+        /// <summary>
+        ///     <para>
+        ///         Configures how long EF Core will cache logging configuration in certain high-performance paths. This makes
+        ///         EF Core skip potentially costly logging checks, but means that runtime logging changes (e.g. registering a
+        ///         new <see cref="DiagnosticListener" /> may not be taken into account right away).
+        ///     </para>
+        ///     <para>
+        ///         Defaults to one second.
+        ///     </para>
+        /// </summary>
+        /// <param name="loggingConfigCacheTime"> The maximum time period over which to skip logging checks before checking again. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public new virtual DbContextOptionsBuilder<TContext> LoggingConfigCacheTime(TimeSpan loggingConfigCacheTime)
+            => (DbContextOptionsBuilder<TContext>)base.LoggingConfigCacheTime(loggingConfigCacheTime);
     }
 }

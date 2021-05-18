@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -35,7 +37,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
-        public void Addind_duplicate_annotation_throws()
+        public void Added_annotation_type_is_consistent()
+        {
+            var annotatable = new Annotatable();
+
+            annotatable.AddAnnotations(new[] { new ConventionAnnotation("Foo", "Bar", ConfigurationSource.Convention) });
+
+            Assert.Equal(typeof(Annotation), annotatable.FindAnnotation("Foo").GetType());
+
+            var conventionAnnotatable = new Model();
+
+            conventionAnnotatable.AddAnnotations(new[] { new Annotation("Foo", "Bar") });
+
+            Assert.Equal(typeof(ConventionAnnotation), conventionAnnotatable.FindAnnotation("Foo").GetType());
+        }
+
+        [ConditionalFact]
+        public void Adding_duplicate_annotation_throws()
         {
             var annotatable = new Annotatable();
 
@@ -49,7 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [ConditionalFact]
         public void Can_get_and_set_model_annotations()
         {
-            var annotatable = new Annotatable();
+            IMutableAnnotatable annotatable = new Annotatable();
+            Assert.Empty(annotatable.GetAnnotations());
             var annotation = annotatable.AddAnnotation("Foo", "Bar");
 
             Assert.NotNull(annotation);
@@ -81,6 +100,46 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var annotation2 = annotatable.AddAnnotation("A", "Bar");
 
             Assert.True(new[] { annotation2, annotation1 }.SequenceEqual(annotatable.GetAnnotations()));
+        }
+
+        [ConditionalFact]
+        public void Can_add_and_remove_runtime_annotation()
+        {
+            var annotatable = new Model().FinalizeModel();
+            Assert.Empty(annotatable.GetRuntimeAnnotations());
+            Assert.Null(annotatable.FindRuntimeAnnotation("Foo"));
+            Assert.Null(annotatable.RemoveRuntimeAnnotation("Foo"));
+
+            var annotation = annotatable.AddRuntimeAnnotation("Foo", "Bar");
+
+            Assert.NotNull(annotation);
+            Assert.Equal("Bar", annotation.Value);
+            Assert.Null(annotatable["Foo"]);
+            Assert.Same(annotation, annotatable.FindRuntimeAnnotation("Foo"));
+
+            var annotation2 = annotatable.SetRuntimeAnnotation("A", "Foo");
+            Assert.Equal(new[] { annotation2, annotation }, annotatable.GetRuntimeAnnotations());
+            Assert.Empty(annotatable.GetAnnotations());
+
+            Assert.Same(annotation, annotatable.RemoveRuntimeAnnotation(annotation.Name));
+            Assert.Same(annotation2, annotatable.RemoveRuntimeAnnotation(annotation2.Name));
+
+            Assert.Empty(annotatable.GetRuntimeAnnotations());
+            Assert.Null(annotatable.RemoveRuntimeAnnotation(annotation.Name));
+            Assert.Null(annotatable["Foo"]);
+            Assert.Null(annotatable.FindRuntimeAnnotation("Foo"));
+        }
+
+        [ConditionalFact]
+        public void Adding_duplicate_runtime_annotation_throws()
+        {
+            var annotatable = new Model().FinalizeModel();
+
+            annotatable.AddRuntimeAnnotation("Foo", "Bar");
+
+            Assert.Equal(
+                CoreStrings.DuplicateAnnotation("Foo", annotatable.ToString()),
+                Assert.Throws<InvalidOperationException>(() => annotatable.AddRuntimeAnnotation("Foo", "Bar")).Message);
         }
     }
 }
