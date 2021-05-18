@@ -3879,6 +3879,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The model supplied in the context options was created with EF Core version '{oldVersion}', but the context is from version '{newVersion}'. Update the externally built model.
+        /// </summary>
+        public static EventDefinition<string, string> LogOldModelVersion(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogOldModelVersion;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogOldModelVersion,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.OldModelVersionWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.OldModelVersionWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.OldModelVersionWarning,
+                            _resourceManager.GetString("LogOldModelVersion")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     {error}
         /// </summary>
         public static EventDefinition<Exception> LogOptimisticConcurrencyException(IDiagnosticsLogger logger)

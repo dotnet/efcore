@@ -14,6 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             command.Command("info", new DbContextInfoCommand().Configure);
             command.Command("list", new DbContextListCommand().Configure);
+            command.Command("optimize", new DbContextOptimizeCommand().Configure);
             command.Command("scaffold", new DbContextScaffoldCommand().Configure);
             command.Command("script", new DbContextScriptCommand().Configure);
 

@@ -866,7 +866,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             try
             {
-                var model = ((Model)propertyBase.DeclaringType.Model).FinalizeModel();
+                var model = propertyBase.DeclaringType.Model;
                 var contextServices = InMemoryTestHelpers.Instance.CreateContextServices();
                 var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
 

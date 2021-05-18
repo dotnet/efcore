@@ -60,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     .TryAddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
                     .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
                     .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
+                    .TryAddSingleton<ICompiledModelScaffolder, CompiledModelScaffolder>()
                     .TryAddSingleton<INamedConnectionStringResolver>(
                         new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                     .TryAddSingleton<IPluralizer, HumanizerPluralizer>()

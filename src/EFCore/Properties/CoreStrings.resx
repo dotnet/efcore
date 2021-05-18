@@ -855,6 +855,10 @@
     <value>The navigation '{targetEntityType}.{inverseNavigation}' specified in the [InverseProperty] attribute cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'.</value>
     <comment>Warning CoreEventId.NonOwnershipInverseNavigationWarning string string? string string? string?</comment>
   </data>
+  <data name="LogOldModelVersion" xml:space="preserve">
+    <value>The model supplied in the context options was created with EF Core version '{oldVersion}', but the context is from version '{newVersion}'. Update the externally built model.</value>
+    <comment>Warning CoreEventId.OldModelVersionWarning string string</comment>
+  </data>
   <data name="LogOptimisticConcurrencyException" xml:space="preserve">
     <value>{error}</value>
     <comment>Debug CoreEventId.OptimisticConcurrencyException Exception</comment>

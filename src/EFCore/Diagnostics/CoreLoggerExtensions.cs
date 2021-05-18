@@ -154,6 +154,51 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.OldModelVersionWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="context"> The context being used. </param>
+        /// <param name="contextOptions"> The context options being used. </param>
+        public static void OldModelVersionWarning(
+            this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
+            DbContext context,
+            DbContextOptions contextOptions)
+        {
+            var definition = CoreResources.LogOldModelVersion(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                var modelVersion = contextOptions.FindExtension<CoreOptionsExtension>()?.Model?.GetProductVersion() ?? "";
+
+                definition.Log(
+                    diagnostics,
+                    modelVersion,
+                    ProductInfo.GetVersion());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new ContextInitializedEventData(
+                    definition,
+                    OldModelVersion,
+                    context,
+                    contextOptions);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string OldModelVersion(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ContextInitializedEventData)payload;
+            var modelVersion = p.ContextOptions.FindExtension<CoreOptionsExtension>()?.Model?.GetProductVersion() ?? "";
+            return d.GenerateMessage(
+                    modelVersion,
+                    ProductInfo.GetVersion());
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

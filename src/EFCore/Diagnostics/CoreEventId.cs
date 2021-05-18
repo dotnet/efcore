@@ -85,6 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             DetachedLazyLoadingWarning,
             ServiceProviderDebugInfo,
             RedundantAddServicesCallWarning,
+            OldModelVersionWarning,
 
             // Model and ModelValidation events
             ShadowPropertyCreated = CoreBaseId + 600,
@@ -434,6 +435,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId RedundantAddServicesCallWarning = MakeInfraId(Id.RedundantAddServicesCallWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         The model supplied in the context options was created with an older EF Core version.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Infrastructure" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ContextInitializedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OldModelVersionWarning = MakeInfraId(Id.OldModelVersionWarning);
 
         private static readonly string _modelPrefix = DbLoggerCategory.Model.Name + ".";
 

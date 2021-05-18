@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
     public class DbContextServices : IDbContextServices
     {
         private IServiceProvider? _scopedProvider;
-        private IDbContextOptions? _contextOptions;
+        private DbContextOptions? _contextOptions;
         private ICurrentDbContext? _currentContext;
         private IModel? _model;
         private IModel? _designTimeModel;
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// </summary>
         public virtual IDbContextServices Initialize(
             IServiceProvider scopedProvider,
-            IDbContextOptions contextOptions,
+            DbContextOptions contextOptions,
             DbContext context)
         {
             _scopedProvider = scopedProvider;
@@ -84,6 +84,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
                 var dependencies = _scopedProvider!.GetRequiredService<ModelCreationDependencies>();
                 var modelFromOptions = CoreOptions?.Model;
+
+                var modelVersion = modelFromOptions?.GetProductVersion();
+                if (modelVersion != null)
+                {
+                    var modelMinorVersion = modelVersion[..modelVersion.LastIndexOf('.')];
+                    var productVersion = ProductInfo.GetVersion();
+                    var productMinorVersion = productVersion[..productVersion.LastIndexOf('.')];
+
+                    if (modelMinorVersion != productMinorVersion)
+                    {
+                        var logger = _scopedProvider!.GetRequiredService<IDiagnosticsLogger<DbLoggerCategory.Infrastructure>>();
+                        logger.OldModelVersionWarning(_currentContext!.Context, _contextOptions!);
+                    }
+                }
+
                 return modelFromOptions == null
                     || (designTime && modelFromOptions is not Metadata.Internal.Model)
                     ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
@@ -131,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IDbContextOptions ContextOptions
+        public virtual DbContextOptions ContextOptions
             => _contextOptions!;
 
         /// <summary>

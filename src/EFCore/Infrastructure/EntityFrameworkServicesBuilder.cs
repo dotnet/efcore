@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd(p => GetContextServices(p).Model);
             TryAdd<IDesignTimeModel>(p => new DesignTimeModel(GetContextServices(p)));
             TryAdd(p => GetContextServices(p).CurrentContext);
-            TryAdd(p => GetContextServices(p).ContextOptions);
+            TryAdd<IDbContextOptions>(p => GetContextServices(p).ContextOptions);
             TryAdd<IResettableService, IStateManager>(p => p.GetRequiredService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetRequiredService<IDbContextTransactionManager>());
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();

@@ -27,5 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// </summary>
         /// <value> The programming language to scaffold for. </value>
         public virtual string? Language { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether nullable reference types are enabled.
+        /// </summary>
+        /// <value> A value indicating whether nullable reference types are enabled. </value>
+        public virtual bool UseNullableReferenceTypes  { get; set; }
     }
 }

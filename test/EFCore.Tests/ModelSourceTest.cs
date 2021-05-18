@@ -8,10 +8,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -22,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class ModelSourceTest
     {
+        private readonly IServiceProvider _serviceProvider = new ServiceCollection()
+                        .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
+
         [ConditionalFact]
         public void OnModelCreating_is_only_called_once()
         {
@@ -33,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore
                 0, threadCount,
                 i =>
                 {
-                    using var context = new SlowContext();
+                    using var context = new SlowContext(_serviceProvider);
                     models[i] = context.Model;
                 });
 
@@ -49,6 +54,13 @@ namespace Microsoft.EntityFrameworkCore
 
         private class SlowContext : DbContext
         {
+            private readonly IServiceProvider _serviceProvider;
+
+            public SlowContext(IServiceProvider serviceProvider)
+            {
+                _serviceProvider = serviceProvider;
+            }
+
             public static int CallCount { get; private set; }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -59,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInternalServiceProvider(_serviceProvider)
                     .UseInMemoryDatabase(nameof(SlowContext));
         }
 
@@ -153,33 +165,67 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.NotSame(model, designTimeModel);
 
-            var context = new ModelContext(model);
+            var context = new ModelContext(model, _serviceProvider);
 
             Assert.NotSame(context.Model, context.GetService<IDesignTimeModel>().Model);
             Assert.Same(model, context.Model);
             Assert.NotSame(model, context.GetService<IDesignTimeModel>().Model);
 
-            var designTimeContext = new ModelContext(designTimeModel);
+            var designTimeContext = new ModelContext(designTimeModel, _serviceProvider);
 
             Assert.NotSame(context.Model, designTimeContext.GetService<IDesignTimeModel>().Model);
             Assert.NotSame(model, designTimeContext.Model);
             Assert.Same(designTimeModel, designTimeContext.GetService<IDesignTimeModel>().Model);
         }
 
+        [ConditionalFact]
+        public void Throws_for_model_from_options_with_different_version()
+        {
+            var model = (Model)InMemoryTestHelpers.Instance.CreateConventionBuilder().Model;
+            model.SetProductVersion("1.0.0");
+
+            var context = new ModelContext(model, _serviceProvider);
+            var warning = CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.OldModelVersionWarning,
+                CoreResources.LogOldModelVersion(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage("1.0.0", ProductInfo.GetVersion()),
+                "CoreEventId.OldModelVersionWarning");
+
+            Assert.Equal(warning,
+                Assert.Throws<InvalidOperationException>(() => context.Model).Message);
+        }
+
+        [ConditionalFact]
+        public void Does_not_throw_for_model_from_options_with_different_patch_version()
+        {
+            var productVersion = ProductInfo.GetVersion();
+            var productMinorVersion = productVersion[..productVersion.LastIndexOf('.')];
+
+            var model = (Model)InMemoryTestHelpers.Instance.CreateConventionBuilder().Model;
+            model.SetProductVersion(productMinorVersion + ".new");
+
+            var context = new ModelContext(model, _serviceProvider);
+
+            Assert.NotNull(context.Model);
+        }
+
         private class ModelContext : DbContext
         {
             private readonly IModel _model;
+            private readonly IServiceProvider _serviceProvider;
 
-            public ModelContext(IModel model)
+            public ModelContext(IModel model, IServiceProvider serviceProvider)
             {
                 _model = model;
+                _serviceProvider = serviceProvider;
             }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder = optionsBuilder
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase(nameof(ModelContext));
+                    .UseInternalServiceProvider(_serviceProvider)
+                    .UseInMemoryDatabase(nameof(ModelContext))
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw));
 
                 if (_model != null)
                 {

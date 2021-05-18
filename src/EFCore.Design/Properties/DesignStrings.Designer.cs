@@ -68,12 +68,28 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, customize, className);
 
         /// <summary>
+        ///     The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.
+        /// </summary>
+        public static string CompiledModelCustomCacheKeyFactory(object? factoryType)
+            => string.Format(
+                GetString("CompiledModelCustomCacheKeyFactory", nameof(factoryType)),
+                factoryType);
+
+        /// <summary>
         ///     The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.
         /// </summary>
         public static string CompiledModelDefiningQuery(object? entityType)
             => string.Format(
                 GetString("CompiledModelDefiningQuery", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     Successfully generated a compiled model, to use it call '{optionsCall}'. Run this command again when the model is modified.
+        /// </summary>
+        public static string CompiledModelGenerated(object? optionsCall)
+            => string.Format(
+                GetString("CompiledModelGenerated", nameof(optionsCall)),
+                optionsCall);
 
         /// <summary>
         ///     The entity type '{entityType}' has a query filter configured. Compiled model can't be generated, because query filters are not supported.

@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -268,7 +267,7 @@ namespace TestNamespace
                             x.Property<int?>("NonRequiredInt");
                         });
                 },
-                new ModelCodeGenerationOptions(),
+                new ModelCodeGenerationOptions { UseNullableReferenceTypes = false },
                 code => {
                     Assert.Contains("Property(e => e.RequiredString).IsRequired()", code.ContextFile.Code);
                     Assert.DoesNotContain("NotRequiredString", code.ContextFile.Code);

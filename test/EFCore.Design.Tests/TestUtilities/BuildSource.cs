@@ -109,11 +109,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     OutputKind.DynamicallyLinkedLibrary,
                     nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable,
                     reportSuppressedDiagnostics: false,
+                    // TODO: Uncomment when #18950 is fixed
+                    //generalDiagnosticOption: ReportDiagnostic.Error,
                     specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>()
                     {
-                        { "CS1701", ReportDiagnostic.Suppress },
-                        { "CS1702", ReportDiagnostic.Suppress },
-                        { "CS1705", ReportDiagnostic.Suppress }
+                        { "CS1030", ReportDiagnostic.Suppress },
+                        { "CS1701", ReportDiagnostic.Suppress }, { "CS1702", ReportDiagnostic.Suppress }, // Always thrown for .NET Core
+                        { "CS1705", ReportDiagnostic.Suppress }, // Assembly 'AssemblyName1' uses 'TypeName' which has a higher version than referenced assembly 'AssemblyName2'
+                        { "CS8019", ReportDiagnostic.Suppress } // Unnecessary using directive.
                     });
     }
 }

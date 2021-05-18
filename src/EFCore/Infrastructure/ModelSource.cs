@@ -4,6 +4,7 @@
 using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,6 +68,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (!cache.TryGetValue(cacheKey, out model))
                     {
                         model = CreateModel(context, conventionSetBuilder);
+
+                        if (model is Model mutableModel
+                            && !mutableModel.IsReadOnly)
+                        {
+                            model = mutableModel.FinalizeModel();
+                        }
+
+                        model = model.GetOrAddRuntimeAnnotationValue(
+                            CoreAnnotationNames.ReadOnlyModel,
+                            static model => model!,
+                            model);
+
                         model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
                     }
                 }
@@ -98,6 +111,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (!cache.TryGetValue(cacheKey, out model))
                     {
                         model = CreateModel(context, conventionSetBuilder, modelDependencies);
+
+                        if (model is Model mutableModel
+                            && !mutableModel.IsReadOnly)
+                        {
+                            model = mutableModel.FinalizeModel();
+                        }
+
+                        model = model.GetOrAddRuntimeAnnotationValue(
+                            CoreAnnotationNames.ReadOnlyModel,
+                            static model => model!,
+                            model);
+
                         model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
                     }
                 }
@@ -157,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
-            return modelBuilder.FinalizeModel();
+            return (IModel)modelBuilder.Model;
         }
 
         /// <summary>
@@ -178,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             Dependencies.ModelCustomizer.Customize(modelBuilder, context);
 
-            return modelBuilder.FinalizeModel();
+            return (IModel)modelBuilder.Model;
         }
     }
 }

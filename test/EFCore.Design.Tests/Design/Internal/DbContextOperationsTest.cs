@@ -40,6 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
+                projectDir: "",
+                rootNamespace: null,
+                language: "C#",
+                nullable: false,
                 args: null,
                 new TestAppServiceProviderFactory(assembly));
         }
@@ -52,6 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
+                projectDir: "",
+                rootNamespace: null,
+                language: "C#",
+                nullable: false,
                 args: Array.Empty<string>(),
                 new TestAppServiceProviderFactory(assembly));
 
@@ -153,6 +161,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
+                projectDir: "",
+                rootNamespace: null,
+                language: "C#",
+                nullable: false,
                 /* args: */ Array.Empty<string>(),
                 new TestAppServiceProviderFactory(assembly));
         }

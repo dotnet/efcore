@@ -30,6 +30,8 @@ LONG DESCRIPTION
 
         Remove-Migration            Removes the last migration.
 
+        Optimize-DbContext          Generates a compiled version of the model used by the DbContext.
+
         Scaffold-DbContext          Scaffolds a DbContext and entity types for a database.
 
         Script-DbContext            Generates a SQL script from the DbContext. Bypasses any migrations.
@@ -44,6 +46,7 @@ SEE ALSO
     Get-DbContext
     Get-Migration
     Remove-Migration
+    Optimize-DbContext
     Scaffold-DbContext
     Script-DbContext
     Script-Migration
