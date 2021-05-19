@@ -10,7 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
     {
         private CommandOption? _outputDir;
         private CommandOption? _namespace;
-        private CommandOption? _json;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -18,7 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
             _outputDir = command.Option("-o|--output-dir <PATH>", Resources.OutputDirDescription);
             _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.NamespaceDescription);
-            _json = Json.ConfigureOption(command);
 
             base.Configure(command);
         }

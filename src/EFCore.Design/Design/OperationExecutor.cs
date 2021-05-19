@@ -516,7 +516,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        private IReadOnlyList<string> OptimizeImpl(string? outputDir, string? modelNamespace, string? contextType)
+        private void OptimizeImpl(string? outputDir, string? modelNamespace, string? contextType)
             => ContextOperations.Optimize(outputDir, modelNamespace, contextType);
 
         /// <summary>
