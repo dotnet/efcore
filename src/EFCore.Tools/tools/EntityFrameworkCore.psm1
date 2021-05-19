@@ -595,8 +595,6 @@ function Scaffold-DbContext
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 
-    $files = $result.entityTypeFiles + $result.contextFile
-    $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
     $DTE.ItemOperations.OpenFile($result.contextFile) | Out-Null
     ShowConsole
 }
