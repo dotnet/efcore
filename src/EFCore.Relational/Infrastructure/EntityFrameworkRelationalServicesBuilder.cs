@@ -75,9 +75,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalQueryStringFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IColumnModificationFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IModificationCommandFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IModificationCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+                { typeof(IColumnModificationFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IModificationCommandFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IModificationCommandBuilderFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -213,6 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<RelationalParameterBasedSqlProcessorDependencies>()
                 .AddDependencySingleton<RelationalModelDependencies>()
                 .AddDependencySingleton<RelationalModelRuntimeInitializerDependencies>()
+                .AddDependencySingleton<ModificationCommandBuilderFactoryDependencies>()
                 .AddDependencyScoped<MigrationsSqlGeneratorDependencies>()
                 .AddDependencyScoped<RelationalConventionSetBuilderDependencies>()
                 .AddDependencyScoped<ModificationCommandBatchFactoryDependencies>()
@@ -223,8 +224,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencyScoped<RelationalConnectionDependencies>()
                 .AddDependencyScoped<RelationalDatabaseDependencies>()
                 .AddDependencyScoped<RelationalQueryContextDependencies>()
-                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>()
-                .AddDependencyScoped<ModificationCommandBuilderFactoryDependencies>();
+                .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
 
             return base.TryAddCoreServices();
         }
