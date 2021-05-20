@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
@@ -28,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private IndentedStringBuilder _sb = null!;
         private bool _useDataAnnotations;
+        private bool _useNullableReferenceTypes;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,12 +53,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string WriteCode(IEntityType entityType, string? @namespace, bool useDataAnnotations)
+        public virtual string WriteCode(IEntityType entityType, string? @namespace, bool useDataAnnotations, bool useNullableReferenceTypes)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            _sb = new IndentedStringBuilder();
             _useDataAnnotations = useDataAnnotations;
+            _useNullableReferenceTypes = useNullableReferenceTypes;
+
+            _sb = new IndentedStringBuilder();
 
             _sb.AppendLine("using System;");
             _sb.AppendLine("using System.Collections.Generic;");
@@ -76,9 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 _sb.AppendLine($"using {ns};");
             }
-
-            _sb.AppendLine();
-            _sb.AppendLine("#nullable disable");
 
             _sb.AppendLine();
 
@@ -277,7 +278,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     GeneratePropertyDataAnnotations(property);
                 }
 
-                _sb.AppendLine($"public {_code.Reference(property.ClrType)} {property.Name} {{ get; set; }}");
+                _sb.AppendLine(
+                    !_useNullableReferenceTypes || property.ClrType.IsValueType
+                        ? $"public {_code.Reference(property.ClrType)} {property.Name} {{ get; set; }}"
+                        : property.IsNullable
+                            ? $"public {_code.Reference(property.ClrType)}? {property.Name} {{ get; set; }}"
+                            : $"public {_code.Reference(property.ClrType)} {property.Name} {{ get; set; }} = null!;");
             }
         }
 
@@ -350,7 +356,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateRequiredAttribute(IProperty property)
         {
-            if (!property.IsNullable
+            if ((!_useNullableReferenceTypes || property.ClrType.IsValueType)
+                && !property.IsNullable
                 && property.ClrType.IsNullableType()
                 && !property.IsPrimaryKey())
             {
@@ -440,7 +447,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     var referencedTypeName = navigation.TargetEntityType.Name;
                     var navigationType = navigation.IsCollection ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
-                    _sb.AppendLine($"public virtual {navigationType} {navigation.Name} {{ get; set; }}");
+
+                    _sb.AppendLine(
+                        !_useNullableReferenceTypes || navigation.IsCollection
+                            ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }}"
+                            : navigation.ForeignKey.IsRequired
+                                ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }} = null!;"
+                                : $"public virtual {navigationType}? {navigation.Name} {{ get; set; }}");
                 }
             }
         }

@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             else
             {
                 builder.Append(identifier, 0, maxNameLength - 1);
-                builder.Append("~");
+                builder.Append('~');
             }
 
             if (uniquifier != null)

@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    [Obsolete("Use provider specific expressions for collection results.")]
     public class CollectionShaperExpression : Expression, IPrintableExpression
     {
         /// <summary>

@@ -1276,7 +1276,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
+                    var tableOverrides = (SortedDictionary<StoreObjectIdentifier, object>?)
                         property[RelationalAnnotationNames.RelationalOverrides];
                     if (tableOverrides == null)
                     {

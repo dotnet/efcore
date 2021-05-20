@@ -286,17 +286,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
             AppendValuesHeader(commandStringBuilder, writeOperations);
             commandStringBuilder
-                .Append("(")
+                .Append('(')
                 .AppendJoin(
                     writeOperations,
                     toInsertTableAlias,
                     SqlGenerationHelper,
                     (sb, o, alias, helper) =>
                     {
-                        sb.Append(alias).Append(".");
+                        sb.Append(alias).Append('.');
                         helper.DelimitIdentifier(sb, o.ColumnName);
                     })
-                .Append(")");
+                .Append(')');
         }
 
         private void AppendValues(
@@ -307,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             if (operations.Count > 0)
             {
                 commandStringBuilder
-                    .Append("(")
+                    .Append('(')
                     .AppendJoin(
                         operations,
                         SqlGenerationHelper,
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                         })
                     .Append(", ")
                     .Append(additionalLiteral)
-                    .Append(")");
+                    .Append(')');
             }
         }
 
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                     (sb, o, generator) =>
                     {
                         generator.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                        sb.Append(" ").Append(generator.GetTypeNameForCopy(o.Property!));
+                        sb.Append(' ').Append(generator.GetTypeNameForCopy(o.Property!));
                     });
 
             if (additionalColumns != null)
@@ -357,7 +357,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
 
             commandStringBuilder
-                .Append(")")
+                .Append(')')
                 .AppendLine(SqlGenerationHelper.StatementTerminator);
         }
 
@@ -455,11 +455,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 .AppendJoin(
                     keyOperations, (sb, c) =>
                     {
-                        sb.Append("(");
+                        sb.Append('(');
                         SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
                         sb.Append(" = ");
                         SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
-                        sb.Append(")");
+                        sb.Append(')');
                     }, " AND ");
 
             if (orderColumn != null)

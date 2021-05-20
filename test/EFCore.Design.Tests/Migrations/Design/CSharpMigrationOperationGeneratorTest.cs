@@ -3653,9 +3653,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 Sources =
                 {
-                    @"
+                    {
+                        "Migration.cs",
+                        @"
                     using Microsoft.EntityFrameworkCore.Migrations;
                     using NetTopologySuite.Geometries;
+
+                    #nullable disable
 
                     public static class OperationsFactory
                     {
@@ -3667,6 +3671,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 "
+                    }
                 }
             };
 

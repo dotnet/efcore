@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
                 {
                     typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry>
                     {
-                        new InternalClrEntityEntry(
+                        new InternalEntityEntry(
                             contextServices.GetRequiredService<IStateManager>(),
                             entityType,
                             new object())

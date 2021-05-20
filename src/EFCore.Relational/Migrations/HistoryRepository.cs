@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable(TableName, TableSchema);
                     });
 
-                _model = Dependencies.ModelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
+                _model = Dependencies.ModelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: true, validationLogger: null);
             }
 
             return _model;
@@ -309,7 +309,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .Append(stringTypeMapping.GenerateSqlLiteral(row.MigrationId))
                 .Append(", ")
                 .Append(stringTypeMapping.GenerateSqlLiteral(row.ProductVersion))
-                .Append(")")
+                .Append(')')
                 .AppendLine(SqlGenerationHelper.StatementTerminator)
                 .ToString();
         }

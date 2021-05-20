@@ -3672,6 +3672,69 @@ FROM (
 ) AS [t]");
         }
 
+        public override async Task Complex_query_with_let_collection_SelectMany(bool async)
+        {
+            await base.Complex_query_with_let_collection_SelectMany(async);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[Date], [t].[Name], [t].[OneToMany_Optional_Self_Inverse1Id], [t].[OneToMany_Required_Self_Inverse1Id], [t].[OneToOne_Optional_Self1Id], [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN (
+    SELECT [l0].[Id], [l0].[Date], [l0].[Name], [l0].[OneToMany_Optional_Self_Inverse1Id], [l0].[OneToMany_Required_Self_Inverse1Id], [l0].[OneToOne_Optional_Self1Id]
+    FROM [LevelOne] AS [l0]
+    WHERE [l0].[Id] > 5
+) AS [t] ON [l].[Id] = [t].[Id]
+WHERE [l].[Name] IS NOT NULL AND ([l].[Name] LIKE N'L1 0%')");
+        }
+
+        public override async Task SelectMany_without_collection_selector_returning_queryable(bool async)
+        {
+            await base.SelectMany_without_collection_selector_returning_queryable(async);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Optional_Self_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToMany_Required_Self_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t].[OneToOne_Optional_Self2Id]
+FROM [LevelOne] AS [l]
+CROSS JOIN (
+    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+    FROM [LevelTwo] AS [l0]
+    WHERE [l0].[Id] < 10
+) AS [t]");
+        }
+
+        public override async Task Select_projecting_queryable_followed_by_SelectMany(bool async)
+        {
+            await base.Select_projecting_queryable_followed_by_SelectMany(async);
+
+            AssertSql(
+                @"SELECT [t].[Id], [t].[Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Optional_Self_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToMany_Required_Self_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [t].[OneToOne_Optional_Self2Id]
+FROM [LevelOne] AS [l]
+CROSS JOIN (
+    SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+    FROM [LevelTwo] AS [l0]
+    WHERE [l0].[Id] < 10
+) AS [t]");
+        }
+
+        public override async Task Select_projecting_queryable_followed_by_Join(bool async)
+        {
+            await base.Select_projecting_queryable_followed_by_Join(async);
+
+            AssertSql(
+                @"SELECT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
+FROM [LevelOne] AS [l]
+INNER JOIN [LevelThree] AS [l0] ON 7 = [l0].[Id]");
+        }
+
+        public override async Task Select_projecting_queryable_in_anonymous_projection_followed_by_Join(bool async)
+        {
+            await base.Select_projecting_queryable_in_anonymous_projection_followed_by_Join(async);
+
+            AssertSql(
+                @"SELECT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
+FROM [LevelOne] AS [l]
+INNER JOIN [LevelThree] AS [l0] ON 7 = [l0].[Id]");
+        }
+
         public override async Task Project_shadow_properties(bool async)
         {
             await base.Project_shadow_properties(async);

@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
             property.SetValueConverter(converter);
             Assert.Same(converter, property.GetValueConverter());
 
-            property.SetValueConverter(null);
+            property.SetValueConverter((ValueConverter)null);
             Assert.Null(property.GetValueConverter());
         }
 

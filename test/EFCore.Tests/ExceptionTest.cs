@@ -157,7 +157,11 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void DbUpdateException_exposes_public_string_and_entries_constructor()
         {
-            var entries = new List<EntityEntry>{ new EntityEntry(new FakeInternalEntityEntry()), new EntityEntry(new FakeInternalEntityEntry()) };
+            var entries = new List<EntityEntry>
+            {
+                new(new InternalEntityEntry(new FakeStateManager(), CreateEntityType(), null!)),
+                new(new InternalEntityEntry(new FakeStateManager(), CreateEntityType(), null!))
+            };
             var exception = new DbUpdateException("Foo", entries);
 
             Assert.Equal("Foo", exception.Message);
@@ -168,7 +172,11 @@ namespace Microsoft.EntityFrameworkCore
         public void DbUpdateException_exposes_public_string_and_inner_exception_and_entries_constructor()
         {
             var inner = new Exception();
-            var entries = new List<EntityEntry>{ new EntityEntry(new FakeInternalEntityEntry()), new EntityEntry(new FakeInternalEntityEntry()) };
+            var entries = new List<EntityEntry>
+            {
+                new(new InternalEntityEntry(new FakeStateManager(), CreateEntityType(), null!)),
+                new(new InternalEntityEntry(new FakeStateManager(), CreateEntityType(), null!))
+            };
             var exception = new DbUpdateException("Foo", inner, entries);
 
             Assert.Equal("Foo", exception.Message);
@@ -213,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public EntityEntry ToEntityEntry()
-                => new(new FakeInternalEntityEntry());
+                => new(new InternalEntityEntry(new FakeStateManager(), CreateEntityType(), null!));
 
             public object GetRelationshipSnapshotValue(IPropertyBase propertyBase)
                 => throw new NotImplementedException();
@@ -223,16 +231,6 @@ namespace Microsoft.EntityFrameworkCore
 
             public bool IsConceptualNull(IProperty property)
                 => throw new NotImplementedException();
-        }
-
-        private class FakeInternalEntityEntry : InternalEntityEntry
-        {
-            public FakeInternalEntityEntry()
-                : base(new FakeStateManager(), CreateEntityType())
-            {
-            }
-
-            public override object Entity { get; }
         }
 
         private static IEntityType CreateEntityType()

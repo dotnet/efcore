@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SingleQueryResultCoordinator
+    public sealed class SingleQueryResultCoordinator
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,9 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SingleQueryResultCoordinator()
-        {
-            ResultContext = new ResultContext();
-        }
+            => ResultContext = new ResultContext();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -30,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ResultContext ResultContext { get; }
+        public ResultContext ResultContext { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool ResultReady { get; set; }
+        public bool ResultReady { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool? HasNext { get; set; }
+        public bool? HasNext { get; set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IList<SingleQueryCollectionContext?> Collections { get; } = new List<SingleQueryCollectionContext?>();
+        public IList<SingleQueryCollectionContext?> Collections { get; } = new List<SingleQueryCollectionContext?>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void SetSingleQueryCollectionContext(
+        public void SetSingleQueryCollectionContext(
             int collectionId,
             SingleQueryCollectionContext singleQueryCollectionContext)
         {

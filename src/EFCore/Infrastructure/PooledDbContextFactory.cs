@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Initializes a new instance of the <see cref="PooledDbContextFactory{TContext}" /> class.
         /// </summary>
         /// <param name="options"> The options to use for contexts produced by this factory. </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 128. </param>
+        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
         public PooledDbContextFactory(DbContextOptions<TContext> options, int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         {
             var optionsBuilder = new DbContextOptionsBuilder<TContext>(options);

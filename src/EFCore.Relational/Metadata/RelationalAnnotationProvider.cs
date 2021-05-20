@@ -32,59 +32,59 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IRelationalModel model)
+        public virtual IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ITable table)
+        public virtual IEnumerable<IAnnotation> For(ITable table, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IColumn column)
+        public virtual IEnumerable<IAnnotation> For(IColumn column, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IView view)
+        public virtual IEnumerable<IAnnotation> For(IView view, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IViewColumn column)
+        public virtual IEnumerable<IAnnotation> For(IViewColumn column, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ISqlQuery sqlQuery)
+        public virtual IEnumerable<IAnnotation> For(ISqlQuery sqlQuery, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ISqlQueryColumn column)
+        public virtual IEnumerable<IAnnotation> For(ISqlQueryColumn column, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IStoreFunction function)
+        public virtual IEnumerable<IAnnotation> For(IStoreFunction function, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IFunctionColumn column)
+        public virtual IEnumerable<IAnnotation> For(IFunctionColumn column, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IForeignKeyConstraint foreignKey)
+        public virtual IEnumerable<IAnnotation> For(IForeignKeyConstraint foreignKey, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ITableIndex index)
+        public virtual IEnumerable<IAnnotation> For(ITableIndex index, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(IUniqueConstraint constraint)
+        public virtual IEnumerable<IAnnotation> For(IUniqueConstraint constraint, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ISequence sequence)
+        public virtual IEnumerable<IAnnotation> For(ISequence sequence, bool designTime)
             => Enumerable.Empty<IAnnotation>();
 
         /// <inheritdoc />
-        public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint)
+        public virtual IEnumerable<IAnnotation> For(ICheckConstraint checkConstraint, bool designTime)
             => Enumerable.Empty<IAnnotation>();
     }
 }

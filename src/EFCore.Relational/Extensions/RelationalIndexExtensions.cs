@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -59,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             var baseName = new StringBuilder()
                 .Append("IX_")
                 .Append(tableName)
-                .Append("_")
+                .Append('_')
                 .AppendJoin(index.Properties.Select(p => p.GetColumnBaseName()), "_")
                 .ToString();
 
@@ -125,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
             var baseName = new StringBuilder()
                 .Append("IX_")
                 .Append(storeObject.Name)
-                .Append("_")
+                .Append('_')
                 .AppendJoin(columnNames, "_")
                 .ToString();
 
@@ -206,7 +207,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The index filter expression. </returns>
         public static string? GetFilter(this IReadOnlyIndex index)
-            => (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
+            => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
 
         /// <summary>
         ///     Returns the index filter expression.
@@ -216,6 +219,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The index filter expression. </returns>
         public static string? GetFilter(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
+            if (index is RuntimeIndex)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
             var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
             if (annotation != null)
             {

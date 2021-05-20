@@ -770,7 +770,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 buildAction(modelBuilder);
 
                 model = services.GetService<IModelRuntimeInitializer>().Initialize(
-                    modelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
+                    (IModel)modelBuilder.Model, designTime: true, validationLogger: null);
             }
 
             var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, model, options);

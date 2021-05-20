@@ -42,21 +42,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Sql = sql;
             _configurationSource = configurationSource;
 
-            var dataDictionary = GetConstraintsDictionary(EntityType);
-            if (dataDictionary == null)
+            var constraints = GetConstraintsDictionary(EntityType);
+            if (constraints == null)
             {
-                dataDictionary = new Dictionary<string, ICheckConstraint>();
-                ((IMutableEntityType)EntityType).SetOrRemoveAnnotation(RelationalAnnotationNames.CheckConstraints, dataDictionary);
+                constraints = new SortedDictionary<string, ICheckConstraint>();
+                ((IMutableEntityType)EntityType).SetOrRemoveAnnotation(RelationalAnnotationNames.CheckConstraints, constraints);
             }
 
-            if (dataDictionary.ContainsKey(Name))
+            if (constraints.ContainsKey(Name))
             {
                 throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(Name, EntityType.DisplayName()));
             }
 
             EnsureMutable();
 
-            dataDictionary.Add(name, this);
+            constraints.Add(name, this);
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _configurationSource = configurationSource.Max(_configurationSource);
         }
 
-        private static Dictionary<string, ICheckConstraint>? GetConstraintsDictionary(IReadOnlyEntityType entityType)
-            => (Dictionary<string, ICheckConstraint>?)entityType[RelationalAnnotationNames.CheckConstraints];
+        private static SortedDictionary<string, ICheckConstraint>? GetConstraintsDictionary(IReadOnlyEntityType entityType)
+            => (SortedDictionary<string, ICheckConstraint>?)entityType[RelationalAnnotationNames.CheckConstraints];
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

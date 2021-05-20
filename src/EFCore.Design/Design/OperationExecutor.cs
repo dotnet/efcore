@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly string _startupTargetName;
         private readonly string? _rootNamespace;
         private readonly string? _language;
+        private readonly bool _nullable;
         private readonly string[]? _designArgs;
         private readonly OperationReporter _reporter;
 
@@ -47,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     <para><c>projectDir</c>--The target project's root directory.</para>
         ///     <para><c>rootNamespace</c>--The target project's root namespace.</para>
         ///     <para><c>language</c>--The programming language to be used to generate classes.</para>
+        ///     <para><c>nullable</c>--A value indicating whether nullable reference types are enabled.</para>
         ///     <para><c>remainingArguments</c>--Extra arguments passed into the operation.</para>
         /// </summary>
         /// <param name="reportHandler"> The <see cref="IOperationReportHandler" />. </param>
@@ -62,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _projectDir = (string)args["projectDir"]!;
             _rootNamespace = (string?)args["rootNamespace"];
             _language = (string?)args["language"];
+            _nullable = (bool)(args["nullable"] ?? false);
             _designArgs = (string[]?)args["remainingArguments"];
 
             var toolsVersion = (string?)args["toolsVersion"];
@@ -108,6 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     _projectDir,
                     _rootNamespace,
                     _language,
+                    _nullable,
                     _designArgs);
 
         private DbContextOperations ContextOperations
@@ -116,6 +120,10 @@ namespace Microsoft.EntityFrameworkCore.Design
                     _reporter,
                     Assembly,
                     StartupAssembly,
+                    _projectDir,
+                    _rootNamespace,
+                    _language,
+                    _nullable,
                     _designArgs);
 
         private DatabaseOperations DatabaseOperations
@@ -127,6 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     _projectDir,
                     _rootNamespace,
                     _language,
+                    _nullable,
                     _designArgs);
 
         /// <summary>
@@ -474,6 +483,41 @@ namespace Microsoft.EntityFrameworkCore.Design
                     ["Applied"] = m.Applied
                 });
         }
+
+        /// <summary>
+        ///     Represents an operation to generate a compiled model from the DbContext.
+        /// </summary>
+        public class Optimize : OperationBase
+        {
+            /// <summary>
+            ///     <para>Initializes a new instance of the <see cref="Optimize" /> class.</para>
+            ///     <para>The arguments supported by <paramref name="args" /> are:</para>
+            ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
+            ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated model.</para>
+            ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+            /// </summary>
+            /// <param name="executor"> The operation executor. </param>
+            /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
+            /// <param name="args"> The operation arguments. </param>
+            public Optimize(
+                OperationExecutor executor,
+                IOperationResultHandler resultHandler,
+                IDictionary args)
+                : base(resultHandler)
+            {
+                Check.NotNull(executor, nameof(executor));
+                Check.NotNull(args, nameof(args));
+
+                var outputDir = (string?)args["outputDir"];
+                var modelNamespace = (string?)args["modelNamespace"];
+                var contextType = (string?)args["contextType"];
+
+                Execute(() => executor.OptimizeImpl(outputDir, modelNamespace, contextType));
+            }
+        }
+
+        private void OptimizeImpl(string? outputDir, string? modelNamespace, string? contextType)
+            => ContextOperations.Optimize(outputDir, modelNamespace, contextType);
 
         /// <summary>
         ///     Represents an operation to scaffold a <see cref="DbContext" /> and entity types for a database.

@@ -132,6 +132,33 @@
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
   </data>
+  <data name="CompiledModelConstructorBinding" xml:space="preserve">
+    <value>The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because dynamic proxy types are not supported. If you are not using proxies configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.</value>
+  </data>
+  <data name="CompiledModelCustomCacheKeyFactory" xml:space="preserve">
+    <value>The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.</value>
+  </data>
+  <data name="CompiledModelDefiningQuery" xml:space="preserve">
+    <value>The entity type '{entityType}' has a defining query configured. Compiled model can't be generated, because defining queries are not supported.</value>
+  </data>
+  <data name="CompiledModelGenerated" xml:space="preserve">
+    <value>Successfully generated a compiled model, to use it call '{optionsCall}'. Run this command again when the model is modified.</value>
+  </data>
+  <data name="CompiledModelQueryFilter" xml:space="preserve">
+    <value>The entity type '{entityType}' has a query filter configured. Compiled model can't be generated, because query filters are not supported.</value>
+  </data>
+  <data name="CompiledModelTypeMapping" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.</value>
+  </data>
+  <data name="CompiledModelValueComparer" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value comparer configured. Use '{method}' to configure the value comparer type.</value>
+  </data>
+  <data name="CompiledModelValueConverter" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value converter configured. Use '{method}' to configure the value converter type.</value>
+  </data>
+  <data name="CompiledModelValueGenerator" xml:space="preserve">
+    <value>The property '{entityType}.{property}' has a value generator configured. Use '{method}' to configure the value generator factory type.</value>
+  </data>
   <data name="ConflictingContextAndMigrationName" xml:space="preserve">
     <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
   </data>
@@ -364,7 +391,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>Using design-time services from assembly '{referencedAssembly}'.</value>
   </data>
   <data name="VersionMismatch" xml:space="preserve">
-    <value>The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes.</value>
+    <value>The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.</value>
   </data>
   <data name="WritingMigration" xml:space="preserve">
     <value>Writing migration to '{file}'.</value>

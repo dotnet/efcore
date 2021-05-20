@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -28,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable disable
 
 namespace TestNamespace
 {
@@ -84,8 +81,6 @@ namespace TestNamespace
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable disable
-
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -136,8 +131,6 @@ namespace TestNamespace
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable disable
-
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -163,6 +156,42 @@ namespace TestNamespace
                         code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
+                },
+                null);
+        }
+
+        [ConditionalFact]
+        public void DbSets_without_nrt()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity"),
+                new ModelCodeGenerationOptions
+                {
+                    UseNullableReferenceTypes = false,
+                    SuppressConnectionStringWarning = true,
+                    SuppressOnConfiguring = true
+                },
+                code =>
+                {
+                    Assert.Contains("DbSet<Entity> Entity { get; set; }" + Environment.NewLine, code.ContextFile.Code);
+                },
+                null);
+        }
+
+        [ConditionalFact]
+        public void DbSets_with_nrt()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity("Entity"),
+                new ModelCodeGenerationOptions
+                {
+                    UseNullableReferenceTypes = true,
+                    SuppressConnectionStringWarning = true,
+                    SuppressOnConfiguring = true
+                },
+                code =>
+                {
+                    Assert.Contains("DbSet<Entity> Entity { get; set; } = null!;", code.ContextFile.Code);
                 },
                 null);
         }
@@ -221,6 +250,70 @@ namespace TestNamespace
             Assert.Contains(
                 @"optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption()).SetContextOption();",
                 scaffoldedModel.ContextFile.Code);
+        }
+
+        [ConditionalFact]
+        public void IsRequired_is_generated_for_ref_property_without_nrt()
+        {
+            Test(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Entity", x =>
+                        {
+                            x.Property<string>("RequiredString").IsRequired();
+                            x.Property<string>("NonRequiredString");
+                            x.Property<int>("RequiredInt");
+                            x.Property<int?>("NonRequiredInt");
+                        });
+                },
+                new ModelCodeGenerationOptions { UseNullableReferenceTypes = false },
+                code => {
+                    Assert.Contains("Property(e => e.RequiredString).IsRequired()", code.ContextFile.Code);
+                    Assert.DoesNotContain("NotRequiredString", code.ContextFile.Code);
+                    Assert.DoesNotContain("RequiredInt", code.ContextFile.Code);
+                    Assert.DoesNotContain("NotRequiredInt", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Entity");
+                    Assert.False(entityType.GetProperty("RequiredString").IsNullable);
+                    Assert.True(entityType.GetProperty("NonRequiredString").IsNullable);
+                    Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
+                    Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
+                });
+        }
+
+        [ConditionalFact]
+        public void IsRequired_is_not_generated_for_ref_property_with_nrt()
+        {
+            Test(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Entity", x =>
+                        {
+                            x.Property<string>("RequiredString").IsRequired();
+                            x.Property<string>("NonRequiredString");
+                            x.Property<int>("RequiredInt");
+                            x.Property<int?>("NonRequiredInt");
+                        });
+                },
+                new ModelCodeGenerationOptions { UseNullableReferenceTypes = true },
+                code => {
+                    Assert.DoesNotContain("RequiredString", code.ContextFile.Code);
+                    Assert.DoesNotContain("NotRequiredString", code.ContextFile.Code);
+                    Assert.DoesNotContain("RequiredInt", code.ContextFile.Code);
+                    Assert.DoesNotContain("NotRequiredInt", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entityType = model.FindEntityType("TestNamespace.Entity");
+                    Assert.False(entityType.GetProperty("RequiredString").IsNullable);
+                    Assert.True(entityType.GetProperty("NonRequiredString").IsNullable);
+                    Assert.False(entityType.GetProperty("RequiredInt").IsNullable);
+                    Assert.True(entityType.GetProperty("NonRequiredInt").IsNullable);
+                });
         }
 
         [ConditionalFact]
@@ -426,7 +519,6 @@ namespace TestNamespace
                 });
         }
 
-
         [ConditionalFact]
         public void ComputedColumnSql_works_stored()
         {
@@ -512,8 +604,6 @@ namespace TestNamespace
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable disable
-
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -594,8 +684,6 @@ namespace TestNamespace
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable disable
 
 namespace TestNamespace
 {
@@ -680,8 +768,6 @@ namespace TestNamespace
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-#nullable disable
-
 namespace TestNamespace
 {
     public partial class TestDbContext : DbContext
@@ -762,8 +848,6 @@ namespace TestNamespace
                         @"using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-
-#nullable disable
 
 namespace TestNamespace
 {

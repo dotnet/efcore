@@ -207,7 +207,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             internal int Id { get; set; }
 
             internal object this[string name]
-                => _internalValues[name];
+            {
+                get => _internalValues[name];
+                set => _internalValues[name] = value;
+            }
         }
     }
 }

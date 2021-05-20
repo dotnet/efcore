@@ -61,9 +61,9 @@ namespace Microsoft.EntityFrameworkCore
             var name = new StringBuilder()
                 .Append("FK_")
                 .Append(tableName)
-                .Append("_")
+                .Append('_')
                 .Append(principalTableName)
-                .Append("_")
+                .Append('_')
                 .AppendJoin(foreignKey.Properties.Select(p => p.GetColumnBaseName()), "_")
                 .ToString();
 
@@ -133,9 +133,9 @@ namespace Microsoft.EntityFrameworkCore
             var baseName = new StringBuilder()
                 .Append("FK_")
                 .Append(storeObject.Name)
-                .Append("_")
+                .Append('_')
                 .Append(principalStoreObject.Name)
-                .Append("_")
+                .Append('_')
                 .AppendJoin(propertyNames, "_")
                 .ToString();
 

@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption? _projectDir;
         private CommandOption? _rootNamespace;
         private CommandOption? _language;
+        private CommandOption? _nullable;
 
         protected CommandOption? WorkingDir { get; private set; }
 
@@ -34,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _projectDir = command.Option("--project-dir <PATH>", Resources.ProjectDirDescription);
             _rootNamespace = command.Option("--root-namespace <NAMESPACE>", Resources.RootNamespaceDescription);
             _language = command.Option("--language <LANGUAGE>", Resources.LanguageDescription);
+            _nullable = command.Option("--nullable", Resources.NullableDescription);
             WorkingDir = command.Option("--working-dir <PATH>", Resources.WorkingDirDescription);
 
             base.Configure(command);
@@ -63,6 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         _dataDir!.Value(),
                         _rootNamespace!.Value(),
                         _language!.Value(),
+                        _nullable!.HasValue(),
                         remainingArguments);
                 }
                 catch (MissingMethodException) // NB: Thrown with EF Core 3.1
@@ -99,6 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     _dataDir!.Value(),
                     _rootNamespace!.Value(),
                     _language!.Value(),
+                    _nullable!.HasValue(),
                     remainingArguments);
             }
             catch (FileNotFoundException ex)

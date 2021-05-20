@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private IMemoryCache? _memoryCache;
         private bool _sensitiveDataLoggingEnabled;
         private bool _detailedErrorsEnabled;
-        private bool _concurrencyDetectionEnabled = true;
+        private bool _threadSafetyChecksEnabled = true;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<(Type, Type?), Type>? _replacedServices;
         private int? _maxPoolSize;
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _memoryCache = copyFrom.MemoryCache;
             _sensitiveDataLoggingEnabled = copyFrom.IsSensitiveDataLoggingEnabled;
             _detailedErrorsEnabled = copyFrom.DetailedErrorsEnabled;
-            _concurrencyDetectionEnabled = copyFrom.ConcurrencyDetectionEnabled;
+            _threadSafetyChecksEnabled = copyFrom.ThreadSafetyChecksEnabled;
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
@@ -230,13 +230,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="concurrencyDetectionEnabled"> The option to change. </param>
+        /// <param name="checksEnabled"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithConcurrencyDetectionEnabled(bool concurrencyDetectionEnabled)
+        public virtual CoreOptionsExtension WithThreadSafetyChecksEnabled(bool checksEnabled)
         {
             var clone = Clone();
 
-            clone._concurrencyDetectionEnabled = concurrencyDetectionEnabled;
+            clone._threadSafetyChecksEnabled = checksEnabled;
 
             return clone;
         }
@@ -373,10 +373,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => _detailedErrorsEnabled;
 
         /// <summary>
-        ///     The option set from the <see cref="DbContextOptionsBuilder.DisableConcurrencyDetection" /> method.
+        ///     The option set from the <see cref="DbContextOptionsBuilder.EnableThreadSafetyChecks" /> method.
         /// </summary>
-        public virtual bool ConcurrencyDetectionEnabled
-            => _concurrencyDetectionEnabled;
+        public virtual bool ThreadSafetyChecksEnabled
+            => _threadSafetyChecksEnabled;
 
         /// <summary>
         ///     The option set from the <see cref="DbContextOptionsBuilder.UseModel" /> method.
@@ -562,9 +562,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             builder.Append("DetailedErrorsEnabled ");
                         }
 
-                        if (!Extension._concurrencyDetectionEnabled)
+                        if (!Extension._threadSafetyChecksEnabled)
                         {
-                            builder.Append("ConcurrencyDetectionDisabled ");
+                            builder.Append("ThreadSafetyChecksEnabled ");
                         }
 
                         if (Extension._maxPoolSize != null)
@@ -589,8 +589,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     Extension._sensitiveDataLoggingEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
                 debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableDetailedErrors)] =
                     Extension._detailedErrorsEnabled.GetHashCode().ToString(CultureInfo.InvariantCulture);
-                debugInfo["Core:" + nameof(DbContextOptionsBuilder.DisableConcurrencyDetection)] =
-                    (!Extension._concurrencyDetectionEnabled).GetHashCode().ToString(CultureInfo.InvariantCulture);
+                debugInfo["Core:" + nameof(DbContextOptionsBuilder.EnableThreadSafetyChecks)] =
+                    (!Extension._threadSafetyChecksEnabled).GetHashCode().ToString(CultureInfo.InvariantCulture);
                 debugInfo["Core:" + nameof(DbContextOptionsBuilder.ConfigureWarnings)] =
                     Extension._warningsConfiguration.GetServiceProviderHashCode().ToString(CultureInfo.InvariantCulture);
 
@@ -617,7 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     var hashCode = Extension.GetMemoryCache()?.GetHashCode() ?? 0L;
                     hashCode = (hashCode * 3) ^ Extension._sensitiveDataLoggingEnabled.GetHashCode();
                     hashCode = (hashCode * 3) ^ Extension._detailedErrorsEnabled.GetHashCode();
-                    hashCode = (hashCode * 3) ^ Extension._concurrencyDetectionEnabled.GetHashCode();
+                    hashCode = (hashCode * 3) ^ Extension._threadSafetyChecksEnabled.GetHashCode();
                     hashCode = (hashCode * 1073742113) ^ Extension._warningsConfiguration.GetServiceProviderHashCode();
 
                     if (Extension._replacedServices != null)

@@ -19,8 +19,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -29,8 +27,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Correlated_collection_with_distinct_not_projecting_identifier_column_also_projecting_complex_expressions(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -125,8 +121,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: e => e.Name);
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Projecting_correlated_collection_followed_by_Distinct(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -135,8 +129,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -145,8 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -155,8 +145,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Projecting_entity_as_well_as_complex_correlated_collection_followed_by_Distinct(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -165,8 +153,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Projecting_entity_as_well_as_correlated_collection_of_scalars_followed_by_Distinct(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
@@ -175,8 +161,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.DistinctOnCollectionNotSupported, message);
         }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
         public override async Task Correlated_collection_with_distinct_3_levels(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(

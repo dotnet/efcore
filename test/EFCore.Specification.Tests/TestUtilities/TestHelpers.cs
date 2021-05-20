@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             var contextServices = CreateContextServices();
 
             var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
-            return modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime, skipValidation
+            return modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime, skipValidation
                 ? null
                 : new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions));
         }

@@ -53,13 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         [EntityFrameworkInternal]
         public RelationalModelRuntimeInitializerDependencies(
-            RelationalModelDependencies singletonModelDependencies,
+            RelationalModelDependencies relationalModelDependencies,
             IRelationalAnnotationProvider relationalAnnotationProvider)
         {
-            Check.NotNull(singletonModelDependencies, nameof(singletonModelDependencies));
+            Check.NotNull(relationalModelDependencies, nameof(relationalModelDependencies));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
-            RelationalModelDependencies = singletonModelDependencies;
+            RelationalModelDependencies = relationalModelDependencies;
             RelationalAnnotationProvider = relationalAnnotationProvider;
         }
 

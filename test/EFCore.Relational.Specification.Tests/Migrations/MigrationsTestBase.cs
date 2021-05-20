@@ -1610,13 +1610,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var sourceModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(sourceModelBuilder);
             buildSourceAction(sourceModelBuilder);
-            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
+            var sourceModel = modelRuntimeInitializer.Initialize((IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
 
             var targetModelBuilder = CreateConventionlessModelBuilder();
             buildCommonAction(targetModelBuilder);
             buildTargetAction(targetModelBuilder);
 
-            var targetModel = modelRuntimeInitializer.Initialize(targetModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
+            var targetModel = modelRuntimeInitializer.Initialize((IModel)targetModelBuilder.Model, designTime: true, validationLogger: null);
 
             var operations = modelDiffer.GetDifferences(sourceModel.GetRelationalModel(), targetModel.GetRelationalModel());
 
@@ -1655,7 +1655,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var context = CreateContext();
             var modelRuntimeInitializer = context.GetService<IModelRuntimeInitializer>();
-            var sourceModel = modelRuntimeInitializer.Initialize(sourceModelBuilder.FinalizeModel(), designTime: true, validationLogger: null);
+            var sourceModel = modelRuntimeInitializer.Initialize((IModel)sourceModelBuilder.Model, designTime: true, validationLogger: null);
 
             return Test(sourceModel, targetModel: null, operations, asserter);
         }

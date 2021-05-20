@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
@@ -20,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
         public static bool? IsClustered(this IReadOnlyIndex index)
-            => (bool?)index[SqlServerAnnotationNames.Clustered];
+            => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)index[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
         ///     Returns a value indicating whether the index is clustered.
@@ -30,17 +33,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
         public static bool? IsClustered(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         {
+            if (index is RuntimeIndex)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
             if (annotation != null)
             {
                 return (bool?)annotation.Value;
             }
 
-            return GetDefaultIsClustered(index, storeObject);
-        }
-
-        private static bool? GetDefaultIsClustered(IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
-        {
             var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
             return sharedTableRootIndex?.IsClustered(storeObject);
         }
@@ -51,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="value"> The value to set. </param>
         /// <param name="index"> The index. </param>
         public static void SetIsClustered(this IMutableIndex index, bool? value)
-            => index.SetOrRemoveAnnotation(
+            => index.SetAnnotation(
                 SqlServerAnnotationNames.Clustered,
                 value);
 
@@ -67,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
             bool? value,
             bool fromDataAnnotation = false)
         {
-            index.SetOrRemoveAnnotation(
+            index.SetAnnotation(
                 SqlServerAnnotationNames.Clustered,
                 value,
                 fromDataAnnotation);
@@ -89,7 +92,32 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The included property names, or <see langword="null" /> if they have not been specified. </returns>
         public static IReadOnlyList<string>? GetIncludeProperties(this IReadOnlyIndex index)
-            => (string[]?)index[SqlServerAnnotationNames.Include];
+            => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string[]?)index[SqlServerAnnotationNames.Include];
+
+        /// <summary>
+        ///     Returns included property names, or <see langword="null" /> if they have not been specified.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> The included property names, or <see langword="null" /> if they have not been specified. </returns>
+        public static IReadOnlyList<string>? GetIncludeProperties(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        {
+            if (index is RuntimeIndex)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.Include);
+            if (annotation != null)
+            {
+                return (IReadOnlyList<string>?)annotation.Value;
+            }
+
+            var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+            return sharedTableRootIndex?.GetIncludeProperties(storeObject);
+        }
 
         /// <summary>
         ///     Sets included property names.
@@ -97,7 +125,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="properties"> The value to set. </param>
         public static void SetIncludeProperties(this IMutableIndex index, IReadOnlyList<string> properties)
-            => index.SetOrRemoveAnnotation(
+            => index.SetAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties);
 
@@ -113,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
             IReadOnlyList<string>? properties,
             bool fromDataAnnotation = false)
         {
-            index.SetOrRemoveAnnotation(
+            index.SetAnnotation(
                 SqlServerAnnotationNames.Include,
                 properties,
                 fromDataAnnotation);
@@ -135,7 +163,32 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is online. </returns>
         public static bool? IsCreatedOnline(this IReadOnlyIndex index)
-            => (bool?)index[SqlServerAnnotationNames.CreatedOnline];
+            => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)index[SqlServerAnnotationNames.CreatedOnline];
+
+        /// <summary>
+        ///     Returns a value indicating whether the index is online.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> <see langword="true" /> if the index is online. </returns>
+        public static bool? IsCreatedOnline(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        {
+            if (index is RuntimeIndex)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.CreatedOnline);
+            if (annotation != null)
+            {
+                return (bool?)annotation.Value;
+            }
+
+            var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+            return sharedTableRootIndex?.IsCreatedOnline(storeObject);
+        }
 
         /// <summary>
         ///     Sets a value indicating whether the index is online.
@@ -143,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <param name="createdOnline"> The value to set. </param>
         public static void SetIsCreatedOnline(this IMutableIndex index, bool? createdOnline)
-            => index.SetOrRemoveAnnotation(
+            => index.SetAnnotation(
                 SqlServerAnnotationNames.CreatedOnline,
                 createdOnline);
 
@@ -159,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore
             bool? createdOnline,
             bool fromDataAnnotation = false)
         {
-            index.SetOrRemoveAnnotation(
+            index.SetAnnotation(
                 SqlServerAnnotationNames.CreatedOnline,
                 createdOnline,
                 fromDataAnnotation);
@@ -176,12 +229,37 @@ namespace Microsoft.EntityFrameworkCore
             => index.FindAnnotation(SqlServerAnnotationNames.CreatedOnline)?.GetConfigurationSource();
 
         /// <summary>
-        ///     Returns a value indicating whether the index uses the fill factor.
+        ///     Returns the fill factor that the index uses.
         /// </summary>
         /// <param name="index"> The index. </param>
-        /// <returns> <see langword="true" /> if the index is online. </returns>
+        /// <returns> The fill factor that the index uses </returns>
         public static int? GetFillFactor(this IReadOnlyIndex index)
-            => (int?)index[SqlServerAnnotationNames.FillFactor];
+            => index is RuntimeIndex
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (int?)index[SqlServerAnnotationNames.FillFactor];
+
+        /// <summary>
+        ///     Returns the fill factor that the index uses.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> The fill factor that the index uses </returns>
+        public static int? GetFillFactor(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+        {
+            if (index is RuntimeIndex)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
+            var annotation = index.FindAnnotation(SqlServerAnnotationNames.FillFactor);
+            if (annotation != null)
+            {
+                return (int?)annotation.Value;
+            }
+
+            var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+            return sharedTableRootIndex?.GetFillFactor(storeObject);
+        }
 
         /// <summary>
         ///     Sets a value indicating whether the index uses the fill factor.
@@ -195,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new ArgumentOutOfRangeException(nameof(fillFactor));
             }
 
-            index.SetOrRemoveAnnotation(
+            index.SetAnnotation(
                 SqlServerAnnotationNames.FillFactor,
                 fillFactor);
         }
@@ -217,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore
                 throw new ArgumentOutOfRangeException(nameof(fillFactor));
             }
 
-            index.SetOrRemoveAnnotation(
+            index.SetAnnotation(
                 SqlServerAnnotationNames.FillFactor,
                 fillFactor,
                 fromDataAnnotation);

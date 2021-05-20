@@ -177,6 +177,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add(project.RootNamespace!);
             args.Add("--language");
             args.Add(project.Language!);
+
+            if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(project.Nullable, "annotations", StringComparison.OrdinalIgnoreCase))
+            {
+                args.Add("--nullable");
+            }
+
             args.Add("--working-dir");
             args.Add(Directory.GetCurrentDirectory());
 

@@ -1405,7 +1405,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
                         var relationalCommand = queryContext.Connection.RentCommand();
-                        relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
+                        relationalCommand.PopulateFrom(relationalCommandTemplate);
 
                         return relationalCommand.ExecuteReader(
                             new RelationalCommandParameterObject(
@@ -1494,7 +1494,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
                         var relationalCommand = queryContext.Connection.RentCommand();
-                        relationalCommand.PopulateFromTemplate(relationalCommandTemplate);
+                        relationalCommand.PopulateFrom(relationalCommandTemplate);
 
                         return await relationalCommand.ExecuteReaderAsync(
                                 new RelationalCommandParameterObject(

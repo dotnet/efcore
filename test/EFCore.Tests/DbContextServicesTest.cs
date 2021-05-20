@@ -378,13 +378,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Default_context_scoped_services_are_registered_when_parameterless_constructor_used()
-        {
-            using var context = new EarlyLearningCenter();
-            Assert.IsType<InternalEntityEntryFactory>(context.GetService<IInternalEntityEntryFactory>());
-        }
-
-        [ConditionalFact]
         public void Can_get_singleton_service_from_scoped_configuration()
         {
             using var context = new EarlyLearningCenter();

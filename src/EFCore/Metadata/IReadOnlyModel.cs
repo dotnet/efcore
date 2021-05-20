@@ -181,7 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             builder.Append(indentString).Append("Model: ");
 
-            if (GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            if (this is Model
+                && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
             {
                 builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
             }
@@ -193,7 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
-                builder.Append(this.AnnotationsToDebugString(indent));
+                builder.Append(AnnotationsToDebugString(indent));
             }
 
             return builder.ToString();

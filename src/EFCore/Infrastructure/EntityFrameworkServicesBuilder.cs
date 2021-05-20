@@ -78,7 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IModelCacheKeyFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelSource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IModelRuntimeInitializer), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IInternalEntityEntryFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IInternalEntityEntrySubscriber), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IEntityEntryGraphIterator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IValueGeneratorCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -221,7 +220,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<ILoggerFactory>(p => ScopedLoggerFactory.Create(p, null));
             TryAdd<IModelSource, ModelSource>();
             TryAdd<IModelRuntimeInitializer, ModelRuntimeInitializer>();
-            TryAdd<IInternalEntityEntryFactory, InternalEntityEntryFactory>();
             TryAdd<IInternalEntityEntrySubscriber, InternalEntityEntrySubscriber>();
             TryAdd<IEntityEntryGraphIterator, EntityEntryGraphIterator>();
             TryAdd<IEntityGraphAttacher, EntityGraphAttacher>();
@@ -256,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd(p => GetContextServices(p).Model);
             TryAdd<IDesignTimeModel>(p => new DesignTimeModel(GetContextServices(p)));
             TryAdd(p => GetContextServices(p).CurrentContext);
-            TryAdd(p => GetContextServices(p).ContextOptions);
+            TryAdd<IDbContextOptions>(p => GetContextServices(p).ContextOptions);
             TryAdd<IResettableService, IStateManager>(p => p.GetRequiredService<IStateManager>());
             TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetRequiredService<IDbContextTransactionManager>());
             TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();

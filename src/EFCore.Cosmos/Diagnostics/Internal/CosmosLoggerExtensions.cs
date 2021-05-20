@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             var builder = new StringBuilder();
             builder
                 .Append(parameter.Name)
-                .Append("=");
+                .Append('=');
 
             if (shouldLogParameterValue)
             {
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             }
             else
             {
-                builder.Append("?");
+                builder.Append('?');
             }
 
             return builder.ToString();

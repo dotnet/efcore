@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -727,7 +728,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The comment for the table this entity is mapped to. </returns>
         public static string? GetComment(this IReadOnlyEntityType entityType)
-            => (string?)entityType[RelationalAnnotationNames.Comment];
+            => entityType is RuntimeEntityType
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (string?)entityType[RelationalAnnotationNames.Comment];
 
         /// <summary>
         ///     Configures a comment to be applied to the table this entity is mapped to.
@@ -866,6 +869,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>A value indicating whether the associated table is ignored by Migrations.</returns>
         public static bool IsTableExcludedFromMigrations(this IReadOnlyEntityType entityType)
         {
+            if (entityType is RuntimeEntityType)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
             var excluded = (bool?)entityType[RelationalAnnotationNames.IsTableExcludedFromMigrations];
             if (excluded != null)
             {

@@ -100,19 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 GenerateSequence(builderName, sequence, stringBuilder);
             }
 
-            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes()), stringBuilder);
-        }
-
-        private static IReadOnlyList<IEntityType> Sort(IEnumerable<IEntityType> entityTypes)
-        {
-            var entityTypeGraph = new Multigraph<IEntityType, int>();
-            entityTypeGraph.AddVertices(entityTypes);
-            foreach (var entityType in entityTypes.Where(et => et.BaseType != null))
-            {
-                entityTypeGraph.AddEdge(entityType.BaseType!, entityType, 0);
-            }
-
-            return entityTypeGraph.TopologicalSort();
+            GenerateEntityTypes(builderName, model.GetEntityTypesInHierarchicalOrder(), stringBuilder);
         }
 
         /// <summary>

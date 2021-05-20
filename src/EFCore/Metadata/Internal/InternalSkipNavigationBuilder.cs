@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (propertyAccessModeConfigurationSource.HasValue)
             {
                 newSkipNavigationBuilder.UsePropertyAccessMode(
-                    ((IReadOnlySkipNavigation)Metadata).GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
+                    Metadata.GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
             }
 
             var oldFieldInfoConfigurationSource = Metadata.GetFieldInfoConfigurationSource();

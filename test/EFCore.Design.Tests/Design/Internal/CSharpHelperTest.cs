@@ -242,6 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [InlineData(typeof(MultiGeneric<int, int>), "MultiGeneric<int, int>")]
         [InlineData(typeof(NestedGeneric<int>), "CSharpHelperTest.NestedGeneric<int>")]
         [InlineData(typeof(Nested.DoubleNested), "CSharpHelperTest.Nested.DoubleNested")]
+        [InlineData(typeof(NestedGeneric<Nested.DoubleNested>), "CSharpHelperTest.NestedGeneric<CSharpHelperTest.Nested.DoubleNested>")]
         public void Reference_works(Type type, string expected)
             => Assert.Equal(expected, new CSharpHelper(TypeMappingSource).Reference(type));
 

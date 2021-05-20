@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private readonly string _projectDir;
         private readonly string? _rootNamespace;
         private readonly string? _language;
+        private readonly bool _nullable;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly DbContextOperations _contextOperations;
         private readonly string[] _args;
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             string projectDir,
             string? rootNamespace,
             string? language,
+            bool nullable,
             string[]? args)
         {
             Check.NotNull(reporter, nameof(reporter));
@@ -58,11 +60,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _language = language;
+            _nullable = nullable;
             _args = args ?? Array.Empty<string>();
             _contextOperations = new DbContextOperations(
                 reporter,
                 assembly,
                 startupAssembly,
+                projectDir,
+                rootNamespace,
+                language,
+                nullable,
                 _args);
 
             _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
@@ -105,6 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
             var migration =
                 string.IsNullOrEmpty(@namespace)
+                    // TODO: Honor _nullable (issue #18950)
                     ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language)
                     : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
             return scaffolder.Save(_projectDir, migration, outputDir);

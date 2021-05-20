@@ -100,11 +100,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static IRelationalPropertyOverrides? Find(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
-            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, object>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
             return tableOverrides != null
                 && tableOverrides.TryGetValue(storeObject, out var overrides)
-                    ? overrides
+                    ? (IRelationalPropertyOverrides)overrides
                     : null;
         }
 
@@ -118,11 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IMutableProperty property,
             in StoreObjectIdentifier storeObject)
         {
-            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>?)
+            var tableOverrides = (SortedDictionary<StoreObjectIdentifier, object>?)
                 property[RelationalAnnotationNames.RelationalOverrides];
             if (tableOverrides == null)
             {
-                tableOverrides = new SortedDictionary<StoreObjectIdentifier, IRelationalPropertyOverrides>();
+                tableOverrides = new SortedDictionary<StoreObjectIdentifier, object>();
                 property[RelationalAnnotationNames.RelationalOverrides] = tableOverrides;
             }
 

@@ -49,9 +49,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.Unicode,
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
+                CoreAnnotationNames.ValueGeneratorFactoryType,
                 CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ValueConverter,
+                CoreAnnotationNames.ValueConverterType,
                 CoreAnnotationNames.ValueComparer,
+                CoreAnnotationNames.ValueComparerType,
 #pragma warning disable 618
                 CoreAnnotationNames.KeyValueComparer,
                 CoreAnnotationNames.StructuralValueComparer,
@@ -517,7 +520,7 @@ namespace MyNamespace
                     eb.HasKey("Id");
                 });
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder);
+            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
 
             var migrationMetadataCode = generator.GenerateMetadata(
                 "MyNamespace",
@@ -578,7 +581,7 @@ namespace MyNamespace
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
-                Sources = { migrationCode, migrationMetadataCode }
+                Sources = { { "Migration.cs", migrationCode }, { "MigrationSnapshot.cs", migrationMetadataCode } }
             };
 
             var assembly = build.BuildInMemory();
@@ -865,7 +868,7 @@ namespace MyNamespace
                     BuildReference.ByName("Microsoft.EntityFrameworkCore"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational")
                 },
-                Sources = { modelSnapshotCode }
+                Sources = { { "MigrationSnapshot.cs", modelSnapshotCode } }
             };
 
             var assembly = build.BuildInMemory();

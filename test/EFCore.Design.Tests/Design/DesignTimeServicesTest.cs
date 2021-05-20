@@ -47,6 +47,8 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
+#nullable disable
+
 [assembly: DesignTimeServicesReference(""Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerNetTopologySuiteDesignTimeServices, Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite"")]
 
 public class UserDesignTimeServices : IDesignTimeServices
@@ -253,7 +255,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite"),
                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions")
                 },
-                Sources = { assemblyCode }
+                Sources = { { "Startup.cs", assemblyCode } }
             };
 
             return build.BuildInMemory();

@@ -79,11 +79,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            if (model is IMutableModel mutableModel)
-            {
-                model = mutableModel.FinalizeModel();
-            }
-
             return _modelRuntimeInitializer.Initialize((IModel)model, designTime: true, validationLogger: null);
         }
 

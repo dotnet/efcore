@@ -47,7 +47,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private bool _changeDetectorInitialized;
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
-        private readonly IInternalEntityEntryFactory _internalEntityEntryFactory;
         private readonly IInternalEntityEntrySubscriber _internalEntityEntrySubscriber;
         private readonly IModel _model;
         private readonly IDatabase _database;
@@ -63,13 +62,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             Dependencies = dependencies;
 
-            _internalEntityEntryFactory = dependencies.InternalEntityEntryFactory;
             _internalEntityEntrySubscriber = dependencies.InternalEntityEntrySubscriber;
             InternalEntityEntryNotifier = dependencies.InternalEntityEntryNotifier;
             ValueGenerationManager = dependencies.ValueGenerationManager;
             _model = dependencies.Model;
             _database = dependencies.Database;
-            _concurrencyDetector = dependencies.CoreSingletonOptions.IsConcurrencyDetectionEnabled
+            _concurrencyDetector = dependencies.CoreSingletonOptions.AreThreadSafetyChecksEnabled
                 ? dependencies.ConcurrencyDetector
                 : null;
             Context = dependencies.CurrentContext.Context;
@@ -227,7 +225,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
-                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
+                entry = new(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
@@ -269,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
-                entry = _internalEntityEntryFactory.Create(this, entityType, entity);
+                entry = new(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
@@ -306,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
 
             var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
-            var entry = _internalEntityEntryFactory.Create(this, entityType, entity, shadowPropertyValueBuffer);
+            var entry = new InternalEntityEntry(this, entityType, entity, shadowPropertyValueBuffer);
 
             UpdateReferenceMaps(entry, EntityState.Detached, null);
 
@@ -356,8 +354,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     : _model.FindRuntimeEntityType(clrType)!;
 
             var newEntry = valueBuffer.IsEmpty
-                ? _internalEntityEntryFactory.Create(this, entityType, entity)
-                : _internalEntityEntryFactory.Create(this, entityType, entity, valueBuffer);
+                ? new InternalEntityEntry(this, entityType, entity)
+                : new InternalEntityEntry(this, entityType, entity, valueBuffer);
 
             foreach (var key in baseEntityType.GetKeys())
             {

@@ -908,7 +908,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         private static IRelationalModel Finalize(ModelBuilder modelBuilder)
-            => RelationalTestHelpers.Instance.Finalize(modelBuilder).GetRelationalModel();
+            => RelationalTestHelpers.Instance.Finalize(modelBuilder, designTime: true).GetRelationalModel();
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();

@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var processor = new SnapshotModelProcessor(reporter, setBuilder);
             var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(model.GetRelationalModel(), context.Model.GetRelationalModel());
+            var differences = differ.GetDifferences(model.GetRelationalModel(), context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Empty(differences);
         }
@@ -1397,7 +1397,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private class SequenceContext : DbContext
         {
             protected override void OnConfiguring(DbContextOptionsBuilder options)
-                => options.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Ownership");
+                => options.UseSqlServer();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -1445,7 +1445,7 @@ namespace Ownership
     internal class OwnershipContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=Ownership");
+            => options.UseSqlServer();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

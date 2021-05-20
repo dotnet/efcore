@@ -425,7 +425,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             if (operations.Count > 0)
             {
                 commandStringBuilder
-                    .Append("(")
+                    .Append('(')
                     .AppendJoin(
                         operations,
                         (this, name, schema),
@@ -448,7 +448,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                                 sb.Append("DEFAULT");
                             }
                         })
-                    .Append(")");
+                    .Append(')');
             }
         }
 

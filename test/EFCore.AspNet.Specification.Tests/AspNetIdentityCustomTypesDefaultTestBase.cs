@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore
                         "Property: CustomUserString.Email (string) MaxLength(128)",
                         "Property: CustomUserString.EmailConfirmed (bool) Required",
                         "Property: CustomUserString.LockoutEnabled (bool) Required",
-                        "Property: CustomUserString.LockoutEnd (Nullable<DateTimeOffset>)",
+                        "Property: CustomUserString.LockoutEnd (DateTimeOffset?)",
                         "Property: CustomUserString.NormalizedEmail (string) Index MaxLength(128)",
                         "Property: CustomUserString.NormalizedUserName (string) Index MaxLength(128)",
                         "Property: CustomUserString.PasswordHash (string)",

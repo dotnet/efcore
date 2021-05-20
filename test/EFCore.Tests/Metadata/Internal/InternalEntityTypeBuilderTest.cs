@@ -3381,7 +3381,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly string IndexerPropertyName = "Indexer";
 
             public object this[string name]
-                => null;
+            {
+                get => null;
+                set { }
+            }
         }
     }
 }

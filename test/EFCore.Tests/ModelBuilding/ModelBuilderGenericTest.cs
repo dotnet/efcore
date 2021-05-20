@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -495,6 +496,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasValueGenerator(Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator> factory)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGenerator(factory));
 
+            public override TestPropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGeneratorFactory<TFactory>());
+
+            public override TestPropertyBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasValueGeneratorFactory(valueGeneratorFactoryType));
+
             public override TestPropertyBuilder<TProperty> HasField(string fieldName)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasField(fieldName));
 
@@ -520,6 +527,15 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
+
+            public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter, ValueComparer valueComparer)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter, valueComparer));
+
+            public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TConverter, TComparer>());
+
+            public override TestPropertyBuilder<TProperty> HasConversion(Type? converterType, Type? comparerType)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converterType, comparerType));
 
             PropertyBuilder<TProperty> IInfrastructure<PropertyBuilder<TProperty>>.Instance
                 => PropertyBuilder;

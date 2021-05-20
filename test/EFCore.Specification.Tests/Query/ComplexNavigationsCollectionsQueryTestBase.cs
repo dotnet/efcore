@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+    public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
         where TFixture : ComplexNavigationsQueryFixtureBase, new()
     {
         protected ComplexNavigationsContext CreateContext()
@@ -1986,6 +1986,49 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ss => ss.Set<Level1>()
                         .Include(l1 => l1.OneToMany_Optional1)
                         .ThenInclude(l2 => l2.AsQueryable().Where(xx => xx.Id != 42))))).Message;
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_Take_with_another_Take_on_top_level(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToMany_Optional1.OrderByDescending(x => x.Name).Take(4))
+                    .ThenInclude(l2 => l2.OneToOne_Optional_FK2)
+                    .OrderBy(l1 => l1.Id)
+                    .Take(5),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertInclude(
+                    e,
+                    a,
+                    new ExpectedFilteredInclude<Level1, Level2>(
+                        x => x.OneToMany_Optional1,
+                        includeFilter: x => x.OrderByDescending(xx => xx.Name).Take(4)),
+                    new ExpectedInclude<Level2>(x => x.OneToOne_Optional_FK2, "OneToMany_Optional1")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_Skip_Take_with_another_Skip_Take_on_top_level(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToMany_Optional1.OrderByDescending(x => x.Name).Skip(2).Take(4))
+                    .ThenInclude(l2 => l2.OneToOne_Optional_FK2)
+                    .OrderByDescending(l1 => l1.Id)
+                    .Skip(10)
+                    .Take(5),
+                assertOrder: true,
+                elementAsserter: (e, a) => AssertInclude(
+                    e,
+                    a,
+                    new ExpectedFilteredInclude<Level1, Level2>(
+                        x => x.OneToMany_Optional1,
+                        includeFilter: x => x.OrderByDescending(xx => xx.Name).Skip(2).Take(4)),
+                    new ExpectedInclude<Level2>(x => x.OneToOne_Optional_FK2, "OneToMany_Optional1")));
         }
 
         [ConditionalTheory]

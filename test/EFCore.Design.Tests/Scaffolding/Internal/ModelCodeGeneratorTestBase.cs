@@ -2,13 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -51,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.Relational"),
                     BuildReference.ByName("Microsoft.EntityFrameworkCore.SqlServer")
                 },
-                Sources = new List<string>(
-                    new[] { scaffoldedModel.ContextFile.Code }.Concat(
-                        scaffoldedModel.AdditionalFiles.Select(f => f.Code)))
+                Sources = new[] { scaffoldedModel.ContextFile }.Concat(scaffoldedModel.AdditionalFiles)
+                    .ToDictionary(f => f.Path, f => f.Code),
+                NullableReferenceTypes = options.UseNullableReferenceTypes
             };
 
             var assembly = build.BuildInMemory();
@@ -65,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (assertModel != null)
             {
-                var compiledModel = context.Model;
+                var compiledModel = context.GetService<IDesignTimeModel>().Model;
                 assertModel(compiledModel);
             }
         }

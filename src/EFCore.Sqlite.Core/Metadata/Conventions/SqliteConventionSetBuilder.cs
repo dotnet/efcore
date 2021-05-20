@@ -35,6 +35,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
+        ///     Builds and returns the convention set for the current database provider.
+        /// </summary>
+        /// <returns> The convention set for the current database provider. </returns>
+        public override ConventionSet CreateConventionSet()
+        {
+            var conventionSet = base.CreateConventionSet();
+
+            ReplaceConvention(
+                conventionSet.ModelFinalizedConventions,
+                (RuntimeModelConvention)new SqliteRuntimeModelConvention(Dependencies, RelationalDependencies));
+
+            return conventionSet;
+        }
+
+        /// <summary>
         ///     <para>
         ///         Call this method to build a <see cref="ConventionSet" /> for SQLite when using
         ///         the <see cref="ModelBuilder" /> outside of <see cref="DbContext.OnModelCreating" />.

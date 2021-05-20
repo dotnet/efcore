@@ -93,26 +93,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             _tableNamer = new CSharpUniqueNamer<DatabaseTable>(
                 options.UseDatabaseNames
-                    ? (Func<DatabaseTable, string>)(t => t.Name)
+                    ? (t => t.Name)
                     : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
                 options.NoPluralize
-                    ? (Func<string, string>?)null
+                    ? null
                     : _pluralizer.Singularize);
             _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
                 options.UseDatabaseNames
-                    ? (Func<DatabaseTable, string>)(t => t.Name)
+                    ? (t => t.Name)
                     : t => _candidateNamingService.GenerateCandidateIdentifier(t),
                 _cSharpUtilities,
                 options.NoPluralize
-                    ? (Func<string, string>?)null
+                    ? null
                     : _pluralizer.Pluralize);
             _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();
             _options = options;
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
-            return _modelRuntimeInitializer.Initialize(modelBuilder.FinalizeModel(), designTime: true, null);
+            return _modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: true, null);
         }
 
         /// <summary>

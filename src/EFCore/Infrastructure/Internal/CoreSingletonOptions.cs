@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             var coreOptions = options.FindExtension<CoreOptionsExtension>() ?? new CoreOptionsExtension();
 
             AreDetailedErrorsEnabled = coreOptions.DetailedErrorsEnabled;
-            IsConcurrencyDetectionEnabled = coreOptions.ConcurrencyDetectionEnabled;
+            AreThreadSafetyChecksEnabled = coreOptions.ThreadSafetyChecksEnabled;
         }
 
         /// <summary>
@@ -57,13 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
 
-            if (IsConcurrencyDetectionEnabled != coreOptions.ConcurrencyDetectionEnabled)
+            if (AreThreadSafetyChecksEnabled != coreOptions.ThreadSafetyChecksEnabled)
             {
                 Check.DebugAssert(coreOptions.InternalServiceProvider != null, "InternalServiceProvider is null");
 
                 throw new InvalidOperationException(
                     CoreStrings.SingletonOptionChanged(
-                        nameof(DbContextOptionsBuilder.DisableConcurrencyDetection),
+                        nameof(DbContextOptionsBuilder.EnableThreadSafetyChecks),
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
         }
@@ -82,6 +82,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsConcurrencyDetectionEnabled { get; private set; }
+        public virtual bool AreThreadSafetyChecksEnabled { get; private set; }
     }
 }

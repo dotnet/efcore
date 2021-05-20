@@ -194,6 +194,13 @@ namespace System
             return method;
         }
 
+        public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name, Func<MethodInfo, bool> methodSelector)
+        {
+            var method = type.GetTypeInfo().GetDeclaredMethods(name).Single(methodSelector);
+
+            return method;
+        }
+
         public static PropertyInfo GetRequiredDeclaredProperty(this Type type, string name)
         {
             var property = type.GetTypeInfo().GetDeclaredProperty(name);
@@ -250,8 +257,7 @@ namespace System
             var sequenceType = TryGetSequenceType(type);
             if (sequenceType == null)
             {
-                // TODO: Add exception message
-                throw new ArgumentException();
+                throw new ArgumentException($"The type {type.Name} does not represent a sequence");
             }
 
             return sequenceType;
@@ -478,23 +484,23 @@ namespace System
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static string DisplayName(this Type type, bool fullName = true)
+        public static string DisplayName(this Type type, bool fullName = true, bool compilable = false)
         {
             var stringBuilder = new StringBuilder();
-            ProcessType(stringBuilder, type, fullName);
+            ProcessType(stringBuilder, type, fullName, compilable);
             return stringBuilder.ToString();
         }
 
-        private static void ProcessType(StringBuilder builder, Type type, bool fullName)
+        private static void ProcessType(StringBuilder builder, Type type, bool fullName, bool compilable)
         {
             if (type.IsGenericType)
             {
                 var genericArguments = type.GetGenericArguments();
-                ProcessGenericType(builder, type, genericArguments, genericArguments.Length, fullName);
+                ProcessGenericType(builder, type, genericArguments, genericArguments.Length, fullName, compilable);
             }
             else if (type.IsArray)
             {
-                ProcessArrayType(builder, type, fullName);
+                ProcessArrayType(builder, type, fullName, compilable);
             }
             else if (_builtInTypeNames.TryGetValue(type, out var builtInName))
             {
@@ -502,11 +508,28 @@ namespace System
             }
             else if (!type.IsGenericParameter)
             {
-                builder.Append(fullName ? type.FullName : type.Name);
+                if (compilable)
+                {
+                    if (type.IsNested)
+                    {
+                        ProcessType(builder, type.DeclaringType!, fullName, compilable);
+                        builder.Append('.');
+                    }
+                    else if (fullName)
+                    {
+                        builder.Append(type.Namespace).Append('.');
+                    }
+
+                    builder.Append(type.Name);
+                }
+                else
+                {
+                    builder.Append(fullName ? type.FullName : type.Name);
+                }
             }
         }
 
-        private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName)
+        private static void ProcessArrayType(StringBuilder builder, Type type, bool fullName, bool compilable)
         {
             var innerType = type;
             while (innerType.IsArray)
@@ -514,7 +537,7 @@ namespace System
                 innerType = innerType.GetElementType()!;
             }
 
-            ProcessType(builder, innerType, fullName);
+            ProcessType(builder, innerType, fullName, compilable);
 
             while (type.IsArray)
             {
@@ -525,21 +548,46 @@ namespace System
             }
         }
 
-        private static void ProcessGenericType(StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName)
+        private static void ProcessGenericType(
+            StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName, bool compilable)
         {
+            if (type.IsConstructedGenericType
+                && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                ProcessType(builder, type.UnwrapNullableType(), fullName, compilable);
+                builder.Append('?');
+                return;
+            }
+
             var offset = type.IsNested ? type.DeclaringType!.GetGenericArguments().Length : 0;
 
-            if (fullName)
+            if (compilable)
             {
                 if (type.IsNested)
                 {
-                    ProcessGenericType(builder, type.DeclaringType!, genericArguments, offset, fullName);
-                    builder.Append('+');
+                    ProcessType(builder, type.DeclaringType!, fullName, compilable);
+                    builder.Append('.');
                 }
-                else
+                else if (fullName)
                 {
                     builder.Append(type.Namespace);
                     builder.Append('.');
+                }
+            }
+            else
+            {
+                if (fullName)
+                {
+                    if (type.IsNested)
+                    {
+                        ProcessGenericType(builder, type.DeclaringType!, genericArguments, offset, fullName, compilable);
+                        builder.Append('+');
+                    }
+                    else
+                    {
+                        builder.Append(type.Namespace);
+                        builder.Append('.');
+                    }
                 }
             }
 
@@ -555,7 +603,7 @@ namespace System
 
             for (var i = offset; i < length; i++)
             {
-                ProcessType(builder, genericArguments[i], fullName);
+                ProcessType(builder, genericArguments[i], fullName, compilable);
                 if (i + 1 == length)
                 {
                     continue;

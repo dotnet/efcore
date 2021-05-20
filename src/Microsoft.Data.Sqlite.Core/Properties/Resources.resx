@@ -219,4 +219,7 @@
   <data name="UnknownCollection" xml:space="preserve">
     <value>The requested collection '{collectionName}' is not defined.</value>
   </data>
+  <data name="AmbiguousColumnName" xml:space="preserve">
+    <value>The name '{name}' is ambiguous between columns '{column1}' and '{column2}'. Specify one using its exact case.</value>
+  </data>
 </root>

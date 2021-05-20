@@ -8491,15 +8491,11 @@ FROM [Blogs] AS [b]");
                 Assert.Equal("B", owner.Owned2.Value);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t].[Owner23211Id], [t].[Value], [t].[Owner23211Id0], [t].[Value0]
-FROM (
-    SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id] AS [Owner23211Id0], [o1].[Value] AS [Value0]
-    FROM [Owner23211] AS [o]
-    LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
-    LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
-    ORDER BY [o].[Id]
-) AS [t]
-ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]",
+                    @"SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id], [o1].[Value]
+FROM [Owner23211] AS [o]
+LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
+LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
+ORDER BY [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id]",
                     //
                     @"SELECT [d].[Id], [d].[Owner23211Id], [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
 FROM (
@@ -8523,14 +8519,10 @@ ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]");
                 Assert.Equal("A", owner.Owned.Value);
 
                 AssertSql(
-                    @"SELECT [t].[Id], [t].[SecondOwner23211Id], [t].[Value]
-FROM (
-    SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
-    FROM [SecondOwner23211] AS [s]
-    LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
-    ORDER BY [s].[Id]
-) AS [t]
-ORDER BY [t].[Id], [t].[SecondOwner23211Id]",
+                    @"SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
+FROM [SecondOwner23211] AS [s]
+LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
+ORDER BY [s].[Id], [o].[SecondOwner23211Id]",
                     //
                     @"SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id], [t].[SecondOwner23211Id]
 FROM (
@@ -10095,6 +10087,73 @@ ORDER BY [t].[Id]");
         public class AnOwnedTypeWithPrimitiveProperties2
         {
             public string Name { get; set; }
+        }
+
+        #endregion
+
+        #region Issue24569
+
+        // TODO: Remove when JSON is first class and we have proper tests. See issue#4021
+
+        [ConditionalFact]
+        public virtual async Task Builtin_tvf_translated_correctly()
+        {
+            var contextFactory = await InitializeAsync<MyContext24569>(seed: c => c.Seed());
+
+            using (var context = contextFactory.CreateContext())
+            {
+                var query = await (from c in context.Cars
+                                   from j in context.OpenJson(c.Json, "$.items")
+                                   select new { c, j }).ToListAsync();
+
+                AssertSql(
+                    new[] {
+                    @"SELECT [c].[Id], [c].[Json], [o].[Value]
+FROM [Cars] AS [c]
+CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]" });
+            }
+        }
+
+        protected class MyContext24569 : DbContext
+        {
+            public DbSet<Car24569> Cars { get; set; }
+
+            public MyContext24569(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.HasDbFunction(() => OpenJson(string.Empty, string.Empty)).HasStoreType("nvarchar(max)");
+            }
+
+            [DbFunction("OPENJSON", IsBuiltIn = true)]
+            public IQueryable<JsonResult> OpenJson(string column, string jsonPath)
+                => FromExpression(() => OpenJson(column, jsonPath));
+
+            public void Seed()
+            {
+                Cars.Add(new Car24569
+                {
+                    Json = @"{ ""name"": ""test"", ""items"": [{""id"": 1}, {""id"": 2}] }",
+                });
+
+                SaveChanges();
+            }
+
+            public class Car24569
+            {
+                public int Id { get; set; }
+
+                public string Json { get; set; }
+            }
+
+            [Keyless]
+            public class JsonResult
+            {
+                public string Value { get; set; }
+            }
         }
 
         #endregion

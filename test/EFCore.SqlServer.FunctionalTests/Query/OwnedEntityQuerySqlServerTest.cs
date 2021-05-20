@@ -37,5 +37,29 @@ LEFT JOIN (
     WHERE [t2].[row] <= 1
 ) AS [t1] ON [e].[Id] = [t1].[Entity20277Id]");
         }
+
+        public override async Task Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(bool async)
+        {
+            await base.Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(async);
+
+            AssertSql(
+                @"SELECT TOP(2) [r].[Id], [m].[Id], [m].[Enabled], [m].[RootId], [m0].[Id], [m0].[RootId]
+FROM [Root24777] AS [r]
+LEFT JOIN [MiddleB24777] AS [m] ON [r].[Id] = [m].[RootId]
+LEFT JOIN [ModdleA24777] AS [m0] ON [r].[Id] = [m0].[RootId]
+WHERE [r].[Id] = 3
+ORDER BY [r].[Id], [m].[Id], [m0].[Id]",
+                //
+                @"SELECT [l].[ModdleAId], [l].[UnitThreshold], [t].[Id], [t].[Id0], [t].[Id1]
+FROM (
+    SELECT TOP(1) [r].[Id], [m].[Id] AS [Id0], [m0].[Id] AS [Id1]
+    FROM [Root24777] AS [r]
+    LEFT JOIN [MiddleB24777] AS [m] ON [r].[Id] = [m].[RootId]
+    LEFT JOIN [ModdleA24777] AS [m0] ON [r].[Id] = [m0].[RootId]
+    WHERE [r].[Id] = 3
+) AS [t]
+INNER JOIN [Leaf24777] AS [l] ON [t].[Id1] = [l].[ModdleAId]
+ORDER BY [t].[Id], [t].[Id0], [t].[Id1]");
+        }
     }
 }

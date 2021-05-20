@@ -885,7 +885,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 });
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue#24807")]
         public void Query_subowned()
         {
             Seed();

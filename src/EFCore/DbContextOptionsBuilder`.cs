@@ -243,8 +243,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> DisableConcurrencyDetection(bool concurrencyDetectionDisabled = true)
-            => (DbContextOptionsBuilder<TContext>)base.DisableConcurrencyDetection(concurrencyDetectionDisabled);
+        public new virtual DbContextOptionsBuilder<TContext> EnableThreadSafetyChecks(bool checksEnabled = true)
+            => (DbContextOptionsBuilder<TContext>)base.EnableThreadSafetyChecks(checksEnabled);
 
         /// <summary>
         ///     <para>
@@ -466,7 +466,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         See the specific implementations of <see cref="IInterceptor" /> for details. For example, 'IDbCommandInterceptor'.
         ///     </para>
         ///     <para>
-        ///         A single interceptor instance can implement multiple different interceptor interfaces. I will be registered as
+        ///         A single interceptor instance can implement multiple different interceptor interfaces. It will be registered as
         ///         an interceptor for all interfaces that it implements.
         ///     </para>
         ///     <para>

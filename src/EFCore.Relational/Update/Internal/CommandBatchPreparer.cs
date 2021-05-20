@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 for (var i = 0; i < properties.Count; i++)
                 {
                     var keyProperty = properties[i];
-                    builder.Append("'");
+                    builder.Append('\'');
                     builder.Append(keyProperty.Name);
                     builder.Append("': ");
                     builder.Append(entry.GetCurrentValue(keyProperty));
@@ -358,12 +358,12 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
             else
             {
-                builder.Append(" ");
+                builder.Append(' ');
             }
 
-            builder.Append("[");
+            builder.Append('[');
             builder.Append(entry.EntityState);
-            builder.Append("]");
+            builder.Append(']');
         }
 
         private void Format(IForeignKey foreignKey, IModificationCommand source, IModificationCommand target, StringBuilder builder)
@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
             else
             {
-                builder.Append(" ");
+                builder.Append(' ');
             }
 
             if (foreignKey.DependentToPrincipal != null
@@ -385,20 +385,20 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     && foreignKey.DependentToPrincipal != null)
                 {
                     builder.Append(foreignKey.DependentToPrincipal.Name);
-                    builder.Append(" ");
+                    builder.Append(' ');
                 }
 
                 if (foreignKey.PrincipalToDependent != null)
                 {
                     builder.Append(foreignKey.PrincipalToDependent.Name);
-                    builder.Append(" ");
+                    builder.Append(' ');
                 }
 
                 if (reverseDependency
                     && foreignKey.DependentToPrincipal != null)
                 {
                     builder.Append(foreignKey.DependentToPrincipal.Name);
-                    builder.Append(" ");
+                    builder.Append(' ');
                 }
             }
             else
@@ -412,9 +412,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 var property = foreignKey.Properties[i];
-                builder.Append("'");
+                builder.Append('\'');
                 builder.Append(property.Name);
-                builder.Append("'");
+                builder.Append('\'');
                 if (_sensitiveLoggingEnabled)
                 {
                     builder.Append(": ");
@@ -444,7 +444,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
             else
             {
-                builder.Append(" ");
+                builder.Append(' ');
             }
 
             builder.Append("Index ");
@@ -455,9 +455,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             for (var i = 0; i < index.Properties.Count; i++)
             {
                 var property = index.Properties[i];
-                builder.Append("'");
+                builder.Append('\'');
                 builder.Append(property.Name);
-                builder.Append("'");
+                builder.Append('\'');
                 if (_sensitiveLoggingEnabled)
                 {
                     builder.Append(": ");

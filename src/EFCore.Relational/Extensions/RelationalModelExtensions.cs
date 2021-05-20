@@ -318,9 +318,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The model name of the function. </param>
         /// <returns> The function or <see langword="null" /> if the method is not mapped. </returns>
         public static IReadOnlyDbFunction? FindDbFunction(this IReadOnlyModel model, string name)
-            => DbFunction.FindDbFunction(
-                Check.NotNull(model, nameof(model)),
-                Check.NotNull(name, nameof(name)));
+            => DbFunction.FindDbFunction(model, Check.NotNull(name, nameof(name)));
 
         /// <summary>
         ///     Finds a function that is mapped to the method represented by the given name.
@@ -329,7 +327,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The model name of the function. </param>
         /// <returns> The function or <see langword="null" /> if the method is not mapped. </returns>
         public static IMutableDbFunction? FindDbFunction(this IMutableModel model, string name)
-            => (IMutableDbFunction?)((IModel)model).FindDbFunction(name);
+            => (IMutableDbFunction?)((IReadOnlyModel)model).FindDbFunction(name);
 
         /// <summary>
         ///     Finds a function that is mapped to the method represented by the given name.
@@ -338,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The model name of the function. </param>
         /// <returns> The function or <see langword="null" /> if the method is not mapped. </returns>
         public static IConventionDbFunction? FindDbFunction(this IConventionModel model, string name)
-            => (IConventionDbFunction?)((IModel)model).FindDbFunction(name);
+            => (IConventionDbFunction?)((IReadOnlyModel)model).FindDbFunction(name);
 
         /// <summary>
         ///     Finds a function that is mapped to the method represented by the given name.
@@ -455,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns all functions contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
-        public static IEnumerable<IReadOnlyDbFunction> GetDbFunctions(this IModel model)
+        public static IEnumerable<IReadOnlyDbFunction> GetDbFunctions(this IReadOnlyModel model)
             => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model)));
 
         /// <summary>
@@ -463,21 +461,21 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
         public static IEnumerable<IMutableDbFunction> GetDbFunctions(this IMutableModel model)
-            => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model))).Cast<IMutableDbFunction>();
+            => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model))).Cast<IMutableDbFunction>();
 
         /// <summary>
         ///     Returns all functions contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
         public static IEnumerable<IConventionDbFunction> GetDbFunctions(this IConventionModel model)
-            => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model))).Cast<IConventionDbFunction>();
+            => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model))).Cast<IConventionDbFunction>();
 
         /// <summary>
         ///     Returns all functions contained in the model.
         /// </summary>
         /// <param name="model"> The model to get the functions in. </param>
-        public static IEnumerable<IDbFunction> GetDbFunctions(this IReadOnlyModel model)
-            => DbFunction.GetDbFunctions((Model)Check.NotNull(model, nameof(model)));
+        public static IEnumerable<IDbFunction> GetDbFunctions(this IModel model)
+            => DbFunction.GetDbFunctions(Check.NotNull(model, nameof(model)));
 
         /// <summary>
         ///     Returns the database collation.
@@ -485,7 +483,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model to get the collation for. </param>
         /// <returns> The collation. </returns>
         public static string? GetCollation(this IReadOnlyModel model)
-            => (string?)model[RelationalAnnotationNames.Collation];
+            => model is RuntimeModel
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)model[RelationalAnnotationNames.Collation];
 
         /// <summary>
         ///     Sets the database collation.

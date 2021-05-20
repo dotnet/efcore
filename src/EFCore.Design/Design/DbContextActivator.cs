@@ -50,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Design
                     new OperationReporter(reportHandler),
                     contextType.Assembly,
                     startupAssembly ?? contextType.Assembly,
+                    projectDir: "",
+                    rootNamespace: null,
+                    language: "C#",
+                    nullable: false,
                     args: args ?? Array.Empty<string>())
                 .CreateContext(contextType.FullName!);
         }

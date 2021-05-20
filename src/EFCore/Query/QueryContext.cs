@@ -45,13 +45,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
+            Context = dependencies.CurrentContext.Context;
         }
 
         /// <summary>
         ///     The current DbContext in using while executing the query.
         /// </summary>
-        public virtual DbContext Context
-            => Dependencies.CurrentContext.Context;
+        public virtual DbContext Context { get; }
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.

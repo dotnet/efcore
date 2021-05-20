@@ -723,11 +723,12 @@ namespace Microsoft.EntityFrameworkCore
                 Check.DebugAssert(
                     _configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
 
-                ChangeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled.Value;
-                ChangeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
-                ChangeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled.Value;
-                ChangeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming.Value;
-                ChangeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming.Value;
+                var changeTracker = ChangeTracker;
+                changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled.Value;
+                changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
+                changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled.Value;
+                changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming.Value;
+                changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming.Value;
             }
             else
             {

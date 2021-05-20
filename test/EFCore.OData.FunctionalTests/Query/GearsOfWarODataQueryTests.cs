@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal("Marcus", result["Nickname"].ToString());
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "OData/WebApi#2437")]
         public async Task Complex_query_with_any_on_collection_navigation()
         {
             var requestUri = string.Format(@"{0}/odata/Gears?$filter=Weapons/any(w: w/Id gt 4)", BaseAddress);

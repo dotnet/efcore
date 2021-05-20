@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         }
                         else
                         {
-                            idProperty.Builder.HasValueGenerator((_, _) => new IdValueGenerator());
+                            idProperty.Builder.HasValueGeneratorFactory(typeof(IdValueGeneratorFactory));
                         }
                     }
 
@@ -105,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (partitionKey != null)
                     {
                         var partitionKeyProperty = entityType.FindProperty(partitionKey);
-                        if (partitionKeyProperty == null)
+                        if (partitionKeyProperty == null
+                            || partitionKeyProperty == idProperty)
                         {
                             newKey = entityTypeBuilder.HasKey(new[] { idProperty })?.Metadata;
                         }

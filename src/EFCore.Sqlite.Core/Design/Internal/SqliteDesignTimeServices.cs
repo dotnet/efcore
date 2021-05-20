@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Design.Internal
         {
             serviceCollection.AddEntityFrameworkSqlite();
             new EntityFrameworkRelationalDesignServicesBuilder(serviceCollection)
+                .TryAdd<ICSharpRuntimeAnnotationCodeGenerator, SqliteCSharpRuntimeAnnotationCodeGenerator>()
                 .TryAdd<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
                 .TryAdd<IProviderConfigurationCodeGenerator, SqliteCodeGenerator>()
                 .TryAddCoreServices();
