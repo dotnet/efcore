@@ -51,5 +51,5 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
         /// </summary>
         public EntityState EntityState { get; }
-    };//interface IModificationCommand
+    }
 }
