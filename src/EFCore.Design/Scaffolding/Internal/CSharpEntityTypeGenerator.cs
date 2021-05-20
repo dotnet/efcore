@@ -127,6 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GenerateConstructor(entityType);
                 GenerateProperties(entityType);
                 GenerateNavigationProperties(entityType);
+                GenerateSkipNavigationProperties(entityType);
             }
 
             _sb.AppendLine("}");
@@ -438,11 +439,86 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .ThenBy(n => n.IsCollection ? 1 : 0)
                 .ToList();
 
-            if (sortedNavigations.Any())
+            if (sortedNavigations.Count > 0)
             {
                 _sb.AppendLine();
 
                 foreach (var navigation in sortedNavigations)
+                {
+                    if (_useDataAnnotations)
+                    {
+                        GenerateNavigationDataAnnotations(navigation);
+                    }
+
+                    var referencedTypeName = navigation.TargetEntityType.Name;
+                    var navigationType = navigation.IsCollection ? $"ICollection<{referencedTypeName}>" : referencedTypeName;
+
+                    _sb.AppendLine(
+                        !_useNullableReferenceTypes || navigation.IsCollection
+                            ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }}"
+                            : navigation.ForeignKey.IsRequired
+                                ? $"public virtual {navigationType} {navigation.Name} {{ get; set; }} = null!;"
+                                : $"public virtual {navigationType}? {navigation.Name} {{ get; set; }}");
+                }
+            }
+        }
+
+        private void GenerateNavigationDataAnnotations(ISkipNavigation navigation)
+        {
+            GenerateForeignKeyAttribute(navigation);
+            GenerateInversePropertyAttribute(navigation);
+        }
+
+        private void GenerateForeignKeyAttribute(ISkipNavigation navigation)
+        {
+            if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
+            {
+                var foreignKeyAttribute = new AttributeWriter(nameof(ForeignKeyAttribute));
+                foreignKeyAttribute.AddParameter(
+                    _code.Literal(
+                        string.Join(",", navigation.ForeignKey.Properties.Select(p => p.Name))));
+                _sb.AppendLine(foreignKeyAttribute.ToString());
+            }
+        }
+
+        private void GenerateInversePropertyAttribute(ISkipNavigation navigation)
+        {
+            if (navigation.ForeignKey.PrincipalKey.IsPrimaryKey())
+            {
+                var inverseNavigation = navigation.Inverse;
+
+                if (inverseNavigation != null)
+                {
+                    var inversePropertyAttribute = new AttributeWriter(nameof(InversePropertyAttribute));
+
+                    inversePropertyAttribute.AddParameter(
+                        !navigation.DeclaringEntityType.GetPropertiesAndNavigations().Any(
+                            m => m.Name == inverseNavigation.DeclaringEntityType.Name)
+                            ? $"nameof({inverseNavigation.DeclaringEntityType.Name}.{inverseNavigation.Name})"
+                            : _code.Literal(inverseNavigation.Name));
+
+                    _sb.AppendLine(inversePropertyAttribute.ToString());
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual void GenerateSkipNavigationProperties(IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var skipNavigations = entityType.GetSkipNavigations().ToList();
+
+            if (skipNavigations.Count > 0)
+            {
+                _sb.AppendLine();
+
+                foreach (var navigation in skipNavigations)
                 {
                     if (_useDataAnnotations)
                     {

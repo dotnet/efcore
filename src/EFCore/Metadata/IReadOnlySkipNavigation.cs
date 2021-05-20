@@ -86,7 +86,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" (");
             }
 
-            builder.Append(ClrType?.ShortDisplayName()).Append(")");
+            if (this.GetIdentifyingMemberInfo() == null)
+            {
+                // Shadow navigation
+                if (IsCollection)
+                {
+                    builder.Append("IEnumerable<");
+                }
+                builder.Append(TargetEntityType.ClrType.ShortDisplayName());
+                if (IsCollection)
+                {
+                    builder.Append(">");
+                }
+                builder.Append(")");
+            }
+            else
+            {
+                builder.Append(ClrType.ShortDisplayName()).Append(")");
+            }
 
             if (IsCollection)
             {
