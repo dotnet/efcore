@@ -176,6 +176,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var concatCount = 1;
             var concatStartList = new List<int>();
             var useOldBehavior = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue23518", out var enabled) && enabled;
+            var useOldBehavior2 = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue24112", out var enabled2) && enabled2;
+            var castApplied = false;
             for (i = 0; i < stringValue.Length; i++)
             {
                 var lineFeed = stringValue[i] == '\n';
@@ -214,11 +216,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
                         if (IsUnicode)
                         {
-                            builder.Append('N');
+                            builder.Append('n');
                         }
 
                         builder
-                            .Append("CHAR(")
+                            .Append("char(")
                             .Append(lineFeed ? "10" : "13")
                             .Append(')');
                     }
@@ -277,8 +279,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 for (var j = concatStartList.Count - 1; j >= 0; j--)
                 {
-                    builder.Insert(concatStartList[j], "CONCAT(")
-                        .Append(')');
+                    if (castApplied && j == 0)
+                    {
+                        builder.Insert(concatStartList[j], "CAST(");
+                    }
+                    builder.Insert(concatStartList[j], "CONCAT(");
+                    builder.Append(')');
                 }
             }
 
@@ -298,6 +304,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 if (builder.Length != 0)
                 {
+                    if (!useOldBehavior2
+                        && !castApplied)
+                    {
+                        builder.Append(" AS ");
+                        if (IsUnicode)
+                        {
+                            builder.Append("n");
+                        }
+                        builder.Append("varchar(max))");
+                        castApplied = true;
+                    }
+
                     builder.Append(", ");
                     if (useOldBehavior)
                     {
