@@ -674,6 +674,8 @@ namespace Microsoft.EntityFrameworkCore
                 ? (DbContext)scopedProvider.GetService<IPooledContext>()
                 : scopedProvider.GetService<PooledContext>();
 
+            Assert.Null(context1.Database.GetCommandTimeout());
+
             context1.ChangeTracker.AutoDetectChangesEnabled = true;
             context1.ChangeTracker.LazyLoadingEnabled = true;
             context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -681,6 +683,7 @@ namespace Microsoft.EntityFrameworkCore
             context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
             context1.Database.AutoTransactionsEnabled = true;
             context1.Database.AutoSavepointsEnabled = true;
+            context1.Database.SetCommandTimeout(1);
             context1.SavingChanges += (sender, args) => { };
             context1.SavedChanges += (sender, args) => { };
             context1.SaveChangesFailed += (sender, args) => { };
@@ -711,6 +714,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.False(context2.Database.AutoTransactionsEnabled);
             Assert.False(context2.Database.AutoSavepointsEnabled);
+            Assert.Null(context1.Database.GetCommandTimeout());
         }
 
         [ConditionalTheory]

@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private bool _connectionOwned;
         private int _openedCount;
         private bool _openedInternally;
-        private int? _commandTimeout;
+        private int? _commandTimeout, _defaultCommandTimeout;
         private readonly ConcurrentStack<Transaction> _ambientTransactions = new();
         private DbConnection? _connection;
         private readonly IRelationalCommandBuilder _relationalCommandBuilder;
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
 
-            _commandTimeout = relationalOptions.CommandTimeout;
+            _defaultCommandTimeout = _commandTimeout = relationalOptions.CommandTimeout;
 
             _connectionString = string.IsNullOrWhiteSpace(relationalOptions.ConnectionString)
                 ? null
@@ -1033,6 +1033,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CurrentTransaction?.Dispose();
             ClearTransactions(clearAmbient: true);
 
+            _commandTimeout = _defaultCommandTimeout;
+
             _openedCount = 0;
             _openedInternally = false;
 
@@ -1062,6 +1064,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             ClearTransactions(clearAmbient: true);
+
+            _commandTimeout = _defaultCommandTimeout;
 
             if (disposeDbConnection
                 && _connectionOwned
