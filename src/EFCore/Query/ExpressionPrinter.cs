@@ -485,8 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     ? value.ToString()
                     : value.GetType().ShortDisplayName();
 
-            if (value != null
-                && value is string)
+            if (value is string)
             {
                 stringValue = $@"""{stringValue}""";
             }
