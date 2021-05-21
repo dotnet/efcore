@@ -1311,7 +1311,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Level2>().Where(l2 => l2.OneToMany_Required_Inverse2.OneToMany_Optional1.Any()),
                 ss => ss.Set<Level2>().Where(
-                    l2 => l2.OneToMany_Required_Inverse2.OneToMany_Optional1.MaybeScalar(x => x.Any())));
+                    l2 => l2.OneToMany_Required_Inverse2.OneToMany_Optional1.MaybeScalar(x => x.Count()) > 0));
         }
 
         [ConditionalTheory]
