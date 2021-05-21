@@ -1997,7 +1997,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(c => new { Ave = (double?)c.Orders.Average(o => o.OrderID) }),
                 ss => ss.Set<Customer>()
                     .OrderBy(c => c.CustomerID)
-                    .Select(c => new { Ave = c.Orders != null && c.Orders.Any() ? (double?)c.Orders.Average(o => o.OrderID) : null }),
+                    .Select(c => new { Ave = c.Orders != null && c.Orders.Count() > 0 ? (double?)c.Orders.Average(o => o.OrderID) : null }),
                 assertOrder: true,
                 elementAsserter: (e, a) =>
                 {

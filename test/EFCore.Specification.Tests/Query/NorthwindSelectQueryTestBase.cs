@@ -890,7 +890,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
-                    .Select(e => $"{e.EmployeeID}")
+                    .Select(e => string.Format("{0}", e.EmployeeID))
                     .Skip(1));
         }
 
