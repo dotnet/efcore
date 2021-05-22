@@ -290,6 +290,21 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public override EntityEntry<TEntity> AddOrUpdate(TEntity entity)
+        {
+            var (entry, exists) = Entry(entity);
+
+            SetEntityState(entry.GetInfrastructure(), exists ? EntityState.Modified : EntityState.Added);
+
+            return entry;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public override void AddRange(params TEntity[] entities)
             => SetEntityStates(entities, EntityState.Added);
 
@@ -534,6 +549,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
             => new(_context.GetDependencies().StateManager.GetOrCreateEntry(entity, EntityType));
+
+        private (EntityEntry<TEntity>, bool) Entry(TEntity entity)
+        {
+            var (entry, alreadyExists) = _context.GetDependencies().StateManager.GetOrCreateEntryReturnAlreadyExists(entity, EntityType);
+            return (new (entry), alreadyExists);
+        }
 
         private void SetEntityStates(IEnumerable<TEntity> entities, EntityState entityState)
         {

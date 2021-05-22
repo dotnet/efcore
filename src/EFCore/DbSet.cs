@@ -277,6 +277,24 @@ namespace Microsoft.EntityFrameworkCore
             => throw new NotSupportedException();
 
         /// <summary>
+        ///     <para>
+        ///         Begins tracking the given entity, and any other reachable entities. If
+        ///         the entities do not already exist in the database, they will be tracked
+        ///         in the <see cref="EntityState.Added" /> state such that they will be
+        ///         inserted into the database when <see cref="DbContext.SaveChanges()" />
+        ///         is called. If the entities already exist in the database, they will be
+        ///         tracked in the <see cref="EntityState.Modified" /> state.
+        ///     </para>
+        /// </summary>
+        /// <param name="entity"> The entity to add or update. </param>
+        /// <returns>
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
+        /// </returns>
+        public virtual EntityEntry<TEntity> AddOrUpdate(TEntity entity)
+            => throw new NotSupportedException();
+
+        /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
         ///     not already being tracked, in the <see cref="EntityState.Added" /> state such that they will
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.

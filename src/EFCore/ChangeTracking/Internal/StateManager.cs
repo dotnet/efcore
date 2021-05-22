@@ -200,11 +200,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry GetOrCreateEntry(object entity)
+        public virtual InternalEntityEntry GetOrCreateEntry(object entity) =>
+            GetOrCreateEntryReturnAlreadyExists(entity).Item1;
+
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual (InternalEntityEntry, bool) GetOrCreateEntryReturnAlreadyExists(object entity)
         {
+            // assume entry already exists
+            var alreadyExists = true;
             var entry = TryGetEntry(entity);
             if (entry == null)
             {
+                // entry does not exist
+                alreadyExists = false;
                 var entityType = _model.FindRuntimeEntityType(entity.GetType());
                 if (entityType == null)
                 {
@@ -225,12 +239,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
-                entry = new(this, entityType, entity);
+                entry = new(this, entityType, entity); 
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
 
-            return entry;
+            return (entry, alreadyExists);
         }
 
         /// <summary>
@@ -239,16 +253,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType? entityType)
+        public virtual InternalEntityEntry GetOrCreateEntry(object entity, IEntityType? entityType) =>
+            GetOrCreateEntryReturnAlreadyExists(entity, entityType).Item1;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual (InternalEntityEntry, bool) GetOrCreateEntryReturnAlreadyExists(object entity, IEntityType? entityType)
         {
             if (entityType == null)
             {
-                return GetOrCreateEntry(entity);
+                return GetOrCreateEntryReturnAlreadyExists(entity);
             }
 
+            // assume entry already exists
+            var alreadyExists = true;
             var entry = TryGetEntry(entity, entityType);
             if (entry == null)
             {
+                // entry does not exist
+                alreadyExists = false;
                 var runtimeEntityType = _model.FindRuntimeEntityType(entity.GetType());
                 if (runtimeEntityType != null)
                 {
@@ -267,12 +294,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
+                // create new entry
                 entry = new(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
 
-            return entry;
+            return (entry, alreadyExists);
         }
 
         /// <summary>
