@@ -212,11 +212,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null)
             => throw new NotImplementedException();
 
-        public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey) =>
+        public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues, bool throwOnNullKey, out bool hasNullKey)
+        {
             throw new NotImplementedException();
+        }
 
         public (InternalEntityEntry, bool) GetOrCreateEntryReturnAlreadyExists(object entity) =>
             throw new NotImplementedException();
+
         public (InternalEntityEntry, bool) GetOrCreateEntryReturnAlreadyExists(object entity, IEntityType entityType) =>
             throw new NotImplementedException();
     }

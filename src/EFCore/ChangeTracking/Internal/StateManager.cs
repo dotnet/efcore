@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.KeylessTypeTracked(entityType.DisplayName()));
                 }
 
-                entry = new(this, entityType, entity); 
+                entry = new(this, entityType, entity);
 
                 UpdateReferenceMaps(entry, EntityState.Detached, null);
             }
