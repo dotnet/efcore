@@ -310,7 +310,6 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 var isMainEntry = !tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
                 var isOptional = tableMapping.Table.IsOptional(entry.EntityType);
-                var isOptionalDependent = isOptional && !isMainEntry;
 
                 foreach (var columnMapping in tableMapping.ColumnMappings)
                 {
@@ -373,21 +372,12 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
 
                         columnModifications.Add(columnModification);
-
-                        if (isOptionalDependent)
-                        {
-                            if (!property.IsPrimaryKey())
-                            {
-                                if (columnModification.IsWrite && columnModification.Value is not null)
-                                {
-                                    optionalDependentWithAllNull = false;
-                                }
-                            }
-                        }
                     }
                 }
 
-                if (optionalDependentWithAllNull && isOptionalDependent)
+                optionalDependentWithAllNull = IsOptionalWithNull(entry, isOptional);
+
+                if (optionalDependentWithAllNull && tableMapping.Table.IsShared && !isMainEntry)
                 {
                     if (_sensitiveLoggingEnabled)
                     {
@@ -405,6 +395,31 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
 
             return columnModifications;
+        }
+
+        private bool IsOptionalWithNull(IUpdateEntry entry, bool optional)
+        {
+            var nullableWithNull = true;
+
+            if (!optional)
+            {
+                return false;
+            }
+
+            foreach (var property in entry.EntityType.GetProperties())
+            {
+                if (property.IsPrimaryKey())
+                {
+                    continue;
+                }
+
+                if (entry.GetCurrentValue(property) is not null)
+                {
+                    nullableWithNull = false;
+                }
+            }
+
+            return nullableWithNull;
         }
 
         private ITableMappingBase? GetTableMapping(IEntityType entityType)
