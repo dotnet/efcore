@@ -294,6 +294,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
             }
 
+            var optionalDependentWithAllNull = true;
+
             foreach (var entry in _entries)
             {
                 var nonMainEntry = updating
@@ -305,6 +307,10 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     continue;
                 }
+
+                var isMainEntry = !tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+                var isOptional = tableMapping.Table.IsOptional(entry.EntityType);
+                var isOptionalDependent = isOptional && !isMainEntry;
 
                 foreach (var columnMapping in tableMapping.ColumnMappings)
                 {
@@ -367,7 +373,34 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
 
                         columnModifications.Add(columnModification);
+
+                        if (isOptionalDependent)
+                        {
+                            if (!property.IsPrimaryKey())
+                            {
+                                if (columnModification.IsWrite && columnModification.Value is not null)
+                                {
+                                    optionalDependentWithAllNull = false;
+                                }
+                            }
+                        }
                     }
+                }
+
+                if (optionalDependentWithAllNull && isOptionalDependent)
+                {
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingPropertySensitive(
+                                entry.EntityType,
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)
+                                ));
+                    }
+
+                    throw new InvalidOperationException(
+                        RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(
+                            entry.EntityType));
                 }
             }
 

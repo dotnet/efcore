@@ -201,14 +201,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             entry,
                             (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
-
-                        if (!isMainEntry)
-                        {
-                            if(sharedCommandsMap.IsOptionalWithNull(entry))
-                            {
-                                Dependencies.UpdateLogger.OptionalDependentWithAllNullPropertiesWarning(entry.EntityType);
-                            }
-                        }
                     }
                     else
                     {

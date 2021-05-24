@@ -2964,32 +2964,5 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
-
-        /// <summary>
-        ///     Logs the <see cref="RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning" /> event.
-        /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="entityType"> The entity type. </param>
-        public static void OptionalDependentWithAllNullPropertiesWarning(
-            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            IEntityType entityType)
-        {
-            var definition = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(diagnostics);
-
-            if (diagnostics.ShouldLog(definition))
-            {
-                definition.Log(diagnostics, entityType.DisplayName());
-            }
-
-            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-            {
-                var eventData = new EntityTypeEventData(
-                    definition,
-                    OptionalDependentWithoutIdentifyingPropertyWarning,
-                    entityType);
-
-                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-            }
-        }
     }
 }

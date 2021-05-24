@@ -74,39 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public virtual bool IsMainEntry(IUpdateEntry entry)
             => !_table.GetRowInternalForeignKeys(entry.EntityType).Any();
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool IsOptionalWithNull(IUpdateEntry entry)
-        {
-            var optional = _table.IsOptional(entry.EntityType);
-
-            var nullableWithNull = true;
-
-            if (!optional)
-            {
-                return false;
-            }
-
-            foreach (var property in entry.EntityType.GetProperties())
-            {
-                if (property.IsPrimaryKey())
-                {
-                    continue;
-                }
-
-                if(entry.GetCurrentValue(property) is not null)
-                {
-                    nullableWithNull = false;
-                }
-            }
-
-            return nullableWithNull;
-        }
-
         private IUpdateEntry GetMainEntry(IUpdateEntry entry)
         {
             var entityType = entry.EntityType;

@@ -902,6 +902,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     Entity type '{entityType}' with primary key values {keyValues} is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+        /// </summary>
+        public static string OptionalDependentWithDependentWithoutIdentifyingPropertySensitive(object? entityType, object? keyValues)
+            => string.Format(
+                GetString("OptionalDependentWithDependentWithoutIdentifyingPropertySensitive", nameof(entityType), nameof(keyValues)),
+                entityType, keyValues);
+
+        /// <summary>
         ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
         /// </summary>
         public static string ParameterNotObjectArray(object? parameter)
