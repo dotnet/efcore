@@ -1098,7 +1098,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
 
 
-                    entry = new InternalClrEntityEntry(null!, entityType, seedDatum);
+                    entry = new InternalEntityEntry(null!, entityType, seedDatum);
                     identityMap.Add(keyValues, entry);
                 }
             }

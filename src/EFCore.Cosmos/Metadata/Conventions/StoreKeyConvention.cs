@@ -106,7 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (partitionKey != null)
                     {
                         var partitionKeyProperty = entityType.FindProperty(partitionKey);
-                        if (partitionKeyProperty == null)
+                        if (partitionKeyProperty == null
+                            || partitionKeyProperty == idProperty)
                         {
                             newKey = entityTypeBuilder.HasKey(new[] { idProperty })?.Metadata;
                         }

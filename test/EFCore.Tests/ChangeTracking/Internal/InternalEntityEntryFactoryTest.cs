@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -26,12 +24,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
-            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new RedHook();
-            var entry = factory.Create(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
-
-            Assert.IsType<InternalClrEntityEntry>(entry);
+            var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
             Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityTypeBuilder.Metadata, entry.EntityType);
@@ -51,12 +46,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             var contextServices = InMemoryTestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
-            var factory = contextServices.GetRequiredService<IInternalEntityEntryFactory>();
 
             var entity = new RedHook();
-            var entry = factory.Create(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
-
-            Assert.IsType<InternalMixedEntityEntry>(entry);
+            var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
             Assert.Same(stateManager, entry.StateManager);
             Assert.Same(entityTypeBuilder.Metadata, entry.EntityType);

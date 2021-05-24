@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         protected string ProjectDirectory { get; }
         protected string RootNamespace { get; }
         protected string? Language { get; }
+        protected bool Nullable { get; }
         protected string[] RemainingArguments { get; }
 
         protected OperationExecutorBase(
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             string? projectDir,
             string? rootNamespace,
             string? language,
+            bool nullable,
             string[] remainingArguments)
         {
             AssemblyFileName = Path.GetFileNameWithoutExtension(assembly);
@@ -44,6 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
             RootNamespace = rootNamespace ?? AssemblyFileName;
             ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
             Language = language;
+            Nullable = nullable;
             RemainingArguments = remainingArguments ?? Array.Empty<string>();
 
             Reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));

@@ -30,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         private readonly string _startupTargetName;
         private readonly string? _rootNamespace;
         private readonly string? _language;
+        private readonly bool _nullable;
         private readonly string[]? _designArgs;
         private readonly OperationReporter _reporter;
 
@@ -47,6 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     <para><c>projectDir</c>--The target project's root directory.</para>
         ///     <para><c>rootNamespace</c>--The target project's root namespace.</para>
         ///     <para><c>language</c>--The programming language to be used to generate classes.</para>
+        ///     <para><c>nullable</c>--A value indicating whether nullable reference types are enabled.</para>
         ///     <para><c>remainingArguments</c>--Extra arguments passed into the operation.</para>
         /// </summary>
         /// <param name="reportHandler"> The <see cref="IOperationReportHandler" />. </param>
@@ -62,6 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             _projectDir = (string)args["projectDir"]!;
             _rootNamespace = (string?)args["rootNamespace"];
             _language = (string?)args["language"];
+            _nullable = (bool)(args["nullable"] ?? false);
             _designArgs = (string[]?)args["remainingArguments"];
 
             var toolsVersion = (string?)args["toolsVersion"];
@@ -108,6 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     _projectDir,
                     _rootNamespace,
                     _language,
+                    _nullable,
                     _designArgs);
 
         private DbContextOperations ContextOperations
@@ -127,6 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Design
                     _projectDir,
                     _rootNamespace,
                     _language,
+                    _nullable,
                     _designArgs);
 
         /// <summary>

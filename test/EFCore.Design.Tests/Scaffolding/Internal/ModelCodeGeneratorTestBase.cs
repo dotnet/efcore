@@ -53,7 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 },
                 Sources = new List<string>(
                     new[] { scaffoldedModel.ContextFile.Code }.Concat(
-                        scaffoldedModel.AdditionalFiles.Select(f => f.Code)))
+                        scaffoldedModel.AdditionalFiles.Select(f => f.Code))),
+                NullableReferenceTypes = options.UseNullableReferenceTypes
             };
 
             var assembly = build.BuildInMemory();

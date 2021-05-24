@@ -95,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 options.ContextNamespace,
                 options.ModelNamespace,
                 options.UseDataAnnotations,
+                options.UseNullableReferenceTypes,
                 options.SuppressConnectionStringWarning,
                 options.SuppressOnConfiguring);
 
@@ -113,7 +114,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, options.ModelNamespace, options.UseDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(
+                    entityType,
+                    options.ModelNamespace,
+                    options.UseDataAnnotations,
+                    options.UseNullableReferenceTypes);
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.Name + FileExtension;
