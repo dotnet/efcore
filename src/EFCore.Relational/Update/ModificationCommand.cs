@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -294,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
             }
 
-            var optionalDependentWithAllNull = true;
+
 
             foreach (var entry in _entries)
             {
@@ -308,8 +309,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                     continue;
                 }
 
-                var isMainEntry = !tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
-                var isOptional = tableMapping.Table.IsOptional(entry.EntityType);
+                var optionalDependentWithAllNull =
+                    (entry.EntityState == EntityState.Deleted
+                        || entry.EntityState == EntityState.Added)
+                        && tableMapping.Table.IsOptional(entry.EntityType)
+                        && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
 
                 foreach (var columnMapping in tableMapping.ColumnMappings)
                 {
@@ -372,12 +376,17 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
 
                         columnModifications.Add(columnModification);
+
+                        if (optionalDependentWithAllNull
+                            && columnModification.IsWrite
+                            && (entry.EntityState != EntityState.Added || columnModification.Value is not null))
+                        {
+                            optionalDependentWithAllNull = false;
+                        }
                     }
                 }
 
-                optionalDependentWithAllNull = IsOptionalWithNull(entry, isOptional);
-
-                if (optionalDependentWithAllNull && tableMapping.Table.IsShared && !isMainEntry)
+                if (optionalDependentWithAllNull)
                 {
                     if (_sensitiveLoggingEnabled)
                     {
@@ -387,39 +396,16 @@ namespace Microsoft.EntityFrameworkCore.Update
                                 entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)
                                 ));
                     }
-
-                    throw new InvalidOperationException(
+                    else
+                    {
+                        throw new InvalidOperationException(
                         RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(
                             entry.EntityType));
+                    }
                 }
             }
 
             return columnModifications;
-        }
-
-        private bool IsOptionalWithNull(IUpdateEntry entry, bool optional)
-        {
-            var nullableWithNull = true;
-
-            if (!optional)
-            {
-                return false;
-            }
-
-            foreach (var property in entry.EntityType.GetProperties())
-            {
-                if (property.IsPrimaryKey())
-                {
-                    continue;
-                }
-
-                if (entry.GetCurrentValue(property) is not null)
-                {
-                    nullableWithNull = false;
-                }
-            }
-
-            return nullableWithNull;
         }
 
         private ITableMappingBase? GetTableMapping(IEntityType entityType)
