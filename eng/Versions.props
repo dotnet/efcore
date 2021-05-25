@@ -16,7 +16,6 @@
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
     <SystemCollectionsImmutableVersion>6.0.0-preview.5.21270.12</SystemCollectionsImmutableVersion>
-    <SystemComponentModelAnnotationsVersion>6.0.0-preview.5.21226.1</SystemComponentModelAnnotationsVersion>
     <SystemDiagnosticsDiagnosticSourceVersion>6.0.0-preview.5.21270.12</SystemDiagnosticsDiagnosticSourceVersion>
     <MicrosoftExtensionsCachingMemoryVersion>6.0.0-preview.5.21270.12</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsConfigurationVersion>6.0.0-preview.5.21270.12</MicrosoftExtensionsConfigurationVersion>
