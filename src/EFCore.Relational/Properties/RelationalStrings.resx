@@ -554,10 +554,6 @@
     <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
   </data>
-  <data name="LogOptionalDependentWithoutIdentifyingPropertySensitive" xml:space="preserve">
-    <value>The entity type '{entityType}' with primary key values {keyValues} is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
-    <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
-  </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning string string</comment>
@@ -685,6 +681,9 @@
   </data>
   <data name="OptionalDependentWithDependentWithoutIdentifyingProperty" xml:space="preserve">
     <value>Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
+  </data>
+  <data name="OptionalDependentWithDependentWithoutIdentifyingPropertySensitive" xml:space="preserve">
+    <value>Entity type '{entityType}' with primary key values {keyValues} is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>

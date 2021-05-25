@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -31,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;
-        private (bool, IEntityType, string) _isOptionalWithNull;
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -220,11 +220,6 @@ namespace Microsoft.EntityFrameworkCore.Update
             _columnModifications = null;
         }
 
-        /// <summary>
-        /// Returns if there were no write column modifications generated for an optional dependent
-        /// </summary>
-        public (bool, IEntityType, string) IsOptionalWithNull() => _isOptionalWithNull;
-
         private void ValidateState(IUpdateEntry mainEntry, IUpdateEntry entry)
         {
             var mainEntryState = mainEntry.SharedIdentityEntry == null
@@ -393,14 +388,20 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                 if (optionalDependentWithAllNull)
                 {
-                    var sensitieData =string.Empty;
-
-                    if(_sensitiveLoggingEnabled)
+                    if (_sensitiveLoggingEnabled)
                     {
-                        sensitieData = entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties);
-
+                        throw new InvalidOperationException(
+                            RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingPropertySensitive(
+                                entry.EntityType,
+                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)
+                                ));
                     }
-                    _isOptionalWithNull = (true, entry.EntityType, sensitieData);
+                    else
+                    {
+                        throw new InvalidOperationException(
+                        RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(
+                            entry.EntityType));
+                    }
                 }
             }
 

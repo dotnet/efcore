@@ -139,25 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         yield return StartNewBatch(parameterNameGenerator, command);
                     }
                 }
-
-                foreach (var modificationCommand in batch.ModificationCommands)
-                {
-                    var (isOptional, entityType, sensitiveData) = modificationCommand.IsOptionalWithNull();
-
-                    if (isOptional)
-                    {
-                        if (string.IsNullOrEmpty(sensitiveData))
-                        {
-                            Dependencies.UpdateLogger.OptionalDependentWithAllNullPropertiesWarning(entityType);
-                        }
-                        else
-                        {
-                            Dependencies.UpdateLogger.OptionalDependentWithAllNullPropertiesWarningSensitive(entityType, sensitiveData);
-                        }
-
-                        break;
-                    }
-                }
             }
         }
 
