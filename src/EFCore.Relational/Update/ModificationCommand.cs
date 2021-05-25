@@ -32,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Update>? _logger;
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -41,12 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
+        /// <param name="logger">A <see cref="IDiagnosticsLogger{T}" /> for <see cref="DbLoggerCategory.Update" />s.</param>
         public ModificationCommand(
             string name,
             string? schema,
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer)
+            IComparer<IUpdateEntry>? comparer,
+            IDiagnosticsLogger<DbLoggerCategory.Update> logger)
             : this(
                 Check.NotEmpty(name, nameof(name)),
                 schema,
@@ -57,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             _generateParameterName = generateParameterName;
             _comparer = comparer;
+            _logger = logger;
         }
 
         /// <summary>
@@ -386,21 +390,15 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }
                 }
 
-                if (optionalDependentWithAllNull)
+                if (optionalDependentWithAllNull && _logger != null)
                 {
                     if (_sensitiveLoggingEnabled)
                     {
-                        throw new InvalidOperationException(
-                            RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingPropertySensitive(
-                                entry.EntityType,
-                                entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties)
-                                ));
+                        _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry.EntityType, entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties));
                     }
                     else
                     {
-                        throw new InvalidOperationException(
-                        RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty(
-                            entry.EntityType));
+                        _logger.OptionalDependentWithAllNullPropertiesWarning(entry.EntityType);
                     }
                 }
             }

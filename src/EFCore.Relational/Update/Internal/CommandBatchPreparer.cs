@@ -199,13 +199,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         command = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                            (n, s, c) => new ModificationCommand(n, s, generateParameterName, _sensitiveLoggingEnabled, c, Dependencies.UpdateLogger));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
                         command = new ModificationCommand(
-                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null, Dependencies.UpdateLogger);
                     }
 
                     command.AddEntry(entry, isMainEntry);

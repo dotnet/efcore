@@ -2247,6 +2247,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+        /// </summary>
+        public static EventDefinition<string, string> LogOptionalDependentWithoutIdentifyingPropertySensitive(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingPropertySensitive;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingPropertySensitive,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                            _resourceManager.GetString("LogOptionalDependentWithoutIdentifyingPropertySensitive")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+        /// <summary>
         ///     Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.
         /// </summary>
         public static EventDefinition<string, string> LogPossibleUnintendedUseOfEquals(IDiagnosticsLogger logger)
