@@ -575,19 +575,19 @@ namespace Microsoft.EntityFrameworkCore
                 }
                 );
 
-            var meterReading = new MeterReading
+            using var context = CreateSharedContext();
+            context.Add(new MeterReading
             {
                 MeterReadingDetails = new MeterReadingDetail()
-            };
+            });
 
-            using var context = CreateSharedContext();
-            var scooterEntry = context.Add(meterReading);
+            var expected = RelationalResources.LogOptionalDependentWithoutIdentifyingPropertySensitive(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail), "{Id: -2147482647}");
 
-            var expected = RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingPropertySensitive("EntityType: MeterReadingDetail", "{Id: -2147482647}");
+            context.SaveChanges();
 
-            Assert.Equal(
-                expected,
-                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
+
+            Assert.Equal(expected, log.Message);
         }
 
         [ConditionalFact]
@@ -622,11 +622,11 @@ namespace Microsoft.EntityFrameworkCore
             using var context = CreateSharedContext();
             var scooterEntry = context.Add(meterReading);
 
-            var expected = RelationalStrings.OptionalDependentWithDependentWithoutIdentifyingProperty("EntityType: MeterReadingDetail");
+            var expected = RelationalResources.LogOptionalDependentWithoutIdentifyingProperty(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail));
 
-            Assert.Equal(
-                expected,
-                Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+            context.SaveChanges();
+
+            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
         }
 
         [ConditionalFact]
@@ -665,9 +665,9 @@ namespace Microsoft.EntityFrameworkCore
 
             context.SaveChanges();
 
-            using var contextNew = CreateSharedContext();
-            var reading = contextNew.MeterReadings.Include(v => v.MeterReadingDetails).Single();
-            Assert.Equal("123", reading.MeterReadingDetails.CurrentRead);
+            var log = TestSqlLoggerFactory.Log.SingleOrDefault(l => l.Level == Extensions.Logging.LogLevel.Warning);
+
+            Assert.Null(log.Message);
         }
 
         protected override string StoreName { get; } = "TableSplittingTest";
