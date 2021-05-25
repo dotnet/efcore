@@ -223,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         /// Returns if there were no write column modifications generated for an optional dependent
         /// </summary>
-        public virtual (bool, IEntityType, string) IsOptionalWithNull() => _isOptionalWithNull;
+        public (bool, IEntityType, string) IsOptionalWithNull() => _isOptionalWithNull;
 
         private void ValidateState(IUpdateEntry mainEntry, IUpdateEntry entry)
         {
