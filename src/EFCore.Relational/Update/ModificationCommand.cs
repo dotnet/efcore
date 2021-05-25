@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             IComparer<IUpdateEntry>? comparer,
-            IDiagnosticsLogger<DbLoggerCategory.Update> logger)
+            IDiagnosticsLogger<DbLoggerCategory.Update>? logger)
             : this(
                 Check.NotEmpty(name, nameof(name)),
                 schema,

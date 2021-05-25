@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Modified);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Modified, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -286,7 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Deleted, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.Equal("T1", command.TableName);
@@ -356,7 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Unchanged);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, sensitive, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, sensitive, null, null);
 
             Assert.Equal(
                 sensitive
@@ -372,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Detached);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, sensitive, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, sensitive, null, null);
 
             Assert.Equal(
                 sensitive
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(
                 EntityState.Deleted, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.False(command.RequiresResultPropagation);
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.True(command.RequiresResultPropagation);
@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.False(command.RequiresResultPropagation);
@@ -422,7 +422,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.True(command.RequiresResultPropagation);
@@ -433,7 +433,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null);
+            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null);
             command.AddEntry(entry, true);
 
             Assert.False(command.RequiresResultPropagation);
