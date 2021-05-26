@@ -396,7 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }
                     else
                     {
-                        _logger.OptionalDependentWithAllNullPropertiesWarning(entry.EntityType);
+                        _logger.OptionalDependentWithAllNullPropertiesWarning(entry);
                     }
                 }
             }

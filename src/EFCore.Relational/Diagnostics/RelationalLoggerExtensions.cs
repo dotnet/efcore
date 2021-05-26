@@ -2902,7 +2902,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string>)definition;
             var p = (EntityTypeEventData)payload;
-            return p.EntityType != null ? d.GenerateMessage(p.EntityType.DisplayName()) : string.Empty;
+            return d.GenerateMessage(p.EntityType.DisplayName());
         }
 
         /// <summary>
@@ -2964,13 +2964,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
-        
+
         /// <summary>
         ///     Logs the <see cref="RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="entityType"> The entity type. </param>
-        public static void OptionalDependentWithAllNullPropertiesWarning(
+        public static void OptionalDependentWithoutIdentifyingPropertyWarning(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             IEntityType entityType)
         {
@@ -2993,7 +2993,41 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     Logs the <see cref="RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning" /> event.
+        ///     Logs the <see cref="RelationalEventId.OptionalDependentWithAllNullPropertiesWarning" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="entry"> The entry. </param>
+        public static void OptionalDependentWithAllNullPropertiesWarning(
+            this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+            IUpdateEntry entry)
+        {
+            var definition = RelationalResources.LogOptionalDependentWithAllNullProperties(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, entry.EntityType.DisplayName());
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new UpdateEntryEventData(
+                    definition,
+                    OptionalDependentWithAllNullPropertiesWarning,
+                    entry);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string OptionalDependentWithAllNullPropertiesWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string>)definition;
+            var p = (UpdateEntryEventData)payload;
+            return d.GenerateMessage(p.EntityEntry.EntityType.DisplayName());
+        }
+
+        /// <summary>
+        ///     Logs the <see cref="RelationalEventId.OptionalDependentWithAllNullPropertiesWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
         /// <param name="entry"> The entry. </param>
@@ -3001,7 +3035,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             IUpdateEntry entry)
         {
-            var definition = RelationalResources.LogOptionalDependentWithoutIdentifyingPropertySensitive(diagnostics);
+            var definition = RelationalResources.LogOptionalDependentWithAllNullPropertiesSensitive(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
@@ -3010,9 +3044,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
-                var eventData = new EntityTypeEventData(
+                var eventData = new UpdateEntryEventData(
                     definition,
-                    OptionalDependentWithoutIdentifyingPropertyWarningSensitive,
+                    OptionalDependentWithAllNullPropertiesWarningSensitive,
                     entry
                     );
 
@@ -3020,13 +3054,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             }
         }
 
-        private static string OptionalDependentWithoutIdentifyingPropertyWarningSensitive(EventDefinitionBase definition, EventData payload)
+        private static string OptionalDependentWithAllNullPropertiesWarningSensitive(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string>)definition;
-            var p = (EntityTypeEventData)payload;
-            return p.EntityEntry != null
-                ? d.GenerateMessage(p.EntityEntry.EntityType.DisplayName(), p.EntityEntry.BuildCurrentValuesString(p.EntityEntry.EntityType.FindPrimaryKey()!.Properties))
-                : string.Empty;
+            var p = (UpdateEntryEventData)payload;
+            return d.GenerateMessage(p.EntityEntry.EntityType.DisplayName(), p.EntityEntry.BuildCurrentValuesString(p.EntityEntry.EntityType.FindPrimaryKey()!.Properties));
         }
     }
 }

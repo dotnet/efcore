@@ -2247,29 +2247,55 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The entity of type '{entityType}' with primary key values {keyValues} is an optional dependent using table sharing. The entity does not have any property with a non-default value to identify whether the entity exists. This means that when it is queried no object instance will be created instead of an instance with all properties set to default values. Any nested dependents will also be lost. Either don't save any instance with only default values or mark the incoming navigation as required in the model.
+        ///     The entity of type '{entityType}' is an optional dependent using table sharing. The entity does not have any property with a non-default value to identify whether the entity exists. This means that when it is queried no object instance will be created instead of an instance with all properties set to default values. Any nested dependents will also be lost. Either don't save any instance with only default values or mark the incoming navigation as required in the model.
         /// </summary>
-        public static EventDefinition<string, string> LogOptionalDependentWithoutIdentifyingPropertySensitive(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string> LogOptionalDependentWithAllNullPropertiesSensitive(IDiagnosticsLogger logger)
         {
-            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingPropertySensitive;
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithAllNullProperties;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithoutIdentifyingPropertySensitive,
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithAllNullProperties,
                     logger,
                     static logger => new EventDefinition<string, string>(
                         logger.Options,
-                        RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
+                        RelationalEventId.OptionalDependentWithAllNullPropertiesWarning,
                         LogLevel.Warning,
-                        "RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning",
+                        "RelationalEventId.OptionalDependentWithAllNullPropertiesWarning",
                         level => LoggerMessage.Define<string, string>(
                             level,
-                            RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning,
-                            _resourceManager.GetString("LogOptionalDependentWithoutIdentifyingPropertySensitive")!)));
+                            RelationalEventId.OptionalDependentWithAllNullPropertiesWarning,
+                            _resourceManager.GetString("LogOptionalDependentWithAllNullPropertiesSensitive")!)));
             }
 
             return (EventDefinition<string, string>)definition;
         }
+
+        /// <summary>
+        ///     The entity of type '{entityType}' with primary key values {keyValues} is an optional dependent using table sharing. The entity does not have any property with a non-default value to identify whether the entity exists. This means that when it is queried no object instance will be created instead of an instance with all properties set to default values. Any nested dependents will also be lost. Either don't save any instance with only default values or mark the incoming navigation as required in the model.
+        /// </summary>
+        public static EventDefinition<string> LogOptionalDependentWithAllNullProperties(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithAllNullProperties;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogOptionalDependentWithAllNullProperties,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        RelationalEventId.OptionalDependentWithAllNullPropertiesWarning,
+                        LogLevel.Warning,
+                        "RelationalEventId.OptionalDependentWithAllNullPropertiesWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            RelationalEventId.OptionalDependentWithAllNullPropertiesWarning,
+                            _resourceManager.GetString("LogOptionalDependentWithAllNullProperties")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
         /// <summary>
         ///     Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.
         /// </summary>
