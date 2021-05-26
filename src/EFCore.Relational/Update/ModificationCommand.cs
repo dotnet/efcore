@@ -299,8 +299,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
             }
 
-
-
             foreach (var entry in _entries)
             {
                 var nonMainEntry = updating
@@ -394,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 {
                     if (_sensitiveLoggingEnabled)
                     {
-                        _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry.EntityType, entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties));
+                        _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry);
                     }
                     else
                     {

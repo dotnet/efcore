@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -29,8 +30,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Constructs the event payload.
+        /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="entityEntry"> The entry for the entity instance on which the property value has changed. </param>
+        public EntityTypeEventData(
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IUpdateEntry? entityEntry)
+            : base(eventDefinition, messageGenerator)
+        {
+            EntityEntry = entityEntry;
+        }
+
+        /// <summary>
         ///     The entity type.
         /// </summary>
-        public virtual IReadOnlyEntityType EntityType { get; }
+        public virtual IReadOnlyEntityType? EntityType { get; }
+
+        /// <summary>
+        ///     The entry for the entity instance on which the property value has changed.
+        /// </summary>
+        public virtual IUpdateEntry? EntityEntry { get; }
     }
 }

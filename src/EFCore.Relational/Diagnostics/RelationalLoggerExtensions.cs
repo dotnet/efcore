@@ -2902,7 +2902,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string>)definition;
             var p = (EntityTypeEventData)payload;
-            return d.GenerateMessage(p.EntityType.DisplayName());
+            return p.EntityType != null ? d.GenerateMessage(p.EntityType.DisplayName()) : string.Empty;
         }
 
         /// <summary>
@@ -2996,29 +2996,37 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Logs the <see cref="RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="sensitiveData">The sensitive data to log</param>
+        /// <param name="entry"> The entry. </param>
         public static void OptionalDependentWithAllNullPropertiesWarningSensitive(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-            IEntityType entityType,
-            string sensitiveData)
+            IUpdateEntry entry)
         {
             var definition = RelationalResources.LogOptionalDependentWithoutIdentifyingPropertySensitive(diagnostics);
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, entityType.DisplayName(), sensitiveData);
+                definition.Log(diagnostics, entry.EntityType.DisplayName(), entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
             {
                 var eventData = new EntityTypeEventData(
                     definition,
-                    OptionalDependentWithoutIdentifyingPropertyWarning,
-                    entityType);
+                    OptionalDependentWithoutIdentifyingPropertyWarningSensitive,
+                    entry
+                    );
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
+        }
+
+        private static string OptionalDependentWithoutIdentifyingPropertyWarningSensitive(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (EntityTypeEventData)payload;
+            return p.EntityEntry != null
+                ? d.GenerateMessage(p.EntityEntry.EntityType.DisplayName(), p.EntityEntry.BuildCurrentValuesString(p.EntityEntry.EntityType.FindPrimaryKey()!.Properties))
+                : string.Empty;
         }
     }
 }

@@ -365,7 +365,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #24970")]
         public virtual async Task Can_insert_dependent_with_just_one_parent()
         {
             await InitializeAsync(OnModelCreating);
