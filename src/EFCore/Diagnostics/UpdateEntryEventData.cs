@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
-    ///     an entity type.
+    ///     an entity update entry.
     /// </summary>
     public class UpdateEntryEventData : EventData
     {
