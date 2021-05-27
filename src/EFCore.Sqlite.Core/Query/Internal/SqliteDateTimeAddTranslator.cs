@@ -32,7 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), " days" },
             { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), " hours" },
             { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), " minutes" },
-            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), " seconds" }
+            { typeof(DateTime).GetRequiredRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), " seconds" },
+
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddYears), new[] { typeof(int) }), " years" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddMonths), new[] { typeof(int) }), " months" },
+            { typeof(DateOnly).GetRequiredRuntimeMethod(nameof(DateOnly.AddDays), new[] { typeof(int) }), " days" },
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -64,6 +68,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             Check.NotNull(arguments, nameof(arguments));
             Check.NotNull(logger, nameof(logger));
 
+            return method.DeclaringType == typeof(DateTime)
+                ? TranslateDateTime(instance, method, arguments)
+                : method.DeclaringType == typeof(DateOnly)
+                    ? TranslateDateOnly(instance, method, arguments)
+                    : null;
+        }
+
+        private SqlExpression? TranslateDateTime(
+            SqlExpression? instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments)
+        {
             SqlExpression? modifier = null;
             if (_addMilliseconds.Equals(method))
             {
@@ -118,6 +134,30 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     nullable: true,
                     argumentsPropagateNullability: new[] { true, false },
                     method.ReturnType);
+            }
+
+            return null;
+        }
+
+        private SqlExpression? TranslateDateOnly(
+            SqlExpression? instance,
+            MethodInfo method,
+            IReadOnlyList<SqlExpression> arguments)
+        {
+            if (instance is not null && _methodInfoToUnitSuffix.TryGetValue(method, out var unitSuffix))
+            {
+                return _sqlExpressionFactory.Function(
+                    "date",
+                    new[]
+                    {
+                        instance,
+                        _sqlExpressionFactory.Add(
+                            _sqlExpressionFactory.Convert(arguments[0], typeof(string)),
+                            _sqlExpressionFactory.Constant(unitSuffix))
+                    },
+                    argumentsPropagateNullability: new[] { true, true },
+                    nullable: true,
+                    returnType: method.ReturnType);
             }
 
             return null;

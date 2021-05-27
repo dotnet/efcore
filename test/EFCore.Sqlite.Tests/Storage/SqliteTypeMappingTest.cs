@@ -133,6 +133,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 "'2015-03-12 13:36:37.371'");
         }
 
+        [ConditionalFact]
+        public override void DateOnly_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(DateOnly)),
+                new DateOnly(2015, 3, 12),
+                "'2015-03-12'");
+        }
+
+        [ConditionalFact]
+        public override void TimeOnly_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(TimeOnly)),
+                new TimeOnly(13, 10, 15),
+                "'13:10:15'");
+        }
+
+        [ConditionalFact]
+        public override void TimeOnly_literal_generated_correctly_with_milliseconds()
+        {
+            Test_GenerateSqlLiteral_helper(
+                GetMapping(typeof(TimeOnly)),
+                new TimeOnly(13, 10, 15, 500),
+                "'13:10:15.5000000'");
+        }
+
         public override void Decimal_literal_generated_correctly()
         {
             var typeMapping = new SqliteDecimalTypeMapping("TEXT");

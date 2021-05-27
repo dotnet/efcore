@@ -407,6 +407,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         [ConditionalFact]
+        public virtual void DateOnly_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                new DateOnlyTypeMapping("DateOnly"),
+                new DateOnly(2015, 3, 12),
+                "DATE '2015-03-12'");
+        }
+
+        [ConditionalFact]
+        public virtual void TimeOnly_literal_generated_correctly()
+        {
+            Test_GenerateSqlLiteral_helper(
+                new TimeOnlyTypeMapping("TimeOnly"),
+                new TimeOnly(13, 10, 15),
+                "TIME '13:10:15'");
+        }
+
+        [ConditionalFact]
+        public virtual void TimeOnly_literal_generated_correctly_with_milliseconds()
+        {
+            Test_GenerateSqlLiteral_helper(
+                new TimeOnlyTypeMapping("TimeOnly"),
+                new TimeOnly(13, 10, 15, 500),
+                "TIME '13:10:15.5'");
+        }
+
+        [ConditionalFact]
         public virtual void Decimal_literal_generated_correctly()
         {
             var typeMapping = new DecimalTypeMapping("decimal", DbType.Decimal);
