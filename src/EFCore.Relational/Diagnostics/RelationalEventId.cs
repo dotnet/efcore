@@ -88,13 +88,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IndexPropertiesMappedToNonOverlappingTables,
             ForeignKeyPropertiesMappedToUnrelatedTables,
             OptionalDependentWithoutIdentifyingPropertyWarning,
-            OptionalDependentWithAllNullPropertiesWarning,
 
             // Update events
             BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
             BatchSmallerThanMinBatchSize,
             BatchExecutorFailedToRollbackToSavepoint,
             BatchExecutorFailedToReleaseSavepoint,
+            OptionalDependentWithAllNullPropertiesWarning,
         }
 
         private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
@@ -751,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId OptionalDependentWithAllNullPropertiesWarning
-            = MakeValidationId(Id.OptionalDependentWithAllNullPropertiesWarning);
+            = MakeUpdateId(Id.OptionalDependentWithAllNullPropertiesWarning);
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 
