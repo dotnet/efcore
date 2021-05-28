@@ -19,14 +19,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void Compare_returns_0_only_for_commands_that_are_equal()
         {
-            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             var model = modelBuilder.Model;
             var entityType = model.AddEntityType(typeof(object));
             var key = entityType.AddProperty("Id", typeof(int));
             entityType.SetPrimaryKey(key);
 
             var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(RelationalTestHelpers.Instance.Finalize(modelBuilder))
+                .UseModel(modelBuilder.FinalizeModel())
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider);
 
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private void Compare_returns_0_only_for_entries_that_have_same_key_values_generic<T>(T value1, T value2)
         {
-            var modelBuilder = new ModelBuilder(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
             var model = modelBuilder.Model;
             var entityType = model.AddEntityType(typeof(object));
 
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                .UseModel(RelationalTestHelpers.Instance.Finalize(modelBuilder))
+                .UseModel(modelBuilder.FinalizeModel())
                 .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             var stateManager = new DbContext(optionsBuilder.Options).GetService<IStateManager>();

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyError(
                 CoreStrings.DerivedTypeDefiningQuery("Generic<int>", nameof(Abstract)),
-                modelBuilder.Model);
+                modelBuilder);
         }
 
         protected override TestHelpers TestHelpers

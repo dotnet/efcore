@@ -17,14 +17,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class GenericOneToOneType : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new GenericTypeTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new GenericTypeTestModelBuilder(testHelpers, configure);
         }
 
         private class GenericTypeTestModelBuilder : TestModelBuilder
         {
-            public GenericTypeTestModelBuilder(TestHelpers testHelpers)
-                : base(testHelpers)
+            public GenericTypeTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                : base(testHelpers, configure)
             {
             }
 

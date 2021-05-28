@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             modelBuilder.Entity("TestEntity").Property<int>("Id").HasAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, 0);
 
             var result = generator.GenerateModel(
-                modelBuilder.FinalizeModel(),
+                modelBuilder.FinalizeModel(designTime: true),
                 new ModelCodeGenerationOptions
                 {
                     ModelNamespace = "TestNamespace",

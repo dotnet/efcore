@@ -907,10 +907,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(tvfDbFunction.Parameters.Single().Name, tvfFunction.Parameters.Single().DbFunctionParameters.Single().Name);
         }
 
-        private static IRelationalModel Finalize(ModelBuilder modelBuilder)
-            => RelationalTestHelpers.Instance.Finalize(modelBuilder, designTime: true).GetRelationalModel();
+        private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
+            => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
-        protected virtual ModelBuilder CreateConventionModelBuilder()
+        protected virtual TestHelpers.TestModelBuilder CreateConventionModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         public enum Mapping

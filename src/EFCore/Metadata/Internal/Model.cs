@@ -36,7 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRuntimeModel
     {
         /// <summary>
-        ///     The CLR type that is used for property bag entity types when no other type is specified.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static readonly Type DefaultPropertyBagType = typeof(Dictionary<string, object>);
 
@@ -49,11 +52,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private ConventionDispatcher? _conventionDispatcher;
         private IList<IModelFinalizedConvention>? _modelFinalizedConventions;
+        private ModelDependencies? _scopedModelDependencies;
         private bool? _skipDetectChanges;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
 
         private ConfigurationSource? _changeTrackingStrategyConfigurationSource;
-        private ModelDependencies? _scopedModelDependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public Model(ConventionSet conventions, ModelDependencies? modelDependencies = null)
+        public Model(ConventionSet conventions, ModelDependencies? modelDependencies = null, ModelConfiguration? modelConfiguration = null)
         {
             if (modelDependencies != null)
             {
@@ -83,6 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _conventionDispatcher = dispatcher;
             _modelFinalizedConventions = conventions.ModelFinalizedConventions;
             Builder = builder;
+            Configuration = modelConfiguration;
             dispatcher.OnModelInitialized(builder);
         }
 
@@ -123,6 +127,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual InternalModelBuilder Builder { [DebuggerStepThrough] get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ModelConfiguration? Configuration { get; private set; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -575,7 +587,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
             => _ignoredTypeNames.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
-                ? (ConfigurationSource?)ignoredConfigurationSource
+                ? ignoredConfigurationSource
                 : null;
 
         /// <summary>
@@ -859,6 +871,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (finalizedModel is Model model)
             {
+                model.Configuration = null;
                 finalizedModel = model.MakeReadonly();
             }
 

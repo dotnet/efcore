@@ -101,11 +101,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
         }
 
-        private static ModelBuilder CreateModelBuilder()
+        private static TestHelpers.TestModelBuilder CreateModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
-        private static IModel Finalize(ModelBuilder modelBuilder)
-            => RelationalTestHelpers.Instance.Finalize(modelBuilder);
+        private static IModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
+            => modelBuilder.FinalizeModel();
 
         private static IQueryable<TestEntity> GetEntities(int id)
             => throw new NotImplementedException();

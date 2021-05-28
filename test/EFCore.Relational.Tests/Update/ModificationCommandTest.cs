@@ -448,7 +448,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            IMutableModel model = new Model(TestRelationalConventionSetBuilder.Build());
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+            var model = modelBuilder.Model;
             var entityType = model.AddEntityType(typeof(T1));
 
             var key = entityType.FindProperty("Id");
@@ -468,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             nonKey2.SetColumnName("Col3");
             nonKey2.ValueGenerated = computeNonKeyValue ? ValueGenerated.OnUpdate : ValueGenerated.Never;
 
-            return model.FinalizeModel();
+            return modelBuilder.FinalizeModel();
         }
 
         private static InternalEntityEntry CreateEntry(

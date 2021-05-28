@@ -15,8 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Customer>();
 
-            var model = modelBuilder.Model;
-            Validate(model);
+            Validate(modelBuilder);
         }
 
         [ConditionalFact]
@@ -25,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Customer>().HasPartitionKey(c => c.PartitionId).HasNoKey();
 
-            var model = Validate(modelBuilder.Model);
+            var model = Validate(modelBuilder);
 
             Assert.Empty(model.FindEntityType(typeof(Customer)).GetKeys());
         }
@@ -45,8 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     b.Ignore(o => o.Products);
                 });
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NoIdProperty(typeof(Order).Name), model);
+            VerifyError(CosmosStrings.NoIdProperty(typeof(Order).Name), modelBuilder);
         }
 
         [ConditionalFact]
@@ -65,8 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     b.Ignore(o => o.Products);
                 });
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NoIdKey(typeof(Order).Name, "id"), model);
+            VerifyError(CosmosStrings.NoIdKey(typeof(Order).Name, "id"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -86,8 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     b.Ignore(o => o.Products);
                 });
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.IdNonStringStoreType("id", typeof(Order).Name, "int"), model);
+            VerifyError(CosmosStrings.IdNonStringStoreType("id", typeof(Order).Name, "int"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -98,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
                 .Property(o => o.PartitionId).HasConversion<string>();
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
         }
 
         [ConditionalFact]
@@ -114,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     b.Ignore(o => o.Products);
                 });
 
-            Validate(modelBuilder.Model);
+            Validate(modelBuilder);
         }
 
         [ConditionalFact]
@@ -134,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     b.Ignore(o => o.Products);
                 });
 
-            VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), modelBuilder.Model);
+            VerifyError(CosmosStrings.NoPartitionKeyKey(typeof(Order).Name, nameof(Order.PartitionId), "id"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -143,8 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Order>().HasPartitionKey("PartitionKey");
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.PartitionKeyMissingProperty(typeof(Order).Name, "PartitionKey"), model);
+            VerifyError(CosmosStrings.PartitionKeyMissingProperty(typeof(Order).Name, "PartitionKey"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -154,8 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Customer>().ToContainer("Orders");
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NoPartitionKey(typeof(Customer).Name, "Orders"), model);
+            VerifyError(CosmosStrings.NoPartitionKey(typeof(Customer).Name, "Orders"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -165,8 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
             modelBuilder.Entity<Order>().ToContainer("Orders");
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NoPartitionKey(typeof(Order).Name, "Orders"), model);
+            VerifyError(CosmosStrings.NoPartitionKey(typeof(Order).Name, "Orders"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -177,11 +170,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .Property(c => c.PartitionId).ToJsonProperty("pk");
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
 
-            var model = modelBuilder.Model;
             VerifyError(
                 CosmosStrings.PartitionKeyStoreNameMismatch(
                     nameof(Customer.PartitionId), typeof(Customer).Name, "pk", nameof(Order.PartitionId), typeof(Order).Name,
-                    nameof(Order.PartitionId)), model);
+                    nameof(Order.PartitionId)), modelBuilder);
         }
 
         [ConditionalFact]
@@ -192,10 +184,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
                 .Property(c => c.PartitionId).HasConversion<int>();
 
-            var model = modelBuilder.Model;
             VerifyError(
                 CosmosStrings.PartitionKeyNonStringStoreType(
-                    nameof(Customer.PartitionId), typeof(Order).Name, "int"), model);
+                    nameof(Customer.PartitionId), typeof(Order).Name, "int"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -209,10 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     ob.Property(o => o.PartitionId).ToJsonProperty("Details");
                 });
 
-            var model = modelBuilder.Model;
             VerifyError(
                 CosmosStrings.JsonPropertyCollision(
-                    nameof(Order.PartitionId), nameof(Order.Id), typeof(Order).Name, "Details"), model);
+                    nameof(Order.PartitionId), nameof(Order.Id), typeof(Order).Name, "Details"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -226,10 +216,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     ob.OwnsOne(o => o.OrderDetails).ToJsonProperty("Details");
                 });
 
-            var model = modelBuilder.Model;
             VerifyError(
                 CosmosStrings.JsonPropertyCollision(
-                    nameof(Order.OrderDetails), nameof(Order.PartitionId), typeof(Order).Name, "Details"), model);
+                    nameof(Order.OrderDetails), nameof(Order.PartitionId), typeof(Order).Name, "Details"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -239,8 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Customer>().ToContainer("Orders").HasNoDiscriminator();
             modelBuilder.Entity<Order>().ToContainer("Orders");
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NoDiscriminatorProperty(typeof(Customer).Name, "Orders"), model);
+            VerifyError(CosmosStrings.NoDiscriminatorProperty(typeof(Customer).Name, "Orders"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -250,8 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue(null);
             modelBuilder.Entity<Order>().ToContainer("Orders");
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NoDiscriminatorValue(typeof(Customer).Name, "Orders"), model);
+            VerifyError(CosmosStrings.NoDiscriminatorValue(typeof(Customer).Name, "Orders"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -261,8 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue("type");
             modelBuilder.Entity<Order>().ToContainer("Orders").HasDiscriminator().HasValue("type");
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.DuplicateDiscriminatorValue(typeof(Order).Name, "type", typeof(Customer).Name, "Orders"), model);
+            VerifyError(CosmosStrings.DuplicateDiscriminatorValue(typeof(Order).Name, "type", typeof(Customer).Name, "Orders"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -274,8 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .Property<string>("_etag")
                 .IsConcurrencyToken();
 
-            var model = modelBuilder.Model;
-            Validate(model);
+            Validate(modelBuilder);
         }
 
         [ConditionalFact]
@@ -287,8 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .Property<string>("_not_etag")
                 .IsConcurrencyToken();
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.NonETagConcurrencyToken(typeof(Customer).Name, "_not_etag"), model);
+            VerifyError(CosmosStrings.NonETagConcurrencyToken(typeof(Customer).Name, "_not_etag"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -300,8 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .Property<int>("_etag")
                 .IsConcurrencyToken();
 
-            var model = modelBuilder.Model;
-            VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", typeof(Customer).Name, "int"), model);
+            VerifyError(CosmosStrings.ETagNonStringStoreType("_etag", typeof(Customer).Name, "int"), modelBuilder);
         }
 
         protected override TestHelpers TestHelpers

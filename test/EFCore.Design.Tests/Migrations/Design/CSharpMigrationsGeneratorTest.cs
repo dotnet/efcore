@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             };
 
             var columnMapping =
-                $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""int"")";
+                $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";
 
             // Add a line here if the code generator is supposed to handle this annotation
             // Note that other tests should be added to check code is generated correctly
@@ -204,11 +204,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 { CoreAnnotationNames.Unicode, (false, $@"{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false){columnMapping}") },
                 {
                     CoreAnnotationNames.ValueConverter, (new ValueConverter<int, long>(v => v, v => (int)v),
-                        $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""bigint"")")
+                        $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
                 },
                 {
                     CoreAnnotationNames.ProviderClrType,
-                    (typeof(long), $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""bigint"")")
+                    (typeof(long), $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_long_mapping"")")
                 },
                 {
                     RelationalAnnotationNames.ColumnName,
@@ -295,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         ? validAnnotations[annotationName].Value
                         : null);
 
-                    SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
+                    modelBuilder.FinalizeModel(designTime: true);
 
                     var sb = new IndentedStringBuilder();
 
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     eb.Property<RawEnum>("EnumDiscriminator").HasConversion<int>();
                 });
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
+            var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -508,7 +508,7 @@ namespace MyNamespace
                 migrationCode,
                 ignoreLineEndingDifferences: true);
 
-            var modelBuilder = new ModelBuilder();
+            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configure: c => c.RemoveAllConventions());
             modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
             modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, IDbFunction>());
             modelBuilder.Entity(
@@ -519,8 +519,9 @@ namespace MyNamespace
                     eb.Property<int>("C3");
                     eb.HasKey("Id");
                 });
+            modelBuilder.HasAnnotation(CoreAnnotationNames.ProductVersion, null);
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
+            var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
             var migrationMetadataCode = generator.GenerateMetadata(
                 "MyNamespace",
@@ -652,7 +653,7 @@ namespace MyNamespace
 
             entityType.SetPrimaryKey(property2);
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
+            var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",
@@ -682,10 +683,10 @@ namespace MyNamespace
             modelBuilder.Entity(""Cheese"", b =>
                 {
                     b.Property<string>(""Ham"")
-                        .HasColumnType(""nvarchar(10)"");
+                        .HasColumnType(""just_string(10)"");
 
                     b.Property<string>(""Pickle"")
-                        .HasColumnType(""nvarchar(10)"");
+                        .HasColumnType(""just_string(10)"");
 
                     b.HasKey(""Ham"");
 
@@ -696,10 +697,10 @@ namespace MyNamespace
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType(""int"");
+                        .HasColumnType(""default_int_mapping"");
 
                     b.Property<Guid>(""PropertyWithValueGenerator"")
-                        .HasColumnType(""uniqueidentifier"");
+                        .HasColumnType(""default_guid_mapping"");
 
                     b.HasKey(""Id"");
 
@@ -768,7 +769,7 @@ namespace MyNamespace
                     eb.HasKey(e => e.Boolean);
                 });
 
-            var finalizedModel = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true);
+            var finalizedModel = modelBuilder.FinalizeModel(designTime: true);
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",

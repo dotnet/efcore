@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqliteMigrationAnnotationProviderTest
     {
-        private readonly ModelBuilder _modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
+        private readonly TestHelpers.TestModelBuilder _modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
         private readonly SqliteAnnotationProvider _provider = new SqliteAnnotationProvider(new RelationalAnnotationProviderDependencies());
         private readonly Annotation _autoincrement = new(SqliteAnnotationNames.Autoincrement, true);
 
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         private IModel FinalizeModel()
-            => SqliteTestHelpers.Instance.Finalize(_modelBuilder);
+            => _modelBuilder.FinalizeModel();
 
         private class Entity
         {
