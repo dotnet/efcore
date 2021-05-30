@@ -739,20 +739,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static readonly EventId OptionalDependentWithoutIdentifyingPropertyWarning
             = MakeValidationId(Id.OptionalDependentWithoutIdentifyingPropertyWarning);
 
-        /// <summary>
-        ///     <para>
-        ///         The entity does not have any property with a non-default value to identify whether the entity exists.
-        ///     </para>
-        ///     <para>
-        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
-        ///     </para>
-        ///     <para>
-        ///         This event uses the <see cref="UpdateEntryEventData" /> payload when used with a <see cref="DiagnosticSource" />.
-        ///     </para>
-        /// </summary>
-        public static readonly EventId OptionalDependentWithAllNullPropertiesWarning
-            = MakeUpdateId(Id.OptionalDependentWithAllNullPropertiesWarning);
-
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 
         private static EventId MakeUpdateId(Id id)
@@ -805,5 +791,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId BatchExecutorFailedToReleaseSavepoint = MakeUpdateId(Id.BatchExecutorFailedToReleaseSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         The entity does not have any property with a non-default value to identify whether the entity exists.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="UpdateEntryEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptionalDependentWithAllNullPropertiesWarning
+            = MakeUpdateId(Id.OptionalDependentWithAllNullPropertiesWarning);
     }
 }
