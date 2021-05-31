@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal
 {
@@ -40,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             string? schemaName,
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer)
+            IComparer<IUpdateEntry>? comparer,
+            IDiagnosticsLogger<DbLoggerCategory.Update>? logger)
         {
             return new ModificationCommandBuilder(
                 tableName,
@@ -49,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 sensitiveLoggingEnabled,
                 comparer,
                 _modificationCommandFactory,
-                _columnModificationFactory);
+                _columnModificationFactory,
+                logger);
         }
     }
 }

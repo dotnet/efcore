@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -362,7 +364,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "Issue #24970")]
         public virtual async Task Can_insert_dependent_with_just_one_parent()
         {
             await InitializeAsync(OnModelCreating);
@@ -548,10 +550,83 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual async Task Warn_when_save_optional_dependent_with_null_values_sensitive()
+        {
+            await InitializeSharedAsync(OnSharedModelCreating);
+
+            var meterReading = new MeterReading
+            {
+                MeterReadingDetails = new MeterReadingDetail()
+            };
+
+            using var context = CreateSharedContext();
+            context.Add(meterReading);
+
+            context.SaveChanges();
+
+            var expected = RelationalResources.LogOptionalDependentWithAllNullPropertiesSensitive(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail), "{Id: -2147482647}");
+
+            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
+
+            Assert.Equal(expected, log.Message);
+        }
+
+        [ConditionalFact]
+        public virtual async Task Warn_when_save_optional_dependent_with_null_values()
+        {
+            await InitializeSharedAsync(OnSharedModelCreating, sensitiveLogEnabled: false);
+
+            var meterReading = new MeterReading
+            {
+                MeterReadingDetails = new MeterReadingDetail()
+            };
+
+            using var context = CreateSharedContext();
+            context.Add(meterReading);
+
+            TestSqlLoggerFactory.Clear();
+
+            context.SaveChanges();
+
+            var expected = RelationalResources.LogOptionalDependentWithAllNullProperties(new TestLogger<TestRelationalLoggingDefinitions>()).GenerateMessage(nameof(MeterReadingDetail));
+
+            var log = TestSqlLoggerFactory.Log.Single(l => l.Level == Extensions.Logging.LogLevel.Warning);
+
+            Assert.Equal(expected, log.Message);
+        }
+
+        [ConditionalFact]
+        public virtual async Task No_warn_when_save_optional_dependent_at_least_one_none_null()
+        {
+            await InitializeSharedAsync(OnSharedModelCreating, sensitiveLogEnabled: false);
+
+            using var context = CreateSharedContext();
+
+            var meterReading = new MeterReading
+            {
+                MeterReadingDetails = new MeterReadingDetail()
+                {
+                    CurrentRead = "100"
+                }
+            };
+
+            context.Add(meterReading);
+
+            TestSqlLoggerFactory.Clear();
+
+            context.SaveChanges();
+
+            var log = TestSqlLoggerFactory.Log.SingleOrDefault(l => l.Level == Extensions.Logging.LogLevel.Warning);
+
+            Assert.Null(log.Message);
+        }
+
         protected override string StoreName { get; } = "TableSplittingTest";
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
         protected ContextFactory<TransportationContext> ContextFactory { get; private set; }
+        protected ContextFactory<SharedTableContext> SharedContextFactory { get; private set; }
 
         protected void AssertSql(params string[] expected)
             => TestSqlLoggerFactory.AssertBaseline(expected);
@@ -574,20 +649,88 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<FuelTank>().ToTable("Vehicles");
         }
 
+        protected virtual void OnSharedModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MeterReadingDetail>(
+                dob =>
+                {
+                    dob.ToTable("MeterReadings");
+                    dob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
+                });
+            modelBuilder.Entity<MeterReading>(
+                   ob =>
+                   {
+                       ob.ToTable("MeterReadings");
+                       ob.Property(o => o.ReadingStatus).HasColumnName("ReadingStatus");
+                       ob.HasOne(o => o.MeterReadingDetails).WithOne()
+                           .HasForeignKey<MeterReadingDetail>(o => o.Id);
+                   });
+        }
+
         protected async Task InitializeAsync(Action<ModelBuilder> onModelCreating, bool seed = true)
         {
             ContextFactory = await InitializeAsync<TransportationContext>(
                 onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.Seed() : null);
         }
 
+        protected async Task InitializeSharedAsync(Action<ModelBuilder> onModelCreating, bool sensitiveLogEnabled = true)
+        {
+            SharedContextFactory = await InitializeAsync<SharedTableContext>(
+                onModelCreating,
+                shouldLogCategory: _ => true,
+                onConfiguring: options =>
+                {
+                    options.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithAllNullPropertiesWarning))
+                    .ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning))
+                    .EnableSensitiveDataLogging(sensitiveLogEnabled);
+                }
+                );
+        }
+
         protected virtual TransportationContext CreateContext()
             => ContextFactory.CreateContext();
+
+        protected virtual SharedTableContext CreateSharedContext()
+            => SharedContextFactory.CreateContext();
 
         public override void Dispose()
         {
             base.Dispose();
 
             ContextFactory = null;
+            SharedContextFactory = null;
+        }
+
+        protected class SharedTableContext : PoolableDbContext
+        {
+            public SharedTableContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected DbSet<MeterReading> MeterReadings { get; set; }
+            protected DbSet<MeterReadingDetail> MeterReadingDetails { get; set; }
+        }
+
+        protected class MeterReading
+        {
+            public int Id { get; set; }
+            public MeterReadingStatus? ReadingStatus { get; set; }
+            public MeterReadingDetail MeterReadingDetails { get; set; }
+        }
+
+        protected class MeterReadingDetail
+        {
+            public int Id { get; set; }
+            public MeterReadingStatus? ReadingStatus { get; set; }
+            public string CurrentRead { get; set; }
+            public string PreviousRead { get; set; }
+        }
+
+        protected enum MeterReadingStatus
+        {
+            Running = 0,
+            NotAccesible = 2
         }
     }
 }

@@ -3,35 +3,34 @@
 
 using System;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
-    ///     an entity type.
+    ///     an entity update entry.
     /// </summary>
-    public class EntityTypeEventData : EventData
+    public class UpdateEntryEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="entityType"> The entityType. </param>
-        public EntityTypeEventData(
+        /// <param name="entityEntry"> The entry for the entity instance on which the property value has changed. </param>
+        public UpdateEntryEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,
-            IReadOnlyEntityType entityType)
+            IUpdateEntry entityEntry)
             : base(eventDefinition, messageGenerator)
         {
-            EntityType = entityType;
+            EntityEntry = entityEntry;
         }
 
         /// <summary>
-        ///     The entity type.
+        ///     The entry for the entity instance on which the property value has changed.
         /// </summary>
-        public virtual IReadOnlyEntityType EntityType { get; }
+        public virtual IUpdateEntry EntityEntry { get; }
     }
 }

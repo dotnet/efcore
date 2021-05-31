@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -67,6 +68,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         public EntityState EntityState { get; init; }
 
         /// <summary>
+        ///     A <see cref="IDiagnosticsLogger{T}" /> for <see cref="DbLoggerCategory.Update" />s.
+        /// </summary>
+        public IDiagnosticsLogger<DbLoggerCategory.Update>? Logger { get; init; }
+
+        /// <summary>
         ///     Creates a new <see cref="ModificationCommandParameters" /> instance.
         /// </summary>
         /// <param name="tableName"> The name of the table containing the data to be modified. </param>
@@ -81,6 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     updated (<see cref="Microsoft.EntityFrameworkCore.EntityState.Modified" />),
         ///     or deleted ((<see cref="Microsoft.EntityFrameworkCore.EntityState.Deleted" />).
         /// </param>
+        /// <param name="logger">A <see cref="IDiagnosticsLogger{T}" /> for <see cref="DbLoggerCategory.Update" />s.</param>
         public ModificationCommandParameters(
             string tableName,
             string? schemaName,
@@ -88,7 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Update
             bool sensitiveLoggingEnabled,
             IColumnModificationFactory columnModificationFactory,
             IReadOnlyList<IUpdateEntry> entries,
-            EntityState entityState)
+            EntityState entityState,
+            IDiagnosticsLogger<DbLoggerCategory.Update>? logger)
         {
             TableName = tableName;
             Schema = schemaName;
@@ -99,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             RequiresResultPropagation = false;
             Entries = entries;
             EntityState = entityState;
+            Logger = logger;
         }
 
         /// <summary>

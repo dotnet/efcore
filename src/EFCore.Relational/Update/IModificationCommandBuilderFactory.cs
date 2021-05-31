@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
@@ -30,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="generateParameterName"> Service for generation parameter names. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer">  A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
+        /// <param name="logger">A <see cref="IDiagnosticsLogger{T}" /> for <see cref="DbLoggerCategory.Update" />s.</param>
         /// <returns>
         ///     New object with <see cref="ModificationCommandBatch" /> interface.
         /// </returns>
@@ -38,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             string? schemaName,
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer);
+            IComparer<IUpdateEntry>? comparer,
+            IDiagnosticsLogger<DbLoggerCategory.Update>? logger);
     }
 }

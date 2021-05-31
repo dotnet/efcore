@@ -200,13 +200,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         cmdBuilder = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, c) => _modificationCommandBuilderFactory.CreateModificationCommandBuilder(n, s, generateParameterName, _sensitiveLoggingEnabled, c));
+                            (n, s, c) => _modificationCommandBuilderFactory.CreateModificationCommandBuilder(n, s, generateParameterName, _sensitiveLoggingEnabled, c, Dependencies.UpdateLogger));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
                         cmdBuilder = _modificationCommandBuilderFactory.CreateModificationCommandBuilder(
-                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null);
+                            table.Name, table.Schema, generateParameterName, _sensitiveLoggingEnabled, comparer: null, Dependencies.UpdateLogger);
                     }
 
                     cmdBuilder.AddEntry(entry, isMainEntry);

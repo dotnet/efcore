@@ -537,7 +537,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                  sensitiveLoggingEnabled,
                  comparer,
                  modificationCommandFactory,
-                 columnModificationFactory);
+                 columnModificationFactory,
+                 logger: null);
 
            return commandBuilder;
         }

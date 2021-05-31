@@ -46,8 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void AddCommand_does_not_add_command_if_not_possible()
         {
-            var columnModificationFactory = new ColumnModificationFactory();
-
             var command = CreateModificationCommand("T1", null, columnModifications: null, true);
 
             var batch = new ModificationCommandBatchFake();
@@ -64,8 +62,6 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void AddCommand_does_not_add_command_if_resulting_sql_is_invalid()
         {
-            var columnModificationFactory = new ColumnModificationFactory();
-
             var command = CreateModificationCommand("T1", null, columnModifications: null, true);
 
             var batch = new ModificationCommandBatchFake();
@@ -687,7 +683,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                  sensitiveLoggingEnabled,
                  comparer,
                  modificationCommandFactory,
-                 columnModificationFactory);
+                 columnModificationFactory,
+                 logger: null);
 
            return commandBuilder;
         }

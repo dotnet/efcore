@@ -31,6 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private readonly List<IUpdateEntry> _entries = new();
 
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Update>? _logger;
+
         private IModificationCommand? _resultCommand;
 
         /// <summary>
@@ -46,7 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             bool sensitiveLoggingEnabled,
             IComparer<IUpdateEntry>? comparer,
             IModificationCommandFactory modificationCommandFactory,
-            IColumnModificationFactory columnModificationFactory)
+            IColumnModificationFactory columnModificationFactory,
+            IDiagnosticsLogger<DbLoggerCategory.Update>? logger)
         {
             _tableName = tableName;
             _schemaName = schemaName;
@@ -59,6 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             _columnModificationFactory = columnModificationFactory;
 
             _mainEntryAdded = false;
+
+            _logger = logger;
 
             _resultCommand = null;
         }
@@ -185,7 +190,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     _sensitiveLoggingEnabled,
                     _columnModificationFactory,
                     _entries,
-                    EntityState));
+                    EntityState,
+                    _logger));
 
             return _resultCommand;
         }

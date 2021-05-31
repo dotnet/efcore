@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore
             var foreignKey = new ForeignKey(new List<Property> { property }, key, entityType, entityType, ConfigurationSource.Convention);
             var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
+            var updateEntry = new InternalEntityEntry(contextServices.GetRequiredService<IStateManager>(), entityType, new object());
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
@@ -81,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(Type), () => typeof(object) },
                 { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() },
                 { typeof(DbContext), () => new FakeDbContext() },
-                { typeof(SqlExpression), () => new FakeSqlExpression() }
+                { typeof(SqlExpression), () => new FakeSqlExpression() },
+                { typeof(IUpdateEntry), () =>  updateEntry}
             };
 
             TestEventLogging(

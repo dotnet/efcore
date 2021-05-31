@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private IReadOnlyList<IColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private readonly EntityState _entityState;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Update>? _logger;
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -51,6 +53,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             _entries = modificationCommandParameters.Entries;
             _entityState = modificationCommandParameters.EntityState;
+
+            _logger = modificationCommandParameters.Logger;
         }
 
         /// <summary>
@@ -147,6 +151,12 @@ namespace Microsoft.EntityFrameworkCore.Update
                     continue;
                 }
 
+                var optionalDependentWithAllNull =
+                    (entry.EntityState == EntityState.Deleted
+                        || entry.EntityState == EntityState.Added)
+                        && tableMapping.Table.IsOptional(entry.EntityType)
+                        && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+
                 foreach (var columnMapping in tableMapping.ColumnMappings)
                 {
                     var property = columnMapping.Property;
@@ -211,6 +221,25 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
 
                         columnModifications.Add(columnModification);
+
+                        if (optionalDependentWithAllNull
+                            && columnModification.IsWrite
+                            && (entry.EntityState != EntityState.Added || columnModification.Value is not null))
+                        {
+                            optionalDependentWithAllNull = false;
+                        }
+                    }
+                }
+
+                if (optionalDependentWithAllNull && _logger != null)
+                {
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry);
+                    }
+                    else
+                    {
+                        _logger.OptionalDependentWithAllNullPropertiesWarning(entry);
                     }
                 }
             }

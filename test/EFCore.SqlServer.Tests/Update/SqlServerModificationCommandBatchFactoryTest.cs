@@ -85,8 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var batch = factory.Create();
 
-            var columnModificationFactory = new ColumnModificationFactory();
-
             Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, columnModifications: null, false)));
             Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, columnModifications: null, false)));
         }
