@@ -333,11 +333,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     && cmd.Arguments.Count > 0)
                 {
                     var args = string.Join(" ", cmd.Arguments.Select(arg => arg.Name));
-                    headerBuilder.Insert(usagePrefixLength, string.Format(" {0} {1}", cmd.Name, args));
+                    headerBuilder.Insert(usagePrefixLength, $" {cmd.Name} {args}");
                 }
                 else
                 {
-                    headerBuilder.Insert(usagePrefixLength, string.Format(" {0}", cmd.Name));
+                    headerBuilder.Insert(usagePrefixLength, $" {cmd.Name}");
                 }
             }
 
@@ -485,7 +485,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
         }
 
         public string? GetFullNameAndVersion()
-            => ShortVersionGetter == null ? FullName : string.Format("{0} {1}", FullName, ShortVersionGetter());
+            => ShortVersionGetter == null ? FullName : $"{FullName} {ShortVersionGetter()}";
 
         public void ShowRootCommandFullNameAndVersion()
         {

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Query_level_ones()
         {
-            var requestUri = string.Format("{0}/odata/LevelOne", BaseAddress);
+            var requestUri = $"{BaseAddress}/odata/LevelOne";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             var response = await Client.SendAsync(request);
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Query_level_twos()
         {
-            var requestUri = string.Format("{0}/odata/LevelTwo", BaseAddress);
+            var requestUri = $"{BaseAddress}/odata/LevelTwo";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             var response = await Client.SendAsync(request);
 
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Query_level_threes()
         {
-            var requestUri = string.Format("{0}/odata/LevelThree", BaseAddress);
+            var requestUri = $"{BaseAddress}/odata/LevelThree";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             var response = await Client.SendAsync(request);
 
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalFact]
         public async Task Query_level_four()
         {
-            var requestUri = string.Format("{0}/odata/LevelFour", BaseAddress);
+            var requestUri = $"{BaseAddress}/odata/LevelFour";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
             var response = await Client.SendAsync(request);
 
