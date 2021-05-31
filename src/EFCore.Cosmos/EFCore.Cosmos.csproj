@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.18.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.19.0" />
   </ItemGroup>
 
   <ItemGroup>
