@@ -94,6 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             BatchSmallerThanMinBatchSize,
             BatchExecutorFailedToRollbackToSavepoint,
             BatchExecutorFailedToReleaseSavepoint,
+            OptionalDependentWithAllNullPropertiesWarning,
         }
 
         private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
@@ -726,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         A foreign key specifies properties which don't map to the related tables.
+        ///         The entity does not have any property with a non-default value to identify whether the entity exists.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
@@ -790,5 +791,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId BatchExecutorFailedToReleaseSavepoint = MakeUpdateId(Id.BatchExecutorFailedToReleaseSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         The entity does not have any property with a non-default value to identify whether the entity exists.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="UpdateEntryEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptionalDependentWithAllNullPropertiesWarning
+            = MakeUpdateId(Id.OptionalDependentWithAllNullPropertiesWarning);
     }
 }

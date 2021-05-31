@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             Assert.True(
                 batch.AddCommand(
-                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
             Assert.False(
                 batch.AddCommand(
-                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
         }
 
         private class FakeDbContext : DbContext

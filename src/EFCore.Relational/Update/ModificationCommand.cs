@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -31,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         private IReadOnlyList<ColumnModification>? _columnModifications;
         private bool _requiresResultPropagation;
         private bool _mainEntryAdded;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Update>? _logger;
 
         /// <summary>
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
@@ -40,12 +42,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
         /// <param name="sensitiveLoggingEnabled"> Indicates whether or not potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> A <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />s. </param>
+        /// <param name="logger">A <see cref="IDiagnosticsLogger{T}" /> for <see cref="DbLoggerCategory.Update" />s.</param>
         public ModificationCommand(
             string name,
             string? schema,
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
-            IComparer<IUpdateEntry>? comparer)
+            IComparer<IUpdateEntry>? comparer,
+            IDiagnosticsLogger<DbLoggerCategory.Update>? logger)
             : this(
                 Check.NotEmpty(name, nameof(name)),
                 schema,
@@ -56,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             _generateParameterName = generateParameterName;
             _comparer = comparer;
+            _logger = logger;
         }
 
         /// <summary>
@@ -306,6 +311,12 @@ namespace Microsoft.EntityFrameworkCore.Update
                     continue;
                 }
 
+                var optionalDependentWithAllNull =
+                    (entry.EntityState == EntityState.Deleted
+                        || entry.EntityState == EntityState.Added)
+                        && tableMapping.Table.IsOptional(entry.EntityType)
+                        && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+
                 foreach (var columnMapping in tableMapping.ColumnMappings)
                 {
                     var property = columnMapping.Property;
@@ -367,6 +378,25 @@ namespace Microsoft.EntityFrameworkCore.Update
                         }
 
                         columnModifications.Add(columnModification);
+
+                        if (optionalDependentWithAllNull
+                            && columnModification.IsWrite
+                            && (entry.EntityState != EntityState.Added || columnModification.Value is not null))
+                        {
+                            optionalDependentWithAllNull = false;
+                        }
+                    }
+                }
+
+                if (optionalDependentWithAllNull && _logger != null)
+                {
+                    if (_sensitiveLoggingEnabled)
+                    {
+                        _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry);
+                    }
+                    else
+                    {
+                        _logger.OptionalDependentWithAllNullPropertiesWarning(entry);
                     }
                 }
             }
