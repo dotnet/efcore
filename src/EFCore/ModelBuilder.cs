@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
         public ModelBuilder(ConventionSet conventions)
-            : this(conventions, null, true)
+            : this(conventions, null, null)
         {
         }
 
@@ -46,16 +46,23 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="conventions"> The conventions to be applied to the model. </param>
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
         public ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies)
-            : this(conventions, modelDependencies, true)
+            : this(conventions, modelDependencies, null)
         {
             Check.NotNull(modelDependencies, nameof(modelDependencies));
         }
 
-        private ModelBuilder(ConventionSet conventions, ModelDependencies? modelDependencies, bool _)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public ModelBuilder(ConventionSet conventions, ModelDependencies? modelDependencies, ModelConfiguration? modelConfiguration)
         {
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new Model(conventions, modelDependencies).Builder;
+            _builder = new Model(conventions, modelDependencies, modelConfiguration).Builder;
 
             _builder.Metadata.SetProductVersion(ProductInfo.GetVersion());
         }
@@ -65,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Initializes a new instance of the <see cref="ModelBuilder" /> class with no conventions.
         ///     </para>
         ///     <para>
-        ///         Warning: conventions are typically needed to build a correct model.
+        ///         Warning: conventions are needed to build a correct model.
         ///     </para>
         /// </summary>
         public ModelBuilder()
@@ -262,7 +269,6 @@ namespace Microsoft.EntityFrameworkCore
             Action<EntityTypeBuilder<TEntity>> buildAction)
             where TEntity : class
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(SharedTypeEntity<TEntity>(name));
@@ -288,7 +294,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder Entity(Type type, Action<EntityTypeBuilder> buildAction)
         {
-            Check.NotNull(type, nameof(type));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity(type));
@@ -315,7 +320,6 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder Entity(string name, Action<EntityTypeBuilder> buildAction)
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity(name));
@@ -352,7 +356,6 @@ namespace Microsoft.EntityFrameworkCore
             Type type,
             Action<EntityTypeBuilder> buildAction)
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
             Check.NotNull(buildAction, nameof(buildAction));
 

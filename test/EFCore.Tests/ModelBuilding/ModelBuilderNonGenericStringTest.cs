@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class NonGenericStringOwnedTypes : OwnedTypesTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericStringTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericStringTestModelBuilder(testHelpers, configure);
 
             public override void Reconfiguring_owned_type_as_non_owned_throws()
             {
@@ -57,26 +57,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class NonGenericStringOneToManyType : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericStringTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericStringTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericStringManyToOneType : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericStringTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericStringTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericStringOneToOneType : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericStringTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericStringTestModelBuilder(testHelpers, configure);
         }
 
         private class NonGenericStringTestModelBuilder : TestModelBuilder
         {
-            public NonGenericStringTestModelBuilder(TestHelpers testHelpers)
-                : base(testHelpers)
+            public NonGenericStringTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                : base(testHelpers, configure)
             {
             }
 

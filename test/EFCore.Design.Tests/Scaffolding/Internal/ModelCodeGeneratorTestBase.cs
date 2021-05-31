@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
 
-            var model = SqlServerTestHelpers.Instance.Finalize(modelBuilder, designTime: true, skipValidation: true);
+            var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
 
             var generator = CreateServices()
                 .BuildServiceProvider()

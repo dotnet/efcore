@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 using Microsoft.Extensions.Logging;
@@ -32,9 +33,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             var modelBuilder = Fixture.CreateModelBuilder();
             modelBuilder.Entity("Dummy");
-            var model = modelBuilder.FinalizeModel();
 
-            var context = new F1Context(new DbContextOptionsBuilder(Fixture.CreateOptions()).UseModel(model).Options);
+            var context = new F1Context(new DbContextOptionsBuilder(Fixture.CreateOptions()).UseModel((IModel)modelBuilder.Model).Options);
 
             Assert.Equal(
                 CoreStrings.EntityRequiresKey("Dummy (Dictionary<string, object>)"),

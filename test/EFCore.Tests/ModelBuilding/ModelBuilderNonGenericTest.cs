@@ -24,14 +24,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class NonGenericNonRelationship : NonRelationshipTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericInheritance : InheritanceTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericOwnedTypes : OwnedTypesTestBase
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             .HasOne("Snoop")).Message);
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericOneToMany : OneToManyTestBase
@@ -129,32 +129,32 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 public ICollection<ComplexCaseChild13108>? Children { get; set; }
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericManyToOne : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericManyToMany : ManyToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         public class NonGenericOneToOne : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers)
-                => new NonGenericTestModelBuilder(testHelpers);
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new NonGenericTestModelBuilder(testHelpers, configure);
         }
 
         private class NonGenericTestModelBuilder : TestModelBuilder
         {
-            public NonGenericTestModelBuilder(TestHelpers testHelpers)
-                : base(testHelpers)
+            public NonGenericTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                : base(testHelpers, configure)
             {
             }
 
@@ -588,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasConversion<TProvider>()
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TProvider>());
 
-            public override TestPropertyBuilder<TProperty> HasConversion(Type providerClrType)
+            public override TestPropertyBuilder<TProperty> HasConversion(Type? providerClrType)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(providerClrType));
 
             public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
@@ -601,16 +601,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
 
-            public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter)
+            public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter));
 
-            public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter converter, ValueComparer valueComparer)
+            public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converter, valueComparer));
 
             public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion<TConverter, TComparer>());
 
-            public override TestPropertyBuilder<TProperty> HasConversion(Type? converterType, Type? comparerType)
+            public override TestPropertyBuilder<TProperty> HasConversion(Type converterType, Type? comparerType)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasConversion(converterType, comparerType));
 
             PropertyBuilder IInfrastructure<PropertyBuilder>.Instance

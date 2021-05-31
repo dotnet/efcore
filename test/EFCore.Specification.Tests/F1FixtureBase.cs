@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore
 
             BuildModelExternal(builder);
 
-            return builder.FinalizeModel();
+            return (IModel)builder.Model;
         }
 
         public abstract TestHelpers TestHelpers { get; }

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
@@ -61,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             catch (TargetInvocationException e) when (e.InnerException != null)
             {
-                throw e.InnerException;
+                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                throw;
             }
         }
 

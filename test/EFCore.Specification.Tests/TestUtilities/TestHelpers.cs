@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -127,46 +128,37 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
             => ((IInfrastructure<IServiceProvider>)CreateContext(customServices)).Instance;
 
-        public IModel Finalize(ModelBuilder modelBuilder, bool designTime = false, bool skipValidation = false)
+        public TestModelBuilder CreateConventionBuilder(
+            IDiagnosticsLogger<DbLoggerCategory.Model> modelLogger = null,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null,
+            Action<TestModelConfigurationBuilder> configure = null,
+            IServiceCollection customServices = null)
         {
-            var contextServices = CreateContextServices();
+            customServices ??= new ServiceCollection();
+            if (modelLogger != null)
+            {
+                customServices.AddScoped(_ => modelLogger);
+            }
 
-            var modelRuntimeInitializer = contextServices.GetRequiredService<IModelRuntimeInitializer>();
-            return modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime, skipValidation
-                ? null
-                : new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions));
-        }
+            if (validationLogger == null)
+            {
+                validationLogger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions);
+            }
 
-        public ModelBuilder CreateConventionBuilder()
-            => new ModelBuilder(CreateConventionSetBuilder().CreateConventionSet());
+            customServices.AddScoped(_ => validationLogger);
 
-        public virtual IConventionSetBuilder CreateConventionSetBuilder()
-            => CreateContextServices().GetRequiredService<IConventionSetBuilder>();
+            var contextServices = CreateContextServices(customServices);
+            var modelCreationDependencies = contextServices.GetRequiredService<ModelCreationDependencies>();
 
-        public ModelBuilder CreateConventionBuilder(
-            DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
-            DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
-        {
-            var contextServices = CreateContextServices(
-                new ServiceCollection()
-                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => modelLogger)
-                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => validationLogger));
+            var modelConfigurationBuilder = new TestModelConfigurationBuilder(
+                modelCreationDependencies.ConventionSetBuilder.CreateConventionSet());
 
-            return new ModelBuilder(
-                contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet(),
-                contextServices.GetRequiredService<ModelDependencies>() with { Logger = modelLogger });
-        }
+            configure?.Invoke(modelConfigurationBuilder);
 
-        public ConventionSet CreateConventionalConventionSet(
-            DiagnosticsLogger<DbLoggerCategory.Model> modelLogger,
-            DiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
-        {
-            var contextServices = CreateContextServices(
-                new ServiceCollection()
-                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => modelLogger)
-                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(_ => validationLogger));
-
-            return contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
+            return modelConfigurationBuilder.CreateModelBuilder(
+                modelCreationDependencies.ModelDependencies,
+                modelCreationDependencies.ModelRuntimeInitializer,
+                validationLogger);
         }
 
         public virtual LoggingDefinitions LoggingDefinitions { get; } = new TestLoggingDefinitions();
@@ -344,6 +336,95 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     useTransaction(innerContext3.Database, transaction);
                     await nestedTestOperation3(innerContext3);
                 });
+        }
+
+        public class TestModelBuilder : ModelBuilder
+        {
+            private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Model.Validation> _validationLogger;
+
+            public TestModelBuilder(
+                ConventionSet conventions,
+                ModelDependencies modelDependencies,
+                ModelConfiguration modelConfiguration,
+                IModelRuntimeInitializer modelRuntimeInitializer,
+                IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                : base(conventions, modelDependencies, modelConfiguration)
+            {
+                _modelRuntimeInitializer = modelRuntimeInitializer;
+                _validationLogger = validationLogger;
+            }
+
+            public override IModel FinalizeModel()
+                => FinalizeModel(designTime: false);
+
+            public IModel FinalizeModel(bool designTime = false, bool skipValidation = false)
+                => _modelRuntimeInitializer.Initialize((IModel)Model, designTime, skipValidation ? null : _validationLogger);
+        }
+
+        public class TestModelConfigurationBuilder : ModelConfigurationBuilder
+        {
+            public TestModelConfigurationBuilder(ConventionSet conventions)
+                : base(conventions)
+            {
+                Conventions = conventions;
+            }
+
+            public ConventionSet Conventions { get; }
+
+            public TestModelBuilder CreateModelBuilder(
+                ModelDependencies modelDependencies,
+                IModelRuntimeInitializer modelRuntimeInitializer,
+                IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
+                => new(Conventions,
+                    modelDependencies,
+                    ModelConfiguration.IsEmpty() ? null : ModelConfiguration,
+                    modelRuntimeInitializer,
+                    validationLogger);
+
+            public void RemoveAllConventions()
+            {
+                Conventions.EntityTypeAddedConventions.Clear();
+                Conventions.EntityTypeAnnotationChangedConventions.Clear();
+                Conventions.EntityTypeBaseTypeChangedConventions.Clear();
+                Conventions.EntityTypeIgnoredConventions.Clear();
+                Conventions.EntityTypeMemberIgnoredConventions.Clear();
+                Conventions.EntityTypePrimaryKeyChangedConventions.Clear();
+                Conventions.EntityTypeRemovedConventions.Clear();
+                Conventions.ForeignKeyAddedConventions.Clear();
+                Conventions.ForeignKeyAnnotationChangedConventions.Clear();
+                Conventions.ForeignKeyDependentRequirednessChangedConventions.Clear();
+                Conventions.ForeignKeyOwnershipChangedConventions.Clear();
+                Conventions.ForeignKeyPrincipalEndChangedConventions.Clear();
+                Conventions.ForeignKeyPropertiesChangedConventions.Clear();
+                Conventions.ForeignKeyRemovedConventions.Clear();
+                Conventions.ForeignKeyRequirednessChangedConventions.Clear();
+                Conventions.ForeignKeyUniquenessChangedConventions.Clear();
+                Conventions.IndexAddedConventions.Clear();
+                Conventions.IndexAnnotationChangedConventions.Clear();
+                Conventions.IndexRemovedConventions.Clear();
+                Conventions.IndexUniquenessChangedConventions.Clear();
+                Conventions.KeyAddedConventions.Clear();
+                Conventions.KeyAnnotationChangedConventions.Clear();
+                Conventions.KeyRemovedConventions.Clear();
+                Conventions.ModelAnnotationChangedConventions.Clear();
+                Conventions.ModelFinalizedConventions.Clear();
+                Conventions.ModelFinalizingConventions.Clear();
+                Conventions.ModelInitializedConventions.Clear();
+                Conventions.NavigationAddedConventions.Clear();
+                Conventions.NavigationAnnotationChangedConventions.Clear();
+                Conventions.NavigationRemovedConventions.Clear();
+                Conventions.PropertyAddedConventions.Clear();
+                Conventions.PropertyAnnotationChangedConventions.Clear();
+                Conventions.PropertyFieldChangedConventions.Clear();
+                Conventions.PropertyNullabilityChangedConventions.Clear();
+                Conventions.PropertyRemovedConventions.Clear();
+                Conventions.SkipNavigationAddedConventions.Clear();
+                Conventions.SkipNavigationAnnotationChangedConventions.Clear();
+                Conventions.SkipNavigationForeignKeyChangedConventions.Clear();
+                Conventions.SkipNavigationInverseChangedConventions.Clear();
+                Conventions.SkipNavigationRemovedConventions.Clear();
+            }
         }
     }
 }

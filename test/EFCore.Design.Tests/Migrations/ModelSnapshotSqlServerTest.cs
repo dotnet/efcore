@@ -3254,31 +3254,25 @@ namespace RootNamespace
         [ConditionalFact]
         public virtual void Property_without_column_type()
         {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
-
-            modelBuilder
-                .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity(
-                "Building", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+            Test(
+                builder => {
+                    builder
                         .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.HasKey("Id");
+                    builder.Entity(
+                        "Building", b =>
+                        {
+                            b.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.ToTable("Buildings");
-                });
+                            b.HasKey("Id");
 
-            Test(
-                model.FinalizeModel(),
+                            b.ToTable("Buildings");
+                        });
+                },
                 AddBoilerPlate(
-                    @"
-            modelBuilder
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
-
+                    GetHeading() + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
@@ -3300,27 +3294,24 @@ namespace RootNamespace
         [ConditionalFact]
         public virtual void Property_with_identity_column()
         {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
-
-            modelBuilder.Entity(
-                "Building", b =>
-                {
-                    b.Property<int>("Id").UseIdentityColumn();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Buildings");
-                });
-
             Test(
-                model.FinalizeModel(),
-                AddBoilerPlate(
-                    @"
+                builder => {
+                    builder.Entity(
+                        "Building", b =>
+                        {
+                            b.Property<int>("Id").UseIdentityColumn();
 
+                            b.HasKey("Id");
+
+                            b.ToTable("Buildings");
+                        });
+                },
+                AddBoilerPlate(
+                    GetHeading() + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 1)
                         .HasAnnotation(""SqlServer:IdentitySeed"", 1)
@@ -3342,27 +3333,25 @@ namespace RootNamespace
         [ConditionalFact]
         public virtual void Property_with_identity_column_custom_seed()
         {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
-
-            modelBuilder.Entity(
-                "Building", b =>
-                {
-                    b.Property<int>("Id").UseIdentityColumn(5);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Buildings");
-                });
-
             Test(
-                model.FinalizeModel(),
-                AddBoilerPlate(
-                    @"
 
+                builder => {
+                    builder.Entity(
+                        "Building", b =>
+                        {
+                            b.Property<int>("Id").UseIdentityColumn(seed: 5);
+
+                            b.HasKey("Id");
+
+                            b.ToTable("Buildings");
+                        });
+                },
+                AddBoilerPlate(
+                    GetHeading() + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 1)
                         .HasAnnotation(""SqlServer:IdentitySeed"", 5)
@@ -3384,27 +3373,25 @@ namespace RootNamespace
         [ConditionalFact]
         public virtual void Property_with_identity_column_custom_increment()
         {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
-
-            modelBuilder.Entity(
-                "Building", b =>
-                {
-                    b.Property<int>("Id").UseIdentityColumn(increment: 5);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Buildings");
-                });
 
             Test(
-                model.FinalizeModel(),
-                AddBoilerPlate(
-                    @"
+                builder => {
+                    builder.Entity(
+                        "Building", b =>
+                        {
+                            b.Property<int>("Id").UseIdentityColumn(increment: 5);
 
+                            b.HasKey("Id");
+
+                            b.ToTable("Buildings");
+                        });
+                },
+                AddBoilerPlate(
+                    GetHeading() + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 5)
                         .HasAnnotation(""SqlServer:IdentitySeed"", 1)
@@ -3426,27 +3413,24 @@ namespace RootNamespace
         [ConditionalFact]
         public virtual void Property_with_identity_column_custom_seed_increment()
         {
-            var modelBuilder = new ModelBuilder();
-            var model = modelBuilder.Model;
-
-            modelBuilder.Entity(
-                "Building", b =>
-                {
-                    b.Property<int>("Id").UseIdentityColumn(5, 5);
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Buildings");
-                });
-
             Test(
-                model.FinalizeModel(),
-                AddBoilerPlate(
-                    @"
+                builder => {
+                    builder.Entity(
+                        "Building", b =>
+                        {
+                            b.Property<int>("Id").UseIdentityColumn(5, 5);
 
+                            b.HasKey("Id");
+
+                            b.ToTable("Buildings");
+                        });
+                },
+                AddBoilerPlate(
+                    GetHeading() + @"
             modelBuilder.Entity(""Building"", b =>
                 {
                     b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 5)
                         .HasAnnotation(""SqlServer:IdentitySeed"", 5)
@@ -5372,22 +5356,13 @@ namespace RootNamespace
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
 
-            var model = modelBuilder.FinalizeModel();
+            var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
 
             Test(model, expectedCode, assert);
         }
 
-        protected void Test(IModel model, string expectedCode, Action<IModel> assert)
-            => Test(model, expectedCode, (m, _) => assert(m));
-
         protected void Test(IModel model, string expectedCode, Action<IModel, IModel> assert)
         {
-            var serviceProvider = SqlServerTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection()
-                    .AddEntityFrameworkSqlServerNetTopologySuite());
-
-            serviceProvider.GetService<IModelRuntimeInitializer>().Initialize(model, designTime: true, validationLogger: null);
-
             var generator = CreateMigrationsGenerator();
             var code = generator.GenerateSnapshot("RootNamespace", typeof(DbContext), "Snapshot", model);
             Assert.Equal(expectedCode, code, ignoreLineEndingDifferences: true);
@@ -5428,16 +5403,9 @@ namespace RootNamespace
             return processor.Process(builder.Model);
         }
 
-        protected ModelBuilder CreateConventionalModelBuilder()
-        {
-            var serviceProvider = SqlServerTestHelpers.Instance.CreateContextServices(
-                new ServiceCollection()
+        protected TestHelpers.TestModelBuilder CreateConventionalModelBuilder()
+            => SqlServerTestHelpers.Instance.CreateConventionBuilder(customServices: new ServiceCollection()
                     .AddEntityFrameworkSqlServerNetTopologySuite());
-
-            return new ModelBuilder(
-                serviceProvider.GetService<IConventionSetBuilder>().CreateConventionSet(),
-                serviceProvider.GetService<ModelDependencies>());
-        }
 
         protected CSharpMigrationsGenerator CreateMigrationsGenerator()
         {

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -199,8 +200,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericInheritance : GenericInheritance
@@ -210,26 +211,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // Fails due to presence of __jObject
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOneToMany : GenericOneToMany
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericManyToOne : GenericManyToOne
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOneToOne : GenericOneToOne
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericManyToMany : GenericManyToMany
@@ -277,14 +278,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("PartitionId", joinType.FindPrimaryKey().Properties.Last().Name);
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOwnedTypes : GenericOwnedTypes
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
     }
 }
