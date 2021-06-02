@@ -2008,6 +2008,33 @@ CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProp
                 "DROP TABLE IncludeIndexTable;");
         }
 
+        [ConditionalFact]
+        public void Index_fill_factor()
+        {
+            Test(
+                @"
+CREATE TABLE IndexFillFactor
+(
+    Id INT IDENTITY,
+    Name NVARCHAR(100)
+);
+
+CREATE NONCLUSTERED INDEX [IX_Name] ON [dbo].[IndexFillFactor]
+(
+     [Name] ASC
+)
+WITH (FILLFACTOR = 80) ON [PRIMARY]",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                    Assert.Equal(new[] { "Name" }, index.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(80, index[SqlServerAnnotationNames.FillFactor]);
+                },
+                "DROP TABLE IndexFillFactor;");
+        }
+
         #endregion
 
         #region ForeignKeyFacets

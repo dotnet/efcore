@@ -1019,7 +1019,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                     if (indexGroup.Key.FillFactor > 0 && indexGroup.Key.FillFactor <= 100)
                     {
-                        index[SqlServerAnnotationNames.FillFactor] = indexGroup.Key.FillFactor;
+                        index[SqlServerAnnotationNames.FillFactor] = (int)indexGroup.Key.FillFactor;
                     }
 
                     foreach (var dataRecord in indexGroup)
