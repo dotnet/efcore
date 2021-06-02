@@ -93,7 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     A pseudo-random number generator that can be used to vary the delay between retries.
         /// </summary>
+#if NET6_0_OR_GREATER
+        protected virtual Random Random { get; } = Random.Shared;
+#else
         protected virtual Random Random { get; } = new();
+#endif
 
         /// <summary>
         ///     The maximum number of retry attempts.

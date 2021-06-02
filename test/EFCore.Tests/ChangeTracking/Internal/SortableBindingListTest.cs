@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 Int = i;
                 NullableInt = i;
                 String = i.ToString();
-                Random = new Random();
+                Random = Random.Shared;
                 ByteArray = new[] { (byte)i, (byte)i, (byte)i, (byte)i };
             }
 
