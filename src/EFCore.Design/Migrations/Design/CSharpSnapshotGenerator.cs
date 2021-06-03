@@ -825,28 +825,43 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 || entityType.BaseType == null)
             {
                 var tableName = (string?)tableNameAnnotation?.Value ?? entityType.GetTableName();
-                if (tableName != null)
+                if (tableName != null
+                    || tableNameAnnotation != null)
                 {
+                    var schemaAnnotation = annotations.Find(RelationalAnnotationNames.Schema);
                     stringBuilder
                         .AppendLine()
                         .Append(builderName)
-                        .Append(".ToTable(")
-                        .Append(Code.Literal(tableName));
+                        .Append(".ToTable(");
+
+                    if (tableName == null
+                        && schemaAnnotation == null)
+                    {
+                        stringBuilder.Append("(string)");
+                    }
+
+                    stringBuilder.Append(Code.UnknownLiteral(tableName));
+
                     if (tableNameAnnotation != null)
                     {
                         annotations.Remove(tableNameAnnotation.Name);
                     }
 
-                    var schemaAnnotation = annotations.Find(RelationalAnnotationNames.Schema);
-                    if (schemaAnnotation?.Value != null)
+                    var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
+                    if (schemaAnnotation != null)
                     {
                         stringBuilder
-                            .Append(", ")
-                            .Append(Code.Literal((string)schemaAnnotation.Value));
-                        annotations.Remove(schemaAnnotation.Name);
+                            .Append(", ");
+
+                        if (schemaAnnotation.Value == null
+                            && ((bool?)isExcludedAnnotation?.Value) != true)
+                        {
+                            stringBuilder.Append("(string)");
+                        }
+
+                        stringBuilder.Append(Code.UnknownLiteral(schemaAnnotation.Value));
                     }
 
-                    var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
                     if (isExcludedAnnotation != null)
                     {
                         if (((bool?)isExcludedAnnotation.Value) == true)
@@ -870,19 +885,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     stringBuilder.AppendLine(");");
                 }
             }
+            annotations.Remove(RelationalAnnotationNames.Schema);
 
             var viewNameAnnotation = annotations.Find(RelationalAnnotationNames.ViewName);
             if (viewNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
                 var viewName = (string?)viewNameAnnotation?.Value ?? entityType.GetViewName();
-                if (viewName != null)
+                if (viewName != null
+                    || viewNameAnnotation != null)
                 {
                     stringBuilder
                         .AppendLine()
                         .Append(builderName)
                         .Append(".ToView(")
-                        .Append(Code.Literal(viewName));
+                        .Append(Code.UnknownLiteral(viewName));
                     if (viewNameAnnotation != null)
                     {
                         annotations.Remove(viewNameAnnotation.Name);
@@ -900,25 +917,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     stringBuilder.AppendLine(");");
                 }
             }
+            annotations.Remove(RelationalAnnotationNames.ViewSchema);
+            annotations.Remove(RelationalAnnotationNames.ViewDefinitionSql);
 
             var functionNameAnnotation = annotations.Find(RelationalAnnotationNames.FunctionName);
             if (functionNameAnnotation?.Value != null
                 || entityType.BaseType == null)
             {
                 var functionName = (string?)functionNameAnnotation?.Value ?? entityType.GetFunctionName();
-                if (functionName != null)
+                if (functionName != null
+                    || functionNameAnnotation != null)
                 {
                     stringBuilder
                         .AppendLine()
                         .Append(builderName)
                         .Append(".ToFunction(")
-                        .Append(Code.Literal(functionName));
+                        .Append(Code.UnknownLiteral(functionName))
+                        .AppendLine(");");
                     if (functionNameAnnotation != null)
                     {
                         annotations.Remove(functionNameAnnotation.Name);
                     }
+                }
+            }
 
-                    stringBuilder.AppendLine(");");
+            var sqlQueryAnnotation = annotations.Find(RelationalAnnotationNames.SqlQuery);
+            if (sqlQueryAnnotation?.Value != null
+                || entityType.BaseType == null)
+            {
+                var sqlQuery = (string?)sqlQueryAnnotation?.Value ?? entityType.GetSqlQuery();
+                if (sqlQuery != null
+                    || sqlQueryAnnotation != null)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(builderName)
+                        .Append(".ToSqlQuery(")
+                        .Append(Code.UnknownLiteral(sqlQuery))
+                        .AppendLine(");");
+                    if (sqlQueryAnnotation != null)
+                    {
+                        annotations.Remove(sqlQueryAnnotation.Name);
+                    }
                 }
             }
 

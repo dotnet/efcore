@@ -691,10 +691,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The SQL query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ToSqlQuery<TEntity>(
-            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+        public static EntityTypeBuilder ToSqlQuery(
+            this EntityTypeBuilder entityTypeBuilder,
             string query)
-            where TEntity : class
         {
             Check.NotNull(query, nameof(query));
 
@@ -702,6 +701,18 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityTypeBuilder;
         }
+
+        /// <summary>
+        ///     Configures a SQL string used to provide data for the entity type.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="query"> The SQL query that will provide the underlying data for the entity type. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ToSqlQuery<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            string query)
+            where TEntity : class
+            => (EntityTypeBuilder<TEntity>)ToSqlQuery((EntityTypeBuilder)entityTypeBuilder, query);
 
         /// <summary>
         ///     Configures a SQL string used to provide data for the entity type.

@@ -10557,15 +10557,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => throw new NotImplementedException();
 
         [ConditionalFact]
-        public void Model_differ_does_not_detect_table_valued_function_result_type()
+        public void Model_differ_does_not_detect_entity_type_mapped_to_TVF()
         {
             Execute(
                 _ => { },
                 modelBuilder =>
-                    modelBuilder.HasDbFunction(
+                {
+                    var function = modelBuilder.HasDbFunction(
                         typeof(MigrationsModelDifferTest).GetMethod(
                             nameof(GetCountByYear),
-                            BindingFlags.NonPublic | BindingFlags.Static)),
+                            BindingFlags.NonPublic | BindingFlags.Static)).Metadata;
+
+                    modelBuilder.Entity<TestKeylessType>().ToFunction(function.ModelName);
+                },
                 result => Assert.Equal(0, result.Count),
                 skipSourceConventions: true);
         }
