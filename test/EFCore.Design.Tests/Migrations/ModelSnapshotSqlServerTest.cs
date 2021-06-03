@@ -706,7 +706,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
                 .HasAnnotation(""SqlServer:IdentityIncrement"", 1)
-                .HasAnnotation(""SqlServer:IdentitySeed"", 1)
+                .HasAnnotation(""SqlServer:IdentitySeed"", 1L)
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
@@ -727,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
                 .HasAnnotation(""SqlServer:IdentityIncrement"", 1)
-                .HasAnnotation(""SqlServer:IdentitySeed"", 5)
+                .HasAnnotation(""SqlServer:IdentitySeed"", 5L)
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
                 o =>
                 {
@@ -748,7 +748,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             modelBuilder
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
                 .HasAnnotation(""SqlServer:IdentityIncrement"", 5)
-                .HasAnnotation(""SqlServer:IdentitySeed"", 1)
+                .HasAnnotation(""SqlServer:IdentitySeed"", 1L)
                 .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
             o =>
                 {
@@ -763,20 +763,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public virtual void Model_use_identity_columns_custom_seed_increment()
         {
             Test(
-                builder => builder.UseIdentityColumns(5, 5),
+                builder => {
+                    builder.UseIdentityColumns(long.MaxValue, 5);
+                    builder.Entity(
+                        "Building", b =>
+                        {
+                            b.Property<int>("Id");
+
+                            b.HasKey("Id");
+
+                            b.ToTable("Buildings");
+                        });
+                },
                 AddBoilerPlate(
                     @"
             modelBuilder
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128)
                 .HasAnnotation(""SqlServer:IdentityIncrement"", 5)
-                .HasAnnotation(""SqlServer:IdentitySeed"", 5)
-                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);"),
+                .HasAnnotation(""SqlServer:IdentitySeed"", 9223372036854775807L)
+                .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity(""Building"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"")
+                        .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""Buildings"");
+                });"),
                 o =>
                 {
                     Assert.Equal(4, o.GetAnnotations().Count());
                     Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
-                    Assert.Equal(5, o.GetIdentitySeed());
+                    Assert.Equal(long.MaxValue, o.GetIdentitySeed());
                     Assert.Equal(5, o.GetIdentityIncrement());
+
+                    var property = o.FindEntityType("Building").FindProperty("Id");
+                    Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.GetValueGenerationStrategy());
+                    Assert.Equal(long.MaxValue, property.GetIdentitySeed());
+                    Assert.Equal(5, property.GetIdentityIncrement());
                 });
         }
 
@@ -3314,7 +3342,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 1)
-                        .HasAnnotation(""SqlServer:IdentitySeed"", 1)
+                        .HasAnnotation(""SqlServer:IdentitySeed"", 1L)
                         .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey(""Id"");
@@ -3354,7 +3382,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 1)
-                        .HasAnnotation(""SqlServer:IdentitySeed"", 5)
+                        .HasAnnotation(""SqlServer:IdentitySeed"", 5L)
                         .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey(""Id"");
@@ -3394,7 +3422,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 5)
-                        .HasAnnotation(""SqlServer:IdentitySeed"", 1)
+                        .HasAnnotation(""SqlServer:IdentitySeed"", 1L)
                         .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey(""Id"");
@@ -3433,7 +3461,7 @@ namespace RootNamespace
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"")
                         .HasAnnotation(""SqlServer:IdentityIncrement"", 5)
-                        .HasAnnotation(""SqlServer:IdentitySeed"", 5)
+                        .HasAnnotation(""SqlServer:IdentitySeed"", 5L)
                         .HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.HasKey(""Id"");

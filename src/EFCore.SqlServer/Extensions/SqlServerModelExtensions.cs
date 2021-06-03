@@ -121,17 +121,17 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <returns> The default identity seed. </returns>
-        public static int GetIdentitySeed(this IReadOnlyModel model)
+        public static long GetIdentitySeed(this IReadOnlyModel model)
             => model is RuntimeModel
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)model[SqlServerAnnotationNames.IdentitySeed] ?? 1;
+            : (long?)model[SqlServerAnnotationNames.IdentitySeed] ?? 1;
 
         /// <summary>
         ///     Sets the default identity seed.
         /// </summary>
         /// <param name="model"> The model. </param>
         /// <param name="seed"> The value to set. </param>
-        public static void SetIdentitySeed(this IMutableModel model, int? seed)
+        public static void SetIdentitySeed(this IMutableModel model, long? seed)
             => model.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentitySeed,
                 seed);
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="seed"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static int? SetIdentitySeed(this IConventionModel model, int? seed, bool fromDataAnnotation = false)
+        public static long? SetIdentitySeed(this IConventionModel model, long? seed, bool fromDataAnnotation = false)
         {
             model.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentitySeed,

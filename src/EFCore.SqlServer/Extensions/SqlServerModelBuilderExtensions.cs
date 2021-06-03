@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static ModelBuilder UseIdentityColumns(
             this ModelBuilder modelBuilder,
-            int seed = 1,
+            long seed = 1,
             int increment = 1)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
@@ -125,6 +125,21 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Configures the model to use the SQL Server IDENTITY feature to generate values for key properties
+        ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server. This is the default
+        ///     behavior when targeting SQL Server.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
+        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static ModelBuilder UseIdentityColumns(
+            this ModelBuilder modelBuilder,
+            int seed,
+            int increment = 1)
+            => modelBuilder.UseIdentityColumns((long)seed, increment);
+
+        /// <summary>
         ///     Configures the default seed for SQL Server IDENTITY.
         /// </summary>
         /// <param name="modelBuilder"> The model builder. </param>
@@ -136,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IConventionModelBuilder? HasIdentityColumnSeed(
             this IConventionModelBuilder modelBuilder,
-            int? seed,
+            long? seed,
             bool fromDataAnnotation = false)
         {
             if (modelBuilder.CanSetIdentityColumnSeed(seed, fromDataAnnotation))
@@ -157,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY. </returns>
         public static bool CanSetIdentityColumnSeed(
             this IConventionModelBuilder modelBuilder,
-            int? seed,
+            long? seed,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
