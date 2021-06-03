@@ -356,9 +356,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _schema = schema;
 
-            _schemaConfigurationSource = schema == null
-                ? (ConfigurationSource?)null
-                : configurationSource.Max(_schemaConfigurationSource);
+            _schemaConfigurationSource = configurationSource.Max(_schemaConfigurationSource);
 
             return schema;
         }
@@ -398,9 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _name = name;
 
-            _nameConfigurationSource = name == null
-                ? (ConfigurationSource?)null
-                : configurationSource.Max(_nameConfigurationSource);
+            _nameConfigurationSource = configurationSource.Max(_nameConfigurationSource);
 
             return name;
         }
@@ -518,7 +514,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _storeType = storeType;
 
             _storeTypeConfigurationSource = storeType == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_storeTypeConfigurationSource);
 
             return storeType;
@@ -567,7 +563,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _typeMapping = typeMapping;
 
             _typeMappingConfigurationSource = typeMapping == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_typeMappingConfigurationSource);
 
             return typeMapping;
@@ -615,7 +611,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _translation = translation;
 
             _translationConfigurationSource = translation == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_translationConfigurationSource);
 
             return translation;

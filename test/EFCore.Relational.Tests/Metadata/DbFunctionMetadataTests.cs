@@ -506,15 +506,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var modelBuilder = GetModelBuilder();
 
             var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi)
-                .HasName("foo")
-                .HasSchema("bar");
+                .HasName(null)
+                .HasSchema(null);
 
             var dbFunc = dbFuncBuilder.Metadata;
+
+            Assert.Equal(MethodBmi.Name, dbFunc.Name);
+            Assert.Null(dbFunc.Schema);
+
+            dbFuncBuilder.HasName("foo");
+            dbFuncBuilder.HasSchema("BAR");
 
             modelBuilder.FinalizeModel();
 
             Assert.Equal("foo", dbFunc.Name);
-            Assert.Equal("bar", dbFunc.Schema);
+            Assert.Equal("BAR", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
@@ -523,14 +529,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         {
             var modelBuilder = GetModelBuilder();
 
-            modelBuilder.HasDbFunction(MethodBmi, funcBuilder => funcBuilder.HasName("foo").HasSchema("bar"));
+            modelBuilder.HasDbFunction(MethodBmi, funcBuilder => funcBuilder.HasName(null).HasSchema(null));
 
-            var dbFunc = modelBuilder.HasDbFunction(MethodBmi).Metadata;
+            var dbFuncBuilder = modelBuilder.HasDbFunction(MethodBmi);
+            var dbFunc = dbFuncBuilder.Metadata;
+
+            Assert.Equal(MethodBmi.Name, dbFunc.Name);
+            Assert.Null(dbFunc.Schema);
+
+            dbFuncBuilder.HasName("foo");
+            dbFuncBuilder.HasSchema("BAR");
 
             modelBuilder.FinalizeModel();
 
             Assert.Equal("foo", dbFunc.Name);
-            Assert.Equal("bar", dbFunc.Schema);
+            Assert.Equal("BAR", dbFunc.Schema);
             Assert.Equal(typeof(int), dbFunc.MethodInfo.ReturnType);
         }
 
@@ -869,11 +882,5 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         private TestHelpers.TestModelBuilder GetModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
-
-        private ProviderConventionSetBuilderDependencies CreateDependencies()
-            => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
-
-        private RelationalConventionSetBuilderDependencies CreateRelationalDependencies()
-            => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<RelationalConventionSetBuilderDependencies>();
     }
 }
