@@ -152,12 +152,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             switch (strategy)
             {
                 case SqlServerValueGenerationStrategy.IdentityColumn:
-                    var seed = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentitySeed) ?? 1;
+                    var seed = GetAndRemove<long?>(annotations, SqlServerAnnotationNames.IdentitySeed) ?? 1;
                     var increment = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentityIncrement) ?? 1;
                     return new(
                         onModel
-                            ? nameof(SqlServerModelBuilderExtensions.UseIdentityColumns)
-                            : nameof(SqlServerPropertyBuilderExtensions.UseIdentityColumn),
+                            ? "UseIdentityColumns"
+                            : "UseIdentityColumn",
                         (seed, increment) switch
                         {
                             (1, 1) => Array.Empty<object>(),

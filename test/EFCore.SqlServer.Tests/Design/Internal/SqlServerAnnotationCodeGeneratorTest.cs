@@ -172,7 +172,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Collection(
                 result.Arguments,
-                seed => Assert.Equal(5, seed),
+                seed => Assert.Equal(5L, seed),
                 increment => Assert.Equal(10, increment));
         }
 
@@ -191,7 +191,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Collection(
                 result.Arguments,
-                seed => Assert.Equal(5, seed),
+                seed => Assert.Equal(5L, seed),
                 increment => Assert.Equal(10, increment));
         }
 

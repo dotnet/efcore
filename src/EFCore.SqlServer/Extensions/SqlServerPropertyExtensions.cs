@@ -204,10 +204,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <returns> The identity seed. </returns>
-        public static int? GetIdentitySeed(this IReadOnlyProperty property)
+        public static long? GetIdentitySeed(this IReadOnlyProperty property)
             => property is RuntimeProperty
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)property[SqlServerAnnotationNames.IdentitySeed];
+            : (long?)property[SqlServerAnnotationNames.IdentitySeed]
+                ?? property.DeclaringEntityType.Model.GetIdentitySeed();
 
         /// <summary>
         ///     Returns the identity seed.
@@ -215,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The identity seed. </returns>
-        public static int? GetIdentitySeed(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        public static long? GetIdentitySeed(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             if (property is RuntimeProperty)
             {
@@ -225,10 +226,13 @@ namespace Microsoft.EntityFrameworkCore
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
             if (annotation != null)
             {
-                return (int?)annotation.Value;
+                return (long?)annotation.Value;
             }
 
-            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetIdentitySeed(storeObject);
+            var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedProperty == null
+                ? property.DeclaringEntityType.Model.GetIdentitySeed()
+                : sharedProperty.GetIdentitySeed(storeObject);
         }
 
         /// <summary>
@@ -236,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="seed"> The value to set. </param>
-        public static void SetIdentitySeed(this IMutableProperty property, int? seed)
+        public static void SetIdentitySeed(this IMutableProperty property, long? seed)
             => property.SetOrRemoveAnnotation(
                 SqlServerAnnotationNames.IdentitySeed,
                 seed);
@@ -248,9 +252,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="seed"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static int? SetIdentitySeed(
+        public static long? SetIdentitySeed(
             this IConventionProperty property,
-            int? seed,
+            long? seed,
             bool fromDataAnnotation = false)
         {
             property.SetOrRemoveAnnotation(
@@ -277,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore
         public static int? GetIdentityIncrement(this IReadOnlyProperty property)
             => property is RuntimeProperty
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)property[SqlServerAnnotationNames.IdentityIncrement];
+            : (int?)property[SqlServerAnnotationNames.IdentityIncrement]
+                ?? property.DeclaringEntityType.Model.GetIdentityIncrement();
 
         /// <summary>
         ///     Returns the identity increment.
@@ -298,7 +303,10 @@ namespace Microsoft.EntityFrameworkCore
                 return (int?)annotation.Value;
             }
 
-            return property.FindSharedStoreObjectRootProperty(storeObject)?.GetIdentityIncrement(storeObject);
+            var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            return sharedProperty == null
+                ? property.DeclaringEntityType.Model.GetIdentityIncrement()
+                : sharedProperty.GetIdentityIncrement(storeObject);
         }
 
         /// <summary>
