@@ -3644,7 +3644,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => o.OrderID < (new Random().Next() - 2147483647)));
+                ss => ss.Set<Order>().Where(o => o.OrderID < (Random.Shared.Next() - 2147483647)));
         }
 
         [ConditionalTheory]
@@ -3653,7 +3653,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(5)),
+                ss => ss.Set<Order>().Where(o => o.OrderID > Random.Shared.Next(5)),
                 entryCount: 830);
         }
 
@@ -3663,7 +3663,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => o.OrderID > new Random().Next(0, 10)),
+                ss => ss.Set<Order>().Where(o => o.OrderID > Random.Shared.Next(0, 10)),
                 entryCount: 830);
         }
 
