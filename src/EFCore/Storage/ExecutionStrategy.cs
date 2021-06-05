@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Indicates whether this <see cref="IExecutionStrategy" /> might retry the execution after a failure.
         /// </summary>
         public virtual bool RetriesOnFailure
-            => !Suspended;
+            => !Suspended && MaxRetryCount > 0;
 
         /// <summary>
         ///     Executes the specified operation and returns the result.
@@ -325,20 +325,23 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual void OnFirstExecution()
         {
-            if (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
-                || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
-                || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as
-                    ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null)
+            if (RetriesOnFailure)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.ExecutionStrategyExistingTransaction(
-                        GetType().Name,
-                        nameof(DbContext)
-                        + "."
-                        + nameof(DbContext.Database)
-                        + "."
-                        + nameof(DatabaseFacade.CreateExecutionStrategy)
-                        + "()"));
+                if (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
+                    || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
+                    || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as
+                        ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ExecutionStrategyExistingTransaction(
+                            GetType().Name,
+                            nameof(DbContext)
+                            + "."
+                            + nameof(DbContext.Database)
+                            + "."
+                            + nameof(DatabaseFacade.CreateExecutionStrategy)
+                            + "()"));
+                }
             }
 
             ExceptionsEncountered.Clear();
