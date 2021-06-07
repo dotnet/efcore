@@ -1047,6 +1047,203 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_abs1(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Product>()
+                    .Where(od => MathF.Abs(od.ProductID) > 10),
+                entryCount: 67);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_ceiling1(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(od => od.UnitPrice < 7)
+                    .Where(od => MathF.Ceiling(od.Discount) > 0),
+                entryCount: 51);
+        }
+        
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_floor(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(od => od.Quantity < 5)
+                    .Where(od => MathF.Floor((float)od.UnitPrice) > 10),
+                entryCount: 137);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_power(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => MathF.Pow(od.Discount, 2) > 0.05f),
+                entryCount: 154);
+        }
+        
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_round2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => MathF.Round((float)od.UnitPrice, 2) > 100),
+                entryCount: 46);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_truncate(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(od => od.Quantity < 5)
+                    .Where(od => MathF.Truncate((float)od.UnitPrice) > 10),
+                entryCount: 137);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_exp(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Exp(od.Discount) > 1),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_log10(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => MathF.Log10(od.Discount) < 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_log(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => MathF.Log(od.Discount) < 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_log_new_base(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => MathF.Log(od.Discount, 7) < 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_sqrt(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Sqrt(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_acos(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Acos(od.Discount) > 1),
+                entryCount: 25);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_asin(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Asin(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_atan(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Atan(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_atan2(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Atan2(od.Discount, 1) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_cos(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Cos(od.Discount) > 0),
+                entryCount: 25);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_sin(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Sin(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_tan(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Tan(od.Discount) > 0),
+                entryCount: 13);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_sign(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Sign(od.Discount) > 0),
+                entryCount: 13);
+        }
+        
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_guid_newguid(bool async)
         {
             return AssertQuery(

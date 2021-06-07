@@ -596,6 +596,215 @@ WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (c[""OrderID""] = 11077))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_abs1(bool async)
+        {
+            await base.Where_mathf_abs1(async);
+
+            AssertSql(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE ABS(CAST([p].[ProductID] AS real)) > CAST(10 AS real)");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_ceiling1(bool async)
+        {
+            await base.Where_mathf_ceiling1(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[UnitPrice] < 7.0) AND (CEILING([o].[Discount]) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_floor(bool async)
+        {
+            await base.Where_mathf_floor(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR(CAST([o].[UnitPrice] AS real)) > CAST(10 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_power(bool async)
+        {
+            await base.Where_mathf_power(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE POWER([o].[Discount], CAST(2 AS real)) > CAST(0.05 AS real)");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_round2(bool async)
+        {
+            await base.Where_mathf_round2(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ROUND(CAST([o].[UnitPrice] AS real), 2) > CAST(100 AS real)");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_truncate(bool async)
+        {
+            await base.Where_mathf_truncate(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND(CAST([o].[UnitPrice] AS real), 0, 1) > CAST(10 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_exp(bool async)
+        {
+            await base.Where_mathf_exp(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (EXP([o].[Discount]) > CAST(1 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_log10(bool async)
+        {
+            await base.Where_mathf_log10(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG10([o].[Discount]) < CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_log(bool async)
+        {
+            await base.Where_mathf_log(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG([o].[Discount]) < CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_log_new_base(bool async)
+        {
+            await base.Where_mathf_log_new_base(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE (([o].[OrderID] = 11077) AND ([o].[Discount] > CAST(0 AS real))) AND (LOG([o].[Discount], CAST(7 AS real)) < CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_sqrt(bool async)
+        {
+            await base.Where_mathf_sqrt(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (SQRT([o].[Discount]) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_acos(bool async)
+        {
+            await base.Where_mathf_acos(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (ACOS([o].[Discount]) > CAST(1 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_asin(bool async)
+        {
+            await base.Where_mathf_asin(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (ASIN([o].[Discount]) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_atan(bool async)
+        {
+            await base.Where_mathf_atan(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (ATAN([o].[Discount]) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_atan2(bool async)
+        {
+            await base.Where_mathf_atan2(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (ATN2([o].[Discount], CAST(1 AS real)) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_cos(bool async)
+        {
+            await base.Where_mathf_cos(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (COS([o].[Discount]) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_sin(bool async)
+        {
+            await base.Where_mathf_sin(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (SIN([o].[Discount]) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_tan(bool async)
+        {
+            await base.Where_mathf_tan(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (TAN([o].[Discount]) > CAST(0 AS real))");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Where_mathf_sign(bool async)
+        {
+            await base.Where_mathf_sign(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE ([o].[OrderID] = 11077) AND (SIGN([o].[Discount]) > 0)");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_guid_newguid(bool async)
         {
             await base.Where_guid_newguid(async);

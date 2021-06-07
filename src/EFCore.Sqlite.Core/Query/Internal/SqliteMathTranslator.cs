@@ -48,7 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             { typeof(Math).GetRequiredMethod(nameof(Math.Min), new[] { typeof(uint), typeof(uint) }), "min" },
             { typeof(Math).GetRequiredMethod(nameof(Math.Min), new[] { typeof(ushort), typeof(ushort) }), "min" },
             { typeof(Math).GetRequiredMethod(nameof(Math.Round), new[] { typeof(double) }), "round" },
-            { typeof(Math).GetRequiredMethod(nameof(Math.Round), new[] { typeof(double), typeof(int) }), "round" }
+            { typeof(Math).GetRequiredMethod(nameof(Math.Round), new[] { typeof(double), typeof(int) }), "round" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Abs), new[] { typeof(float) }), "abs" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Max), new[] { typeof(float), typeof(float) }), "max" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Min), new[] { typeof(float), typeof(float) }), "min" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Round), new[] { typeof(float) }), "round" },
+            { typeof(MathF).GetRequiredMethod(nameof(MathF.Round), new[] { typeof(float), typeof(int) }), "round" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
