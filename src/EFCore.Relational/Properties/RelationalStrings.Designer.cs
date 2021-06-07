@@ -1078,6 +1078,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("TransactionAssociatedWithDifferentConnection");
 
         /// <summary>
+        ///     User transaction is not supported with a TransactionSuppressed migrations.
+        /// </summary>
+        public static string TransactionSuppressedMigrationInUserTransaction
+            => GetString("TransactionSuppressedMigrationInUserTransaction");
+
+        /// <summary>
         ///     Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.
         /// </summary>
         public static string UnableToBindMemberToEntityProjection(object? memberType, object? member, object? entityType)

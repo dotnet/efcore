@@ -762,6 +762,9 @@
   <data name="TransactionAssociatedWithDifferentConnection" xml:space="preserve">
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
+  <data name="TransactionSuppressedMigrationInUserTransaction" xml:space="preserve">
+    <value>User transaction is not supported with a TransactionSuppressed migrations.</value>
+  </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.</value>
   </data>
