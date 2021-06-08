@@ -8,11 +8,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -536,7 +536,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             nameof(GetCountByYear),
                             BindingFlags.NonPublic | BindingFlags.Static));
 
-                    builder.Entity<TestKeylessType>().HasNoKey();
+                    builder.Entity<TestKeylessType>().HasNoKey().ToTable((string)null);
                 },
                 AddBoilerPlate(
                     GetHeading()
@@ -545,6 +545,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     b.Property<string>(""Something"")
                         .HasColumnType(""nvarchar(max)"");
+
+                    b.ToTable(null, (string)null);
                 });"),
                 o => Assert.Null(o.GetEntityTypes().Single().GetFunctionName()));
         }
@@ -571,6 +573,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.ToFunction(""GetCount"");
                 });"),
                 o => Assert.Equal("GetCount", o.GetEntityTypes().Single().GetFunctionName()));
+        }
+
+        [ConditionalFact]
+        public void Entity_types_mapped_to_queries_are_stored_in_the_model_snapshot()
+        {
+            Test(
+                builder => builder.Entity<EntityWithOneProperty>().Ignore(e => e.EntityWithTwoProperties).ToSqlQuery("query"),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToSqlQuery(""query"");
+                });"),
+                o => Assert.Equal("query", o.GetEntityTypes().Single().GetSqlQuery()));
         }
 
         [ConditionalFact]
@@ -792,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"");
+                    b.ToTable(""Buildings"", (string)null);
                 });"),
                 o =>
                 {
@@ -1419,7 +1442,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasIndex(""RightsId"");
 
-                    b.ToTable(""MyJoinTable"");
+                    b.ToTable(""MyJoinTable"", (string)null);
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", b =>
@@ -1605,7 +1628,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithProperties"");
+                    b.ToTable(""EntityWithProperties"", (string)null);
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
@@ -1620,7 +1643,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithProperties"");
+                    b.ToTable(""EntityWithProperties"", (string)null);
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
@@ -2130,7 +2153,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.HasKey(""Id"")
                         .HasName(""PK_Custom"");
 
-                    b.ToTable(""EntityWithOneProperty"", t => t.ExcludeFromMigrations());
+                    b.ToTable(""EntityWithOneProperty"", null, t => t.ExcludeFromMigrations());
 
                     b.HasData(
                         new
@@ -2146,7 +2169,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithStringKey"", t => t.ExcludeFromMigrations());
+                    b.ToTable(""EntityWithStringKey"", null, t => t.ExcludeFromMigrations());
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
@@ -2223,7 +2246,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                             b1.HasIndex(""EntityWithStringKeyId"");
 
-                            b1.ToTable(""EntityWithStringProperty"", excludedFromMigrations: true);
+                            b1.ToTable(""EntityWithStringProperty"", null, excludedFromMigrations: true);
 
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
                                 .WithOne()
@@ -3369,7 +3392,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"");
+                    b.ToTable(""Buildings"", (string)null);
                 });"),
                 o =>
                 {
@@ -3406,7 +3429,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"");
+                    b.ToTable(""Buildings"", (string)null);
                 });"),
                 o =>
                 {
@@ -3446,7 +3469,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"");
+                    b.ToTable(""Buildings"", (string)null);
                 });"),
                 o =>
                 {
@@ -3486,7 +3509,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"");
+                    b.ToTable(""Buildings"", (string)null);
                 });"),
                 o =>
                 {
@@ -3525,7 +3548,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"");
+                    b.ToTable(""Buildings"", (string)null);
                 });"),
                 o =>
                 {
@@ -5456,6 +5479,16 @@ namespace RootNamespace
 
             var modelFromSnapshot = BuildModelFromSnapshotSource(code);
             assert(modelFromSnapshot, model);
+
+            var targetOptionsBuilder = TestHelpers
+                .AddProviderOptions(new DbContextOptionsBuilder())
+                .UseModel(model)
+                .EnableSensitiveDataLogging();
+
+            var modelDiffer = CreateModelDiffer(targetOptionsBuilder.Options);
+
+            var noopOperations = modelDiffer.GetDifferences(modelFromSnapshot.GetRelationalModel(), model.GetRelationalModel());
+            Assert.Empty(noopOperations);
         }
 
         protected IModel BuildModelFromSnapshotSource(string code)
@@ -5484,15 +5517,20 @@ namespace RootNamespace
                 Activator.CreateInstance(factoryType),
                 new object[] { builder });
 
-            var services = SqlServerTestHelpers.Instance.CreateContextServices();
+            var services = TestHelpers.CreateContextServices();
 
             var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
             return processor.Process(builder.Model);
         }
 
         protected TestHelpers.TestModelBuilder CreateConventionalModelBuilder()
-            => SqlServerTestHelpers.Instance.CreateConventionBuilder(customServices: new ServiceCollection()
+            => TestHelpers.CreateConventionBuilder(customServices: new ServiceCollection()
                     .AddEntityFrameworkSqlServerNetTopologySuite());
+
+        protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
+            => (MigrationsModelDiffer)TestHelpers.CreateContext(options).GetService<IMigrationsModelDiffer>();
+
+        protected TestHelpers TestHelpers => SqlServerTestHelpers.Instance;
 
         protected CSharpMigrationsGenerator CreateMigrationsGenerator()
         {

@@ -90,11 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 entityType = entityTypeBuilder.Metadata;
             }
-
-            if (entityType.GetFunctionName() == null)
-            {
-                entityTypeBuilder.ToTable(null);
-            }
         }
     }
 }

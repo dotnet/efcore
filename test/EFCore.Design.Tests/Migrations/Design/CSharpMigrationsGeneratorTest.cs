@@ -70,19 +70,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 RelationalAnnotationNames.ViewColumnMappings,
                 RelationalAnnotationNames.SqlQueryColumnMappings,
                 RelationalAnnotationNames.FunctionColumnMappings,
+                RelationalAnnotationNames.DefaultColumnMappings,
+                RelationalAnnotationNames.TableMappings,
+                RelationalAnnotationNames.ViewMappings,
+                RelationalAnnotationNames.FunctionMappings,
+                RelationalAnnotationNames.SqlQueryMappings,
+                RelationalAnnotationNames.DefaultMappings,
+                RelationalAnnotationNames.ForeignKeyMappings,
+                RelationalAnnotationNames.TableIndexMappings,
+                RelationalAnnotationNames.UniqueConstraintMappings,
                 RelationalAnnotationNames.RelationalOverrides,
                 RelationalAnnotationNames.DefaultValueSql,
                 RelationalAnnotationNames.ComputedColumnSql,
                 RelationalAnnotationNames.DefaultValue,
                 RelationalAnnotationNames.Name,
+#pragma warning disable CS0618 // Type or member is obsolete
+                RelationalAnnotationNames.SequencePrefix,
+#pragma warning restore CS0618 // Type or member is obsolete
                 RelationalAnnotationNames.Sequences,
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.DefaultSchema,
                 RelationalAnnotationNames.Filter,
+#pragma warning disable CS0618 // Type or member is obsolete
+                RelationalAnnotationNames.DbFunction,
+#pragma warning restore CS0618 // Type or member is obsolete
                 RelationalAnnotationNames.DbFunctions,
                 RelationalAnnotationNames.MaxIdentifierLength,
                 RelationalAnnotationNames.IsFixedLength,
-                RelationalAnnotationNames.Collation
+                RelationalAnnotationNames.Collation,
+                RelationalAnnotationNames.IsStored,
+                RelationalAnnotationNames.RelationalModel,
+                RelationalAnnotationNames.ModelDependencies
             };
 
             // Add a line here if the code generator is supposed to handle this annotation
@@ -140,18 +158,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 {
                     RelationalAnnotationNames.FunctionName,
-                    (null, "")
+                    (null, _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToFunction) + @"(null);" + _nl)
                 },
                 {
                     RelationalAnnotationNames.SqlQuery,
-                    (null, "")
+                    (null, _nl + "modelBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery) + @"(null);" + _nl)
                 }
             };
 
             MissingAnnotationCheck(
                 b => b.Entity<WithAnnotations>().Metadata,
                 notForEntityType, forEntityType,
-                _toTable,
+                a => _toTable,
                 (g, m, b) => g.TestGenerateEntityTypeAnnotations("modelBuilder", (IEntityType)m, b));
         }
 
@@ -176,20 +194,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.AmbiguousNavigations,
                 CoreAnnotationNames.DuplicateServiceProperties,
                 RelationalAnnotationNames.TableName,
+                RelationalAnnotationNames.IsTableExcludedFromMigrations,
                 RelationalAnnotationNames.ViewName,
                 RelationalAnnotationNames.Schema,
                 RelationalAnnotationNames.ViewSchema,
+                RelationalAnnotationNames.ViewDefinitionSql,
+                RelationalAnnotationNames.FunctionName,
+                RelationalAnnotationNames.SqlQuery,
                 RelationalAnnotationNames.DefaultSchema,
                 RelationalAnnotationNames.DefaultMappings,
+                RelationalAnnotationNames.TableColumnMappings,
+                RelationalAnnotationNames.ViewColumnMappings,
+                RelationalAnnotationNames.SqlQueryColumnMappings,
+                RelationalAnnotationNames.FunctionColumnMappings,
+                RelationalAnnotationNames.DefaultColumnMappings,
                 RelationalAnnotationNames.TableMappings,
                 RelationalAnnotationNames.ViewMappings,
+                RelationalAnnotationNames.FunctionMappings,
                 RelationalAnnotationNames.SqlQueryMappings,
+                RelationalAnnotationNames.ForeignKeyMappings,
+                RelationalAnnotationNames.TableIndexMappings,
+                RelationalAnnotationNames.UniqueConstraintMappings,
                 RelationalAnnotationNames.Name,
                 RelationalAnnotationNames.Sequences,
+#pragma warning disable CS0618 // Type or member is obsolete
+                RelationalAnnotationNames.SequencePrefix,
+#pragma warning restore CS0618 // Type or member is obsolete
                 RelationalAnnotationNames.CheckConstraints,
                 RelationalAnnotationNames.Filter,
+#pragma warning disable CS0618 // Type or member is obsolete
+                RelationalAnnotationNames.DbFunction,
+#pragma warning restore CS0618 // Type or member is obsolete
                 RelationalAnnotationNames.DbFunctions,
-                RelationalAnnotationNames.MaxIdentifierLength
+                RelationalAnnotationNames.MaxIdentifierLength,
+                RelationalAnnotationNames.RelationalModel,
+                RelationalAnnotationNames.ModelDependencies
             };
 
             var columnMapping =
@@ -201,6 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 { CoreAnnotationNames.MaxLength, (256, $@"{_nl}.{nameof(PropertyBuilder.HasMaxLength)}(256){columnMapping}") },
                 { CoreAnnotationNames.Precision, (4, $@"{_nl}.{nameof(PropertyBuilder.HasPrecision)}(4){columnMapping}") },
+                { CoreAnnotationNames.Scale, (null, $@"{columnMapping}") },
                 { CoreAnnotationNames.Unicode, (false, $@"{_nl}.{nameof(PropertyBuilder.IsUnicode)}(false){columnMapping}") },
                 {
                     CoreAnnotationNames.ValueConverter, (new ValueConverter<int, long>(v => v, v => (int)v),
@@ -242,13 +282,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     RelationalAnnotationNames.Collation,
                     ("Some Collation",
                         $@"{columnMapping}{_nl}.{nameof(RelationalPropertyBuilderExtensions.UseCollation)}(""Some Collation"")")
+                },
+                {
+                    RelationalAnnotationNames.IsStored,
+                    (null, $@"{columnMapping}{_nl}.HasAnnotation(""{RelationalAnnotationNames.IsStored}"", null)")
                 }
             };
 
             MissingAnnotationCheck(
                 b => b.Entity<WithAnnotations>().Property(e => e.Id).Metadata,
                 notForProperty, forProperty,
-                $"{columnMapping}",
+                a => $"{columnMapping}",
                 (g, m, b) => g.TestGeneratePropertyAnnotations((IProperty)m, b));
         }
 
@@ -256,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Func<ModelBuilder, IMutableAnnotatable> createMetadataItem,
             HashSet<string> invalidAnnotations,
             Dictionary<string, (object Value, string Expected)> validAnnotations,
-            string generationDefault,
+            Func<string, string> generationDefault,
             Action<TestCSharpSnapshotGenerator, IMutableAnnotatable, IndentedStringBuilder> test)
         {
             var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
@@ -314,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         Assert.Equal(
                         validAnnotations.ContainsKey(annotationName)
                             ? validAnnotations[annotationName].Expected
-                            : generationDefault,
+                            : generationDefault(annotationName),
                         sb.ToString());
                     }
                     catch (Exception e)

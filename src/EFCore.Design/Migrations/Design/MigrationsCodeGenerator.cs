@@ -215,6 +215,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
             => items.SelectMany(
                 i => Dependencies.AnnotationCodeGenerator.FilterIgnoredAnnotations(i.GetAnnotations())
+                    .Where(a => a.Value != null)
                     .Select(a => new { Annotatable = i, Annotation = a })
                     .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value!.GetType()).GetNamespaces()));
 
