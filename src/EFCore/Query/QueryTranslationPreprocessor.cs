@@ -57,8 +57,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             query = NormalizeQueryableMethod(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
             query = new SubqueryMemberPushdownExpressionVisitor(QueryCompilationContext.Model).Visit(query);
-            query = new NavigationExpandingExpressionVisitor(this, QueryCompilationContext, Dependencies.EvaluatableExpressionFilter)
-                .Expand(query);
+            query = new NavigationExpandingExpressionVisitor(
+                this,
+                QueryCompilationContext,
+                Dependencies.EvaluatableExpressionFilter,
+                Dependencies.QueryRootCreator)
+                    .Expand(query);
             query = new QueryOptimizingExpressionVisitor().Visit(query);
             query = new NullCheckRemovingExpressionVisitor().Visit(query);
 

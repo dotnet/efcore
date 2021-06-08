@@ -1408,6 +1408,9 @@
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
     <value>Unable to translate set operation since both operands have different 'Include' operations. Consider having same 'Include' applied on both sides.</value>
   </data>
+  <data name="IncompatibleSourcesForSetOperation" xml:space="preserve">
+    <value>Incompatible sources used for set operation.</value>
+  </data>
   <data name="ShadowEntity" xml:space="preserve">
     <value>The entity type '{entityType}' is in shadow state. A valid model requires all entity types to have a corresponding CLR type.</value>
     <comment>Obsolete</comment>

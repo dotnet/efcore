@@ -64,9 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
+            var sqlServerTemporalConvention = new SqlServerTemporalConvention();
             ConventionSet.AddBefore(
                 conventionSet.EntityTypeAnnotationChangedConventions,
-                new SqlServerTemporalConvention(),
+                sqlServerTemporalConvention,
                 typeof(SqlServerValueGenerationConvention));
 
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
@@ -109,6 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.ModelFinalizedConventions,
                 (RuntimeModelConvention)new SqlServerRuntimeModelConvention(Dependencies, RelationalDependencies));
+
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(sqlServerTemporalConvention);
 
             return conventionSet;
         }

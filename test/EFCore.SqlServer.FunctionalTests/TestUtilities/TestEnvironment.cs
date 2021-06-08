@@ -37,6 +37,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static bool? _supportsMemoryOptimizedTables;
 
+        private static bool? _supportsTemporalTablesCascadeDelete;
+
         private static byte? _productMajorVersion;
 
         private static int? _engineEdition;
@@ -201,6 +203,36 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
 
                 return _supportsMemoryOptimizedTables.Value;
+            }
+        }
+
+        public static bool IsTemporalTablesCascadeDeleteSupported
+        {
+            get
+            {
+                if (!IsConfigured)
+                {
+                    return false;
+                }
+
+                if (_supportsTemporalTablesCascadeDelete.HasValue)
+                {
+                    return _supportsTemporalTablesCascadeDelete.Value;
+                }
+
+                try
+                {
+                    _engineEdition = GetEngineEdition();
+                    _productMajorVersion = GetProductMajorVersion();
+
+                    _supportsTemporalTablesCascadeDelete = (_productMajorVersion >= 14/* && _engineEdition != 6*/) || IsSqlAzure;
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    _supportsTemporalTablesCascadeDelete = false;
+                }
+
+                return _supportsTemporalTablesCascadeDelete.Value;
             }
         }
 

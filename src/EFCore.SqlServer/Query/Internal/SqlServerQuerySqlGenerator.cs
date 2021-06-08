@@ -1,8 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -96,6 +100,71 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     Sql.Append(" ROWS ONLY");
                 }
             }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is TemporalTableExpression temporalTableExpression)
+            {
+                Sql
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Name, temporalTableExpression.Schema))
+                    .Append(" FOR SYSTEM_TIME ");
+
+                switch (temporalTableExpression.TemporalOperationType)
+                {
+                    case TemporalOperationType.AsOf:
+                        Sql
+                            .Append("AS OF ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.PointInTime));
+                        break;
+
+                    case TemporalOperationType.FromTo:
+                        Sql
+                            .Append("FROM ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.From))
+                            .Append(" TO ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.To));
+                        break;
+
+                    case TemporalOperationType.Between:
+                        Sql
+                            .Append("BETWEEN ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.From))
+                            .Append(" AND ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.To));
+                        break;
+
+                    case TemporalOperationType.ContainedIn:
+                        Sql
+                            .Append("CONTAINED IN (")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.From))
+                            .Append(", ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.To))
+                            .Append(")");
+                        break;
+
+                    default:
+                        Sql.Append("ALL");
+                        break;
+                }
+
+                if (temporalTableExpression.Alias != null)
+                {
+                    Sql
+                        .Append(AliasSeparator)
+                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Alias));
+                }
+
+                return temporalTableExpression;
+            }
+
+            return base.VisitExtension(extensionExpression);
         }
     }
 }

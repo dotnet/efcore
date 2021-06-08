@@ -16,5 +16,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         IsNotCI = 1 << 5,
         SupportsFullTextSearch = 1 << 6,
         SupportsOnlineIndexes = 1 << 7,
+        SupportsTemporalTablesCascadeDelete = 1 << 8,
     }
 }

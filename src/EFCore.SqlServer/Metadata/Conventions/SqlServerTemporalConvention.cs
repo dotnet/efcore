@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that manipulates temporal settings for an entity mapped to a temporal table.
     /// </summary>
-    public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConvention
+    public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConvention, ISkipNavigationForeignKeyChangedConvention
     {
         private const string PeriodStartDefaultName = "PeriodStart";
         private const string PeriodEndDefaultName = "PeriodEnd";
@@ -79,6 +79,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         periodPropertyBuilder.HasColumnName(periodPropertyName);
                     }
                 }
+            }
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessSkipNavigationForeignKeyChanged(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            IConventionForeignKey? foreignKey,
+            IConventionForeignKey? oldForeignKey,
+            IConventionContext<IConventionForeignKey> context)
+        {
+             if (skipNavigationBuilder.Metadata.JoinEntityType is IConventionEntityType joinEntityType
+                && joinEntityType.HasSharedClrType
+                && !joinEntityType.IsTemporal()
+                && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention
+                && skipNavigationBuilder.Metadata.DeclaringEntityType.IsTemporal()
+                && skipNavigationBuilder.Metadata.Inverse is IConventionSkipNavigation inverse
+                && inverse.DeclaringEntityType.IsTemporal())
+            {
+                joinEntityType.SetIsTemporal(true);
             }
         }
     }

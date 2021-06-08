@@ -313,6 +313,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 GetString("TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue", nameof(entityType), nameof(propertyName)),
                 entityType, propertyName);
 
+        /// <summary>
+        ///     Temporal query is trying to use navigation to an entity '{entityType}' which itself doesn't map to temporal table. Either map the entity to temporal table or use join manually to access it.
+        /// </summary>
+        public static string TemporalNavigationExpansionBetweenTemporalAndNonTemporal(object? entityType)
+            => string.Format(
+                GetString("TemporalNavigationExpansionBetweenTemporalAndNonTemporal", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.
+        /// </summary>
+        public static string TemporalNavigationExpansionOnlySupportedForAsOf(object? operationName)
+            => string.Format(
+                GetString("TemporalNavigationExpansionOnlySupportedForAsOf", nameof(operationName)),
+                operationName);
+
+        /// <summary>
+        ///     Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.
+        /// </summary>
+        public static string TemporalSetOperationOnMismatchedSources(object? entityType)
+            => string.Format(
+                GetString("TemporalSetOperationOnMismatchedSources", nameof(entityType)),
+                entityType);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

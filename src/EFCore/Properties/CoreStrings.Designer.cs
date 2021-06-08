@@ -2543,6 +2543,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SetOperationWithDifferentIncludesInOperands");
 
         /// <summary>
+        ///     Incompatible sources used for set operation.
+        /// </summary>
+        public static string IncompatibleSourcesForSetOperation
+            => GetString("IncompatibleSourcesForSetOperation");
+
+        /// <summary>
         ///     The entity type '{entityType}' is in shadow state. A valid model requires all entity types to have a corresponding CLR type.
         /// </summary>
         [Obsolete]

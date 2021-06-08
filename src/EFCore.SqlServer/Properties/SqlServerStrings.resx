@@ -319,4 +319,16 @@
     <value>Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.</value>
   </data>
 
+  <data name="TemporalNavigationExpansionBetweenTemporalAndNonTemporal" xml:space="preserve">
+    <value>Temporal query is trying to use navigation to an entity '{entityType}' which itself doesn't map to temporal table. Either map the entity to temporal table or use join manually to access it.</value>
+  </data>
+
+  <data name="TemporalNavigationExpansionOnlySupportedForAsOf" xml:space="preserve">
+    <value>Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.</value>
+  </data>
+
+  <data name="TemporalSetOperationOnMismatchedSources" xml:space="preserve">
+    <value>Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.</value>
+  </data>
+
 </root>

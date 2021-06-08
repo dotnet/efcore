@@ -65,6 +65,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 isMet &= TestEnvironment.IsOnlineIndexingSupported;
             }
 
+            if (Conditions.HasFlag(SqlServerCondition.SupportsTemporalTablesCascadeDelete))
+            {
+                isMet &= TestEnvironment.IsTemporalTablesCascadeDeleteSupported;
+            }
+
             return new ValueTask<bool>(isMet);
         }
 

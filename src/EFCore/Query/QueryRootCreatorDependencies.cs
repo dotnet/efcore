@@ -1,15 +1,14 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="QueryTranslationPreprocessor" />
+    ///         Service dependencies parameter class for <see cref="QueryRootCreator" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -29,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed record QueryTranslationPreprocessorDependencies
+    public sealed record QueryRootCreatorDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="QueryTranslationPreprocessor" />.
+        ///         Creates the service dependencies parameter object for a <see cref="QueryRootCreator" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -51,25 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public QueryTranslationPreprocessorDependencies(
-            IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            IQueryRootCreator queryRootCreator)
+        public QueryRootCreatorDependencies()
         {
-            Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
-            Check.NotNull(queryRootCreator, nameof(queryRootCreator));
-
-            EvaluatableExpressionFilter = evaluatableExpressionFilter;
-            QueryRootCreator = queryRootCreator;
         }
-
-        /// <summary>
-        ///     Evaluatable expression filter.
-        /// </summary>
-        public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; init; }
-
-        /// <summary>
-        ///     Query root creator.
-        /// </summary>
-        public IQueryRootCreator QueryRootCreator { get; init; }
     }
 }

@@ -79,6 +79,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
                 .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqlServerParameterBasedSqlProcessorFactory>()
+                .TryAdd<IQueryRootCreator, SqlServerQueryRootCreator>()
+                .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAddProviderSpecificServices(
                     b => b
                         .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
