@@ -44,10 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
 
-            var columns = new Dictionary<string, IConventionProperty>(StringComparer.Ordinal);
-            var keys = new Dictionary<string, IConventionKey>(StringComparer.Ordinal);
-            var foreignKeys = new Dictionary<string, IConventionForeignKey>(StringComparer.Ordinal);
-            var indexes = new Dictionary<string, IConventionIndex>(StringComparer.Ordinal);
+            var columns = new Dictionary<string, IConventionProperty>();
+            var keys = new Dictionary<string, IConventionKey>();
+            var foreignKeys = new Dictionary<string, IConventionForeignKey>();
+            var indexes = new Dictionary<string, IConventionIndex>();
+            var checkConstraints = new Dictionary<(string, string?), IConventionCheckConstraint>();
             foreach (var table in tables)
             {
                 columns.Clear();
@@ -61,6 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     TryUniquifyKeyNames(entityType, keys, storeObject, maxLength);
                     TryUniquifyForeignKeyNames(entityType, foreignKeys, storeObject, maxLength);
                     TryUniquifyIndexNames(entityType, indexes, storeObject, maxLength);
+                    TryUniquifyCheckConstraintNames(entityType, checkConstraints, storeObject, maxLength);
                 }
             }
         }
@@ -478,6 +480,72 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreignKeyName = Uniquifier.Uniquify(foreignKeyName, foreignKeys, maxLength);
                 foreignKey.Builder.HasConstraintName(foreignKeyName);
                 return foreignKeyName;
+            }
+
+            return null;
+        }
+
+        private void TryUniquifyCheckConstraintNames(
+            IConventionEntityType entityType,
+            Dictionary<(string, string?), IConventionCheckConstraint> checkConstraints,
+            in StoreObjectIdentifier storeObject,
+            int maxLength)
+        {
+            foreach (var checkConstraint in entityType.GetDeclaredCheckConstraints())
+            {
+                var constraintName = checkConstraint.GetName(storeObject);
+                if (!checkConstraints.TryGetValue((constraintName, storeObject.Schema), out var otherCheckConstraint))
+                {
+                    checkConstraints[(constraintName, storeObject.Schema)] = checkConstraint;
+                    continue;
+                }
+
+                if (AreCompatible(checkConstraint, otherCheckConstraint, storeObject))
+                {
+                    continue;
+                }
+
+                var newConstraintName = TryUniquify(checkConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
+                if (newConstraintName != null)
+                {
+                    checkConstraints[(newConstraintName, storeObject.Schema)] = checkConstraint;
+                    continue;
+                }
+
+                var newOtherConstraintName = TryUniquify(otherCheckConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
+                if (newOtherConstraintName != null)
+                {
+                    checkConstraints[(constraintName, storeObject.Schema)] = checkConstraint;
+                    checkConstraints[(newOtherConstraintName, storeObject.Schema)] = otherCheckConstraint;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether two check constraints with the same name are compatible.
+        /// </summary>
+        /// <param name="checkConstraint"> An check constraints. </param>
+        /// <param name="duplicateCheckConstraint"> Another check constraints. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <returns> <see langword="true" /> if compatible </returns>
+        protected virtual bool AreCompatible(
+            IReadOnlyCheckConstraint checkConstraint,
+            IReadOnlyCheckConstraint duplicateCheckConstraint,
+            in StoreObjectIdentifier storeObject)
+            => CheckConstraint.AreCompatible(checkConstraint, duplicateCheckConstraint, storeObject, shouldThrow: false);
+
+        private static string? TryUniquify<T>(
+            IConventionCheckConstraint checkConstraint,
+            string checkConstraintName,
+            string? schema,
+            Dictionary<(string, string?), T> checkConstraints,
+            int maxLength)
+        {
+            if (checkConstraint.Builder.CanSetName(null))
+            {
+                checkConstraintName = Uniquifier.Uniquify(checkConstraintName, checkConstraints, n => (n, schema), maxLength);
+                checkConstraint.Builder.HasName(checkConstraintName);
+                return checkConstraintName;
             }
 
             return null;

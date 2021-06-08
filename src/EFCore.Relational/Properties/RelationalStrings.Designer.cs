@@ -310,12 +310,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("DistinctOnCollectionNotSupported");
 
         /// <summary>
-        ///     The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.
+        ///     The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists on entity type '{conflictingEntityType}'.
         /// </summary>
-        public static string DuplicateCheckConstraint(object? checkConstraint, object? entityType)
+        public static string DuplicateCheckConstraint(object? checkConstraint, object? entityType, object? conflictingEntityType)
             => string.Format(
-                GetString("DuplicateCheckConstraint", nameof(checkConstraint), nameof(entityType)),
-                checkConstraint, entityType);
+                GetString("DuplicateCheckConstraint", nameof(checkConstraint), nameof(entityType), nameof(conflictingEntityType)),
+                checkConstraint, entityType, conflictingEntityType);
+
+        /// <summary>
+        ///     The check constraints '{checkConstraint1}' on '{entityType1}' and '{checkConstraint2}' on '{entityType2}' are both mapped to '{checkConstraintName}', but with different defining SQL.
+        /// </summary>
+        public static string DuplicateCheckConstraintSqlMismatch(object? checkConstraint1, object? entityType1, object? checkConstraint2, object? entityType2, object? checkConstraintName)
+            => string.Format(
+                GetString("DuplicateCheckConstraintSqlMismatch", nameof(checkConstraint1), nameof(entityType1), nameof(checkConstraint2), nameof(entityType2), nameof(checkConstraintName)),
+                checkConstraint1, entityType1, checkConstraint2, entityType2, checkConstraintName);
 
         /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different collations ('{collation1}' and '{collation2}').

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a check constraint in the <see cref="IEntityType" />.
+    ///     Represents a check constraint on the entity type.
     /// </summary>
     public interface ICheckConstraint : IReadOnlyCheckConstraint, IAnnotatable
     {
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Append(indentString)
                 .Append("Check: ");
 
-            builder.Append(Name)
+            builder.Append(ModelName)
                 .Append(" \"")
                 .Append(Sql)
                 .Append('"');

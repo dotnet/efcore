@@ -326,22 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
             else
             {
-                if (annotations.TryGetAndRemove(RelationalAnnotationNames.CheckConstraints,
-                    out SortedDictionary<string, ICheckConstraint> constraints))
-                {
-                    parameters.Namespaces.Add(typeof(SortedDictionary<string, ICheckConstraint>).Namespace!);
-                    var constraintsVariable = Dependencies.CSharpHelper.Identifier("constraints", parameters.ScopeVariables, capitalize: false);
-                    parameters.MainBuilder
-                        .Append("var ").Append(constraintsVariable).AppendLine(" = new SortedDictionary<string, ICheckConstraint>();");
-
-                    foreach (var constraintPair in constraints)
-                    {
-                        Create(constraintPair.Value, constraintsVariable, parameters);
-                    }
-
-                    GenerateSimpleAnnotation(RelationalAnnotationNames.CheckConstraints, constraintsVariable, parameters);
-                }
-
+                annotations.Remove(RelationalAnnotationNames.CheckConstraints);
                 annotations.Remove(RelationalAnnotationNames.Comment);
                 annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
 
@@ -355,29 +340,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
 
             base.Generate(entityType, parameters);
-        }
-
-        private void Create(ICheckConstraint constraint, string constraintsVariable, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        {
-            var code = Dependencies.CSharpHelper;
-            var constraintVariable = code.Identifier(constraint.Name, parameters.ScopeVariables, capitalize: false);
-            var mainBuilder = parameters.MainBuilder;
-            mainBuilder
-                .Append("var ").Append(constraintVariable).AppendLine(" = new RuntimeCheckConstraint(").IncrementIndent()
-                .Append(code.Literal(constraint.Name)).AppendLine(",")
-                .Append(parameters.TargetName).AppendLine(",")
-                .Append(code.Literal(constraint.Sql)).AppendLine(");").DecrementIndent()
-                .AppendLine();
-
-            CreateAnnotations(
-                constraint,
-                Generate,
-                parameters with { TargetName = constraintVariable });
-
-            mainBuilder
-                .Append(constraintsVariable).Append("[").Append(code.Literal(constraint.Name)).Append("] = ")
-                .Append(constraintVariable).AppendLine(";")
-                .AppendLine();
         }
 
         /// <summary>

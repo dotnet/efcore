@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -588,6 +589,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Contains(sequences, s => s.Name == "Fibonacci");
             Assert.Contains(sequences, s => s.Name == "Golomb");
         }
+
+        [ConditionalFact]
+        public void AddCheckConstraint_with_duplicate_names_throws_exception()
+        {
+            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+            var entityType = entityTypeBuilder.Metadata;
+
+            entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+
+            Assert.Equal(
+                RelationalStrings.DuplicateCheckConstraint("CK_Customer_AlternateId", entityType.DisplayName(), entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(
+                    () => entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id")).Message);
+        }
+
+        [ConditionalFact]
+        public void RemoveCheckConstraint_returns_constraint_when_constraint_exists()
+        {
+            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+            var entityType = entityTypeBuilder.Metadata;
+
+            var constraint = entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+
+            Assert.Same(constraint, entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+        }
+
+        [ConditionalFact]
+        public void RemoveCheckConstraint_returns_null_when_constraint_is_missing()
+        {
+            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
+            var entityType = entityTypeBuilder.Metadata;
+
+            Assert.Null(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+        }
+
+        protected virtual ModelBuilder CreateConventionModelBuilder()
+            => RelationalTestHelpers.Instance.CreateConventionBuilder();
 
         private enum MyEnum : byte
         {

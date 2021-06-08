@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder =>
                 {
                     builder.Entity<EntityWithTwoProperties>()
-                        .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+                        .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id", ck => ck.HasName("CK_Customer_AlternateId"));
                     builder.Ignore<EntityWithOneProperty>();
                 },
                 AddBoilerPlate(
@@ -651,11 +651,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable(""EntityWithTwoProperties"");
 
-                    b.HasCheckConstraint(""CK_Customer_AlternateId"", ""AlternateId > Id"");
+                    b.HasCheckConstraint(""CK_Customer_AlternateId"", ""AlternateId > Id"", c => c.HasName(""CK_Customer_AlternateId""));
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetAnnotations().Count());
+                    var constraint = o.GetEntityTypes().Single().GetCheckConstraints().Single();
+                    Assert.Equal("CK_Customer_AlternateId", constraint.Name);
                 });
         }
 
@@ -666,7 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 builder =>
                 {
                     builder.Entity<DerivedEntity>()
-                        .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+                        .HasCheckConstraint("CK_BaseEntity_AlternateId", "AlternateId > Id");
                     builder.Entity<BaseEntity>();
                 },
                 AddBoilerPlate(
@@ -699,11 +700,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasDiscriminator().HasValue(""DerivedEntity"");
 
-                    b.HasCheckConstraint(""CK_Customer_AlternateId"", ""AlternateId > Id"");
+                    b.HasCheckConstraint(""CK_BaseEntity_AlternateId"", ""AlternateId > Id"");
                 });"),
                 o =>
                 {
-                    Assert.Equal(2, o.GetAnnotations().Count());
+                    var constraint = o.FindEntityType(typeof(DerivedEntity)).GetDeclaredCheckConstraints().Single();
+                    Assert.Equal("CK_BaseEntity_AlternateId", constraint.Name);
                 });
         }
 

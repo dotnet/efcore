@@ -1095,10 +1095,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             stringBuilder
                 .Append(builderName)
                 .Append(".HasCheckConstraint(")
-                .Append(Code.Literal(checkConstraint.Name))
+                .Append(Code.Literal(checkConstraint.ModelName))
                 .Append(", ")
-                .Append(Code.Literal(checkConstraint.Sql))
-                .AppendLine(");");
+                .Append(Code.Literal(checkConstraint.Sql));
+
+            if (checkConstraint.Name != (checkConstraint.GetDefaultName() ?? checkConstraint.ModelName))
+            {
+                stringBuilder
+                    .Append(", c => c.HasName(")
+                    .Append(Code.Literal(checkConstraint.Name))
+                    .Append(")");
+            }
+
+            stringBuilder.AppendLine(");");
         }
 
         /// <summary>

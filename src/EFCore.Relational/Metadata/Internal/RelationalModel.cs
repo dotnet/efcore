@@ -182,9 +182,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         constraint.AddAnnotations(relationalAnnotationProvider.For(constraint, designTime));
                     }
 
-                    foreach (var checkConstraint in ((ITable)table).CheckConstraints)
+                    if (designTime)
                     {
-                        ((AnnotatableBase)checkConstraint).AddAnnotations(relationalAnnotationProvider.For(checkConstraint, designTime));
+                        foreach (var checkConstraint in ((ITable)table).CheckConstraints)
+                        {
+                            ((AnnotatableBase)checkConstraint).AddAnnotations(relationalAnnotationProvider.For(checkConstraint, designTime));
+                        }
                     }
 
                     table.AddAnnotations(relationalAnnotationProvider.For(table, designTime));

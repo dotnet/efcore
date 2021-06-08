@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 {
     /// <summary>
-    ///     Provides a simple API for configuring a <see cref="IMutableDbFunction" />.
+    ///     Provides a simple API for configuring a check constraint.
     /// </summary>
-    public abstract class DbFunctionBuilderBase : IInfrastructure<IConventionDbFunctionBuilder>
+    public class CheckConstraintBuilder : IInfrastructure<IConventionCheckConstraintBuilder>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,11 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected DbFunctionBuilderBase(IMutableDbFunction function)
+        public CheckConstraintBuilder(IMutableCheckConstraint checkConstraint)
         {
-            Check.NotNull(function, nameof(function));
+            Check.NotNull(checkConstraint, nameof(checkConstraint));
 
-            Builder = ((DbFunction)function).Builder;
+            Builder = ((CheckConstraint)checkConstraint).Builder;
         }
 
         /// <summary>
@@ -35,64 +35,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual InternalDbFunctionBuilder Builder { [DebuggerStepThrough] get; }
+        protected virtual InternalCheckConstraintBuilder Builder { [DebuggerStepThrough] get; }
 
         /// <inheritdoc />
-        IConventionDbFunctionBuilder IInfrastructure<IConventionDbFunctionBuilder>.Instance
+        IConventionCheckConstraintBuilder IInfrastructure<IConventionCheckConstraintBuilder>.Instance
         {
             [DebuggerStepThrough] get => Builder;
         }
 
         /// <summary>
-        ///     The function being configured.
+        ///     The check constraint being configured.
         /// </summary>
-        public virtual IMutableDbFunction Metadata
+        public virtual IMutableCheckConstraint Metadata
             => Builder.Metadata;
 
         /// <summary>
-        ///     Sets the name of the database function.
+        ///     Sets the database name of the check constraint.
         /// </summary>
-        /// <param name="name"> The name of the function in the database. </param>
+        /// <param name="name"> The database name of the check constraint. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilderBase HasName(string name)
+        public virtual CheckConstraintBuilder HasName(string name)
         {
             Builder.HasName(name, ConfigurationSource.Explicit);
 
             return this;
         }
-
-        /// <summary>
-        ///     Sets the schema of the database function.
-        /// </summary>
-        /// <param name="schema"> The schema of the function in the database. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilderBase HasSchema(string? schema)
-        {
-            Builder.HasSchema(schema, ConfigurationSource.Explicit);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Marks whether the database function is built-in.
-        /// </summary>
-        /// <param name="builtIn"> The value indicating whether the database function is built-in. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual DbFunctionBuilderBase IsBuiltIn(bool builtIn = true)
-        {
-            Builder.IsBuiltIn(builtIn, ConfigurationSource.Explicit);
-
-            return this;
-        }
-
-        /// <summary>
-        ///     Returns an object that can be used to configure a parameter with the given name.
-        ///     If no parameter with the given name exists, then a new parameter will be added.
-        /// </summary>
-        /// <param name="name"> The parameter name. </param>
-        /// <returns> The builder to use for further parameter configuration. </returns>
-        public virtual DbFunctionParameterBuilder HasParameter(string name)
-            => new(Builder.HasParameter(name, ConfigurationSource.Explicit).Metadata);
 
         #region Hidden System.Object members
 

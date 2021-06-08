@@ -232,7 +232,10 @@
     <value>Using 'Distinct' operation on a projection containing a collection is not supported.</value>
   </data>
   <data name="DuplicateCheckConstraint" xml:space="preserve">
-    <value>The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists.</value>
+    <value>The check constraint '{checkConstraint}' cannot be added to the entity type '{entityType}' because another check constraint with the same name already exists on entity type '{conflictingEntityType}'.</value>
+  </data>
+  <data name="DuplicateCheckConstraintSqlMismatch" xml:space="preserve">
+    <value>The check constraints '{checkConstraint1}' on '{entityType1}' and '{checkConstraint2}' on '{entityType2}' are both mapped to '{checkConstraintName}', but with different defining SQL.</value>
   </data>
   <data name="DuplicateColumnNameCollationMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different collations ('{collation1}' and '{collation2}').</value>

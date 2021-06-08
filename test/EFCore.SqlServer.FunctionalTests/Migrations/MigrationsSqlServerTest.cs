@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     [SSN] nvarchar(11) COLLATE German_PhoneBook_CI_AS NOT NULL,
     CONSTRAINT [PK_People] PRIMARY KEY ([CustomId]),
     CONSTRAINT [AK_People_SSN] UNIQUE ([SSN]),
-    CONSTRAINT [CK_EmployerId] CHECK ([EmployerId] > 0),
+    CONSTRAINT [CK_People_EmployerId] CHECK ([EmployerId] > 0),
     CONSTRAINT [FK_People_Employers_EmployerId] FOREIGN KEY ([EmployerId]) REFERENCES [Employers] ([Id]) ON DELETE NO ACTION
 );
 DECLARE @description AS sql_variant;
@@ -455,7 +455,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             AssertSql(
                 @"ALTER TABLE [People] ADD [DriverLicense] int NOT NULL DEFAULT 0;",
                 //
-                @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 0);");
+                @"ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);");
         }
 
         [ConditionalFact]
@@ -1679,7 +1679,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             await base.Add_check_constraint_with_name();
 
             AssertSql(
-                @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 0);");
+                @"ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);");
         }
 
         public override async Task Alter_check_constraint()
@@ -1687,9 +1687,9 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             await base.Alter_check_constraint();
 
             AssertSql(
-                @"ALTER TABLE [People] DROP CONSTRAINT [CK_Foo];",
+                @"ALTER TABLE [People] DROP CONSTRAINT [CK_People_Foo];",
                 //
-                @"ALTER TABLE [People] ADD CONSTRAINT [CK_Foo] CHECK ([DriverLicense] > 1);");
+                @"ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 1);");
         }
 
         public override async Task Drop_check_constraint()
@@ -1697,7 +1697,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             await base.Drop_check_constraint();
 
             AssertSql(
-                @"ALTER TABLE [People] DROP CONSTRAINT [CK_Foo];");
+                @"ALTER TABLE [People] DROP CONSTRAINT [CK_People_Foo];");
         }
 
         public override async Task Create_sequence()

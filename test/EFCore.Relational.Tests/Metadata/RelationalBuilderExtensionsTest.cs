@@ -1,11 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -37,23 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .IsFixedLength(false);
 
             Assert.False(property.IsFixedLength());
-        }
-
-        [ConditionalFact]
-        public void Can_write_index_builder_extension_with_where_clauses()
-        {
-            var builder = CreateConventionModelBuilder();
-
-            var returnedBuilder = builder
-                .Entity<Customer>()
-                .HasIndex(e => e.Id)
-                .HasFilter("[Id] % 2 = 0");
-
-            Assert.IsType<IndexBuilder<Customer>>(returnedBuilder);
-
-            var model = builder.Model;
-            var index = model.FindEntityType(typeof(Customer)).GetIndexes().Single();
-            Assert.Equal("[Id] % 2 = 0", index.GetFilter());
         }
 
         [ConditionalFact]
@@ -251,18 +233,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void Can_set_key_name()
+        public void Can_access_key()
         {
-            var modelBuilder = CreateConventionModelBuilder();
+            var modelBuilder = CreateBuilder();
+            var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
+            var idProperty = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
+            var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
 
-            modelBuilder
-                .Entity<Customer>()
-                .HasKey(e => e.Id)
-                .HasName("KeyLimePie");
+            Assert.NotNull(keyBuilder.HasName("Splew"));
+            Assert.Equal("Splew", keyBuilder.Metadata.GetName());
 
-            var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
+            Assert.NotNull(keyBuilder.HasName("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", keyBuilder.Metadata.GetName());
 
-            Assert.Equal("KeyLimePie", key.GetName());
+            Assert.Null(keyBuilder.HasName("Splod"));
+            Assert.Equal("Splow", keyBuilder.Metadata.GetName());
         }
 
         [ConditionalFact]
@@ -395,6 +380,47 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Can_access_index()
+        {
+            var modelBuilder = CreateBuilder();
+            var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+            var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+            Assert.NotNull(indexBuilder.HasName("Splew"));
+            Assert.Equal("Splew", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetName());
+
+            Assert.Null(indexBuilder.HasName("Splod"));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName(null, fromDataAnnotation: true));
+            Assert.Equal("IX_Splot_Id", indexBuilder.Metadata.GetName());
+
+            Assert.NotNull(indexBuilder.HasName("Splod"));
+            Assert.Equal("Splod", indexBuilder.Metadata.GetName());
+#pragma warning restore CS0618 // Type or member is obsolete
+
+            Assert.NotNull(indexBuilder.HasFilter("Splew"));
+            Assert.Equal("Splew", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Equal("Splow", indexBuilder.Metadata.GetFilter());
+
+            Assert.NotNull(indexBuilder.HasFilter(null, fromDataAnnotation: true));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
+
+            Assert.Null(indexBuilder.HasFilter("Splod"));
+            Assert.Null(indexBuilder.Metadata.GetFilter());
+        }
+
+        [ConditionalFact]
         public void Default_index_database_name_is_based_on_index_column_names()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -431,66 +457,75 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Can_write_index_filter_with_where_clauses()
+        {
+            var builder = CreateConventionModelBuilder();
+
+            var returnedBuilder = builder
+                .Entity<Customer>()
+                .HasIndex(e => e.Id)
+                .HasFilter("[Id] % 2 = 0");
+
+            Assert.IsType<IndexBuilder<Customer>>(returnedBuilder);
+
+            var model = builder.Model;
+            var index = model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+            Assert.Equal("[Id] % 2 = 0", index.GetFilter());
+        }
+
+        [ConditionalFact]
         public void Can_set_table_name()
         {
-            var modelBuilder = CreateConventionModelBuilder();
+            var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
 
-            modelBuilder
-                .Entity<Customer>()
-                .ToTable("Customizer");
+            Assert.NotNull(typeBuilder.ToTable("Splew"));
+            Assert.Equal("Splew", typeBuilder.Metadata.GetTableName());
 
-            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+            Assert.NotNull(typeBuilder.ToTable("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", typeBuilder.Metadata.GetTableName());
 
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.GetTableName());
+            Assert.Null(typeBuilder.ToTable("Splod"));
+            Assert.Equal("Splow", typeBuilder.Metadata.GetTableName());
         }
 
         [ConditionalFact]
-        public void Can_set_table_name_non_generic()
+        public void Can_set_table_name_and_schema()
         {
-            var modelBuilder = CreateConventionModelBuilder();
+            var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
 
-            modelBuilder
-                .Entity(typeof(Customer))
-                .ToTable("Customizer");
+            Assert.NotNull(typeBuilder.ToTable("Splew", "1"));
+            Assert.Equal("Splew", typeBuilder.Metadata.GetTableName());
+            Assert.Equal("1", typeBuilder.Metadata.GetSchema());
 
-            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+            Assert.NotNull(typeBuilder.ToTable("Splow", "2", fromDataAnnotation: true));
+            Assert.Equal("Splow", typeBuilder.Metadata.GetTableName());
+            Assert.Equal("2", typeBuilder.Metadata.GetSchema());
 
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.GetTableName());
+            Assert.Null(typeBuilder.ToTable("Splod", "3"));
+            Assert.Equal("Splow", typeBuilder.Metadata.GetTableName());
+            Assert.Equal("2", typeBuilder.Metadata.GetSchema());
         }
 
         [ConditionalFact]
-        public void Can_set_table_and_schema_name()
+        public void Can_override_existing_schema()
         {
-            var modelBuilder = CreateConventionModelBuilder();
+            var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
 
-            modelBuilder
-                .Entity<Customer>()
-                .ToTable("Customizer", "db0");
+            typeBuilder.Metadata.SetSchema("Explicit");
 
-            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
+            Assert.Null(typeBuilder.ToTable("Splod", "2", fromDataAnnotation: true));
+            Assert.Equal("Splot", typeBuilder.Metadata.GetTableName());
+            Assert.Equal("Explicit", typeBuilder.Metadata.GetSchema());
 
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.GetTableName());
-            Assert.Equal("db0", entityType.GetSchema());
+            Assert.NotNull(typeBuilder.ToTable("Splod", "Explicit", fromDataAnnotation: true));
+            Assert.Equal("Splod", typeBuilder.Metadata.GetTableName());
+            Assert.Equal("Explicit", typeBuilder.Metadata.GetSchema());
+
+            Assert.NotNull(new EntityTypeBuilder(typeBuilder.Metadata).ToTable("Splew", "1"));
+            Assert.Equal("Splew", typeBuilder.Metadata.GetTableName());
+            Assert.Equal("1", typeBuilder.Metadata.GetSchema());
         }
 
-        [ConditionalFact]
-        public void Can_set_table_and_schema_name_non_generic()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity(typeof(Customer))
-                .ToTable("Customizer", "db0");
-
-            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
-
-            Assert.Equal("Customer", entityType.DisplayName());
-            Assert.Equal("Customizer", entityType.GetTableName());
-            Assert.Equal("db0", entityType.GetSchema());
-        }
 
         [ConditionalFact]
         public void Can_create_check_constraint()
@@ -533,38 +568,106 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void AddCheckConstraint_with_duplicate_names_throws_exception()
+        public void Can_access_check_constraint()
         {
-            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
-            var entityType = entityTypeBuilder.Metadata;
+            var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
+            IReadOnlyEntityType entityType = typeBuilder.Metadata;
 
-            entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+            Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s > p"));
+            Assert.Equal("Splew", entityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s > p", entityType.GetCheckConstraints().Single().Sql);
 
-            Assert.Equal(
-                RelationalStrings.DuplicateCheckConstraint("CK_Customer_AlternateId", entityType.DisplayName()),
-                Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id")).Message);
+            Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true));
+            Assert.Equal("Splew", entityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", entityType.GetCheckConstraints().Single().Sql);
+
+            Assert.Null(typeBuilder.HasCheckConstraint("Splew", "s > p"));
+            Assert.Equal("Splew", entityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", entityType.GetCheckConstraints().Single().Sql);
         }
 
         [ConditionalFact]
-        public void RemoveCheckConstraint_returns_constraint_when_constraint_exists()
+        public void Base_check_constraint_overrides_derived_one()
         {
-            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
-            var entityType = entityTypeBuilder.Metadata;
+            var modelBuilder = CreateBuilder();
 
-            var constraint = entityType.AddCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+            var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
+            IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
 
-            Assert.Same(constraint, entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+            Assert.NotNull(derivedBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                .HasName("CK_Splow", fromDataAnnotation: true));
+            Assert.Equal("Splew", derivedEntityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
+            Assert.Equal("CK_Splow", derivedEntityType.GetCheckConstraints().Single().Name);
+
+            Assert.True(derivedBuilder.CanHaveCheckConstraint("Splew", "s < p"));
+            Assert.True(derivedBuilder.CanHaveCheckConstraint("Splew", "s > p", fromDataAnnotation: true));
+            Assert.False(derivedBuilder.CanHaveCheckConstraint("Splew", "s > p"));
+            Assert.True(derivedBuilder.CanHaveCheckConstraint("Splot", "s > p"));
+
+            var baseBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.DataAnnotation);
+            IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
+
+            Assert.True(baseBuilder.CanHaveCheckConstraint("Splew", "s < p"));
+            Assert.True(baseBuilder.CanHaveCheckConstraint("Splew", "s > p", fromDataAnnotation: true));
+            Assert.False(baseBuilder.CanHaveCheckConstraint("Splew", "s > p"));
+            Assert.True(baseBuilder.CanHaveCheckConstraint("Splot", "s > p"));
+
+            Assert.Null(baseBuilder.HasCheckConstraint("Splew", "s > p"));
+            Assert.Empty(baseEntityType.GetCheckConstraints());
+            Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
+
+            Assert.NotNull(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                .HasName("CK_Splot", fromDataAnnotation: true));
+            Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
+            Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
+
+            derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.Convention);
+
+            Assert.Null(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                .HasName("CK_Splew"));
+            Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
+            Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
+            Assert.Empty(derivedEntityType.GetDeclaredCheckConstraints());
+            Assert.Same(baseEntityType.GetCheckConstraints().Single(), derivedEntityType.GetCheckConstraints().Single());
         }
 
         [ConditionalFact]
-        public void RemoveCheckConstraint_returns_null_when_constraint_is_missing()
+        public void Base_check_constraint_overrides_derived_one_after_base_is_set()
         {
-            var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
-            var entityType = entityTypeBuilder.Metadata;
+            var modelBuilder = CreateBuilder();
 
-            Assert.Null(entityType.RemoveCheckConstraint("CK_Customer_AlternateId"));
+            var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
+            Assert.NotNull(derivedBuilder.HasBaseType((string)null, ConfigurationSource.DataAnnotation));
+            IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
+
+            Assert.NotNull(derivedBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                .HasName("CK_Splow", fromDataAnnotation: true));
+            Assert.Equal("Splew", derivedEntityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
+            Assert.Equal("CK_Splow", derivedEntityType.GetCheckConstraints().Single().Name);
+
+            var baseBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
+            IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
+            Assert.Null(derivedEntityType.BaseType);
+
+            Assert.NotNull(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                .HasName("CK_Splot", fromDataAnnotation: true));
+            Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
+            Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
+
+            Assert.NotNull(derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.DataAnnotation));
+
+            Assert.Null(baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
+                .HasName("CK_Splew"));
+            Assert.Equal("Splew", baseEntityType.GetCheckConstraints().Single().ModelName);
+            Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
+            Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
+            Assert.Empty(derivedEntityType.GetDeclaredCheckConstraints());
+            Assert.Same(baseEntityType.GetCheckConstraints().Single(), derivedEntityType.GetCheckConstraints().Single());
         }
 
         [ConditionalFact]
@@ -1021,6 +1124,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Can_access_comment()
+        {
+            var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
+            var entityType = typeBuilder.Metadata;
+
+            Assert.NotNull(typeBuilder.HasComment("My Comment"));
+            Assert.Equal("My Comment", entityType.GetComment());
+
+            Assert.NotNull(typeBuilder.HasComment("My Comment 2", fromDataAnnotation: true));
+            Assert.Equal("My Comment 2", entityType.GetComment());
+
+            Assert.Null(typeBuilder.HasComment("My Comment"));
+            Assert.Equal("My Comment 2", entityType.GetComment());
+        }
+
+        [ConditionalFact]
         public void Can_create_dbFunction()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1157,6 +1276,48 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Can_access_property()
+        {
+            var propertyBuilder = CreateBuilder()
+                .Entity(typeof(Splot), ConfigurationSource.Convention)
+                .Property(typeof(int), "Id", ConfigurationSource.Convention);
+
+            Assert.NotNull(propertyBuilder.IsFixedLength(true));
+            Assert.True(propertyBuilder.Metadata.IsFixedLength());
+            Assert.NotNull(propertyBuilder.HasColumnName("Splew"));
+            Assert.Equal("Splew", propertyBuilder.Metadata.GetColumnBaseName());
+            Assert.NotNull(propertyBuilder.HasColumnType("int"));
+            Assert.Equal("int", propertyBuilder.Metadata.GetColumnType());
+            Assert.NotNull(propertyBuilder.HasDefaultValue(1));
+            Assert.Equal(1, propertyBuilder.Metadata.GetDefaultValue());
+            Assert.NotNull(propertyBuilder.HasDefaultValueSql("2"));
+            Assert.Equal("2", propertyBuilder.Metadata.GetDefaultValueSql());
+            Assert.Equal(0, propertyBuilder.Metadata.GetDefaultValue());
+            Assert.NotNull(propertyBuilder.HasComputedColumnSql("3"));
+            Assert.Equal("3", propertyBuilder.Metadata.GetComputedColumnSql());
+            Assert.Null(propertyBuilder.Metadata.GetDefaultValueSql());
+
+            Assert.NotNull(propertyBuilder.IsFixedLength(false, fromDataAnnotation: true));
+            Assert.Null(propertyBuilder.IsFixedLength(true));
+            Assert.False(propertyBuilder.Metadata.IsFixedLength());
+            Assert.NotNull(propertyBuilder.HasColumnName("Splow", fromDataAnnotation: true));
+            Assert.Null(propertyBuilder.HasColumnName("Splod"));
+            Assert.Equal("Splow", propertyBuilder.Metadata.GetColumnBaseName());
+            Assert.NotNull(propertyBuilder.HasColumnType("varchar", fromDataAnnotation: true));
+            Assert.Null(propertyBuilder.HasColumnType("int"));
+            Assert.Equal("varchar", propertyBuilder.Metadata.GetColumnType());
+            Assert.NotNull(propertyBuilder.HasDefaultValue(0, fromDataAnnotation: true));
+            Assert.Null(propertyBuilder.HasDefaultValue(1));
+            Assert.Equal(0, propertyBuilder.Metadata.GetDefaultValue());
+            Assert.NotNull(propertyBuilder.HasDefaultValueSql("NULL", fromDataAnnotation: true));
+            Assert.Null(propertyBuilder.HasDefaultValueSql("2"));
+            Assert.Equal("NULL", propertyBuilder.Metadata.GetDefaultValueSql());
+            Assert.NotNull(propertyBuilder.HasComputedColumnSql("runthis()", fromDataAnnotation: true));
+            Assert.Null(propertyBuilder.HasComputedColumnSql("3"));
+            Assert.Equal("runthis()", propertyBuilder.Metadata.GetComputedColumnSql());
+        }
+
+        [ConditionalFact]
         public void Relational_relationship_methods_dont_break_out_of_the_generics()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -1205,6 +1366,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasConstraintName("Simon");
         }
 
+        [ConditionalFact]
+        public void Can_access_relationship()
+        {
+            var modelBuilder = CreateBuilder();
+            var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
+            entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+            var relationshipBuilder = entityTypeBuilder.HasRelationship("Splot", new[] { "Id" }, ConfigurationSource.Convention);
+
+            Assert.NotNull(relationshipBuilder.HasConstraintName("Splew"));
+            Assert.Equal("Splew", relationshipBuilder.Metadata.GetConstraintName());
+
+            Assert.NotNull(relationshipBuilder.HasConstraintName("Splow", fromDataAnnotation: true));
+            Assert.Equal("Splow", relationshipBuilder.Metadata.GetConstraintName());
+
+            Assert.Null(relationshipBuilder.HasConstraintName("Splod"));
+            Assert.Equal("Splow", relationshipBuilder.Metadata.GetConstraintName());
+        }
+
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
         {
         }
@@ -1223,6 +1402,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         protected virtual ModelBuilder CreateConventionModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        private InternalModelBuilder CreateBuilder()
+            => (InternalModelBuilder)CreateConventionModelBuilder().GetInfrastructure();
 
         private static void ValidateSchemaNamedSpecificSequence(IReadOnlySequence sequence)
         {
@@ -1272,6 +1454,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             public int OrderId { get; set; }
             public Order Order { get; set; }
+        }
+
+        private class Splot
+        {
+            public static readonly PropertyInfo SplowedProperty = typeof(Splot).GetProperty("Splowed");
+
+            public int? Splowed { get; set; }
+        }
+
+        private class Splow : Splot
+        {
+        }
+
+        private class Splod : Splow
+        {
         }
     }
 }
