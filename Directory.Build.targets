@@ -1,12 +1,5 @@
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
-  
-  <ItemGroup>
-    <FrameworkReference Update="Microsoft.NETCore.App"
-                        Condition="'$(TargetFramework)' == 'net6.0'"
-                        RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRuntimewinx64Version)"
-                        TargetingPackVersion="$(MicrosoftNETCoreAppRefVersion)" />
-  </ItemGroup>
 
   <Target Name="GetCustomAssemblyAttributes"
           BeforeTargets="GetAssemblyAttributes"
