@@ -717,43 +717,25 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
         ///     </para>
         /// </summary>
-        public event Action<DbContext>? LeasedFromPool;
+        public event EventHandler<EventArgs>? LeasedFromPool;
 
         /// <summary>
         ///     Called to fire the <see cref="LeasedFromPool"/> event. Can be overriden in a derived context to intercept this event.
         /// </summary>
         protected virtual void OnLeasedFromPool()
-            => LeasedFromPool?.Invoke(this);
+            => LeasedFromPool?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
-        ///     <para>
-        ///         An event fired when this context instance is leased from the context pool.
-        ///     </para>
-        ///     <para>
-        ///         This event is only fired when 'DbContext' pooling is enabled through use of
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>
-        ///         or
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
-        ///     </para>
-        /// </summary>
-        public event Func<DbContext, CancellationToken, Task>? LeasedFromPoolAsync;
-
-        /// <summary>
-        ///     Called to fire the <see cref="OnLeasedFromPoolAsync"/> event. Can be overriden in a derived context to intercept this event.
+        ///     Called to fire the <see cref="LeasedFromPool"/> event. Can be overriden in a derived context to intercept this event.
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
-        protected virtual async Task OnLeasedFromPoolAsync(CancellationToken cancellationToken)
+        protected virtual Task OnLeasedFromPoolAsync(CancellationToken cancellationToken)
         {
-            var handler = LeasedFromPoolAsync;
-            if (handler != null)
-            {
-                foreach (var func in handler.GetInvocationList())
-                {
-                    await ((Func<DbContext, CancellationToken, Task>)func)(this, cancellationToken);
-                }
-            }
+            LeasedFromPool?.Invoke(this, EventArgs.Empty);
+            
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -767,26 +749,13 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
         ///     </para>
         /// </summary>
-        public event Action<DbContext>? ReturnedToPool;
+        public event EventHandler<EventArgs>? ReturnedToPool;
 
         /// <summary>
         ///     Called to fire the <see cref="ReturnedToPool"/> event. Can be overriden in a derived context to intercept this event.
         /// </summary>
         protected virtual void OnReturnedToPool()
-            => ReturnedToPool?.Invoke(this);
-
-        /// <summary>
-        ///     <para>
-        ///         An event fired when this context instance is returned to the context pool.
-        ///     </para>
-        ///     <para>
-        ///         This event is only fired when 'DbContext' pooling is enabled through use of
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>
-        ///         or
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
-        ///     </para>
-        /// </summary>
-        public event Func<DbContext, CancellationToken, Task>? ReturnedToPoolAsync;
+            => ReturnedToPool?.Invoke(this, EventArgs.Empty);
 
         /// <summary>
         ///     Called to fire the <see cref="ReturnedToPool"/> event. Can be overriden in a derived context to intercept this event.
@@ -794,16 +763,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
-        protected virtual async Task OnReturnedToPoolAsync(CancellationToken cancellationToken)
+        protected virtual Task OnReturnedToPoolAsync(CancellationToken cancellationToken)
         {
-            var handler = ReturnedToPoolAsync;
-            if (handler != null)
-            {
-                foreach (var func in handler.GetInvocationList())
-                {
-                    await ((Func<DbContext, CancellationToken, Task>)func)(this, cancellationToken);
-                }
-            }
+            ReturnedToPool?.Invoke(this, EventArgs.Empty);
+            
+            return Task.CompletedTask;
         }
 
         /// <summary>
