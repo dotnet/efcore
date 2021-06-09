@@ -707,6 +707,70 @@ namespace Microsoft.EntityFrameworkCore
         public event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
 
         /// <summary>
+        ///     <para>
+        ///         An event fired when this context instance is leased from the context pool.
+        ///     </para>
+        ///     <para>
+        ///         This event is only fired when 'DbContext' pooling is enabled through use of
+        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>
+        ///         or
+        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
+        ///     </para>
+        /// </summary>
+        public event EventHandler<EventArgs>? LeasedFromPool;
+
+        /// <summary>
+        ///     Called to fire the <see cref="LeasedFromPool"/> event. Can be overriden in a derived context to intercept this event.
+        /// </summary>
+        protected virtual void OnLeasedFromPool()
+            => LeasedFromPool?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
+        ///     Called to fire the <see cref="LeasedFromPool"/> event. Can be overriden in a derived context to intercept this event.
+        /// </summary>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        protected virtual Task OnLeasedFromPoolAsync(CancellationToken cancellationToken)
+        {
+            LeasedFromPool?.Invoke(this, EventArgs.Empty);
+            
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         An event fired when this context instance is returned to the context pool.
+        ///     </para>
+        ///     <para>
+        ///         This event is only fired when 'DbContext' pooling is enabled through use of
+        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>
+        ///         or
+        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
+        ///     </para>
+        /// </summary>
+        public event EventHandler<EventArgs>? ReturnedToPool;
+
+        /// <summary>
+        ///     Called to fire the <see cref="ReturnedToPool"/> event. Can be overriden in a derived context to intercept this event.
+        /// </summary>
+        protected virtual void OnReturnedToPool()
+            => ReturnedToPool?.Invoke(this, EventArgs.Empty);
+
+        /// <summary>
+        ///     Called to fire the <see cref="ReturnedToPool"/> event. Can be overriden in a derived context to intercept this event.
+        /// </summary>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        protected virtual Task OnReturnedToPoolAsync(CancellationToken cancellationToken)
+        {
+            ReturnedToPool?.Invoke(this, EventArgs.Empty);
+            
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -724,6 +788,27 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         [EntityFrameworkInternal]
         void IDbContextPoolable.SetLease(DbContextLease lease)
+        {
+            SetLeaseInternal(lease);
+            
+            OnLeasedFromPool();
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        Task IDbContextPoolable.SetLeaseAsync(DbContextLease lease, CancellationToken cancellationToken)
+        {
+            SetLeaseInternal(lease);
+            
+            return OnLeasedFromPoolAsync(cancellationToken);
+        }
+        
+        private void SetLeaseInternal(DbContextLease lease)
         {
             _lease = lease;
             _disposed = false;
@@ -789,12 +874,12 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {
+            OnReturnedToPool();
+            
             foreach (var service in GetResettableServices())
             {
                 service.ResetState();
             }
-
-            ClearEvents();
 
             _disposed = true;
         }
@@ -808,12 +893,12 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
+            await OnReturnedToPoolAsync(cancellationToken);
+            
             foreach (var service in GetResettableServices())
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
-
-            ClearEvents();
 
             _disposed = true;
         }
@@ -851,22 +936,22 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual void Dispose()
         {
-            if (DisposeSync())
+            var leaseActive = _lease.IsActive;
+            var contextDisposed = leaseActive && _lease.ContextDisposed();
+
+            if (DisposeSync(leaseActive, contextDisposed))
             {
                 _serviceScope?.Dispose();
             }
         }
 
-        private bool DisposeSync()
+        private bool DisposeSync(bool leaseActive, bool contextDisposed)
         {
-            if (_lease.IsActive)
+            if (leaseActive)
             {
-                if (_lease.ContextDisposed())
+                if (contextDisposed)
                 {
                     _disposed = true;
-
-                    ClearEvents();
-
                     _lease = DbContextLease.InactiveLease;
                 }
             }
@@ -884,7 +969,9 @@ namespace Microsoft.EntityFrameworkCore
                 _changeTracker = null;
                 _database = null;
 
-                ClearEvents();
+                SavingChanges = null;
+                SavedChanges = null;
+                SaveChangesFailed = null;
 
                 return true;
             }
@@ -895,14 +982,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Releases the allocated resources for this context.
         /// </summary>
-        public virtual ValueTask DisposeAsync()
-            => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
-
-        private void ClearEvents()
+        public virtual async ValueTask DisposeAsync()
         {
-            SavingChanges = null;
-            SavedChanges = null;
-            SaveChangesFailed = null;
+            var leaseActive = _lease.IsActive;
+            var contextDisposed = leaseActive && (await _lease.ContextDisposedAsync());
+
+            if (DisposeSync(leaseActive, contextDisposed))
+            {
+                await _serviceScope.DisposeAsyncIfAvailable();
+            }
         }
 
         /// <summary>
