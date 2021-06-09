@@ -332,18 +332,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var memberInfo in entityType.GetRuntimeProperties().Values.Cast<MemberInfo>()
                 .Concat(entityType.GetRuntimeFields().Values))
             {
-                if (entityType.Builder.IsIgnored(memberInfo.GetSimpleMemberName())
-                    || !Attribute.IsDefined(memberInfo, typeof(ForeignKeyAttribute), inherit: true))
+                if (!Attribute.IsDefined(memberInfo, typeof(ForeignKeyAttribute), inherit: true)
+                    || !entityType.Builder.CanHaveProperty(memberInfo, fromDataAnnotation: true))
                 {
                     continue;
                 }
 
                 var attribute = memberInfo.GetCustomAttribute<ForeignKeyAttribute>(inherit: true)!;
-
                 if (attribute.Name != navigationName
                     || (memberInfo is PropertyInfo propertyInfo
-                        && (FindCandidateNavigationPropertyType(propertyInfo) != null
-                            || IsNavigationToSharedType(entityType.Model, propertyInfo))))
+                        && IsNavigationCandidate(propertyInfo, entityType)))
                 {
                     continue;
                 }
@@ -372,13 +370,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             return candidateProperty;
         }
 
-        private Type? FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
-            => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
-
-        private bool IsNavigationToSharedType(IConventionModel model, PropertyInfo propertyInfo)
-            => model.IsShared(propertyInfo.PropertyType)
-                || (propertyInfo.PropertyType.TryGetSequenceType() is Type elementType
-                    && model.IsShared(elementType));
+        private bool IsNavigationCandidate(PropertyInfo propertyInfo, IConventionEntityType entityType)
+            => Dependencies.MemberClassifier.GetNavigationCandidates(entityType).TryGetValue(propertyInfo, out var _);
 
         private static IReadOnlyList<string>? FindCandidateDependentPropertiesThroughNavigation(
             IConventionForeignKeyBuilder relationshipBuilder,

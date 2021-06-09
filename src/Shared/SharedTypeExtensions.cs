@@ -47,7 +47,8 @@ namespace System
             => !type.IsValueType || type.IsNullableValueType();
 
         public static bool IsValidEntityType(this Type type)
-            => type.IsClass;
+            => type.IsClass
+            && !type.IsArray;
 
         public static bool IsPropertyBagType(this Type type)
         {

@@ -158,7 +158,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     throw new InvalidOperationException(
                         CoreStrings.PropertyNotMapped(
-                            entityType.DisplayName(), unmappedProperty.Name, unmappedProperty.ClrType.ShortDisplayName()));
+                            entityType.DisplayName(), unmappedProperty.Name,
+                            (unmappedProperty.GetValueConverter()?.ProviderClrType ?? unmappedProperty.ClrType).ShortDisplayName()));
                 }
 
                 if (entityType.ClrType == Model.DefaultPropertyBagType)
@@ -175,45 +176,52 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .Where(pi => pi.IsCandidateProperty(needsWrite: false))
                         .Select(pi => pi.GetSimpleMemberName()));
 
-                clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
-                clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
-                clrProperties.ExceptWith(entityType.GetSkipNavigations().Select(p => p.Name));
-                clrProperties.ExceptWith(entityType.GetServiceProperties().Select(p => p.Name));
+                clrProperties.ExceptWith(
+                    ((IEnumerable<IConventionPropertyBase>)entityType.GetProperties())
+                    .Concat(entityType.GetNavigations())
+                    .Concat(entityType.GetSkipNavigations())
+                    .Concat(entityType.GetServiceProperties()).Select(p => p.Name));
                 if (entityType.IsPropertyBag)
                 {
                     clrProperties.ExceptWith(_dictionaryProperties);
                 }
-
-                clrProperties.RemoveWhere(p => entityType.FindIgnoredConfigurationSource(p) != null);
 
                 if (clrProperties.Count <= 0)
                 {
                     continue;
                 }
 
-                foreach (var clrProperty in clrProperties)
+                var configuration = ((Model)entityType.Model).Configuration;
+                foreach (var clrPropertyName in clrProperties)
                 {
-                    var actualProperty = runtimeProperties[clrProperty];
-                    var propertyType = actualProperty.PropertyType;
-                    var targetSequenceType = propertyType.TryGetSequenceType();
-
-                    if (conventionModel.FindIgnoredConfigurationSource(propertyType) != null
-                        || targetSequenceType != null
-                        && conventionModel.FindIgnoredConfigurationSource(targetSequenceType) != null)
+                    if (entityType.FindIgnoredConfigurationSource(clrPropertyName) != null)
                     {
                         continue;
                     }
 
-                    var targetType = FindCandidateNavigationPropertyType(actualProperty);
-                    if (targetType == null
-                            || targetSequenceType == null)
+                    var clrProperty = runtimeProperties[clrPropertyName];
+                    var propertyType = clrProperty.PropertyType;
+                    var targetSequenceType = propertyType.TryGetSequenceType();
+
+                    if (conventionModel.FindIgnoredConfigurationSource(propertyType) != null
+                        || conventionModel.IsIgnoredType(propertyType)
+                        || (targetSequenceType != null
+                            && (conventionModel.FindIgnoredConfigurationSource(targetSequenceType) != null
+                                || conventionModel.IsIgnoredType(targetSequenceType))))
                     {
-                        if (actualProperty.FindSetterProperty() == null)
+                        continue;
+                    }
+
+                    Dependencies.MemberClassifier.GetNavigationCandidates(entityType).TryGetValue(clrProperty, out var targetType);
+                    if (targetType == null
+                        || targetSequenceType == null)
+                    {
+                        if (clrProperty.FindSetterProperty() == null)
                         {
                             continue;
                         }
 
-                        var sharedType = actualProperty.GetMemberType();
+                        var sharedType = clrProperty.GetMemberType();
                         if (conventionModel.IsShared(sharedType))
                         {
                             targetType = sharedType;
@@ -234,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         if ((!entityType.IsKeyless
                                 || targetSequenceType == null)
                             && entityType.GetDerivedTypes().All(
-                                dt => dt.GetDeclaredNavigations().FirstOrDefault(n => n.Name == actualProperty.GetSimpleMemberName())
+                                dt => dt.GetDeclaredNavigations().FirstOrDefault(n => n.Name == clrProperty.GetSimpleMemberName())
                                     == null)
                             && (!isTargetSharedOrOwned
                                 || (!targetType.Equals(entityType.ClrType)
@@ -247,18 +255,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             {
                                 throw new InvalidOperationException(
                                     CoreStrings.AmbiguousOwnedNavigation(
-                                        entityType.DisplayName() + "." + actualProperty.Name, targetType.ShortDisplayName()));
+                                        entityType.DisplayName() + "." + clrProperty.Name, targetType.ShortDisplayName()));
                             }
 
                             if (model.IsShared(targetType))
                             {
                                 throw new InvalidOperationException(
-                                    CoreStrings.NonConfiguredNavigationToSharedType(actualProperty.Name, entityType.DisplayName()));
+                                    CoreStrings.NonConfiguredNavigationToSharedType(clrProperty.Name, entityType.DisplayName()));
                             }
 
                             throw new InvalidOperationException(
                                 CoreStrings.NavigationNotAdded(
-                                    entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                    entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                         }
 
                         // ReSharper restore CheckForReferenceEqualityInstead.3
@@ -269,20 +277,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InterfacePropertyNotAdded(
-                                entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                     }
                     else
                     {
                         throw new InvalidOperationException(
                             CoreStrings.PropertyNotAdded(
-                                entityType.DisplayName(), actualProperty.Name, propertyType.ShortDisplayName()));
+                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                     }
                 }
             }
         }
-
-        private Type? FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
-            => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
 
         /// <summary>
         ///     Validates that no attempt is made to ignore inherited properties.

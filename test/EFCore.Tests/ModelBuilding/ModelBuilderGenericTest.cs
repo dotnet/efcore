@@ -466,6 +466,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasMaxLength(maxLength));
 
+            public override TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasPrecision(precision, scale));
+
             public override TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsUnicode(unicode));
 

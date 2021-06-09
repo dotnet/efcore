@@ -11,7 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that adds properties to entity types corresponding to scalar public properties on the CLR type.
     /// </summary>
-    public class PropertyDiscoveryConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention
+    public class PropertyDiscoveryConvention :
+        IEntityTypeAddedConvention,
+        IEntityTypeBaseTypeChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="PropertyDiscoveryConvention" />.
@@ -62,22 +64,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
-            foreach (var propertyInfo in entityTypeBuilder.Metadata.GetRuntimeProperties().Values)
+            var entityType = entityTypeBuilder.Metadata;
+            var configuration = ((Model)entityType.Model).Configuration;
+            foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
             {
-                if (IsCandidatePrimitiveProperty(propertyInfo))
+                if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, configuration))
                 {
-                    entityTypeBuilder.Property(propertyInfo);
+                    continue;
                 }
+
+                entityTypeBuilder.Property(propertyInfo);
             }
         }
-
-        /// <summary>
-        ///     Returns a value indicating whether the given CLR property should be mapped as an entity type property.
-        /// </summary>
-        /// <param name="propertyInfo"> The property. </param>
-        /// <returns> <see langword="true"/> if the property should be mapped. </returns>
-        protected virtual bool IsCandidatePrimitiveProperty(PropertyInfo propertyInfo)
-            => propertyInfo.IsCandidateProperty()
-                && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null;
     }
 }

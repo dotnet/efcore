@@ -315,14 +315,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 new NullDbContextLogger());
         }
 
-        protected virtual TestHelpers.TestModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)
-            => TestHelpers.CreateConventionBuilder(
-                CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled));
-
-        protected virtual TestHelpers.TestModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
+        protected virtual TestHelpers.TestModelBuilder CreateConventionalModelBuilder(
+            Action<ModelConfigurationBuilder> configure = null, bool sensitiveDataLoggingEnabled = false)
             => TestHelpers.CreateConventionBuilder(
                 CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),
-                configurationBuilder => configurationBuilder.RemoveAllConventions());
+                configurationBuilder => configure?.Invoke(configurationBuilder));
+
+        protected virtual TestHelpers.TestModelBuilder CreateConventionlessModelBuilder(
+            Action<ModelConfigurationBuilder> configure = null, bool sensitiveDataLoggingEnabled = false)
+            => TestHelpers.CreateConventionBuilder(
+                CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),
+                configurationBuilder =>
+                {
+                    configure?.Invoke(configurationBuilder);
+                    configurationBuilder.RemoveAllConventions();
+                });
 
         protected virtual TestHelpers TestHelpers
             => InMemoryTestHelpers.Instance;

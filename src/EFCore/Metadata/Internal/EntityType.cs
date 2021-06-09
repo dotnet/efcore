@@ -2374,6 +2374,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _properties.Add(property.Name, property);
 
+            if (Model.Configuration != null)
+            {
+                using (Model.ConventionDispatcher.DelayConventions())
+                {
+                    Model.ConventionDispatcher.OnPropertyAdded(property.Builder);
+                    Model.Configuration.ConfigureProperty(property);
+                    return property;
+                }
+            }
+
             return (Property?)Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
         }
 

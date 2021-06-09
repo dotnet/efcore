@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -28,6 +29,30 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
             {
                 // Fails due to extra shadow properties
+            }
+
+            [ConditionalFact]
+            public override void Properties_can_have_provider_type_set_for_type()
+            {
+                var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property(e => e.Up);
+                        b.Property(e => e.Down);
+                        b.Property<int>("Charm");
+                        b.Property<string>("Strange");
+                        b.Property<string>("__id").HasConversion((Type)null);
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty("Up").GetProviderClrType());
+                Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetProviderClrType());
+                Assert.Null(entityType.FindProperty("Charm").GetProviderClrType());
+                Assert.Same(typeof(byte[]), entityType.FindProperty("Strange").GetProviderClrType());
             }
 
             [ConditionalFact]

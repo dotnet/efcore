@@ -61,29 +61,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
-            var candidates = entityType.GetRuntimeProperties().Values;
-
-            foreach (var propertyInfo in candidates)
+            var configuration = ((Model)entityType.Model).Configuration;
+            foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
             {
-                var name = propertyInfo.GetSimpleMemberName();
-                if (entityTypeBuilder.IsIgnored(name)
-                    || entityType.FindProperty(propertyInfo) != null
-                    || entityType.FindNavigation(propertyInfo) != null
-                    || !propertyInfo.IsCandidateProperty(publicOnly: false)
-                    || (propertyInfo.IsCandidateProperty()
-                        && Dependencies.TypeMappingSource.FindMapping(propertyInfo) != null))
+                if (!entityTypeBuilder.CanHaveServiceProperty(propertyInfo))
                 {
                     continue;
                 }
 
-                var factory = Dependencies.ParameterBindingFactories.FindFactory(propertyInfo.PropertyType, name);
+                var factory = Dependencies.MemberClassifier.FindServicePropertyCandidateBindingFactory(propertyInfo, configuration);
                 if (factory == null)
                 {
                     continue;
                 }
 
                 entityTypeBuilder.ServiceProperty(propertyInfo)?.HasParameterBinding(
-                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, name));
+                    (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()));
             }
         }
     }

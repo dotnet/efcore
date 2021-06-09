@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -44,6 +46,98 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         [EntityFrameworkInternal]
         protected virtual ModelConfiguration ModelConfiguration => _modelConfiguration;
+
+        /// <summary>
+        ///     Prevents the conventions from the given type from discovering properties of the given or derived types.
+        /// </summary>
+        /// <typeparam name="TEntity"> The type to be ignored. </typeparam>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder IgnoreAny<TEntity>()
+            => IgnoreAny(typeof(TEntity));
+
+        /// <summary>
+        ///     Prevents the conventions from the given type from discovering properties of the given or derived types.
+        /// </summary>
+        /// <param name="type"> The type to be ignored. </param>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder IgnoreAny(Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            _modelConfiguration.AddIgnored(type);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
+        /// <returns> An object that can be used to provide the configuration defaults for the properties. </returns>
+        public virtual PropertiesConfigurationBuilder<TProperty> Properties<TProperty>()
+        {
+            var property = _modelConfiguration.GetOrAddProperty(typeof(TProperty));
+
+            return new PropertiesConfigurationBuilder<TProperty>(property);
+        }
+
+        /// <summary>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
+        /// <param name="buildAction"> An action that performs configuration of the property. </param>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder Properties<TProperty>(
+            Action<PropertiesConfigurationBuilder<TProperty>> buildAction)
+        {
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            var propertyBuilder = Properties<TProperty>();
+            buildAction(propertyBuilder);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <param name="propertyType"> The property type to be configured. </param>
+        /// <returns> An object that can be used to configure the property. </returns>
+        public virtual PropertiesConfigurationBuilder Properties(Type propertyType)
+        {
+            Check.NotNull(propertyType, nameof(propertyType));
+
+            var property = _modelConfiguration.GetOrAddProperty(propertyType);
+
+            return new PropertiesConfigurationBuilder(property);
+        }
+
+        /// <summary>
+        ///     Marks the given and derived types as corresponding to entity type properties.
+        /// </summary>
+        /// <param name="propertyType"> The property type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the property. </param>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder Properties(
+            Type propertyType,
+            Action<PropertiesConfigurationBuilder> buildAction)
+        {
+            Check.NotNull(propertyType, nameof(propertyType));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            var propertyBuilder = Properties(propertyType);
+            buildAction(propertyBuilder);
+
+            return this;
+        }
 
         /// <summary>
         ///     Creates the configured <see cref="ModelBuilder" /> used to create the model. This is done automatically when using

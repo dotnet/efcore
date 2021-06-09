@@ -86,6 +86,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
+            if (type.Type != null)
+            {
+                if (shouldBeOwned == null)
+                {
+                    if (configurationSource != ConfigurationSource.Explicit
+                        && Metadata.Configuration?.GetConfigurationType(type.Type).IsEntityType() == false)
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    var configurationType = shouldBeOwned.Value
+                        ? TypeConfigurationType.OwnedEntityType
+                        : type.IsNamed
+                            ? TypeConfigurationType.SharedTypeEntityType
+                            : TypeConfigurationType.EntityType;
+
+                    if (!CanBeConfigured(type.Type, configurationType, configurationSource))
+                    {
+                        return null;
+                    }
+                }
+            }
+
             using var batch = Metadata.DelayConventions();
             var clrType = type.Type;
             EntityType? entityType;
@@ -139,8 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 // We always throw as configuring a type as owned always comes from user (through Explicit/DataAnnotation)
                 throw new InvalidOperationException(
-                    CoreStrings.ClashingOwnedEntityType(
-                        clrType == null ? type.Name : clrType.ShortDisplayName()));
+                    CoreStrings.ClashingOwnedEntityType(clrType == null ? type.Name : clrType.ShortDisplayName()));
             }
 
             if (shouldBeOwned == true
@@ -271,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Type type,
             ConfigurationSource configurationSource)
         {
-            if (IsIgnored(type, configurationSource))
+            if (IsIgnored(type, configurationSource)
+                || !CanBeConfigured(type, TypeConfigurationType.OwnedEntityType, configurationSource))
             {
                 return null;
             }
@@ -370,8 +395,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var ignoredConfigurationSource = Metadata.FindIgnoredConfigurationSource(type.Name);
+            if (type.Type != null
+                && Metadata.IsIgnoredType(type.Type))
+            {
+                ignoredConfigurationSource = ConfigurationSource.Explicit;
+            }
+
             return ignoredConfigurationSource.HasValue
                 && ignoredConfigurationSource.Value.Overrides(configurationSource);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool CanBeConfigured(Type type, TypeConfigurationType configurationType, ConfigurationSource configurationSource)
+        {
+            if (configurationSource == ConfigurationSource.Explicit)
+            {
+                return true;
+            }
+
+            if (!configurationType.IsEntityType()
+                && (!configurationSource.Overrides(Metadata.FindEntityType(type)?.GetConfigurationSource())
+                    || !configurationSource.Overrides(Metadata.FindIsOwnedConfigurationSource(type))
+                    || Metadata.IsShared(type)))
+            {
+                return false;
+            }
+
+            var configuredType = ModelBuilder.Metadata.Configuration?.GetConfigurationType(type);
+            return configuredType == null
+                || configuredType == configurationType;
         }
 
         /// <summary>
