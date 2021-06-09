@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Shared design-time components for Entity Framework Core tools.</Description>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Design</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

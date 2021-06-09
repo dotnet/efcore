@@ -5,7 +5,7 @@
     <PackageId>Microsoft.EntityFrameworkCore.Sqlite.Core</PackageId>
     <RootNamespace>Microsoft.EntityFrameworkCore.Sqlite</RootNamespace>
     <Description>SQLite database provider for Entity Framework Core. This package does not include a copy of the native SQLite library.</Description>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);SQLite</PackageTags>

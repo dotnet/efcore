@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Shared Entity Framework Core components for relational database providers.</Description>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Relational</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
