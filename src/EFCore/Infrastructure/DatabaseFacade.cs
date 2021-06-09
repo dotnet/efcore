@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     Instances of this class are typically obtained from <see cref="DbContext.Database" /> and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
-    public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacadeDependenciesAccessor
+    public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacadeDependenciesAccessor, IResettableService
     {
         private readonly DbContext _context;
         private IDatabaseFacadeDependencies? _dependencies;
@@ -377,6 +377,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [EntityFrameworkInternal]
         DbContext IDatabaseFacadeDependenciesAccessor.Context
             => _context;
+
+        /// <inheritdoc />
+        void IResettableService.ResetState()
+        {
+            AutoTransactionsEnabled = true;
+            AutoSavepointsEnabled = true;
+        }
+
+        Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+        {
+            ((IResettableService)this).ResetState();
+
+            return Task.CompletedTask;
+        }
 
         #region Hidden System.Object members
 

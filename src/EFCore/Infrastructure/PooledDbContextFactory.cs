@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             return (TContext)lease.Context;
         }
-        
+
         /// <inheritdoc />
         public virtual async Task<TContext> CreateDbContextAsync(CancellationToken cancellationToken = default)
         {

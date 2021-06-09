@@ -47,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </remarks>
     public class DbContext :
-        IDisposable,
-        IAsyncDisposable,
         IInfrastructure<IServiceProvider>,
         IDbContextDependencies,
         IDbSetCache,
@@ -707,70 +705,6 @@ namespace Microsoft.EntityFrameworkCore
         public event EventHandler<SaveChangesFailedEventArgs>? SaveChangesFailed;
 
         /// <summary>
-        ///     <para>
-        ///         An event fired when this context instance is leased from the context pool.
-        ///     </para>
-        ///     <para>
-        ///         This event is only fired when 'DbContext' pooling is enabled through use of
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>
-        ///         or
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
-        ///     </para>
-        /// </summary>
-        public event EventHandler<EventArgs>? LeasedFromPool;
-
-        /// <summary>
-        ///     Called to fire the <see cref="LeasedFromPool"/> event. Can be overriden in a derived context to intercept this event.
-        /// </summary>
-        protected virtual void OnLeasedFromPool()
-            => LeasedFromPool?.Invoke(this, EventArgs.Empty);
-
-        /// <summary>
-        ///     Called to fire the <see cref="LeasedFromPool"/> event. Can be overriden in a derived context to intercept this event.
-        /// </summary>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
-        protected virtual Task OnLeasedFromPoolAsync(CancellationToken cancellationToken)
-        {
-            LeasedFromPool?.Invoke(this, EventArgs.Empty);
-            
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        ///     <para>
-        ///         An event fired when this context instance is returned to the context pool.
-        ///     </para>
-        ///     <para>
-        ///         This event is only fired when 'DbContext' pooling is enabled through use of
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>
-        ///         or
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddPooledDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)"/>.
-        ///     </para>
-        /// </summary>
-        public event EventHandler<EventArgs>? ReturnedToPool;
-
-        /// <summary>
-        ///     Called to fire the <see cref="ReturnedToPool"/> event. Can be overriden in a derived context to intercept this event.
-        /// </summary>
-        protected virtual void OnReturnedToPool()
-            => ReturnedToPool?.Invoke(this, EventArgs.Empty);
-
-        /// <summary>
-        ///     Called to fire the <see cref="ReturnedToPool"/> event. Can be overriden in a derived context to intercept this event.
-        /// </summary>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
-        protected virtual Task OnReturnedToPoolAsync(CancellationToken cancellationToken)
-        {
-            ReturnedToPool?.Invoke(this, EventArgs.Empty);
-            
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -790,8 +724,6 @@ namespace Microsoft.EntityFrameworkCore
         void IDbContextPoolable.SetLease(DbContextLease lease)
         {
             SetLeaseInternal(lease);
-            
-            OnLeasedFromPool();
         }
 
         /// <summary>
@@ -804,48 +736,32 @@ namespace Microsoft.EntityFrameworkCore
         Task IDbContextPoolable.SetLeaseAsync(DbContextLease lease, CancellationToken cancellationToken)
         {
             SetLeaseInternal(lease);
-            
-            return OnLeasedFromPoolAsync(cancellationToken);
+
+            return Task.CompletedTask;
         }
-        
+
         private void SetLeaseInternal(DbContextLease lease)
         {
             _lease = lease;
             _disposed = false;
             ++_leaseCount;
 
-            if (_configurationSnapshot?.AutoDetectChangesEnabled != null)
-            {
-                Check.DebugAssert(
-                    _configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
-                Check.DebugAssert(_configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
-                Check.DebugAssert(
-                    _configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
-                Check.DebugAssert(
-                    _configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
+            Check.DebugAssert(_configurationSnapshot != null, "configurationSnapshot is null");
 
-                var changeTracker = ChangeTracker;
-                changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled.Value;
-                changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
-                changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled.Value;
-                changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming.Value;
-                changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming.Value;
-            }
-            else
-            {
-                ((IResettableService?)_changeTracker)?.ResetState();
-            }
+            var changeTracker = ChangeTracker;
+            changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled;
+            changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior;
+            changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled;
+            changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming;
+            changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming;
 
-            if (_database != null)
-            {
-                _database.AutoTransactionsEnabled
-                    = _configurationSnapshot?.AutoTransactionsEnabled == null
-                    || _configurationSnapshot.AutoTransactionsEnabled.Value;
+            var database = Database;
+            database.AutoTransactionsEnabled = _configurationSnapshot.AutoTransactionsEnabled;
+            database.AutoSavepointsEnabled = _configurationSnapshot.AutoSavepointsEnabled;
 
-                _database.AutoSavepointsEnabled
-                    = _configurationSnapshot?.AutoSavepointsEnabled == null
-                    || _configurationSnapshot.AutoSavepointsEnabled.Value;
-            }
+            SavingChanges = _configurationSnapshot.SavingChanges;
+            SavedChanges = _configurationSnapshot.SavedChanges;
+            SaveChangesFailed = _configurationSnapshot.SaveChangesFailed;
         }
 
         /// <summary>
@@ -856,14 +772,21 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         [EntityFrameworkInternal]
         void IDbContextPoolable.SnapshotConfiguration()
-            => _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
-                _changeTracker?.AutoDetectChangesEnabled,
-                _changeTracker?.QueryTrackingBehavior,
-                _database?.AutoTransactionsEnabled,
-                _database?.AutoSavepointsEnabled,
-                _changeTracker?.LazyLoadingEnabled,
-                _changeTracker?.CascadeDeleteTiming,
-                _changeTracker?.DeleteOrphansTiming);
+        {
+            var changeTracker = ChangeTracker;
+            var database = Database;
+            _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
+                changeTracker.AutoDetectChangesEnabled,
+                changeTracker.QueryTrackingBehavior,
+                database.AutoTransactionsEnabled,
+                database.AutoSavepointsEnabled,
+                changeTracker.LazyLoadingEnabled,
+                changeTracker.CascadeDeleteTiming,
+                changeTracker.DeleteOrphansTiming,
+                SavingChanges,
+                SavedChanges,
+                SaveChangesFailed);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -874,8 +797,6 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {
-            OnReturnedToPool();
-            
             foreach (var service in GetResettableServices())
             {
                 service.ResetState();
@@ -893,8 +814,6 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
-            await OnReturnedToPoolAsync(cancellationToken);
-            
             foreach (var service in GetResettableServices())
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
@@ -968,6 +887,7 @@ namespace Microsoft.EntityFrameworkCore
                 _dbContextDependencies = null;
                 _changeTracker = null;
                 _database = null;
+                _configurationSnapshot = null;
 
                 SavingChanges = null;
                 SavedChanges = null;
@@ -985,7 +905,7 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async ValueTask DisposeAsync()
         {
             var leaseActive = _lease.IsActive;
-            var contextDisposed = leaseActive && (await _lease.ContextDisposedAsync());
+            var contextDisposed = leaseActive && await _lease.ContextDisposedAsync();
 
             if (DisposeSync(leaseActive, contextDisposed))
             {

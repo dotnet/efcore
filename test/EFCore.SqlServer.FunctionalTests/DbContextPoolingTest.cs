@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
+// ReSharper disable MethodHasAsyncOverload
 
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -95,12 +96,6 @@ namespace Microsoft.EntityFrameworkCore
 
         private interface IPooledContext
         {
-            int LeasedCount { get;  }
-            int ReturnedCount { get; }
-            public bool? AsyncLease { get; }
-            public bool? SyncLease { get; }
-            public bool? AsyncReturn { get; }
-            public bool? SyncReturn { get; }
         }
 
         private class DefaultOptionsPooledContext : DbContext
@@ -129,23 +124,7 @@ namespace Microsoft.EntityFrameworkCore
                 Database.AutoSavepointsEnabled = false;
                 ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
                 ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
-
-                LeasedFromPool += OnLeasedFromPool;
-                ReturnedToPool += OnReturnedToPool;
             }
-
-            public int LeasedCount { get; private set; }
-            public int ReturnedCount { get; private set; }
-            public bool? AsyncLease { get; private set; }
-            public bool? SyncLease { get; private set; }
-            public bool? AsyncReturn { get; private set; }
-            public bool? SyncReturn { get; private set; }
-
-            private void OnLeasedFromPool(object sender, EventArgs e)
-                => LeasedCount++;
-
-            private void OnReturnedToPool(object sender, EventArgs e)
-                => ReturnedCount++;
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -175,49 +154,10 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            public int LeasedCount { get; private set; }
-            public int ReturnedCount { get; private set; }
-            public bool? AsyncLease { get; private set; }
-            public bool? SyncLease { get; private set; }
-            public bool? AsyncReturn { get; private set; }
-            public bool? SyncReturn { get; private set; }
-
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<Customer>().ToTable("Customers");
-
-            protected override void OnLeasedFromPool()
-            {
-                LeasedCount++;
-                SyncLease = true;
-
-                base.OnLeasedFromPool();
-            }
-
-            protected override Task OnLeasedFromPoolAsync(CancellationToken cancellationToken)
-            {
-                LeasedCount++;
-                AsyncLease = true;
-
-                return base.OnLeasedFromPoolAsync(cancellationToken);
-            }
-
-            protected override void OnReturnedToPool()
-            {
-                ReturnedCount++;
-                SyncReturn = true;
-
-                base.OnReturnedToPool();
-            }
-
-            protected override Task OnReturnedToPoolAsync(CancellationToken cancellationToken)
-            {
-                ReturnedCount++;
-                AsyncReturn = true;
-
-                return base.OnReturnedToPoolAsync(cancellationToken);
-            }
         }
 
         public class Customer
@@ -228,12 +168,6 @@ namespace Microsoft.EntityFrameworkCore
 
         private interface ISecondContext
         {
-            int LeasedCount { get;  }
-            int ReturnedCount { get; }
-            public bool? AsyncLease { get; }
-            public bool? SyncLease { get; }
-            public bool? AsyncReturn { get; }
-            public bool? SyncReturn { get; }
         }
 
         private class SecondContext : DbContext, ISecondContext
@@ -243,68 +177,6 @@ namespace Microsoft.EntityFrameworkCore
             public SecondContext(DbContextOptions options)
                 : base(options)
             {
-                LeasedFromPool += OnLeasedFromPool;
-                ReturnedToPool += OnReturnedToPool;
-            }
-
-            public int LeasedCount { get; private set; }
-            public int ReturnedCount { get; private set; }
-            public bool? AsyncLease { get; private set; }
-            public bool? SyncLease { get; private set; }
-            public bool? AsyncReturn { get; private set; }
-            public bool? SyncReturn { get; private set; }
-
-            private void OnLeasedFromPool(object sender, EventArgs e)
-                => LeasedCount++;
-
-            private void OnReturnedToPool(object sender, EventArgs e)
-                => ReturnedCount++;
-        }
-
-        private class SecondContextWithOverrides : DbContext, ISecondContext
-        {
-            public SecondContextWithOverrides(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            public int LeasedCount { get; private set; }
-            public int ReturnedCount { get; private set; }
-            public bool? AsyncLease { get; private set; }
-            public bool? SyncLease { get; private set; }
-            public bool? AsyncReturn { get; private set; }
-            public bool? SyncReturn { get; private set; }
-
-            protected override void OnLeasedFromPool()
-            {
-                LeasedCount++;
-                SyncLease = true;
-
-                base.OnLeasedFromPool();
-            }
-
-            protected override Task OnLeasedFromPoolAsync(CancellationToken cancellationToken)
-            {
-                LeasedCount++;
-                AsyncLease = true;
-
-                return base.OnLeasedFromPoolAsync(cancellationToken);
-            }
-
-            protected override void OnReturnedToPool()
-            {
-                ReturnedCount++;
-                SyncReturn = true;
-
-                base.OnReturnedToPool();
-            }
-
-            protected override Task OnReturnedToPoolAsync(CancellationToken cancellationToken)
-            {
-                ReturnedCount++;
-                AsyncReturn = true;
-
-                return base.OnReturnedToPoolAsync(cancellationToken);
             }
 
             public class Blog
@@ -720,17 +592,9 @@ namespace Microsoft.EntityFrameworkCore
                 ? scopedProvider1.GetService<IPooledContext>()
                 : scopedProvider1.GetService<PooledContext>();
 
-            Assert.Equal(1, context1!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-
             var secondContext1 = useInterface
                 ? scopedProvider1.GetService<ISecondContext>()
                 : scopedProvider1.GetService<SecondContext>();
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
 
             var serviceScope2 = serviceProvider.CreateScope();
             var scopedProvider2 = serviceScope2.ServiceProvider;
@@ -739,13 +603,6 @@ namespace Microsoft.EntityFrameworkCore
                 ? scopedProvider2.GetService<IPooledContext>()
                 : scopedProvider2.GetService<PooledContext>();
 
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-
             var secondContext2 = useInterface
                 ? scopedProvider2.GetService<ISecondContext>()
                 : scopedProvider2.GetService<SecondContext>();
@@ -753,36 +610,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
             Assert.NotSame(secondContext1, secondContext2);
 
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-            Assert.Equal(0, secondContext2.ReturnedCount);
-
             await Dispose(serviceScope1, async);
 
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-            Assert.Equal(0, secondContext2.ReturnedCount);
-
             await Dispose(serviceScope2, async);
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
 
             var serviceScope3 = serviceProvider.CreateScope();
             var scopedProvider3 = serviceScope3.ServiceProvider;
@@ -798,15 +628,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context1, context3);
             Assert.Same(secondContext1, secondContext3);
 
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-
             var serviceScope4 = serviceProvider.CreateScope();
             var scopedProvider4 = serviceScope4.ServiceProvider;
 
@@ -821,36 +642,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context2, context4);
             Assert.Same(secondContext2, secondContext4);
 
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-
             await Dispose(serviceScope3, async);
 
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(2, context1.ReturnedCount);
-            Assert.Equal(2, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-
             await Dispose(serviceScope4, async);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(2, context1.ReturnedCount);
-            Assert.Equal(2, secondContext1.ReturnedCount);
-            Assert.Equal(2, context2.ReturnedCount);
-            Assert.Equal(2, secondContext2.ReturnedCount);
         }
 
         [ConditionalTheory]
@@ -871,28 +665,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotSame(context1, context2);
             Assert.NotSame(secondContext1, secondContext2);
 
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-            Assert.Equal(0, secondContext2.ReturnedCount);
-
             await Dispose(context1, async);
             await Dispose(secondContext1, async);
             await Dispose(context2, async);
             await Dispose(secondContext2, async);
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
 
             var context3 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
             var secondContext3 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
@@ -906,318 +682,10 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(context2, context4);
             Assert.Same(secondContext2, secondContext4);
 
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-
             await Dispose(context1, async);
             await Dispose(secondContext1, async);
             await Dispose(context2, async);
             await Dispose(secondContext2, async);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(2, context1.ReturnedCount);
-            Assert.Equal(2, secondContext1.ReturnedCount);
-            Assert.Equal(2, context2.ReturnedCount);
-            Assert.Equal(2, secondContext2.ReturnedCount);
-        }
-
-        [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public async Task Contexts_are_pooled_with_event_overrides(bool useInterface, bool async)
-        {
-            var serviceProvider = useInterface
-                ? new ServiceCollection()
-                    .AddDbContextPool<IPooledContext, PooledContextWithOverrides>(ob => ConfigureOptions(ob))
-                    .AddDbContextPool<ISecondContext, SecondContextWithOverrides>(ob => ConfigureOptions(ob))
-                    .BuildServiceProvider()
-                : new ServiceCollection()
-                    .AddDbContextPool<PooledContextWithOverrides>(ob => ConfigureOptions(ob))
-                    .AddDbContextPool<SecondContextWithOverrides>(ob => ConfigureOptions(ob))
-                    .BuildServiceProvider();
-
-            var serviceScope1 = serviceProvider.CreateScope();
-            var scopedProvider1 = serviceScope1.ServiceProvider;
-
-            var context1 = useInterface
-                ? scopedProvider1.GetService<IPooledContext>()
-                : scopedProvider1.GetService<PooledContextWithOverrides>();
-
-            Assert.Equal(1, context1!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Null(context1.SyncReturn);
-            Assert.Null(context1.AsyncReturn);
-
-            var secondContext1 = useInterface
-                ? scopedProvider1.GetService<ISecondContext>()
-                : scopedProvider1.GetService<SecondContextWithOverrides>();
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Null(context1.SyncReturn);
-            Assert.Null(context1.AsyncReturn);
-
-            var serviceScope2 = serviceProvider.CreateScope();
-            var scopedProvider2 = serviceScope2.ServiceProvider;
-
-            var context2 = useInterface
-                ? scopedProvider2.GetService<IPooledContext>()
-                : scopedProvider2.GetService<PooledContextWithOverrides>();
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Null(context1.SyncReturn);
-            Assert.Null(context1.AsyncReturn);
-
-            var secondContext2 = useInterface
-                ? scopedProvider2.GetService<ISecondContext>()
-                : scopedProvider2.GetService<SecondContextWithOverrides>();
-
-            Assert.NotSame(context1, context2);
-            Assert.NotSame(secondContext1, secondContext2);
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-            Assert.Equal(0, secondContext2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Null(context1.SyncReturn);
-            Assert.Null(context1.AsyncReturn);
-
-            await Dispose(serviceScope1, async);
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-            Assert.Equal(0, secondContext2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-
-            await Dispose(serviceScope2, async);
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-
-            var serviceScope3 = serviceProvider.CreateScope();
-            var scopedProvider3 = serviceScope3.ServiceProvider;
-
-            var context3 = useInterface
-                ? scopedProvider3.GetService<IPooledContext>()
-                : scopedProvider3.GetService<PooledContextWithOverrides>();
-
-            var secondContext3 = useInterface
-                ? scopedProvider3.GetService<ISecondContext>()
-                : scopedProvider3.GetService<SecondContextWithOverrides>();
-
-            Assert.Same(context1, context3);
-            Assert.Same(secondContext1, secondContext3);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-
-            var serviceScope4 = serviceProvider.CreateScope();
-            var scopedProvider4 = serviceScope4.ServiceProvider;
-
-            var context4 = useInterface
-                ? scopedProvider4.GetService<IPooledContext>()
-                : scopedProvider4.GetService<PooledContextWithOverrides>();
-
-            var secondContext4 = useInterface
-                ? scopedProvider4.GetService<ISecondContext>()
-                : scopedProvider4.GetService<SecondContextWithOverrides>();
-
-            Assert.Same(context2, context4);
-            Assert.Same(secondContext2, secondContext4);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-
-            await Dispose(serviceScope3, async);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(2, context1.ReturnedCount);
-            Assert.Equal(2, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-
-            await Dispose(serviceScope4, async);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(2, context1.ReturnedCount);
-            Assert.Equal(2, secondContext1.ReturnedCount);
-            Assert.Equal(2, context2.ReturnedCount);
-            Assert.Equal(2, secondContext2.ReturnedCount);
-            Assert.True(context1.SyncLease);
-            Assert.Null(context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-        }
-
-        [ConditionalTheory]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(true, true)]
-        public async Task Contexts_are_pooled_with_factory_with_event_overrides(bool async, bool withDependencyInjection)
-        {
-            var factory = BuildFactory<PooledContextWithOverrides>(withDependencyInjection);
-
-            var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-            var secondContext1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-
-            var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-            var secondContext2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-
-            Assert.NotSame(context1, context2);
-            Assert.NotSame(secondContext1, secondContext2);
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, secondContext1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-            Assert.Equal(0, secondContext2.ReturnedCount);
-            Assert.Equal(!async ? true : null, context1.SyncLease);
-            Assert.Equal(async ? true : null, context1.AsyncLease);
-            Assert.Null(context1.SyncReturn);
-            Assert.Null(context1.AsyncReturn);
-
-            await Dispose(context1, async);
-            await Dispose(secondContext1, async);
-            await Dispose(context2, async);
-            await Dispose(secondContext2, async);
-
-            Assert.Equal(1, context1.LeasedCount);
-            Assert.Equal(1, secondContext1.LeasedCount);
-            Assert.Equal(1, context2.LeasedCount);
-            Assert.Equal(1, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-            Assert.Equal(!async ? true : null, context1.SyncLease);
-            Assert.Equal(async ? true : null, context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-
-            var context3 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-            var secondContext3 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-
-            Assert.Same(context1, context3);
-            Assert.Same(secondContext1, secondContext3);
-
-            var context4 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-            var secondContext4 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
-
-            Assert.Same(context2, context4);
-            Assert.Same(secondContext2, secondContext4);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, secondContext1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
-            Assert.Equal(1, secondContext2.ReturnedCount);
-            Assert.Equal(!async ? true : null, context1.SyncLease);
-            Assert.Equal(async ? true : null, context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
-
-            await Dispose(context1, async);
-            await Dispose(secondContext1, async);
-            await Dispose(context2, async);
-            await Dispose(secondContext2, async);
-
-            Assert.Equal(2, context1.LeasedCount);
-            Assert.Equal(2, secondContext1.LeasedCount);
-            Assert.Equal(2, context2.LeasedCount);
-            Assert.Equal(2, secondContext2!.LeasedCount);
-            Assert.Equal(2, context1.ReturnedCount);
-            Assert.Equal(2, secondContext1.ReturnedCount);
-            Assert.Equal(2, context2.ReturnedCount);
-            Assert.Equal(2, secondContext2.ReturnedCount);
-            Assert.Equal(!async ? true : null, context1.SyncLease);
-            Assert.Equal(async ? true : null, context1.AsyncLease);
-            Assert.Equal(!async ? true : null, context1.SyncReturn);
-            Assert.Equal(async ? true : null, context1.AsyncReturn);
         }
 
         [ConditionalTheory]
@@ -1235,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore
             var scopedProvider = serviceScope.ServiceProvider;
 
             var context1 = useInterface
-                ? (DbContext)scopedProvider.GetService<IPooledContext>()
+                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
                 : scopedProvider.GetService<PooledContext>();
 
             Assert.Null(context1!.Database.GetCommandTimeout());
@@ -1252,24 +720,20 @@ namespace Microsoft.EntityFrameworkCore
             context1.SavedChanges += (sender, args) => { };
             context1.SaveChangesFailed += (sender, args) => { };
 
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
-
             await Dispose(serviceScope, async);
-
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
             serviceScope = serviceProvider.CreateScope();
             scopedProvider = serviceScope.ServiceProvider;
 
             var context2 = useInterface
-                ? (DbContext)scopedProvider.GetService<IPooledContext>()
+                ? (PooledContext)scopedProvider.GetService<IPooledContext>()
                 : scopedProvider.GetService<PooledContext>();
 
             Assert.Same(context1, context2);
+
+            Assert.Null(GetContextEventField(context2, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context2, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context2, nameof(DbContext.SaveChangesFailed)));
 
             Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
             Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
@@ -1330,27 +794,24 @@ namespace Microsoft.EntityFrameworkCore
             context1.SavedChanges += (sender, args) => { };
             context1.SaveChangesFailed += (sender, args) => { };
 
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
-
             await Dispose(context1, async);
-
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavingChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SavedChanges)));
-            Assert.NotNull(GetContextEventField(context1, nameof(DbContext.SaveChangesFailed)));
 
             var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
 
             Assert.Same(context1, context2);
 
-            Assert.False(context2.ChangeTracker.AutoDetectChangesEnabled);
+            Assert.Null(GetContextEventField(context2, nameof(DbContext.SavingChanges)));
+            Assert.Null(GetContextEventField(context2, nameof(DbContext.SavedChanges)));
+            Assert.Null(GetContextEventField(context2, nameof(DbContext.SaveChangesFailed)));
+
+            Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
             Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
             Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
             Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
             Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
             Assert.False(context2.Database.AutoTransactionsEnabled);
             Assert.False(context2.Database.AutoSavepointsEnabled);
+            Assert.Null(context1.Database.GetCommandTimeout());
         }
 
         [ConditionalFact]
@@ -1594,18 +1055,8 @@ namespace Microsoft.EntityFrameworkCore
                 ? (PooledContext)scopedProvider2.GetService<IPooledContext>()
                 : scopedProvider2.GetService<PooledContext>();
 
-            Assert.Equal(1, context1!.LeasedCount);
-            Assert.Equal(1, context2!.LeasedCount);
-            Assert.Equal(0, context1.ReturnedCount);
-            Assert.Equal(0, context2.ReturnedCount);
-
             await Dispose(serviceScope1, async);
             await Dispose(serviceScope2, async);
-
-            Assert.Equal(1, context1!.LeasedCount);
-            Assert.Equal(1, context2!.LeasedCount);
-            Assert.Equal(1, context1.ReturnedCount);
-            Assert.Equal(1, context2.ReturnedCount);
 
             Assert.Throws<ObjectDisposedException>(() => context1.Customers.ToList());
             Assert.Throws<ObjectDisposedException>(() => context2.Customers.ToList());
@@ -1674,18 +1125,9 @@ namespace Microsoft.EntityFrameworkCore
             var lease = scope.ServiceProvider.GetRequiredService<IScopedDbContextLease<PooledContext>>();
             var context = lease.Context;
 
-            Assert.Equal(1, context.LeasedCount);
-            Assert.Equal(0, context.ReturnedCount);
-
             await Dispose(scope, async);
 
-            Assert.Equal(1, context.LeasedCount);
-            Assert.Equal(1, context.ReturnedCount);
-
             await Dispose(scope, async);
-
-            Assert.Equal(1, context.LeasedCount);
-            Assert.Equal(1, context.ReturnedCount);
 
             using var scope1 = serviceProvider.CreateScope();
             var lease1 = scope1.ServiceProvider.GetRequiredService<IScopedDbContextLease<PooledContext>>();
@@ -1713,18 +1155,9 @@ namespace Microsoft.EntityFrameworkCore
             var context = (PooledContext)lease.Context;
             ((IDbContextPoolable)context).SetLease(lease);
 
-            Assert.Equal(1, context.LeasedCount);
-            Assert.Equal(0, context.ReturnedCount);
-
             await Dispose(context, async);
 
-            Assert.Equal(1, context.LeasedCount);
-            Assert.Equal(1, context.ReturnedCount);
-
             await Dispose(context, async);
-
-            Assert.Equal(1, context.LeasedCount);
-            Assert.Equal(1, context.ReturnedCount);
 
             using var context1 = new DbContextLease(pool, standalone: true).Context;
             using var context2 = new DbContextLease(pool, standalone: true).Context;

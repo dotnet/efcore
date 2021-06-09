@@ -242,7 +242,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.EnlistTransaction" /> but can be overriden
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.EnlistTransaction" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.BeginDbTransaction" /> but can be overriden
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.BeginDbTransaction" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <summary>
         ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.BeginDbTransactionAsync" /> but can be
-        ///     overriden by providers to make a different call instead.
+        ///     overridden by providers to make a different call instead.
         /// </summary>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
@@ -728,7 +728,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.Open" /> but can be overriden
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.Open" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="errorsExpected"> Indicates if the connection errors are expected and should be logged as debug message. </param>
@@ -782,7 +782,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.OpenAsync" /> but can be overriden
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.OpenAsync" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         /// <param name="errorsExpected"> Indicates if the connection errors are expected and should be logged as debug message. </param>
@@ -899,7 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.Close" /> but can be overriden
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.Close" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         protected virtual void CloseDbConnection()
@@ -975,14 +975,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.CloseAsync" /> but can be overriden
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.CloseAsync" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         protected virtual Task CloseDbConnectionAsync()
             => DbConnection.CloseAsync();
 
         /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.State" /> but can be overriden
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.State" /> but can be overridden
         ///     by providers to make a different call instead.
         /// </summary>
         protected virtual ConnectionState DbConnectionState => DbConnection.State;
@@ -1080,14 +1080,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.Dispose" /> but can be overriden by
+        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.Dispose" /> but can be overridden by
         ///     providers to make a different call instead.
         /// </summary>
         protected virtual void DisposeDbConnection()
             => DbConnection.Dispose();
 
         /// <summary>
-        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.DisposeAsync" /> but can be overriden by
+        ///     Template method that by default calls <see cref="System.Data.Common.DbConnection.DisposeAsync" /> but can be overridden by
         ///     providers to make a different call instead.
         /// </summary>
         protected virtual ValueTask DisposeDbConnectionAsync()
