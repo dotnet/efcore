@@ -325,23 +325,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual void OnFirstExecution()
         {
-            if (RetriesOnFailure)
+            if (RetriesOnFailure &&
+                (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
+                 || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
+                 || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as
+                     ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null))
             {
-                if (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
-                    || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
-                    || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as
-                        ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ExecutionStrategyExistingTransaction(
-                            GetType().Name,
-                            nameof(DbContext)
-                            + "."
-                            + nameof(DbContext.Database)
-                            + "."
-                            + nameof(DatabaseFacade.CreateExecutionStrategy)
-                            + "()"));
-                }
+                throw new InvalidOperationException(
+                    CoreStrings.ExecutionStrategyExistingTransaction(
+                        GetType().Name,
+                        nameof(DbContext)
+                        + "."
+                        + nameof(DbContext.Database)
+                        + "."
+                        + nameof(DatabaseFacade.CreateExecutionStrategy)
+                        + "()"));
             }
 
             ExceptionsEncountered.Clear();
