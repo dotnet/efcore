@@ -838,13 +838,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             {
                 foreignKey = Builder.HasRelationship(
                     relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null)!.Metadata;
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata;
             }
             else
             {
                 foreignKey = Builder.HasRelationship(
                     relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
-                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : (bool?)null)!.Metadata;
+                    targetIsPrincipal: Builder.Metadata == relatedEntityType ? true : null)!.Metadata;
             }
 
             return foreignKey;
@@ -991,7 +991,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (navigationName == null
                     ? null
                     : Builder.ModelBuilder.Metadata.FindEntityType(relatedTypeName, navigationName, Builder.Metadata))
-                ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit)!.Metadata;
+                ?? Builder.ModelBuilder.Entity(relatedTypeName, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1004,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (navigationName == null || !Builder.ModelBuilder.Metadata.IsShared(relatedType)
                     ? null
                     : Builder.ModelBuilder.Metadata.FindEntityType(relatedType, navigationName, Builder.Metadata))
-                ?? Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit)!.Metadata;
+                ?? Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata;
 
         /// <summary>
         ///     Configures the <see cref="ChangeTrackingStrategy" /> to be used for this entity type.

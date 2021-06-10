@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -37,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             foreach (var setInfo in Dependencies.SetFinder.FindSets(Dependencies.ContextType))
             {
-                modelBuilder.Entity(setInfo.Type, fromDataAnnotation: true);
+                ((InternalModelBuilder)modelBuilder).Entity(setInfo.Type, ConfigurationSource.Explicit);
             }
         }
     }

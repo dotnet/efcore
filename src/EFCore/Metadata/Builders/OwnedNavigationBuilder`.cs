@@ -1081,7 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null)!.Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata);
         }
 
         /// <summary>

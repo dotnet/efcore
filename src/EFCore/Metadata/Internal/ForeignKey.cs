@@ -218,10 +218,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             EnsureMutable();
 
-            Validate(properties, principalKey, DeclaringEntityType, PrincipalEntityType);
-
             var oldProperties = Properties;
             var oldPrincipalKey = PrincipalKey;
+
+            if (oldProperties.SequenceEqual(properties)
+                && oldPrincipalKey == principalKey)
+            {
+                if (configurationSource != null)
+                {
+                    UpdatePropertiesConfigurationSource(configurationSource.Value);
+                    UpdatePrincipalKeyConfigurationSource(configurationSource.Value);
+                }
+
+                return oldProperties;
+            }
+
+            Validate(properties, principalKey, DeclaringEntityType, PrincipalEntityType);
 
             DeclaringEntityType.OnForeignKeyUpdating(this);
 
@@ -450,6 +462,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 return oldNavigation!;
+            }
+
+            if (name == null
+                && IsOwnership
+                && !pointsToPrincipal)
+            {
+                throw new InvalidOperationException(CoreStrings.OwnershipToDependent(
+                    oldNavigation?.Name, PrincipalEntityType.DisplayName(), DeclaringEntityType.DisplayName()));
             }
 
             if (oldNavigation != null)
@@ -805,6 +825,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual bool? SetIsOwnership(bool? ownership, ConfigurationSource configurationSource)
         {
             EnsureMutable();
+
+            if (ownership == true
+                && !DeclaringEntityType.IsOwned())
+            {
+                throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(DeclaringEntityType.DisplayName()));
+            }
 
             var oldIsOwnership = IsOwnership;
             _isOwnership = ownership;

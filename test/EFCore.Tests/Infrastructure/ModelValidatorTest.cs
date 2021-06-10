@@ -817,14 +817,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
             ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
 
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
+            var baseOwnershipBuilder = entityTypeBuilder.HasOwnership(typeof(A), nameof(B.A), ConfigurationSource.Convention);
+            var anotherEntityTypeBuilder = baseOwnershipBuilder.Metadata.DeclaringEntityType.Builder;
+            anotherEntityTypeBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
             anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(A.Id) }, ConfigurationSource.Convention);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P0), ConfigurationSource.Explicit);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P1), ConfigurationSource.Explicit);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P2), ConfigurationSource.Explicit);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P3), ConfigurationSource.Explicit);
 
-            ownedTypeBuilder.HasBaseType(typeof(A), ConfigurationSource.Convention);
+            Assert.NotNull(ownedTypeBuilder.HasBaseType(typeof(A), ConfigurationSource.DataAnnotation));
 
             VerifyError(CoreStrings.OwnedDerivedType(nameof(D)), builder);
         }

@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
-            var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), ConfigurationSource.Convention);
+            var entityType = new EntityType(typeof(object), new Model(new ConventionSet()), owned: false, ConfigurationSource.Convention);
             var property = new Property(
                 "A", typeof(int), null, null, entityType, ConfigurationSource.Convention, ConfigurationSource.Convention);
             entityType.Model.FinalizeModel();

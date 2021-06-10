@@ -236,10 +236,10 @@
     <value>An entity type named '{ownedTypeName}' has already been added to the model. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'.</value>
   </data>
   <data name="ClashingNonOwnedDerivedEntityType" xml:space="preserve">
-    <value>The type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.</value>
   </data>
   <data name="ClashingNonOwnedEntityType" xml:space="preserve">
-    <value>The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.</value>
+    <value>The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.</value>
   </data>
   <data name="ClashingNonSharedType" xml:space="preserve">
     <value>The shared-type entity type '{entityType}' with CLR type '{type}' cannot be added to the model because a non-shared entity type with the same CLR type already exists.</value>
@@ -248,8 +248,11 @@
     <value>The entity type '{entityType}' with a defining navigation cannot be added to the model because an entity type with the same name already exists.</value>
     <comment>Obsolete</comment>
   </data>
+  <data name="ClashingOwnedDerivedEntityType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.</value>
+  </data>
   <data name="ClashingOwnedEntityType" xml:space="preserve">
-    <value>The type '{entityType}' cannot be configured as non-owned because an owned entity type with the same name already exists.</value>
+    <value>The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.</value>
   </data>
   <data name="ClashingSharedType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because its CLR type has been configured as a shared type.</value>
@@ -346,6 +349,9 @@
   </data>
   <data name="DerivedEntityCannotHaveKeys" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined. Only root types can have keys.</value>
+  </data>
+  <data name="DerivedEntityOwnershipMismatch" xml:space="preserve">
+    <value>Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status.</value>
   </data>
   <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
     <value>'{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model.</value>
@@ -1060,6 +1066,9 @@
   <data name="NavigationIsProperty" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' is being accessed using the '{referenceMethod}' or '{collectionMethod}' method, but is defined in the model as a non-navigation. Use the '{propertyMethod}' method to access non-navigation properties.</value>
   </data>
+  <data name="NavigationlessOwnership" xml:space="preserve">
+    <value>The relationship between '{principalEntityType}' and '{dependentEntityType}' is an ownership, but there is no associated navigation to the owned type. An ownership must always have an associated navigation.</value>
+  </data>
   <data name="NavigationNoSetter" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' does not have a setter and no writable backing field was found or specified. Read-only collection navigations must be initialized before use.</value>
   </data>
@@ -1204,11 +1213,17 @@
   <data name="OwnerlessOwnedType" xml:space="preserve">
     <value>The entity type '{ownedType}' has been marked as owned and must be referenced from another entity type via a navigation. Add a navigation to an entity type that points at '{ownedType}' or don't configure it as owned.</value>
   </data>
+  <data name="OwnershipToDependent" xml:space="preserve">
+    <value>The navigation '{navigation}' cannot be changed, because the foreign key between '{principalEntityType}' and '{dependentEntityType}' is an ownership. To change the navigation to the owned entity type remove the ownership.</value>
+  </data>
   <data name="PoolingContextCtorError" xml:space="preserve">
     <value>The DbContext of type '{contextType}' cannot be pooled because it does not have a public constructor accepting a single parameter of type DbContextOptions or has more than one constructor.</value>
   </data>
   <data name="PoolingOptionsModified" xml:space="preserve">
     <value>'OnConfiguring' cannot be used to modify DbContextOptions when DbContext pooling is enabled.</value>
+  </data>
+  <data name="PrincipalEndIncompatibleNavigations" xml:space="preserve">
+    <value>When creating the relationship between '{navigationSpecification1}' and '{navigationSpecification2}' the entity type '{targetEntityType}' cannot be set as principal.</value>
   </data>
   <data name="PrincipalEntityTypeNotInRelationship" xml:space="preserve">
     <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}', but have specified a principal key on '{entityType}'. The foreign key must target a type that is part of the relationship.</value>

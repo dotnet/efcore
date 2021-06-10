@@ -236,9 +236,8 @@ namespace Microsoft.EntityFrameworkCore
         private static IEntityType CreateEntityType()
         {
             var model = new Model();
-            var entityType = model.AddEntityType(typeof(object), ConfigurationSource.Convention);
-            model.FinalizeModel();
-            return entityType;
+            model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention);
+            return model.FinalizeModel().FindEntityType(typeof(object));
         }
 
         private TException SerializeAndDeserialize<TException>(TException exception)

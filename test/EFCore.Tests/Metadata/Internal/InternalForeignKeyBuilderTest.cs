@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(fk.GetIsUniqueConfigurationSource());
             Assert.Null(fk.GetDeleteBehaviorConfigurationSource());
 
-            relationshipBuilder = relationshipBuilder.PrincipalEntityType(principalEntityBuilder, ConfigurationSource.Explicit)
+            relationshipBuilder = relationshipBuilder.PrincipalEntityType(principalEntityBuilder.Metadata, ConfigurationSource.Explicit)
                 .HasPrincipalKey(key.Metadata.Properties, ConfigurationSource.Explicit).HasNavigation(
                     Order.CustomerProperty.Name,
                     pointsToPrincipal: true,
@@ -586,7 +586,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var modelBuilder = CreateInternalModelBuilder();
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit, shouldBeOwned: true);
 
             var relationshipBuilder = orderEntityBuilder.HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.Convention);
             Assert.False(relationshipBuilder.Metadata.IsOwnership);

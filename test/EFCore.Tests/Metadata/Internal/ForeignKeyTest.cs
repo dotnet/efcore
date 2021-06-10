@@ -575,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_change_cascade_ownership()
         {
-            var entityType = CreateModel().AddEntityType("E");
+            var entityType = CreateModel().AddOwnedEntityType("E");
             var keyProp = entityType.AddProperty("Id", typeof(int));
             var dependentProp = entityType.AddProperty("P", typeof(int));
             var principalProp = entityType.AddProperty("U", typeof(int));

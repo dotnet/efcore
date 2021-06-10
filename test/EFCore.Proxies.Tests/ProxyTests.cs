@@ -269,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.AddingProxyTypeAsEntityType("Castle.Proxies.ClassToBeProxiedProxy"),
                 Assert.Throws<ArgumentException>(
-                    () => new EntityType(proxy.GetType(), model, ConfigurationSource.Explicit)).Message);
+                    () => new EntityType(proxy.GetType(), model, owned: false, ConfigurationSource.Explicit)).Message);
         }
 
         // tests scenario in https://github.com/dotnet/efcore/issues/15958

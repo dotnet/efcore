@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual DiscriminatorBuilder HasValue(Type entityType, object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
-                entityType, ConfigurationSource.Explicit, shouldBeOwned: null);
+                entityType, ConfigurationSource.Explicit);
 
             return HasValue(entityTypeBuilder, value, ConfigurationSource.Explicit)!;
         }
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         public virtual DiscriminatorBuilder HasValue(string entityTypeName, object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
-                entityTypeName, ConfigurationSource.Explicit, shouldBeOwned: null);
+                entityTypeName, ConfigurationSource.Explicit);
 
             return HasValue(entityTypeBuilder, value, ConfigurationSource.Explicit)!;
         }

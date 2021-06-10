@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -341,7 +340,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var collection = !foreignKey.IsUnique && !onDependent;
                 var targetType = onDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType;
 
-                Debug.Assert(!targetType.IsOwned(), "Owned entity expanding foreign key.");
+                Check.DebugAssert(!targetType.IsOwned(), "Owned entity expanding foreign key.");
 
                 var innerQueryable = new QueryRootExpression(targetType);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);

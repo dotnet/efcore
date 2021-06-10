@@ -652,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     "NavProp",
                     "InverseReferenceNav", ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
-                .DependentEntityType(dependentTypeWithCompositeKey, ConfigurationSource.DataAnnotation);
+                .DependentEntityType(dependentTypeWithCompositeKey.Metadata, ConfigurationSource.DataAnnotation);
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
 

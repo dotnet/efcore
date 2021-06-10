@@ -44,13 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionModelBuilder> context)
         {
             var model = modelBuilder.Metadata;
-            var rootEntityTypes = GetRoots(model, ConfigurationSource.DataAnnotation);
-            using (context.DelayConventions())
+            var rootEntityTypes = GetRoots(model, ConfigurationSource.Explicit);
+
+            foreach (var orphan in new GraphAdapter(model).GetUnreachableVertices(rootEntityTypes))
             {
-                foreach (var orphan in new GraphAdapter(model).GetUnreachableVertices(rootEntityTypes))
-                {
-                    modelBuilder.HasNoEntityType(orphan, fromDataAnnotation: true);
-                }
+                modelBuilder.HasNoEntityType(orphan, fromDataAnnotation: true);
             }
         }
 

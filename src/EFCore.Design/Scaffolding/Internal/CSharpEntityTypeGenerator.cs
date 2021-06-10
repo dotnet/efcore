@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     attributeWriter.AddParameter(_code.UnknownLiteral(argument));
                 }
-                
+
                 _sb.AppendLine(attributeWriter.ToString());
             }
         }
@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     attributeWriter.AddParameter(_code.UnknownLiteral(argument));
                 }
-                
+
                 _sb.AppendLine(attributeWriter.ToString());
             }
         }

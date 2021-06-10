@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ownedTypeName, ownerEntityType, navigation);
 
         /// <summary>
-        ///     The type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.
+        ///     The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.
         /// </summary>
         public static string ClashingNonOwnedDerivedEntityType(object? entityType, object? derivedType)
             => string.Format(
@@ -344,7 +344,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, derivedType);
 
         /// <summary>
-        ///     The type '{entityType}' cannot be marked as owned because a non-owned entity type with the same name already exists.
+        ///     The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.
         /// </summary>
         public static string ClashingNonOwnedEntityType(object? entityType)
             => string.Format(
@@ -369,7 +369,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The type '{entityType}' cannot be configured as non-owned because an owned entity type with the same name already exists.
+        ///     The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.
+        /// </summary>
+        public static string ClashingOwnedDerivedEntityType(object? entityType, object? derivedType)
+            => string.Format(
+                GetString("ClashingOwnedDerivedEntityType", nameof(entityType), nameof(derivedType)),
+                entityType, derivedType);
+
+        /// <summary>
+        ///     The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.
         /// </summary>
         public static string ClashingOwnedEntityType(object? entityType)
             => string.Format(
@@ -616,6 +624,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DerivedEntityCannotHaveKeys", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status.
+        /// </summary>
+        public static string DerivedEntityOwnershipMismatch(object? baseEntityType, object? derivedEntityType, object? ownedEntityType, object? nonOwnedEntityType)
+            => string.Format(
+                GetString("DerivedEntityOwnershipMismatch", nameof(baseEntityType), nameof(derivedEntityType), nameof(ownedEntityType), nameof(nonOwnedEntityType)),
+                baseEntityType, derivedEntityType, ownedEntityType, nonOwnedEntityType);
 
         /// <summary>
         ///     '{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model.
@@ -1665,6 +1681,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, referenceMethod, collectionMethod, propertyMethod);
 
         /// <summary>
+        ///     The relationship between '{principalEntityType}' and '{dependentEntityType}' is an ownership, but there is no associated navigation to the owned type. An ownership must always have an associated navigation.
+        /// </summary>
+        public static string NavigationlessOwnership(object? principalEntityType, object? dependentEntityType)
+            => string.Format(
+                GetString("NavigationlessOwnership", nameof(principalEntityType), nameof(dependentEntityType)),
+                principalEntityType, dependentEntityType);
+
+        /// <summary>
         ///     The navigation '{1_entityType}.{0_navigation}' does not have a setter and no writable backing field was found or specified. Read-only collection navigations must be initialized before use.
         /// </summary>
         public static string NavigationNoSetter(object? navigation, object? entityType)
@@ -2027,6 +2051,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ownedType);
 
         /// <summary>
+        ///     The navigation '{navigation}' cannot be changed, because the foreign key between '{principalEntityType}' and '{dependentEntityType}' is an ownership. To change the navigation to the owned entity type remove the ownership.
+        /// </summary>
+        public static string OwnershipToDependent(object? navigation, object? principalEntityType, object? dependentEntityType)
+            => string.Format(
+                GetString("OwnershipToDependent", nameof(navigation), nameof(principalEntityType), nameof(dependentEntityType)),
+                navigation, principalEntityType, dependentEntityType);
+
+        /// <summary>
         ///     The DbContext of type '{contextType}' cannot be pooled because it does not have a public constructor accepting a single parameter of type DbContextOptions or has more than one constructor.
         /// </summary>
         public static string PoolingContextCtorError(object? contextType)
@@ -2039,6 +2071,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string PoolingOptionsModified
             => GetString("PoolingOptionsModified");
+
+        /// <summary>
+        ///     When creating the relationship between '{navigationSpecification1}' and '{navigationSpecification2}' the entity type '{targetEntityType}' cannot be set as principal.
+        /// </summary>
+        public static string PrincipalEndIncompatibleNavigations(object? navigationSpecification1, object? navigationSpecification2, object? targetEntityType)
+            => string.Format(
+                GetString("PrincipalEndIncompatibleNavigations", nameof(navigationSpecification1), nameof(navigationSpecification2), nameof(targetEntityType)),
+                navigationSpecification1, navigationSpecification2, targetEntityType);
 
         /// <summary>
         ///     You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}', but have specified a principal key on '{entityType}'. The foreign key must target a type that is part of the relationship.

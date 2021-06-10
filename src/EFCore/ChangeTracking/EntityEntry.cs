@@ -325,7 +325,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         ///     <para>
         ///         Note that whenever real original property values are not available (e.g. entity was not yet
-        ///         persisted to the database) this will default to the current property values of this entity.
+        ///         persisted to the database or was retrieved in a non-tracking query) this will default to the
+        ///         current property values of this entity.
         ///     </para>
         /// </summary>
         /// <value> The original values. </value>
@@ -338,14 +339,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     <para>
         ///         Queries the database for copies of the values of the tracked entity as they currently
-        ///         exist in the database. If the entity is not found in the database, then null is returned.
+        ///         exist in the database. If the entity is not found in the database, then <see langword="null"/> is returned.
         ///     </para>
         ///     <para>
         ///         Note that changing the values in the returned dictionary will not update the values
         ///         in the database.
         ///     </para>
         /// </summary>
-        /// <returns> The store values, or null if the entity does not exist in the database. </returns>
+        /// <returns> The store values, or <see langword="null"/> if the entity does not exist in the database. </returns>
         public virtual PropertyValues? GetDatabaseValues()
         {
             var values = Finder.GetDatabaseValues(InternalEntry);

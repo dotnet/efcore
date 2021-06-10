@@ -276,7 +276,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                var result = builder.Metadata.AddEntityType(typeof(Order), ConfigurationSource.Convention);
+                var result = builder.Metadata.AddEntityType(typeof(Order), owned: false, ConfigurationSource.Convention);
 
                 Assert.Equal(!useScope, result == null);
             }
@@ -540,7 +540,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             else
             {
                 builder.Metadata.SetBaseType(
-                    builder.Metadata.Model.AddEntityType(typeof(Order), ConfigurationSource.Explicit), ConfigurationSource.Convention);
+                    builder.Metadata.Model.AddEntityType(typeof(Order), owned: false, ConfigurationSource.Explicit), ConfigurationSource.Convention);
             }
 
             if (useScope)
@@ -1499,7 +1499,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var builder = new InternalModelBuilder(new Model(conventions));
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
+            var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention, shouldBeOwned: true);
             var foreignKey = dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention)
                 .Metadata;
 

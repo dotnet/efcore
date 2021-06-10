@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual ConfigurationSource? FindDeclaredIgnoredConfigurationSource(string name)
             => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
-                ? (ConfigurationSource?)ignoredConfigurationSource
+                ? ignoredConfigurationSource
                 : null;
 
         /// <summary>

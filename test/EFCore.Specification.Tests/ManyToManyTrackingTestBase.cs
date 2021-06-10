@@ -625,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore
                         context.Set<EntityRoot>().CreateInstance(
                             (e, p) =>
                             {
-                                Debug.Assert(e != null, nameof(e) + " != null");
+                                Assert.True(e != null, nameof(e) + " != null");
                                 e.Id = Fixture.UseGeneratedKeys ? 0 : 7723;
                                 e.Name = "Z7723";
                             }),

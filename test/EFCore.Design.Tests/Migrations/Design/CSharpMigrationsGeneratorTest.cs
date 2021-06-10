@@ -50,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 CoreAnnotationNames.ProductVersion,
                 CoreAnnotationNames.ValueGeneratorFactory,
                 CoreAnnotationNames.ValueGeneratorFactoryType,
-                CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.ValueConverter,
                 CoreAnnotationNames.ValueConverterType,
                 CoreAnnotationNames.ValueComparer,
@@ -180,7 +179,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var notForProperty = new HashSet<string>
             {
                 CoreAnnotationNames.ProductVersion,
-                CoreAnnotationNames.OwnedTypes,
                 CoreAnnotationNames.NavigationAccessMode,
                 CoreAnnotationNames.EagerLoaded,
                 CoreAnnotationNames.QueryFilter,

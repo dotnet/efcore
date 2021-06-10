@@ -286,8 +286,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionModel model)
         {
-            var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                propertyInfo, ((Model)model).Configuration);
+            var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo, model, out var _);
             return targetClrType != null
                 && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                     ? targetClrType
@@ -296,9 +295,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionEntityType entityType)
             => Dependencies.MemberClassifier.GetNavigationCandidates(entityType)
-                .TryGetValue(propertyInfo, out var targetClrType)
+                .TryGetValue(propertyInfo, out var target)
                 && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
-                    ? targetClrType
+                    ? target.Type
                     : null;
 
         /// <summary>

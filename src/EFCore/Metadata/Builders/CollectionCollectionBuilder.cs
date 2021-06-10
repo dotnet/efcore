@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
 
             if (newJoinEntityType == null)
             {
-                newJoinEntityType = ModelBuilder.Entity(joinEntityType, ConfigurationSource.Explicit)!.Metadata;
+                newJoinEntityType = ModelBuilder.Entity(joinEntityType, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata;
             }
 
             var entityTypeBuilder = new EntityTypeBuilder(newJoinEntityType);

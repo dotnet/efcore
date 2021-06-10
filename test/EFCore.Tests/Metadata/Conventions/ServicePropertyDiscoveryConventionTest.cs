@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [ConditionalFact]
         public void Does_not_find_service_property_configured_as_property()
         {
-            var entityType = new Model().AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
+            var entityType = new Model().AddEntityType(typeof(BlogOneService), owned: false, ConfigurationSource.Explicit);
             entityType!.Builder.Property(typeof(ILazyLoader), nameof(BlogOneService.Loader), ConfigurationSource.Explicit)
                 !.HasConversion(typeof(string), ConfigurationSource.Explicit);
 
@@ -156,9 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Does_not_find_service_property_configured_as_navigation()
         {
             var model = new Model();
-            var entityType = model.AddEntityType(typeof(BlogOneService), ConfigurationSource.Explicit);
+            var entityType = model.AddEntityType(typeof(BlogOneService), owned: false, ConfigurationSource.Explicit);
             entityType!.Builder.HasRelationship(
-                model.AddEntityType(typeof(LazyLoader), ConfigurationSource.Explicit)!,
+                model.AddEntityType(typeof(LazyLoader), owned: false, ConfigurationSource.Explicit)!,
                 nameof(BlogOneService.Loader), ConfigurationSource.Explicit);
 
             RunConvention(entityType);
@@ -179,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private EntityType RunConvention<TEntity>()
-            => RunConvention(new Model().AddEntityType(typeof(TEntity), ConfigurationSource.Explicit)!);
+            => RunConvention(new Model().AddEntityType(typeof(TEntity), owned: false, ConfigurationSource.Explicit)!);
 
         private EntityType RunConvention(EntityType entityType)
         {
@@ -192,10 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private ServicePropertyDiscoveryConvention CreateServicePropertyDiscoveryConvention()
-        {
-            var convention = new ServicePropertyDiscoveryConvention(CreateDependencies());
-            return convention;
-        }
+            => new ServicePropertyDiscoveryConvention(CreateDependencies());
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();

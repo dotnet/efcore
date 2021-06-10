@@ -794,7 +794,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null)!.Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata);
         }
 
         /// <summary>
@@ -868,7 +868,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 navigationName,
                 DependentEntityType.Builder.HasRelationship(
                     relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : (bool?)null)!.Metadata);
+                    targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata);
         }
 
         /// <summary>
@@ -930,7 +930,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
             }
 
-            return relatedEntityType ?? DependentEntityType.Builder.ModelBuilder.Entity(relatedType, ConfigurationSource.Explicit)!.Metadata;
+            return relatedEntityType ?? DependentEntityType.Builder.ModelBuilder.Entity(
+                relatedType, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata;
         }
 
         /// <summary>

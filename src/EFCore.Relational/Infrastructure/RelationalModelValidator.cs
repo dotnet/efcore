@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -1477,8 +1476,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
                     else if (overlappingTables.Count == 0)
                     {
-                        Debug.Assert(firstPropertyTables != null, nameof(firstPropertyTables));
-                        Debug.Assert(lastPropertyTables != null, nameof(lastPropertyTables));
+                        Check.DebugAssert(firstPropertyTables != null, nameof(firstPropertyTables));
+                        Check.DebugAssert(lastPropertyTables != null, nameof(lastPropertyTables));
 
                         logger.IndexPropertiesMappedToNonOverlappingTables(
                             entityType,

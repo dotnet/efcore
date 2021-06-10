@@ -55,6 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private List<object>? _data;
         private Key? _primaryKey;
         private bool? _isKeyless;
+        private bool _isOwned;
         private EntityType? _baseType;
         private ChangeTrackingStrategy? _changeTrackingStrategy;
         private InternalEntityTypeBuilder? _builder;
@@ -89,11 +90,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityType(string name, Model model, ConfigurationSource configurationSource)
+        public EntityType(string name, Model model, bool owned, ConfigurationSource configurationSource)
             : base(name, Model.DefaultPropertyBagType, model, configurationSource)
         {
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
             _builder = new InternalEntityTypeBuilder(this, model.Builder);
+            _isOwned = owned;
         }
 
         /// <summary>
@@ -102,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityType(Type type, Model model, ConfigurationSource configurationSource)
+        public EntityType(Type type, Model model, bool owned, ConfigurationSource configurationSource)
             : base(type, model, configurationSource)
         {
             if (!type.IsValidEntityType())
@@ -119,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
             _builder = new InternalEntityTypeBuilder(this, model.Builder);
+            _isOwned = owned;
         }
 
         /// <summary>
@@ -127,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public EntityType(string name, Type type, Model model, ConfigurationSource configurationSource)
+        public EntityType(string name, Type type, Model model, bool owned, ConfigurationSource configurationSource)
             : base(name, type, model, configurationSource)
         {
             if (!type.IsValidEntityType())
@@ -144,6 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _properties = new SortedDictionary<string, Property>(new PropertyNameComparer(this));
             _builder = new InternalEntityTypeBuilder(this, model.Builder);
+            _isOwned = owned;
         }
 
         /// <summary>
@@ -195,6 +199,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             get => RootType()._isKeyless ?? false;
             set => SetIsKeyless(value, ConfigurationSource.Explicit);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool IsOwned()
+            => _isOwned;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual void SetIsOwned(bool value)
+            => _isOwned = value;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -309,6 +331,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (IsKeyless)
                 {
                     throw new InvalidOperationException(CoreStrings.DerivedEntityCannotBeKeyless(DisplayName()));
+                }
+
+                if (IsOwned() != newBaseType.IsOwned())
+                {
+                    throw new InvalidOperationException(CoreStrings.DerivedEntityOwnershipMismatch(
+                        newBaseType.DisplayName(),
+                        DisplayName(),
+                        IsOwned() ? DisplayName() : newBaseType.DisplayName(),
+                        !IsOwned() ? DisplayName() : newBaseType.DisplayName()));
                 }
 
                 var conflictingMember = newBaseType.GetMembers()

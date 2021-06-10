@@ -1987,7 +1987,6 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void InversePropertyAttribute_pointing_to_same_skip_nav_on_base_causes_ambiguity()
         {
             var modelBuilder = CreateModelBuilder();
-
             modelBuilder.Entity<AmbiguousInversePropertyLeft>();
             modelBuilder.Entity<AmbiguousInversePropertyLeftDerived>();
 
