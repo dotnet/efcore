@@ -687,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="timeout"> The timeout to use. </param>
         public static void SetCommandTimeout(this DatabaseFacade databaseFacade, TimeSpan timeout)
         {
-            if(timeout == Timeout.InfiniteTimeSpan)
+            if (timeout == Timeout.InfiniteTimeSpan)
             {
                 SetCommandTimeout(databaseFacade, null);
                 return;
