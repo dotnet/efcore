@@ -689,7 +689,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (timeout == Timeout.InfiniteTimeSpan)
             {
-                SetCommandTimeout(databaseFacade, null);
+                SetCommandTimeout(databaseFacade, 0);
                 return;
             }
             
