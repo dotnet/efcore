@@ -1,138 +1,72 @@
-# Repository
+# Database Seeder Pull Request for EFCore:
+A new seeder for EFCore to easily seeding database
 
-[![build status](https://img.shields.io/azure-devops/build/dnceng/public/51/main)](https://dev.azure.com/dnceng/public/_build?definitionId=51) [![test results](https://img.shields.io/azure-devops/tests/dnceng/public/51/main)](https://dev.azure.com/dnceng/public/_build?definitionId=51)
+## Previous EFCore seeder:
+EFCore has a seeder that can be found in [this link](https://docs.microsoft.com/en-us/ef/core/modeling/data-seeding).
+You have to write your seeds in ModelBuilder and seeds will be a part of your migrations what is not an interesting way for seeding the database.
+Also that seeds won't increase the primary key and indexes of your tables so you have to increase them manually!!!
 
-This repository is home to the following [.NET Foundation](https://dotnetfoundation.org/) projects. These projects are maintained by [Microsoft](https://github.com/microsoft) and licensed under the [Apache License, Version 2.0](LICENSE.txt).
+## New Seeder that implemented in this PR:
+After my experience while using EFCore seeder, I decided to write a new implementation for EFCore seeder.
+You can find my seeder in `Seeder` directory of EFCore source code.
+Also a sample project this implementation is available in [this repo](https://github.com/AshkanAbd/efCoreSeederSample)
 
-* [Entity Framework Core](#entity-framework-core)
-* [Microsoft.Data.Sqlite](#microsoftdatasqlite)
+#### New seeder approach:
+##### Define your seeders:
+```c#
+using System.Linq;
+using efCoreSeederSample.Models;
+using efCoreSeederSample.Seeder.Attributes;
+using Microsoft.EntityFrameworkCore;
 
-## Entity Framework Core
-
-[![latest version](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore) [![preview version](https://img.shields.io/nuget/vpre/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) [![downloads](https://img.shields.io/nuget/dt/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)
-
-EF Core is a modern object-database mapper for .NET. It supports LINQ queries, change tracking, updates, and schema migrations. EF Core works with SQL Server, Azure SQL Database, SQLite, Azure Cosmos DB, MySQL, PostgreSQL, and other databases through a provider plugin API.
-
-### Installation
-
-EF Core is available on [NuGet](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore). Install the provider package corresponding to your target database. See the [list of providers](https://docs.microsoft.com/ef/core/providers/) in the docs for additional databases.
-
-```sh
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add package Microsoft.EntityFrameworkCore.Sqlite
-dotnet add package Microsoft.EntityFrameworkCore.Cosmos
-```
-
-Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) to install.
-
-### Daily builds
-
-We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on EF Core. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
-
-### Basic usage
-
-The following code demonstrates basic usage of EF Core. For a full tutorial configuring the `DbContext`, defining the model, and creating the database, see [getting started](https://docs.microsoft.com/ef/core/get-started/) in the docs.
-
-```cs
-using (var db = new BloggingContext())
+namespace efCoreSeederSample.Seed
 {
-    // Inserting data into the database
-    db.Add(new Blog { Url = "http://blogs.msdn.com/adonet" });
-    db.SaveChanges();
-
-    // Querying
-    var blog = db.Blogs
-        .OrderBy(b => b.BlogId)
-        .First();
-
-    // Updating
-    blog.Url = "https://devblogs.microsoft.com/dotnet";
-    blog.Posts.Add(
-        new Post
-        {
-            Title = "Hello World",
-            Content = "I wrote an app using EF Core!"
-        });
-    db.SaveChanges();
-
-    // Deleting
-    db.Remove(blog);
-    db.SaveChanges();
-}
-```
-
-### Build from source
-
-Most people use EF Core by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
-
-### Contributing
-
-We welcome community pull requests for bug fixes, enhancements, and documentation. See [How to contribute](./.github/CONTRIBUTING.md) for more information.
-
-### Getting support
-
-If you have a specific question about using these projects, we encourage you to [ask it on Stack Overflow](https://stackoverflow.com/questions/tagged/entity-framework-core*?tab=Votes). If you encounter a bug or would like to request a feature, [submit an issue](https://github.com/dotnet/efcore/issues/new/choose). For more details, see [getting support](.github/SUPPORT.md).
-
-## Microsoft.Data.Sqlite
-
-[![latest version](https://img.shields.io/nuget/v/Microsoft.Data.Sqlite)](https://www.nuget.org/packages/Microsoft.Data.Sqlite) [![preview version](https://img.shields.io/nuget/vpre/Microsoft.Data.Sqlite)](https://www.nuget.org/packages/Microsoft.Data.Sqlite/absoluteLatest) [![downloads](https://img.shields.io/nuget/dt/Microsoft.Data.Sqlite.Core)](https://www.nuget.org/packages/Microsoft.Data.Sqlite)
-
-Microsoft.Data.Sqlite is a lightweight ADO.NET provider for SQLite. The EF Core provider for SQLite is built on top of this library. However, it can also be used independently or with other data access libraries.
-
-### Installation
-
-The latest stable version is available on [NuGet](https://www.nuget.org/packages/Microsoft.Data.Sqlite).
-
-```sh
-dotnet add package Microsoft.Data.Sqlite
-```
-
-Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.Data.Sqlite/absoluteLatest) to install.
-
-### Daily builds
-
-We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
-
-### Basic usage
-
-This library implements the common [ADO.NET](https://docs.microsoft.com/dotnet/framework/data/adonet/) abstractions for connections, commands, data readers, and so on. For more information, see [Microsoft.Data.Sqlite](https://docs.microsoft.com/dotnet/standard/data/sqlite/) on Microsoft Docs.
-
-```cs
-using (var connection = new SqliteConnection("Data Source=Blogs.db"))
-{
-    connection.Open();
-
-    var command = connection.CreateCommand();
-    command.CommandText = "SELECT Url FROM Blogs";
-
-    using (var reader = command.ExecuteReader())
+    public class DatabaseSeed
     {
-        while (reader.Read())
+        public SeederSampleDbContext DbContext { get; set; }
+
+        public DatabaseSeed(SeederSampleDbContext dbContext)
         {
-            var url = reader.GetString(0);
+            DbContext = dbContext;
+        }
+
+        [Seeder(typeof(Category), 1)]
+        public void CategorySeeder()
+        {
+            for (var i = 1; i <= 3; i++) {
+                DbContext.Categories.Add(new Category {
+                    Name = $"Category {i}"
+                });
+            }
+
+            DbContext.SaveChanges();
         }
     }
 }
 ```
+As you can see, In this new approach we can easily define a seeder method. Also there is a priority in `SeederAttribute` that determines order of seeder methods, this can helps you to seed your database as you defined your relations.
+##### Run your seeders:
+```c#
+services.AddSeeder<SeederSampleDbContext>()
+                .SetEnvironment(Configuration["Seeders:Environment"])
+                .EnsureSeeded(bool.Parse(Configuration["Seeders:isEfProcess"]));
+```
 
-### Build from source
+You should add this line of code to `ConfigureServices` method of `Startup` after registering you application `DbContext`.
+After adding this line, in start of every run, seeder starts to seed your database.
 
-Most people use Microsoft.Data.Sqlite by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
+### `SeederAttribute` Parameters:
+#### `Type`:
+This is type of the model you want seed.
+The model should has a `DBSet<>` in your `DbContext`.
+#### `Priority`:
+The priority of the seeder.
+Assume that because of relations you defined in your database, you can't insert data to table `A` before table `B`. Now for seeding your database you can set `Priority` of `BSeeder` to `1` and `Priority` of `ASeeder` to `2`. Now seeder will run `BSeeder` before `ASeeder` and you have seed in your both tables.
+##### `Production`:
+When this parameter is `true` means this seeder should only run on your production for seeding your database in production environment. And if the parameter is `false`, the seeder will only run on development environment.
+#### `Force`:
+Seeder automatically checks your database's tables. If the model's table has some data in it, seeder won't run to prevent duplicating data. But with setting `Force` Parameter to `true`, you can force seeder to insert data again.
 
-### Contributing
-
-We welcome community pull requests for bug fixes, enhancements, and documentation. See [How to contribute](./.github/CONTRIBUTING.md) for more information.
-
-### Getting support
-
-If you have a specific question about using these projects, we encourage you to [ask it on Stack Overflow](https://stackoverflow.com/questions/tagged/microsoft.data.sqlite). If you encounter a bug or would like to request a feature, [submit an issue](https://github.com/dotnet/efcore/issues/new/choose). For more details, see [getting support](.github/SUPPORT.md).
-
-## See also
-
-* [Documentation](https://docs.microsoft.com/ef/core/)
-* [Roadmap](https://docs.microsoft.com/ef/core/what-is-new/roadmap)
-* [Weekly status updates](https://github.com/dotnet/efcore/issues/23884)
-* [Release planning process](https://docs.microsoft.com/ef/core/what-is-new/release-planning)
-* [How to write an EF Core provider](https://docs.microsoft.com/ef/core/providers/writing-a-provider)
-* [Security](./docs/security.md)
-* [Code of conduct](.github/CODE_OF_CONDUCT.md)
+## Purpose:
+I think this implementation is good start point for a new seeder in EFCore and it's better than previous seeder of EFCore.
+I hope you like it.
