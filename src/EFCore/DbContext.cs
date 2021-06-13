@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -788,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         void IResettableService.ResetState()
         {
-            foreach (var service in _cachedResettableServices ??= GetResettableServices())
+            foreach (var service in GetResettableServices())
             {
                 service.ResetState();
             }
@@ -807,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
         {
-            foreach (var service in _cachedResettableServices ??= GetResettableServices())
+            foreach (var service in GetResettableServices())
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -817,22 +818,29 @@ namespace Microsoft.EntityFrameworkCore
             _disposed = true;
         }
 
-        private List<IResettableService> GetResettableServices()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IEnumerable<IResettableService> GetResettableServices()
         {
-            var resettableServices = new List<IResettableService>();
-
-            var services
-                = _contextServices?.InternalServiceProvider?
-                    .GetService<IEnumerable<IResettableService>>();
-
-            if (services != null)
+            if (_cachedResettableServices is not null)
             {
-                resettableServices.AddRange(services);
+                return _cachedResettableServices;
             }
 
-            if (_sets != null)
+            var resettableServices = new List<IResettableService>();
+
+            var services = _contextServices?.InternalServiceProvider.GetService<IEnumerable<IResettableService>>();
+            if (services is not null)
             {
-                resettableServices.AddRange((_sets.Values.OfType<IResettableService>()));
+                resettableServices.AddRange(services);
+
+                // Note that if the context hasn't been initialized yet, we don't cache the resettable services
+                // (since some services haven't been added yet).
+                _cachedResettableServices = resettableServices;
+            }
+
+            if (_sets is not null)
+            {
+                resettableServices.AddRange(_sets.Values.OfType<IResettableService>());
             }
 
             return resettableServices;
