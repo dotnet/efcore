@@ -159,9 +159,16 @@ namespace Microsoft.EntityFrameworkCore
 
         private class SecondContext : DbContext, ISecondContext
         {
+            public DbSet<Blog> Blogs { get; set; }
+
             public SecondContext(DbContextOptions options)
                 : base(options)
             {
+            }
+
+            public class Blog
+            {
+                public int Id { get; set; }
             }
         }
 
@@ -715,6 +722,36 @@ namespace Microsoft.EntityFrameworkCore
             Assert.False(context2.Database.AutoTransactionsEnabled);
             Assert.False(context2.Database.AutoSavepointsEnabled);
             Assert.Null(context1.Database.GetCommandTimeout());
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Uninitialized_context_configuration_is_reset_properly(bool async)
+        {
+            var serviceProvider = BuildServiceProvider<SecondContext>();
+
+            DbContext ctx;
+            using (var scope = serviceProvider.CreateScope())
+            using (var ctx1 = scope.ServiceProvider.GetRequiredService<SecondContext>())
+            {
+                await ctx1.DisposeAsync();
+                ctx = ctx1;
+            }
+
+            using (var scope = serviceProvider.CreateScope())
+            using (var ctx2 = scope.ServiceProvider.GetRequiredService<SecondContext>())
+            {
+                Assert.Same(ctx, ctx2);
+                ctx2.Blogs.Add(new SecondContext.Blog());
+            }
+
+            using (var scope = serviceProvider.CreateScope())
+            using (var ctx3 = scope.ServiceProvider.GetRequiredService<SecondContext>())
+            {
+                Assert.Same(ctx, ctx3);
+                Assert.Empty(ctx3.ChangeTracker.Entries());
+            }
         }
 
         [ConditionalTheory]
