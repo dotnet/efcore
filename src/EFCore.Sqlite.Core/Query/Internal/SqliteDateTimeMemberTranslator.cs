@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -21,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     public class SqliteDateTimeMemberTranslator : IMemberTranslator
     {
         private static readonly Dictionary<string, string> _datePartMapping
-            = new Dictionary<string, string>
+            = new()
             {
                 { nameof(DateTime.Year), "%Y" },
                 { nameof(DateTime.Month), "%m" },
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteDateTimeMemberTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public SqliteDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -52,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -73,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             _sqlExpressionFactory,
                             typeof(string),
                             datePart,
-                            instance),
+                            instance!),
                         returnType);
                 }
 
@@ -84,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                             _sqlExpressionFactory.Subtract(
                                 _sqlExpressionFactory.Function(
                                     "julianday",
-                                    new[] { instance },
+                                    new[] { instance! },
                                     nullable: true,
                                     argumentsPropagateNullability: new[] { true },
                                     typeof(double)),
@@ -102,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     _sqlExpressionFactory,
                                     typeof(string),
                                     "%f",
-                                    instance),
+                                    instance!),
                                 typeof(double)),
                             _sqlExpressionFactory.Constant(1000)),
                         _sqlExpressionFactory.Constant(1000));
@@ -124,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                         break;
 
                     case nameof(DateTime.Date):
-                        timestring = instance;
+                        timestring = instance!;
                         modifiers.Add(_sqlExpressionFactory.Constant("start of day"));
                         break;
 
@@ -136,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
                     case nameof(DateTime.TimeOfDay):
                         format = "%H:%M:%f";
-                        timestring = instance;
+                        timestring = instance!;
                         break;
 
                     default:

@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -23,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="oldState"> The old state. </param>
         /// <param name="newState"> The new state. </param>
         public StateChangedEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] EntityEntry entityEntry,
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            EntityEntry entityEntry,
             EntityState oldState,
             EntityState newState)
             : base(eventDefinition, messageGenerator, entityEntry)

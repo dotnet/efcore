@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -22,10 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="newDebugInfo"> The debug information for the new provider. </param>
         /// <param name="cachedDebugInfos"> The debug information for existing providers. </param>
         public ServiceProviderDebugInfoEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IDictionary<string, string> newDebugInfo,
-            [NotNull] IList<IDictionary<string, string>> cachedDebugInfos)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            IDictionary<string, string> newDebugInfo,
+            IList<IDictionary<string, string>> cachedDebugInfos)
             : base(eventDefinition, messageGenerator)
         {
             NewDebugInfo = newDebugInfo;

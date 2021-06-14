@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -25,14 +24,18 @@ namespace Microsoft.EntityFrameworkCore
         ///         information.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
+        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the operand on which the collation is being specified. </typeparam>
-        /// <param name="_"> The DbFunctions instance. </param>
+        /// <param name="_"> The <see cref="DbFunctions" /> instance. </param>
         /// <param name="operand"> The operand to which to apply the collation. </param>
         /// <param name="collation"> The name of the collation. </param>
         public static TProperty Collate<TProperty>(
-            [NotNull] this DbFunctions _,
-            [NotNull] TProperty operand,
-            [NotNull] [NotParameterized] string collation)
+            this DbFunctions _,
+            TProperty operand,
+            [NotParameterized] string collation)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Collate)));
     }
 }

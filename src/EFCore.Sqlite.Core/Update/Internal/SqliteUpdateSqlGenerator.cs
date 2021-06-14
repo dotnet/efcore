@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteUpdateSqlGenerator([NotNull] UpdateSqlGeneratorDependencies dependencies)
+        public SqliteUpdateSqlGenerator(UpdateSqlGeneratorDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         protected override ResultSetMapping AppendSelectAffectedCountCommand(
             StringBuilder commandStringBuilder,
             string name,
-            string schema,
+            string? schema,
             int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -95,9 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override string GenerateNextSequenceValueOperation(string name, string schema)
-        {
-            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
-        }
+        public override string GenerateNextSequenceValueOperation(string name, string? schema)
+            => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
     }
 }

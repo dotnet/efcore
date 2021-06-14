@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -26,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     before the context is initialized
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDbContextDependencies GetDependencies([NotNull] this IDbContextDependencies context)
+        public static IDbContextDependencies GetDependencies(this IDbContextDependencies context)
             => context;
 
         /// <summary>
@@ -36,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IDbContextDependencies GetDependencies([NotNull] this ICurrentDbContext currentContext)
+        public static IDbContextDependencies GetDependencies(this ICurrentDbContext currentContext)
             => currentContext.Context;
     }
 }

@@ -30,13 +30,14 @@ namespace Microsoft.EntityFrameworkCore
             {
                 { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
                 { typeof(IProperty), () => property },
+                { typeof(IReadOnlyProperty), () => property },
                 { typeof(string), () => "Fake" }
             };
 
             TestEventLogging(
                 typeof(SqlServerEventId),
                 typeof(SqlServerLoggerExtensions),
-                typeof(SqlServerLoggingDefinitions),
+                new SqlServerLoggingDefinitions(),
                 fakeFactories);
         }
     }

@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -21,12 +23,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_migration_commands_in_same_transaction(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger),
-                new MigrationCommand(CreateRelationalCommand(), null, logger)
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -60,15 +62,117 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
-        public async Task Executes_migration_commands_with_transaction_suppressed_outside_of_transaction(bool async)
+        public async Task Executes_migration_commands_in_user_transaction(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger)
+            };
+
+            var migrationCommandExecutor = new MigrationCommandExecutor();
+
+            IDbContextTransaction tx;
+            using (tx = fakeConnection.BeginTransaction())
+            {
+                if (async)
+                {
+                    await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection);
+                }
+                else
+                {
+                    migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection);
+                }
+
+                tx.Commit();
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].OpenCount);
+            Assert.Equal(1, fakeConnection.DbConnections[0].CloseCount);
+
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions[0].CommitCount);
+            Assert.Equal(0, fakeConnection.DbConnections[0].DbTransactions[0].RollbackCount);
+
+            Assert.Equal(2, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Same(
+                fakeConnection.DbConnections[0].DbTransactions[0],
+                fakeConnection.DbConnections[0].DbCommands[0].Transaction);
+            Assert.Same(
+                fakeConnection.DbConnections[0].DbTransactions[0],
+                fakeConnection.DbConnections[0].DbCommands[1].Transaction);
+            Assert.Same(
+                tx.GetDbTransaction(),
+                fakeConnection.DbConnections[0].DbTransactions[0]);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Executes_transaction_suppressed_migration_commands_in_user_transaction(bool async)
+        {
+            var fakeConnection = CreateConnection();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
+
+            var commandList = new List<MigrationCommand>
+            {
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+            };
+
+            var migrationCommandExecutor = new MigrationCommandExecutor();
+
+            IDbContextTransaction tx;
+            using (tx = fakeConnection.BeginTransaction())
+            {
+                if (async)
+                {
+                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                        (await Assert.ThrowsAsync<NotSupportedException>(
+                        async ()
+                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
+                }
+                else
+                {
+                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                        Assert.Throws<NotSupportedException>(
+                            ()
+                                => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
+                }
+
+                tx.Rollback();
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].OpenCount);
+            Assert.Equal(1, fakeConnection.DbConnections[0].CloseCount);
+
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions.Count);
+            Assert.Equal(0, fakeConnection.DbConnections[0].DbTransactions[0].CommitCount);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions[0].RollbackCount);
+
+            Assert.Equal(0, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Same(
+                tx.GetDbTransaction(),
+                fakeConnection.DbConnections[0].DbTransactions[0]);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Executes_migration_commands_with_transaction_suppressed_outside_of_transaction(bool async)
+        {
+            var fakeConnection = CreateConnection();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
+
+            var commandList = new List<MigrationCommand>
+            {
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -99,12 +203,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Ends_transaction_when_transaction_is_suppressed(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger),
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -140,12 +244,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Begins_new_transaction_when_transaction_nolonger_suppressed(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(), null, logger)
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true),
+                new(CreateRelationalCommand(), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -181,13 +285,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public async Task Executes_commands_in_order_regardless_of_transaction_suppression(bool async)
         {
             var fakeConnection = CreateConnection();
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var commandList = new List<MigrationCommand>
             {
-                new MigrationCommand(CreateRelationalCommand(commandText: "First"), null, logger),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Second"), null, logger, transactionSuppressed: true),
-                new MigrationCommand(CreateRelationalCommand(commandText: "Third"), null, logger)
+                new(CreateRelationalCommand(commandText: "First"), null, logger),
+                new(CreateRelationalCommand(commandText: "Second"), null, logger, transactionSuppressed: true),
+                new(CreateRelationalCommand(commandText: "Third"), null, logger)
             };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
@@ -256,9 +360,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     CreateOptions(
                         new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection)));
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
-            var commandList = new List<MigrationCommand> { new MigrationCommand(CreateRelationalCommand(), null, logger) };
+            var commandList = new List<MigrationCommand> { new(CreateRelationalCommand(), null, logger) };
 
             var migrationCommandExecutor = new MigrationCommandExecutor();
 
@@ -287,7 +391,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         private const string ConnectionString = "Fake Connection String";
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
-            => new FakeRelationalConnection(options ?? CreateOptions());
+            => new(options ?? CreateOptions());
 
         private static IDbContextOptions CreateOptions(RelationalOptionsExtension optionsExtension = null)
         {

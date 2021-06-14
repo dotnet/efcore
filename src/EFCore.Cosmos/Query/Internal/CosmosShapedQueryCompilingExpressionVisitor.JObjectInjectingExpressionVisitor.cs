@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
 
+#nullable disable
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
     public partial class CosmosShapedQueryCompilingExpressionVisitor
@@ -51,7 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                             expressions);
                     }
 
+#pragma warning disable CS0618 // Type or member is obsolete
                     case CollectionShaperExpression collectionShaperExpression:
+#pragma warning restore CS0618 // Type or member is obsolete
                     {
                         _currentEntityIndex++;
 

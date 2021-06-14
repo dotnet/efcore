@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public EntityReference(IEntityType entityType)
             {
                 EntityType = entityType;
-                IncludePaths = new IncludeTreeNode(entityType, this);
+                IncludePaths = new IncludeTreeNode(entityType, this, setLoaded: true);
             }
 
             public IEntityType EntityType { get; }
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public bool IsOptional { get; private set; }
             public IncludeTreeNode IncludePaths { get; private set; }
-            public IncludeTreeNode LastIncludeTreeNode { get; private set; }
+            public IncludeTreeNode? LastIncludeTreeNode { get; private set; }
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;
@@ -83,51 +83,61 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class IncludeTreeNode : Dictionary<INavigationBase, IncludeTreeNode>
         {
-            private EntityReference _entityReference;
+            private EntityReference? _entityReference;
 
             public IncludeTreeNode(IEntityType entityType)
+                : this(entityType, null, setLoaded: true)
             {
-                EntityType = entityType;
             }
 
-            public IncludeTreeNode(IEntityType entityType, EntityReference entityReference)
+            public IncludeTreeNode(IEntityType entityType, EntityReference? entityReference, bool setLoaded)
             {
                 EntityType = entityType;
                 _entityReference = entityReference;
+                SetLoaded = setLoaded;
             }
 
             public IEntityType EntityType { get; }
-            public LambdaExpression FilterExpression { get; private set; }
+            public LambdaExpression? FilterExpression { get; private set; }
+            public bool SetLoaded { get; private set; }
 
-            public IncludeTreeNode AddNavigation(INavigationBase navigation)
+            public IncludeTreeNode AddNavigation(INavigationBase navigation, bool setLoaded)
             {
                 if (TryGetValue(navigation, out var existingValue))
                 {
+                    if (setLoaded && !existingValue.SetLoaded)
+                    {
+                        existingValue.SetLoaded = true;
+                    }
+
                     return existingValue;
                 }
 
-                IncludeTreeNode nodeToAdd = null;
+                IncludeTreeNode? nodeToAdd = null;
                 if (_entityReference != null)
                 {
                     if (navigation is INavigation concreteNavigation
                         && _entityReference.ForeignKeyExpansionMap.TryGetValue(
                             (concreteNavigation.ForeignKey, concreteNavigation.IsOnDependent), out var expansion))
                     {
-                        nodeToAdd = UnwrapEntityReference(expansion).IncludePaths;
+                        // Value known to be non-null
+                        nodeToAdd = UnwrapEntityReference(expansion)!.IncludePaths;
                     }
                     else if (navigation is ISkipNavigation skipNavigation
                         && _entityReference.ForeignKeyExpansionMap.TryGetValue(
                             (skipNavigation.ForeignKey, skipNavigation.IsOnDependent), out var firstExpansion)
-                        && UnwrapEntityReference(firstExpansion).ForeignKeyExpansionMap.TryGetValue(
+                        // Value known to be non-null
+                        && UnwrapEntityReference(firstExpansion)!.ForeignKeyExpansionMap.TryGetValue(
                             (skipNavigation.Inverse.ForeignKey, !skipNavigation.Inverse.IsOnDependent), out var secondExpansion))
                     {
-                        nodeToAdd = UnwrapEntityReference(secondExpansion).IncludePaths;
+                        // Value known to be non-null
+                        nodeToAdd = UnwrapEntityReference(secondExpansion)!.IncludePaths;
                     }
                 }
 
                 if (nodeToAdd == null)
                 {
-                    nodeToAdd = new IncludeTreeNode(navigation.TargetEntityType, null);
+                    nodeToAdd = new IncludeTreeNode(navigation.TargetEntityType, null, setLoaded);
                 }
 
                 this[navigation] = nodeToAdd;
@@ -135,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return this[navigation];
             }
 
-            public IncludeTreeNode Snapshot(EntityReference entityReference)
+            public IncludeTreeNode Snapshot(EntityReference? entityReference)
             {
-                var result = new IncludeTreeNode(EntityType, entityReference) { FilterExpression = FilterExpression };
+                var result = new IncludeTreeNode(EntityType, entityReference, SetLoaded) { FilterExpression = FilterExpression };
 
                 foreach (var kvp in this)
                 {
@@ -153,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 FilterExpression = includeTreeNode.FilterExpression;
                 foreach (var item in includeTreeNode)
                 {
-                    AddNavigation(item.Key).Merge(item.Value);
+                    AddNavigation(item.Key, item.Value.SetLoaded).Merge(item.Value);
                 }
             }
 
@@ -163,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public void ApplyFilter(LambdaExpression filterExpression)
                 => FilterExpression = filterExpression;
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
                 => obj != null
                     && (ReferenceEquals(this, obj)
                         || obj is IncludeTreeNode includeTreeNode
@@ -198,12 +208,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private sealed class NavigationExpansionExpression : Expression, IPrintableExpression
         {
-            private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings
-                = new List<(MethodInfo OrderingMethod, Expression KeySelector)>();
+            private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings = new();
 
             private readonly string _parameterName;
 
-            private NavigationTreeNode _currentTree;
+            private NavigationTreeNode? _currentTree;
 
             public NavigationExpansionExpression(
                 Expression source,
@@ -220,11 +229,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public Expression Source { get; private set; }
 
             public ParameterExpression CurrentParameter
-                => CurrentTree.CurrentParameter;
+                // CurrentParameter would be non-null if CurrentTree is non-null
+                => CurrentTree.CurrentParameter!;
 
             public NavigationTreeNode CurrentTree
             {
-                get => _currentTree;
+                // _currentTree is always non-null. Field is to override the setter to set parameter
+                get => _currentTree!;
                 private set
                 {
                     _currentTree = value;
@@ -233,7 +244,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
 
             public Expression PendingSelector { get; private set; }
-            public MethodInfo CardinalityReducingGenericMethodInfo { get; private set; }
+            public MethodInfo? CardinalityReducingGenericMethodInfo { get; private set; }
 
             public Type SourceElementType
                 => CurrentParameter.Type;
@@ -354,32 +365,25 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         private class NavigationTreeNode : Expression
         {
-            private NavigationTreeNode _parent;
+            private NavigationTreeNode? _parent;
 
-            public NavigationTreeNode(NavigationTreeNode left, NavigationTreeNode right)
+            public NavigationTreeNode(NavigationTreeNode? left, NavigationTreeNode? right)
             {
                 Left = left;
                 Right = right;
-                if (left != null)
+                if (left != null
+                    && right != null)
                 {
-                    Left.Parent = this;
-                    Right.Parent = this;
+                    left._parent = this;
+                    left.CurrentParameter = null;
+                    right._parent = this;
+                    right.CurrentParameter = null;
                 }
             }
 
-            public NavigationTreeNode Parent
-            {
-                get => _parent;
-                private set
-                {
-                    _parent = value;
-                    CurrentParameter = null;
-                }
-            }
-
-            public NavigationTreeNode Left { get; }
-            public NavigationTreeNode Right { get; }
-            public ParameterExpression CurrentParameter { get; private set; }
+            public NavigationTreeNode? Left { get; }
+            public NavigationTreeNode? Right { get; }
+            public ParameterExpression? CurrentParameter { get; private set; }
 
             public void SetParameter(string parameterName)
                 => CurrentParameter = Parameter(Type, parameterName);
@@ -388,17 +392,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 => ExpressionType.Extension;
 
             public override Type Type
-                => TransparentIdentifierFactory.Create(Left.Type, Right.Type);
+                // Left/Right could be null for NavigationTreeExpression (derived type) but it overrides this property.
+                => TransparentIdentifierFactory.Create(Left!.Type, Right!.Type);
 
             public Expression GetExpression()
             {
-                if (Parent == null)
+                if (_parent == null)
                 {
-                    return CurrentParameter;
+                    // If parent is null and CurrentParameter is non-null & vice-versa
+                    return CurrentParameter!;
                 }
 
-                var parentExperssion = Parent.GetExpression();
-                return Parent.Left == this
+                var parentExperssion = _parent.GetExpression();
+                return _parent.Left == this
                     ? MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Outer")[0])
                     : MakeMemberAccess(parentExperssion, parentExperssion.Type.GetMember("Inner")[0]);
             }

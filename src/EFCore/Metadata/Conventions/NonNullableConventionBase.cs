@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using CA = System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        protected NonNullableConventionBase([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        protected NonNullableConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -46,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="memberInfo"> The member info. </param>
         /// <returns> <see langword="true" /> if the member type is a non-nullable reference type. </returns>
         protected virtual bool IsNonNullableReferenceType(
-            [NotNull] IConventionModelBuilder modelBuilder,
-            [NotNull] MemberInfo memberInfo)
+            IConventionModelBuilder modelBuilder,
+            MemberInfo memberInfo)
         {
             if (memberInfo.GetMemberType().IsValueType)
             {
@@ -57,10 +56,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var state = GetOrInitializeState(modelBuilder);
 
             // First check for [MaybeNull] on the return value. If it exists, the member is nullable.
+            // Note: avoid using GetCustomAttribute<> below because of https://github.com/mono/mono/issues/17477
             var isMaybeNull = memberInfo switch
             {
-                FieldInfo f => f.GetCustomAttribute<CA.MaybeNullAttribute>() != null,
-                PropertyInfo p => p.GetMethod?.ReturnParameter?.GetCustomAttribute<CA.MaybeNullAttribute>() != null,
+                FieldInfo f
+                    => f.CustomAttributes.Any(a => a.AttributeType == typeof(MaybeNullAttribute)),
+                PropertyInfo p
+                    => p.GetMethod?.ReturnParameter?.CustomAttributes?.Any(a => a.AttributeType == typeof(MaybeNullAttribute)) == true,
                 _ => false
             };
 
@@ -94,53 +96,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             // No attribute on the member, try to find a NullableContextAttribute on the declaring type
             var type = memberInfo.DeclaringType;
-            if (type != null)
+            if (type is not null)
             {
-                if (state.TypeCache.TryGetValue(type, out var cachedTypeNonNullable))
+                // We currently don't calculate support nullability for generic properties, since calculating that is complex
+                // (depends on the nullability of generic type argument).
+                // However, we special case Dictionary as it's used for property bags, and specifically don't identify its indexer
+                // as non-nullable.
+                if (memberInfo is PropertyInfo property
+                    && property.IsIndexerProperty()
+                    && type.IsGenericType
+                    && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
                 {
-                    return cachedTypeNonNullable;
+                    return false;
                 }
 
-                if (Attribute.GetCustomAttributes(type)
-                    .FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute contextAttr)
-                {
-                    var attributeType = contextAttr.GetType();
-
-                    if (attributeType != state.NullableContextAttrType)
-                    {
-                        state.NullableContextFlagFieldInfo = attributeType.GetField("Flag");
-                        state.NullableContextAttrType = attributeType;
-                    }
-
-                    if (state.NullableContextFlagFieldInfo?.GetValue(contextAttr) is byte flag)
-                    {
-                        // We currently don't calculate support nullability for generic properties, since calculating that is complex
-                        // (depends on the nullability of generic type argument).
-                        // However, we special case Dictionary as it's used for property bags, and specifically don't identify its indexer
-                        // as non-nullable.
-                        if (memberInfo is PropertyInfo property
-                            && property.IsIndexerProperty()
-                            && type.IsGenericType
-                            && type.GetGenericTypeDefinition() == typeof(Dictionary<,>))
-                        {
-                            return false;
-                        }
-
-                        return state.TypeCache[type] = flag == 1;
-                    }
-                }
-
-                return state.TypeCache[type] = false;
+                return DoesTypeHaveNonNullableContext(type, state);
             }
 
             return false;
+        }
+
+        private bool DoesTypeHaveNonNullableContext(Type type, NonNullabilityConventionState state)
+        {
+            if (state.TypeCache.TryGetValue(type, out var cachedTypeNonNullable))
+            {
+                return cachedTypeNonNullable;
+            }
+
+            if (Attribute.GetCustomAttributes(type)
+                .FirstOrDefault(a => a.GetType().FullName == NullableContextAttributeFullName) is Attribute contextAttr)
+            {
+                var attributeType = contextAttr.GetType();
+
+                if (attributeType != state.NullableContextAttrType)
+                {
+                    state.NullableContextFlagFieldInfo = attributeType.GetField("Flag");
+                    state.NullableContextAttrType = attributeType;
+                }
+
+                if (state.NullableContextFlagFieldInfo?.GetValue(contextAttr) is byte flag)
+                {
+                    return state.TypeCache[type] = flag == 1;
+                }
+            }
+            else if (type.IsNested)
+            {
+                return state.TypeCache[type] = DoesTypeHaveNonNullableContext(type.DeclaringType!, state);
+            }
+
+            return state.TypeCache[type] = false;
         }
 
         private NonNullabilityConventionState GetOrInitializeState(IConventionModelBuilder modelBuilder)
             => (NonNullabilityConventionState)(
                 modelBuilder.Metadata.FindAnnotation(StateAnnotationName)
                 ?? modelBuilder.Metadata.AddAnnotation(StateAnnotationName, new NonNullabilityConventionState())
-            ).Value;
+            ).Value!;
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(
@@ -150,11 +161,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private sealed class NonNullabilityConventionState
         {
-            public Type NullableAttrType;
-            public Type NullableContextAttrType;
-            public FieldInfo NullableFlagsFieldInfo;
-            public FieldInfo NullableContextFlagFieldInfo;
-            public Dictionary<Type, bool> TypeCache { get; } = new Dictionary<Type, bool>();
+            public Type? NullableAttrType;
+            public Type? NullableContextAttrType;
+            public FieldInfo? NullableFlagsFieldInfo;
+            public FieldInfo? NullableContextFlagFieldInfo;
+            public Dictionary<Type, bool> TypeCache { get; } = new();
         }
     }
 }

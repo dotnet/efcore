@@ -5,6 +5,11 @@ root = false
 # Code files
 [*.cs]
 
+# Design rules
+
+# CA1001: Types that own disposable fields should be disposable
+dotnet_diagnostic.CA1001.severity = error
+
 # Globalization rules
 
 # CA1303: Do not pass literals as localized parameters

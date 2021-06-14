@@ -1,7 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -26,6 +29,30 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override void Properties_specified_by_string_are_shadow_properties_unless_already_known_to_be_CLR_properties()
             {
                 // Fails due to extra shadow properties
+            }
+
+            [ConditionalFact]
+            public override void Properties_can_have_provider_type_set_for_type()
+            {
+                var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property(e => e.Up);
+                        b.Property(e => e.Down);
+                        b.Property<int>("Charm");
+                        b.Property<string>("Strange");
+                        b.Property<string>("__id").HasConversion((Type)null);
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
+
+                Assert.Null(entityType.FindProperty("Up").GetProviderClrType());
+                Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetProviderClrType());
+                Assert.Null(entityType.FindProperty("Charm").GetProviderClrType());
+                Assert.Same(typeof(byte[]), entityType.FindProperty("Strange").GetProviderClrType());
             }
 
             [ConditionalFact]
@@ -176,8 +203,30 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            [ConditionalFact]
+            public virtual void No_alternate_key_is_created_if_id_is_partition_key()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Customer>().HasKey(nameof(Customer.AlternateKey));
+                modelBuilder.Entity<Customer>()
+                    .Ignore(b => b.Details)
+                    .Ignore(b => b.Orders)
+                    .HasPartitionKey(b => b.AlternateKey)
+                    .Property(b => b.AlternateKey).HasConversion<string>().ToJsonProperty("id");
+
+                var model = modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+
+                Assert.Equal(
+                    new[] { nameof(Customer.AlternateKey) },
+                    entity.FindPrimaryKey().Properties.Select(p => p.Name));
+                Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+            }
+
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericInheritance : GenericInheritance
@@ -187,38 +236,81 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // Fails due to presence of __jObject
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOneToMany : GenericOneToMany
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericManyToOne : GenericManyToOne
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOneToOne : GenericOneToOne
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
+        }
+
+        public class CosmosGenericManyToMany : GenericManyToMany
+        {
+            [ConditionalFact]
+            public virtual void Can_use_shared_type_as_join_entity_with_partition_keys()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>(mb =>
+                {
+                    mb.Property<string>("PartitionId");
+                    mb.HasPartitionKey("PartitionId");
+                });
+
+                modelBuilder.Entity<NavDependent>(mb =>
+                {
+                    mb.Property<string>("PartitionId");
+                    mb.HasPartitionKey("PartitionId");
+                });
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<Dictionary<string, object>>(
+                        "JoinType",
+                        e => e.HasOne<NavDependent>().WithMany().HasForeignKey("DependentId", "PartitionId"),
+                        e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey("PrincipalId", "PartitionId"),
+                        e =>
+                        {
+                            e.HasPartitionKey("PartitionId");
+                        });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var joinType = model.FindEntityType("JoinType");
+                Assert.NotNull(joinType);
+                Assert.Equal(2, joinType.GetForeignKeys().Count());
+                Assert.Equal(3, joinType.FindPrimaryKey().Properties.Count);
+                Assert.Equal(6, joinType.GetProperties().Count());
+                Assert.Equal("PartitionId", joinType.GetPartitionKeyPropertyName());
+                Assert.Equal("PartitionId", joinType.FindPrimaryKey().Properties.Last().Name);
+            }
+
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOwnedTypes : GenericOwnedTypes
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
-        }
-
-        public class CosmosGenericKeylessEntities : GenericKeylessEntities
-        {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(CosmosTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
     }
 }

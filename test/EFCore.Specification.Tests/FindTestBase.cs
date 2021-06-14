@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -300,9 +301,20 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void Throws_for_bad_entity_type()
         {
             using var context = CreateContext();
+
             Assert.Equal(
                 CoreStrings.InvalidSetType(nameof(Random)),
                 Assert.Throws<InvalidOperationException>(() => Find<Random>(context, 77)).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Throws_for_bad_entity_type_with_different_namespace()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => Find<Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey>(context, 77)).Message);
         }
 
         [ConditionalFact]
@@ -580,6 +592,17 @@ namespace Microsoft.EntityFrameworkCore
                 (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Random>(context, 77).AsTask())).Message);
         }
 
+        [ConditionalFact]
+        public virtual async Task Throws_for_bad_entity_type_with_different_namespace_async()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(
+                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(typeof(Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey).DisplayName(), typeof(ShadowKey).DisplayName()),
+                (await Assert.ThrowsAsync<InvalidOperationException>(() => FindAsync<Microsoft.EntityFrameworkCore.DifferentNamespace.ShadowKey>(context, 77).AsTask())).Message);
+        }
+
+
         protected class BaseType
         {
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -675,5 +698,14 @@ namespace Microsoft.EntityFrameworkCore
                 context.SaveChanges();
             }
         }
+    }
+}
+
+
+namespace Microsoft.EntityFrameworkCore.DifferentNamespace
+{
+    internal class ShadowKey
+    {
+        public string Foo { get; set; }
     }
 }

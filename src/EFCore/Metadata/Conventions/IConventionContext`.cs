@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -19,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         The common use case is when the metadata object was replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object. </param>
-        void StopProcessing([NotNull] TMetadata result);
+        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
+        void StopProcessing(TMetadata? result);
 
         /// <summary>
         ///     <para>
@@ -31,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         The common use case is when the metadata object was replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object. </param>
-        void StopProcessingIfChanged([NotNull] TMetadata result);
+        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
+        void StopProcessingIfChanged(TMetadata? result);
     }
 }

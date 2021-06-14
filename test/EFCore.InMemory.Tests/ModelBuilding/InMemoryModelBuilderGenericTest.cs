@@ -16,14 +16,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
     {
         public class InMemoryGenericNonRelationship : GenericNonRelationship
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
         }
 
         public class InMemoryGenericInheritance : GenericInheritance
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
         }
 
         public class InMemoryGenericOneToMany : GenericOneToMany
@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var contextOptions = new DbContextOptionsBuilder()
                     .UseModel(modelBuilder.Model.FinalizeModel())
-                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK")
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultNullabilityCheckProvider)
+                    .UseInMemoryDatabase("Can_use_self_referencing_overlapping_FK_PK", b => b.EnableNullabilityCheck(false))
                     .Options;
 
                 using (var context = new DbContext(contextOptions))
@@ -140,14 +140,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 public virtual ModifierGroupHeader ModifierGroupHeader2 { get; set; }
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
         }
 
         public class InMemoryGenericManyToOne : GenericManyToOne
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
         }
 
         public class InMemoryGenericOneToOne : GenericOneToOne
@@ -231,20 +231,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 public Node NextNode { get; set; }
             }
 
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
         }
 
         public class InMemoryGenericOwnedTypes : GenericOwnedTypes
         {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
-        }
-
-        public class InMemoryGenericKeylessEntities : GenericKeylessEntities
-        {
-            protected override TestModelBuilder CreateModelBuilder()
-                => CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+                => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
         }
     }
 }

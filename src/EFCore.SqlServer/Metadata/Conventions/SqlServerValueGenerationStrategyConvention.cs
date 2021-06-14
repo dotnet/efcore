@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
@@ -21,10 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public SqlServerValueGenerationStrategyConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
         {
+            Dependencies = dependencies;
         }
+
+        private ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <summary>
         ///     Called after a model is initialized.
@@ -52,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (table != null)
                     {
                         var storeObject = StoreObjectIdentifier.Table(table, entityType.GetSchema());
-                        strategy = property.GetValueGenerationStrategy(storeObject);
+                        strategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
                         if (strategy == SqlServerValueGenerationStrategy.None
                             && !IsStrategyNoneNeeded(property, storeObject))
                         {
@@ -65,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         if (view != null)
                         {
                             var storeObject = StoreObjectIdentifier.View(view, entityType.GetViewSchema());
-                            strategy = property.GetValueGenerationStrategy(storeObject);
+                            strategy = property.GetValueGenerationStrategy(storeObject, Dependencies.TypeMappingSource);
                             if (strategy == SqlServerValueGenerationStrategy.None
                                 && !IsStrategyNoneNeeded(property, storeObject))
                             {
@@ -82,15 +84,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            static bool IsStrategyNoneNeeded(IProperty property, StoreObjectIdentifier storeObject)
+            bool IsStrategyNoneNeeded(IReadOnlyProperty property, StoreObjectIdentifier storeObject)
             {
                 if (property.ValueGenerated == ValueGenerated.OnAdd
-                    && property.GetDefaultValue(storeObject) == null
+                    && !property.TryGetDefaultValue(storeObject, out _)
                     && property.GetDefaultValueSql(storeObject) == null
                     && property.GetComputedColumnSql(storeObject) == null
                     && property.DeclaringEntityType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
                 {
-                    var providerClrType = (property.GetValueConverter() ?? property.FindRelationalTypeMapping(storeObject)?.Converter)
+                    var providerClrType = (property.GetValueConverter()
+                            ?? (property.FindRelationalTypeMapping(storeObject)
+                                ?? Dependencies.TypeMappingSource.FindMapping((IProperty)property))?.Converter)
                         ?.ProviderClrType.UnwrapNullableType();
 
                     return providerClrType != null

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         {
         }
 
-        private static Expression<Func<TGeometry, TGeometry, bool>> GetEqualsExpression()
+        private static Expression<Func<TGeometry?, TGeometry?, bool>> GetEqualsExpression()
         {
             var left = Expression.Parameter(typeof(TGeometry), "left");
             var right = Expression.Parameter(typeof(TGeometry), "right");
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var yNull = Expression.Variable(typeof(bool), "yNull");
             var nullExpression = Expression.Constant(null, typeof(TGeometry));
 
-            return Expression.Lambda<Func<TGeometry, TGeometry, bool>>(
+            return Expression.Lambda<Func<TGeometry?, TGeometry?, bool>>(
                 Expression.Block(
                     typeof(bool),
                     new[] { x, y, xNull, yNull },
@@ -50,26 +50,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                                 Expression.IsFalse(yNull),
                                 Expression.Call(
                                     x,
-                                    typeof(TGeometry).GetRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) }),
+                                    typeof(TGeometry).GetRequiredRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) }),
                                     y))))),
                 left,
                 right);
         }
 
-        private static Expression<Func<TGeometry, TGeometry>> GetSnapshotExpression()
+        private static Expression<Func<TGeometry?, TGeometry?>> GetSnapshotExpression()
         {
             var instance = Expression.Parameter(typeof(TGeometry), "instance");
 
             Expression body = Expression.Call(
                 instance,
-                typeof(TGeometry).GetRuntimeMethod("Copy", Type.EmptyTypes));
+                typeof(TGeometry).GetRequiredRuntimeMethod("Copy", Type.EmptyTypes));
 
             if (typeof(TGeometry).FullName != "NetTopologySuite.Geometries.Geometry")
             {
                 body = Expression.Convert(body, typeof(TGeometry));
             }
 
-            return Expression.Lambda<Func<TGeometry, TGeometry>>(body, instance);
+            return Expression.Lambda<Func<TGeometry?, TGeometry?>>(body, instance);
         }
     }
 }

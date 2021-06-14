@@ -28,14 +28,7 @@ namespace Microsoft.EntityFrameworkCore
 
         public class SqlServerApiConsistencyFixture : ApiConsistencyFixtureBase
         {
-            public override bool TryGetProviderOptionsDelegate(out Action<DbContextOptionsBuilder> configureOptions)
-            {
-                configureOptions = b => SqlServerTestHelpers.Instance.UseProviderOptions(b);
-
-                return true;
-            }
-
-            public override HashSet<Type> FluentApiTypes { get; } = new HashSet<Type>
+            public override HashSet<Type> FluentApiTypes { get; } = new()
             {
                 typeof(SqlServerDbContextOptionsBuilder),
                 typeof(SqlServerDbContextOptionsExtensions),
@@ -49,20 +42,54 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             public override
-                List<(Type Type, Type ReadonlyExtensions, Type MutableExtensions, Type ConventionExtensions, Type
-                    ConventionBuilderExtensions)> MetadataExtensionTypes { get; }
-                = new List<(Type, Type, Type, Type, Type)>
+                List<(Type Type,
+                    Type ReadonlyExtensions,
+                    Type MutableExtensions,
+                    Type ConventionExtensions,
+                    Type ConventionBuilderExtensions,
+                    Type RuntimeExtensions)> MetadataExtensionTypes { get; }
+                = new()
                 {
-                    (typeof(IModel), typeof(SqlServerModelExtensions), typeof(SqlServerModelExtensions),
-                        typeof(SqlServerModelExtensions), typeof(SqlServerModelBuilderExtensions)),
-                    (typeof(IEntityType), typeof(SqlServerEntityTypeExtensions), typeof(SqlServerEntityTypeExtensions),
-                        typeof(SqlServerEntityTypeExtensions), typeof(SqlServerEntityTypeBuilderExtensions)),
-                    (typeof(IKey), typeof(SqlServerKeyExtensions), typeof(SqlServerKeyExtensions), typeof(SqlServerKeyExtensions),
-                        typeof(SqlServerKeyBuilderExtensions)),
-                    (typeof(IProperty), typeof(SqlServerPropertyExtensions), typeof(SqlServerPropertyExtensions),
-                        typeof(SqlServerPropertyExtensions), typeof(SqlServerPropertyBuilderExtensions)),
-                    (typeof(IIndex), typeof(SqlServerIndexExtensions), typeof(SqlServerIndexExtensions),
-                        typeof(SqlServerIndexExtensions), typeof(SqlServerIndexBuilderExtensions))
+                    (
+                        typeof(IReadOnlyModel),
+                        typeof(SqlServerModelExtensions),
+                        typeof(SqlServerModelExtensions),
+                        typeof(SqlServerModelExtensions),
+                        typeof(SqlServerModelBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyEntityType),
+                        typeof(SqlServerEntityTypeExtensions),
+                        typeof(SqlServerEntityTypeExtensions),
+                        typeof(SqlServerEntityTypeExtensions),
+                        typeof(SqlServerEntityTypeBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyKey),
+                        typeof(SqlServerKeyExtensions),
+                        typeof(SqlServerKeyExtensions),
+                        typeof(SqlServerKeyExtensions),
+                        typeof(SqlServerKeyBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyProperty),
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyBuilderExtensions),
+                        null
+                    ),
+                    (
+                        typeof(IReadOnlyIndex),
+                        typeof(SqlServerIndexExtensions),
+                        typeof(SqlServerIndexExtensions),
+                        typeof(SqlServerIndexExtensions),
+                        typeof(SqlServerIndexBuilderExtensions),
+                        null
+                    )
                 };
         }
     }

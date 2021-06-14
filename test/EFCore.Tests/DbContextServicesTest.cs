@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new List<(LogLevel, EventId, string)>();
+        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new();
 
         private class InfoLogContext : DbContext
         {
@@ -268,6 +268,16 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void GetService_throws_for_unknown_service_type()
+        {
+            using var context = new EarlyLearningCenter();
+
+            Assert.Equal(
+                CoreStrings.NoProviderConfiguredFailedToResolveService("System.Random"),
+                Assert.Throws<InvalidOperationException>(() => context.GetService<Random>()).Message);
+        }
+
+        [ConditionalFact]
         public void Can_use_GetInfrastructure_with_inferred_generic_to_get_service_provider()
         {
             using var context = new EarlyLearningCenter();
@@ -368,13 +378,6 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void Default_context_scoped_services_are_registered_when_parameterless_constructor_used()
-        {
-            using var context = new EarlyLearningCenter();
-            Assert.IsType<InternalEntityEntryFactory>(context.GetService<IInternalEntityEntryFactory>());
-        }
-
-        [ConditionalFact]
         public void Can_get_singleton_service_from_scoped_configuration()
         {
             using var context = new EarlyLearningCenter();
@@ -402,6 +405,18 @@ namespace Microsoft.EntityFrameworkCore
 
             public void StateChanged(InternalEntityEntry entry, EntityState oldState, bool fromQuery)
                 => throw new NotImplementedException();
+
+            public void BeginAttachGraph()
+            {
+            }
+
+            public void CompleteAttachGraph()
+            {
+            }
+
+            public void AbortAttachGraph()
+            {
+            }
 
             public void NavigationReferenceChanged(
                 InternalEntityEntry entry,
@@ -647,6 +662,12 @@ namespace Microsoft.EntityFrameworkCore
                 DbContext context,
                 IConventionSetBuilder conventionSetBuilder,
                 ModelDependencies modelDependencies)
+                => new Model();
+
+            public IModel GetModel(
+                DbContext context,
+                ModelCreationDependencies modelCreationDependencies,
+                bool designTime)
                 => new Model();
         }
 
@@ -2693,6 +2714,9 @@ namespace Microsoft.EntityFrameworkCore
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
+
+            public ParameterBinding Bind(IReadOnlyEntityType entityType, Type parameterType, string parameterName)
+                => throw new NotImplementedException();
         }
 
         private class CustomParameterBindingFactory2 : IParameterBindingFactory
@@ -2704,6 +2728,9 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
 
             public ParameterBinding Bind(IConventionEntityType entityType, Type parameterType, string parameterName)
+                => throw new NotImplementedException();
+
+            public ParameterBinding Bind(IReadOnlyEntityType entityType, Type parameterType, string parameterName)
                 => throw new NotImplementedException();
         }
 
@@ -2727,8 +2754,8 @@ namespace Microsoft.EntityFrameworkCore
 
         private class CustomInMemoryTableFactory : InMemoryTableFactory
         {
-            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions)
-                : base(loggingOptions)
+            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options)
+                : base(loggingOptions, options)
             {
             }
         }
@@ -3660,5 +3687,26 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
         }
+    }
+}
+
+namespace Microsoft.EntityFrameworkCore.DifferentNamespace
+{
+    internal class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public List<Product> Products { get; set; }
+    }
+
+    internal class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
     }
 }

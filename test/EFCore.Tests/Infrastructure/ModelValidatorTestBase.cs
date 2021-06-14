@@ -7,15 +7,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -222,6 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         [Owned]
         protected class OrderDetails
         {
+            public Customer Customer { get; set; }
             public string ShippingAddress { get; set; }
         }
 
@@ -246,22 +242,27 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public virtual ICollection<Order> Orders { get; set; }
         }
 
+        protected class KeylessSeed
+        {
+            public string Species { get; set; }
+        }
+
         protected ModelValidatorTestBase()
             => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 
         protected ListLoggerFactory LoggerFactory { get; }
 
-        protected virtual void VerifyWarning(string expectedMessage, IMutableModel model, LogLevel level = LogLevel.Warning)
+        protected virtual void VerifyWarning(string expectedMessage, TestHelpers.TestModelBuilder modelBuilder, LogLevel level = LogLevel.Warning)
         {
-            Validate(model);
+            Validate(modelBuilder);
 
             var logEntry = LoggerFactory.Log.Single(l => l.Level == level);
             Assert.Equal(expectedMessage, logEntry.Message);
         }
 
-        protected virtual void VerifyWarnings(string[] expectedMessages, IMutableModel model, LogLevel level = LogLevel.Warning)
+        protected virtual void VerifyWarnings(string[] expectedMessages, TestHelpers.TestModelBuilder modelBuilder, LogLevel level = LogLevel.Warning)
         {
-            Validate(model);
+            Validate(modelBuilder);
             var logEntries = LoggerFactory.Log.Where(l => l.Level == level);
             Assert.Equal(expectedMessages.Length, logEntries.Count());
 
@@ -272,23 +273,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             }
         }
 
-        protected virtual void VerifyError(string expectedMessage, IMutableModel model)
+        protected virtual void VerifyError(string expectedMessage, TestHelpers.TestModelBuilder modelBuilder, bool sensitiveDataLoggingEnabled = false)
         {
-            var message = Assert.Throws<InvalidOperationException>(() => Validate(model)).Message;
+            var message = Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder, sensitiveDataLoggingEnabled)).Message;
             Assert.Equal(expectedMessage, message);
         }
 
-        protected virtual void VerifyLogDoesNotContain(string expectedMessage, IMutableModel model)
+        protected virtual void VerifyLogDoesNotContain(string expectedMessage, TestHelpers.TestModelBuilder modelBuilder)
         {
-            Validate(model);
+            Validate(modelBuilder);
 
             var logEntries = LoggerFactory.Log.Where(l => l.Message.Contains(expectedMessage));
 
             Assert.Empty(logEntries);
         }
 
-        protected virtual IModel Validate(IMutableModel model)
-            => model.FinalizeModel();
+        protected virtual IModel Validate(TestHelpers.TestModelBuilder modelBuilder, bool sensitiveDataLoggingEnabled = false)
+            => modelBuilder.FinalizeModel(designTime: true);
 
         protected DiagnosticsLogger<DbLoggerCategory.Model.Validation> CreateValidationLogger(bool sensitiveDataLoggingEnabled = false)
         {
@@ -314,32 +315,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 new NullDbContextLogger());
         }
 
-        protected virtual ModelBuilder CreateConventionalModelBuilder(bool sensitiveDataLoggingEnabled = false)
+        protected virtual TestHelpers.TestModelBuilder CreateConventionalModelBuilder(
+            Action<ModelConfigurationBuilder> configure = null, bool sensitiveDataLoggingEnabled = false)
             => TestHelpers.CreateConventionBuilder(
-                CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled));
+                CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),
+                configurationBuilder => configure?.Invoke(configurationBuilder));
 
-        protected virtual ModelBuilder CreateConventionlessModelBuilder(bool sensitiveDataLoggingEnabled = false)
-        {
-            var conventionSet = new ConventionSet();
-            var serviceProvider = CreateServiceProvider(sensitiveDataLoggingEnabled);
-
-            // Use public API to add conventions, issue #214
-            var dependencies = serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>();
-            conventionSet.ModelFinalizingConventions.Add(new TypeMappingConvention(dependencies));
-            conventionSet.ModelFinalizedConventions.Add(new ValidatingConvention(dependencies));
-
-            return new ModelBuilder(conventionSet, serviceProvider.GetRequiredService<ModelDependencies>());
-        }
-
-        protected IServiceProvider CreateServiceProvider(bool sensitiveDataLoggingEnabled = false)
-            => TestHelpers.CreateContextServices(
-                new ServiceCollection()
-                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model>>(_ => CreateModelLogger(sensitiveDataLoggingEnabled))
-                    .AddScoped<IDiagnosticsLogger<DbLoggerCategory.Model.Validation>>(
-                        _ => CreateValidationLogger(sensitiveDataLoggingEnabled)));
-
-        protected ProviderConventionSetBuilderDependencies CreateDependencies(bool sensitiveDataLoggingEnabled = false)
-            => CreateServiceProvider(sensitiveDataLoggingEnabled).GetRequiredService<ProviderConventionSetBuilderDependencies>();
+        protected virtual TestHelpers.TestModelBuilder CreateConventionlessModelBuilder(
+            Action<ModelConfigurationBuilder> configure = null, bool sensitiveDataLoggingEnabled = false)
+            => TestHelpers.CreateConventionBuilder(
+                CreateModelLogger(sensitiveDataLoggingEnabled), CreateValidationLogger(sensitiveDataLoggingEnabled),
+                configurationBuilder =>
+                {
+                    configure?.Invoke(configurationBuilder);
+                    configurationBuilder.RemoveAllConventions();
+                });
 
         protected virtual TestHelpers TestHelpers
             => InMemoryTestHelpers.Instance;

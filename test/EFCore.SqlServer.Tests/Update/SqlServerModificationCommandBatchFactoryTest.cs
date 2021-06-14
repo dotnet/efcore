@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new ModificationCommandBatchFactoryDependencies(
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
+            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
         }
 
         [ConditionalFact]
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new ModificationCommandBatchFactoryDependencies(
@@ -83,8 +83,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
+            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
         }
 
         private class FakeDbContext : DbContext

@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
         public SqlServerValueGenerationConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies, relationalDependencies)
         {
         }
@@ -40,8 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public override void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             if (name == SqlServerAnnotationNames.ValueGenerationStrategy)
@@ -51,6 +51,46 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             base.ProcessPropertyAnnotationChanged(propertyBuilder, name, annotation, oldAnnotation, context);
+        }
+
+        /// <summary>
+        ///     Called after an annotation is changed on an entity.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="name"> The annotation name. </param>
+        /// <param name="annotation"> The new annotation. </param>
+        /// <param name="oldAnnotation"> The old annotation.  </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public override void ProcessEntityTypeAnnotationChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
+        {
+            if ((name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName
+                    || name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName)
+                && annotation?.Value is string propertyName)
+            {
+                var periodProperty = entityTypeBuilder.Metadata.FindProperty(propertyName);
+                if (periodProperty != null)
+                {
+                    periodProperty.Builder.ValueGenerated(GetValueGenerated(periodProperty));
+                }
+
+                // cleanup the previous period property - its possible that it won't be deleted
+                // (e.g. when removing period with default name, while the property with that same name has been explicitly defined)
+                if (oldAnnotation?.Value is string oldPropertyName)
+                {
+                    var oldPeriodProperty = entityTypeBuilder.Metadata.FindProperty(oldPropertyName);
+                    if (oldPeriodProperty != null)
+                    {
+                        oldPeriodProperty.Builder.ValueGenerated(GetValueGenerated(oldPeriodProperty));
+                    }
+                }
+            }
+
+            base.ProcessEntityTypeAnnotationChanged(entityTypeBuilder, name, annotation, oldAnnotation, context);
         }
 
         /// <summary>
@@ -66,7 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return null;
             }
 
-            return GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+            return GetValueGenerated(
+                property,
+                StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()),
+                Dependencies.TypeMappingSource);
         }
 
         /// <summary>
@@ -75,10 +118,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The store value generation strategy to set for the given property. </returns>
-        public static new ValueGenerated? GetValueGenerated([NotNull] IProperty property, in StoreObjectIdentifier storeObject)
+        public static new ValueGenerated? GetValueGenerated(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
             => RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
                 ?? (property.GetValueGenerationStrategy(storeObject) != SqlServerValueGenerationStrategy.None
                     ? ValueGenerated.OnAdd
                     : (ValueGenerated?)null);
+
+        private ValueGenerated? GetValueGenerated(
+            IReadOnlyProperty property,
+            in StoreObjectIdentifier storeObject,
+            ITypeMappingSource typeMappingSource)
+            => GetTemporalValueGenerated(property, storeObject)
+                ?? RelationalValueGenerationConvention.GetValueGenerated(property, storeObject)
+                ?? (property.GetValueGenerationStrategy(storeObject, typeMappingSource) != SqlServerValueGenerationStrategy.None
+                    ? ValueGenerated.OnAdd
+                    : (ValueGenerated?)null);
+
+        private ValueGenerated? GetTemporalValueGenerated(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        {
+            var entityType = property.DeclaringEntityType;
+            return entityType.IsTemporal()
+                && (entityType.GetTemporalPeriodStartPropertyName() == property.Name
+                    || entityType.GetTemporalPeriodEndPropertyName() == property.Name)
+                ? ValueGenerated.OnAddOrUpdate
+                : null;
+        }
     }
 }

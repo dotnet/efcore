@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -35,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     apply a set of conventions.
         /// </summary>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
-        public ModelBuilder([NotNull] ConventionSet conventions)
-            : this(conventions, null, true)
+        public ModelBuilder(ConventionSet conventions)
+            : this(conventions, null, null)
         {
         }
 
@@ -46,17 +45,24 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="conventions"> The conventions to be applied to the model. </param>
         /// <param name="modelDependencies"> The dependencies object for the model. </param>
-        public ModelBuilder([NotNull] ConventionSet conventions, [NotNull] ModelDependencies modelDependencies)
-            : this(conventions, modelDependencies, true)
+        public ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies)
+            : this(conventions, modelDependencies, null)
         {
             Check.NotNull(modelDependencies, nameof(modelDependencies));
         }
 
-        private ModelBuilder(ConventionSet conventions, ModelDependencies modelDependencies, bool _)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public ModelBuilder(ConventionSet conventions, ModelDependencies? modelDependencies, ModelConfiguration? modelConfiguration)
         {
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new Model(conventions, modelDependencies).Builder;
+            _builder = new Model(conventions, modelDependencies, modelConfiguration).Builder;
 
             _builder.Metadata.SetProductVersion(ProductInfo.GetVersion());
         }
@@ -66,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Initializes a new instance of the <see cref="ModelBuilder" /> class with no conventions.
         ///     </para>
         ///     <para>
-        ///         Warning: conventions are typically needed to build a correct model.
+        ///         Warning: conventions are needed to build a correct model.
         ///     </para>
         /// </summary>
         public ModelBuilder()
@@ -82,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         [EntityFrameworkInternal]
         [Obsolete]
-        public ModelBuilder([NotNull] IMutableModel model)
+        public ModelBuilder(IMutableModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -102,10 +108,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same <see cref="ModelBuilder" /> instance so that multiple configuration calls can be chained. </returns>
-        public virtual ModelBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
+        public virtual ModelBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
-            Check.NotNull(value, nameof(value));
 
             Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
@@ -132,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
             where TEntity : class
-            => new EntityTypeBuilder<TEntity>(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+            => new(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -150,12 +155,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TEntity"> The CLR type of the entity type to be configured. </typeparam>
         /// <param name="name"> The name of the entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder<TEntity> SharedTypeEntity<TEntity>([NotNull] string name)
+        public virtual EntityTypeBuilder<TEntity> SharedTypeEntity<TEntity>(string name)
             where TEntity : class
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder<TEntity>(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder<TEntity>(Builder.SharedTypeEntity(name, typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -164,11 +169,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="type"> The entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder Entity([NotNull] Type type)
+        public virtual EntityTypeBuilder Entity(Type type)
         {
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -178,11 +183,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="name"> The name of the entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder Entity([NotNull] string name)
+        public virtual EntityTypeBuilder Entity(string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -201,12 +206,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the entity type to be configured. </param>
         /// <param name="type"> The CLR type of the entity type to be configured. </param>
         /// <returns> An object that can be used to configure the entity type. </returns>
-        public virtual EntityTypeBuilder SharedTypeEntity([NotNull] string name, [NotNull] Type type)
+        public virtual EntityTypeBuilder SharedTypeEntity(string name, Type type)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit).Metadata);
+            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit)!.Metadata);
         }
 
         /// <summary>
@@ -225,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity<TEntity>([NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
+        public virtual ModelBuilder Entity<TEntity>(Action<EntityTypeBuilder<TEntity>> buildAction)
             where TEntity : class
         {
             Check.NotNull(buildAction, nameof(buildAction));
@@ -260,11 +265,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder SharedTypeEntity<TEntity>(
-            [NotNull] string name,
-            [NotNull] Action<EntityTypeBuilder<TEntity>> buildAction)
+            string name,
+            Action<EntityTypeBuilder<TEntity>> buildAction)
             where TEntity : class
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(SharedTypeEntity<TEntity>(name));
@@ -288,9 +292,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity([NotNull] Type type, [NotNull] Action<EntityTypeBuilder> buildAction)
+        public virtual ModelBuilder Entity(Type type, Action<EntityTypeBuilder> buildAction)
         {
-            Check.NotNull(type, nameof(type));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity(type));
@@ -315,9 +318,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Entity([NotNull] string name, [NotNull] Action<EntityTypeBuilder> buildAction)
+        public virtual ModelBuilder Entity(string name, Action<EntityTypeBuilder> buildAction)
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(buildAction, nameof(buildAction));
 
             buildAction(Entity(name));
@@ -350,11 +352,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder SharedTypeEntity(
-            [NotNull] string name,
-            [NotNull] Type type,
-            [NotNull] Action<EntityTypeBuilder> buildAction)
+            string name,
+            Type type,
+            Action<EntityTypeBuilder> buildAction)
         {
-            Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
             Check.NotNull(buildAction, nameof(buildAction));
 
@@ -383,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Ignore([NotNull] Type type)
+        public virtual ModelBuilder Ignore(Type type)
         {
             Check.NotNull(type, nameof(type));
 
@@ -400,7 +401,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder Ignore([NotNull] string typeName)
+        public virtual ModelBuilder Ignore(string typeName)
         {
             Check.NotEmpty(typeName, nameof(typeName));
 
@@ -417,7 +418,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelBuilder ApplyConfiguration<TEntity>([NotNull] IEntityTypeConfiguration<TEntity> configuration)
+        public virtual ModelBuilder ApplyConfiguration<TEntity>(IEntityTypeConfiguration<TEntity> configuration)
             where TEntity : class
         {
             Check.NotNull(configuration, nameof(configuration));
@@ -437,8 +438,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same <see cref="ModelBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
         public virtual ModelBuilder ApplyConfigurationsFromAssembly(
-            [NotNull] Assembly assembly,
-            [CanBeNull] Func<Type, bool> predicate = null)
+            Assembly assembly,
+            Func<Type, bool>? predicate = null)
         {
             var applyEntityConfigurationMethod = typeof(ModelBuilder)
                 .GetMethods()
@@ -493,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     separate owned type instances.
         /// </summary>
         /// <param name="type"> The entity type to be configured. </param>
-        public virtual OwnedEntityTypeBuilder Owned([NotNull] Type type)
+        public virtual OwnedEntityTypeBuilder Owned(Type type)
         {
             Check.NotNull(type, nameof(type));
 
@@ -512,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public virtual ModelBuilder HasChangeTrackingStrategy(ChangeTrackingStrategy changeTrackingStrategy)
         {
-            Builder.Metadata.SetChangeTrackingStrategy(changeTrackingStrategy);
+            Builder.HasChangeTrackingStrategy(changeTrackingStrategy, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -544,7 +545,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     processing happens automatically when using <see cref="DbContext.OnModelCreating" />; this method allows it to be run
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
-        /// <returns> The finalized <see cref="IModel" />. </returns>
+        /// <returns> The finalized model. </returns>
         public virtual IModel FinalizeModel()
             => Builder.Metadata.FinalizeModel();
 
@@ -558,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -567,7 +568,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

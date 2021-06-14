@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -17,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override void Count_query()
+        public override async Task Count_query(bool async)
         {
-            base.Count_query();
+            await base.Count_query(async);
 
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 1)

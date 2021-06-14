@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="ModelCleanupConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public ModelCleanupConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public ModelCleanupConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -73,8 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void RemoveNavigationlessForeignKeys(IConventionModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes()
-                .Where(e => !((EntityType)e).IsImplicitlyCreatedJoinEntityType))
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
@@ -102,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             private readonly IConventionModel _model;
 
-            public GraphAdapter([NotNull] IConventionModel model)
+            public GraphAdapter(IConventionModel model)
             {
                 _model = model;
             }
@@ -114,14 +112,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 => from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
                     .Union(
                         from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType))
-                    .Union(from.GetSkipNavigations().Where(sn => sn.ForeignKey != null).Select(sn => sn.ForeignKey.DeclaringEntityType))
-                    .Union(from.GetSkipNavigations().Where(sn => sn.TargetEntityType != null).Select(sn => sn.TargetEntityType));
+                    .Union(from.GetSkipNavigations().Where(sn => sn.ForeignKey != null).Select(sn => sn.ForeignKey!.DeclaringEntityType))
+                    .Union(from.GetSkipNavigations().Select(sn => sn.TargetEntityType));
 
             public override IEnumerable<IConventionEntityType> GetIncomingNeighbors(IConventionEntityType to)
                 => to.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
                     .Union(to.GetReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType))
-                    .Union(to.GetSkipNavigations().Where(sn => sn.ForeignKey != null).Select(sn => sn.ForeignKey.DeclaringEntityType))
-                    .Union(to.GetSkipNavigations().Where(sn => sn.TargetEntityType != null).Select(sn => sn.TargetEntityType));
+                    .Union(to.GetSkipNavigations().Where(sn => sn.ForeignKey != null).Select(sn => sn.ForeignKey!.DeclaringEntityType))
+                    .Union(to.GetSkipNavigations().Select(sn => sn.TargetEntityType));
 
             public override void Clear()
             {

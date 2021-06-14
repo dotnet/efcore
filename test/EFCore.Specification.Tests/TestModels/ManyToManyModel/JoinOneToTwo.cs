@@ -7,5 +7,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
     {
         public virtual int OneId { get; set; }
         public virtual int TwoId { get; set; }
+
+        public virtual EntityOne One { get; set; }
+        public virtual EntityTwo Two { get; set; }
     }
 }

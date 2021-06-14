@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public GuidToStringConverter([CanBeNull] ConverterMappingHints mappingHints = null)
+        public GuidToStringConverter(ConverterMappingHints? mappingHints = null)
             : base(
                 ToString(),
                 ToGuid(),
@@ -32,6 +31,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(typeof(Guid), typeof(string), i => new GuidToStringConverter(i.MappingHints), _defaultHints);
+            = new(typeof(Guid), typeof(string), i => new GuidToStringConverter(i.MappingHints), _defaultHints);
     }
 }

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -28,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Initializes a new instance of this class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public MigrationsAnnotationProvider([NotNull] MigrationsAnnotationProviderDependencies dependencies)
+        public MigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
         }
@@ -71,6 +70,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> ForRemove(ICheckConstraint checkConstraint)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(ITable table)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(IColumn column)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(ITableIndex index)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <inheritdoc />
+        public virtual IEnumerable<IAnnotation> ForRename(ISequence sequence)
             => Enumerable.Empty<IAnnotation>();
     }
 }

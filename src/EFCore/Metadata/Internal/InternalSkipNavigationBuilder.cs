@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal
@@ -23,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalSkipNavigationBuilder([NotNull] SkipNavigation metadata, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalSkipNavigationBuilder(SkipNavigation metadata, InternalModelBuilder modelBuilder)
             : base(metadata, modelBuilder)
         {
         }
@@ -34,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalSkipNavigationBuilder HasField([CanBeNull] string fieldName, ConfigurationSource configurationSource)
-            => (InternalSkipNavigationBuilder)base.HasField(fieldName, configurationSource);
+        public new virtual InternalSkipNavigationBuilder? HasField(string? fieldName, ConfigurationSource configurationSource)
+            => (InternalSkipNavigationBuilder?)base.HasField(fieldName, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -43,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalSkipNavigationBuilder HasField([CanBeNull] FieldInfo fieldInfo, ConfigurationSource configurationSource)
-            => (InternalSkipNavigationBuilder)base.HasField(fieldInfo, configurationSource);
+        public new virtual InternalSkipNavigationBuilder? HasField(FieldInfo? fieldInfo, ConfigurationSource configurationSource)
+            => (InternalSkipNavigationBuilder?)base.HasField(fieldInfo, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,10 +51,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public new virtual InternalSkipNavigationBuilder UsePropertyAccessMode(
+        public new virtual InternalSkipNavigationBuilder? UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             ConfigurationSource configurationSource)
-            => (InternalSkipNavigationBuilder)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
+            => (InternalSkipNavigationBuilder?)base.UsePropertyAccessMode(propertyAccessMode, configurationSource);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder HasForeignKey(
-            [CanBeNull] ForeignKey foreignKey,
+        public virtual InternalSkipNavigationBuilder? HasForeignKey(
+            ForeignKey? foreignKey,
             ConfigurationSource configurationSource)
         {
             if (!CanSetForeignKey(foreignKey, configurationSource))
@@ -88,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Metadata.SetForeignKey(foreignKey, configurationSource);
 
-            if (oldForeignKey?.Builder != null
+            if (oldForeignKey?.IsInModel == true
                 && oldForeignKey != foreignKey
                 && oldForeignKey.ReferencingSkipNavigations?.Any() != true)
             {
@@ -104,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetForeignKey([CanBeNull] ForeignKey foreignKey, ConfigurationSource? configurationSource)
+        public virtual bool CanSetForeignKey(ForeignKey? foreignKey, ConfigurationSource? configurationSource)
         {
             if (!configurationSource.Overrides(Metadata.GetForeignKeyConfigurationSource()))
             {
@@ -138,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder HasInverse(
-            [CanBeNull] SkipNavigation inverse,
+        public virtual InternalSkipNavigationBuilder? HasInverse(
+            SkipNavigation? inverse,
             ConfigurationSource configurationSource)
         {
             if (!CanSetInverse(inverse, configurationSource))
@@ -152,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 inverse.UpdateConfigurationSource(configurationSource);
             }
 
-            using (var batch = Metadata.DeclaringEntityType.Model.ConventionDispatcher.DelayConventions())
+            using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
                 if (Metadata.Inverse != null
                     && Metadata.Inverse != inverse)
@@ -178,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CanSetInverse(
-            [CanBeNull] SkipNavigation inverse,
+            SkipNavigation? inverse,
             ConfigurationSource? configurationSource)
         {
             if (!configurationSource.Overrides(Metadata.GetInverseConfigurationSource())
@@ -206,23 +205,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder Attach(
-            [CanBeNull] InternalEntityTypeBuilder entityTypeBuilder = null,
-            [CanBeNull] EntityType targetEntityType = null,
-            [CanBeNull] InternalSkipNavigationBuilder inverseBuilder = null)
+        public virtual InternalSkipNavigationBuilder? Attach(
+            InternalEntityTypeBuilder? entityTypeBuilder = null,
+            EntityType? targetEntityType = null,
+            InternalSkipNavigationBuilder? inverseBuilder = null)
         {
-            entityTypeBuilder ??= Metadata.DeclaringEntityType.Builder;
-            if (entityTypeBuilder == null)
+            if (entityTypeBuilder is null)
             {
-                entityTypeBuilder = Metadata.DeclaringEntityType.Model.FindEntityType(Metadata.DeclaringEntityType.Name)?.Builder;
-                if (entityTypeBuilder == null)
+                if (Metadata.DeclaringEntityType.IsInModel)
+                {
+                    entityTypeBuilder = Metadata.DeclaringEntityType.Builder;
+                }
+                else if (Metadata.DeclaringEntityType.Model.FindEntityType(Metadata.DeclaringEntityType.Name) is EntityType entityType)
+                {
+                    entityTypeBuilder = entityType.Builder;
+                }
+                else
                 {
                     return null;
                 }
             }
 
             targetEntityType ??= Metadata.TargetEntityType;
-            if (targetEntityType.Builder == null)
+            if (!targetEntityType.IsInModel)
             {
                 targetEntityType = Metadata.DeclaringEntityType.Model.FindEntityType(targetEntityType.Name);
                 if (targetEntityType == null)
@@ -247,8 +252,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKeyConfigurationSource = Metadata.GetForeignKeyConfigurationSource();
             if (foreignKeyConfigurationSource.HasValue)
             {
-                var foreignKey = Metadata.ForeignKey;
-                if (foreignKey.Builder == null)
+                var foreignKey = Metadata.ForeignKey!;
+                if (!foreignKey.IsInModel)
                 {
                     foreignKey = InternalForeignKeyBuilder.FindCurrentForeignKeyBuilder(
                         foreignKey.PrincipalEntityType,
@@ -268,8 +273,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var inverseConfigurationSource = Metadata.GetInverseConfigurationSource();
             if (inverseConfigurationSource.HasValue)
             {
-                var inverse = Metadata.Inverse;
-                if (inverse.Builder == null)
+                var inverse = Metadata.Inverse!;
+                if (!inverse.IsInModel)
                 {
                     inverse = inverse.DeclaringEntityType.FindSkipNavigation(inverse.Name);
                 }
@@ -290,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (propertyAccessModeConfigurationSource.HasValue)
             {
                 newSkipNavigationBuilder.UsePropertyAccessMode(
-                    ((ISkipNavigation)Metadata).GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
+                    Metadata.GetPropertyAccessMode(), propertyAccessModeConfigurationSource.Value);
             }
 
             var oldFieldInfoConfigurationSource = Metadata.GetFieldInfoConfigurationSource();
@@ -323,11 +328,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalSkipNavigationBuilder AutoInclude(bool? autoInclude, ConfigurationSource configurationSource)
+        public virtual InternalSkipNavigationBuilder? AutoInclude(bool? autoInclude, ConfigurationSource configurationSource)
         {
             if (CanSetAutoInclude(autoInclude, configurationSource))
             {
-                Metadata.SetIsEagerLoaded(autoInclude, configurationSource);
+                if (configurationSource == ConfigurationSource.Explicit)
+                {
+                    ((IMutableSkipNavigation)Metadata).SetIsEagerLoaded(autoInclude);
+                }
+                else
+                {
+                    ((IConventionSkipNavigation)Metadata).SetIsEagerLoaded(
+                        autoInclude, configurationSource == ConfigurationSource.DataAnnotation);
+                }
 
                 return this;
             }
@@ -348,49 +361,49 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.HasField(string fieldName, bool fromDataAnnotation)
+        IConventionPropertyBaseBuilder? IConventionPropertyBaseBuilder.HasField(string? fieldName, bool fromDataAnnotation)
             => HasField(
                 fieldName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
+        IConventionPropertyBaseBuilder? IConventionPropertyBaseBuilder.HasField(FieldInfo? fieldInfo, bool fromDataAnnotation)
             => HasField(
                 fieldInfo,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.HasField(string fieldName, bool fromDataAnnotation)
+        IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.HasField(string? fieldName, bool fromDataAnnotation)
             => HasField(
                 fieldName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.HasField(FieldInfo fieldInfo, bool fromDataAnnotation)
+        IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.HasField(FieldInfo? fieldInfo, bool fromDataAnnotation)
             => HasField(
                 fieldInfo,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionPropertyBaseBuilder.CanSetField(string fieldName, bool fromDataAnnotation)
+        bool IConventionPropertyBaseBuilder.CanSetField(string? fieldName, bool fromDataAnnotation)
             => CanSetField(
                 fieldName,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionPropertyBaseBuilder.CanSetField(FieldInfo fieldInfo, bool fromDataAnnotation)
+        bool IConventionPropertyBaseBuilder.CanSetField(FieldInfo? fieldInfo, bool fromDataAnnotation)
             => CanSetField(
                 fieldInfo,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionPropertyBaseBuilder IConventionPropertyBaseBuilder.UsePropertyAccessMode(
+        IConventionPropertyBaseBuilder? IConventionPropertyBaseBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation)
             => UsePropertyAccessMode(
@@ -399,7 +412,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.UsePropertyAccessMode(
+        IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.UsePropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation)
             => UsePropertyAccessMode(
@@ -417,38 +430,38 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.HasForeignKey(
-            IConventionForeignKey foreignKey,
+        IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.HasForeignKey(
+            IConventionForeignKey? foreignKey,
             bool fromDataAnnotation)
             => HasForeignKey(
-                (ForeignKey)foreignKey,
+                (ForeignKey?)foreignKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionSkipNavigationBuilder.CanSetForeignKey(
-            IConventionForeignKey foreignKey,
+            IConventionForeignKey? foreignKey,
             bool fromDataAnnotation)
             => CanSetForeignKey(
-                (ForeignKey)foreignKey,
+                (ForeignKey?)foreignKey,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.HasInverse(
-            IConventionSkipNavigation inverse,
+        IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.HasInverse(
+            IConventionSkipNavigation? inverse,
             bool fromDataAnnotation)
             => HasInverse(
-                (SkipNavigation)inverse,
+                (SkipNavigation?)inverse,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         bool IConventionSkipNavigationBuilder.CanSetInverse(
-            IConventionSkipNavigation inverse,
+            IConventionSkipNavigation? inverse,
             bool fromDataAnnotation)
             => CanSetInverse(
-                (SkipNavigation)inverse,
+                (SkipNavigation?)inverse,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -458,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSkipNavigationBuilder IConventionSkipNavigationBuilder.AutoInclude(bool? autoInclude, bool fromDataAnnotation)
+        IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.AutoInclude(bool? autoInclude, bool fromDataAnnotation)
             => AutoInclude(autoInclude, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
     }
 }

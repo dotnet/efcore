@@ -5,9 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -306,18 +303,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
         protected virtual void DiffSnapshot(ModelSnapshot snapshot, DbContext context)
         {
-            var dependencies = context.GetService<ProviderConventionSetBuilderDependencies>();
-            var relationalDependencies = context.GetService<RelationalConventionSetBuilderDependencies>();
-            var typeMappingConvention = new TypeMappingConvention(dependencies);
-            typeMappingConvention.ProcessModelFinalizing(((IConventionModel)snapshot.Model).Builder, null);
-
-            var relationalModelConvention = new RelationalModelConvention(dependencies, relationalDependencies);
-            var sourceModel = relationalModelConvention.ProcessModelFinalized(snapshot.Model);
+            var sourceModel = context.GetService<IModelRuntimeInitializer>().Initialize(
+                snapshot.Model, designTime: true, validationLogger: null);
 
             var modelDiffer = context.GetService<IMigrationsModelDiffer>();
             var operations = modelDiffer.GetDifferences(
-                ((IMutableModel)sourceModel).FinalizeModel().GetRelationalModel(),
-                context.Model.GetRelationalModel());
+                sourceModel.GetRelationalModel(),
+                context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Equal(0, operations.Count);
         }
@@ -337,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected override string StoreName { get; } = "MigrationsTest";
 
         public EmptyMigrationsContext CreateEmptyContext()
-            => new EmptyMigrationsContext(
+            => new(
                 TestStore.AddProviderOptions(
                         new DbContextOptionsBuilder())
                     .UseInternalServiceProvider(

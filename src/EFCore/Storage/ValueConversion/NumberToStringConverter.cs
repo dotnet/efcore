@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
+using System;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
@@ -19,10 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     facets for the converted data.
         /// </param>
         public NumberToStringConverter(
-            [CanBeNull] ConverterMappingHints mappingHints = null)
+            ConverterMappingHints? mappingHints = null)
             : base(
                 ToString(),
                 ToNumber(),
+                typeof(TNumber).IsNullableType(),
                 _defaultHints.With(mappingHints))
         {
         }
@@ -31,7 +32,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     A <see cref="ValueConverterInfo" /> for the default use of this converter.
         /// </summary>
         public static ValueConverterInfo DefaultInfo { get; }
-            = new ValueConverterInfo(
-                typeof(TNumber), typeof(string), i => new NumberToStringConverter<TNumber>(i.MappingHints), _defaultHints);
+            = new(typeof(TNumber), typeof(string), i => new NumberToStringConverter<TNumber>(i.MappingHints), _defaultHints);
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -31,6 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
         private IndentedStringBuilder _sb = null!;
         private bool _entityTypeBuilderInitialized;
+        private bool _useDataAnnotations;
+        private bool _useNullableReferenceTypes;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpDbContextGenerator(
-            [NotNull] IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
-            [NotNull] IAnnotationCodeGenerator annotationCodeGenerator,
-            [NotNull] ICSharpHelper cSharpHelper)
+            IProviderConfigurationCodeGenerator providerConfigurationCodeGenerator,
+            IAnnotationCodeGenerator annotationCodeGenerator,
+            ICSharpHelper cSharpHelper)
         {
             Check.NotNull(providerConfigurationCodeGenerator, nameof(providerConfigurationCodeGenerator));
             Check.NotNull(annotationCodeGenerator, nameof(annotationCodeGenerator));
@@ -62,13 +63,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             IModel model,
             string contextName,
             string connectionString,
-            string contextNamespace,
-            string modelNamespace,
+            string? contextNamespace,
+            string? modelNamespace,
             bool useDataAnnotations,
+            bool useNullableReferenceTypes,
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring)
         {
             Check.NotNull(model, nameof(model));
+
+            _useDataAnnotations = useDataAnnotations;
+            _useNullableReferenceTypes = useNullableReferenceTypes;
 
             _sb = new IndentedStringBuilder();
 
@@ -78,31 +83,32 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var finalContextNamespace = contextNamespace ?? modelNamespace;
 
-            if (finalContextNamespace != modelNamespace)
+            if (finalContextNamespace != modelNamespace && !string.IsNullOrEmpty(modelNamespace))
             {
                 _sb.AppendLine(string.Concat("using ", modelNamespace, ";"));
             }
 
             _sb.AppendLine();
 
-            _sb.AppendLine("#nullable disable");
-            _sb.AppendLine();
-
-            _sb.AppendLine($"namespace {finalContextNamespace}");
-            _sb.AppendLine("{");
-
-            using (_sb.Indent())
+            if (!string.IsNullOrEmpty(finalContextNamespace))
             {
-                GenerateClass(
-                    model,
-                    contextName,
-                    connectionString,
-                    useDataAnnotations,
-                    suppressConnectionStringWarning,
-                    suppressOnConfiguring);
+                _sb.AppendLine($"namespace {finalContextNamespace}");
+                _sb.AppendLine("{");
+                _sb.IncrementIndent();
             }
 
-            _sb.AppendLine("}");
+            GenerateClass(
+                model,
+                contextName,
+                connectionString,
+                suppressConnectionStringWarning,
+                suppressOnConfiguring);
+
+            if (!string.IsNullOrEmpty(finalContextNamespace))
+            {
+                _sb.DecrementIndent();
+                _sb.AppendLine("}");
+            }
 
             return _sb.ToString();
         }
@@ -114,10 +120,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateClass(
-            [NotNull] IModel model,
-            [NotNull] string contextName,
-            [NotNull] string connectionString,
-            bool useDataAnnotations,
+            IModel model,
+            string contextName,
+            string connectionString,
             bool suppressConnectionStringWarning,
             bool suppressOnConfiguring)
         {
@@ -138,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     GenerateOnConfiguring(connectionString, suppressConnectionStringWarning);
                 }
 
-                GenerateOnModelCreating(model, useDataAnnotations);
+                GenerateOnModelCreating(model);
             }
 
             _sb.AppendLine();
@@ -171,8 +176,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                _sb.AppendLine(
-                    $"public virtual DbSet<{entityType.Name}> {entityType.GetDbSetName()} {{ get; set; }}");
+                _sb.Append($"public virtual DbSet<{entityType.Name}> {entityType.GetDbSetName()} {{ get; set; }}");
+
+                if (_useNullableReferenceTypes)
+                {
+                    _sb.Append(" = null!;");
+                }
+
+                _sb.AppendLine();
             }
 
             if (model.GetEntityTypes().Any())
@@ -183,12 +194,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private void GenerateEntityTypeErrors(IModel model)
         {
-            foreach (var entityTypeError in model.GetEntityTypeErrors())
+            var errors = model.GetEntityTypeErrors();
+            foreach (var entityTypeError in errors)
             {
                 _sb.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
             }
 
-            if (model.GetEntityTypeErrors().Count > 0)
+            if (errors.Count > 0)
             {
                 _sb.AppendLine();
             }
@@ -201,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void GenerateOnConfiguring(
-            [NotNull] string connectionString,
+            string connectionString,
             bool suppressConnectionStringWarning)
         {
             Check.NotNull(connectionString, nameof(connectionString));
@@ -253,9 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual void GenerateOnModelCreating(
-            [NotNull] IModel model,
-            bool useDataAnnotations)
+        protected virtual void GenerateOnModelCreating(IModel model)
         {
             Check.NotNull(model, nameof(model));
 
@@ -305,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     _entityTypeBuilderInitialized = false;
 
-                    GenerateEntityType(entityType, useDataAnnotations);
+                    GenerateEntityType(entityType);
 
                     if (_entityTypeBuilderInitialized)
                     {
@@ -341,9 +351,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _entityTypeBuilderInitialized = true;
         }
 
-        private void GenerateEntityType(IEntityType entityType, bool useDataAnnotations)
+        private void GenerateEntityType(IEntityType entityType)
         {
-            GenerateKey(entityType.FindPrimaryKey(), entityType, useDataAnnotations);
+            GenerateKey(entityType.FindPrimaryKey(), entityType);
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(entityType.GetAnnotations())
@@ -357,14 +367,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             annotations.Remove(ScaffoldingAnnotationNames.DbSetName);
             annotations.Remove(RelationalAnnotationNames.ViewDefinitionSql);
 
-            if (useDataAnnotations)
+            if (_useDataAnnotations)
             {
                 // Strip out any annotations handled as attributes - these are already handled when generating
                 // the entity's properties
                 _ = _annotationCodeGenerator.GenerateDataAnnotationAttributes(entityType, annotations);
             }
 
-            if (!useDataAnnotations || entityType.GetViewName() != null)
+            if (!_useDataAnnotations || entityType.GetViewName() != null)
             {
                 GenerateTableName(entityType);
             }
@@ -384,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .ToDictionary(a => a.Name, a => a);
                 _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, indexAnnotations);
 
-                if (!useDataAnnotations || indexAnnotations.Count > 0)
+                if (!_useDataAnnotations || indexAnnotations.Count > 0)
                 {
                     GenerateIndex(index);
                 }
@@ -392,12 +402,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var property in entityType.GetProperties())
             {
-                GenerateProperty(property, useDataAnnotations);
+                GenerateProperty(property);
             }
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
-                GenerateRelationship(foreignKey, useDataAnnotations);
+                GenerateRelationship(foreignKey);
             }
         }
 
@@ -429,11 +439,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
         }
 
-        private void GenerateKey(IKey key, IEntityType entityType, bool useDataAnnotations)
+        private void GenerateKey(IKey? key, IEntityType entityType)
         {
             if (key == null)
             {
-                if (!useDataAnnotations)
+                if (!_useDataAnnotations)
                 {
                     var line = new List<string> { $".{nameof(EntityTypeBuilder.HasNoKey)}()" };
 
@@ -454,17 +464,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (key.Properties.Count == 1
                 && annotations.Count == 0)
             {
-                if (key is Key concreteKey
-                    && key.Properties.SequenceEqual(
+                if (key is IConventionKey conventionKey
+                    && conventionKey.Properties.SequenceEqual(
                         KeyDiscoveryConvention.DiscoverKeyProperties(
-                            concreteKey.DeclaringEntityType,
-                            concreteKey.DeclaringEntityType.GetProperties())))
+                            conventionKey.DeclaringEntityType,
+                            conventionKey.DeclaringEntityType.GetProperties())))
                 {
                     return;
                 }
 
                 if (!explicitName
-                    && useDataAnnotations)
+                    && _useDataAnnotations)
                 {
                     return;
                 }
@@ -475,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             if (explicitName)
             {
                 lines.Add(
-                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}({_code.Literal(key.GetName())})");
+                    $".{nameof(RelationalKeyBuilderExtensions.HasName)}({_code.Literal(key.GetName()!)})");
             }
 
             lines.AddRange(
@@ -495,10 +505,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var explicitTable = explicitSchema || tableName != null && tableName != entityType.GetDbSetName();
             if (explicitTable)
             {
-                var parameterString = _code.Literal(tableName);
+                var parameterString = _code.Literal(tableName!);
                 if (explicitSchema)
                 {
-                    parameterString += ", " + _code.Literal(schema);
+                    parameterString += ", " + _code.Literal(schema!);
                 }
 
                 var lines = new List<string> { $".{nameof(RelationalEntityTypeBuilderExtensions.ToTable)}({parameterString})" };
@@ -514,10 +524,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (explicitViewTable)
             {
-                var parameterString = _code.Literal(viewName);
+                var parameterString = _code.Literal(viewName!);
                 if (explicitViewSchema)
                 {
-                    parameterString += ", " + _code.Literal(viewSchema);
+                    parameterString += ", " + _code.Literal(viewSchema!);
                 }
 
                 var lines = new List<string> { $".{nameof(RelationalEntityTypeBuilderExtensions.ToView)}({parameterString})" };
@@ -552,7 +562,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             AppendMultiLineFluentApi(index.DeclaringEntityType, lines);
         }
 
-        private void GenerateProperty(IProperty property, bool useDataAnnotations)
+        private void GenerateProperty(IProperty property)
         {
             var lines = new List<string> { $".{nameof(EntityTypeBuilder.Property)}({_code.Lambda(new[] { property.Name }, "e")})" };
 
@@ -562,7 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(property, annotations);
             annotations.Remove(ScaffoldingAnnotationNames.ColumnOrdinal);
 
-            if (useDataAnnotations)
+            if (_useDataAnnotations)
             {
                 // Strip out any annotations handled as attributes - these are already handled when generating
                 // the entity's properties
@@ -574,7 +584,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
             else
             {
-                if (!property.IsNullable
+                if ((!_useNullableReferenceTypes || property.ClrType.IsValueType)
+                    && !property.IsNullable
                     && property.ClrType.IsNullableType()
                     && !property.IsPrimaryKey())
                 {
@@ -595,38 +606,40 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     lines.Add(
                         $".{nameof(PropertyBuilder.HasMaxLength)}({_code.Literal(maxLength.Value)})");
                 }
+
+                var precision = property.GetPrecision();
+                var scale = property.GetScale();
+                if (precision != null && scale != null && scale != 0)
+                {
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
+                }
+                else if (precision != null)
+                {
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)})");
+                }
+
+                if (property.IsUnicode() != null)
+                {
+                    lines.Add(
+                        $".{nameof(PropertyBuilder.IsUnicode)}({(property.IsUnicode() == false ? "false" : "")})");
+                }
             }
 
-            var precision = property.GetPrecision();
-            var scale = property.GetScale();
-            if (precision != null && scale != null && scale != 0)
+            if (property.TryGetDefaultValue(out var defaultValue))
             {
-                lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)}, {_code.Literal(scale.Value)})");
-            }
-            else if (precision != null)
-            {
-                lines.Add(
-                    $".{nameof(PropertyBuilder.HasPrecision)}({_code.Literal(precision.Value)})");
-            }
-
-            if (property.IsUnicode() != null)
-            {
-                lines.Add(
-                    $".{nameof(PropertyBuilder.IsUnicode)}({(property.IsUnicode() == false ? "false" : "")})");
-            }
-
-            var defaultValue = property.GetDefaultValue();
-            if (defaultValue == DBNull.Value)
-            {
-                lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}()");
-                annotations.Remove(RelationalAnnotationNames.DefaultValue);
-            }
-            else if (defaultValue != null)
-            {
-                lines.Add(
-                    $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_code.UnknownLiteral(defaultValue)})");
-                annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                if (defaultValue == DBNull.Value)
+                {
+                    lines.Add($".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}()");
+                    annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                }
+                else if (defaultValue != null)
+                {
+                    lines.Add(
+                        $".{nameof(RelationalPropertyBuilderExtensions.HasDefaultValue)}({_code.UnknownLiteral(defaultValue)})");
+                    annotations.Remove(RelationalAnnotationNames.DefaultValue);
+                }
             }
 
             var valueGenerated = property.ValueGenerated;
@@ -672,7 +685,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             AppendMultiLineFluentApi(property.DeclaringEntityType, lines);
         }
 
-        private void GenerateRelationship(IForeignKey foreignKey, bool useDataAnnotations)
+        private void GenerateRelationship(IForeignKey foreignKey)
         {
             var canUseDataAnnotations = true;
             var annotations = _annotationCodeGenerator
@@ -696,13 +709,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canUseDataAnnotations = false;
                 lines.Add(
                     $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}"
-                    + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.DisplayName()}>" : "")
+                    + (foreignKey.IsUnique ? $"<{foreignKey.PrincipalEntityType.Name}>" : "")
                     + $"({_code.Lambda(foreignKey.PrincipalKey.Properties, "p")})");
             }
 
             lines.Add(
                 $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}"
-                + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.DisplayName()}>" : "")
+                + (foreignKey.IsUnique ? $"<{foreignKey.DeclaringEntityType.Name}>" : "")
                 + $"({_code.Lambda(foreignKey.Properties, "d")})");
 
             var defaultOnDeleteAction = foreignKey.IsRequired
@@ -716,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $".{nameof(ReferenceReferenceBuilder.OnDelete)}({_code.Literal(foreignKey.DeleteBehavior)})");
             }
 
-            if (!string.IsNullOrEmpty((string)foreignKey[RelationalAnnotationNames.Name]))
+            if (!string.IsNullOrEmpty((string?)foreignKey[RelationalAnnotationNames.Name]))
             {
                 canUseDataAnnotations = false;
             }
@@ -725,7 +738,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _annotationCodeGenerator.GenerateFluentApiCalls(foreignKey, annotations).Select(m => _code.Fragment(m))
                     .Concat(GenerateAnnotations(annotations.Values)));
 
-            if (!useDataAnnotations
+            if (!_useDataAnnotations
                 || !canUseDataAnnotations)
             {
                 AppendMultiLineFluentApi(foreignKey.DeclaringEntityType, lines);

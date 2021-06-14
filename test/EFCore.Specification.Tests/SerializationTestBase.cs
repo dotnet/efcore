@@ -13,7 +13,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class SerializationTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : F1FixtureBase, new()
+        where TFixture : F1FixtureBase<byte[]>, new()
     {
         protected SerializationTestBase(TFixture fixture)
             => Fixture = fixture;
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var teamsMap = ignoreLoops ? null : new Dictionary<int, Team>();
             var enginesMap = ignoreLoops ? null : new Dictionary<int, Engine>();
-            var engineSupplierMap = ignoreLoops ? null : new Dictionary<int, EngineSupplier>();
+            var engineSupplierMap = ignoreLoops ? null : new Dictionary<string, EngineSupplier>();
 
             foreach (var team in teamsAgain)
             {
@@ -102,19 +102,19 @@ namespace Microsoft.EntityFrameworkCore
         private static void VerifyEngineSupplier(
             F1Context context,
             EngineSupplier engineSupplier,
-            IDictionary<int, EngineSupplier> engineSupplierMap)
+            IDictionary<string, EngineSupplier> engineSupplierMap)
         {
-            var trackedEngineSupplier = context.EngineSuppliers.Find(engineSupplier.Id);
+            var trackedEngineSupplier = context.EngineSuppliers.Find(engineSupplier.Name);
             Assert.Equal(trackedEngineSupplier.Name, engineSupplier.Name);
 
             if (engineSupplierMap != null)
             {
-                if (engineSupplierMap.TryGetValue(engineSupplier.Id, out var mappedEngineSupplier))
+                if (engineSupplierMap.TryGetValue(engineSupplier.Name, out var mappedEngineSupplier))
                 {
                     Assert.Same(engineSupplier, mappedEngineSupplier);
                 }
 
-                engineSupplierMap[engineSupplier.Id] = engineSupplier;
+                engineSupplierMap[engineSupplier.Name] = engineSupplier;
             }
         }
 
@@ -122,7 +122,6 @@ namespace Microsoft.EntityFrameworkCore
         {
             Assert.False(ignoreLoops, "BCL doesn't support ignoring loops.");
 
-#if NET5_0
             var options = new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.Preserve,
@@ -131,9 +130,6 @@ namespace Microsoft.EntityFrameworkCore
             };
 
             return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(collection, options), options);
-#else
-            return collection;
-#endif
         }
 
         private static T RoundtripThroughNewtonsoftJson<T>(T collection, bool ignoreLoops, bool writeIndented)

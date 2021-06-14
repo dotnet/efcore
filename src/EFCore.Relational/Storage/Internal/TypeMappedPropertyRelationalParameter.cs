@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -27,10 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public TypeMappedPropertyRelationalParameter(
-            [NotNull] string invariantName,
-            [NotNull] string name,
-            [NotNull] RelationalTypeMapping relationalTypeMapping,
-            [NotNull] IProperty property)
+            string invariantName,
+            string name,
+            RelationalTypeMapping relationalTypeMapping,
+            IProperty property)
             : base(invariantName, name, relationalTypeMapping, property.IsNullable)
         {
             _clrPropertyGetter = property.GetGetter();
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override void AddDbParameter(DbCommand command, object value)
+        public override void AddDbParameter(DbCommand command, object? value)
         {
             Check.DebugAssert(value != null, "value is null");
 

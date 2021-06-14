@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         protected override BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder)
-            => new BadUniverseContext(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);
+            => new(optionsBuilder.UseSqlite("Data Source=file:data.db?mode=invalidmode").Options);
 
         public abstract class InterceptionSqliteFixtureBase : InterceptionFixtureBase
         {

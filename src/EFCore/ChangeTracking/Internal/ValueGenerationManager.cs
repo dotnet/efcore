@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -33,10 +32,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private readonly IKeyPropagator _keyPropagator;
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
         private readonly ILoggingOptions _loggingOptions;
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypePropagatingPropertiesMap
-            = new Dictionary<IEntityType, List<IProperty>>();
-        private readonly Dictionary<IEntityType, List<IProperty>> _entityTypeGeneratingPropertiesMap
-            = new Dictionary<IEntityType, List<IProperty>>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,10 +40,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ValueGenerationManager(
-            [NotNull] IValueGeneratorSelector valueGeneratorSelector,
-            [NotNull] IKeyPropagator keyPropagator,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            [NotNull] ILoggingOptions loggingOptions)
+            IValueGeneratorSelector valueGeneratorSelector,
+            IKeyPropagator keyPropagator,
+            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+            ILoggingOptions loggingOptions)
         {
             _valueGeneratorSelector = valueGeneratorSelector;
             _keyPropagator = keyPropagator;
@@ -62,10 +57,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InternalEntityEntry Propagate(InternalEntityEntry entry)
+        public virtual InternalEntityEntry? Propagate(InternalEntityEntry entry)
         {
-            InternalEntityEntry chosenPrincipal = null;
-            foreach (var property in FindCandidatePropagatingProperties(entry))
+            InternalEntityEntry? chosenPrincipal = null;
+            foreach (var property in entry.EntityType.GetForeignKeyProperties())
             {
                 if (!entry.HasDefaultValue(property))
                 {
@@ -92,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindCandidateGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
                 if (!entry.HasDefaultValue(property)
                     || (!includePrimaryKey
@@ -116,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void Log(InternalEntityEntry entry, IProperty property, object generatedValue, bool temporary)
+        private void Log(InternalEntityEntry entry, IProperty property, object? generatedValue, bool temporary)
         {
             if (_loggingOptions.IsSensitiveDataLoggingEnabled)
             {
@@ -141,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             var entityEntry = new EntityEntry(entry);
 
-            foreach (var property in FindCandidateGeneratingProperties(entry))
+            foreach (var property in entry.EntityType.GetValueGeneratingProperties())
             {
                 if (!entry.HasDefaultValue(property)
                     || (!includePrimaryKey
@@ -165,44 +160,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private List<IProperty> FindCandidatePropagatingProperties(InternalEntityEntry entry)
-        {
-            if (!_entityTypePropagatingPropertiesMap.TryGetValue(entry.EntityType, out var candidateProperties))
-            {
-                candidateProperties = new List<IProperty>();
-                foreach (var property in entry.EntityType.GetProperties())
-                {
-                    if (property.IsForeignKey())
-                    {
-                        candidateProperties.Add(property);
-                    }
-                }
-
-                _entityTypePropagatingPropertiesMap[entry.EntityType] = candidateProperties;
-            }
-
-            return candidateProperties;
-        }
-
-        private List<IProperty> FindCandidateGeneratingProperties(InternalEntityEntry entry)
-        {
-            if (!_entityTypeGeneratingPropertiesMap.TryGetValue(entry.EntityType, out var candidateProperties))
-            {
-                candidateProperties = new List<IProperty>();
-                foreach (var property in entry.EntityType.GetProperties())
-                {
-                    if (property.RequiresValueGenerator())
-                    {
-                        candidateProperties.Add(property);
-                    }
-                }
-
-                _entityTypeGeneratingPropertiesMap[entry.EntityType] = candidateProperties;
-            }
-
-            return candidateProperties;
-        }
-
         private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
             => _valueGeneratorSelector.Select(
                 property, property.IsKey()
@@ -219,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             => property.RequiresValueGenerator()
                 && _valueGeneratorSelector.Select(property, entityType).GeneratesTemporaryValues;
 
-        private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
+        private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object? generatedValue, bool isTemporary)
         {
             if (generatedValue != null)
             {

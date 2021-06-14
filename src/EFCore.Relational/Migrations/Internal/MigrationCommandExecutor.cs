@@ -1,10 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,20 +42,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));
 
+            var userTransaction = connection.CurrentTransaction;
+            if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
+            {
+                throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
+            }
+
             using (new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
             {
                 connection.Open();
 
                 try
                 {
-                    IDbContextTransaction transaction = null;
+                    IDbContextTransaction? transaction = null;
 
                     try
                     {
                         foreach (var command in migrationCommands)
                         {
                             if (transaction == null
-                                && !command.TransactionSuppressed)
+                                && !command.TransactionSuppressed
+                                && userTransaction is null)
                             {
                                 transaction = connection.BeginTransaction();
                             }
@@ -96,6 +106,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Check.NotNull(migrationCommands, nameof(migrationCommands));
             Check.NotNull(connection, nameof(connection));
 
+            var userTransaction = connection.CurrentTransaction;
+            if (userTransaction is not null && migrationCommands.Any(x => x.TransactionSuppressed))
+            {
+                throw new NotSupportedException(RelationalStrings.TransactionSuppressedMigrationInUserTransaction);
+            }
+
             var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled);
             try
             {
@@ -103,14 +119,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 try
                 {
-                    IDbContextTransaction transaction = null;
+                    IDbContextTransaction? transaction = null;
 
                     try
                     {
                         foreach (var command in migrationCommands)
                         {
                             if (transaction == null
-                                && !command.TransactionSuppressed)
+                                && !command.TransactionSuppressed
+                                && userTransaction is null)
                             {
                                 transaction = await connection.BeginTransactionAsync(cancellationToken)
                                     .ConfigureAwait(false);

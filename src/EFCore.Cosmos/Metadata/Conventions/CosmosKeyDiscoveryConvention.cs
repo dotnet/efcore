@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -22,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="KeyDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public CosmosKeyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public CosmosKeyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -38,8 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public virtual void ProcessEntityTypeAnnotationChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
-            IConventionAnnotation annotation,
-            IConventionAnnotation oldAnnotation,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
             IConventionContext<IConventionAnnotation> context)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));

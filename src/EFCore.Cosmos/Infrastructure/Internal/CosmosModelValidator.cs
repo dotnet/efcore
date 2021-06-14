@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosModelValidator([NotNull] ModelValidatorDependencies dependencies)
+        public CosmosModelValidator(ModelValidatorDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -57,8 +56,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateSharedContainerCompatibility(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var containers = new Dictionary<string, List<IEntityType>>();
             foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
@@ -93,20 +92,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateSharedContainerCompatibility(
-            [NotNull] IReadOnlyList<IEntityType> mappedTypes,
-            [NotNull] string container,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IReadOnlyList<IEntityType> mappedTypes,
+            string container,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             var discriminatorValues = new Dictionary<object, IEntityType>();
-            IProperty partitionKey = null;
-            IEntityType firstEntityType = null;
+            IProperty? partitionKey = null;
+            IEntityType? firstEntityType = null;
             foreach (var entityType in mappedTypes)
             {
                 Check.DebugAssert(entityType.IsDocumentRoot(), "Only document roots expected here.");
                 var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
                 if (partitionKeyPropertyName != null)
                 {
-                    var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
+                    var nextPartitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName)!;
                     if (partitionKey == null)
                     {
                         if (firstEntityType != null)
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.PartitionKeyStoreNameMismatch(
-                                partitionKey.Name, firstEntityType.DisplayName(), partitionKey.GetJsonPropertyName(),
+                                partitionKey.Name, firstEntityType!.DisplayName(), partitionKey.GetJsonPropertyName(),
                                 nextPartitionKeyProperty.Name, entityType.DisplayName(), nextPartitionKeyProperty.GetJsonPropertyName()));
                     }
                 }
@@ -139,10 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     firstEntityType = entityType;
                 }
 
-                if (entityType.ClrType?.IsInstantiable() == true
+                if (entityType.ClrType.IsInstantiable()
                     && entityType.GetContainingPropertyName() == null)
                 {
-                    if (entityType.GetDiscriminatorProperty() == null)
+                    if (entityType.FindDiscriminatorProperty() == null)
                     {
                         throw new InvalidOperationException(
                             CosmosStrings.NoDiscriminatorProperty(entityType.DisplayName(), container));
@@ -174,8 +173,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateOnlyETagConcurrencyToken(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -209,8 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateKeys(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -278,8 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         protected virtual void ValidateDatabaseProperties(
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
             foreach (var entityType in model.GetEntityTypes())
             {
@@ -308,7 +307,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                         continue;
                     }
 
-                    var jsonName = navigation.TargetEntityType.GetContainingPropertyName();
+                    var jsonName = navigation.TargetEntityType.GetContainingPropertyName()!;
                     if (properties.TryGetValue(jsonName, out var otherProperty))
                     {
                         throw new InvalidOperationException(

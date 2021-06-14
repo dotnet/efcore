@@ -12,95 +12,90 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqliteMigrationAnnotationProviderTest
     {
-        private readonly ModelBuilder _modelBuilder;
-        private readonly SqliteAnnotationProvider _provider;
-
-        private readonly Annotation _autoincrement = new Annotation(SqliteAnnotationNames.Autoincrement, true);
-
-        public SqliteMigrationAnnotationProviderTest()
-        {
-            _modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
-
-            _provider = new SqliteAnnotationProvider(new RelationalAnnotationProviderDependencies());
-        }
+        private readonly TestHelpers.TestModelBuilder _modelBuilder = SqliteTestHelpers.Instance.CreateConventionBuilder();
+        private readonly SqliteAnnotationProvider _provider = new SqliteAnnotationProvider(new RelationalAnnotationProviderDependencies());
+        private readonly Annotation _autoincrement = new(SqliteAnnotationNames.Autoincrement, true);
 
         [ConditionalFact]
         public void Does_not_add_Autoincrement_for_OnAdd_integer_property_non_key()
         {
-            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
-            _modelBuilder.FinalizeModel();
+            var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
+            FinalizeModel();
 
             Assert.DoesNotContain(
-                _provider.For(property.GetTableColumnMappings().Single().Column),
+                _provider.For(property.GetTableColumnMappings().Single().Column, true),
                 a => a.Name == _autoincrement.Name && (bool)a.Value);
         }
 
         [ConditionalFact]
         public void Adds_Autoincrement_for_OnAdd_integer_property_primary_key()
         {
-            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
+            var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAdd().Metadata;
             _modelBuilder.Entity<Entity>().HasKey(e => e.IntProp);
-            _modelBuilder.FinalizeModel();
+            FinalizeModel();
 
             Assert.Contains(
-                _provider.For(property.GetTableColumnMappings().Single().Column),
+                _provider.For(property.GetTableColumnMappings().Single().Column, true),
                 a => a.Name == _autoincrement.Name && (bool)a.Value);
         }
 
         [ConditionalFact]
         public void Does_not_add_Autoincrement_for_OnAddOrUpdate_integer_property()
         {
-            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAddOrUpdate().Metadata;
-            _modelBuilder.FinalizeModel();
+            var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnAddOrUpdate().Metadata;
+            FinalizeModel();
 
             Assert.DoesNotContain(
-                _provider.For(property.GetTableColumnMappings().Single().Column),
+                _provider.For(property.GetTableColumnMappings().Single().Column, true),
                 a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
         public void Does_not_add_Autoincrement_for_OnUpdate_integer_property()
         {
-            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnUpdate().Metadata;
-            _modelBuilder.FinalizeModel();
+            var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedOnUpdate().Metadata;
+            FinalizeModel();
 
             Assert.DoesNotContain(
-                _provider.For(property.GetTableColumnMappings().Single().Column),
+                _provider.For(property.GetTableColumnMappings().Single().Column, true),
                 a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
         public void Does_not_add_Autoincrement_for_Never_value_generated_integer_property()
         {
-            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedNever().Metadata;
-            _modelBuilder.FinalizeModel();
+            var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).ValueGeneratedNever().Metadata;
+            FinalizeModel();
 
             Assert.DoesNotContain(
-                _provider.For(property.GetTableColumnMappings().Single().Column),
+                _provider.For(property.GetTableColumnMappings().Single().Column, true),
                 a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
         public void Does_not_add_Autoincrement_for_default_integer_property()
         {
-            var property = _modelBuilder.Entity<Entity>().Property(e => e.IntProp).Metadata;
-            _modelBuilder.FinalizeModel();
+            var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.IntProp).Metadata;
+            FinalizeModel();
 
             Assert.DoesNotContain(
-                _provider.For(property.GetTableColumnMappings().Single().Column),
+                _provider.For(property.GetTableColumnMappings().Single().Column, true),
                 a => a.Name == _autoincrement.Name);
         }
 
         [ConditionalFact]
         public void Does_not_add_Autoincrement_for_non_integer_OnAdd_property()
         {
-            var property = _modelBuilder.Entity<Entity>().Property(e => e.StringProp).ValueGeneratedOnAdd().Metadata;
-            _modelBuilder.FinalizeModel();
+            var property = (IProperty)_modelBuilder.Entity<Entity>().Property(e => e.StringProp).ValueGeneratedOnAdd().Metadata;
+            FinalizeModel();
 
             Assert.DoesNotContain(
-                _provider.For(property.GetTableColumnMappings().Single().Column),
+                _provider.For(property.GetTableColumnMappings().Single().Column, true),
                 a => a.Name == _autoincrement.Name);
         }
+
+        private IModel FinalizeModel()
+            => _modelBuilder.FinalizeModel();
 
         private class Entity
         {

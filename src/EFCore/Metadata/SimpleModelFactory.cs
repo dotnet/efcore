@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     <para>
     ///         Creates instances of <see cref="IMutableModel" /> that have no conventions. This is useful when
-    ///         Exhaustively configuring a model based on some existing metadata.
+    ///         exhaustively configuring a model based on some existing metadata.
     ///     </para>
     ///     <para>
     ///         This is typically not used in application code since building a model by overriding

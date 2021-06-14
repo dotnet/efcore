@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -63,6 +64,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 actual, mep =>
                     mep.TenMostExpensiveProducts == "Côte de Blaye"
                     && mep.UnitPrice == 263.50m);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
+        {
+            using var context = CreateContext();
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .TagWith("SampleFileName", 13);
+
+            var queryResult = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            var actual = query.ToQueryString().Split(Environment.NewLine).First();
+
+            Assert.Equal("-- file: SampleFileName:13", actual);
         }
 
         [ConditionalTheory]

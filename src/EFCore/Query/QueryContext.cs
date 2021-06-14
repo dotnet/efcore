@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -27,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public abstract class QueryContext : IParameterValues
     {
-        private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
-        private IStateManager _stateManager;
+        private readonly IDictionary<string, object?> _parameterValues = new Dictionary<string, object?>();
+        private IStateManager? _stateManager;
 
         /// <summary>
         ///     <para>
@@ -41,18 +40,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         protected QueryContext(
-            [NotNull] QueryContextDependencies dependencies)
+            QueryContextDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
+            Context = dependencies.CurrentContext.Context;
         }
 
         /// <summary>
         ///     The current DbContext in using while executing the query.
         /// </summary>
-        public virtual DbContext Context
-            => Dependencies.CurrentContext.Context;
+        public virtual DbContext Context { get; }
 
         /// <summary>
         ///     Parameter object containing dependencies for this service.
@@ -64,12 +63,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="entity"> The entity instance. </param>
         /// <param name="navigation"> The navigation property. </param>
-        public virtual void SetNavigationIsLoaded([NotNull] object entity, [NotNull] INavigationBase navigation)
+        public virtual void SetNavigationIsLoaded(object entity, INavigationBase navigation)
         {
             Check.NotNull(entity, nameof(entity));
             Check.NotNull(navigation, nameof(navigation));
 
-            _stateManager.TryGetEntry(entity).SetIsLoaded(navigation);
+            // InitializeStateManager will populate the field before calling here
+            _stateManager!.TryGetEntry(entity)!.SetIsLoaded(navigation);
         }
 
         /// <summary>
@@ -111,15 +111,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The parameter values to use while executing the query.
         /// </summary>
-        public virtual IReadOnlyDictionary<string, object> ParameterValues
-            => (IReadOnlyDictionary<string, object>)_parameterValues;
+        public virtual IReadOnlyDictionary<string, object?> ParameterValues
+            => (IReadOnlyDictionary<string, object?>)_parameterValues;
 
         /// <summary>
         ///     Adds a parameter to <see cref="ParameterValues" /> for this query.
         /// </summary>
         /// <param name="name"> The name. </param>
         /// <param name="value"> The value. </param>
-        public virtual void AddParameter(string name, object value)
+        public virtual void AddParameter(string name, object? value)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -132,10 +132,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="standAlone"> Whether a stand-alone <see cref="IStateManager" /> should be created to perform identity resolution. </param>
         public virtual void InitializeStateManager(bool standAlone = false)
         {
-            if (_stateManager != null)
-            {
-                throw new InvalidOperationException(CoreStrings.QueryContextAlreadyInitializedStateManager);
-            }
+            Check.DebugAssert(
+                _stateManager == null,
+                "The 'InitializeStateManager' method has been called multiple times on the current query context. This method is intended to be called only once before query enumeration starts.");
 
             _stateManager = standAlone
                 ? new StateManager(Dependencies.StateManager.Dependencies)
@@ -149,12 +148,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public virtual InternalEntityEntry TryGetEntry(
-            [NotNull] IKey key,
-            [NotNull] object[] keyValues,
+        public virtual InternalEntityEntry? TryGetEntry(
+            IKey key,
+            object[] keyValues,
             bool throwOnNullKey,
             out bool hasNullKey)
-            => _stateManager.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -164,9 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public virtual InternalEntityEntry StartTracking(
-            [NotNull] IEntityType entityType,
-            [NotNull] object entity,
+            IEntityType entityType,
+            object entity,
             ValueBuffer valueBuffer)
-            => _stateManager.StartTrackingFromQuery(entityType, entity, valueBuffer);
+            // InitializeStateManager will populate the field before calling here
+            => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }
 }

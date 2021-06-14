@@ -184,6 +184,8 @@ SimpleCounter.CounterId ---> [int] [Precision = 10 Scale = 0]
 SimpleCounter.Discriminator ---> [nullable nvarchar] [MaxLength = -1]
 SimpleCounter.IsTest ---> [bit]
 SimpleCounter.StyleKey ---> [nullable nvarchar] [MaxLength = -1]
+StringEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
+StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
 StringForeignKeyDataType.StringKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 StringKeyDataType.Id ---> [nvarchar] [MaxLength = 450]
@@ -197,6 +199,9 @@ UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
 User.Email ---> [nullable nvarchar] [MaxLength = -1]
 User.Id ---> [uniqueidentifier]
+User23059.Id ---> [int] [Precision = 10 Scale = 0]
+User23059.IsSoftDeleted ---> [bit]
+User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
 ";
 
             Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
@@ -241,6 +246,17 @@ FROM [Blog] AS [b]
 WHERE [b].[IsVisible] = N'Y'");
         }
 
+        [ConditionalFact]
+        public override void Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used()
+        {
+            base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
+
+            AssertSql(
+                @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+FROM [Blog] AS [b]
+WHERE [b].[IsVisible] = N'N'");
+        }
+
         public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
         {
             base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
@@ -258,7 +274,7 @@ WHERE [b].[IsVisible] = N'Y'");
             AssertSql(
                 @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[IndexerVisible] <> N'Aye'");
+WHERE [b].[IndexerVisible] = N'Nay'");
         }
 
         public override void Object_to_string_conversion()
@@ -274,6 +290,13 @@ WHERE [b].[IndexerVisible] <> N'Aye'");
                 @"SELECT [b].[Id], [b].[Value]
 FROM [Book] AS [b]
 WHERE [b].[Id] = 1");
+        }
+
+        public override void Value_conversion_on_enum_collection_contains()
+        {
+            Assert.Contains(
+                CoreStrings.TranslationFailed("").Substring(47),
+                Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
         }
 
         private void AssertSql(params string[] expected)
@@ -306,7 +329,7 @@ WHERE [b].[Id] = 1");
                 => true;
 
             public override DateTime DefaultDateTime
-                => new DateTime();
+                => new();
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base

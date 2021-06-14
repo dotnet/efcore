@@ -7,10 +7,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.Internal
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ManyToManyLoader([NotNull] ISkipNavigation skipNavigation)
+        public ManyToManyLoader(ISkipNavigation skipNavigation)
         {
             _skipNavigation = skipNavigation;
         }
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return Query(context, keyValues);
         }
 
-        private object[] PrepareForLoad(InternalEntityEntry entry)
+        private object[]? PrepareForLoad(InternalEntityEntry entry)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             //        .AsTracking()
             //        .Where(e => e.Id == left.Id)
             //        .SelectMany(e => e.TwoSkip)
-            //        .Include(e => e.OneSkip.Where(e => e.Id == left.Id));
+            //        .NotQuiteInclude(e => e.OneSkip.Where(e => e.Id == left.Id));
 
             var queryRoot = _skipNavigation.DeclaringEntityType.HasSharedClrType
                 ? context.Set<TSourceEntity>(_skipNavigation.DeclaringEntityType.Name)
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 .AsTracking()
                 .Where(BuildWhereLambda(loadProperties, new ValueBuffer(keyValues)))
                 .SelectMany(BuildSelectManyLambda(_skipNavigation))
-                .Include(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
+                .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
                 .AsQueryable();
         }
 
@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                     EnumerableMethods.Where.MakeGenericMethod(typeof(TSourceEntity)),
                     Expression.MakeMemberAccess(
                         entityParameter,
-                        skipNavigation.PropertyInfo),
+                        skipNavigation.GetIdentifyingMemberInfo()!),
                     Expression.Lambda<Func<TSourceEntity, bool>>(
                         ExpressionExtensions.BuildPredicate(keyProperties, keyValues, whereParameter),
                         whereParameter)), entityParameter);
@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return Expression.Lambda<Func<TSourceEntity, IEnumerable<TEntity>>>(
                 Expression.MakeMemberAccess(
                     entityParameter,
-                    navigation.PropertyInfo),
+                    navigation.GetIdentifyingMemberInfo()!),
                 entityParameter);
         }
     }

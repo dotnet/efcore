@@ -144,6 +144,38 @@ DROP SEQUENCE [NumericSequence];");
         }
 
         [ConditionalFact]
+        public void Sequence_high_min_max_start_values_are_not_null_if_decimal()
+        {
+            Test(
+                @"
+CREATE SEQUENCE [dbo].[HighDecimalSequence]
+ AS [numeric](38, 0)
+ START WITH -99999999999999999999999999999999999999
+ INCREMENT BY 1
+ MINVALUE -99999999999999999999999999999999999999
+ MAXVALUE 99999999999999999999999999999999999999
+ CACHE;",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.All(
+                        dbModel.Sequences,
+                        s =>
+                        {
+                            Assert.NotNull(s.StartValue);
+                            Assert.Equal(long.MinValue, s.StartValue);
+                            Assert.NotNull(s.MinValue);
+                            Assert.Equal(long.MinValue, s.MinValue);
+                            Assert.NotNull(s.MaxValue);
+                            Assert.Equal(long.MaxValue, s.MaxValue);
+                        });
+                },
+                @"
+DROP SEQUENCE [HighDecimalSequence];");
+        }
+
+        [ConditionalFact]
         public void Sequence_using_type_alias()
         {
             Fixture.TestStore.ExecuteNonQuery(
@@ -579,8 +611,8 @@ BEGIN
 IF NOT EXISTS (
     SELECT 1 FROM [sys].[filegroups] [FG] JOIN [sys].[database_files] [F] ON [FG].[data_space_id] = [F].[data_space_id] WHERE [FG].[type] = N'FX' AND [F].[type] = 2)
     BEGIN
-    DECLARE @db_name NVARCHAR(MAX) = DB_NAME();
-    DECLARE @fg_name NVARCHAR(MAX);
+    DECLARE @db_name nvarchar(max) = DB_NAME();
+    DECLARE @fg_name nvarchar(max);
     SELECT TOP(1) @fg_name = [name] FROM [sys].[filegroups] WHERE [type] = N'FX';
 
     IF @fg_name IS NULL
@@ -589,14 +621,14 @@ IF NOT EXISTS (
         EXEC(N'ALTER DATABASE CURRENT ADD FILEGROUP [' + @fg_name + '] CONTAINS MEMORY_OPTIMIZED_DATA;');
         END
 
-    DECLARE @path NVARCHAR(MAX);
+    DECLARE @path nvarchar(max);
     SELECT TOP(1) @path = [physical_name] FROM [sys].[database_files] WHERE charindex('\', [physical_name]) > 0 ORDER BY [file_id];
     IF (@path IS NULL)
         SET @path = '\' + @db_name;
 
-    DECLARE @filename NVARCHAR(MAX) = right(@path, charindex('\', reverse(@path)) - 1);
+    DECLARE @filename nvarchar(max) = right(@path, charindex('\', reverse(@path)) - 1);
     SET @filename = REPLACE(left(@filename, len(@filename) - charindex('.', reverse(@filename))), '''', '''''') + N'_MOD';
-    DECLARE @new_path NVARCHAR(MAX) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS NVARCHAR(MAX)), '''', '''''') + @filename;
+    DECLARE @new_path nvarchar(max) = REPLACE(CAST(SERVERPROPERTY('InstanceDefaultDataPath') AS nvarchar(max)), '''', '''''') + @filename;
 
     EXEC(N'
         ALTER DATABASE CURRENT
@@ -1524,6 +1556,28 @@ CREATE TABLE ColumnsWithCollation (
         }
 
         [ConditionalFact]
+        public void Column_sparseness_is_set()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnsWithSparseness (
+    Id int,
+    Sparse nvarchar(max) SPARSE NULL,
+    NonSparse nvarchar(max) NULL
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var columns = dbModel.Tables.Single().Columns;
+
+                    Assert.True((bool)columns.Single(c => c.Name == "Sparse")[SqlServerAnnotationNames.Sparse]);
+                    Assert.Null(columns.Single(c => c.Name == "NonSparse")[SqlServerAnnotationNames.Sparse]);
+                },
+                "DROP TABLE ColumnsWithSparseness;");
+        }
+
+        [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
         public void Hidden_columns_are_not_created()
         {
@@ -1912,6 +1966,26 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
         }
 
         [ConditionalFact]
+        public void Ignore_columnstore_index()
+        {
+            Test(
+                @"
+CREATE TABLE ColumnStoreIndexTable (
+    Id1 int,
+    Id2 int NULL,
+);
+
+CREATE NONCLUSTERED COLUMNSTORE INDEX ixColumnStore ON ColumnStoreIndexTable ( Id1, Id2 )",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    Assert.Empty(dbModel.Tables.Single().Indexes);
+                },
+                "DROP TABLE ColumnStoreIndexTable;");
+        }
+
+        [ConditionalFact]
         public void Set_include_for_index()
         {
             Test(
@@ -1929,9 +2003,36 @@ CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProp
                 {
                     var index = Assert.Single(dbModel.Tables.Single().Indexes);
                     Assert.Equal(new[] { "IndexProperty" }, index.Columns.Select(ic => ic.Name).ToList());
-                    Assert.Equal(new[] { "IncludeProperty" }, (IReadOnlyList<string>)index[SqlServerAnnotationNames.Include]);
+                    Assert.Null(index[SqlServerAnnotationNames.Include]);
                 },
                 "DROP TABLE IncludeIndexTable;");
+        }
+
+        [ConditionalFact]
+        public void Index_fill_factor()
+        {
+            Test(
+                @"
+CREATE TABLE IndexFillFactor
+(
+    Id INT IDENTITY,
+    Name NVARCHAR(100)
+);
+
+CREATE NONCLUSTERED INDEX [IX_Name] ON [dbo].[IndexFillFactor]
+(
+     [Name] ASC
+)
+WITH (FILLFACTOR = 80) ON [PRIMARY]",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var index = Assert.Single(dbModel.Tables.Single().Indexes);
+                    Assert.Equal(new[] { "Name" }, index.Columns.Select(ic => ic.Name).ToList());
+                    Assert.Equal(80, index[SqlServerAnnotationNames.FillFactor]);
+                },
+                "DROP TABLE IndexFillFactor;");
         }
 
         #endregion

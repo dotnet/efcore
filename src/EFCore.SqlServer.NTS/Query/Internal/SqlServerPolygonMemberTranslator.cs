@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -22,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerPolygonMemberTranslator : IMemberTranslator
     {
-        private static readonly MemberInfo _exteriorRing = typeof(Polygon).GetRuntimeProperty(nameof(Polygon.ExteriorRing));
-        private static readonly MemberInfo _numInteriorRings = typeof(Polygon).GetRuntimeProperty(nameof(Polygon.NumInteriorRings));
+        private static readonly MemberInfo _exteriorRing = typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.ExteriorRing));
+        private static readonly MemberInfo _numInteriorRings = typeof(Polygon).GetRequiredRuntimeProperty(nameof(Polygon.NumInteriorRings));
 
         private static readonly IDictionary<MemberInfo, string> _geometryMemberToFunctionName = new Dictionary<MemberInfo, string>
         {
@@ -40,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerPolygonMemberTranslator(
-            [NotNull] IRelationalTypeMappingSource typeMappingSource,
-            [NotNull] ISqlExpressionFactory sqlExpressionFactory)
+            IRelationalTypeMappingSource typeMappingSource,
+            ISqlExpressionFactory sqlExpressionFactory)
         {
             _typeMappingSource = typeMappingSource;
             _sqlExpressionFactory = sqlExpressionFactory;
@@ -53,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MemberInfo member,
             Type returnType,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             if (typeof(Polygon).IsAssignableFrom(member.DeclaringType))
             {
-                Check.DebugAssert(instance.TypeMapping != null, "Instance must have typeMapping assigned.");
+                Check.DebugAssert(instance!.TypeMapping != null, "Instance must have typeMapping assigned.");
                 var storeType = instance.TypeMapping.StoreType;
                 var isGeography = string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
 

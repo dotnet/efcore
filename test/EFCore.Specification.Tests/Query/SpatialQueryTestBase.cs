@@ -23,18 +23,23 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task SimpleSelect(bool async)
+        public virtual async Task SimpleSelect(bool async)
         {
-            return AssertQuery(
+            await AssertQuery(
                 async,
-                ss => ss.Set<PointEntity>(),
-                elementSorter: x => x.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-                    Assert.Equal(e.Geometry, a.Geometry, GeometryComparer.Instance);
-                    Assert.Equal(e.Point, a.Point, GeometryComparer.Instance);
-                });
+                ss => ss.Set<PointEntity>());
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<LineStringEntity>());
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<PolygonEntity>());
+
+            await AssertQuery(
+                async,
+                ss => ss.Set<MultiLineStringEntity>());
         }
 
         [ConditionalTheory]
@@ -43,14 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<GeoPointEntity>(),
-                elementSorter: x => x.Id,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Id, a.Id);
-                    Assert.Equal(e.Location.Lat, a.Location.Lat);
-                    Assert.Equal(e.Location.Lon, a.Location.Lon);
-                });
+                ss => ss.Set<GeoPointEntity>());
         }
 
         [ConditionalTheory]
@@ -1240,6 +1238,32 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         Assert.Equal(e.Z, a.Z ?? double.NaN);
                     }
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task XY_with_collection_join(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<PointEntity>()
+                    .OrderBy(e => e.Id)
+                    .Select(e => new
+                    {
+                        e.Id,
+                        I = new
+                        {
+                            X = e.Point == null ? (double?)null : e.Point.X,
+                            Y = e.Point == null ? (double?)null : e.Point.Y
+                        },
+                        List = ss.Set<PointEntity>().Where(i => i.Id == e.Id).ToList()
+                    }),
+                asserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.I, a.I);
+                    AssertCollection(e.List, a.List);
                 });
         }
 

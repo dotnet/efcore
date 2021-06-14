@@ -40,6 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
+                projectDir: "",
+                rootNamespace: null,
+                language: "C#",
+                nullable: false,
                 args: null,
                 new TestAppServiceProviderFactory(assembly));
         }
@@ -52,6 +56,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
+                projectDir: "",
+                rootNamespace: null,
+                language: "C#",
+                nullable: false,
                 args: Array.Empty<string>(),
                 new TestAppServiceProviderFactory(assembly));
 
@@ -114,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private static class TestProgramWithoutAddDbContext
         {
             private static TestWebHost BuildWebHost(string[] args)
-                => new TestWebHost(
+                => new(
                     new ServiceCollection()
                         .AddSingleton(
                             new TestContext(
@@ -128,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private static class TestProgramWithContextFactory
         {
             private static TestWebHost BuildWebHost(string[] args)
-                => new TestWebHost(
+                => new(
                     new ServiceCollection()
                         .AddDbContextFactory<TestContextFromFactory>(b => b.UseInMemoryDatabase("In-memory test database"))
                         .BuildServiceProvider());
@@ -153,12 +161,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 new TestOperationReporter(),
                 assembly,
                 assembly,
+                projectDir: "",
+                rootNamespace: null,
+                language: "C#",
+                nullable: false,
                 /* args: */ Array.Empty<string>(),
                 new TestAppServiceProviderFactory(assembly));
         }
 
         private static TestWebHost CreateWebHost(Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureProvider)
-            => new TestWebHost(
+            => new(
                 new ServiceCollection()
                     .AddDbContext<TestContext>(
                         b =>
@@ -215,10 +227,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         private class HierarchyContextFactory : IDesignTimeDbContextFactory<BaseContext>, IDesignTimeDbContextFactory<DerivedContext>
         {
             BaseContext IDesignTimeDbContextFactory<BaseContext>.CreateDbContext(string[] args)
-                => new BaseContext(nameof(BaseContext));
+                => new(nameof(BaseContext));
 
             DerivedContext IDesignTimeDbContextFactory<DerivedContext>.CreateDbContext(string[] args)
-                => new DerivedContext(nameof(DerivedContext));
+                => new(nameof(DerivedContext));
         }
     }
 }

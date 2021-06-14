@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -14,9 +15,10 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        public override void Can_insert_many_to_many_shared_with_payload()
+        public override Task Can_insert_many_to_many_shared_with_payload(bool async)
         {
             // Mutable properties aren't proxyable on Dictionary
+            return Task.CompletedTask;
         }
 
         public override void Can_update_many_to_many_shared_with_payload()

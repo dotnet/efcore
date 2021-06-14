@@ -13,7 +13,7 @@ using Xunit;
 namespace Microsoft.EntityFrameworkCore
 {
     public abstract class DatabindingTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : F1FixtureBase, new()
+        where TFixture : F1FixtureBase<byte[]>, new()
     {
         protected DatabindingTestBase(TFixture fixture)
             => Fixture = fixture;
@@ -52,6 +52,7 @@ namespace Microsoft.EntityFrameworkCore
             drivers.Add(
                 new Driver
                 {
+                    Id = 43,
                     Name = "Pedro de la Rosa",
                     TeamId = AddedTeam,
                     CarNumber = 13
@@ -59,6 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             drivers.Add(
                 new Driver
                 {
+                    Id = 44,
                     Name = "Kamui Kobayashi",
                     TeamId = AddedTeam,
                     CarNumber = null

@@ -90,6 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public static ConfigurationSource Max(this ConfigurationSource left, ConfigurationSource? right)
             => left.Overrides(right)
                 ? left
-                : right.Value;
+                : right!.Value;
     }
 }

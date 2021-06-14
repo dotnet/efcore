@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InternalSequenceBuilder([NotNull] Sequence sequence, [NotNull] IConventionModelBuilder modelBuilder)
+        public InternalSequenceBuilder(Sequence sequence, IConventionModelBuilder modelBuilder)
             : base(sequence, modelBuilder)
         {
         }
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSequenceBuilder HasType([CanBeNull] Type type, ConfigurationSource configurationSource)
+        public virtual IConventionSequenceBuilder? HasType(Type? type, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetTypeConfigurationSource())
                 || Metadata.Type == type)
@@ -53,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CanSetType([CanBeNull] Type type, ConfigurationSource configurationSource)
+        public virtual bool CanSetType(Type? type, ConfigurationSource configurationSource)
             => (type == null || Sequence.SupportedTypes.Contains(type))
                 && (configurationSource.Overrides(Metadata.GetTypeConfigurationSource())
                     || Metadata.Type == type);
@@ -64,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSequenceBuilder IncrementsBy(
+        public virtual IConventionSequenceBuilder? IncrementsBy(
             int? increment,
             ConfigurationSource configurationSource)
         {
@@ -93,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSequenceBuilder StartsAt(long? startValue, ConfigurationSource configurationSource)
+        public virtual IConventionSequenceBuilder? StartsAt(long? startValue, ConfigurationSource configurationSource)
         {
             if (CanSetStartsAt(startValue, configurationSource))
             {
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSequenceBuilder HasMax(long? maximum, ConfigurationSource configurationSource)
+        public virtual IConventionSequenceBuilder? HasMax(long? maximum, ConfigurationSource configurationSource)
         {
             if (CanSetMax(maximum, configurationSource))
             {
@@ -147,7 +146,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSequenceBuilder HasMin(long? minimum, ConfigurationSource configurationSource)
+        public virtual IConventionSequenceBuilder? HasMin(long? minimum, ConfigurationSource configurationSource)
         {
             if (CanSetMin(minimum, configurationSource))
             {
@@ -174,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IConventionSequenceBuilder IsCyclic(bool? cyclic, ConfigurationSource configurationSource)
+        public virtual IConventionSequenceBuilder? IsCyclic(bool? cyclic, ConfigurationSource configurationSource)
         {
             if (CanSetIsCyclic(cyclic, configurationSource))
             {
@@ -204,17 +203,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSequenceBuilder IConventionSequenceBuilder.HasType(Type type, bool fromDataAnnotation)
+        IConventionSequenceBuilder? IConventionSequenceBuilder.HasType(Type? type, bool fromDataAnnotation)
             => HasType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        bool IConventionSequenceBuilder.CanSetType(Type type, bool fromDataAnnotation)
+        bool IConventionSequenceBuilder.CanSetType(Type? type, bool fromDataAnnotation)
             => CanSetType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSequenceBuilder IConventionSequenceBuilder.IncrementsBy(int? increment, bool fromDataAnnotation)
+        IConventionSequenceBuilder? IConventionSequenceBuilder.IncrementsBy(int? increment, bool fromDataAnnotation)
             => IncrementsBy(increment, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -224,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSequenceBuilder IConventionSequenceBuilder.StartsAt(long? startValue, bool fromDataAnnotation)
+        IConventionSequenceBuilder? IConventionSequenceBuilder.StartsAt(long? startValue, bool fromDataAnnotation)
             => StartsAt(startValue, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -234,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSequenceBuilder IConventionSequenceBuilder.HasMax(long? maximum, bool fromDataAnnotation)
+        IConventionSequenceBuilder? IConventionSequenceBuilder.HasMax(long? maximum, bool fromDataAnnotation)
             => HasMax(maximum, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -244,7 +243,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSequenceBuilder IConventionSequenceBuilder.HasMin(long? minimum, bool fromDataAnnotation)
+        IConventionSequenceBuilder? IConventionSequenceBuilder.HasMin(long? minimum, bool fromDataAnnotation)
             => HasMin(minimum, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />
@@ -254,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
 
         /// <inheritdoc />
         [DebuggerStepThrough]
-        IConventionSequenceBuilder IConventionSequenceBuilder.IsCyclic(bool? cyclic, bool fromDataAnnotation)
+        IConventionSequenceBuilder? IConventionSequenceBuilder.IsCyclic(bool? cyclic, bool fromDataAnnotation)
             => IsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <inheritdoc />

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -19,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    [Obsolete("Use provider specific expressions for collection results.")]
     public class CollectionShaperExpression : Expression, IPrintableExpression
     {
         /// <summary>
@@ -29,10 +29,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="navigation"> A navigation associated with this collection, if any. </param>
         /// <param name="elementType"> The clr type of individual elements in the collection. </param>
         public CollectionShaperExpression(
-            [NotNull] Expression projection,
-            [NotNull] Expression innerShaper,
-            [CanBeNull] INavigationBase navigation,
-            [CanBeNull] Type elementType)
+            Expression projection,
+            Expression innerShaper,
+            INavigationBase? navigation,
+            Type elementType)
         {
             Check.NotNull(projection, nameof(projection));
             Check.NotNull(innerShaper, nameof(innerShaper));
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Projection = projection;
             InnerShaper = innerShaper;
             Navigation = navigation;
-            ElementType = elementType ?? navigation.ClrType.TryGetSequenceType();
+            ElementType = elementType;
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The navigation if associated with the collection.
         /// </summary>
-        public virtual INavigationBase Navigation { get; }
+        public virtual INavigationBase? Navigation { get; }
 
         /// <summary>
         ///     The clr type of elements of the collection.
@@ -90,8 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <param name="innerShaper"> The <see cref="InnerShaper" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
         public virtual CollectionShaperExpression Update(
-            [NotNull] Expression projection,
-            [NotNull] Expression innerShaper)
+            Expression projection,
+            Expression innerShaper)
         {
             Check.NotNull(projection, nameof(projection));
             Check.NotNull(innerShaper, nameof(innerShaper));

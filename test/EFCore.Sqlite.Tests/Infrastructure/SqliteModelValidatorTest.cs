@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -18,14 +16,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name").Metadata);
-            GenerateMapping(modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name").Metadata);
+            modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
+            modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
                     nameof(Animal), nameof(Animal.Id),
                     nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
-                modelBuilder.Model);
+                modelBuilder);
         }
 
         public override void Detects_duplicate_columns_in_derived_types_with_different_types()
@@ -33,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Type).IsRequired().HasColumnName("Type").Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type").Metadata);
+            modelBuilder.Entity<Cat>().Property(c => c.Type).IsRequired().HasColumnName("Type");
+            modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type");
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder.Model);
+                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -47,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>();
 
-            GenerateMapping(modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasSrid(30).Metadata);
-            GenerateMapping(modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasSrid(15).Metadata);
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasSrid(30);
+            modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasSrid(15);
 
             VerifyError(
                 SqliteStrings.DuplicateColumnNameSridMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder.Model);
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
         }
 
         public override void Detects_incompatible_shared_columns_with_shared_table()
@@ -65,12 +63,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<B>().Property(a => a.P0).HasColumnName(nameof(A.P0));
             modelBuilder.Entity<B>().ToTable("Table");
 
-            GenerateMapping(modelBuilder.Entity<A>().Property(b => b.P0).Metadata);
-            GenerateMapping(modelBuilder.Entity<B>().Property(d => d.P0).Metadata);
+            modelBuilder.Entity<A>().Property(b => b.P0);
+            modelBuilder.Entity<B>().Property(d => d.P0);
 
             VerifyError(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder.Model);
+                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder);
         }
 
         [ConditionalFact]
@@ -81,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyWarning(
                 SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"),
-                modelBuilder.Model);
+                modelBuilder);
         }
 
         [ConditionalFact]
@@ -92,13 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             VerifyWarning(
                 SqliteResources.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"),
-                modelBuilder.Model);
+                modelBuilder);
         }
-
-        private static void GenerateMapping(IMutableProperty property)
-            => property.SetTypeMapping(
-                TestServiceFactory.Instance.Create<SqliteTypeMappingSource>()
-                    .FindMapping(property));
 
         protected override TestHelpers TestHelpers
             => SqliteTestHelpers.Instance;

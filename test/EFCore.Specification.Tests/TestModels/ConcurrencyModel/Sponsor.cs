@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel
     {
         public static readonly string ClientTokenPropertyName = "ClientToken";
 
-        private readonly ObservableCollection<Team> _teams = new ObservableCollection<Team>();
+        private readonly ObservableCollection<Team> _teams = new();
 
         public int Id { get; set; }
         public string Name { get; set; }

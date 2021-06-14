@@ -3,7 +3,6 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -23,12 +22,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder([NotNull] string name, [CanBeNull] string schema, [NotNull] IMutableEntityType entityType)
+        public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
         {
-            EntityType = entityType;
+            EntityTypeBuilder = entityTypeBuilder;
         }
 
-        private IMutableEntityType EntityType { [DebuggerStepThrough] get; }
+        /// <summary>
+        ///     The entity type builder for the entity being configured.
+        /// </summary>
+        public virtual EntityTypeBuilder EntityTypeBuilder { get; }
 
         /// <summary>
         ///     Configures the table to be ignored by migrations.
@@ -37,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TableBuilder ExcludeFromMigrations(bool excluded = true)
         {
-            EntityType.SetIsTableExcludedFromMigrations(excluded);
+            EntityTypeBuilder.Metadata.SetIsTableExcludedFromMigrations(excluded);
+
             return this;
         }
 
@@ -48,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -57,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

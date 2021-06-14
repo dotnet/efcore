@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -18,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     info/metadata for the given extension.
         /// </summary>
         /// <param name="extension"> The extension. </param>
-        protected DbContextOptionsExtensionInfo([NotNull] IDbContextOptionsExtension extension)
+        protected DbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
         {
             Check.NotNull(extension, nameof(extension));
 
@@ -55,6 +54,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     extension name. For example, <c>"SqlServer:"</c>.
         /// </summary>
         /// <param name="debugInfo"> The dictionary to populate. </param>
-        public abstract void PopulateDebugInfo([NotNull] IDictionary<string, string> debugInfo);
+        public abstract void PopulateDebugInfo(IDictionary<string, string> debugInfo);
     }
 }

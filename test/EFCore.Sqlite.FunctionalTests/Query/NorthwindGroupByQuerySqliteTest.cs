@@ -31,5 +31,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Select_uncorrelated_collection_with_groupby_works(async))).Message);
+
+        public override async Task Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Select_uncorrelated_collection_with_groupby_when_outer_is_distinct(async))).Message);
     }
 }

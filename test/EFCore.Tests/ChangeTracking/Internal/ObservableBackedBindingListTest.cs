@@ -541,12 +541,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 NullableInt = i;
                 String = i.ToString();
                 XNode = new NotXText(i.ToString());
-                Random = new Random();
+                Random = Random.Shared;
                 ByteArray = new[] { (byte)i, (byte)i, (byte)i, (byte)i };
             }
 
             public static implicit operator ListElement(int i)
-                => new ListElement(i);
+                => new(i);
 
             public int Int { get; }
             public int? NullableInt { get; }

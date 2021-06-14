@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -66,49 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Client_code_using_instance_method_throws()
             => base.Client_code_using_instance_method_throws();
 
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task OrderBy_multiple_queries(bool async)
-            => base.OrderBy_multiple_queries(async);
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_1(bool async)
-            => base.Random_next_is_not_funcletized_1(async);
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_2(bool async)
-            => base.Random_next_is_not_funcletized_2(async);
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_3(bool async)
-            => base.Random_next_is_not_funcletized_3(async);
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_4(bool async)
-            => base.Random_next_is_not_funcletized_4(async);
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_5(bool async)
-            => base.Random_next_is_not_funcletized_5(async);
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_6(bool async)
-            => base.Random_next_is_not_funcletized_6(async);
-
-        [ConditionalTheory(Skip = "issue#17386")]
-        public override Task Where_query_composition5(bool async)
-            => base.Where_query_composition5(async);
-
-        [ConditionalTheory(Skip = "issue#17386")]
-        public override Task Where_query_composition6(bool async)
-            => base.Where_query_composition6(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
-            => base.Using_string_Equals_with_StringComparison_throws_informative_error(async);
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
-            => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async);
+        [ConditionalTheory(Skip = "Issue#24291")]
+        public override Task Select_nested_collection_with_distinct(bool async)
+            => base.Select_nested_collection_with_distinct(async);
 
         public override async Task Max_on_empty_sequence_throws(bool async)
         {

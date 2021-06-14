@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(
                 CoreStrings.ConstructorConflict(
                     "BlogConflict(string, int)",
-                    "BlogConflict(string, Nullable<Guid>)"),
+                    "BlogConflict(string, Guid?)"),
                 Assert.Throws<InvalidOperationException>(
                     () => GetBinding<BlogConflict>()).Message);
         }
@@ -387,13 +387,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public void Does_not_throw_if_explicit_binding_has_been_set()
         {
             var constructorBinding = GetBinding<BlogConflict>(
-                e => e[CoreAnnotationNames.ConstructorBinding] = new ConstructorBinding(
+                e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
                     typeof(BlogConflict).GetConstructor(
                         new[] { typeof(string), typeof(int) }),
                     new[]
                     {
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Title))),
-                        new PropertyParameterBinding(e.FindProperty(nameof(Blog.Id)))
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),
+                        new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Id)))
                     }));
 
             Assert.NotNull(constructorBinding);
@@ -681,11 +681,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var constructors = new[]
             {
                 CoreStrings.ConstructorBindingFailed("did", "BlogNone(string title, int did)"),
-                CoreStrings.ConstructorBindingFailed("notTitle", "BlogNone(string notTitle, Nullable<Guid> shadow, int id)"),
-                CoreStrings.ConstructorBindingFailed("dummy", "BlogNone(string title, Nullable<Guid> shadow, bool dummy, int id)"),
+                CoreStrings.ConstructorBindingFailed("notTitle", "BlogNone(string notTitle, Guid? shadow, int id)"),
+                CoreStrings.ConstructorBindingFailed("dummy", "BlogNone(string title, Guid? shadow, bool dummy, int id)"),
                 CoreStrings.ConstructorBindingFailed(
                     "dummy', 'description",
-                    "BlogNone(string title, Nullable<Guid> shadow, bool dummy, int id, string description)")
+                    "BlogNone(string title, Guid? shadow, bool dummy, int id, string description)")
             };
 
             Assert.Equal(
@@ -796,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var convention = new ConstructorBindingConvention(CreateDependencies());
             convention.ProcessModelFinalizing(model.Builder, context);
 
-            return (ConstructorBinding)entityType[CoreAnnotationNames.ConstructorBinding];
+            return (ConstructorBinding)((EntityType)entityType).ConstructorBinding;
         }
 
         private ProviderConventionSetBuilderDependencies CreateDependencies()

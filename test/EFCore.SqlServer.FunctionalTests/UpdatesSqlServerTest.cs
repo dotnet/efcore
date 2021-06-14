@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
                 context =>
                 {
                     context.AddRange(
-                        new ProductWithBytes { ProductCategories = new List<ProductCategory> { new ProductCategory { CategoryId = 77 } } },
+                        new ProductWithBytes { ProductCategories = new List<ProductCategory> { new() { CategoryId = 77 } } },
                         new Category { Id = 77, PrincipalId = 777 });
 
                     context.SaveChanges();

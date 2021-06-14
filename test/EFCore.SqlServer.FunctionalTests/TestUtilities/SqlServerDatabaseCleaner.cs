@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             => false;
 
         private readonly string _dropViewsSql = @"
-DECLARE @name VARCHAR(MAX) = '__dummy__', @SQL VARCHAR(MAX) = '';
+DECLARE @name varchar(max) = '__dummy__', @SQL varchar(max) = '';
 
 WHILE @name IS NOT NULL
 BEGIN
@@ -61,7 +60,7 @@ END";
                 + @"
 GO
 
-DECLARE @SQL VARCHAR(MAX) = '';
+DECLARE @SQL varchar(max) = '';
 SELECT @SQL = @SQL + 'DROP FUNCTION ' + QUOTENAME(ROUTINE_SCHEMA) + '.' + QUOTENAME(ROUTINE_NAME) + ';'
   FROM [INFORMATION_SCHEMA].[ROUTINES] WHERE ROUTINE_TYPE = 'FUNCTION' AND ROUTINE_BODY = 'SQL';
 EXEC (@SQL);
@@ -84,19 +83,37 @@ SELECT @SQL = @SQL + 'DROP SCHEMA ' + QUOTENAME(name) + ';' FROM sys.schemas WHE
 EXEC (@SQL);";
 
         protected override MigrationOperation Drop(DatabaseTable table)
-            => AddMemoryOptimizedAnnotation(base.Drop(table), table);
+            => AddSqlServerSpecificAnnotations(base.Drop(table), table);
 
         protected override MigrationOperation Drop(DatabaseForeignKey foreignKey)
-            => AddMemoryOptimizedAnnotation(base.Drop(foreignKey), foreignKey.Table);
+            => AddSqlServerSpecificAnnotations(base.Drop(foreignKey), foreignKey.Table);
 
         protected override MigrationOperation Drop(DatabaseIndex index)
-            => AddMemoryOptimizedAnnotation(base.Drop(index), index.Table);
+            => AddSqlServerSpecificAnnotations(base.Drop(index), index.Table);
 
-        private static TOperation AddMemoryOptimizedAnnotation<TOperation>(TOperation operation, DatabaseTable table)
+        private static TOperation AddSqlServerSpecificAnnotations<TOperation>(TOperation operation, DatabaseTable table)
             where TOperation : MigrationOperation
         {
             operation[SqlServerAnnotationNames.MemoryOptimized]
                 = table[SqlServerAnnotationNames.MemoryOptimized] as bool?;
+
+            if (table[SqlServerAnnotationNames.IsTemporal] != null)
+            {
+                operation[SqlServerAnnotationNames.IsTemporal]
+                    = table[SqlServerAnnotationNames.IsTemporal];
+
+                operation[SqlServerAnnotationNames.TemporalHistoryTableName]
+                    = table[SqlServerAnnotationNames.TemporalHistoryTableName];
+
+                operation[SqlServerAnnotationNames.TemporalHistoryTableSchema]
+                    = table[SqlServerAnnotationNames.TemporalHistoryTableSchema];
+
+                operation[SqlServerAnnotationNames.TemporalPeriodStartColumnName]
+                    = table[SqlServerAnnotationNames.TemporalPeriodStartColumnName];
+
+                operation[SqlServerAnnotationNames.TemporalPeriodEndColumnName]
+                    = table[SqlServerAnnotationNames.TemporalPeriodEndColumnName];
+            }
 
             return operation;
         }

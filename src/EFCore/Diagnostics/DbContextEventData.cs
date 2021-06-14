@@ -3,7 +3,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
@@ -20,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="context"> The current <see cref="DbContext" />, or null if not known. </param>
         public DbContextEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [CanBeNull] DbContext context)
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbContext? context)
             : base(eventDefinition, messageGenerator)
         {
             Context = context;
@@ -31,6 +30,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The current <see cref="DbContext" />.
         /// </summary>
-        public virtual DbContext Context { get; }
+        public virtual DbContext? Context { get; }
     }
 }

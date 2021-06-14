@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Scaffolding;
@@ -96,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                     if (operations.Count > 0)
                     {
-                        var commands = sqlGenerator.Generate(operations);
+                        var commands = sqlGenerator.Generate(operations, null);
                         executor.ExecuteNonQuery(commands, connection);
                     }
 

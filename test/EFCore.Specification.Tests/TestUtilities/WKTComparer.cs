@@ -9,9 +9,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class WKTComparer : IEqualityComparer<string>
     {
-        private static readonly WKTReader _reader = new WKTReader();
+        private static readonly WKTReader _reader = new();
 
-        public static WKTComparer Instance { get; } = new WKTComparer();
+        public static WKTComparer Instance { get; } = new();
 
         private WKTComparer()
         {

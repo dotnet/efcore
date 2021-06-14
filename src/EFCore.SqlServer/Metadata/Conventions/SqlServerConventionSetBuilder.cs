@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -33,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="relationalDependencies"> The relational dependencies for this service. </param>
         /// <param name="sqlGenerationHelper"> The SQL generation helper to use. </param>
         public SqlServerConventionSetBuilder(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies,
-            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies,
+            ISqlGenerationHelper sqlGenerationHelper)
             : base(dependencies, relationalDependencies)
         {
             _sqlGenerationHelper = sqlGenerationHelper;
@@ -64,6 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             conventionSet.EntityTypeAnnotationChangedConventions.Add(sqlServerInMemoryTablesConvention);
             ReplaceConvention(
                 conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
+
+            ConventionSet.AddBefore(
+                conventionSet.EntityTypeAnnotationChangedConventions,
+                new SqlServerTemporalConvention(),
+                typeof(SqlServerValueGenerationConvention));
 
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
 
@@ -102,6 +106,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 (SharedTableConvention)new SqlServerSharedTableConvention(Dependencies, RelationalDependencies));
             conventionSet.ModelFinalizingConventions.Add(new SqlServerDbFunctionConvention(Dependencies, RelationalDependencies));
 
+            ReplaceConvention(
+                conventionSet.ModelFinalizedConventions,
+                (RuntimeModelConvention)new SqlServerRuntimeModelConvention(Dependencies, RelationalDependencies));
+
             return conventionSet;
         }
 
@@ -119,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ConventionSet Build()
         {
             using var serviceScope = CreateServiceScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
             return ConventionSet.CreateConventionSet(context);
         }
 
@@ -136,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         public static ModelBuilder CreateModelBuilder()
         {
             using var serviceScope = CreateServiceScope();
-            using var context = serviceScope.ServiceProvider.GetService<DbContext>();
+            using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
             return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
         }
 

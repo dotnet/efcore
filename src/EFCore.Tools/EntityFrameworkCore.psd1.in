@@ -71,6 +71,7 @@ FunctionsToExport = (
     'Enable-Migrations',
     'Get-DbContext',
     'Get-Migration',
+    'Optimize-DbContext',
     'Remove-Migration',
     'Scaffold-DbContext',
     'Script-DbContext',

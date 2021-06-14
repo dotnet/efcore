@@ -24,9 +24,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
         public DbSet<ImplicitManyToManyB> ImplicitManyToManyBs { get; set; }
         public DbSet<GeneratedKeysLeft> GeneratedKeysLefts { get; set; }
         public DbSet<GeneratedKeysRight> GeneratedKeysRights { get; set; }
-
-        public static void Seed(ManyToManyContext context)
-            => ManyToManyData.Seed(context);
     }
 
     public static class ManyToManyContextExtensions

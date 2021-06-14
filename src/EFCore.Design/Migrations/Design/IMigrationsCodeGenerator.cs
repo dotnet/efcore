@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -25,11 +24,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="targetModel"> The migration's target model. </param>
         /// <returns> The migration metadata code. </returns>
         string GenerateMetadata(
-            [NotNull] string migrationNamespace,
-            [NotNull] Type contextType,
-            [NotNull] string migrationName,
-            [NotNull] string migrationId,
-            [NotNull] IModel targetModel);
+            string? migrationNamespace,
+            Type contextType,
+            string migrationName,
+            string migrationId,
+            IModel targetModel);
 
         /// <summary>
         ///     Generates the migration code.
@@ -40,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="downOperations"> The migration's down operations. </param>
         /// <returns> The migration code. </returns>
         string GenerateMigration(
-            [NotNull] string migrationNamespace,
-            [NotNull] string migrationName,
-            [NotNull] IReadOnlyList<MigrationOperation> upOperations,
-            [NotNull] IReadOnlyList<MigrationOperation> downOperations);
+            string? migrationNamespace,
+            string migrationName,
+            IReadOnlyList<MigrationOperation> upOperations,
+            IReadOnlyList<MigrationOperation> downOperations);
 
         /// <summary>
         ///     Generates the model snapshot code.
@@ -54,10 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="model"> The model. </param>
         /// <returns> The model snapshot code. </returns>
         string GenerateSnapshot(
-            [NotNull] string modelSnapshotNamespace,
-            [NotNull] Type contextType,
-            [NotNull] string modelSnapshotName,
-            [NotNull] IModel model);
+            string? modelSnapshotNamespace,
+            Type contextType,
+            string modelSnapshotName,
+            IModel model);
 
         /// <summary>
         ///     Gets the file extension code files should use.

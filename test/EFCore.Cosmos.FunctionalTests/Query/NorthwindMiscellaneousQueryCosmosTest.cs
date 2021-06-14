@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -2270,10 +2271,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Order"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_or()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_or(bool async)
         {
-            base.Select_bitwise_or();
+            await base.Select_bitwise_or(async);
 
             AssertSql(
                 @"SELECT c
@@ -2281,10 +2282,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_or_multiple()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_or_multiple(bool async)
         {
-            base.Select_bitwise_or_multiple();
+            await base.Select_bitwise_or_multiple(async);
 
             AssertSql(
                 @"SELECT c
@@ -2292,10 +2293,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_and()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_and(bool async)
         {
-            base.Select_bitwise_and();
+            await base.Select_bitwise_and(async);
 
             AssertSql(
                 @"SELECT c
@@ -2303,10 +2304,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_and_or()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_and_or(bool async)
         {
-            base.Select_bitwise_and_or();
+            await base.Select_bitwise_and_or(async);
 
             AssertSql(
                 @"SELECT c
@@ -2378,10 +2379,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND ((c[""OrderID""] | 10248) = 10248))");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_or_with_logical_or()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_or_with_logical_or(bool async)
         {
-            base.Select_bitwise_or_with_logical_or();
+            await base.Select_bitwise_or_with_logical_or(async);
 
             AssertSql(
                 @"SELECT c
@@ -2389,10 +2390,10 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalFact(Skip = "Issue #17246")]
-        public override void Select_bitwise_and_with_logical_and()
+        [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task Select_bitwise_and_with_logical_and(bool async)
         {
-            base.Select_bitwise_and_with_logical_and();
+            await base.Select_bitwise_and_with_logical_and(async);
 
             AssertSql(
                 @"SELECT c
@@ -2580,6 +2581,17 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
 
+        public override async Task Add_minutes_on_constant_value(bool async)
+        {
+            await base.Add_minutes_on_constant_value(async);
+
+            AssertSql(
+                @"SELECT VALUE {""c"" : (c[""OrderID""] % 25)}
+FROM root c
+WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10500))
+ORDER BY c[""OrderID""]");
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Select_expression_references_are_updated_correctly_with_subquery(bool async)
         {
@@ -2591,10 +2603,10 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderDate""] != null))");
         }
 
-        [ConditionalFact(Skip = "Issue#17246")]
-        public override void DefaultIfEmpty_without_group_join()
+        [ConditionalTheory(Skip = "Issue#17246")]
+        public override async Task DefaultIfEmpty_without_group_join(bool async)
         {
-            base.DefaultIfEmpty_without_group_join();
+            await base.DefaultIfEmpty_without_group_join(async);
 
             AssertSql(
                 @"SELECT c
@@ -3809,16 +3821,6 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override void Throws_on_concurrent_query_first()
-        {
-            // #13160
-        }
-
-        public override void Throws_on_concurrent_query_list()
-        {
-            // #13160
-        }
-
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Entity_equality_through_nested_anonymous_type_projection(bool async)
         {
@@ -3925,6 +3927,12 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override void Select_DTO_constructor_distinct_with_navigation_translated_to_server()
         {
             base.Select_DTO_constructor_distinct_with_navigation_translated_to_server();
+        }
+
+        [ConditionalFact(Skip = "Issue #17246")]
+        public override void Select_DTO_constructor_distinct_with_collection_projection_translated_to_server()
+        {
+            base.Select_DTO_constructor_distinct_with_collection_projection_translated_to_server();
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -4200,6 +4208,48 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] IN (""ALFKI"
         public override Task First_on_collection_in_projection(bool async)
         {
             return base.First_on_collection_in_projection(async);
+        }
+
+        [ConditionalTheory(Skip = "Non embedded collection subquery Issue#17246")]
+        public override Task Skip_0_Take_0_works_when_constant(bool async)
+        {
+            return base.Skip_0_Take_0_works_when_constant(async);
+        }
+
+        public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(() => base.Using_static_string_Equals_with_StringComparison_throws_informative_error(async),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+
+        public override Task Using_string_Equals_with_StringComparison_throws_informative_error(bool async)
+        {
+            return AssertTranslationFailedWithDetails(() => base.Using_string_Equals_with_StringComparison_throws_informative_error(async),
+                CoreStrings.QueryUnableToTranslateStringEqualsWithStringComparison);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Select_nested_collection_with_distinct(bool async)
+        {
+            return base.Select_nested_collection_with_distinct(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(bool async)
+        {
+            return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(bool async)
+        {
+            return base.Correlated_collection_with_distinct_without_default_identifiers_projecting_columns_with_navigation(async);
+        }
+
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Collection_projection_after_DefaultIfEmpty(bool async)
+        {
+            return base.Collection_projection_after_DefaultIfEmpty(async);
         }
 
         private void AssertSql(params string[] expected)

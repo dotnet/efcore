@@ -120,9 +120,6 @@
   <data name="CallRequiresOpenConnection" xml:space="preserve">
     <value>{methodName} can only be called when the connection is open.</value>
   </data>
-  <data name="CallRequiresSetCommandText" xml:space="preserve">
-    <value>CommandText must be set before {methodName} can be called.</value>
-  </data>
   <data name="ConnectionStringRequiresClosedConnection" xml:space="preserve">
     <value>ConnectionString cannot be set when the connection is open.</value>
   </data>
@@ -146,9 +143,6 @@
   </data>
   <data name="NoData" xml:space="preserve">
     <value>No data exists for the row/column.</value>
-  </data>
-  <data name="OpenRequiresSetConnectionString" xml:space="preserve">
-    <value>ConnectionString must be set before Open can be called.</value>
   </data>
   <data name="ParallelTransactionsNotSupported" xml:space="preserve">
     <value>SqliteConnection does not support nested transactions.</value>
@@ -218,5 +212,14 @@
   </data>
   <data name="EncryptionNotSupported" xml:space="preserve">
     <value>You specified a password in the connection string, but the native SQLite library '{libraryName}' doesn't support encryption.</value>
+  </data>
+  <data name="TooManyRestrictions" xml:space="preserve">
+    <value>More restrictions were provided than the collection '{collectionName}' supports.</value>
+  </data>
+  <data name="UnknownCollection" xml:space="preserve">
+    <value>The requested collection '{collectionName}' is not defined.</value>
+  </data>
+  <data name="AmbiguousColumnName" xml:space="preserve">
+    <value>The name '{name}' is ambiguous between columns '{column1}' and '{column2}'. Specify one using its exact case.</value>
   </data>
 </root>

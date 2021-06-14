@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
 
             if (entityType.FindProperty(nameof(BuiltInDataTypes.TestDateTimeOffset)) != null)
             {
-                var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
+                var param7 = new DateTimeOffset(new DateTime(), TimeSpan.Zero);
                 Assert.Same(
                     entity,
                     set.Where(e => e.Id == 11 && EF.Property<DateTimeOffset>(e, nameof(BuiltInDataTypes.TestDateTimeOffset)) == param7)
@@ -495,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore
                     TestDouble = -1.23456789,
                     TestDecimal = -1234567890.01M,
                     TestDateTime = Fixture.DefaultDateTime,
-                    TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0)),
+                    TestDateTimeOffset = new DateTimeOffset(new DateTime(), TimeSpan.Zero),
                     TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
                     TestSingle = -1.234F,
                     TestBoolean = true,
@@ -2084,12 +2084,23 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalFact]
+        public virtual void Can_insert_query_multiline_string()
+        {
+            using var context = CreateContext();
+
+            Assert.Equal(Fixture.ReallyLargeString, Assert.Single(context.Set<StringEnclosure>()).Value);
+        }
+
         public abstract class BuiltInDataTypesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "BuiltInDataTypes";
 
             public virtual int LongStringLength
                 => 9000;
+
+            public virtual string ReallyLargeString
+                => string.Join("", Enumerable.Repeat(Environment.NewLine, 1001));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             {
@@ -2346,6 +2357,14 @@ namespace Microsoft.EntityFrameworkCore
                     .HasData(
                         new DateTimeEnclosure { Id = 1, DateTimeOffset = new DateTimeOffset(2020, 3, 12, 1, 1, 1, new TimeSpan(3, 0, 0)) },
                         new DateTimeEnclosure { Id = 2 });
+
+                modelBuilder.Entity<StringEnclosure>()
+                    .HasData(
+                        new StringEnclosure
+                        {
+                            Id = 1,
+                            Value = ReallyLargeString
+                        });
             }
 
             protected static void MakeRequired<TEntity>(ModelBuilder modelBuilder)
@@ -3151,6 +3170,13 @@ namespace Microsoft.EntityFrameworkCore
         {
             public int Id { get; set; }
             public DateTimeOffset? DateTimeOffset { get; set; }
+        }
+
+        protected class StringEnclosure
+        {
+            public int Id { get; set; }
+
+            public string Value { get; set; }
         }
     }
 }

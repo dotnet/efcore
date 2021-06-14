@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
-
 namespace Microsoft.EntityFrameworkCore.Design
 {
     /// <summary>
@@ -20,24 +18,24 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Invoked when an error is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnError([NotNull] string message);
+        void OnError(string message);
 
         /// <summary>
         ///     Invoked when a warning is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnWarning([NotNull] string message);
+        void OnWarning(string message);
 
         /// <summary>
         ///     Invoked when information is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnInformation([NotNull] string message);
+        void OnInformation(string message);
 
         /// <summary>
         ///     Invoked when verbose information is reported.
         /// </summary>
         /// <param name="message"> The message. </param>
-        void OnVerbose([NotNull] string message);
+        void OnVerbose(string message);
     }
 }

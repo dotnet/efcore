@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Diagnostics;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -15,21 +14,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The old name of the column.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
 
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: NotNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     The name of the table that contains the column.
         /// </summary>
-        public virtual string Table { get; [param: CanBeNull] set; }
+        public virtual string Table { get; set; } = null!;
 
         /// <summary>
         ///     The new name for the column.
         /// </summary>
-        public virtual string NewName { get; [param: NotNull] set; }
+        public virtual string NewName { get; set; } = null!;
     }
 }

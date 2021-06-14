@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 {
@@ -15,27 +14,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the column.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
 
         /// <summary>
         ///     The schema that contains the table, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     The table which contains the column.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; set; } = null!;
 
         /// <summary>
         ///     The CLR <see cref="Type" /> of the property or properties mapped to the column.
         /// </summary>
-        public virtual Type ClrType { get; [param: NotNull] set; }
+        public virtual Type ClrType { get; set; } = null!;
 
         /// <summary>
         ///     The store type of the column--for example, 'nvarchar(max)'.
         /// </summary>
-        public virtual string ColumnType { get; [param: CanBeNull] set; }
+        public virtual string? ColumnType { get; set; }
 
         /// <summary>
         ///     Indicates whether or not the column can contain Unicode data, or <see langword="null" /> if this is not specified or does
@@ -81,19 +80,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         ///     The default value for rows inserted without an explicit value for this column, or
         ///     <see langword="null" /> if there is no default.
         /// </summary>
-        public virtual object DefaultValue { get; [param: CanBeNull] set; }
+        public virtual object? DefaultValue { get; set; }
 
         /// <summary>
         ///     The SQL expression to use as the default constraint when creating the column,
         ///     or <see langword="null" /> if there is no default constraint.
         /// </summary>
-        public virtual string DefaultValueSql { get; [param: CanBeNull] set; }
+        public virtual string? DefaultValueSql { get; set; }
 
         /// <summary>
         ///     The SQL expression to use to compute the column value, <see langword="null" /> if the column
         ///     is not computed.
         /// </summary>
-        public virtual string ComputedColumnSql { get; [param: CanBeNull] set; }
+        public virtual string? ComputedColumnSql { get; set; }
 
         /// <summary>
         ///     Whether the value of the computed column this property is mapped to is stored in the database, or calculated when
@@ -104,11 +103,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     Comment for this column
         /// </summary>
-        public virtual string Comment { get; [param: CanBeNull] set; }
+        public virtual string? Comment { get; set; }
 
         /// <summary>
         ///     The collation for this column, or <see langword="null" /> if one hasn't been explicitly configured.
         /// </summary>
-        public virtual string Collation { get; [param: CanBeNull] set; }
+        public virtual string? Collation { get; set; }
     }
 }

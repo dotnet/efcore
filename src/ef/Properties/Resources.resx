@@ -180,6 +180,9 @@
   <data name="DbContextListDescription" xml:space="preserve">
     <value>Lists available DbContext types.</value>
   </data>
+  <data name="DbContextOptimizeDescription" xml:space="preserve">
+    <value>Generates a compiled version of the model used by the DbContext.</value>
+  </data>
   <data name="DbContextScaffoldDescription" xml:space="preserve">
     <value>Scaffolds a DbContext and entity types for a database.</value>
   </data>
@@ -275,6 +278,9 @@
   </data>
   <data name="NoTransactionsDescription" xml:space="preserve">
     <value>Don't generate SQL transaction statements.</value>
+  </data>
+  <data name="NullableDescription" xml:space="preserve">
+    <value>Enable nullable reference types.</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>Options: {options}</value>

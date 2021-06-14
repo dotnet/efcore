@@ -4,7 +4,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        object Find([CanBeNull] object[] keyValues);
+        object? Find(object?[]? keyValues);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        ValueTask<object> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken = default);
+        ValueTask<object?> FindAsync(object?[]? keyValues, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void Load([NotNull] INavigation navigation, [NotNull] InternalEntityEntry entry);
+        void Load(INavigation navigation, InternalEntityEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         Task LoadAsync(
-            [NotNull] INavigation navigation,
-            [NotNull] InternalEntityEntry entry,
+            INavigation navigation,
+            InternalEntityEntry entry,
             CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IQueryable Query([NotNull] INavigation navigation, [NotNull] InternalEntityEntry entry);
+        IQueryable Query(INavigation navigation, InternalEntityEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -67,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        object[] GetDatabaseValues([NotNull] InternalEntityEntry entry);
+        object[]? GetDatabaseValues(InternalEntityEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Task<object[]> GetDatabaseValuesAsync(
-            [NotNull] InternalEntityEntry entry,
+        Task<object[]?> GetDatabaseValuesAsync(
+            InternalEntityEntry entry,
             CancellationToken cancellationToken = default);
     }
 }

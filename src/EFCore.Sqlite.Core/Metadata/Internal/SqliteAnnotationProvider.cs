@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteAnnotationProvider([NotNull] RelationalAnnotationProviderDependencies dependencies)
+        public SqliteAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IRelationalModel model)
+        public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
         {
             if (model.Tables.SelectMany(t => t.Columns).Any(
                 c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override IEnumerable<IAnnotation> For(IColumn column)
+        public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
         {
             // Model validation ensures that these facets are the same on all mapped properties
             var property = column.PropertyMappings.First().Property;

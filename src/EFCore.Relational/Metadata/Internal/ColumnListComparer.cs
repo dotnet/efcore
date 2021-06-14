@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static readonly ColumnListComparer Instance = new ColumnListComparer();
+        public static readonly ColumnListComparer Instance = new();
 
         private ColumnListComparer()
         {
@@ -33,8 +33,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public int Compare(IReadOnlyList<IColumn> x, IReadOnlyList<IColumn> y)
+        public int Compare(IReadOnlyList<IColumn>? x, IReadOnlyList<IColumn>? y)
         {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x is null)
+            {
+                return -1;
+            }
+
+            if (y is null)
+            {
+                return 1;
+            }
+
             var result = x.Count - y.Count;
             if (result != 0)
             {
@@ -58,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public bool Equals(IReadOnlyList<IColumn> x, IReadOnlyList<IColumn> y)
+        public bool Equals(IReadOnlyList<IColumn>? x, IReadOnlyList<IColumn>? y)
             => Compare(x, y) == 0;
 
         /// <summary>

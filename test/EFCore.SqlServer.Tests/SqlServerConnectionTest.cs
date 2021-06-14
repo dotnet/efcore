@@ -4,11 +4,14 @@
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
@@ -74,15 +77,39 @@ namespace Microsoft.EntityFrameworkCore
                     new DiagnosticListener("FakeDiagnosticListener"),
                     new SqlServerLoggingDefinitions(),
                     new NullDbContextLogger()),
-                new DiagnosticsLogger<DbLoggerCategory.Database.Connection>(
+                new RelationalConnectionDiagnosticsLogger(
                     new LoggerFactory(),
                     new LoggingOptions(),
                     new DiagnosticListener("FakeDiagnosticListener"),
                     new SqlServerLoggingDefinitions(),
-                    new NullDbContextLogger()),
+                    new NullDbContextLogger(),
+                    CreateOptions()),
                 new NamedConnectionStringResolver(options),
-                new RelationalTransactionFactory(new RelationalTransactionFactoryDependencies()),
-                new CurrentDbContext(new FakeDbContext()));
+                new RelationalTransactionFactory(
+                    new RelationalTransactionFactoryDependencies(
+                        new RelationalSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies()))),
+                new CurrentDbContext(new FakeDbContext()),
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        new TestRelationalTypeMappingSource(
+                            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
+        }
+
+        private const string ConnectionString = "Fake Connection String";
+
+        private static IDbContextOptions CreateOptions(
+            RelationalOptionsExtension optionsExtension = null)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
+                .AddOrUpdateExtension(
+                    optionsExtension
+                    ?? new FakeRelationalOptionsExtension().WithConnectionString(ConnectionString));
+
+            return optionsBuilder.Options;
         }
 
         private class FakeDbContext : DbContext

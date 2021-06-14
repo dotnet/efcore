@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             AssertSql(
                 @"CREATE TABLE ""TestLineBreaks"" (
-    ""TestDefaultValue"" TEXT NOT NULL DEFAULT (CHAR(13) || CHAR(10) || 'Various Line' || CHAR(13) || 'Breaks' || CHAR(10))
+    ""TestDefaultValue"" TEXT NOT NULL DEFAULT ((CHAR(13) || (CHAR(10) || 'Various Line')) || (CHAR(13) || ('Breaks' || CHAR(10))))
 );
 ");
         }
@@ -232,6 +232,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 @"ALTER TABLE ""Person"" ADD ""Name"" TEXT NULL;
 ");
         }
+
+        [ConditionalFact]
+        public virtual void AddColumnOperation_with_spatial_type()
+        {
+            Generate(
+                new AddColumnOperation
+                {
+                    Table = "Geometries",
+                    Name = "Geometry",
+                    [SqliteAnnotationNames.Srid] = 4326,
+                    ColumnType = "GEOMETRYZM",
+                    IsNullable = true
+                });
+
+            AssertSql(
+                @"SELECT AddGeometryColumn('Geometries', 'Geometry', 4326, 'GEOMETRYZM', -1, 0);
+");
+        }
+
 
         [ConditionalFact]
         public void DropSchemaOperation_is_ignored()
@@ -749,7 +768,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Name"")
 SELECT ""Title""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -799,7 +818,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Name"")
 SELECT ""Title""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -852,7 +871,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Name"")
 SELECT ""Title""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -900,7 +919,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Id"")
 SELECT ""Id""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -951,7 +970,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Id"")
 SELECT ""Id""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;
@@ -996,7 +1015,7 @@ GO
 
 INSERT INTO ""ef_temp_Blog"" (""Id"")
 SELECT ""Id""
-FROM Blog;
+FROM ""Blog"";
 GO
 
 PRAGMA foreign_keys = 0;

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -22,7 +21,7 @@ namespace System.Transactions
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction"> The transaction to be used. </param>
-        public static void EnlistTransaction([NotNull] this DatabaseFacade databaseFacade, [CanBeNull] Transaction transaction)
+        public static void EnlistTransaction(this DatabaseFacade databaseFacade, Transaction? transaction)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
             if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager
@@ -41,7 +40,7 @@ namespace System.Transactions
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The currently enlisted transaction. </returns>
-        public static Transaction GetEnlistedTransaction([NotNull] this DatabaseFacade databaseFacade)
+        public static Transaction? GetEnlistedTransaction(this DatabaseFacade databaseFacade)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
             if (((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.TransactionManager is ITransactionEnlistmentManager

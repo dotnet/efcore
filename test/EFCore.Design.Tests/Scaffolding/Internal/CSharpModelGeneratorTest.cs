@@ -3,6 +3,7 @@
 
 using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             modelBuilder.Entity("TestEntity").Property<int>("Id").HasAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, 0);
 
             var result = generator.GenerateModel(
-                modelBuilder.Model,
+                modelBuilder.FinalizeModel(designTime: true),
                 new ModelCodeGenerationOptions
                 {
                     ModelNamespace = "TestNamespace",
@@ -50,12 +51,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private static IModelCodeGenerator CreateGenerator()
-            => new ServiceCollection()
-                .AddEntityFrameworkSqlServer()
-                .AddEntityFrameworkDesignTimeServices()
+        {
+            var testAssembly = typeof(CSharpModelGeneratorTest).Assembly;
+            var reporter = new TestOperationReporter();
+            return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+                .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<IAnnotationCodeGenerator, AnnotationCodeGenerator>()
                 .AddSingleton<IProviderConfigurationCodeGenerator, TestProviderCodeGenerator>()
                 .BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RelationalMetadataBuilderExtensionsTest
     {
         private InternalModelBuilder CreateBuilder()
-            => new InternalModelBuilder(new Model());
+            => new(new Model());
 
         [ConditionalFact]
         public void Can_access_model()
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Can_access_check_constraint()
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
-            IEntityType entityType = typeBuilder.Metadata;
+            IReadOnlyEntityType entityType = typeBuilder.Metadata;
 
             Assert.NotNull(typeBuilder.HasCheckConstraint("Splew", "s > p"));
             Assert.Equal("Splew", entityType.GetCheckConstraints().Single().Name);

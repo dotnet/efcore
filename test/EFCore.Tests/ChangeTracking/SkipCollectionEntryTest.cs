@@ -10,6 +10,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     public class SkipCollectionEntryTest
     {
+        [ConditionalFact]
+        public void Can_get_all_member_entries()
+        {
+            using var context = new FreezerContext();
+
+            Assert.Equal(
+                new List<string> { "Id", "Cherries" },
+                context.Attach(new Chunky()).Members.Select(e => e.Metadata.Name).ToList());
+        }
+
+        [ConditionalFact]
+        public void Can_get_all_navigation_entries()
+        {
+            using var context = new FreezerContext();
+
+            Assert.Equal(
+                new List<string> { "Cherries" },
+                context.Attach(new Chunky()).Navigations.Select(e => e.Metadata.Name).ToList());
+        }
+
+        [ConditionalFact]
+        public void Can_get_all_collection_entries()
+        {
+            using var context = new FreezerContext();
+
+            Assert.Equal(
+                new List<string> { "Cherries" },
+                context.Attach(new Chunky()).Collections.Select(e => e.Metadata.Name).ToList());
+        }
+
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]

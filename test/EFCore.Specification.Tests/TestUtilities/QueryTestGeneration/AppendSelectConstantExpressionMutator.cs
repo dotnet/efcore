@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration
         {
         }
 
-        private readonly List<(Type type, Expression expression)> _expressions = new List<(Type type, Expression expression)>
+        private readonly List<(Type type, Expression expression)> _expressions = new()
         {
             (type: typeof(int), expression: Expression.Constant(42, typeof(int))),
             (type: typeof(int?), expression: Expression.Constant(7, typeof(int?))),

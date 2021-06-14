@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -21,8 +22,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             IPluralizer pluralizer,
             ICSharpUtilities cSharpUtilities,
             IScaffoldingTypeMapper scaffoldingTypeMapper,
-            LoggingDefinitions loggingDefinitions)
-            : base(reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper, loggingDefinitions)
+            LoggingDefinitions loggingDefinitions,
+            IModelRuntimeInitializer modelRuntimeInitializer)
+            : base(reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper, loggingDefinitions, modelRuntimeInitializer)
         {
         }
 

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> A comma-separated list of column names. </returns>
         public static string FormatColumns(
-            [NotNull] this IEnumerable<IProperty> properties,
+            this IEnumerable<IReadOnlyProperty> properties,
             StoreObjectIdentifier storeObject)
             => "{" + string.Join(", ", properties.Select(p => "'" + p.GetColumnName(storeObject) + "'")) + "}";
 
@@ -30,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="properties"> The properties to format. </param>
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
         /// <returns> A list of column names. </returns>
-        public static IReadOnlyList<string> GetColumnNames(
-            [NotNull] this IEnumerable<IProperty> properties,
+        public static IReadOnlyList<string>? GetColumnNames(
+            this IEnumerable<IReadOnlyProperty> properties,
             in StoreObjectIdentifier storeObject)
         {
             var propertyNames = new List<string>();

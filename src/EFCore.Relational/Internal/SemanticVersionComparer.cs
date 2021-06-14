@@ -20,8 +20,25 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(string x, string y)
-            => CreateVersion(x).CompareTo(CreateVersion(y));
+        public virtual int Compare(string? x, string? y)
+        {
+            if (ReferenceEquals(x, y))
+            {
+                return 0;
+            }
+
+            if (x == null)
+            {
+                return -1;
+            }
+
+            if (y == null)
+            {
+                return 1;
+            }
+
+            return CreateVersion(x).CompareTo(CreateVersion(y));
+        }
 
         private static Version CreateVersion(string semanticVersion)
         {

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -18,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="key"> The removed key. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
         void ProcessKeyRemoved(
-            [NotNull] IConventionEntityTypeBuilder entityTypeBuilder,
-            [NotNull] IConventionKey key,
-            [NotNull] IConventionContext<IConventionKey> context);
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionKey key,
+            IConventionContext<IConventionKey> context);
     }
 }

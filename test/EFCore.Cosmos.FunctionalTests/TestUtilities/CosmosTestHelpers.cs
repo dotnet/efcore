@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
         }
 
-        public static CosmosTestHelpers Instance { get; } = new CosmosTestHelpers();
+        public static CosmosTestHelpers Instance { get; } = new();
 
         public override IServiceCollection AddProviderServices(IServiceCollection services)
             => services.AddEntityFrameworkCosmos();

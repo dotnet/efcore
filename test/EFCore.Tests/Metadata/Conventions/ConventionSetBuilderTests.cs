@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     public class ConventionSetBuilderTests
     {
         [ConditionalFact]
-        public virtual IModel Can_build_a_model_with_default_conventions_without_DI()
+        public virtual IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI()
         {
             var modelBuilder = new ModelBuilder(GetConventionSet());
             modelBuilder.Entity<Product>();
@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         [ConditionalFact]
-        public virtual IModel Can_build_a_model_with_default_conventions_without_DI_new()
+        public virtual IReadOnlyModel Can_build_a_model_with_default_conventions_without_DI_new()
         {
             var modelBuilder = GetModelBuilder();
             modelBuilder.Entity<Product>();

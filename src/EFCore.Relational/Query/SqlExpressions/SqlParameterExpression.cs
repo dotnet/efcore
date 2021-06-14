@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -22,11 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     public sealed class SqlParameterExpression : SqlExpression
     {
         private readonly ParameterExpression _parameterExpression;
+        private readonly string _name;
 
-        internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping typeMapping)
+        internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping? typeMapping)
             : base(parameterExpression.Type.UnwrapNullableType(), typeMapping)
         {
+            Check.DebugAssert(parameterExpression.Name != null, "Parameter must have name.");
+
             _parameterExpression = parameterExpression;
+            _name = parameterExpression.Name;
             IsNullable = parameterExpression.Type.IsNullableType();
         }
 
@@ -34,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     The name of the parameter.
         /// </summary>
         public string Name
-            => _parameterExpression.Name;
+            => _name;
 
         /// <summary>
         ///     The bool value indicating if this parameter can have null values.
@@ -46,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="typeMapping"> A relational type mapping to apply. </param>
         /// <returns> A new expression which has supplied type mapping. </returns>
-        public SqlExpression ApplyTypeMapping([CanBeNull] RelationalTypeMapping typeMapping)
+        public SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
             => new SqlParameterExpression(_parameterExpression, typeMapping);
 
         /// <inheritdoc />
@@ -66,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is SqlParameterExpression sqlParameterExpression

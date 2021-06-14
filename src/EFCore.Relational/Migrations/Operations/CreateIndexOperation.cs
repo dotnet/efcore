@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -23,34 +23,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     The name of the index.
         /// </summary>
-        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Name { get; set; } = null!;
 
         /// <summary>
         ///     The schema that contains the index, or <see langword="null" /> if the default schema should be used.
         /// </summary>
-        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string? Schema { get; set; }
 
         /// <summary>
         ///     The table that contains the index.
         /// </summary>
-        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string Table { get; set; } = null!;
 
         /// <summary>
         ///     The ordered list of column names for the column that make up the index.
         /// </summary>
-        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; set; } = null!;
 
         /// <summary>
         ///     An expression to use as the index filter.
         /// </summary>
-        public virtual string Filter { get; [param: CanBeNull] set; }
+        public virtual string? Filter { get; set; }
 
         /// <summary>
         ///     Creates a new <see cref="CreateIndexOperation" /> from the specified index.
         /// </summary>
         /// <param name="index"> The index. </param>
         /// <returns> The operation. </returns>
-        public static CreateIndexOperation CreateFrom([NotNull] ITableIndex index)
+        public static CreateIndexOperation CreateFrom(ITableIndex index)
         {
             Check.NotNull(index, nameof(index));
 

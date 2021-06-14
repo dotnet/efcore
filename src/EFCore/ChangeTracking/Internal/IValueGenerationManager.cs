@@ -3,7 +3,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        void Generate([NotNull] InternalEntityEntry entry, bool includePrimaryKey = true);
+        void Generate(InternalEntityEntry entry, bool includePrimaryKey = true);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        InternalEntityEntry Propagate([NotNull] InternalEntityEntry entry);
+        InternalEntityEntry? Propagate(InternalEntityEntry entry);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         Task GenerateAsync(
-            [NotNull] InternalEntityEntry entry,
+            InternalEntityEntry entry,
             bool includePrimaryKey = true,
             CancellationToken cancellationToken = default);
 
@@ -58,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        bool MayGetTemporaryValue([NotNull] IProperty property, [NotNull] IEntityType entityType);
+        bool MayGetTemporaryValue(IProperty property, IEntityType entityType);
     }
 }

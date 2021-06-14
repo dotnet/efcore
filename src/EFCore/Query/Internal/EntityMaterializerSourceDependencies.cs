@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed class EntityMaterializerSourceDependencies
+    public sealed record EntityMaterializerSourceDependencies
     {
         /// <summary>
         ///     <para>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -24,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="extensions"> The extensions that store the configured options. </param>
         protected DbContextOptions(
-            [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
+            IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
         {
             Check.NotNull(extensions, nameof(extensions));
 
@@ -42,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
         /// <returns> The extension, or null if none was found. </returns>
-        public virtual TExtension FindExtension<TExtension>()
+        public virtual TExtension? FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
             => _extensions.TryGetValue(typeof(TExtension), out var extension) ? (TExtension)extension : null;
 
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
         /// <param name="extension"> The extension to be added. </param>
         /// <returns> The new options instance with the given extension added. </returns>
-        public abstract DbContextOptions WithExtension<TExtension>([NotNull] TExtension extension)
+        public abstract DbContextOptions WithExtension<TExtension>(TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
 
         private readonly IReadOnlyDictionary<Type, IDbContextOptionsExtension> _extensions;

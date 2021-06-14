@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 
@@ -27,9 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise. </returns>
-        public static bool IsSqlite([NotNull] this DatabaseFacade database)
-            => database.ProviderName.Equals(
-                typeof(SqliteOptionsExtension).Assembly.GetName().Name,
-                StringComparison.Ordinal);
+        public static bool IsSqlite(this DatabaseFacade database)
+            => database.ProviderName == typeof(SqliteOptionsExtension).Assembly.GetName().Name;
     }
 }

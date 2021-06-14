@@ -7,8 +7,6 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -184,44 +182,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => Generate(
                 new SqlOperation { Sql = "-- I <3 DDL" });
 
-        private static readonly LineString _lineString1 = new LineString(
+        private static readonly LineString _lineString1 = new(
             new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) })
         {
             SRID = 4326
         };
 
-        private static readonly LineString _lineString2 = new LineString(
+        private static readonly LineString _lineString2 = new(
             new[] { new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2) })
         {
             SRID = 4326
         };
 
-        private static readonly MultiPoint _multiPoint = new MultiPoint(
+        private static readonly MultiPoint _multiPoint = new(
             new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) }) { SRID = 4326 };
 
-        private static readonly Polygon _polygon1 = new Polygon(
+        private static readonly Polygon _polygon1 = new(
             new LinearRing(
                 new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }))
         {
             SRID = 4326
         };
 
-        private static readonly Polygon _polygon2 = new Polygon(
+        private static readonly Polygon _polygon2 = new(
             new LinearRing(
                 new[] { new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2) }))
         {
             SRID = 4326
         };
 
-        private static readonly Point _point1 = new Point(1.1, 2.2, 3.3) { SRID = 4326 };
+        private static readonly Point _point1 = new(1.1, 2.2, 3.3) { SRID = 4326 };
 
-        private static readonly MultiLineString _multiLineString = new MultiLineString(
+        private static readonly MultiLineString _multiLineString = new(
             new[] { _lineString1, _lineString2 }) { SRID = 4326 };
 
-        private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
+        private static readonly MultiPolygon _multiPolygon = new(
             new[] { _polygon2, _polygon1 }) { SRID = 4326 };
 
-        private static readonly GeometryCollection _geometryCollection = new GeometryCollection(
+        private static readonly GeometryCollection _geometryCollection = new(
             new Geometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })
         {
             SRID = 4326
@@ -760,10 +758,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationOperation[] operation,
             MigrationsSqlGenerationOptions options)
         {
-            var services = ContextOptions != null
-                ? TestHelpers.CreateContextServices(CustomServices, ContextOptions)
-                : TestHelpers.CreateContextServices(CustomServices);
-
             IModel model = null;
             if (buildAction != null)
             {
@@ -771,16 +765,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
                 buildAction(modelBuilder);
 
-                model = modelBuilder.Model;
-                var conventionSet = services.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
-
-                var typeMappingConvention = conventionSet.ModelFinalizingConventions.OfType<TypeMappingConvention>().FirstOrDefault();
-                typeMappingConvention.ProcessModelFinalizing(((IConventionModel)model).Builder, null);
-
-                var relationalModelConvention = conventionSet.ModelFinalizedConventions.OfType<RelationalModelConvention>().First();
-                model = relationalModelConvention.ProcessModelFinalized((IConventionModel)model);
+                model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
             }
 
+            var services = ContextOptions != null
+                ? TestHelpers.CreateContextServices(CustomServices, ContextOptions)
+                : TestHelpers.CreateContextServices(CustomServices);
             var batch = services.GetRequiredService<IMigrationsSqlGenerator>().Generate(operation, model, options);
 
             Sql = string.Join(

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -45,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Creates a new instance of <see cref="KeyDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public KeyDiscoveryConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
+        public KeyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -59,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Discovers primary key candidates and configures the primary key if found.
         /// </summary>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
-        protected virtual void TryConfigurePrimaryKey([NotNull] IConventionEntityTypeBuilder entityTypeBuilder)
+        protected virtual void TryConfigurePrimaryKey(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
             if (entityType.BaseType != null
@@ -69,18 +68,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            List<IConventionProperty> keyProperties = null;
-            var definingFk = entityType.FindDefiningNavigation()?.ForeignKey
-                ?? entityType.FindOwnership();
-            if (definingFk != null
-                && definingFk.DeclaringEntityType != entityType)
+            List<IConventionProperty>? keyProperties = null;
+            var ownership = entityType.FindOwnership();
+            if (ownership != null
+                && ownership.DeclaringEntityType != entityType)
             {
-                definingFk = null;
+                ownership = null;
             }
 
-            if (definingFk?.IsUnique == true)
+            if (ownership?.IsUnique == true)
             {
-                keyProperties = definingFk.Properties.ToList();
+                keyProperties = ownership.Properties.ToList();
             }
 
             if (keyProperties == null)
@@ -96,18 +94,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            if (definingFk?.IsUnique == false)
+            if (ownership?.IsUnique == false)
             {
                 if (keyProperties.Count == 0
-                    || definingFk.Properties.Contains(keyProperties.First()))
+                    || ownership.Properties.Contains(keyProperties.First()))
                 {
                     var primaryKey = entityType.FindPrimaryKey();
                     var shadowProperty = primaryKey?.Properties.Last();
                     if (shadowProperty == null
-                        || primaryKey.Properties.Count == 1
-                        || definingFk.Properties.Contains(shadowProperty))
+                        || primaryKey!.Properties.Count == 1
+                        || ownership.Properties.Contains(shadowProperty))
                     {
-                        shadowProperty = entityTypeBuilder.CreateUniqueProperty(typeof(int), "Id", required: true).Metadata;
+                        shadowProperty = entityTypeBuilder.CreateUniqueProperty(typeof(int), "Id", required: true)!.Metadata;
                     }
 
                     keyProperties.Clear();
@@ -116,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 var extraProperty = keyProperties[0];
                 keyProperties.RemoveAt(0);
-                keyProperties.AddRange(definingFk.Properties);
+                keyProperties.AddRange(ownership.Properties);
                 keyProperties.Add(extraProperty);
             }
 
@@ -124,9 +122,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 var manyToManyForeignKeys = entityType.GetForeignKeys()
                     .Where(fk => fk.GetReferencingSkipNavigations().Any(n => n.IsCollection)).ToList();
-                if (manyToManyForeignKeys.Count == 2)
+                if (manyToManyForeignKeys.Count == 2
+                    && !manyToManyForeignKeys.Any(fk => fk.PrincipalEntityType == entityType))
                 {
                     keyProperties.AddRange(manyToManyForeignKeys.SelectMany(fk => fk.Properties));
+                }
+            }
+
+            for (var i = keyProperties.Count - 1; i >= 0; i--)
+            {
+                var property = keyProperties[i];
+                for (var j = i - 1; j >= 0; j--)
+                {
+                    if (property == keyProperties[j])
+                    {
+                        keyProperties.RemoveAt(j);
+                        i--;
+                    }
                 }
             }
 
@@ -144,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="keyProperties"> The properties that will be used to configure the key. </param>
         /// <param name="entityType"> The entity type being configured. </param>
         protected virtual void ProcessKeyProperties(
-            [NotNull] IList<IConventionProperty> keyProperties,
-            [NotNull] IConventionEntityType entityType)
+            IList<IConventionProperty> keyProperties,
+            IConventionEntityType entityType)
         {
         }
 
@@ -156,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="candidateProperties"> The properties to consider. </param>
         /// <returns> The properties that should be used for the primary key. </returns>
         public static IEnumerable<IConventionProperty> DiscoverKeyProperties(
-            [NotNull] IConventionEntityType entityType,
-            [NotNull] IEnumerable<IConventionProperty> candidateProperties)
+            IConventionEntityType entityType,
+            IEnumerable<IConventionProperty> candidateProperties)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -185,8 +197,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType newBaseType,
-            IConventionEntityType oldBaseType,
+            IConventionEntityType? newBaseType,
+            IConventionEntityType? oldBaseType,
             IConventionContext<IConventionEntityType> context)
         {
             if (entityTypeBuilder.Metadata.BaseType != newBaseType)
@@ -238,7 +250,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var foreignKey = relationshipBuilder.Metadata;
             if (foreignKey.IsOwnership
                 && !foreignKey.Properties.SequenceEqual(oldDependentProperties)
-                && relationshipBuilder.Metadata.Builder != null)
+                && relationshipBuilder.Metadata.IsInModel)
             {
                 TryConfigurePrimaryKey(foreignKey.DeclaringEntityType.Builder);
             }
@@ -278,8 +290,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public virtual void ProcessSkipNavigationForeignKeyChanged(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
-            IConventionForeignKey foreignKey,
-            IConventionForeignKey oldForeignKey,
+            IConventionForeignKey? foreignKey,
+            IConventionForeignKey? oldForeignKey,
             IConventionContext<IConventionForeignKey> context)
         {
             var joinEntityTypeBuilder = skipNavigationBuilder.Metadata.ForeignKey?.DeclaringEntityType.Builder;

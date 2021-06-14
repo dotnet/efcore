@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -17,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
-        public override string FromSqlRaw_queryable_composed()
+        public override async Task<string> FromSqlRaw_queryable_composed(bool async)
         {
-            var queryString = base.FromSqlRaw_queryable_composed();
+            var queryString = await base.FromSqlRaw_queryable_composed(async);
 
             var expected =
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
@@ -30,12 +31,12 @@ WHERE ('z' = '') OR (instr(""c"".""ContactName"", 'z') > 0)";
 
             Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
 
-            return null;
+            return queryString;
         }
 
-        public override string FromSqlRaw_queryable_with_parameters_and_closure()
+        public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
         {
-            var queryString = base.FromSqlRaw_queryable_with_parameters_and_closure();
+            var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
             Assert.Equal(
                 @".param set p0 'London'
@@ -47,27 +48,31 @@ FROM (
 ) AS ""c""
 WHERE ""c"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
 
-            return null;
+            return queryString;
         }
 
-        public override void Bad_data_error_handling_invalid_cast_key()
+        public override Task Bad_data_error_handling_invalid_cast_key(bool async)
         {
             // Not supported on SQLite
+            return Task.CompletedTask;
         }
 
-        public override void Bad_data_error_handling_invalid_cast()
+        public override Task Bad_data_error_handling_invalid_cast(bool async)
         {
             // Not supported on SQLite
+            return Task.CompletedTask;
         }
 
-        public override void Bad_data_error_handling_invalid_cast_projection()
+        public override Task Bad_data_error_handling_invalid_cast_projection(bool async)
         {
             // Not supported on SQLite
+            return Task.CompletedTask;
         }
 
-        public override void Bad_data_error_handling_invalid_cast_no_tracking()
+        public override Task Bad_data_error_handling_invalid_cast_no_tracking(bool async)
         {
             // Not supported on SQLite
+            return Task.CompletedTask;
         }
 
         protected override DbParameter CreateDbParameter(string name, object value)

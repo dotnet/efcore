@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -33,10 +32,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DesignTimeServicesBuilder(
-            [NotNull] Assembly assembly,
-            [NotNull] Assembly startupAssembly,
-            [NotNull] IOperationReporter reporter,
-            [NotNull] string[] args)
+            Assembly assembly,
+            Assembly startupAssembly,
+            IOperationReporter reporter,
+            string[] args)
         {
             _startupAssembly = startupAssembly;
             _reporter = reporter;
@@ -50,19 +49,26 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceProvider Build([NotNull] DbContext context)
+        public virtual IServiceProvider Build(DbContext context)
+            => CreateServiceCollection(Check.NotNull(context, nameof(context))).BuildServiceProvider();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IServiceCollection CreateServiceCollection(DbContext context)
         {
-            Check.NotNull(context, nameof(context));
-
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter)
-                .AddDbContextDesignTimeServices(context);
+            var services = new ServiceCollection();
             var provider = context.GetService<IDatabaseProvider>().Name;
-            ConfigureProviderServices(provider, services);
-            ConfigureReferencedServices(services, provider);
-            ConfigureUserServices(services);
 
-            return services.BuildServiceProvider();
+            services.AddDbContextDesignTimeServices(context);
+            ConfigureReferencedServices(services, provider);
+            ConfigureProviderServices(provider, services);
+            services.AddEntityFrameworkDesignTimeServices(_reporter);
+            ConfigureUserServices(services);
+            return services;
         }
 
         /// <summary>
@@ -71,17 +77,24 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IServiceProvider Build([NotNull] string provider)
+        public virtual IServiceProvider Build(string provider)
+            => CreateServiceCollection(Check.NotEmpty(provider, nameof(provider))).BuildServiceProvider();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IServiceCollection CreateServiceCollection(string provider)
         {
-            Check.NotEmpty(provider, nameof(provider));
+            var services = new ServiceCollection();
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
-            ConfigureProviderServices(provider, services, throwOnError: true);
             ConfigureReferencedServices(services, provider);
+            ConfigureProviderServices(provider, services, throwOnError: true);
+            services.AddEntityFrameworkDesignTimeServices(_reporter, GetApplicationServices);
             ConfigureUserServices(services);
-
-            return services.BuildServiceProvider();
+            return services;
         }
 
         private IServiceProvider GetApplicationServices()
@@ -131,7 +144,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     continue;
                 }
 
-                var designTimeServicesType = Type.GetType(reference.TypeName, throwOnError: true);
+                var designTimeServicesType = Type.GetType(reference.TypeName, throwOnError: true)!;
 
                 _reporter.WriteVerbose(
                     DesignStrings.UsingReferencedServices(designTimeServicesType.Assembly.GetName().Name));
@@ -182,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var designTimeServicesType = providerAssembly.GetType(
                 providerServicesAttribute.TypeName,
                 throwOnError: true,
-                ignoreCase: false);
+                ignoreCase: false)!;
 
             _reporter.WriteVerbose(DesignStrings.UsingProviderServices(provider));
 
@@ -195,7 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         {
             Check.DebugAssert(designTimeServicesType != null, "designTimeServicesType is null.");
 
-            var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType);
+            var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType)!;
             designTimeServices.ConfigureDesignTimeServices(services);
         }
     }

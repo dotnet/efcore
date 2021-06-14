@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using Xunit;
 
 // ReSharper disable UnassignedGetOnlyAutoProperty
@@ -18,46 +21,90 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public class PropertyTest
     {
         [ConditionalFact]
-        public void Use_of_custom_IProperty_throws()
+        public void Throws_when_model_is_readonly()
         {
-            var property = new FakeProperty();
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(string));
+
+            model.FinalizeModel();
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IProperty_throws), nameof(IProperty), nameof(FakeProperty)),
-                Assert.Throws<NotSupportedException>(() => property.AsProperty()).Message);
-        }
-
-        [ConditionalFact]
-        public void Use_of_custom_IPropertyBase_throws()
-        {
-            var property = new FakeProperty();
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Kuke", typeof(string))).Message);
 
             Assert.Equal(
-                CoreStrings.CustomMetadata(nameof(Use_of_custom_IPropertyBase_throws), nameof(IPropertyBase), nameof(FakeProperty)),
-                Assert.Throws<NotSupportedException>(() => property.AsPropertyBase()).Message);
-        }
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => entityType.RemoveProperty(property)).Message);
 
-        private class FakeProperty : IProperty
-        {
-            public object this[string name]
-                => throw new NotImplementedException();
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.IsNullable = false).Message);
 
-            public IAnnotation FindAnnotation(string name)
-                => throw new NotImplementedException();
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.IsConcurrencyToken = false).Message);
 
-            public IEnumerable<IAnnotation> GetAnnotations()
-                => throw new NotImplementedException();
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.ValueGenerated = ValueGenerated.OnAddOrUpdate).Message);
 
-            public string Name { get; }
-            public ITypeBase DeclaringType { get; }
-            public Type ClrType { get; }
-            public IEntityType DeclaringEntityType { get; }
-            public bool IsNullable { get; }
-            public bool IsStoreGeneratedAlways { get; }
-            public ValueGenerated ValueGenerated { get; }
-            public bool IsConcurrencyToken { get; }
-            public PropertyInfo PropertyInfo { get; }
-            public FieldInfo FieldInfo { get; }
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetAfterSaveBehavior(PropertySaveBehavior.Throw)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetField(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetIsUnicode(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetMaxLength(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetPrecision(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetScale(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetPropertyAccessMode(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetProviderClrType(null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueComparer((ValueComparer)null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueComparer((Type)null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueConverter((ValueConverter)null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueConverter((Type)null)).Message);
+
+            Assert.Equal(
+                CoreStrings.ModelReadOnly,
+                Assert.Throws<InvalidOperationException>(() => property.SetValueGeneratorFactory((Type)null)).Message);
         }
 
         [ConditionalFact]
@@ -198,6 +245,228 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             property.IsConcurrencyToken = false;
             Assert.False(property.IsConcurrencyToken);
+        }
+
+        [ConditionalFact]
+        public void Throws_when_ValueGeneratorFactory_is_invalid()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(string));
+
+            Assert.Equal(
+                CoreStrings.BadValueGeneratorType(nameof(NonDerivedValueGeneratorFactory), nameof(ValueGeneratorFactory)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(NonDerivedValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(AbstractValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(AbstractValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(StaticValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(StaticValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(PrivateValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(PrivateValueGeneratorFactory))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueGenerator(nameof(NonParameterlessValueGeneratorFactory), "SetValueGeneratorFactory"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueGeneratorFactory(typeof(NonParameterlessValueGeneratorFactory))).Message);
+        }
+
+        private class NonDerivedValueGeneratorFactory
+        {
+            public ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private abstract class AbstractValueGeneratorFactory : ValueGeneratorFactory
+        {
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private class StaticValueGeneratorFactory : ValueGeneratorFactory
+        {
+            static StaticValueGeneratorFactory()
+            {
+            }
+
+            private StaticValueGeneratorFactory()
+            {
+            }
+
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private class PrivateValueGeneratorFactory : ValueGeneratorFactory
+        {
+            private PrivateValueGeneratorFactory()
+            {
+            }
+
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        private class NonParameterlessValueGeneratorFactory : ValueGeneratorFactory
+        {
+            public NonParameterlessValueGeneratorFactory(object _)
+            {
+            }
+
+            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+                => null;
+        }
+
+        [ConditionalFact]
+        public void Throws_when_ValueConverter_type_is_invalid()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(string));
+
+            Assert.Equal(
+                CoreStrings.BadValueConverterType(nameof(NonDerivedValueConverter), nameof(ValueConverter)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueConverter(typeof(NonDerivedValueConverter))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueConverter(nameof(AbstractValueConverter), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueConverter(typeof(AbstractValueConverter))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueConverter(nameof(StaticValueConverter), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueConverter(typeof(StaticValueConverter))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueConverter(nameof(PrivateValueConverter), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueConverter(typeof(PrivateValueConverter))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueConverter(nameof(NonParameterlessValueConverter), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueConverter(typeof(NonParameterlessValueConverter))).Message);
+        }
+
+        private class NonDerivedValueConverter
+        {
+        }
+
+        private abstract class AbstractValueConverter : StringToBoolConverter
+        {
+        }
+
+        private class StaticValueConverter : StringToBoolConverter
+        {
+            static StaticValueConverter()
+            {
+            }
+
+            private StaticValueConverter()
+            {
+            }
+        }
+
+        private class PrivateValueConverter : StringToBoolConverter
+        {
+            private PrivateValueConverter()
+            {
+            }
+        }
+
+        private class NonParameterlessValueConverter : StringToBoolConverter
+        {
+            public NonParameterlessValueConverter(ConverterMappingHints mappingHints = null)
+                : base(mappingHints)
+            {
+            }
+        }
+
+        [ConditionalFact]
+        public void Throws_when_ValueComparer_type_is_invalid()
+        {
+            var model = CreateModel();
+
+            var entityType = model.AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(string));
+
+            Assert.Equal(
+                CoreStrings.BadValueComparerType(nameof(NonDerivedValueComparer), nameof(ValueComparer)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueComparer(typeof(NonDerivedValueComparer))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueComparer(nameof(AbstractValueComparer), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueComparer(typeof(AbstractValueComparer))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueComparer(nameof(StaticValueComparer), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueComparer(typeof(StaticValueComparer))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueComparer(nameof(PrivateValueComparer), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueComparer(typeof(PrivateValueComparer))).Message);
+
+            Assert.Equal(
+                CoreStrings.CannotCreateValueComparer(nameof(NonParameterlessValueComparer), "HasConversion"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    property.SetValueComparer(typeof(NonParameterlessValueComparer))).Message);
+        }
+
+        private class NonDerivedValueComparer
+        {
+        }
+
+        private abstract class AbstractValueComparer : ValueComparer<string>
+        {
+            public AbstractValueComparer()
+                : base(false)
+            {
+            }
+        }
+
+        private class StaticValueComparer : ValueComparer<string>
+        {
+            static StaticValueComparer()
+            {
+            }
+
+            private StaticValueComparer()
+                : base(false)
+            {
+            }
+        }
+
+        private class PrivateValueComparer : ValueComparer<string>
+        {
+            private PrivateValueComparer()
+                : base(false)
+            {
+            }
+        }
+
+        private class NonParameterlessValueComparer : ValueComparer<string>
+        {
+            public NonParameterlessValueComparer(bool favorStructuralComparison)
+                : base(favorStructuralComparison)
+            {
+            }
         }
 
         private static IMutableModel CreateModel()

@@ -7,7 +7,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 {
     internal static class CommandLineApplicationExtensions
     {
-        public static CommandOption Option(this CommandLineApplication command, string template, string description)
+        public static CommandOption Option(this CommandLineApplication command, string template, string? description)
             => command.Option(
                 template,
                 description,

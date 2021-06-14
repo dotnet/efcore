@@ -87,18 +87,20 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IndexPropertiesBothMappedAndNotMappedToTable,
             IndexPropertiesMappedToNonOverlappingTables,
             ForeignKeyPropertiesMappedToUnrelatedTables,
+            OptionalDependentWithoutIdentifyingPropertyWarning,
 
             // Update events
             BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
             BatchSmallerThanMinBatchSize,
             BatchExecutorFailedToRollbackToSavepoint,
             BatchExecutorFailedToReleaseSavepoint,
+            OptionalDependentWithAllNullPropertiesWarning,
         }
 
         private static readonly string _connectionPrefix = DbLoggerCategory.Database.Connection.Name + ".";
 
         private static EventId MakeConnectionId(Id id)
-            => new EventId((int)id, _connectionPrefix + id);
+            => new((int)id, _connectionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -168,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _sqlPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
         private static EventId MakeCommandId(Id id)
-            => new EventId((int)id, _sqlPrefix + id);
+            => new((int)id, _sqlPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -238,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _transactionPrefix = DbLoggerCategory.Database.Transaction.Name + ".";
 
         private static EventId MakeTransactionId(Id id)
-            => new EventId((int)id, _transactionPrefix + id);
+            => new((int)id, _transactionPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -490,7 +492,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _migrationsPrefix = DbLoggerCategory.Migrations.Name + ".";
 
         private static EventId MakeMigrationsId(Id id)
-            => new EventId((int)id, _migrationsPrefix + id);
+            => new((int)id, _migrationsPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -599,7 +601,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
         private static EventId MakeQueryId(Id id)
-            => new EventId((int)id, _queryPrefix + id);
+            => new((int)id, _queryPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -640,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
 
         private static EventId MakeValidationId(Id id)
-            => new EventId((int)id, _validationPrefix + id);
+            => new((int)id, _validationPrefix + id);
 
         /// <summary>
         ///     <para>
@@ -723,10 +725,24 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId ForeignKeyPropertiesMappedToUnrelatedTables = MakeValidationId(Id.ForeignKeyPropertiesMappedToUnrelatedTables);
 
+        /// <summary>
+        ///     <para>
+        ///         The entity does not have any property with a non-default value to identify whether the entity exists.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptionalDependentWithoutIdentifyingPropertyWarning
+            = MakeValidationId(Id.OptionalDependentWithoutIdentifyingPropertyWarning);
+
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 
         private static EventId MakeUpdateId(Id id)
-            => new EventId((int)id, _updatePrefix + id);
+            => new((int)id, _updatePrefix + id);
 
         /// <summary>
         ///     <para>
@@ -775,5 +791,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId BatchExecutorFailedToReleaseSavepoint = MakeUpdateId(Id.BatchExecutorFailedToReleaseSavepoint);
+
+        /// <summary>
+        ///     <para>
+        ///         The entity does not have any property with a non-default value to identify whether the entity exists.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Update" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="UpdateEntryEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId OptionalDependentWithAllNullPropertiesWarning
+            = MakeUpdateId(Id.OptionalDependentWithAllNullPropertiesWarning);
     }
 }

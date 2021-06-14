@@ -47,6 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => FieldMatchTest<TheDarkSideOfTheMoon>("Time", "_time");
 
         [ConditionalFact]
+        public void Underscore_suffix_camel_case_matching_field_is_used_as_next_preference()
+            => FieldMatchTest<TheDarkSideOfTheMoon>("Time", "_time");
+
+        [ConditionalFact]
         public void Underscore_camel_case_matching_field_is_not_used_if_type_is_not_compatible()
             => FieldMatchTest<TheDarkSideOfTheMoon>("TheGreatGigInTheSky", "_TheGreatGigInTheSky");
 
@@ -330,6 +334,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 set { _time = value; }
             }
 
+            private int? time2_;
+
+            public int Time2
+            {
+                get { return (int)_time; }
+                set { _time = value; }
+            }
+
             private readonly string _theGreatGigInTheSky;
             private int? _TheGreatGigInTheSky;
 
@@ -492,7 +504,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             private string m_Nation;
 
             public object this[string name]
-                => null;
+            {
+                get => null;
+                set { }
+            }
         }
 
 #pragma warning disable RCS1222 // Merge preprocessor directives.

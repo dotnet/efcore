@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Transactions;
-using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -18,14 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface ITransactionEnlistmentManager
     {
         /// <summary>
+        ///     The current ambient transaction. Defaults to <see cref="Transaction.Current" />.
+        /// </summary>
+        Transaction? CurrentAmbientTransaction => Transaction.Current;
+
+        /// <summary>
         ///     The currently enlisted transaction.
         /// </summary>
-        Transaction EnlistedTransaction { get; }
+        Transaction? EnlistedTransaction { get; }
 
         /// <summary>
         ///     Specifies an existing <see cref="Transaction" /> to be used for database operations.
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
-        void EnlistTransaction([CanBeNull] Transaction transaction);
+        void EnlistTransaction(Transaction? transaction);
     }
 }

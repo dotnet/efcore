@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .ModelBuilderExtension("V1")
                 .ModelBuilderExtension("V2");
 
-            Assert.IsType<ModelBuilder>(returnedBuilder);
+            Assert.IsAssignableFrom<ModelBuilder>(returnedBuilder);
 
             var model = builder.Model;
 
@@ -222,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
-            Assert.IsType<ModelBuilder>(returnedBuilder);
+            Assert.IsAssignableFrom<ModelBuilder>(returnedBuilder);
 
             var model = builder.Model;
 

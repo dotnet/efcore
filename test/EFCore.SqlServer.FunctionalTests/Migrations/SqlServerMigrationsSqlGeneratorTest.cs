@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -18,8 +17,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 {
     public class SqlServerMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
     {
-        protected static string SQL_EOL
-            => string.Join(", ", EOL.Select(c => "NCHAR(" + (short)c + ")"));
+        [ConditionalFact]
+        public void CreateIndexOperation_unique_online()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Schema = "dbo",
+                    Columns = new[] { "FirstName", "LastName" },
+                    IsUnique = true,
+                    [SqlServerAnnotationNames.CreatedOnline] = true
+                });
+
+            AssertSql(
+                @"CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL WITH (ONLINE = ON);
+");
+        }
 
         [ConditionalFact]
         public virtual void AddColumnOperation_identity_legacy()
@@ -275,6 +290,47 @@ CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
         }
 
         [ConditionalFact]
+        public virtual void AlterColumnOperation_with_added_index_no_oldType()
+        {
+            Generate(
+                modelBuilder => modelBuilder
+                    .HasAnnotation(CoreAnnotationNames.ProductVersion, "2.1.0")
+                    .Entity<Person>(
+                        x =>
+                        {
+                            x.Property<string>("Name");
+                            x.HasIndex("Name");
+                        }),
+                new AlterColumnOperation
+                {
+                    Table = "Person",
+                    Name = "Name",
+                    ClrType = typeof(string),
+                    IsNullable = true,
+                    OldColumn = new AddColumnOperation { ClrType = typeof(string), IsNullable = true }
+                },
+                new CreateIndexOperation
+                {
+                    Name = "IX_Person_Name",
+                    Table = "Person",
+                    Columns = new[] { "Name" }
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Person]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Person] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Person] ALTER COLUMN [Name] nvarchar(450) NULL;
+GO
+
+CREATE INDEX [IX_Person_Name] ON [Person] ([Name]);
+");
+        }
+
+        [ConditionalFact]
         public virtual void AlterColumnOperation_identity_legacy()
         {
             Generate(
@@ -463,6 +519,29 @@ END;
         }
 
         [ConditionalFact]
+        public virtual void AlterDatabaseOperation_collation_to_default()
+        {
+            Generate(
+                new AlterDatabaseOperation
+                {
+                    Collation = null,
+                    OldDatabase =
+                    {
+                        Collation = "SQL_Latin1_General_CP1_CI_AS"
+                    }
+                });
+
+            AssertSql(
+                @"BEGIN
+DECLARE @db_name nvarchar(max) = DB_NAME();
+DECLARE @defaultCollation nvarchar(max) = CAST(SERVERPROPERTY('Collation') AS nvarchar(max));
+EXEC(N'ALTER DATABASE [' + @db_name + '] COLLATE ' + @defaultCollation + N';');
+END
+
+");
+        }
+
+        [ConditionalFact]
         public virtual void AlterDatabaseOperation_memory_optimized()
         {
             Generate(
@@ -488,6 +567,20 @@ GO
 
 DROP DATABASE [Northwind];
 ");
+        }
+
+        [ConditionalFact]
+        public virtual void DropIndexOperations_throws_when_no_table()
+        {
+            var migrationBuilder = new MigrationBuilder("SqlServer");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Name");
+
+            var ex = Assert.Throws<InvalidOperationException>(
+                () => Generate(migrationBuilder.Operations.ToArray()));
+
+            Assert.Equal(SqlServerStrings.IndexTableRequired, ex.Message);
         }
 
         [ConditionalFact]
@@ -1017,7 +1110,9 @@ SELECT @@ROWCOUNT;
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
-                @$"EXEC(CONCAT(N'DELETE FROM [Table1]', {SQL_EOL}, N'WHERE [Id] = 1;', {SQL_EOL}, N'SELECT @@ROWCOUNT'));
+                @$"EXEC(N'DELETE FROM [Table1]
+WHERE [Id] = 1;
+SELECT @@ROWCOUNT');
 ");
         }
 
@@ -1030,15 +1125,15 @@ SELECT @@ROWCOUNT;
                     .InsertData(
                         table: "Table1",
                         column: "Id",
-                        value: 1)
-                    .GetInfrastructure()
-                    .ColumnTypes = new[] { "int" },
+                        columnType: "int",
+                        value: 1),
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
                 @$"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
     SET IDENTITY_INSERT [Table1] ON;
-EXEC(CONCAT(N'INSERT INTO [Table1] ([Id])', {SQL_EOL}, N'VALUES (1)'));
+EXEC(N'INSERT INTO [Table1] ([Id])
+VALUES (1)');
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [object_id] = OBJECT_ID(N'[Table1]'))
     SET IDENTITY_INSERT [Table1] OFF;
 ");
@@ -1054,19 +1149,19 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id') AND [o
                     var operation = migrationBuilder
                         .UpdateData(
                             table: "Table1",
-                            keyColumn: "Id",
-                            keyValue: 1,
-                            column: "Column1",
-                            value: 2)
-                        .GetInfrastructure();
-
-                    operation.KeyColumnTypes = new[] { "int" };
-                    operation.ColumnTypes = new[] { "int" };
+                            keyColumnTypes: new[] { "int" },
+                            keyColumns: new[] { "Id" },
+                            keyValues: new object[] { 1 },
+                            columns: new[] { "Column1" },
+                            columnTypes: new[] { "int" },
+                            values: new object[] { 2 });
                 },
                 MigrationsSqlGenerationOptions.Idempotent);
 
             AssertSql(
-                @$"EXEC(CONCAT(N'UPDATE [Table1] SET [Column1] = 2', {SQL_EOL}, N'WHERE [Id] = 1;', {SQL_EOL}, N'SELECT @@ROWCOUNT'));
+                @$"EXEC(N'UPDATE [Table1] SET [Column1] = 2
+WHERE [Id] = 1;
+SELECT @@ROWCOUNT');
 ");
         }
 

@@ -118,28 +118,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
-        public void Can_get_table_and_schema_name_for_non_owned_entity_types_with_defining_navigation()
-        {
-            var modelBuilder = new ModelBuilder();
-
-            var orderType = modelBuilder
-                .Entity<Order>()
-                .Metadata;
-
-            var customerType = modelBuilder.Model.AddEntityType(typeof(Customer), nameof(Order.Customer), orderType);
-
-            Assert.Equal("Order_Customer", customerType.GetTableName());
-
-            orderType.SetTableName(null);
-
-            Assert.Equal("Customer_Customer", customerType.GetTableName());
-
-            customerType.SetTableName("Customizer");
-
-            Assert.Equal("Customizer", customerType.GetTableName());
-        }
-
-        [ConditionalFact]
         public void Gets_model_schema_if_schema_on_entity_type_not_set()
         {
             var modelBuilder = new ModelBuilder();
@@ -157,6 +135,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             modelBuilder.Model.SetDefaultSchema(null);
 
             Assert.Null(entityType.GetSchema());
+        }
+
+        [ConditionalFact]
+        public void Can_get_and_set_view_schema_name_on_entity_type()
+        {
+            var modelBuilder = new ModelBuilder();
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            Assert.Null(entityType.GetViewSchema());
+
+            modelBuilder.HasDefaultSchema("dbo");
+
+            Assert.Null(entityType.GetViewSchema());
+
+            entityType.SetViewName("CustomerView");
+
+            Assert.Equal("dbo", entityType.GetViewSchema());
+
+            entityType.SetViewSchema(null);
+
+            Assert.Equal("dbo", entityType.GetViewSchema());
+
+            entityType.SetViewSchema("db0");
+
+            Assert.Equal("db0", entityType.GetViewSchema());
+
+            entityType.SetViewName(null);
+
+            Assert.Equal("db0", entityType.GetViewSchema());
+
+            entityType.SetViewSchema(null);
+
+            Assert.Null(entityType.GetViewSchema());
         }
 
         [ConditionalFact]
@@ -232,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Property(e => e.AlternateId)
                 .Metadata;
 
-            Assert.Null(property.GetDefaultValue());
+            Assert.Equal(Guid.Empty, property.GetDefaultValue());
 
             var guid = new Guid("{3FDFC4F5-AEAB-4D72-9C96-201E004349FA}");
 
@@ -242,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             property.SetDefaultValue(null);
 
-            Assert.Null(property.GetDefaultValue());
+            Assert.Equal(Guid.Empty, property.GetDefaultValue());
         }
 
         [ConditionalFact]
@@ -345,17 +359,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .HasIndex(e => e.Id)
                 .Metadata;
 
-#pragma warning disable CS0618 // Type or member is obsolete
-            Assert.Equal("IX_Customer_Id", index.GetName());
+            Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
 
-            index.SetName("MyIndex");
+            index.SetDatabaseName("MyIndex");
 
-            Assert.Equal("MyIndex", index.GetName());
+            Assert.Equal("MyIndex", index.GetDatabaseName());
 
-            index.SetName(null);
+            index.SetDatabaseName(null);
 
-            Assert.Equal("IX_Customer_Id", index.GetName());
-#pragma warning restore CS0618 // Type or member is obsolete
+            Assert.Equal("IX_Customer_Id", index.GetDatabaseName());
         }
 
         [ConditionalFact]
@@ -367,17 +379,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
+            Assert.Null(entityType.FindDiscriminatorProperty());
 
             var property = entityType.AddProperty("D", typeof(string));
 
             entityType.SetDiscriminatorProperty(property);
 
-            Assert.Same(property, entityType.GetDiscriminatorProperty());
+            Assert.Same(property, entityType.FindDiscriminatorProperty());
 
             entityType.SetDiscriminatorProperty(null);
 
-            Assert.Null(entityType.GetDiscriminatorProperty());
+            Assert.Null(entityType.FindDiscriminatorProperty());
         }
 
         [ConditionalFact]
@@ -412,11 +424,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.NotNull(dbFunc);
             Assert.NotNull(dbFunc.Name);
             Assert.Null(dbFunc.Schema);
-            Assert.NotNull(((IConventionDbFunction)dbFunc).Builder);
+            Assert.True(((IConventionDbFunction)dbFunc).IsInModel);
 
             Assert.Same(dbFunc, model.RemoveDbFunction(testMethod));
 
-            Assert.Null(((IConventionDbFunction)dbFunc).Builder);
+            Assert.False(((IConventionDbFunction)dbFunc).IsInModel);
         }
 
         [ConditionalFact]
@@ -439,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(sequence.MaxValue);
             Assert.Same(typeof(long), sequence.Type);
             Assert.False(sequence.IsCyclic);
-            Assert.NotNull(((IConventionSequence)sequence).Builder);
+            Assert.True(((IConventionSequence)sequence).IsInModel);
 
             Assert.Same(sequence, model.FindSequence("Foo"));
 
@@ -459,7 +471,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Same(sequence, model.RemoveSequence("Foo"));
 
-            Assert.Null(((IConventionSequence)sequence).Builder);
+            Assert.False(((IConventionSequence)sequence).IsInModel);
         }
 
         [ConditionalFact]

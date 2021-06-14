@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -32,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public InMemoryTypeMappingSource([NotNull] TypeMappingSourceDependencies dependencies)
+        public InMemoryTypeMappingSource(TypeMappingSourceDependencies dependencies)
             : base(dependencies)
         {
         }
@@ -43,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+        protected override CoreTypeMapping? FindMapping(in TypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
             Check.DebugAssert(clrType != null, "ClrType is null");
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
             if (clrType.FullName == "NetTopologySuite.Geometries.Geometry"
                 || clrType.GetBaseTypes().Any(t => t.FullName == "NetTopologySuite.Geometries.Geometry"))
             {
-                var comparer = (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(clrType));
+                var comparer = (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(clrType))!;
 
                 return new InMemoryTypeMapping(
                     clrType,

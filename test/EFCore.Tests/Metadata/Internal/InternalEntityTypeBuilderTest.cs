@@ -485,6 +485,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Removing_a_relationship_from_the_wrong_entity_type_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata,
+                new[]
+                {
+                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata
+                },
+                ConfigurationSource.DataAnnotation);
+            Assert.NotNull(relationshipBuilder);
+
+            Assert.Equal(CoreStrings.ForeignKeyWrongType(
+                "{'" + Order.CustomerIdProperty.Name + "'}", "{'TempId'}", nameof(Customer), nameof(Customer), nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    Assert.Null(principalEntityBuilder.HasNoRelationship(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation)))
+                .Message);
+        }
+
+        [ConditionalFact]
         public void Removing_relationship_removes_unused_contained_shadow_properties()
         {
             var modelBuilder = CreateModelBuilder();
@@ -959,7 +982,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
                 (entityBuilder, property) => entityBuilder.Property(
-                    property.ClrType, ((IProperty)property).Name, ConfigurationSource.Explicit));
+                    property.ClrType, ((IReadOnlyProperty)property).Name, ConfigurationSource.Explicit));
         }
 
         private void Test_removing_index_does_not_remove_contained_shadow_properties_if_referenced_elsewhere(
@@ -1025,7 +1048,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotNull(
                 entityBuilder.PrimaryKey(new[] { Order.IdProperty, Order.CustomerUniqueProperty }, ConfigurationSource.DataAnnotation));
 
-            Assert.False(entityBuilder.Metadata.FindProperty(Order.CustomerUniqueProperty).IsNullable);
+            Assert.False(((IReadOnlyEntityType)entityBuilder.Metadata).FindProperty(Order.CustomerUniqueProperty).IsNullable);
 
             Assert.Null(
                 entityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention)
@@ -1034,7 +1057,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention)
                     .IsRequired(false, ConfigurationSource.DataAnnotation));
 
-            Assert.True(entityBuilder.Metadata.FindProperty(Order.CustomerUniqueProperty).IsNullable);
+            Assert.True(((IReadOnlyEntityType)entityBuilder.Metadata).FindProperty(Order.CustomerUniqueProperty).IsNullable);
             Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
         }
 
@@ -1070,16 +1093,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
-        public void Key_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
+        public void Key_throws_for_derived_type_before_HasBase()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.HasKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
+
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasKey(new[] { nameof(SpecialOrder.Specialty) }, ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.DerivedEntityCannotHaveKeys(typeof(SpecialOrder).Name),
+                Assert.Throws<InvalidOperationException>(
+                    () => derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Explicit)).Message);
+        }
+
+        [ConditionalFact]
+        public void Key_throws_for_property_names_for_shared_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order).Name, ConfigurationSource.Explicit);
 
             Assert.Equal(
-                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order)),
+                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order) + " (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.HasKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
+                    () => entityBuilder.HasKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
         [ConditionalFact]
@@ -1225,10 +1263,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.NotEmpty(entityType.GetKeys());
 
             Assert.Equal(
-                CoreStrings.KeylessTypeExistingKey(nameof(Order)),
+                CoreStrings.KeylessTypeExistingKey(nameof(Order), "{'CustomerId'}"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.HasNoKey(ConfigurationSource.Explicit)).Message);
+                    () => entityBuilder.HasNoKey(ConfigurationSource.Explicit)).Message);
             Assert.NotEmpty(entityType.GetKeys());
         }
 
@@ -1315,21 +1352,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(
                 CoreStrings.NoPropertyType(Customer.UniqueProperty.Name, nameof(Order)),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.PrimaryKey(new[] { Customer.UniqueProperty.Name }, ConfigurationSource.Convention)).Message);
+                    () => entityBuilder.PrimaryKey(new[] { Customer.UniqueProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
         [ConditionalFact]
-        public void PrimaryKey_throws_for_property_names_for_shadow_entity_type_if_they_do_not_exist()
+        public void PrimaryKey_throws_for_property_names_for_shared_entity_type_if_they_do_not_exist()
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order).Name, ConfigurationSource.Explicit);
 
             Assert.Equal(
-                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order)),
+                CoreStrings.NoPropertyType(Order.IdProperty.Name, nameof(Order) + " (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
-                    () =>
-                        entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
+                    () => entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention)).Message);
         }
 
         [ConditionalFact]
@@ -2164,22 +2199,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var foreignKeyBuilder = dependentEntityBuilder.HasRelationship(
                 principalEntityBuilder.Metadata, ConfigurationSource.DataAnnotation);
 
-            Assert.True(dependentEntityBuilder.CanHaveNavigation(Order.CustomerProperty.Name, ConfigurationSource.Convention));
+            Assert.True(dependentEntityBuilder.CanHaveNavigation(
+                Order.CustomerProperty.Name, Order.CustomerProperty.GetMemberType(), ConfigurationSource.Convention));
 
             foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
                 Order.CustomerProperty.Name,
                 pointsToPrincipal: true,
                 ConfigurationSource.DataAnnotation);
 
-            Assert.True(dependentEntityBuilder.CanHaveNavigation(Order.CustomerProperty.Name, ConfigurationSource.Explicit));
-            Assert.True(principalEntityBuilder.CanHaveNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Convention));
+            Assert.True(dependentEntityBuilder.CanHaveNavigation(
+                Order.CustomerProperty.Name, Order.CustomerProperty.GetMemberType(), ConfigurationSource.Explicit));
+            Assert.True(principalEntityBuilder.CanHaveNavigation(
+                Customer.OrdersProperty.Name, Customer.OrdersProperty.GetMemberType(), ConfigurationSource.Convention));
 
             foreignKeyBuilder = foreignKeyBuilder.HasNavigation(
                 Customer.OrdersProperty.Name,
                 pointsToPrincipal: false,
                 ConfigurationSource.DataAnnotation);
 
-            Assert.True(principalEntityBuilder.CanHaveNavigation(Customer.OrdersProperty.Name, ConfigurationSource.Explicit));
+            Assert.True(principalEntityBuilder.CanHaveNavigation(
+                Customer.OrdersProperty.Name, Customer.OrdersProperty.GetMemberType(), ConfigurationSource.Explicit));
 
             var newForeignKeyBuilder = dependentEntityBuilder
                 .HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention).HasNavigation(
@@ -2796,6 +2835,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(derivedEntityBuilder.Metadata.BaseType);
             Assert.Single(derivedEntityBuilder.Metadata.GetDeclaredKeys());
 
+            entityBuilder.HasKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation);
             Assert.Same(
                 derivedEntityBuilder,
                 derivedEntityBuilder.HasBaseType(typeof(Order), ConfigurationSource.Explicit));
@@ -3006,32 +3046,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             IConventionEntityTypeBuilder typeBuilder = CreateModelBuilder().Entity(typeof(Order), ConfigurationSource.Convention);
 
             Assert.NotNull(typeBuilder.HasDiscriminator());
-            Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Discriminator", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
 
             Assert.NotNull(typeBuilder.HasNoDiscriminator());
-            Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(typeBuilder.Metadata.FindDiscriminatorProperty());
             Assert.Empty(typeBuilder.Metadata.GetProperties());
 
             Assert.NotNull(typeBuilder.HasDiscriminator("Splod", typeof(int?)));
-            Assert.Equal("Splod", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(int?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Splod", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(int?), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
             Assert.Equal("Splod", typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.NotNull(typeBuilder.HasDiscriminator(Order.CustomerUniqueProperty, fromDataAnnotation: true));
-            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
             Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.Null(typeBuilder.HasDiscriminator("Splew", typeof(int?)));
-            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(Guid?), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
             Assert.Equal(Order.CustomerUniqueProperty.Name, typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.NotNull(typeBuilder.HasDiscriminator(typeof(int), fromDataAnnotation: true));
             Assert.Null(typeBuilder.HasDiscriminator(typeof(long)));
-            Assert.Equal("Discriminator", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(int), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Discriminator", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(int), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
 
             Assert.Null(typeBuilder.HasNoDiscriminator());
         }
@@ -3043,12 +3083,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             typeBuilder.Ignore("Splod", true);
 
             Assert.NotNull(typeBuilder.HasDiscriminator("Splew", typeof(string)));
-            Assert.Equal("Splew", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Splew", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
 
             Assert.Null(typeBuilder.HasDiscriminator("Splod", typeof(int?)));
-            Assert.Equal("Splew", typeBuilder.Metadata.GetDiscriminatorProperty().Name);
-            Assert.Equal(typeof(string), typeBuilder.Metadata.GetDiscriminatorProperty().ClrType);
+            Assert.Equal("Splew", typeBuilder.Metadata.FindDiscriminatorProperty().Name);
+            Assert.Equal(typeof(string), typeBuilder.Metadata.FindDiscriminatorProperty().ClrType);
         }
 
         [ConditionalFact]
@@ -3113,7 +3153,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .Metadata.GetDiscriminatorValue());
 
             Assert.NotNull(typeBuilder.HasNoDiscriminator(fromDataAnnotation: true));
-            Assert.Null(typeBuilder.Metadata.GetDiscriminatorProperty());
+            Assert.Null(typeBuilder.Metadata.FindDiscriminatorProperty());
             Assert.Null(typeBuilder.Metadata.GetDiscriminatorValue());
             Assert.Empty(typeBuilder.Metadata.GetProperties());
         }
@@ -3217,13 +3257,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var discriminatorBuilder = typeBuilder.HasDiscriminator();
             Assert.Equal(
-                CoreStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
+                CoreStrings.DiscriminatorEntityTypeNotDerived("Splow (Dictionary<string, object>)", "Splot (Dictionary<string, object>)"),
                 Assert.Throws<InvalidOperationException>(
                     () => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
         }
 
         private InternalModelBuilder CreateModelBuilder()
-            => new InternalModelBuilder(new Model());
+            => new(new Model());
 
         private InternalModelBuilder CreateConventionalModelBuilder()
             => (InternalModelBuilder)InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();
@@ -3345,7 +3385,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             public static readonly string IndexerPropertyName = "Indexer";
 
             public object this[string name]
-                => null;
+            {
+                get => null;
+                set { }
+            }
         }
     }
 }

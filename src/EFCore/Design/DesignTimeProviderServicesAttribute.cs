@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     This type should implement <see cref="IDesignTimeServices" />.
         /// </param>
         public DesignTimeProviderServicesAttribute(
-            [NotNull] string typeName)
+            string typeName)
         {
             Check.NotEmpty(typeName, nameof(typeName));
 

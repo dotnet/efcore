@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -77,13 +77,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                 TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-            var property = ((IMutableModel)new Model()).AddEntityType("MyType").AddProperty("MyProp", typeof(string));
-            property.IsNullable = nullable;
-            property.SetTypeMapping(GetMapping(typeMapper, property));
+            var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+
+            modelBuilder.Entity("MyType").Property<string>("MyProp").IsRequired(!nullable);
+
+            var model = modelBuilder.FinalizeModel(designTime: false, skipValidation: true);
+
+            var property = model.GetEntityTypes().Single().FindProperty("MyProp");
 
             var parameterBuilder = new RelationalCommandBuilder(
-                new RelationalCommandBuilderDependencies(
-                    typeMapper));
+                new RelationalCommandBuilderDependencies(typeMapper));
 
             parameterBuilder.AddParameter(
                 "InvariantName",
@@ -98,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.NotNull(parameter);
             Assert.Equal("InvariantName", parameter.InvariantName);
             Assert.Equal("Name", parameter.Name);
-            Assert.Equal(GetMapping(typeMapper, property), parameter.RelationalTypeMapping);
+            Assert.Equal(property.GetTypeMapping(), parameter.RelationalTypeMapping);
             Assert.Equal(nullable, parameter.IsNullable);
         }
 

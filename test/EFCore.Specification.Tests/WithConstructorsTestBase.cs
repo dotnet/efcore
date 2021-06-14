@@ -743,7 +743,6 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Same(blog, blog.LazyPcsPosts.Skip(1).First().LazyPcsBlog);
         }
 
-#if NET5_0
         [ConditionalFact]
         public virtual async Task Add_immutable_record()
         {
@@ -765,7 +764,6 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(title, context.Set<BlogAsImmutableRecord>().Single(e => e.BlogId == blogId).Title);
             }
         }
-#endif
 
         protected class Blog
         {
@@ -1581,7 +1579,6 @@ namespace Microsoft.EntityFrameworkCore
             public LazyAsyncBlog LazyAsyncBlog { get; set; }
         }
 
-#if NET5_0
         protected record BlogAsImmutableRecord
         {
             public BlogAsImmutableRecord(
@@ -1606,7 +1603,6 @@ namespace Microsoft.EntityFrameworkCore
             public string Title { get; init; }
             public int? MonthlyRevenue { get; init; }
         }
-#endif
 
     public class OtherContext : DbContext
     {
@@ -1679,9 +1675,7 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<LazyAsyncPsBlog>();
             modelBuilder.Entity<LazyPcsBlog>();
 
-#if NET5_0
             modelBuilder.Entity<BlogAsImmutableRecord>();
-#endif
 
             // Manually configure service fields since there is no public API yet
 

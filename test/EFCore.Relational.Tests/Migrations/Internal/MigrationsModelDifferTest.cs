@@ -337,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     var createBankTableOperation = Assert.IsType<CreateTableOperation>(result[0]);
                     Assert.Equal("Banks", createBankTableOperation.Name);
-                    Assert.Equal(0, createBankTableOperation.ForeignKeys.Count);
+                    Assert.Empty(createBankTableOperation.ForeignKeys);
 
                     Assert.Equal(4, result.OfType<AddForeignKeyOperation>().Count());
                 });
@@ -737,6 +737,72 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                     Assert.IsType<CreateIndexOperation>(operations[1]);
                 });
+        }
+
+        [ConditionalFact]
+        public void Create_FK_to_excluded_principal()
+        {
+            Execute(
+                common => common
+                    .Entity("X", x =>
+                    {
+                        x.Property<int>("Id");
+                        x.ToTable("X", t => t.ExcludeFromMigrations());
+                    })
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                        }),
+                _ => { },
+                target => target
+                    .Entity(
+                        "Y",
+                        x =>
+                        {
+                            x.HasOne("X").WithMany().HasForeignKey("XId");
+                        }),
+                upOps => Assert.Collection(
+                    upOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddColumnOperation>(o);
+                        Assert.Equal("XId", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<CreateIndexOperation>(o);
+                        Assert.Equal("IX_Y_XId", operation.Name);
+                        Assert.Collection(
+                            operation.Columns,
+                            x => Assert.Equal("XId", x));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<AddForeignKeyOperation>(o);
+                        Assert.Equal("FK_Y_X_XId", operation.Name);
+                        Assert.Collection(
+                            operation.Columns,
+                            x => Assert.Equal("XId", x));
+                    }),
+                downOps => Assert.Collection(
+                    downOps,
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropForeignKeyOperation>(o);
+                        Assert.Equal("FK_Y_X_XId", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropIndexOperation>(o);
+                        Assert.Equal("IX_Y_XId", operation.Name);
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<DropColumnOperation>(o);
+                        Assert.Equal("XId", operation.Name);
+                    }));
         }
 
         [ConditionalFact]
@@ -6532,18 +6598,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     {
                         var operation = Assert.IsType<InsertDataOperation>(o);
                         Assert.Equal("Animal", operation.Table);
-                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId" }, operation.Columns);
-                        Assert.Null(operation.ColumnTypes);
-                        AssertMultidimensionalArray(
-                            operation.Values,
-                            v => Assert.Equal(31, v),
-                            v => Assert.Equal("Mouse", v),
-                            v => Assert.Null(v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Animal", operation.Table);
                         Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
                         Assert.Null(operation.ColumnTypes);
                         AssertMultidimensionalArray(
@@ -6558,10 +6612,48 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         var operation = Assert.IsType<InsertDataOperation>(o);
                         Assert.Equal("Animal", operation.Table);
                         Assert.Equal(new[] { "Id", "Discriminator", "MouseId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(31, v),
+                            v => Assert.Equal("Mouse", v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId" }, operation.Columns);
                         AssertMultidimensionalArray(
                             operation.Values,
                             v => Assert.Equal(32, v),
                             v => Assert.Equal("Mouse", v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(11, v),
+                            v => Assert.Equal("Cat", v),
+                            v => Assert.Equal(31, v),
+                            v => Assert.Null(v));
+                    },
+                    o =>
+                    {
+                        var operation = Assert.IsType<InsertDataOperation>(o);
+                        Assert.Equal("Animal", operation.Table);
+                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
+                        Assert.Null(operation.ColumnTypes);
+                        AssertMultidimensionalArray(
+                            operation.Values,
+                            v => Assert.Equal(12, v),
+                            v => Assert.Equal("Cat", v),
+                            v => Assert.Equal(32, v),
                             v => Assert.Null(v));
                     },
                     o =>
@@ -6585,36 +6677,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Null(operation.ColumnTypes);
                         AssertMultidimensionalArray(
                             operation.Values,
-                            v => Assert.Equal(11, v),
-                            v => Assert.Equal("Cat", v),
-                            v => Assert.Equal(31, v),
-                            v => Assert.Null(v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Animal", operation.Table);
-                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
-                        Assert.Null(operation.ColumnTypes);
-                        AssertMultidimensionalArray(
-                            operation.Values,
                             v => Assert.Equal(22, v),
                             v => Assert.Equal("Dog", v),
                             v => Assert.Null(v),
                             v => Assert.Equal(32, v));
-                    },
-                    o =>
-                    {
-                        var operation = Assert.IsType<InsertDataOperation>(o);
-                        Assert.Equal("Animal", operation.Table);
-                        Assert.Equal(new[] { "Id", "Discriminator", "MouseId", "PreyId" }, operation.Columns);
-                        Assert.Null(operation.ColumnTypes);
-                        AssertMultidimensionalArray(
-                            operation.Values,
-                            v => Assert.Equal(12, v),
-                            v => Assert.Equal("Cat", v),
-                            v => Assert.Equal(32, v),
-                            v => Assert.Null(v));
                     },
                     o =>
                     {
@@ -8152,6 +8218,98 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void SeedData_with_guid_AK_and_multiple_owned_types()
+        {
+            Execute(
+                target =>
+                {
+                    target.Entity<SomeEntity>(
+                        builder =>
+                        {
+                            builder.HasAlternateKey(x => x.Guid);
+                            builder.Property(x => x.Id).ValueGeneratedNever();
+
+                            var data = new[]
+                            {
+                                new SomeEntity(1L, new Guid("74520CF7-0C78-447C-8FE0-ED97A16A13F5"))
+                            };
+
+                            var owned = data.Select(x => new
+                            {
+                                SomeEntityId = x.Id,
+                            }).ToArray();
+
+                            builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
+                            builder.HasData(data);
+                        });
+
+                    target.Entity<ApplicationUser>(
+                        builder => {
+                            builder.HasAlternateKey(x => x.Guid);
+
+                            var data = new[]
+                            {
+                                new ApplicationUser()
+                                {
+                                    Id = 12345,
+                                    Guid = new Guid("4C85B629-732A-4724-AA33-6E8108134BAE")
+                                }
+                            };
+
+                            var owned = data.Select(x => new
+                            {
+                                ApplicationUserId = x.Id,
+                            }).ToArray();
+
+                            builder.OwnsOne(x => x.OwnedEntity).HasData(owned);
+                            builder.HasData(data);
+                        });
+                },
+                target => { },
+                source => { },
+                Assert.Empty,
+                Assert.Empty);
+        }
+
+        protected class SomeEntity
+        {
+            public SomeEntity(long id, Guid guid)
+            {
+                Id = id;
+                Guid = guid;
+            }
+
+            public virtual SomeOwnedEntity OwnedEntity { get; private set; } = new SomeOwnedEntity();
+
+            public Guid Guid { get; protected set; }
+
+            public long Id { get; protected set; }
+
+        }
+
+        protected class ApplicationUser
+        {
+            private readonly SomeOwnedEntity _ownedEntity;
+
+
+            public ApplicationUser()
+            {
+                _ownedEntity = null!;
+            }
+
+            public virtual long Id { get; set; }
+
+            public virtual SomeOwnedEntity OwnedEntity => _ownedEntity;
+
+            public Guid Guid { get; set; }
+
+        }
+
+        protected class SomeOwnedEntity
+        {
+        }
+
+        [ConditionalFact]
         public void SeedData_and_PK_rename()
         {
             Execute(
@@ -9629,6 +9787,66 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void SeedData_type_with_excluded_owned_collection()
+        {
+            Execute(
+                common =>
+                {
+                    common.Entity<Customer>(
+                        c =>
+                        {
+                            c.Ignore(x => x.Mailing);
+
+                            c.HasKey(x => x.Id);
+                            c.HasData(new Customer { Id = 1 });
+
+                            c.OwnsMany(
+                                y => y.Orders, x =>
+                                {
+                                    x.Ignore(o => o.Billing);
+                                    x.Ignore(o => o.Shipping);
+
+                                    x.WithOwner()
+                                        .HasForeignKey("CustomerId");
+
+                                    x.HasKey("CustomerId", "Id");
+                                    x.HasData(new { Id = 2, CustomerId = 1 });
+                                });
+                        });
+                },
+                _ => { },
+                target => {
+                    target.Entity<Customer>(
+                        c =>
+                        {
+                            c.OwnsMany(
+                                y => y.Orders, x =>
+                                {
+                                    x.ToTable("Order", excludedFromMigrations: true);
+                                });
+                            c.ToTable("Customer", t => t.ExcludeFromMigrations());
+                        });
+                },
+                Assert.Empty,
+                Assert.Empty,
+                skipSourceConventions: true);
+        }
+
+        public class Parent
+        {
+            public Guid Id { get; set; }
+            public string Name { get; set; }
+
+            public IEnumerable<Child> Children { get; set; }
+        }
+
+        public class Child
+        {
+            public Guid Id { get; set; }
+            public string ChildName { get; set; }
+        }
+
+        [ConditionalFact]
         public void Old_style_ownership_to_new_style()
         {
             Execute(
@@ -9999,7 +10217,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public abstract class TenantEntity13300
         {
             public Guid TenantId { get; set; }
-            public ReferencePoint13300 Created { get; set; } = new ReferencePoint13300();
+            public ReferencePoint13300 Created { get; set; } = new();
         }
 
         public class ReferencePoint13300
@@ -10339,15 +10557,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => throw new NotImplementedException();
 
         [ConditionalFact]
-        public void Model_differ_does_not_detect_table_valued_function_result_type()
+        public void Model_differ_does_not_detect_entity_type_mapped_to_TVF()
         {
             Execute(
                 _ => { },
                 modelBuilder =>
-                    modelBuilder.HasDbFunction(
+                {
+                    var function = modelBuilder.HasDbFunction(
                         typeof(MigrationsModelDifferTest).GetMethod(
                             nameof(GetCountByYear),
-                            BindingFlags.NonPublic | BindingFlags.Static)),
+                            BindingFlags.NonPublic | BindingFlags.Static)).Metadata;
+
+                    modelBuilder.Entity<TestKeylessType>().ToFunction(function.ModelName);
+                },
                 result => Assert.Equal(0, result.Count),
                 skipSourceConventions: true);
         }

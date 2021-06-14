@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -41,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public CSharpModelGenerator(
-            [NotNull] ModelCodeGeneratorDependencies dependencies,
-            [NotNull] ICSharpDbContextGenerator cSharpDbContextGenerator,
-            [NotNull] ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
+            ModelCodeGeneratorDependencies dependencies,
+            ICSharpDbContextGenerator cSharpDbContextGenerator,
+            ICSharpEntityTypeGenerator cSharpEntityTypeGenerator)
             : base(dependencies)
         {
             Check.NotNull(cSharpDbContextGenerator, nameof(cSharpDbContextGenerator));
@@ -89,12 +88,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     CoreStrings.ArgumentPropertyNull(nameof(options.ConnectionString), nameof(options)), nameof(options));
             }
 
-            if (options.ModelNamespace == null)
-            {
-                throw new ArgumentException(
-                    CoreStrings.ArgumentPropertyNull(nameof(options.ModelNamespace), nameof(options)), nameof(options));
-            }
-
             var generatedCode = CSharpDbContextGenerator.WriteCode(
                 model,
                 options.ContextName,
@@ -102,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 options.ContextNamespace,
                 options.ModelNamespace,
                 options.UseDataAnnotations,
+                options.UseNullableReferenceTypes,
                 options.SuppressConnectionStringWarning,
                 options.SuppressOnConfiguring);
 
@@ -120,10 +114,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
-                generatedCode = CSharpEntityTypeGenerator.WriteCode(entityType, options.ModelNamespace, options.UseDataAnnotations);
+                generatedCode = CSharpEntityTypeGenerator.WriteCode(
+                    entityType,
+                    options.ModelNamespace,
+                    options.UseDataAnnotations,
+                    options.UseNullableReferenceTypes);
 
                 // output EntityType poco .cs file
-                var entityTypeFileName = entityType.DisplayName() + FileExtension;
+                var entityTypeFileName = entityType.Name + FileExtension;
                 resultingFiles.AdditionalFiles.Add(
                     new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
             }

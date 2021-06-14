@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
             }
 
-            if (WarningsConfiguration?.GetServiceProviderHashCode() != coreOptions.WarningsConfiguration?.GetServiceProviderHashCode())
+            if (WarningsConfiguration.GetServiceProviderHashCode() != coreOptions.WarningsConfiguration?.GetServiceProviderHashCode())
             {
                 Check.DebugAssert(coreOptions.InternalServiceProvider != null, "InternalServiceProvider is null");
 
@@ -90,6 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual WarningsConfiguration WarningsConfiguration { get; private set; }
+        public virtual WarningsConfiguration WarningsConfiguration { get; private set; } = null!;
     }
 }

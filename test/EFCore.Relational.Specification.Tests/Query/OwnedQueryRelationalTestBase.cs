@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<OwnedPerson>().Where(e => e.Id == 1).AsTracking().Select(e => new { e.ReadOnlyProperty }).AsSplitQuery(),
-                entryCount: 5);
+                entryCount: 7);
         }
 
         [ConditionalTheory]

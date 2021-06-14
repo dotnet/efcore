@@ -3,9 +3,10 @@
 
 using System;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
+
+#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public RootReferenceExpression([NotNull] IEntityType entityType, [NotNull] string alias)
+        public RootReferenceExpression(IEntityType entityType, string alias)
         {
             EntityType = entityType;
             Alias = alias;

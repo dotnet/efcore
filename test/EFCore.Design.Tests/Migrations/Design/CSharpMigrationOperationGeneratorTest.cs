@@ -197,11 +197,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new AddForeignKeyOperation
                 {
-                    Table = "Post",
                     Name = "FK_Post_Blog_BlogId",
+                    Table = "Post",
                     Columns = new[] { "BlogId" },
-                    PrincipalTable = "Blog",
-                    PrincipalColumns = new[] { "Id" }
+                    PrincipalTable = "Blog"
                 },
                 "mb.AddForeignKey("
                 + _eol
@@ -211,15 +210,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "    column: \"BlogId\","
                 + _eol
-                + "    principalTable: \"Blog\","
-                + _eol
-                + "    principalColumn: \"Id\");",
+                + "    principalTable: \"Blog\");",
                 o =>
                 {
-                    Assert.Equal("Post", o.Table);
                     Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                    Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId" }, o.Columns);
                     Assert.Equal("Blog", o.PrincipalTable);
+                    Assert.Null(o.PrincipalColumns);
+                });
+        }
+
+        [ConditionalFact]
+        public void AddForeignKeyOperation_required_args_composite()
+        {
+            Test(
+                new AddForeignKeyOperation
+                {
+                    Name = "FK_Post_Blog_BlogId1_BlogId2",
+                    Table = "Post",
+                    Columns = new[] { "BlogId1", "BlogId2" },
+                    PrincipalTable = "Blog"
+                },
+                "mb.AddForeignKey("
+                + _eol
+                + "    name: \"FK_Post_Blog_BlogId1_BlogId2\","
+                + _eol
+                + "    table: \"Post\","
+                + _eol
+                + "    columns: new[] { \"BlogId1\", \"BlogId2\" },"
+                + _eol
+                + "    principalTable: \"Blog\");",
+                o =>
+                {
+                    Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
+                    Assert.Equal("Post", o.Table);
+                    Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
+                    Assert.Equal("Blog", o.PrincipalTable);
+                    Assert.Null(o.PrincipalColumns);
                 });
         }
 
@@ -229,9 +257,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Test(
                 new AddForeignKeyOperation
                 {
+                    Name = "FK_Post_Blog_BlogId",
                     Schema = "dbo",
                     Table = "Post",
-                    Name = "FK_Post_Blog_BlogId",
                     Columns = new[] { "BlogId" },
                     PrincipalSchema = "my",
                     PrincipalTable = "Blog",
@@ -260,47 +288,64 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    onDelete: ReferentialAction.Cascade);",
                 o =>
                 {
-                    Assert.Equal("Post", o.Table);
-                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("FK_Post_Blog_BlogId", o.Name);
+                    Assert.Equal("dbo", o.Schema);
+                    Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId" }, o.Columns);
-                    Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal("my", o.PrincipalSchema);
+                    Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, o.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
                     Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
         }
 
         [ConditionalFact]
-        public void AddForeignKeyOperation_composite()
+        public void AddForeignKeyOperation_all_args_composite()
         {
             Test(
                 new AddForeignKeyOperation
                 {
                     Name = "FK_Post_Blog_BlogId1_BlogId2",
+                    Schema = "dbo",
                     Table = "Post",
                     Columns = new[] { "BlogId1", "BlogId2" },
+                    PrincipalSchema = "my",
                     PrincipalTable = "Blog",
-                    PrincipalColumns = new[] { "Id1", "Id2" }
+                    PrincipalColumns = new[] { "Id1", "Id2" },
+                    OnUpdate = ReferentialAction.Restrict,
+                    OnDelete = ReferentialAction.Cascade
                 },
                 "mb.AddForeignKey("
                 + _eol
                 + "    name: \"FK_Post_Blog_BlogId1_BlogId2\","
                 + _eol
+                + "    schema: \"dbo\","
+                + _eol
                 + "    table: \"Post\","
                 + _eol
                 + "    columns: new[] { \"BlogId1\", \"BlogId2\" },"
                 + _eol
+                + "    principalSchema: \"my\","
+                + _eol
                 + "    principalTable: \"Blog\","
                 + _eol
-                + "    principalColumns: new[] { \"Id1\", \"Id2\" });",
+                + "    principalColumns: new[] { \"Id1\", \"Id2\" },"
+                + _eol
+                + "    onUpdate: ReferentialAction.Restrict,"
+                + _eol
+                + "    onDelete: ReferentialAction.Cascade);",
                 o =>
                 {
                     Assert.Equal("FK_Post_Blog_BlogId1_BlogId2", o.Name);
+                    Assert.Equal("dbo", o.Schema);
                     Assert.Equal("Post", o.Table);
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, o.Columns);
+                    Assert.Equal("my", o.PrincipalSchema);
                     Assert.Equal("Blog", o.PrincipalTable);
                     Assert.Equal(new[] { "Id1", "Id2" }, o.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Restrict, o.OnUpdate);
+                    Assert.Equal(ReferentialAction.Cascade, o.OnDelete);
                 });
         }
 
@@ -804,8 +849,43 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + "    .OldAnnotation(\"bar\", \"foo\");",
                 o =>
                 {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Equal("Some other collation", o.OldDatabase.Collation);
                     Assert.Equal("bar", o["foo"]);
                     Assert.Equal("foo", o.OldDatabase["bar"]);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_old_collation()
+        {
+            Test(
+                new AlterDatabaseOperation { Collation = "Some collation" },
+                "mb.AlterDatabase("
+                + _eol
+                + "    collation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Equal("Some collation", o.Collation);
+                    Assert.Null(o.OldDatabase.Collation);
+                });
+        }
+
+        [ConditionalFact]
+        public void AlterDatabaseOperation_with_default_new_collation()
+        {
+            Test(
+                new AlterDatabaseOperation
+                {
+                    OldDatabase = { Collation = "Some collation" }
+                },
+                "mb.AlterDatabase("
+                + _eol
+                + "    oldCollation: \"Some collation\");",
+                o =>
+                {
+                    Assert.Null(o.Collation);
+                    Assert.Equal("Some collation", o.OldDatabase.Collation);
                 });
         }
 
@@ -1357,8 +1437,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                             Name = "FK_Post_Blog_BlogId",
                             Table = "Post",
                             Columns = new[] { "BlogId" },
-                            PrincipalTable = "Blog",
-                            PrincipalColumns = new[] { "Id" }
+                            PrincipalTable = "Blog"
                         }
                     }
                 },
@@ -1384,9 +1463,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 + _eol
                 + "            column: x => x.BlogId,"
                 + _eol
-                + "            principalTable: \"Blog\","
-                + _eol
-                + "            principalColumn: \"Id\");"
+                + "            principalTable: \"Blog\");"
                 + _eol
                 + "    });",
                 o =>
@@ -1540,6 +1617,67 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     Assert.Equal(new[] { "BlogId1", "BlogId2" }, fk.Columns.ToArray());
                     Assert.Equal("Blog", fk.PrincipalTable);
                     Assert.Equal(new[] { "Id1", "Id2" }, fk.PrincipalColumns);
+                });
+        }
+
+        [ConditionalFact]
+        public void CreateTableOperation_ForeignKeys_composite_no_principal_columns()
+        {
+            Test(
+                new CreateTableOperation
+                {
+                    Name = "Post",
+                    Columns =
+                    {
+                        new AddColumnOperation { Name = "BlogId1", ClrType = typeof(int) },
+                        new AddColumnOperation { Name = "BlogId2", ClrType = typeof(int) }
+                    },
+                    ForeignKeys =
+                    {
+                        new AddForeignKeyOperation
+                        {
+                            Name = "FK_Post_Blog_BlogId1_BlogId2",
+                            Table = "Post",
+                            Columns = new[] { "BlogId1", "BlogId2" },
+                            PrincipalTable = "Blog"
+                        }
+                    }
+                },
+                "mb.CreateTable("
+                + _eol
+                + "    name: \"Post\","
+                + _eol
+                + "    columns: table => new"
+                + _eol
+                + "    {"
+                + _eol
+                + "        BlogId1 = table.Column<int>(nullable: false),"
+                + _eol
+                + "        BlogId2 = table.Column<int>(nullable: false)"
+                + _eol
+                + "    },"
+                + _eol
+                + "    constraints: table =>"
+                + _eol
+                + "    {"
+                + _eol
+                + "        table.ForeignKey("
+                + _eol
+                + "            name: \"FK_Post_Blog_BlogId1_BlogId2\","
+                + _eol
+                + "            column: x => new { x.BlogId1, x.BlogId2 },"
+                + _eol
+                + "            principalTable: \"Blog\");"
+                + _eol
+                + "    });",
+                o =>
+                {
+                    Assert.Single(o.ForeignKeys);
+
+                    var fk = o.ForeignKeys.First();
+                    Assert.Equal("Post", fk.Table);
+                    Assert.Equal(new[] { "BlogId1", "BlogId2" }, fk.Columns.ToArray());
+                    Assert.Equal("Blog", fk.PrincipalTable);
                 });
         }
 
@@ -2108,12 +2246,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         public void DropIndexOperation_required_args()
         {
             Test(
-                new DropIndexOperation { Name = "IX_Post_Title", Table = "Post" },
-                "mb.DropIndex(" + _eol + "    name: \"IX_Post_Title\"," + _eol + "    table: \"Post\");",
+                new DropIndexOperation { Name = "IX_Post_Title" },
+                "mb.DropIndex(" + _eol + "    name: \"IX_Post_Title\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("Post", o.Table);
                 });
         }
 
@@ -2352,20 +2489,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 new RenameIndexOperation
                 {
                     Name = "IX_Post_Title",
-                    Table = "Post",
                     NewName = "IX_Post_PostTitle"
                 },
                 "mb.RenameIndex("
                 + _eol
                 + "    name: \"IX_Post_Title\","
                 + _eol
-                + "    table: \"Post\","
-                + _eol
                 + "    newName: \"IX_Post_PostTitle\");",
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
-                    Assert.Equal("Post", o.Table);
                     Assert.Equal("IX_Post_PostTitle", o.NewName);
                 });
         }
@@ -2522,44 +2655,44 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 o => Assert.Equal("-- I <3 DDL", o.Sql));
         }
 
-        private static readonly LineString _lineString1 = new LineString(
+        private static readonly LineString _lineString1 = new(
             new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) })
         {
             SRID = 4326
         };
 
-        private static readonly LineString _lineString2 = new LineString(
+        private static readonly LineString _lineString2 = new(
             new[] { new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2) })
         {
             SRID = 4326
         };
 
-        private static readonly MultiPoint _multiPoint = new MultiPoint(
+        private static readonly MultiPoint _multiPoint = new(
             new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) }) { SRID = 4326 };
 
-        private static readonly Polygon _polygon1 = new Polygon(
+        private static readonly Polygon _polygon1 = new(
             new LinearRing(
                 new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }))
         {
             SRID = 4326
         };
 
-        private static readonly Polygon _polygon2 = new Polygon(
+        private static readonly Polygon _polygon2 = new(
             new LinearRing(
                 new[] { new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2) }))
         {
             SRID = 4326
         };
 
-        private static readonly Point _point1 = new Point(1.1, 2.2, 3.3) { SRID = 4326 };
+        private static readonly Point _point1 = new(1.1, 2.2, 3.3) { SRID = 4326 };
 
-        private static readonly MultiLineString _multiLineString = new MultiLineString(
+        private static readonly MultiLineString _multiLineString = new(
             new[] { _lineString1, _lineString2 }) { SRID = 4326 };
 
-        private static readonly MultiPolygon _multiPolygon = new MultiPolygon(
+        private static readonly MultiPolygon _multiPolygon = new(
             new[] { _polygon2, _polygon1 }) { SRID = 4326 };
 
-        private static readonly GeometryCollection _geometryCollection = new GeometryCollection(
+        private static readonly GeometryCollection _geometryCollection = new(
             new Geometry[] { _lineString1, _lineString2, _multiPoint, _polygon1, _polygon2, _point1, _multiLineString, _multiPolygon })
         {
             SRID = 4326
@@ -3520,9 +3653,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 },
                 Sources =
                 {
-                    @"
+                    {
+                        "Migration.cs",
+                        @"
                     using Microsoft.EntityFrameworkCore.Migrations;
                     using NetTopologySuite.Geometries;
+
+                    #nullable disable
 
                     public static class OperationsFactory
                     {
@@ -3534,6 +3671,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         }
                     }
                 "
+                    }
                 }
             };
 

@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
             MemberInfo memberInfo,
-            IPropertyBase propertyBase)
+            IPropertyBase? propertyBase)
         {
             var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
             var valueParameter = Expression.Parameter(typeof(TValue), "value");
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : Expression.Convert(valueParameter, memberType);
 
             Expression writeExpression;
-            if (memberInfo.DeclaringType.IsAssignableFrom(typeof(TEntity)))
+            if (memberInfo.DeclaringType!.IsAssignableFrom(typeof(TEntity)))
             {
                 writeExpression = CreateMemberAssignment(entityParameter);
             }

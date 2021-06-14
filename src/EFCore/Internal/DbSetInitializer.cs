@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -33,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public DbSetInitializer(
-            [NotNull] IDbSetFinder setFinder,
-            [NotNull] IDbSetSource setSource)
+            IDbSetFinder setFinder,
+            IDbSetSource setSource)
         {
             _setFinder = setFinder;
             _setSource = setSource;
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         {
             foreach (var setInfo in _setFinder.FindSets(context.GetType()).Where(p => p.Setter != null))
             {
-                setInfo.Setter.SetClrValue(
+                setInfo.Setter!.SetClrValue(
                     context,
                     ((IDbSetCache)context).GetOrAddSet(_setSource, setInfo.Type));
             }

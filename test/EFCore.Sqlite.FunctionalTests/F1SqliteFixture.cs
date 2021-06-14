@@ -5,7 +5,16 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore
 {
-    public class F1SqliteFixture : F1RelationalFixture
+    public class F1ULongSqliteFixture : F1SqliteFixtureBase<ulong?>
+    {
+        protected override string StoreName { get; } = "F1ULongTest";
+    }
+
+    public class F1SqliteFixture : F1SqliteFixtureBase<byte[]>
+    {
+    }
+
+    public abstract class F1SqliteFixtureBase<TRowVersion> : F1RelationalFixture<TRowVersion>
     {
         protected override ITestStoreFactory TestStoreFactory
             => PrivateCacheSqliteTestStoreFactory.Instance;

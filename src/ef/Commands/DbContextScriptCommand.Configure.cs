@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class DbContextScriptCommand : ContextCommandBase
     {
-        private CommandOption _output;
+        private CommandOption? _output;
 
         public override void Configure(CommandLineApplication command)
         {

@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -27,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosTypeMappingSource([NotNull] TypeMappingSourceDependencies dependencies)
+        public CosmosTypeMappingSource(TypeMappingSourceDependencies dependencies)
             : base(dependencies)
         {
             _clrTypeMappings
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override CoreTypeMapping FindMapping(in TypeMappingInfo mappingInfo)
+        protected override CoreTypeMapping? FindMapping(in TypeMappingInfo mappingInfo)
         {
             var clrType = mappingInfo.ClrType;
             Check.DebugAssert(clrType != null, "ClrType is null");

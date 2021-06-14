@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -19,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
-        private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
+        private readonly List<IRelationalParameter> _parameters = new();
+        private readonly IndentedStringBuilder _commandTextBuilder = new();
 
         /// <summary>
         ///     <para>
@@ -33,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalCommandBuilder(
-            [NotNull] RelationalCommandBuilderDependencies dependencies)
+            RelationalCommandBuilderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

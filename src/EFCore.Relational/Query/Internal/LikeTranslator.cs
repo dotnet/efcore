@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -19,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class LikeTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
-            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(DbFunctionsExtensions.Like),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
         private static readonly MethodInfo _methodInfoWithEscape
-            = typeof(DbFunctionsExtensions).GetRuntimeMethod(
+            = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
                 nameof(DbFunctionsExtensions.Like),
                 new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
 
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public LikeTranslator([NotNull] ISqlExpressionFactory sqlExpressionFactory)
+        public LikeTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
             _sqlExpressionFactory = sqlExpressionFactory;
         }
@@ -47,8 +47,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual SqlExpression Translate(
-            SqlExpression instance,
+        public virtual SqlExpression? Translate(
+            SqlExpression? instance,
             MethodInfo method,
             IReadOnlyList<SqlExpression> arguments,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)

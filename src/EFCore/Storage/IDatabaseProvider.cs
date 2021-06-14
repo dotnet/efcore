@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,6 +34,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="options"> The options for the context. </param>
         /// <returns> <see langword="true" /> if the database provider has been configured, otherwise <see langword="false" />. </returns>
-        bool IsConfigured([NotNull] IDbContextOptions options);
+        bool IsConfigured(IDbContextOptions options);
     }
 }

@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class TableValuedDbFunctionConventionTest
     {
         [ConditionalFact]
-        public void Configures_return_entity_as_not_mapped()
+        public void Does_not_configure_return_entity_as_not_mapped()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.HasDbFunction(
@@ -25,13 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     BindingFlags.NonPublic | BindingFlags.Static));
 
             modelBuilder.Entity<KeylessEntity>().HasNoKey();
-
-            var model = modelBuilder.FinalizeModel();
+            var model = Finalize(modelBuilder);
 
             var entityType = model.FindEntityType(typeof(KeylessEntity));
 
             Assert.Null(entityType.FindPrimaryKey());
-            Assert.Empty(entityType.GetViewOrTableMappings());
+            Assert.Equal("KeylessEntity", entityType.GetViewOrTableMappings().Single().Table.Name);
         }
 
         [ConditionalFact]
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                     nameof(GetEntities),
                     BindingFlags.NonPublic | BindingFlags.Static));
 
-            var model = modelBuilder.FinalizeModel();
+            var model = Finalize(modelBuilder);
 
             var entityType = model.FindEntityType(typeof(TestEntity));
 
@@ -64,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
-                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(System.Int32)",
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(int)",
                     typeof(KeylessEntity).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
         }
 
         [ConditionalFact]
@@ -81,9 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableOwnedReturnType(
-                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(System.Int32)",
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetKeylessEntities(int)",
                     typeof(KeylessEntity).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
         }
 
         [ConditionalFact]
@@ -97,13 +96,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             Assert.Equal(
                 RelationalStrings.DbFunctionInvalidIQueryableReturnType(
-                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetScalars(System.Int32)",
+                    "Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal.TableValuedDbFunctionConventionTest.GetScalars(int)",
                     typeof(IQueryable<int>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(() => Finalize(modelBuilder)).Message);
         }
 
-        private static ModelBuilder CreateModelBuilder()
+        private static TestHelpers.TestModelBuilder CreateModelBuilder()
             => RelationalTestHelpers.Instance.CreateConventionBuilder();
+
+        private static IModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
+            => modelBuilder.FinalizeModel();
 
         private static IQueryable<TestEntity> GetEntities(int id)
             => throw new NotImplementedException();

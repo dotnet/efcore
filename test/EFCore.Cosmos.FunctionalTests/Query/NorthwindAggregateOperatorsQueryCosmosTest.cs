@@ -752,6 +752,15 @@ WHERE (c[""Discriminator""] = ""Order"")");
                 @"");
         }
 
+        [ConditionalTheory(Skip = "Issue#16146")]
+        public override async Task Count_after_client_projection(bool isAsync)
+        {
+            await base.Count_after_client_projection(isAsync);
+
+            AssertSql(
+                @"");
+        }
+
         [ConditionalTheory(Skip = "Issue#17246")]
         public override async Task OrderBy_client_Take(bool async)
         {
@@ -1628,6 +1637,18 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         public override Task Multiple_collection_navigation_with_FirstOrDefault_chained(bool async)
         {
             return base.Multiple_collection_navigation_with_FirstOrDefault_chained(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#20441")]
+        public override Task All_true(bool async)
+        {
+            return base.All_true(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#20441")]
+        public override Task Not_Any_false(bool async)
+        {
+            return base.Not_Any_false(async);
         }
 
         private void AssertSql(params string[] expected)

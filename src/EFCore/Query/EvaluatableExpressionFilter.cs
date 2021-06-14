@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,31 +27,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Hence we don't evaluate them. See issue#2069
 
         private static readonly PropertyInfo _dateTimeNow
-            = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
+            = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Now));
 
         private static readonly PropertyInfo _dateTimeUtcNow
-            = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow));
+            = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.UtcNow));
 
         private static readonly PropertyInfo _dateTimeToday
-            = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Today));
+            = typeof(DateTime).GetRequiredDeclaredProperty(nameof(DateTime.Today));
 
         private static readonly PropertyInfo _dateTimeOffsetNow
-            = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.Now));
+            = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.Now));
 
         private static readonly PropertyInfo _dateTimeOffsetUtcNow
-            = typeof(DateTimeOffset).GetTypeInfo().GetDeclaredProperty(nameof(DateTimeOffset.UtcNow));
+            = typeof(DateTimeOffset).GetRequiredDeclaredProperty(nameof(DateTimeOffset.UtcNow));
 
         private static readonly MethodInfo _guidNewGuid
-            = typeof(Guid).GetTypeInfo().GetDeclaredMethod(nameof(Guid.NewGuid));
+            = typeof(Guid).GetRequiredDeclaredMethod(nameof(Guid.NewGuid));
 
         private static readonly MethodInfo _randomNextNoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), Array.Empty<Type>());
 
         private static readonly MethodInfo _randomNextOneArg
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), new[] { typeof(int) });
 
         private static readonly MethodInfo _randomNextTwoArgs
-            = typeof(Random).GetRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
+            = typeof(Random).GetRequiredRuntimeMethod(nameof(Random.Next), new[] { typeof(int), typeof(int) });
 
         /// <summary>
         ///     <para>
@@ -65,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="dependencies"> The dependencies to use. </param>
         public EvaluatableExpressionFilter(
-            [NotNull] EvaluatableExpressionFilterDependencies dependencies)
+            EvaluatableExpressionFilterDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
 

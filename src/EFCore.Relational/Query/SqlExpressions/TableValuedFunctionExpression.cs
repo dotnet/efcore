@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="storeFunction"> The <see cref="IStoreFunction" /> associated this function. </param>
         /// <param name="arguments"> The arguments of the function. </param>
-        public TableValuedFunctionExpression([NotNull] IStoreFunction storeFunction, [NotNull] IReadOnlyList<SqlExpression> arguments)
+        public TableValuedFunctionExpression(IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
             : this(
                 storeFunction.Name.Substring(0, 1).ToLowerInvariant(),
                 Check.NotNull(storeFunction, nameof(storeFunction)),
@@ -43,6 +43,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
+        ///     The alias assigned to this table source.
+        /// </summary>
+        [NotNull]
+        public override string? Alias
+        {
+            get => base.Alias!;
+            internal set => base.Alias = value;
+        }
+
+        /// <summary>
         ///     The store function.
         /// </summary>
         public virtual IStoreFunction StoreFunction { get; }
@@ -50,10 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     The list of arguments of this function.
         /// </summary>
-        public virtual IReadOnlyList<SqlExpression> Arguments
-        {
-            get;
-        }
+        public virtual IReadOnlyList<SqlExpression> Arguments { get; }
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -79,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// </summary>
         /// <param name="arguments"> The <see cref="Arguments" /> property of the result. </param>
         /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
-        public virtual TableValuedFunctionExpression Update([NotNull] IReadOnlyList<SqlExpression> arguments)
+        public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
         {
             Check.NotNull(arguments, nameof(arguments));
 
@@ -104,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => obj != null
                 && (ReferenceEquals(this, obj)
                     || obj is TableValuedFunctionExpression tableValuedFunctionExpression

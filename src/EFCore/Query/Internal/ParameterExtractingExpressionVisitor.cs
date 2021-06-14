@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -31,11 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private readonly EvaluatableExpressionFindingExpressionVisitor _evaluatableExpressionFindingExpressionVisitor;
         private readonly ContextParameterReplacingExpressionVisitor _contextParameterReplacingExpressionVisitor;
 
-        private readonly Dictionary<Expression, Expression> _evaluatedValues
-            = new Dictionary<Expression, Expression>(ExpressionEqualityComparer.Instance);
+        private readonly Dictionary<Expression, EvaluatedValues> _evaluatedValues = new(ExpressionEqualityComparer.Instance);
 
         private IDictionary<Expression, bool> _evaluatableExpressions;
-        private IQueryProvider _currentQueryProvider;
+        private IQueryProvider? _currentQueryProvider;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public ParameterExtractingExpressionVisitor(
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            [NotNull] IParameterValues parameterValues,
-            [NotNull] Type contextType,
-            [NotNull] IModel model,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+            IEvaluatableExpressionFilter evaluatableExpressionFilter,
+            IParameterValues parameterValues,
+            Type contextType,
+            IModel model,
+            IDiagnosticsLogger<DbLoggerCategory.Query> logger,
             bool parameterize,
             bool generateContextAccessors)
         {
@@ -58,10 +57,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             _logger = logger;
             _parameterize = parameterize;
             _generateContextAccessors = generateContextAccessors;
-            if (_generateContextAccessors)
-            {
-                _contextParameterReplacingExpressionVisitor = new ContextParameterReplacingExpressionVisitor(contextType);
-            }
+            // The entry method will take care of populating this field always. So accesses should be safe.
+            _evaluatableExpressions = null!;
+            // TODO: Use MemberNotNullWhen
+            // Value won't be accessed when condition is not met.
+            _contextParameterReplacingExpressionVisitor = _generateContextAccessors
+                ? new ContextParameterReplacingExpressionVisitor(contextType)
+                : null!;
         }
 
         /// <summary>
@@ -70,7 +72,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Expression ExtractParameters([NotNull] Expression expression)
+        public virtual Expression ExtractParameters(Expression expression)
+        {
+            return ExtractParameters(expression, clearEvaluatedValues: true);
+        }
+
+        private Expression ExtractParameters(Expression expression, bool clearEvaluatedValues)
         {
             var oldEvaluatableExpressions = _evaluatableExpressions;
             _evaluatableExpressions = _evaluatableExpressionFindingExpressionVisitor.Find(expression);
@@ -82,7 +89,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             finally
             {
                 _evaluatableExpressions = oldEvaluatableExpressions;
-                _evaluatedValues.Clear();
+                if (clearEvaluatedValues)
+                {
+                    _evaluatedValues.Clear();
+                }
             }
         }
 
@@ -92,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Expression Visit(Expression expression)
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
         {
             if (expression == null)
             {
@@ -215,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             }
         }
 
-        private Expression TryGetConstantValue(Expression expression)
+        private Expression? TryGetConstantValue(Expression expression)
         {
             if (_evaluatableExpressions.ContainsKey(expression))
             {
@@ -263,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return base.VisitExtension(extensionExpression);
         }
 
-        private static Expression GenerateConstantExpression(object value, Type returnType)
+        private static Expression GenerateConstantExpression(object? value, Type returnType)
         {
             var constantExpression = Expression.Constant(value, value?.GetType() ?? returnType);
 
@@ -274,30 +285,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private Expression Evaluate(Expression expression, bool generateParameter)
         {
+            object? parameterValue;
+            string? parameterName;
             if (_evaluatedValues.TryGetValue(expression, out var cachedValue))
             {
-                return cachedValue;
-            }
+                var existingExpression = generateParameter ? cachedValue.Parameter : cachedValue.Constant;
+                if (existingExpression != null)
+                {
+                    return existingExpression;
+                }
 
-            var parameterValue = GetValue(expression, out var parameterName);
+                parameterValue = cachedValue.Value;
+                parameterName = cachedValue.CandidateParameterName;
+            }
+            else
+            {
+                parameterValue = GetValue(expression, out parameterName);
+                cachedValue = new EvaluatedValues { CandidateParameterName = parameterName, Value = parameterValue };
+                _evaluatedValues[expression] = cachedValue;
+            }
 
             if (parameterValue is IQueryable innerQueryable)
             {
-                return ExtractParameters(innerQueryable.Expression);
+                return ExtractParameters(innerQueryable.Expression, clearEvaluatedValues: false);
             }
 
             if (parameterName?.StartsWith(QueryFilterPrefix, StringComparison.Ordinal) != true)
             {
                 if (parameterValue is Expression innerExpression)
                 {
-                    return ExtractParameters(innerExpression);
+                    return ExtractParameters(innerExpression, clearEvaluatedValues: false);
                 }
 
                 if (!generateParameter)
                 {
                     var constantValue = GenerateConstantExpression(parameterValue, expression.Type);
 
-                    _evaluatedValues.Add(expression, constantValue);
+                    cachedValue.Constant = constantValue;
 
                     return constantValue;
                 }
@@ -331,7 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             var parameter = Expression.Parameter(expression.Type, parameterName);
 
-            _evaluatedValues.Add(expression, parameter);
+            cachedValue.Parameter = parameter;
 
             return parameter;
         }
@@ -348,7 +372,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public ParameterExpression ContextParameterExpression { get; }
 
-            public override Expression Visit(Expression expression)
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
                 => expression?.Type != typeof(object)
                     && expression?.Type.IsAssignableFrom(_contextType) == true
                         ? ContextParameterExpression
@@ -367,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return expression;
         }
 
-        private object GetValue(Expression expression, out string parameterName)
+        private object? GetValue(Expression? expression, out string? parameterName)
         {
             parameterName = null;
 
@@ -473,6 +498,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _evaluatableExpressionFilter = evaluatableExpressionFilter;
                 _model = model;
                 _parameterize = parameterize;
+                // The entry method will take care of populating this field always. So accesses should be safe.
+                _evaluatableExpressions = null!;
             }
 
             public IDictionary<Expression, bool> Find(Expression expression)
@@ -488,7 +515,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return _evaluatableExpressions;
             }
 
-            public override Expression Visit(Expression expression)
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
             {
                 if (expression == null)
                 {
@@ -634,6 +662,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private static bool IsQueryableMethod(Expression expression)
                 => expression is MethodCallExpression methodCallExpression
                     && methodCallExpression.Method.DeclaringType == typeof(Queryable);
+        }
+
+        private sealed class EvaluatedValues
+        {
+            public string? CandidateParameterName { get; set; }
+            public object? Value { get; set; }
+            public Expression? Constant { get; set; }
+            public Expression? Parameter { get; set; }
         }
     }
 }

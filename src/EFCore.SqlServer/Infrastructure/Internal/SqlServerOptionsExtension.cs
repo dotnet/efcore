@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
     /// </summary>
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
-        private DbContextOptionsExtensionInfo _info;
+        private DbContextOptionsExtensionInfo? _info;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected SqlServerOptionsExtension([NotNull] SqlServerOptionsExtension copyFrom)
+        protected SqlServerOptionsExtension(SqlServerOptionsExtension copyFrom)
             : base(copyFrom)
         {
         }
@@ -71,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
 
         private sealed class ExtensionInfo : RelationalExtensionInfo
         {
-            private string _logFragment;
+            private string? _logFragment;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)

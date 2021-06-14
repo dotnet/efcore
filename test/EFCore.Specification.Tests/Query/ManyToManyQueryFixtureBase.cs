@@ -17,8 +17,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
 
+        private ManyToManyData _data;
+
         public ISetSource GetExpectedData()
-            => new ManyToManyData();
+        {
+            if (_data == null)
+            {
+                using var context = CreateContext();
+                _data = new ManyToManyData(context, false);
+                context.ChangeTracker.DetectChanges();
+                context.ChangeTracker.Clear();
+            }
+
+            return _data;
+        }
 
         public IReadOnlyDictionary<Type, object> GetEntitySorters()
             => new Dictionary<Type, Func<object, object>>
@@ -190,8 +202,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .HasMany(e => e.TwoSkip)
                 .WithMany(e => e.OneSkip)
                 .UsingEntity<JoinOneToTwo>(
-                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey(e => e.TwoId),
-                    l => l.HasOne<EntityOne>().WithMany().HasForeignKey(e => e.OneId));
+                    r => r.HasOne(e => e.Two).WithMany().HasForeignKey(e => e.TwoId),
+                    l => l.HasOne(e => e.One).WithMany().HasForeignKey(e => e.OneId));
 
             // Nav:6 Payload:Yes Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
@@ -329,7 +341,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        public virtual bool UseGeneratedKeys
+            => false;
+
         protected override void Seed(ManyToManyContext context)
-            => ManyToManyContext.Seed(context);
+        {
+            new ManyToManyData(context, UseGeneratedKeys);
+            context.SaveChanges();
+        }
     }
 }

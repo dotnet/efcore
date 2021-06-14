@@ -349,6 +349,31 @@ namespace Microsoft.EntityFrameworkCore
 
                 modelBuilder.Entity<BadCustomer>();
                 modelBuilder.Entity<BadOrder>();
+
+                modelBuilder.Entity<SharedFkRoot>(
+                    builder =>
+                    {
+                        builder.HasMany(x => x.Dependants).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
+
+                        builder.HasMany(x => x.Parents).WithOne(x => x.Root)
+                            .HasForeignKey(x => new { x.RootId })
+                            .HasPrincipalKey(x => x.Id)
+                            .OnDelete(DeleteBehavior.Cascade);
+                    });
+
+                modelBuilder.Entity<SharedFkParent>(
+                    builder =>
+                    {
+                        builder.HasOne(x => x.Dependant).WithOne(x => x!.Parent).IsRequired(false)
+                            .HasForeignKey<SharedFkParent>(x => new { x.RootId, x.DependantId })
+                            .HasPrincipalKey<SharedFkDependant>(x => new { x.RootId, x.Id })
+                            .OnDelete(DeleteBehavior.ClientSetNull);
+                    });
+
+                modelBuilder.Entity<SharedFkDependant>();
             }
 
             protected virtual object CreateFullGraph(DbContext context)
@@ -602,6 +627,18 @@ namespace Microsoft.EntityFrameworkCore
                 context.ChangeTracker.TrackGraph(CreateFullGraph(context), e => tracker.TrackEntity(e.Entry));
 
                 context.Add(context.CreateProxy<BadOrder>(e => e.BadCustomer = context.CreateProxy<BadCustomer>()));
+
+                var root = context.CreateProxy<SharedFkRoot>();
+                context.Add(root);
+
+                var parent = context.CreateProxy<SharedFkParent>();
+                parent.Root = root;
+                context.Add(parent);
+
+                var dependent = context.CreateProxy<SharedFkDependant>();
+                dependent.Root = root;
+                dependent.Parent = parent;
+                context.Add(dependent);
 
                 context.SaveChanges();
             }
@@ -1817,6 +1854,30 @@ namespace Microsoft.EntityFrameworkCore
             public virtual int? BadCustomerId { get; set; }
 
             public virtual BadCustomer BadCustomer { get; set; }
+        }
+
+        public class SharedFkRoot
+        {
+            public virtual long Id { get; set; }
+            public virtual ICollection<SharedFkDependant> Dependants { get; set; }
+            public virtual ICollection<SharedFkParent> Parents { get; set; }
+        }
+
+        public class SharedFkParent
+        {
+            public virtual long Id { get; set; }
+            public virtual long? DependantId { get; set; }
+            public virtual long RootId { get; set; }
+            public virtual SharedFkRoot Root { get; set; }
+            public virtual SharedFkDependant Dependant { get; set; }
+        }
+
+        public class SharedFkDependant
+        {
+            public virtual long Id { get; set; }
+            public virtual long RootId { get; set; }
+            public virtual SharedFkRoot Root { get; set; }
+            public virtual SharedFkParent Parent { get; set; }
         }
 
         protected DbContext CreateContext()

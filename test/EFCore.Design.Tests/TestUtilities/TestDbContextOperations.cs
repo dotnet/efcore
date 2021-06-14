@@ -12,9 +12,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             IOperationReporter reporter,
             Assembly assembly,
             Assembly startupAssembly,
+            string projectDir,
+            string rootNamespace,
+            string language,
+            bool nullable,
             string[] args,
             AppServiceProviderFactory appServicesFactory)
-            : base(reporter, assembly, startupAssembly, args, appServicesFactory)
+            : base(reporter, assembly, startupAssembly, projectDir, rootNamespace, language, nullable, args, appServicesFactory)
         {
         }
     }

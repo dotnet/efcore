@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -39,28 +38,20 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
-    public abstract class DbSet<TEntity>
-        : IQueryable<TEntity>, IAsyncEnumerable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
+    public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
         where TEntity : class
     {
         /// <summary>
         ///     The <see cref="IEntityType" /> metadata associated with this set.
         /// </summary>
-        public virtual IEntityType EntityType
-            => null;
+        public abstract IEntityType EntityType { get; }
 
         /// <summary>
-        ///     <para>
-        ///         Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
-        ///     </para>
-        ///     <para>
-        ///         This is a convenience method to help with disambiguation of extension methods in the same
-        ///         namespace that extend both interfaces.
-        ///     </para>
+        ///     Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
         /// </summary>
         /// <returns> This object. </returns>
         public virtual IAsyncEnumerable<TEntity> AsAsyncEnumerable()
-            => this;
+            => (IAsyncEnumerable<TEntity>)this;
 
         /// <summary>
         ///     <para>
@@ -92,9 +83,13 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="LocalView{TEntity}.ToObservableCollection" /> for WPF binding, or
         ///         <see cref="LocalView{TEntity}.ToBindingList" /> for WinForms.
         ///     </para>
+        ///     <para>
+        ///         Note that this method calls <see cref="ChangeTracker.DetectChanges" /> unless
+        ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" /> has been set to <see langword="false" />.
+        ///     </para>
         /// </summary>
         public virtual LocalView<TEntity> Local
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -104,9 +99,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual TEntity Find([CanBeNull] params object[] keyValues)
-            => throw new NotImplementedException();
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        public virtual TEntity? Find(params object[]? keyValues)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -116,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<TEntity> FindAsync([CanBeNull] params object[] keyValues)
-            => throw new NotImplementedException();
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        public virtual ValueTask<TEntity?> FindAsync(params object[]? keyValues)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Finds an entity with the given primary key values. If an entity with the given primary key values
@@ -129,9 +124,10 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns>The entity found, or null.</returns>
-        public virtual ValueTask<TEntity> FindAsync([CanBeNull] object[] keyValues, CancellationToken cancellationToken)
-            => throw new NotImplementedException();
+        /// <returns>The entity found, or <see langword="null" />.</returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        public virtual ValueTask<TEntity?> FindAsync(object[]? keyValues, CancellationToken cancellationToken)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -148,8 +144,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)
-            => throw new NotImplementedException();
+        public virtual EntityEntry<TEntity> Add(TEntity entity)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -173,10 +169,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
         /// </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual ValueTask<EntityEntry<TEntity>> AddAsync(
-            [NotNull] TEntity entity,
+            TEntity entity,
             CancellationToken cancellationToken = default)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -212,8 +209,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach([NotNull] TEntity entity)
-            => throw new NotImplementedException();
+        public virtual EntityEntry<TEntity> Attach(TEntity entity)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -239,8 +236,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Remove([NotNull] TEntity entity)
-            => throw new NotImplementedException();
+        public virtual EntityEntry<TEntity> Remove(TEntity entity)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -276,8 +273,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update([NotNull] TEntity entity)
-            => throw new NotImplementedException();
+        public virtual EntityEntry<TEntity> Update(TEntity entity)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
@@ -285,8 +282,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] params TEntity[] entities)
-            => throw new NotImplementedException();
+        public virtual void AddRange(params TEntity[] entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -302,8 +299,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        public virtual Task AddRangeAsync([NotNull] params TEntity[] entities)
-            => throw new NotImplementedException();
+        public virtual Task AddRangeAsync(params TEntity[] entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -335,8 +332,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] params TEntity[] entities)
-            => throw new NotImplementedException();
+        public virtual void AttachRange(params TEntity[] entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
@@ -355,8 +352,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] params TEntity[] entities)
-            => throw new NotImplementedException();
+        public virtual void RemoveRange(params TEntity[] entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -388,8 +385,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] params TEntity[] entities)
-            => throw new NotImplementedException();
+        public virtual void UpdateRange(params TEntity[] entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Begins tracking the given entities, and any other reachable entities that are
@@ -397,8 +394,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
-            => throw new NotImplementedException();
+        public virtual void AddRange(IEnumerable<TEntity> entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -415,10 +412,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entities"> The entities to add. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task AddRangeAsync(
-            [NotNull] IEnumerable<TEntity> entities,
+            IEnumerable<TEntity> entities,
             CancellationToken cancellationToken = default)
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -450,8 +448,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] IEnumerable<TEntity> entities)
-            => throw new NotImplementedException();
+        public virtual void AttachRange(IEnumerable<TEntity> entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will
@@ -470,8 +468,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
-        public virtual void RemoveRange([NotNull] IEnumerable<TEntity> entities)
-            => throw new NotImplementedException();
+        public virtual void RemoveRange(IEnumerable<TEntity> entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -503,8 +501,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities)
-            => throw new NotImplementedException();
+        public virtual void UpdateRange(IEnumerable<TEntity> entities)
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Returns an <see cref="IEnumerator{T}" /> which when enumerated will execute a query against the database
@@ -512,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> The query results. </returns>
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Returns an <see cref="IEnumerator" /> which when enumerated will execute a query against the database
@@ -520,33 +518,36 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> The query results. </returns>
         IEnumerator IEnumerable.GetEnumerator()
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Returns an <see cref="IAsyncEnumerator{T}" /> which when enumerated will asynchronously execute a query against
         ///     the database.
         /// </summary>
+        /// <param name="cancellationToken">
+        ///     A <see cref="CancellationToken" /> that may be used to cancel the asynchronous iteration.
+        /// </param>
         /// <returns> The query results. </returns>
-        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
-            => throw new NotImplementedException();
+        public virtual IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => ((IAsyncEnumerable<TEntity>)this).GetAsyncEnumerator(cancellationToken);
 
         /// <summary>
         ///     Gets the IQueryable element type.
         /// </summary>
         Type IQueryable.ElementType
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Gets the IQueryable LINQ Expression.
         /// </summary>
         Expression IQueryable.Expression
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     Gets the IQueryable provider.
         /// </summary>
         IQueryProvider IQueryable.Provider
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -558,7 +559,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
-            => throw new NotImplementedException();
+            => throw new NotSupportedException();
 
         /// <summary>
         ///     <para>
@@ -597,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <returns> A string that represents the current object. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override string ToString()
+        public override string? ToString()
             => base.ToString();
 
         /// <summary>
@@ -606,7 +607,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="obj"> The object to compare with the current object. </param>
         /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
             => base.Equals(obj);
 
         /// <summary>

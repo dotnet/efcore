@@ -30,10 +30,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         where TGeometry : Geometry
     {
         private static readonly MethodInfo _getSqlBytes
-            = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) });
+            = typeof(SqlDataReader).GetRuntimeMethod(nameof(SqlDataReader.GetSqlBytes), new[] { typeof(int) })!;
 
-        private static Action<DbParameter, SqlDbType> _sqlDbTypeSetter;
-        private static Action<DbParameter, string> _udtTypeNameSetter;
+        private static Action<DbParameter, SqlDbType>? _sqlDbTypeSetter;
+        private static Action<DbParameter, string>? _udtTypeNameSetter;
 
         private readonly bool _isGeography;
 
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [UsedImplicitly]
-        public SqlServerGeometryTypeMapping([NotNull] NtsGeometryServices geometryServices, [NotNull] string storeType)
+        public SqlServerGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
             : base(
                 new GeometryValueConverter<TGeometry>(
                     CreateReader(geometryServices, IsGeography(storeType)),
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         protected SqlServerGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
-            [CanBeNull] ValueConverter<TGeometry, SqlBytes> converter)
+            ValueConverter<TGeometry, SqlBytes>? converter)
             : base(parameters, converter)
         {
             _isGeography = IsGeography(StoreType);
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 .Append(defaultSrid ? "Parse" : "STGeomFromText")
                 .Append("('")
                 .Append(WKTWriter.ForMicrosoftSqlServer().Write(geometry))
-                .Append("'");
+                .Append('\'');
 
             if (!defaultSrid)
             {
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     .Append(geometry.SRID);
             }
 
-            builder.Append(")");
+            builder.Append(')');
 
             return builder.ToString();
         }
@@ -169,10 +169,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         }
 
         private static SqlServerBytesReader CreateReader(NtsGeometryServices services, bool isGeography)
-            => new SqlServerBytesReader(services) { IsGeography = isGeography };
+            => new(services) { IsGeography = isGeography };
 
         private static SqlServerBytesWriter CreateWriter(bool isGeography)
-            => new SqlServerBytesWriter { IsGeography = isGeography };
+            => new() { IsGeography = isGeography };
 
         private static bool IsGeography(string storeType)
             => string.Equals(storeType, "geography", StringComparison.OrdinalIgnoreCase);
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             return Expression.Lambda<Action<DbParameter, SqlDbType>>(
                 Expression.Call(
                     Expression.Convert(paramParam, paramType),
-                    paramType.GetProperty("SqlDbType").SetMethod,
+                    paramType.GetProperty("SqlDbType")!.SetMethod!,
                     valueParam),
                 paramParam,
                 valueParam).Compile();
@@ -199,7 +199,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             return Expression.Lambda<Action<DbParameter, string>>(
                 Expression.Call(
                     Expression.Convert(paramParam, paramType),
-                    paramType.GetProperty("UdtTypeName").SetMethod,
+                    paramType.GetProperty("UdtTypeName")!.SetMethod!,
                     valueParam),
                 paramParam,
                 valueParam).Compile();

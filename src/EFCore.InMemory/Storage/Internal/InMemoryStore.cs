@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
@@ -24,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         private readonly IInMemoryTableFactory _tableFactory;
         private readonly bool _useNameMatching;
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
-        private Dictionary<object, IInMemoryTable> _tables;
+        private Dictionary<object, IInMemoryTable>? _tables;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public InMemoryStore(
-            [NotNull] IInMemoryTableFactory tableFactory,
+            IInMemoryTableFactory tableFactory,
             bool useNameMatching)
         {
             _tableFactory = tableFactory;
@@ -69,6 +68,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// </summary>
         public virtual bool EnsureCreated(
             IUpdateAdapterFactory updateAdapterFactory,
+            IModel designModel,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
         {
             lock (_lock)
@@ -81,11 +81,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
 
                     var updateAdapter = updateAdapterFactory.CreateStandalone();
                     var entries = new List<IUpdateEntry>();
-                    foreach (var entityType in updateAdapter.Model.GetEntityTypes())
+                    foreach (var entityType in designModel.GetEntityTypes())
                     {
+                        IEntityType? targetEntityType = null;
                         foreach (var targetSeed in entityType.GetSeedData())
                         {
-                            var entry = updateAdapter.CreateEntry(targetSeed, entityType);
+                            targetEntityType ??= updateAdapter.Model.FindEntityType(entityType.Name)!;
+                            var entry = updateAdapter.CreateEntry(targetSeed, targetEntityType);
                             entry.EntityState = EntityState.Added;
                             entries.Add(entry);
                         }
@@ -120,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         }
 
         private static Dictionary<object, IInMemoryTable> CreateTables()
-            => new Dictionary<object, IInMemoryTable>();
+            => new();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 {
                     foreach (var et in entityType.GetDerivedTypesInclusive().Where(et => !et.IsAbstract()))
                     {
-                        var key = _useNameMatching ? (object)et.FullName() : et;
+                        var key = _useNameMatching ? (object)et.Name : et;
                         if (_tables.TryGetValue(key, out var table))
                         {
                             data.Add(new InMemoryTableSnapshot(et, table.SnapshotRows()));
@@ -213,12 +215,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 _tables = CreateTables();
             }
 
-            IInMemoryTable baseTable = null;
+            IInMemoryTable? baseTable = null;
 
             var entityTypes = entityType.GetAllBaseTypesInclusive();
             foreach (var currentEntityType in entityTypes)
             {
-                var key = _useNameMatching ? (object)currentEntityType.FullName() : currentEntityType;
+                var key = _useNameMatching ? (object)currentEntityType.Name : currentEntityType;
                 if (!_tables.TryGetValue(key, out var table))
                 {
                     _tables.Add(key, table = _tableFactory.Create(currentEntityType, baseTable));
@@ -227,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
                 baseTable = table;
             }
 
-            return _tables[_useNameMatching ? (object)entityType.FullName() : entityType];
+            return _tables[_useNameMatching ? (object)entityType.Name : entityType];
         }
     }
 }
