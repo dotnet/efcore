@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
@@ -27,6 +26,12 @@ namespace Microsoft.EntityFrameworkCore
         public class DesignApiConsistencyFixture : ApiConsistencyFixtureBase
         {
             public override HashSet<Type> FluentApiTypes { get; } = new() { typeof(DesignTimeServiceCollectionExtensions) };
+
+            public override HashSet<Type> NonSealedPrivateNestedTypes { get; } = new()
+            {
+                Type.GetType("Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener, Microsoft.EntityFrameworkCore.Design", throwOnError: true),
+                Type.GetType("Microsoft.Extensions.Hosting.HostFactoryResolver+HostingListener+StopTheHostException, Microsoft.EntityFrameworkCore.Design", throwOnError: true)
+            };
         }
     }
 }
