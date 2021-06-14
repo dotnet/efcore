@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the check constraints for this table.
         /// </summary>
         IEnumerable<ICheckConstraint> CheckConstraints
-            => EntityTypeMappings.SelectMany(m => CheckConstraint.GetCheckConstraints(m.EntityType))
+            => EntityTypeMappings.SelectMany(m => m.EntityType.GetDeclaredCheckConstraints())
                 .Distinct((x, y) => x!.Name == y!.Name);
 
         /// <summary>

@@ -4,6 +4,8 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
@@ -51,6 +53,29 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public override TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
                 => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+        }
+
+        public abstract class TestCheckConstraintBuilder
+        {
+            public abstract TestCheckConstraintBuilder HasName(string name);
+        }
+
+        public class NonGenericTestCheckConstraintBuilder : TestCheckConstraintBuilder, IInfrastructure<CheckConstraintBuilder>
+        {
+            public NonGenericTestCheckConstraintBuilder(CheckConstraintBuilder checkConstraintBuilder)
+            {
+                CheckConstraintBuilder = checkConstraintBuilder;
+            }
+
+            protected CheckConstraintBuilder CheckConstraintBuilder { get; }
+
+            public CheckConstraintBuilder Instance => CheckConstraintBuilder;
+
+            protected virtual TestCheckConstraintBuilder Wrap(CheckConstraintBuilder checkConstraintBuilder)
+                => new NonGenericTestCheckConstraintBuilder(checkConstraintBuilder);
+
+            public override TestCheckConstraintBuilder HasName(string name)
+                => Wrap(CheckConstraintBuilder.HasName(name));
         }
     }
 }

@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IMutableCheckConstraint? FindCheckConstraint(
             this IMutableEntityType entityType,
             string name)
-            => (IMutableCheckConstraint?)((IEntityType)entityType).FindCheckConstraint(name);
+            => (IMutableCheckConstraint?)((IReadOnlyEntityType)entityType).FindCheckConstraint(name);
 
         /// <summary>
         ///     Finds an <see cref="IConventionCheckConstraint" /> with the given name.
@@ -614,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore
         public static IConventionCheckConstraint? FindCheckConstraint(
             this IConventionEntityType entityType,
             string name)
-            => (IConventionCheckConstraint?)((IEntityType)entityType).FindCheckConstraint(name);
+            => (IConventionCheckConstraint?)((IReadOnlyEntityType)entityType).FindCheckConstraint(name);
 
         /// <summary>
         ///     Finds an <see cref="ICheckConstraint" /> with the given name.
@@ -677,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to remove the check constraint from. </param>
         /// <param name="name"> The check constraint name to be removed. </param>
-        /// <returns> The removed <see cref="IMutableCheckConstraint" />. </returns>
+        /// <returns> The removed check constraint. </returns>
         public static IMutableCheckConstraint? RemoveCheckConstraint(
             this IMutableEntityType entityType,
             string name)
@@ -688,39 +688,96 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type to remove the check constraint from. </param>
         /// <param name="name"> The check constraint name. </param>
-        /// <returns> The removed <see cref="IConventionCheckConstraint" />. </returns>
+        /// <returns> The removed check constraint. </returns>
         public static IConventionCheckConstraint? RemoveCheckConstraint(
             this IConventionEntityType entityType,
             string name)
-            => CheckConstraint.RemoveCheckConstraint((IMutableEntityType)entityType, Check.NotEmpty(name, nameof(name)));
+            => (IConventionCheckConstraint?)CheckConstraint.RemoveCheckConstraint(
+                (IMutableEntityType)entityType, Check.NotEmpty(name, nameof(name)));
 
         /// <summary>
-        ///     Returns all <see cref="IReadOnlyCheckConstraint" /> contained in the entity type.
+        ///     Returns all check constraints contained in the entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get the check constraints for. </param>
         public static IEnumerable<IReadOnlyCheckConstraint> GetCheckConstraints(this IReadOnlyEntityType entityType)
             => CheckConstraint.GetCheckConstraints(entityType);
 
         /// <summary>
-        ///     Returns all <see cref="IMutableCheckConstraint" /> contained in the entity type.
+        ///     Returns all check constraints contained in the entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get the check constraints for. </param>
         public static IEnumerable<IMutableCheckConstraint> GetCheckConstraints(this IMutableEntityType entityType)
             => CheckConstraint.GetCheckConstraints(entityType).Cast<IMutableCheckConstraint>();
 
         /// <summary>
-        ///     Returns all <see cref="IConventionCheckConstraint" /> contained in the entity type.
+        ///     Returns all check constraints contained in the entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get the check constraints for. </param>
         public static IEnumerable<IConventionCheckConstraint> GetCheckConstraints(this IConventionEntityType entityType)
             => CheckConstraint.GetCheckConstraints(entityType).Cast<IConventionCheckConstraint>();
 
         /// <summary>
-        ///     Returns all <see cref="ICheckConstraint" /> contained in the entity type.
+        ///     Returns all check constraints contained in the entity type.
         /// </summary>
         /// <param name="entityType"> The entity type to get the check constraints for. </param>
         public static IEnumerable<ICheckConstraint> GetCheckConstraints(this IEntityType entityType)
-            => CheckConstraint.GetCheckConstraints(entityType);
+            => CheckConstraint.GetCheckConstraints(entityType).Cast<ICheckConstraint>();
+
+        /// <summary>
+        ///     <para>
+        ///         Returns all check constraints declared on the entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return check constraints declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same check constraint more than once.
+        ///         Use <see cref="GetCheckConstraints(IReadOnlyEntityType)" /> to also return check constraints declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the check constraints for. </param>
+        public static IEnumerable<IReadOnlyCheckConstraint> GetDeclaredCheckConstraints(this IReadOnlyEntityType entityType)
+            => CheckConstraint.GetDeclaredCheckConstraints(entityType);
+
+        /// <summary>
+        ///     <para>
+        ///         Returns all check constraints declared on the entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return check constraints declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same check constraint more than once.
+        ///         Use <see cref="GetCheckConstraints(IMutableEntityType)" /> to also return check constraints declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the check constraints for. </param>
+        public static IEnumerable<IMutableCheckConstraint> GetDeclaredCheckConstraints(this IMutableEntityType entityType)
+            => CheckConstraint.GetDeclaredCheckConstraints(entityType).Cast<IMutableCheckConstraint>();
+
+        /// <summary>
+        ///     <para>
+        ///         Returns all check constraints declared on the entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return check constraints declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same check constraint more than once.
+        ///         Use <see cref="GetCheckConstraints(IConventionEntityType)" /> to also return check constraints declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the check constraints for. </param>
+        public static IEnumerable<IConventionCheckConstraint> GetDeclaredCheckConstraints(this IConventionEntityType entityType)
+            => CheckConstraint.GetDeclaredCheckConstraints(entityType).Cast<IConventionCheckConstraint>();
+
+        /// <summary>
+        ///     <para>
+        ///         Returns all check constraints declared on the entity type.
+        ///     </para>
+        ///     <para>
+        ///         This method does not return check constraints declared on base types.
+        ///         It is useful when iterating over all entity types to avoid processing the same check constraint more than once.
+        ///         Use <see cref="GetCheckConstraints(IEntityType)" /> to also return check constraints declared on base types.
+        ///     </para>
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the check constraints for. </param>
+        public static IEnumerable<ICheckConstraint> GetDeclaredCheckConstraints(this IEntityType entityType)
+            => CheckConstraint.GetDeclaredCheckConstraints(entityType).Cast<ICheckConstraint>();
 
         /// <summary>
         ///     Returns the comment for the table this entity is mapped to.

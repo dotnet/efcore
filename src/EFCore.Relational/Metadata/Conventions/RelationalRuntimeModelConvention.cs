@@ -119,21 +119,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                if (annotations.TryGetValue(RelationalAnnotationNames.CheckConstraints, out var constraints))
-                {
-                    var runtimeCheckConstraints = new SortedDictionary<string, ICheckConstraint>();
-                    foreach (var constraintPair in (SortedDictionary<string, ICheckConstraint>?)constraints!)
-                    {
-                        var runtimeCheckConstraint = Create(constraintPair.Value, runtimeEntityType);
-                        runtimeCheckConstraints[constraintPair.Key] = runtimeCheckConstraint;
-
-                        CreateAnnotations(constraintPair.Value, runtimeCheckConstraint, static (convention, annotations, source, target, runtime) =>
-                            convention.ProcessCheckConstraintAnnotations(annotations, source, target, runtime));
-                    }
-
-                    annotations[RelationalAnnotationNames.CheckConstraints] = runtimeCheckConstraints;
-                }
-
+                annotations.Remove(RelationalAnnotationNames.CheckConstraints);
                 annotations.Remove(RelationalAnnotationNames.Comment);
                 annotations.Remove(RelationalAnnotationNames.IsTableExcludedFromMigrations);
 
@@ -240,27 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Dictionary<string, object?> annotations,
             ISequence sequence,
             RuntimeSequence runtimeSequence,
-            bool runtime)
-        {
-        }
-
-        private RuntimeCheckConstraint Create(ICheckConstraint checkConstraint, RuntimeEntityType runtimeEntityType)
-            => new RuntimeCheckConstraint(
-                checkConstraint.Name,
-                runtimeEntityType,
-                checkConstraint.Sql);
-
-        /// <summary>
-        ///     Updates the check constraint annotations that will be set on the read-only object.
-        /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="checkConstraint"> The source check constraint. </param>
-        /// <param name="runtimeCheckConstraint"> The target check constraint that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
-        protected virtual void ProcessCheckConstraintAnnotations(
-            Dictionary<string, object?> annotations,
-            ICheckConstraint checkConstraint,
-            RuntimeCheckConstraint runtimeCheckConstraint,
             bool runtime)
         {
         }

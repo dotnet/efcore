@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -972,27 +974,36 @@ namespace Microsoft.EntityFrameworkCore
             string? sql)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(sql, nameof(sql));
 
-            var entityType = entityTypeBuilder.Metadata;
+            InternalCheckConstraintBuilder.HasCheckConstraint(
+                  (IConventionEntityType)entityTypeBuilder.Metadata,
+                  name,
+                  sql,
+                  ConfigurationSource.Explicit);
 
-            var constraint = entityType.FindCheckConstraint(name);
-            if (constraint != null)
-            {
-                if (constraint.Sql == sql)
-                {
-                    ((CheckConstraint)constraint).UpdateConfigurationSource(ConfigurationSource.Explicit);
-                    return entityTypeBuilder;
-                }
+            return entityTypeBuilder;
+        }
 
-                entityType.RemoveCheckConstraint(name);
-            }
+        /// <summary>
+        ///     Configures a database check constraint when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The entity type builder. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <param name="buildAction"> An action that performs configuration of the check constraint. </param>
+        /// <returns> A builder to further configure the entity type. </returns>
+        public static EntityTypeBuilder HasCheckConstraint(
+            this EntityTypeBuilder entityTypeBuilder,
+            string name,
+            string sql,
+            Action<CheckConstraintBuilder> buildAction)
+        {
+            Check.NotEmpty(sql, nameof(sql));
+            Check.NotNull(buildAction, nameof(buildAction));
 
-            if (sql != null)
-            {
-                entityType.AddCheckConstraint(name, sql);
-            }
+            entityTypeBuilder.HasCheckConstraint(name, sql);
+
+            buildAction(new CheckConstraintBuilder(entityTypeBuilder.Metadata.FindCheckConstraint(name)!));
 
             return entityTypeBuilder;
         }
@@ -1015,6 +1026,23 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The entity type builder. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <param name="buildAction"> An action that performs configuration of the check constraint. </param>
+        /// <returns> A builder to further configure the entity type. </returns>
+        public static EntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            string name,
+            string sql,
+            Action<CheckConstraintBuilder> buildAction)
+            where TEntity : class
+            => (EntityTypeBuilder<TEntity>)HasCheckConstraint((EntityTypeBuilder)entityTypeBuilder, name, sql, buildAction);
+
+        /// <summary>
+        ///     Configures a database check constraint when targeting a relational database.
+        /// </summary>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1023,44 +1051,17 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the check constraint was configured,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder? HasCheckConstraint(
+        public static IConventionCheckConstraintBuilder? HasCheckConstraint(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
             string? sql,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(sql, nameof(sql));
-
-            var entityType = entityTypeBuilder.Metadata;
-
-            var constraint = entityType.FindCheckConstraint(name);
-            if (constraint != null)
-            {
-                if (constraint.Sql == sql)
-                {
-                    ((CheckConstraint)constraint).UpdateConfigurationSource(
-                        fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-                    return entityTypeBuilder;
-                }
-
-                if (!(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                    .Overrides(constraint.GetConfigurationSource()))
-                {
-                    return null;
-                }
-
-                entityType.RemoveCheckConstraint(name);
-            }
-
-            if (sql != null)
-            {
-                entityType.AddCheckConstraint(name, sql, fromDataAnnotation);
-            }
-
-            return entityTypeBuilder;
-        }
+            => InternalCheckConstraintBuilder.HasCheckConstraint(
+                Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
+                name,
+                sql,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+                ?.Builder;
 
         /// <summary>
         ///     Returns a value indicating whether the check constraint can be configured.
@@ -1070,23 +1071,32 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        [Obsolete("Use CanHaveCheckConstraint")]
         public static bool CanSetCheckConstraint(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
             string? sql,
             bool fromDataAnnotation = false)
-        {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(sql, nameof(sql));
+            => entityTypeBuilder.CanHaveCheckConstraint(name, sql, fromDataAnnotation);
 
-            var constraint = entityTypeBuilder.Metadata.FindCheckConstraint(name);
-
-            return constraint == null
-                || constraint.Sql == sql
-                || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                .Overrides(constraint.GetConfigurationSource());
-        }
+        /// <summary>
+        ///     Returns a value indicating whether the check constraint can be configured.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        public static bool CanHaveCheckConstraint(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            string? sql,
+            bool fromDataAnnotation = false)
+            => InternalCheckConstraintBuilder.CanHaveCheckConstraint(
+                Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder)).Metadata,
+                name,
+                sql,
+                fromDataAnnotation? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     Configures a comment to be applied to the table

@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents a check constraint in the <see cref="IMutableEntityType" />.
+    ///     Represents a check constraint on the entity type.
     /// </summary>
     public interface IMutableCheckConstraint : IReadOnlyCheckConstraint, IMutableAnnotatable
     {
@@ -12,5 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the entity type on which this check constraint is defined.
         /// </summary>
         new IMutableEntityType EntityType { get; }
+
+        /// <summary>
+        ///     Gets or sets the name of the check constraint in the database.
+        /// </summary>
+        new string Name { get; set; }
     }
 }
