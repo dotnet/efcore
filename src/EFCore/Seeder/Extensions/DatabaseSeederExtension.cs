@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Seeder.Extensions
@@ -16,11 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Seeder.Extensions
         /// <param name="services">IServiceCollection which DbContext is registered in it</param>
         /// <typeparam name="T">DbContext which models are defined in it</typeparam>
         /// <returns>IDatabaseSeeder that can seed the database.</returns>
-        public static IDatabaseSeeder AddSeeder<T>(this IServiceCollection services) where T : DbContext
+        public static IDatabaseSeeder AddSeeder<T>(this IServiceCollection services)
+            where T : DbContext
         {
             var serviceProvider = services.BuildServiceProvider();
 
-            var databaseSeeder = new DatabaseSeeder<T>(serviceProvider, serviceProvider.GetService<T>());
+            var dbContext = serviceProvider.GetService<T>();
+
+            if (dbContext == null)
+            {
+                throw new NullReferenceException($"{typeof(T).Name} is not configured correctly.");
+            }
+
+            var databaseSeeder = new DatabaseSeeder<T>(serviceProvider, dbContext);
 
             return databaseSeeder;
         }

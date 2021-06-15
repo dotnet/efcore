@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Seeder.Attributes;
+using Microsoft.EntityFrameworkCore.Seeder.Exceptions;
 
 namespace Microsoft.EntityFrameworkCore.Seeder
 {
@@ -90,9 +91,13 @@ namespace Microsoft.EntityFrameworkCore.Seeder
                         return;
                     }
 
-                    var dataCount = (int)countMethod.Invoke(dbSet, new[] { dbSet });
+                    var dataCount = countMethod.Invoke(dbSet, new[] { dbSet });
+                    if (dataCount is not int)
+                    {
+                        return;
+                    }
 
-                    if (dataCount != 0 && !seederInfo.SeederAttribute.Force)
+                    if ((int)dataCount != 0 && !seederInfo.SeederAttribute.Force)
                     {
                         return;
                     }
@@ -117,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Seeder
         /// <param name="seederInstance">An instance of the class which seeder is defined in it.</param>
         protected virtual void InvokeAsyncSeeder(SeederInfo seederInfo, object seederInstance)
         {
-            ((Task)seederInfo.MethodInfo.Invoke(seederInstance, null))?.Wait();
+            (seederInfo.MethodInfo.Invoke(seederInstance, parameters: null) as Task)?.Wait();
         }
 
         /// <summary>
@@ -135,9 +140,14 @@ namespace Microsoft.EntityFrameworkCore.Seeder
         /// </summary>
         /// <param name="seederInfo">The seeder method information.</param>
         /// <returns>An instance of the class which seeder is defined in it.</returns>
-        protected virtual object CreateSeederInstance(SeederInfo seederInfo)
+        protected virtual object? CreateSeederInstance(SeederInfo seederInfo)
         {
             var seederConstructorInfo = GetConstructorInfo(seederInfo.Type);
+            if (seederConstructorInfo == null)
+            {
+                return null;
+            }
+
             var seederConstructorParameters = CreateConstructorParameters(seederConstructorInfo);
             return Activator.CreateInstance(seederInfo.Type, seederConstructorParameters);
         }
@@ -153,12 +163,12 @@ namespace Microsoft.EntityFrameworkCore.Seeder
                 .SelectMany(x => x.GetTypes())
                 .Where(x => x.IsClass)
                 .SelectMany(x => x.GetMethods())
-                .Where(x => x.GetCustomAttributes(typeof(SeederAttribute), false).FirstOrDefault() != null)
+                .Where(x => x.GetCustomAttributes(typeof(SeederAttribute), inherit: false).FirstOrDefault() != null)
                 .Select(
                     x => new SeederInfo(
-                        x.DeclaringType,
+                        x.DeclaringType ?? throw new InvalidSeederMethodException(x),
                         x,
-                        x.GetCustomAttribute(typeof(SeederAttribute)) as SeederAttribute
+                        (x.GetCustomAttribute(typeof(SeederAttribute)) as SeederAttribute)!
                     )).OrderBy(x => x.SeederAttribute.Priority)
                 .ToList();
         }
@@ -168,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Seeder
         /// </summary>
         /// <param name="seederInfo">The seeder method information.</param>
         /// <returns>DbSet method of seeder model from DbContext.</returns>
-        protected internal virtual MethodInfo GetDbSetMethod(SeederInfo seederInfo)
+        protected internal virtual MethodInfo? GetDbSetMethod(SeederInfo seederInfo)
         {
             return DbContext.GetType().GetMethods()
                 .FirstOrDefault(x => x.Name == "Set" && x.GetParameters().Length == 0)?
@@ -180,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Seeder
         /// </summary>
         /// <param name="seederInfo">The seeder method information.</param>
         /// <returns>Count method from Queryable for the model that should seed.</returns>
-        protected internal virtual MethodInfo GetCountMethod(SeederInfo seederInfo)
+        protected internal virtual MethodInfo? GetCountMethod(SeederInfo seederInfo)
         {
             return typeof(Queryable)
                 .GetMethods()
@@ -193,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Seeder
         /// </summary>
         /// <param name="type">The class which seeder method is defined in it.</param>
         /// <returns>ConstructorInfo of the class which seeder method is defined in it.</returns>
-        protected virtual ConstructorInfo GetConstructorInfo(Type type)
+        protected virtual ConstructorInfo? GetConstructorInfo(Type type)
         {
             return type.GetConstructors().Length < 1 ? null : type.GetConstructors()[0];
         }
@@ -203,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Seeder
         /// </summary>
         /// <param name="constructor">Constructor of the class which seeder method is defined in it.</param>
         /// <returns>Parameters for constructor of the class which seeder method is defined in it.</returns>
-        protected virtual object[] CreateConstructorParameters(MethodBase constructor)
+        protected virtual object?[] CreateConstructorParameters(MethodBase constructor)
         {
             return constructor.GetParameters()
                 .Select(parameter => ServiceProvider.GetService(parameter.ParameterType))
