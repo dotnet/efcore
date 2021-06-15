@@ -111,13 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     ? ExpressionExtensions.InferTypeMapping(arguments[0])
                     : ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
 
-                var newArguments = new SqlExpression[arguments.Count];
-                newArguments[0] = _sqlExpressionFactory.ApplyTypeMapping(arguments[0], typeMapping!);
-
-                if (arguments.Count == 2)
-                {
-                    newArguments[1] = _sqlExpressionFactory.ApplyTypeMapping(arguments[1], typeMapping!);
-                }
+                var newArguments = arguments.Select(e => _sqlExpressionFactory.ApplyTypeMapping(e, typeMapping!));
 
                 return _sqlExpressionFactory.Function(
                     sqlFunctionName,

@@ -710,7 +710,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 }
             }
 
-            /* TODO
             if (expression is MethodCallExpression methodCallExpression)
             {
                 var innerType = methodCallExpression.Arguments[0].Type.UnwrapNullableType();
@@ -734,7 +733,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     return TryRemoveImplicitConvert(methodCallExpression.Arguments[0]);
                 }
             }
-            */
 
             return expression;
         }
