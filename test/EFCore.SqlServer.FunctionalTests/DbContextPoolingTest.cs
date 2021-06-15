@@ -731,27 +731,24 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = BuildServiceProvider<SecondContext>();
 
-            DbContext ctx;
-            using (var scope = serviceProvider.CreateScope())
-            using (var ctx1 = scope.ServiceProvider.GetRequiredService<SecondContext>())
-            {
-                await ctx1.DisposeAsync();
-                ctx = ctx1;
-            }
+            var serviceScope = serviceProvider.CreateScope();
+            var ctx = serviceScope.ServiceProvider.GetRequiredService<SecondContext>();
+            await Dispose(ctx, async);
+            await Dispose(serviceScope, async);
 
-            using (var scope = serviceProvider.CreateScope())
-            using (var ctx2 = scope.ServiceProvider.GetRequiredService<SecondContext>())
-            {
-                Assert.Same(ctx, ctx2);
-                ctx2.Blogs.Add(new SecondContext.Blog());
-            }
+            serviceScope = serviceProvider.CreateScope();
+            var ctx2 = serviceScope.ServiceProvider.GetRequiredService<SecondContext>();
+            Assert.Same(ctx, ctx2);
+            ctx2.Blogs.Add(new SecondContext.Blog());
+            await Dispose(ctx2, async);
+            await Dispose(serviceScope, async);
 
-            using (var scope = serviceProvider.CreateScope())
-            using (var ctx3 = scope.ServiceProvider.GetRequiredService<SecondContext>())
-            {
-                Assert.Same(ctx, ctx3);
-                Assert.Empty(ctx3.ChangeTracker.Entries());
-            }
+            serviceScope = serviceProvider.CreateScope();
+            var ctx3 = serviceScope.ServiceProvider.GetRequiredService<SecondContext>();
+            Assert.Same(ctx, ctx3);
+            Assert.Empty(ctx3.ChangeTracker.Entries());
+            await Dispose(ctx2, async);
+            await Dispose(serviceScope, async);
         }
 
         [ConditionalTheory]
