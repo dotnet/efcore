@@ -27,6 +27,12 @@ namespace Microsoft.EntityFrameworkCore
 
                 context.Database.SetCommandTimeout(TimeSpan.FromSeconds(66));
                 Assert.Equal(66, context.Database.GetCommandTimeout());
+            }
+
+            [ConditionalFact]
+            public void Setting_CommandTimeout_to_infinite_sets_to_zero()
+            {
+                using var context = new TimeoutContext();
 
                 context.Database.SetCommandTimeout(Timeout.InfiniteTimeSpan);
                 Assert.Equal(0, context.Database.GetCommandTimeout());
