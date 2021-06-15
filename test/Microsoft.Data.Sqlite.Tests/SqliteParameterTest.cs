@@ -258,6 +258,26 @@ namespace Microsoft.Data.Sqlite
                 SqliteType.Real);
 
         [Fact]
+        public void Bind_works_when_DateOnly()
+            => Bind_works(new DateOnly(2014, 4, 14), "2014-04-14");
+
+        [Fact]
+        public void Bind_works_when_DateOnly_with_SqliteType_Real()
+            => Bind_works(new DateOnly(2014, 4, 14), 2456761.5, SqliteType.Real);
+
+        [Fact]
+        public void Bind_works_when_TimeOnly()
+            => Bind_works(new TimeOnly(13, 10, 15), "13:10:15");
+
+        [Fact]
+        public void Bind_works_when_TimeOnly_with_milliseconds()
+            => Bind_works(new TimeOnly(13, 10, 15, 500), "13:10:15.5000000");
+
+        [Fact]
+        public void Bind_works_when_TimeOnly_with_SqliteType_Real()
+            => Bind_works(new TimeOnly(13, 10, 15), 0.5487847222222222, SqliteType.Real);
+
+        [Fact]
         public void Bind_works_when_DBNull()
             => Bind_works(DBNull.Value, DBNull.Value);
 
