@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual TEntity? Find(params object[]? keyValues)
+        public virtual TEntity? Find(params object?[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        public virtual ValueTask<TEntity?> FindAsync(params object[]? keyValues)
+        public virtual ValueTask<TEntity?> FindAsync(params object?[]? keyValues)
             => throw new NotSupportedException();
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public virtual ValueTask<TEntity?> FindAsync(object[]? keyValues, CancellationToken cancellationToken)
+        public virtual ValueTask<TEntity?> FindAsync(object?[]? keyValues, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
         /// <summary>
