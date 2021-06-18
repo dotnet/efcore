@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var query = context
                 .Set<MostExpensiveProduct>()
                 .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-                .TagWith("SampleFileName", 13);
+                .TagWithCallSite("SampleFileName", 13);
 
             var queryResult = async
                 ? await query.ToArrayAsync()

@@ -519,9 +519,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Defaults to one second.
         ///     </para>
         /// </summary>
-        /// <param name="loggingConfigCacheTime"> The maximum time period over which to skip logging checks before checking again. </param>
+        /// <param name="timeSpan"> The maximum time period over which to skip logging checks before checking again. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual DbContextOptionsBuilder<TContext> LoggingConfigCacheTime(TimeSpan loggingConfigCacheTime)
-            => (DbContextOptionsBuilder<TContext>)base.LoggingConfigCacheTime(loggingConfigCacheTime);
+        public new virtual DbContextOptionsBuilder<TContext> ConfigureLoggingCacheTime(TimeSpan timeSpan)
+            => (DbContextOptionsBuilder<TContext>)base.ConfigureLoggingCacheTime(timeSpan);
     }
 }

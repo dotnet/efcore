@@ -39,16 +39,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private IDictionary<(Type, Type?), Type>? _replacedServices;
         private int? _maxPoolSize;
-        private TimeSpan _loggingConfigCacheTime = DefaultLoggingConfigCacheTime;
+        private TimeSpan _loggingCacheTime = DefaultLoggingCacheTime;
         private bool _serviceProviderCachingEnabled = true;
         private DbContextOptionsExtensionInfo? _info;
         private IEnumerable<IInterceptor>? _interceptors;
 
         /// <summary>
         ///     The default for how long EF Core will cache logging configuration in certain high-performance paths: one second.
-        ///     See <see cref="DbContextOptionsBuilder.LoggingConfigCacheTime" />.
+        ///     See <see cref="DbContextOptionsBuilder.ConfigureLoggingCacheTime" />.
         /// </summary>
-        public static readonly TimeSpan DefaultLoggingConfigCacheTime = TimeSpan.FromSeconds(1);
+        public static readonly TimeSpan DefaultLoggingCacheTime = TimeSpan.FromSeconds(1);
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             _warningsConfiguration = copyFrom.WarningsConfiguration;
             _queryTrackingBehavior = copyFrom.QueryTrackingBehavior;
             _maxPoolSize = copyFrom.MaxPoolSize;
-            _loggingConfigCacheTime = copyFrom.LoggingConfigCacheTime;
+            _loggingCacheTime = copyFrom.LoggingCacheTime;
             _serviceProviderCachingEnabled = copyFrom.ServiceProviderCachingEnabled;
             _interceptors = copyFrom.Interceptors?.ToList();
 
@@ -300,13 +300,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="loggingConfigCacheTime"> The maximum time period over which to skip logging checks before checking again. </param>
+        /// <param name="timeSpan"> The maximum time period over which to skip logging checks before checking again. </param>
         /// <returns> A new instance with the option changed. </returns>
-        public virtual CoreOptionsExtension WithLoggingConfigCacheTime(TimeSpan loggingConfigCacheTime)
+        public virtual CoreOptionsExtension WithLoggingCacheTime(TimeSpan timeSpan)
         {
             var clone = Clone();
 
-            clone._loggingConfigCacheTime = loggingConfigCacheTime;
+            clone._loggingCacheTime = timeSpan;
 
             return clone;
         }
@@ -453,8 +453,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         cref="EntityFrameworkServiceCollectionExtensions.AddDbContextPool{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},int)" />
         ///     method.
         /// </summary>
-        public virtual TimeSpan LoggingConfigCacheTime
-            => _loggingConfigCacheTime;
+        public virtual TimeSpan LoggingCacheTime
+            => _loggingCacheTime;
 
         /// <summary>
         ///     The options set from the <see cref="DbContextOptionsBuilder.AddInterceptors(IEnumerable{IInterceptor})" /> method.

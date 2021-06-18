@@ -49,13 +49,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="model"> The model to initialize. </param>
         /// <param name="designTime"> Whether the model should contain design-time configuration. </param>
-        /// <param name="preValidation">
+        /// <param name="prevalidation">
         ///     <see langword="true"/> indicates that only pre-validation initialization should be performed;
         ///     <see langword="false"/> indicates that only post-validation initialization should be performed.
         /// </param>
-        protected override void InitializeModel(IModel model, bool designTime, bool preValidation)
+        protected override void InitializeModel(IModel model, bool designTime, bool prevalidation)
         {
-            if (preValidation)
+            if (prevalidation)
             {
                 model.AddRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies, RelationalDependencies.RelationalModelDependencies);
             }

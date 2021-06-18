@@ -2567,9 +2567,9 @@ namespace Microsoft.EntityFrameworkCore
                     && mi.GetParameters().Select(p => p.ParameterType)
                         .SequenceEqual(new Type[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string) }));
 
-        internal static readonly MethodInfo TagWithCallerInfoMethodInfo
+        internal static readonly MethodInfo TagWithCallSiteMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 3
+                .GetRequiredDeclaredMethod(nameof(TagWithCallSite), mi => mi.GetParameters().Length == 3
                     && mi.GetParameters().Select(p => p.ParameterType)
                         .SequenceEqual(new Type[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string), typeof(int) }));
 
@@ -2609,16 +2609,16 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="T"> The type of entity being queried. </typeparam>
         /// <param name="source"> The source query. </param>
-        /// <param name="fromFile"> The file name where the method was called</param>
-        /// <param name="onLine"> The file line number where the method was called</param>
+        /// <param name="filePath"> The file name where the method was called</param>
+        /// <param name="lineNumber"> The file line number where the method was called</param>
         /// <returns> A new query annotated with the given tag. </returns>
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" />
         /// </exception>
-        public static IQueryable<T> TagWith<T>(
+        public static IQueryable<T> TagWithCallSite<T>(
             this IQueryable<T> source,
-            [NotParameterized][CallerFilePath] string? fromFile = null,
-            [NotParameterized][CallerLineNumber] int onLine = 0)
+            [NotParameterized][CallerFilePath] string? filePath = null,
+            [NotParameterized][CallerLineNumber] int lineNumber = 0)
         {
             Check.NotNull(source, nameof(source));
 
@@ -2627,10 +2627,10 @@ namespace Microsoft.EntityFrameworkCore
                     ? source.Provider.CreateQuery<T>(
                         Expression.Call(
                             instance: null,
-                            method: TagWithCallerInfoMethodInfo.MakeGenericMethod(typeof(T)),
+                            method: TagWithCallSiteMethodInfo.MakeGenericMethod(typeof(T)),
                             arg0: source.Expression,
-                            arg1: Expression.Constant(fromFile),
-                            arg2: Expression.Constant(onLine)))
+                            arg1: Expression.Constant(filePath),
+                            arg2: Expression.Constant(lineNumber)))
                     : source;
         }
 

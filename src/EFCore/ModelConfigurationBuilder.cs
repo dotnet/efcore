@@ -50,12 +50,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Prevents the conventions from the given type from discovering properties of the given or derived types.
         /// </summary>
-        /// <typeparam name="TEntity"> The type to be ignored. </typeparam>
+        /// <typeparam name="T"> The type to be ignored. </typeparam>
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelConfigurationBuilder IgnoreAny<TEntity>()
-            => IgnoreAny(typeof(TEntity));
+        public virtual ModelConfigurationBuilder IgnoreAny<T>()
+            => IgnoreAny(typeof(T));
 
         /// <summary>
         ///     Prevents the conventions from the given type from discovering properties of the given or derived types.

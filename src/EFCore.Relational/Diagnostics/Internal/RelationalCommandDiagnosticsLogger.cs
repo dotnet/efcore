@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         private DateTimeOffset _suppressCommandExecuteExpiration;
         private DateTimeOffset _suppressDataReaderDisposingExpiration;
 
-        private readonly TimeSpan _loggingConfigCacheTime;
+        private readonly TimeSpan _loggingCacheTime;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             IInterceptors? interceptors = null)
             : base(loggerFactory, loggingOptions, diagnosticSource, loggingDefinitions, contextLogger, interceptors)
         {
-            _loggingConfigCacheTime = contextOptions.FindExtension<CoreOptionsExtension>()?.LoggingConfigCacheTime ??
-                                      CoreOptionsExtension.DefaultLoggingConfigCacheTime;
+            _loggingCacheTime = contextOptions.FindExtension<CoreOptionsExtension>()?.LoggingCacheTime ??
+                                      CoreOptionsExtension.DefaultLoggingCacheTime;
         }
 
         #region CommandCreating
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             DateTimeOffset startTime)
         {
-            _suppressCommandCreateExpiration = startTime + _loggingConfigCacheTime;
+            _suppressCommandCreateExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogCommandCreating(this);
 
@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             DateTimeOffset startTime)
         {
-            _suppressCommandExecuteExpiration = startTime + _loggingConfigCacheTime;
+            _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogExecutingCommand(this);
 
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             DateTimeOffset startTime)
         {
-            _suppressCommandExecuteExpiration = startTime + _loggingConfigCacheTime;
+            _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogExecutingCommand(this);
 
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             DateTimeOffset startTime)
         {
-            _suppressCommandExecuteExpiration = startTime + _loggingConfigCacheTime;
+            _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogExecutingCommand(this);
 
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
         {
-            _suppressCommandExecuteExpiration = startTime + _loggingConfigCacheTime;
+            _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogExecutingCommand(this);
 
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
         {
-            _suppressCommandExecuteExpiration = startTime + _loggingConfigCacheTime;
+            _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogExecutingCommand(this);
 
@@ -548,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DateTimeOffset startTime,
             CancellationToken cancellationToken = default)
         {
-            _suppressCommandExecuteExpiration = startTime + _loggingConfigCacheTime;
+            _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogExecutingCommand(this);
 
@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DateTimeOffset startTime,
             TimeSpan duration)
         {
-            _suppressDataReaderDisposingExpiration = startTime + _loggingConfigCacheTime;
+            _suppressDataReaderDisposingExpiration = startTime + _loggingCacheTime;
 
             var definition = RelationalResources.LogDisposingDataReader(this);
 

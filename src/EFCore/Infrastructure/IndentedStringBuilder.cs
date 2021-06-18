@@ -168,17 +168,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Appends the current indent and additional indent if provided.
-        /// </summary>
-        /// <returns> This builder so that additional calls can be chained. </returns>
-        public virtual IndentedStringBuilder AppendIndent()
-        {
-            _stringBuilder.Append(' ', _indent  * IndentSize);
-
-            return this;
-        }
-
-        /// <summary>
         ///     Resets this builder ready to build a new string.
         /// </summary>
         /// <returns> This builder so that additional calls can be chained. </returns>
@@ -233,7 +222,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (_indentPending && _indent > 0)
             {
-                AppendIndent();
+                _stringBuilder.Append(' ', _indent * IndentSize);
             }
 
             _indentPending = false;
