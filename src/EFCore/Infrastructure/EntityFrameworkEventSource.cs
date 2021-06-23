@@ -178,7 +178,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             internal double CalculateAndReset()
             {
                 var clone = new CacheInfo { _all = Interlocked.Exchange(ref _all, 0) };
-                return ((double)clone.Hits / (clone.Hits + clone.Misses)) * 100;
+
+                var hitsAndMisses = clone.Hits + clone.Misses;
+                if (hitsAndMisses == 0)
+                {
+                    return 0;
+                }
+
+                return ((double)clone.Hits / hitsAndMisses) * 100;
             }
         }
     }
