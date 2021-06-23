@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private bool _indexerPropertyInitialized;
         private PropertyInfo? _indexerPropertyInfo;
-        private Dictionary<string, PropertyInfo>? _runtimeProperties;
-        private Dictionary<string, FieldInfo>? _runtimeFields;
+        private SortedDictionary<string, PropertyInfo>? _runtimeProperties;
+        private SortedDictionary<string, FieldInfo>? _runtimeFields;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (_runtimeProperties == null)
             {
-                var runtimeProperties = new Dictionary<string, PropertyInfo>(StringComparer.Ordinal);
+                var runtimeProperties = new SortedDictionary<string, PropertyInfo>(StringComparer.Ordinal);
                 foreach (var property in ClrType.GetRuntimeProperties())
                 {
                     if (!property.IsStatic()
@@ -171,7 +171,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             if (_runtimeFields == null)
             {
-                var runtimeFields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
+                var runtimeFields = new SortedDictionary<string, FieldInfo>(StringComparer.Ordinal);
                 foreach (var field in ClrType.GetRuntimeFields())
                 {
                     if (!field.IsStatic

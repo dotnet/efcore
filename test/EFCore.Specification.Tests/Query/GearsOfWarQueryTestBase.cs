@@ -8796,6 +8796,176 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_Year(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.Year == 1990).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_Month(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.Month == 11).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_Day(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.Day == 10).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_DayOfYear(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.DayOfYear == 314).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_DayOfWeek(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.DayOfWeek == DayOfWeek.Saturday).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_AddYears(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3) == new DateOnly(1993, 11, 10)).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_AddMonths(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.AddMonths(3) == new DateOnly(1991, 2, 10)).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_DateOnly_AddDays(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Date.AddDays(3) == new DateOnly(1990, 11, 13)).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_Hour(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.Hour == 10).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_Minute(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.Minute == 15).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_Second(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.Second == 50).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_Millisecond(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.Millisecond == 500).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_AddHours(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.AddHours(3) == new TimeOnly(13, 15, 50, 500)).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_AddMinutes(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.AddMinutes(3) == new TimeOnly(10, 18, 50, 500)).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_Add_TimeSpan(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.Add(new TimeSpan(3, 0, 0)) == new TimeOnly(13, 15, 50, 500)).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_IsBetween(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time.IsBetween(new TimeOnly(10, 0, 0), new TimeOnly(11, 0, 0))).AsTracking(),
+                entryCount: 1);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_TimeOnly_subtract_TimeOnly(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Time - new TimeOnly(10, 0, 0) == new TimeSpan(0, 0, 15, 50, 500)).AsTracking(),
+                entryCount: 1);
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

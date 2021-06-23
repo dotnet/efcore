@@ -377,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.NotNull(createTableOperation.PrimaryKey);
                     Assert.Single(createTableOperation.UniqueConstraints);
                     var checkConstraint = createTableOperation.CheckConstraints.Single();
-                    Assert.Equal("SomeCheckConstraint", checkConstraint.Name);
+                    Assert.Equal("CK_Node_SomeCheckConstraint", checkConstraint.Name);
                     Assert.Equal("[Id] > 10", checkConstraint.Sql);
                     Assert.Single(createTableOperation.ForeignKeys);
 
@@ -2857,7 +2857,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Penguin", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("AlternateId");
-                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                        x.HasCheckConstraint("CK_Penguin_AlternateId", "AlternateId > Id");
                     }),
                 target => target.Entity(
                     "Penguin",
@@ -2874,7 +2874,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var operation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Penguin", operation.Table);
-                    Assert.Equal("CK_Flamingo_AlternateId", operation.Name);
+                    Assert.Equal("CK_Penguin_AlternateId", operation.Name);
                 });
         }
 
@@ -2889,7 +2889,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Pelican", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("AlternateId");
-                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                        x.HasCheckConstraint("CK_Pelican_AlternateId", "AlternateId > Id");
                     }),
                 target => target.Entity(
                     "Pelican",
@@ -2898,7 +2898,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Pelican", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("AlternateId");
-                        x.HasCheckConstraint("CK_Flamingo", "AlternateId > Id");
+                        x.HasCheckConstraint("CK_Pelican_AlternateId", "AlternateId > Id", c => c.HasName("CK_Flamingo"));
                     }),
                 operations =>
                 {
@@ -2907,7 +2907,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var dropOperation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
                     Assert.Equal("dbo", dropOperation.Schema);
                     Assert.Equal("Pelican", dropOperation.Table);
-                    Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
+                    Assert.Equal("CK_Pelican_AlternateId", dropOperation.Name);
 
                     var createOperation = Assert.IsType<AddCheckConstraintOperation>(operations[1]);
                     Assert.Equal("dbo", createOperation.Schema);
@@ -2928,7 +2928,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Rook", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("AlternateId");
-                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId > Id");
+                        x.HasCheckConstraint("CK_Rook_AlternateId", "AlternateId > Id");
                     }),
                 target => target.Entity(
                     "Rook",
@@ -2937,7 +2937,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         x.ToTable("Rook", "dbo");
                         x.Property<int>("Id");
                         x.Property<int>("AlternateId");
-                        x.HasCheckConstraint("CK_Flamingo_AlternateId", "AlternateId < Id");
+                        x.HasCheckConstraint("CK_Rook_AlternateId", "AlternateId < Id");
                     }),
                 operations =>
                 {
@@ -2946,12 +2946,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     var dropOperation = Assert.IsType<DropCheckConstraintOperation>(operations[0]);
                     Assert.Equal("dbo", dropOperation.Schema);
                     Assert.Equal("Rook", dropOperation.Table);
-                    Assert.Equal("CK_Flamingo_AlternateId", dropOperation.Name);
+                    Assert.Equal("CK_Rook_AlternateId", dropOperation.Name);
 
                     var createOperation = Assert.IsType<AddCheckConstraintOperation>(operations[1]);
                     Assert.Equal("dbo", createOperation.Schema);
                     Assert.Equal("Rook", createOperation.Table);
-                    Assert.Equal("CK_Flamingo_AlternateId", createOperation.Name);
+                    Assert.Equal("CK_Rook_AlternateId", createOperation.Name);
                     Assert.Equal("AlternateId < Id", createOperation.Sql);
                 });
         }
@@ -10557,15 +10557,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             => throw new NotImplementedException();
 
         [ConditionalFact]
-        public void Model_differ_does_not_detect_table_valued_function_result_type()
+        public void Model_differ_does_not_detect_entity_type_mapped_to_TVF()
         {
             Execute(
                 _ => { },
                 modelBuilder =>
-                    modelBuilder.HasDbFunction(
+                {
+                    var function = modelBuilder.HasDbFunction(
                         typeof(MigrationsModelDifferTest).GetMethod(
                             nameof(GetCountByYear),
-                            BindingFlags.NonPublic | BindingFlags.Static)),
+                            BindingFlags.NonPublic | BindingFlags.Static)).Metadata;
+
+                    modelBuilder.Entity<TestKeylessType>().ToFunction(function.ModelName);
+                },
                 result => Assert.Equal(0, result.Count),
                 skipSourceConventions: true);
         }

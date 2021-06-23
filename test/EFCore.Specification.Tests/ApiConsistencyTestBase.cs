@@ -481,7 +481,10 @@ namespace Microsoft.EntityFrameworkCore
                             ? method.Name[3..]
                             : method.Name.StartsWith("To", StringComparison.Ordinal)
                                 ? method.Name[2..]
-                                : method.Name);
+                                : method.Name.StartsWith("With", StringComparison.Ordinal)
+                                    ? method.Name[4..]
+                                    : method.Name);
+
                 if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
                 {
                     return $"{declaringType.Name} expected to have a {expectedName} method";
@@ -770,6 +773,7 @@ namespace Microsoft.EntityFrameworkCore
                        && !type.IsSealed
                        && !type.IsAbstract
                        && !type.DeclaringType.GetNestedTypes(BindingFlags.NonPublic).Any(t => t.BaseType == type)
+                       && !Fixture.NonSealedPrivateNestedTypes.Contains(type)
                    select type.FullName)
                 .ToList();
 
@@ -1051,6 +1055,8 @@ namespace Microsoft.EntityFrameworkCore
 
             public Dictionary<Type, Type> MutableMetadataTypes { get; } = new();
             public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new();
+
+            public virtual HashSet<Type> NonSealedPrivateNestedTypes { get; } = new();
 
             public virtual
                 List<(Type Type,

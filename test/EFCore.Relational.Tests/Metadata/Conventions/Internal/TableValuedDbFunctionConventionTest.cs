@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
     public class TableValuedDbFunctionConventionTest
     {
         [ConditionalFact]
-        public void Configures_return_entity_as_not_mapped()
+        public void Does_not_configure_return_entity_as_not_mapped()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.HasDbFunction(
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             var entityType = model.FindEntityType(typeof(KeylessEntity));
 
             Assert.Null(entityType.FindPrimaryKey());
-            Assert.Empty(entityType.GetViewOrTableMappings());
+            Assert.Equal("KeylessEntity", entityType.GetViewOrTableMappings().Single().Table.Name);
         }
 
         [ConditionalFact]

@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
     ""SSN"" TEXT COLLATE NOCASE NOT NULL,
     CONSTRAINT ""AK_People_SSN"" UNIQUE (""SSN""),
-    CONSTRAINT ""CK_EmployerId"" CHECK (""EmployerId"" > 0),
+    CONSTRAINT ""CK_People_EmployerId"" CHECK (""EmployerId"" > 0),
     CONSTRAINT ""FK_People_Employers_EmployerId"" FOREIGN KEY (""EmployerId"") REFERENCES ""Employers"" (""Id"") ON DELETE RESTRICT
 );");
         }
@@ -321,7 +321,7 @@ FROM ""People"";",
                 @"CREATE TABLE ""ef_temp_People"" (
     ""DriverLicense"" INTEGER NOT NULL,
     ""Id"" INTEGER NOT NULL,
-    CONSTRAINT ""CK_Foo"" CHECK (""DriverLicense"" > 0)
+    CONSTRAINT ""CK_People_Foo"" CHECK (""DriverLicense"" > 0)
 );",
                 @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
 SELECT ""DriverLicense"", ""Id""
@@ -797,7 +797,7 @@ FROM ""People"";",
                 @"CREATE TABLE ""ef_temp_People"" (
     ""DriverLicense"" INTEGER NOT NULL,
     ""Id"" INTEGER NOT NULL,
-    CONSTRAINT ""CK_Foo"" CHECK (""DriverLicense"" > 0)
+    CONSTRAINT ""CK_People_Foo"" CHECK (""DriverLicense"" > 0)
 );",
                 @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
 SELECT ""DriverLicense"", ""Id""
@@ -816,7 +816,7 @@ FROM ""People"";",
                 @"CREATE TABLE ""ef_temp_People"" (
     ""DriverLicense"" INTEGER NOT NULL,
     ""Id"" INTEGER NOT NULL,
-    CONSTRAINT ""CK_Foo"" CHECK (""DriverLicense"" > 1)
+    CONSTRAINT ""CK_People_Foo"" CHECK (""DriverLicense"" > 1)
 );",
                 @"INSERT INTO ""ef_temp_People"" (""DriverLicense"", ""Id"")
 SELECT ""DriverLicense"", ""Id""

@@ -52,7 +52,7 @@ The `build` script has different arguments to perform specific actions. The full
 
 ## Using Visual Studio
 
-**The command line `build` (see above) must be run before using the solution with Visual Studio.**
+**The command line `build` (see above) should be run before using the solution with Visual Studio.**
 
 The build script installs a preview .NET Core SDK. In order to make sure Visual studio (or any other IDE) is using same SDK, certain environment variables need to be set. To configure your local environment and open solution file in Visual Studio, run following command:
 
@@ -63,6 +63,8 @@ startvs.cmd EFCore.slnf
 You can inspect the script and use similar configuration for other IDEs.
 
 Note that `startvs` actually opens whatever the default application is for `.sln` files. If you have multiple IDEs or multiple versions of Visual Studio installed, then make sure that the appropriate default is set, or edit the script to be explicit.
+
+If you install the latest preview release of the [.NET SDK](https://dotnet.microsoft.com/download/dotnet), you may be able to skip using `startvs` and open the solution directly. While we strive to keep our codebase compatible with the latest preview, we may need to depend on changes that have been made since the latest preview release. If you encounter unexpected errors when opening the solution directly, try using `startvs` instead, and ensure you're on the latest preview of [Visual Studio](https://visualstudio.microsoft.com/vs/preview/).
 
 ### Run tests
 

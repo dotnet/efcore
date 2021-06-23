@@ -54,9 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations)
             => annotations.Where(
-                a => !(
-                    a.Value is null
-                    || CoreAnnotationNames.AllNames.Contains(a.Name)
+                a => !(CoreAnnotationNames.AllNames.Contains(a.Name)
                     || _ignoredRelationalAnnotations.Contains(a.Name)));
 
         /// <inheritdoc />
@@ -676,12 +674,14 @@ namespace Microsoft.EntityFrameworkCore.Design
             string methodName,
             List<MethodCallCodeFragment> methodCallCodeFragments)
         {
-            if (annotations.TryGetValue(annotationName, out var annotation)
-                && annotation.Value is object annotationValue)
+            if (annotations.TryGetValue(annotationName, out var annotation))
             {
                 annotations.Remove(annotationName);
-                methodCallCodeFragments.Add(
-                    new MethodCallCodeFragment(methodName, annotationValue));
+                if (annotation.Value is object annotationValue)
+                {
+                    methodCallCodeFragments.Add(
+                        new MethodCallCodeFragment(methodName, annotationValue));
+                }
             }
         }
 

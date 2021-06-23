@@ -76,6 +76,54 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionPropertyBuilder? Property(MemberInfo memberInfo, bool fromDataAnnotation = false);
 
         /// <summary>
+        ///     Returns a value indicating whether the given property can be added to this entity type.
+        /// </summary>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the property can be added. </returns>
+        bool CanHaveProperty(
+            Type? propertyType,
+            string propertyName,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given property can be added to this entity type.
+        /// </summary>
+        /// <param name="memberInfo"> The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the property can be added. </returns>
+        bool CanHaveProperty(MemberInfo memberInfo, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns an object that can be used to configure the indexer property with the given name.
+        ///     If no matching property exists, then a new property will be added.
+        /// </summary>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the property if it exists on the entity type,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionPropertyBuilder? IndexerProperty(
+            Type propertyType,
+            string propertyName,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given indexer property can be added to this entity type.
+        /// </summary>
+        /// <param name="propertyType"> The type of value the property will hold. </param>
+        /// <param name="propertyName"> The name of the property to be configured. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the property can be added. </returns>
+        bool CanHaveIndexerProperty(
+            Type propertyType,
+            string propertyName,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
         ///     Creates a property with a name that's different from any existing properties.
         /// </summary>
         /// <param name="basePropertyName"> The desired property name. </param>
@@ -137,6 +185,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         IConventionServicePropertyBuilder? ServiceProperty(
             MemberInfo memberInfo,
             bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given service property can be added to this entity type.
+        /// </summary>
+        /// <param name="memberInfo"> The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the service property can be added. </returns>
+        bool CanHaveServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Indicates whether the given member name is ignored for the given configuration source.
@@ -624,15 +680,53 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationName"> The name of the navigation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        [Obsolete("Use CanHaveNavigation with Type parameter")]
         bool CanHaveNavigation(string navigationName, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given navigation can be added to this entity type.
+        /// </summary>
+        /// <param name="navigationName"> The name of the navigation. </param>
+        /// <param name="type"> The type of the navigation target. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the skip navigation can be added. </returns>
+        bool CanHaveNavigation(string navigationName, Type? type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given navigation can be added to this entity type.
+        /// </summary>
+        /// <param name="navigation"> The navigation member. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        bool CanHaveNavigation(MemberInfo navigation, bool fromDataAnnotation = false)
+            => CanHaveNavigation(navigation.Name, navigation.GetMemberType(), fromDataAnnotation);
 
         /// <summary>
         ///     Returns a value indicating whether the given skip navigation can be added to this entity type.
         /// </summary>
         /// <param name="skipNavigationName"> The name of the skip navigation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        /// <returns> <see langword="true" /> if the skip navigation can be added. </returns>
+        [Obsolete("Use CanHaveSkipNavigation with Type parameter")]
         bool CanHaveSkipNavigation(string skipNavigationName, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given skip navigation can be added to this entity type.
+        /// </summary>
+        /// <param name="skipNavigationName"> The name of the skip navigation. </param>
+        /// <param name="type"> The type of the navigation target. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the skip navigation can be added. </returns>
+        bool CanHaveSkipNavigation(string skipNavigationName, Type? type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given skip navigation can be added to this entity type.
+        /// </summary>
+        /// <param name="navigation"> The navigation member. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the skip navigation can be added. </returns>
+        bool CanHaveSkipNavigation(MemberInfo navigation, bool fromDataAnnotation = false)
+            => CanHaveSkipNavigation(navigation.Name, navigation.GetMemberType(), fromDataAnnotation);
 
         /// <summary>
         ///     Configures a skip navigation and the inverse between this and the target entity type.

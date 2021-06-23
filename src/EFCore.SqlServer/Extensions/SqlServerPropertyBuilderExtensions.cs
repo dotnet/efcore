@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder UseIdentityColumn(
             this PropertyBuilder propertyBuilder,
-            int seed = 1,
+            long seed = 1,
             int increment = 1)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
@@ -145,6 +145,20 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
+        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder UseIdentityColumn(
+            this PropertyBuilder propertyBuilder,
+            int seed,
+            int increment = 1)
+            => propertyBuilder.UseIdentityColumn((long)seed, increment);
+
+        /// <summary>
+        ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
+        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
+        /// </summary>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
@@ -152,9 +166,24 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder<TProperty> UseIdentityColumn<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
-            int seed = 1,
+            long seed = 1,
             int increment = 1)
             => (PropertyBuilder<TProperty>)UseIdentityColumn((PropertyBuilder)propertyBuilder, seed, increment);
+
+        /// <summary>
+        ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
+        ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
+        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
+        /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
+        /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> UseIdentityColumn<TProperty>(
+            this PropertyBuilder<TProperty> propertyBuilder,
+            int seed,
+            int increment = 1)
+            => (PropertyBuilder<TProperty>)UseIdentityColumn((PropertyBuilder)propertyBuilder, (long)seed, increment);
 
         /// <summary>
         ///     Configures the seed for SQL Server IDENTITY.
@@ -168,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         public static IConventionPropertyBuilder? HasIdentityColumnSeed(
             this IConventionPropertyBuilder propertyBuilder,
-            int? seed,
+            long? seed,
             bool fromDataAnnotation = false)
         {
             if (propertyBuilder.CanSetIdentityColumnSeed(seed, fromDataAnnotation))
@@ -189,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if the given value can be set as the seed for SQL Server IDENTITY. </returns>
         public static bool CanSetIdentityColumnSeed(
             this IConventionPropertyBuilder propertyBuilder,
-            int? seed,
+            long? seed,
             bool fromDataAnnotation = false)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));

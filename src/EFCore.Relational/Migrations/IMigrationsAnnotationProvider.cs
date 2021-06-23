@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,5 +102,41 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="checkConstraint"> The check constraint. </param>
         /// <returns> The annotations. </returns>
         IEnumerable<IAnnotation> ForRemove(ICheckConstraint checkConstraint);
+
+        /// <summary>
+        ///     Gets provider-specific Migrations annotations for the given <see cref="ITable" />
+        ///     when it is being renamed.
+        /// </summary>
+        /// <param name="table"> The table. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> ForRename(ITable table)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <summary>
+        ///     Gets provider-specific Migrations annotations for the given <see cref="IColumn" />
+        ///     when it is being renamed.
+        /// </summary>
+        /// <param name="column"> The column. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> ForRename(IColumn column)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <summary>
+        ///     Gets provider-specific Migrations annotations for the given <see cref="ITableIndex" />
+        ///     when it is being renamed.
+        /// </summary>
+        /// <param name="index"> The index. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> ForRename(ITableIndex index)
+            => Enumerable.Empty<IAnnotation>();
+
+        /// <summary>
+        ///     Gets provider-specific Migrations annotations for the given <see cref="ISequence" />
+        ///     when it is being renamed.
+        /// </summary>
+        /// <param name="sequence"> The sequence. </param>
+        /// <returns> The annotations. </returns>
+        IEnumerable<IAnnotation> ForRename(ISequence sequence)
+            => Enumerable.Empty<IAnnotation>();
     }
 }

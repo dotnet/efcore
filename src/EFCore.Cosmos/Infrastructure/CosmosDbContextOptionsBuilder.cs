@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class CosmosDbContextOptionsBuilder
+    public class CosmosDbContextOptionsBuilder : ICosmosDbContextOptionsBuilderInfrastructure
     {
         private readonly DbContextOptionsBuilder _optionsBuilder;
 
@@ -35,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             _optionsBuilder = optionsBuilder;
         }
+
+        /// <inheritdoc />
+        DbContextOptionsBuilder ICosmosDbContextOptionsBuilderInfrastructure.OptionsBuilder
+            => _optionsBuilder;
 
         /// <summary>
         ///     Configures the context to use the provided <see cref="IExecutionStrategy" />.
@@ -120,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithMaxRequestsPerTcpConnection(Check.NotNull(requestLimit, nameof(requestLimit))));
 
         /// <summary>
-        /// Sets the boolean to only return the headers and status code in the Cosmos DB response for write item operation 
+        /// Sets the boolean to only return the headers and status code in the Cosmos DB response for write item operation
         /// like Create, Upsert, Patch and Replace. Setting the option to false will cause the response to have a null resource.
         /// This reduces networking and CPU load by not sending the resource back over the network and serializing it on the client.
         /// </summary>

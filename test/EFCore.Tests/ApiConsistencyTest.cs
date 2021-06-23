@@ -162,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.AddAnnotations)),
                 typeof(IMutableAnnotatable).GetMethod(nameof(IMutableAnnotatable.AddAnnotations)),
+                typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsIgnoredType)),
                 typeof(IConventionModel).GetMethod(nameof(IConventionModel.IsShared)),
                 typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddOwned)),
                 typeof(IConventionModel).GetMethod(nameof(IConventionModel.AddShared)),

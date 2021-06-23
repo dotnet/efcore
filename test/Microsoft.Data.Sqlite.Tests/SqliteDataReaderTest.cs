@@ -688,6 +688,30 @@ namespace Microsoft.Data.Sqlite
         public void GetDateTimeOffset_throws_when_null()
             => GetX_throws_when_null(r => ((SqliteDataReader)r).GetDateTimeOffset(0));
 
+        [Fact]
+        public void GetFieldValue_of_DateOnly_works()
+            => GetFieldValue_works(
+                "SELECT '2014-04-15';",
+                new DateOnly(2014, 4, 15));
+
+        [Fact]
+        public void GetFieldValue_of_DateOnly_works_with_real()
+            => GetFieldValue_works(
+                "SELECT julianday('2014-04-15');",
+                new DateOnly(2014, 4, 15));
+
+        [Fact]
+        public void GetFieldValue_of_TimeOnly_works()
+            => GetFieldValue_works(
+                "SELECT '13:10:15';",
+                new TimeOnly(13, 10, 15));
+
+        [Fact]
+        public void GetFieldValue_of_TimeOnly_works_with_milliseconds()
+            => GetFieldValue_works(
+                "SELECT '13:10:15.5';",
+                new TimeOnly(13, 10, 15, 500));
+
         [Theory]
         [InlineData("SELECT 1;", "INTEGER")]
         [InlineData("SELECT 3.14;", "REAL")]

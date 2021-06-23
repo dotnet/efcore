@@ -194,7 +194,10 @@ namespace Microsoft.EntityFrameworkCore
             {
                 typeof(IMutableSequence).GetMethod("set_ClrType"),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
-                    nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations))
+                    nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations)),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                    new Type[] { typeof(EntityTypeBuilder), typeof(Action<TableBuilder>) })
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()

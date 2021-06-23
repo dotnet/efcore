@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class InMemoryDbContextOptionsBuilder
+    public class InMemoryDbContextOptionsBuilder : IInMemoryDbContextOptionsBuilderInfrastructure
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="InMemoryDbContextOptionsBuilder" /> class.
@@ -36,6 +36,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <returns> The cloned configuration. </returns>
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
+
+        /// <inheritdoc />
+        DbContextOptionsBuilder IInMemoryDbContextOptionsBuilderInfrastructure.OptionsBuilder
+            => OptionsBuilder;
 
         /// <summary>
         ///     <para>

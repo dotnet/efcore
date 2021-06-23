@@ -10,6 +10,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -46,11 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private void DiscoverRelationships(IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext context)
         {
-            if (entityTypeBuilder.ModelBuilder.IsIgnored(entityTypeBuilder.Metadata.ClrType))
-            {
-                return;
-            }
-
             var relationshipCandidates = FindRelationshipCandidates(entityTypeBuilder);
             relationshipCandidates = RemoveIncompatibleWithExistingRelationships(relationshipCandidates, entityTypeBuilder);
             relationshipCandidates = RemoveInheritedInverseNavigations(relationshipCandidates);
@@ -74,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return relationshipCandidates.Values.ToList();
             }
 
-            foreach (var candidateTuple in GetNavigationCandidates(entityType))
+            foreach (var candidateTuple in Dependencies.MemberClassifier.GetNavigationCandidates(entityType))
             {
                 var navigationPropertyInfo = candidateTuple.Key;
                 var targetClrType = candidateTuple.Value;
@@ -147,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (!entityType.IsKeyless)
                 {
-                    var inverseCandidates = GetNavigationCandidates(candidateTargetEntityType);
+                    var inverseCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(candidateTargetEntityType);
                     foreach (var inverseCandidateTuple in inverseCandidates)
                     {
                         var inversePropertyInfo = inverseCandidateTuple.Key;
@@ -618,10 +614,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         continue;
                     }
 
-                    var targetOwned = (!entityType.IsInOwnershipPath(targetEntityType)
+                    var targetOwned = !entityType.IsInOwnershipPath(targetEntityType)
                         && (targetEntityType.Model.IsOwned(targetEntityType.ClrType)
                             || (targetEntityType.HasSharedClrType
-                                && targetEntityType.Model.FindEntityTypes(targetEntityType.ClrType).Any(e => e.IsOwned()))));
+                                && targetEntityType.Model.FindEntityTypes(targetEntityType.ClrType).Any(e => e.IsOwned())));
 
                     var inverse = relationshipCandidate.InverseProperties.SingleOrDefault();
                     if (inverse == null)
@@ -967,37 +963,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<bool?> context)
             => DiscoverRelationships(relationshipBuilder.Metadata.DeclaringEntityType.Builder, context);
 
-        private Type? FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
-            => Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
-
-        private ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(IConventionEntityType entityType)
-        {
-            if (entityType.FindAnnotation(CoreAnnotationNames.NavigationCandidates)?.Value
-                is ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
-            {
-                return navigationCandidates;
-            }
-
-            var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(MemberInfoNameComparer.Instance);
-            foreach (var propertyInfo in entityType.GetRuntimeProperties().Values.OrderBy(p => p.Name))
-            {
-                var targetType = FindCandidateNavigationPropertyType(propertyInfo);
-                if (targetType != null)
-                {
-                    dictionaryBuilder[propertyInfo] = targetType;
-                }
-            }
-
-            navigationCandidates = dictionaryBuilder.ToImmutable();
-            SetNavigationCandidates(entityType.Builder, navigationCandidates);
-            return navigationCandidates;
-        }
-
-        private static void SetNavigationCandidates(
-            IConventionEntityTypeBuilder entityTypeBuilder,
-            ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
-            => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.NavigationCandidates, navigationCandidates);
-
         private static bool IsImplicitlyCreatedUnusedSharedType(IConventionEntityType entityType)
             => entityType.HasSharedClrType
             && entityType.GetConfigurationSource() == ConfigurationSource.Convention
@@ -1096,35 +1061,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder entityTypeBuilder,
             ImmutableSortedDictionary<MemberInfo, Type> ambiguousNavigations)
             => entityTypeBuilder.HasAnnotation(CoreAnnotationNames.AmbiguousNavigations, ambiguousNavigations);
-
-        private sealed class MemberInfoNameComparer : IComparer<MemberInfo>
-        {
-            public static readonly MemberInfoNameComparer Instance = new();
-
-            private MemberInfoNameComparer()
-            {
-            }
-
-            public int Compare(MemberInfo? x, MemberInfo? y)
-            {
-                if (ReferenceEquals(x, y))
-                {
-                    return 0;
-                }
-
-                if (x is null)
-                {
-                    return -1;
-                }
-
-                if (y is null)
-                {
-                    return 1;
-                }
-
-                return StringComparer.Ordinal.Compare(x.Name, y.Name);
-            }
-        }
 
         [DebuggerDisplay("{DebuggerDisplay(),nq}")]
         private sealed class RelationshipCandidate

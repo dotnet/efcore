@@ -3,10 +3,10 @@
 
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Builders.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 {
     /// <summary>
     ///     <para>

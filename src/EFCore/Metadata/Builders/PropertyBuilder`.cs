@@ -410,7 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasConversion(
-            Type? providerClrType,
+            Type providerClrType,
             ValueComparer? valueComparer)
             => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType, valueComparer);
 
@@ -477,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="converterType"> A type that derives from <see cref="ValueConverter"/>. </param>
         /// <param name="comparerType"> A type that derives from <see cref="ValueComparer"/>. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion(Type? converterType, Type? comparerType)
+        public new virtual PropertyBuilder<TProperty> HasConversion(Type converterType, Type? comparerType)
             => (PropertyBuilder<TProperty>)base.HasConversion(converterType, comparerType);
     }
 }

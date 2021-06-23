@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>Azure Cosmos provider for Entity Framework Core.</Description>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.Cosmos</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos</RootNamespace>
@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.18.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.19.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
-        private class Quarks : INotifyPropertyChanging, INotifyPropertyChanged
+        protected class Quarks : INotifyPropertyChanging, INotifyPropertyChanged
         {
             private int _forUp;
             private string _forDown;
@@ -282,7 +282,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 #pragma warning restore 67
         }
 
-        private class Hob
+        protected class Hob
         {
             public string Id1 { get; set; }
             public string Id2 { get; set; }
@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public ICollection<Nob> Nobs { get; set; }
         }
 
-        private class Nob
+        protected class Nob
         {
             public int Id1 { get; set; }
             public int Id2 { get; set; }

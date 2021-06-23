@@ -5,6 +5,8 @@ using System;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+#nullable enable
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
     public static class RelationalTestModelBuilderExtensions
@@ -265,6 +267,90 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     break;
                 case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
                     nongenericBuilder.Instance.ToTable(name, schema, excludedFromMigrations);
+                    break;
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            string name,
+            string? sql)
+            where TEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.HasCheckConstraint(name, sql);
+                    break;
+                case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasCheckConstraint(name, sql);
+                    break;
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
+            this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
+            string name,
+            string sql,
+            Action<RelationalModelBuilderTest.TestCheckConstraintBuilder> buildAction)
+            where TEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
+                    genericBuilder.Instance.HasCheckConstraint(name, sql,
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
+                    break;
+                case IInfrastructure<EntityTypeBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasCheckConstraint(name, sql,
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
+                    break;
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> HasCheckConstraint<TEntity, TRelatedEntity>(
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder,
+            string name,
+            string? sql)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<OwnedNavigationBuilder<TEntity, TRelatedEntity>> genericBuilder:
+                    genericBuilder.Instance.HasCheckConstraint(name, sql);
+                    break;
+                case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasCheckConstraint(name, sql);
+                    break;
+            }
+
+            return builder;
+        }
+
+        public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> HasCheckConstraint<TEntity, TRelatedEntity>(
+            this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TRelatedEntity> builder,
+            string name,
+            string sql,
+            Action<RelationalModelBuilderTest.TestCheckConstraintBuilder> buildAction)
+            where TEntity : class
+            where TRelatedEntity : class
+        {
+            switch (builder)
+            {
+                case IInfrastructure<OwnedNavigationBuilder<TEntity, TRelatedEntity>> genericBuilder:
+                    genericBuilder.Instance.HasCheckConstraint(name, sql,
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
+                    break;
+                case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
+                    nongenericBuilder.Instance.HasCheckConstraint(name, sql,
+                        b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
                     break;
             }
 

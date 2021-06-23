@@ -112,6 +112,38 @@ namespace Microsoft.Data.Sqlite
                     BindText(value);
                 }
             }
+#if NET6_0_OR_GREATER
+            else if (type == typeof(DateOnly))
+            {
+                var dateOnly = (DateOnly)_value;
+                if (_sqliteType == SqliteType.Real)
+                {
+                    var value = ToJulianDate(dateOnly.Year, dateOnly.Month, dateOnly.Day, 0, 0, 0, 0);
+                    BindDouble(value);
+                }
+                else
+                {
+                    var value = dateOnly.ToString(@"yyyy\-MM\-dd", CultureInfo.InvariantCulture);
+                    BindText(value);
+                }
+            }
+            else if (type == typeof(TimeOnly))
+            {
+                var timeOnly = (TimeOnly)_value;
+                if (_sqliteType == SqliteType.Real)
+                {
+                    var value = GetTotalDays(timeOnly.Hour, timeOnly.Minute, timeOnly.Second, timeOnly.Millisecond);
+                    BindDouble(value);
+                }
+                else
+                {
+                    var value = timeOnly.Ticks % 10000000 == 0
+                        ? timeOnly.ToString(@"HH:mm:ss", CultureInfo.InvariantCulture)
+                        : timeOnly.ToString(@"HH:mm:ss.fffffff", CultureInfo.InvariantCulture);
+                    BindText(value);
+                }
+            }
+#endif
             else if (type == typeof(DBNull))
             {
                 BindNull();
@@ -247,11 +279,15 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static double ToJulianDate(DateTime dateTime)
+            => ToJulianDate(
+                dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond);
+
+        private static double ToJulianDate(int year, int month, int day, int hour, int minute, int second, int millisecond)
         {
             // computeJD
-            var Y = dateTime.Year;
-            var M = dateTime.Month;
-            var D = dateTime.Day;
+            var Y = year;
+            var M = month;
+            var D = day;
 
             if (M <= 2)
             {
@@ -265,7 +301,14 @@ namespace Microsoft.Data.Sqlite
             var X2 = 306001 * (M + 1) / 10000;
             var iJD = (long)((X1 + X2 + D + B - 1524.5) * 86400000);
 
-            iJD += dateTime.Hour * 3600000 + dateTime.Minute * 60000 + (long)((dateTime.Second + dateTime.Millisecond / 1000.0) * 1000);
+            iJD += hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
+
+            return iJD / 86400000.0;
+        }
+
+        private static double GetTotalDays(int hour, int minute, int second, int millisecond)
+        {
+            var iJD = hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
 
             return iJD / 86400000.0;
         }

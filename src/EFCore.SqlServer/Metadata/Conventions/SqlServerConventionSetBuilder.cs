@@ -64,6 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
+            ConventionSet.AddBefore(
+                conventionSet.EntityTypeAnnotationChangedConventions,
+                new SqlServerTemporalConvention(),
+                typeof(SqlServerValueGenerationConvention));
+
             ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
 
             conventionSet.KeyAddedConventions.Add(sqlServerInMemoryTablesConvention);

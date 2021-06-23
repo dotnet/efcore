@@ -88,6 +88,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             { typeof(DateTime), new SqliteDateTimeTypeMapping(TextTypeName) },
             { typeof(DateTimeOffset), new SqliteDateTimeOffsetTypeMapping(TextTypeName) },
             { typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) },
+            { typeof(DateOnly), new SqliteDateOnlyTypeMapping(TextTypeName) },
+            { typeof(TimeOnly), new SqliteTimeOnlyTypeMapping(TextTypeName) },
             { typeof(decimal), new SqliteDecimalTypeMapping(TextTypeName) },
             { typeof(double), _real },
             { typeof(float), new FloatTypeMapping(RealTypeName) },

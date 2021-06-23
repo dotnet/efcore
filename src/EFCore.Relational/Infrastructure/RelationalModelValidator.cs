@@ -301,6 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 ValidateSharedKeysCompatibility(mappedTypes, table, logger);
                 ValidateSharedForeignKeysCompatibility(mappedTypes, table, logger);
                 ValidateSharedIndexesCompatibility(mappedTypes, table, logger);
+                ValidateSharedCheckConstraintCompatibility(mappedTypes, table, logger);
 
                 // Validate optional dependents
                 if (mappedTypes.Count == 1)
@@ -1164,9 +1165,53 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             string keyName,
             in StoreObjectIdentifier storeObject,
             IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            => key.AreCompatible(duplicateKey, storeObject, shouldThrow: true);
+
+        /// <summary>
+        ///     Validates the compatibility of check constraint in a given shared table.
+        /// </summary>
+        /// <param name="mappedTypes"> The mapped entity types. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateSharedCheckConstraintCompatibility(
+            IReadOnlyList<IEntityType> mappedTypes,
+            in StoreObjectIdentifier storeObject,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
         {
-            key.AreCompatible(duplicateKey, storeObject, shouldThrow: true);
+            var checkConstraintMappings = new Dictionary<string, ICheckConstraint>();
+            foreach (var checkConstraint in mappedTypes.SelectMany(et => et.GetDeclaredCheckConstraints()))
+            {
+                var checkConstraintName = checkConstraint.GetName(storeObject);
+                if (checkConstraintName == null)
+                {
+                    continue;
+                }
+
+                if (!checkConstraintMappings.TryGetValue(checkConstraintName, out var duplicateCheckConstraint))
+                {
+                    checkConstraintMappings[checkConstraintName] = checkConstraint;
+                    continue;
+                }
+
+                ValidateCompatible(checkConstraint, duplicateCheckConstraint, checkConstraintName, storeObject, logger);
+            }
         }
+
+        /// <summary>
+        ///     Validates the compatibility of two check constraints with the same name.
+        /// </summary>
+        /// <param name="checkConstraint"> An check constraints. </param>
+        /// <param name="duplicateCheckConstraint"> Another check constraints. </param>
+        /// <param name="indexName"> The name of the check constraint. </param>
+        /// <param name="storeObject"> The identifier of the store object. </param>
+        /// <param name="logger"> The logger to use. </param>
+        protected virtual void ValidateCompatible(
+            ICheckConstraint checkConstraint,
+            ICheckConstraint duplicateCheckConstraint,
+            string indexName,
+            in StoreObjectIdentifier storeObject,
+            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+            => CheckConstraint.AreCompatible(checkConstraint, duplicateCheckConstraint, storeObject, shouldThrow: true);
 
         /// <summary>
         ///     Validates the mapping/configuration of inheritance in the model.

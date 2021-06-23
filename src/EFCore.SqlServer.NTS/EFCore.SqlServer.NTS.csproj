@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>NetTopologySuite support for the Microsoft SQL Server database provider for Entity Framework Core.</Description>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <MinClientVersion>3.6</MinClientVersion>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>

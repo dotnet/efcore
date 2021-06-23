@@ -80,13 +80,17 @@ function Add-Migration
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
     Write-Host 'To undo this action, use Remove-Migration.'
 
-    $dteProject.ProjectItems.AddFromFile($result.migrationFile) | Out-Null
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true') 
+    {
+       $dteProject.ProjectItems.AddFromFile($result.migrationFile) | Out-Null
+
+       $dteProject.ProjectItems.AddFromFile($result.metadataFile) | Out-Null
+
+       $dteProject.ProjectItems.AddFromFile($result.snapshotFile) | Out-Null
+    }
+
     $DTE.ItemOperations.OpenFile($result.migrationFile) | Out-Null
     ShowConsole
-
-    $dteProject.ProjectItems.AddFromFile($result.metadataFile) | Out-Null
-
-    $dteProject.ProjectItems.AddFromFile($result.snapshotFile) | Out-Null
 }
 
 #
@@ -595,8 +599,12 @@ function Scaffold-DbContext
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 
-    $files = $result.entityTypeFiles + $result.contextFile
-    $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true') 
+    {
+       $files = $result.entityTypeFiles + $result.contextFile
+       $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
+    }
+
     $DTE.ItemOperations.OpenFile($result.contextFile) | Out-Null
     ShowConsole
 }

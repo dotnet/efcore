@@ -120,6 +120,57 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Where_math_truncate(bool async)
             => AssertTranslationFailed(() => base.Where_math_truncate(async));
+        
+        public override Task Where_mathf_acos(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_acos(async));
+
+        public override Task Where_mathf_asin(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_asin(async));
+
+        public override Task Where_mathf_atan(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_atan(async));
+
+        public override Task Where_mathf_atan2(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_atan2(async));
+
+        public override Task Where_mathf_ceiling1(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_ceiling1(async));
+        
+        public override Task Where_mathf_cos(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_cos(async));
+
+        public override Task Where_mathf_exp(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_exp(async));
+
+        public override Task Where_mathf_floor(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_floor(async));
+
+        public override Task Where_mathf_log(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_log(async));
+
+        public override Task Where_mathf_log_new_base(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_log_new_base(async));
+
+        public override Task Where_mathf_log10(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_log10(async));
+
+        public override Task Where_mathf_power(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_power(async));
+        
+        public override Task Where_mathf_sign(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_sign(async));
+
+        public override Task Where_mathf_sin(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_sin(async));
+
+        public override Task Where_mathf_sqrt(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_sqrt(async));
+
+        public override Task Where_mathf_tan(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_tan(async));
+
+        public override Task Where_mathf_truncate(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_truncate(async));
 
         public override async Task String_StartsWith_Literal(bool async)
         {

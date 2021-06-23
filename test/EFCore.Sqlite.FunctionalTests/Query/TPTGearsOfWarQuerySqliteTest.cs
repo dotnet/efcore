@@ -342,6 +342,87 @@ WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
             return base.Array_access_on_byte_array(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_Hour(bool async)
+        {
+            await base.Where_TimeOnly_Hour(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_Minute(bool async)
+        {
+            await base.Where_TimeOnly_Minute(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_Second(bool async)
+        {
+            await base.Where_TimeOnly_Second(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_Millisecond(bool async)
+        {
+            await base.Where_TimeOnly_Millisecond(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_AddHours(bool async)
+        {
+            await base.Where_TimeOnly_AddHours(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_AddMinutes(bool async)
+        {
+            await base.Where_TimeOnly_AddMinutes(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_Add_TimeSpan(bool async)
+        {
+            await base.Where_TimeOnly_Add_TimeSpan(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_IsBetween(bool async)
+        {
+            await base.Where_TimeOnly_IsBetween(async);
+
+            AssertSql("");
+        }
+
+        [ConditionalTheory(Skip = "Issue#18844")]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task Where_TimeOnly_subtract_TimeOnly(bool async)
+        {
+            await base.Where_TimeOnly_subtract_TimeOnly(async);
+
+            AssertSql("");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

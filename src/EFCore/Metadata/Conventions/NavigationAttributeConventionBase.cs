@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var navigations = new List<(PropertyInfo, Type)>();
             foreach (var navigationPropertyInfo in type.GetRuntimeProperties())
             {
-                var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo);
+                var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo, modelBuilder.Metadata);
                 if (targetClrType == null)
                 {
                     continue;
@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var navigations = new List<(PropertyInfo, Type)>();
             foreach (var navigationPropertyInfo in entityType.GetRuntimeProperties().Values)
             {
-                var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo);
+                var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo, entityType);
                 if (targetClrType == null)
                 {
                     continue;
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo);
+            var targetClrType = FindCandidateNavigationWithAttributePropertyType(navigationPropertyInfo, entityTypeBuilder.Metadata);
             if (targetClrType == null)
             {
                 return;
@@ -284,14 +284,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo)
+        private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionModel model)
         {
-            var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo);
-            return targetClrType == null
-                || !Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
-                    ? null
-                    : targetClrType;
+            var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
+                propertyInfo, ((Model)model).Configuration);
+            return targetClrType != null
+                && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
+                    ? targetClrType
+                    : null;
         }
+
+        private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionEntityType entityType)
+            => Dependencies.MemberClassifier.GetNavigationCandidates(entityType)
+                .TryGetValue(propertyInfo, out var targetClrType)
+                && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
+                    ? targetClrType
+                    : null;
 
         /// <summary>
         ///     Returns the attributes applied to the given navigation.

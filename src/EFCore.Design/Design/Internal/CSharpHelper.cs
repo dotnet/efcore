@@ -1001,7 +1001,28 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         private string Fragment(NestedClosureCodeFragment fragment)
-            => fragment.Parameter + " => " + fragment.Parameter + Fragment(fragment.MethodCall);
+        {
+            if (fragment.MethodCalls.Count == 1)
+            {
+                return fragment.Parameter + " => " + fragment.Parameter + Fragment(fragment.MethodCalls[0]);
+            }
+
+            var builder = new IndentedStringBuilder();
+            builder.AppendLine(fragment.Parameter + " =>");
+            builder.AppendLine("{");
+            using (builder.Indent())
+            {
+                foreach (var methodCall in fragment.MethodCalls)
+                {
+                    builder.Append(fragment.Parameter + Fragment(methodCall));
+                    builder.AppendLine(";");
+                }
+            }
+
+            builder.AppendLine("}");
+
+            return builder.ToString();
+        }
 
         private static bool IsIdentifierStartCharacter(char ch)
         {

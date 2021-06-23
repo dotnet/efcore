@@ -225,6 +225,94 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string TransientExceptionDetected
             => GetString("TransientExceptionDetected");
 
+        /// <summary>
+        ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
+        /// </summary>
+        public static string TemporalOnlyOnRoot(object? entityType)
+            => string.Format(
+                GetString("TemporalOnlyOnRoot", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Temporal tables are only supported for entities using Table-Per-Hierarchy inheritance mapping. Entity type: '{entityType}'.
+        /// </summary>
+        public static string TemporalOnlySupportedForTPH(object? entityType)
+            => string.Format(
+                GetString("TemporalOnlySupportedForTPH", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Temporal tables are not supported for table splitting scenario. Table: '{table}'.
+        /// </summary>
+        public static string TemporalNotSupportedForTableSplitting(object? table)
+            => string.Format(
+                GetString("TemporalNotSupportedForTableSplitting", nameof(table)),
+                table);
+
+        /// <summary>
+        ///     Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.
+        /// </summary>
+        public static string TemporalMustDefinePeriodProperties(object? entityType)
+            => string.Format(
+                GetString("TemporalMustDefinePeriodProperties", nameof(entityType)),
+                entityType);
+
+        /// <summary>
+        ///     Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.
+        /// </summary>
+        public static string TemporalExpectedPeriodPropertyNotFound(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalExpectedPeriodPropertyNotFound", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' must be a shadow property.
+        /// </summary>
+        public static string TemporalPeriodPropertyMustBeInShadowState(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalPeriodPropertyMustBeInShadowState", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' must be non-nullable and of type '{dateTimeType}'.
+        /// </summary>
+        public static string TemporalPeriodPropertyMustBeNonNullableDateTime(object? entityType, object? propertyName, object? dateTimeType)
+            => string.Format(
+                GetString("TemporalPeriodPropertyMustBeNonNullableDateTime", nameof(entityType), nameof(propertyName), nameof(dateTimeType)),
+                entityType, propertyName, dateTimeType);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.
+        /// </summary>
+        public static string TemporalPeriodPropertyMustBeMappedToDatetime2(object? entityType, object? propertyName, object? columnType)
+            => string.Format(
+                GetString("TemporalPeriodPropertyMustBeMappedToDatetime2", nameof(entityType), nameof(propertyName), nameof(columnType)),
+                entityType, propertyName, columnType);
+
+        /// <summary>
+        ///     Period property '{entityType}.{propertyName}' can't have a default value specified.
+        /// </summary>
+        public static string TemporalPeriodPropertyCantHaveDefaultValue(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalPeriodPropertyCantHaveDefaultValue", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
+        /// <summary>
+        ///     Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.
+        /// </summary>
+        public static string TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(object? entityType, object? propertyName, object? valueGeneratedValue)
+            => string.Format(
+                GetString("TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate", nameof(entityType), nameof(propertyName), nameof(valueGeneratedValue)),
+                entityType, propertyName, valueGeneratedValue);
+
+        /// <summary>
+        ///     Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.
+        /// </summary>
+        public static string TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(object? entityType, object? propertyName)
+            => string.Format(
+                GetString("TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue", nameof(entityType), nameof(propertyName)),
+                entityType, propertyName);
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name)!;

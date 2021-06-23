@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     var nestedClosure = Assert.IsType<NestedClosureCodeFragment>(a);
 
                     Assert.Equal("x", nestedClosure.Parameter);
-                    Assert.Same(providerOptions, nestedClosure.MethodCall);
+                    Assert.Same(providerOptions, nestedClosure.MethodCalls[0]);
                 });
             Assert.Null(result.ChainedCall);
         }

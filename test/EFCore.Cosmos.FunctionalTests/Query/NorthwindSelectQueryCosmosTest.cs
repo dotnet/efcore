@@ -546,7 +546,7 @@ ORDER BY c[""OrderID""]");
             await base.Select_non_matching_value_types_from_method_call_introduces_explicit_cast(async);
 
             AssertSql(
-                @"SELECT c[""OrderID""]
+                @"SELECT ABS(c[""OrderID""]) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))
 ORDER BY c[""OrderID""]");

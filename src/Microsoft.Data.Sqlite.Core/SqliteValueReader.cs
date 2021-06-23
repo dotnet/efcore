@@ -68,6 +68,25 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+#if NET6_0_OR_GREATER
+        public virtual DateOnly GetDateOnly(int ordinal)
+        {
+            var sqliteType = GetSqliteType(ordinal);
+            switch (sqliteType)
+            {
+                case SQLITE_FLOAT:
+                case SQLITE_INTEGER:
+                    return DateOnly.FromDateTime(FromJulianDate(GetDouble(ordinal)));
+
+                default:
+                    return DateOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+            }
+        }
+
+        public virtual TimeOnly GetTimeOnly(int ordinal)
+            => TimeOnly.Parse(GetString(ordinal), CultureInfo.InvariantCulture);
+#endif
+
         public virtual decimal GetDecimal(int ordinal)
             => decimal.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
 
@@ -168,6 +187,18 @@ namespace Microsoft.Data.Sqlite
             {
                 return (T)(object)GetDateTimeOffset(ordinal);
             }
+
+#if NET6_0_OR_GREATER
+            if (type == typeof(DateOnly))
+            {
+                return (T)(object)GetDateOnly(ordinal);
+            }
+
+            if (type == typeof(TimeOnly))
+            {
+                return (T)(object)GetTimeOnly(ordinal);
+            }
+#endif
 
             if (type == typeof(DBNull))
             {

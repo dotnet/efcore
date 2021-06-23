@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -84,6 +87,91 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+            IEntityType entityType,
+            IDictionary<string, IAnnotation> annotations)
+        {
+            var result = base.GenerateFluentApiCalls(entityType, annotations);
+
+            if (annotations.TryGetValue(SqlServerAnnotationNames.IsTemporal, out var isTemporalAnnotation)
+                && isTemporalAnnotation.Value as bool? == true)
+            {
+                var historyTableName = annotations[SqlServerAnnotationNames.TemporalHistoryTableName].Value as string;
+                var historyTableSchema = annotations.ContainsKey(SqlServerAnnotationNames.TemporalHistoryTableSchema)
+                    ? annotations[SqlServerAnnotationNames.TemporalHistoryTableSchema].Value as string
+                    : null;
+
+                var periodStartProperty = entityType.GetProperty(entityType.GetTemporalPeriodStartPropertyName()!);
+                var periodEndProperty = entityType.GetProperty(entityType.GetTemporalPeriodEndPropertyName()!);
+                var periodStartColumnName = periodStartProperty[RelationalAnnotationNames.ColumnName] as string;
+                var periodEndColumnName = periodEndProperty[RelationalAnnotationNames.ColumnName] as string;
+
+                // ttb => ttb.WithHistoryTable("HistoryTable", "schema")
+                var temporalTableBuilderCalls = new List<MethodCallCodeFragment>();
+                if (historyTableName != null)
+                {
+                    temporalTableBuilderCalls.Add(
+                        historyTableSchema != null
+                            ? new MethodCallCodeFragment(nameof(TemporalTableBuilder.WithHistoryTable), historyTableName, historyTableSchema)
+                            : new MethodCallCodeFragment(nameof(TemporalTableBuilder.WithHistoryTable), historyTableName));
+                }
+
+                // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart")
+                temporalTableBuilderCalls.Add(
+                    periodStartColumnName != null
+                    ? new MethodCallCodeFragment(
+                        nameof(TemporalTableBuilder.HasPeriodStart),
+                        new[] { periodStartProperty.Name },
+                        new MethodCallCodeFragment(
+                            nameof(TemporalPeriodPropertyBuilder.HasColumnName),
+                            periodStartColumnName))
+                    : new MethodCallCodeFragment(
+                        nameof(TemporalTableBuilder.HasPeriodStart),
+                        periodStartProperty.Name));
+
+                // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd")
+                temporalTableBuilderCalls.Add(
+                    periodEndColumnName != null
+                    ? new MethodCallCodeFragment(
+                        nameof(TemporalTableBuilder.HasPeriodEnd),
+                        new[] { periodEndProperty.Name },
+                        new MethodCallCodeFragment(
+                            nameof(TemporalPeriodPropertyBuilder.HasColumnName),
+                            periodEndColumnName))
+                    : new MethodCallCodeFragment(
+                        nameof(TemporalTableBuilder.HasPeriodEnd),
+                        periodEndProperty.Name));
+
+
+                // ToTable(tb => tb.IsTemporal(ttb => { ... }))
+                var toTemporalTableCall = new MethodCallCodeFragment(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                    new NestedClosureCodeFragment(
+                        "tb",
+                        new MethodCallCodeFragment(
+                            nameof(SqlServerTableBuilderExtensions.IsTemporal),
+                            new NestedClosureCodeFragment(
+                                "ttb",
+                                temporalTableBuilderCalls))));
+
+                annotations.Remove(SqlServerAnnotationNames.IsTemporal);
+                annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
+
+                return result.Concat(new[] { toTemporalTableCall }).ToList();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override bool IsHandledByConvention(IModel model, IAnnotation annotation)
         {
             Check.NotNull(model, nameof(model));
@@ -152,12 +240,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             switch (strategy)
             {
                 case SqlServerValueGenerationStrategy.IdentityColumn:
-                    var seed = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentitySeed) ?? 1;
+                    var seed = GetAndRemove<long?>(annotations, SqlServerAnnotationNames.IdentitySeed) ?? 1;
                     var increment = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentityIncrement) ?? 1;
                     return new(
                         onModel
-                            ? nameof(SqlServerModelBuilderExtensions.UseIdentityColumns)
-                            : nameof(SqlServerPropertyBuilderExtensions.UseIdentityColumn),
+                            ? "UseIdentityColumns"
+                            : "UseIdentityColumn",
                         (seed, increment) switch
                         {
                             (1, 1) => Array.Empty<object>(),

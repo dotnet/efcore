@@ -27,7 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             AddTranslators(
                 new IMemberTranslator[]
                 {
-                    new SqliteDateTimeMemberTranslator(sqlExpressionFactory), new SqliteStringLengthTranslator(sqlExpressionFactory)
+                    new SqliteDateTimeMemberTranslator(sqlExpressionFactory),
+                    new SqliteStringLengthTranslator(sqlExpressionFactory),
+                    new SqliteDateOnlyMemberTranslator(sqlExpressionFactory)
                 });
         }
     }

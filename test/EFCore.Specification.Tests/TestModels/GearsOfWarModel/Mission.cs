@@ -14,6 +14,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
         public double? Rating { get; set; }
         public DateTimeOffset Timeline { get; set; }
         public TimeSpan Duration { get; set; }
+        public DateOnly Date { get; set; }
+        public TimeOnly Time { get; set; }
 
         public virtual ICollection<SquadMission> ParticipatingSquads { get; set; }
     }

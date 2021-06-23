@@ -4,7 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -74,6 +77,96 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Null(index.GetFilter());
             }
 
+            [ConditionalFact]
+            public virtual void Can_set_store_type_for_property_type()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties<int>().HaveColumnType("smallint");
+                    c.Properties<string>().HaveColumnType("nchar(max)");
+                });
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property<int>("Charm");
+                        b.Property<string>("Strange");
+                        b.Property<int>("Top");
+                        b.Property<string>("Bottom");
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Equal("smallint", entityType.FindProperty(Customer.IdProperty.Name).GetColumnType());
+                Assert.Equal("smallint", entityType.FindProperty("Up").GetColumnType());
+                Assert.Equal("nchar(max)", entityType.FindProperty("Down").GetColumnType());
+                Assert.Equal("smallint", entityType.FindProperty("Charm").GetColumnType());
+                Assert.Equal("nchar(max)", entityType.FindProperty("Strange").GetColumnType());
+                Assert.Equal("smallint", entityType.FindProperty("Top").GetColumnType());
+                Assert.Equal("nchar(max)", entityType.FindProperty("Bottom").GetColumnType());
+            }
+
+            [ConditionalFact]
+            public virtual void Can_set_fixed_length_for_property_type()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties<int>().AreFixedLength(false);
+                    c.Properties<string>().AreFixedLength();
+                });
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property<int>("Charm");
+                        b.Property<string>("Strange");
+                        b.Property<int>("Top");
+                        b.Property<string>("Bottom");
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.False(entityType.FindProperty(Customer.IdProperty.Name).IsFixedLength());
+                Assert.False(entityType.FindProperty("Up").IsFixedLength());
+                Assert.True(entityType.FindProperty("Down").IsFixedLength());
+                Assert.False(entityType.FindProperty("Charm").IsFixedLength());
+                Assert.True(entityType.FindProperty("Strange").IsFixedLength());
+                Assert.False(entityType.FindProperty("Top").IsFixedLength());
+                Assert.True(entityType.FindProperty("Bottom").IsFixedLength());
+            }
+
+            [ConditionalFact]
+            public virtual void Can_set_collation_for_property_type()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties<int>().UseCollation("Latin1_General_CS_AS_KS_WS");
+                    c.Properties<string>().UseCollation("Latin1_General_BIN");
+                });
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property<int>("Charm");
+                        b.Property<string>("Strange");
+                        b.Property<int>("Top");
+                        b.Property<string>("Bottom");
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.Equal("Latin1_General_CS_AS_KS_WS", entityType.FindProperty(Customer.IdProperty.Name).GetCollation());
+                Assert.Equal("Latin1_General_CS_AS_KS_WS", entityType.FindProperty("Up").GetCollation());
+                Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Down").GetCollation());
+                Assert.Equal("Latin1_General_CS_AS_KS_WS", entityType.FindProperty("Charm").GetCollation());
+                Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Strange").GetCollation());
+                Assert.Equal("Latin1_General_CS_AS_KS_WS", entityType.FindProperty("Top").GetCollation());
+                Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Bottom").GetCollation());
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }
@@ -90,12 +183,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .WithOne()
                     .HasForeignKey<DisjointChildSubclass1>("ParentId");
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
-                var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty("ParentId");
+                var property1 = model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty("ParentId");
                 Assert.True(property1.IsForeignKey());
                 Assert.Equal("ParentId", property1.GetColumnBaseName());
-                var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty("ParentId");
+                var property2 = model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty("ParentId");
                 Assert.True(property2.IsForeignKey());
                 Assert.Equal("DisjointChildSubclass2_ParentId", property2.GetColumnBaseName());
             }
@@ -109,11 +202,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<DisjointChildSubclass1>();
                 modelBuilder.Entity<DisjointChildSubclass2>();
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
-                var property1 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty(nameof(Child.Name));
+                var property1 = model.FindEntityType(typeof(DisjointChildSubclass1)).FindProperty(nameof(Child.Name));
                 Assert.Equal(nameof(Child.Name), property1.GetColumnBaseName());
-                var property2 = modelBuilder.Model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty(nameof(Child.Name));
+                var property2 = model.FindEntityType(typeof(DisjointChildSubclass2)).FindProperty(nameof(Child.Name));
                 Assert.Equal(nameof(Child.Name), property2.GetColumnBaseName());
             }
 
@@ -232,6 +325,69 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var bunType = model.FindEntityType(typeof(Bun));
                 Assert.All(bunType.GetIndexes(), i => Assert.Null(i.GetFilter()));
+            }
+
+            [ConditionalFact]
+            public void Can_add_check_constraints()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Child>()
+                    .HasBaseType(null)
+                    .HasCheckConstraint("LargeId", "Id > 1000", c => c.HasName("CK_LargeId"));
+                modelBuilder.Entity<ChildBase>()
+                    .HasCheckConstraint("PositiveId", "Id > 0")
+                    .HasCheckConstraint("LargeId", "Id > 1000");
+                modelBuilder.Entity<Child>()
+                    .HasBaseType<ChildBase>();
+                modelBuilder.Entity<DisjointChildSubclass1>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var @base = model.FindEntityType(typeof(ChildBase));
+                Assert.Equal(2, @base.GetCheckConstraints().Count());
+
+                var firstCheckConstraint = @base.FindCheckConstraint("PositiveId");
+                Assert.Equal("PositiveId", firstCheckConstraint.ModelName);
+                Assert.Equal("Id > 0", firstCheckConstraint.Sql);
+                Assert.Equal("CK_ChildBase_PositiveId", firstCheckConstraint.Name);
+
+                var secondCheckConstraint = @base.FindCheckConstraint("LargeId");
+                Assert.Equal("LargeId", secondCheckConstraint.ModelName);
+                Assert.Equal("Id > 1000", secondCheckConstraint.Sql);
+                Assert.Equal("CK_LargeId", secondCheckConstraint.Name);
+
+                var child = model.FindEntityType(typeof(Child));
+                Assert.Equal(@base.GetCheckConstraints(), child.GetCheckConstraints());
+                Assert.Empty(child.GetDeclaredCheckConstraints());
+            }
+
+            [ConditionalFact]
+            public void Adding_conflicting_check_constraint_to_derived_type_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<ChildBase>()
+                    .HasCheckConstraint("LargeId", "Id > 100", c => c.HasName("CK_LargeId"));
+
+                Assert.Equal(
+                    RelationalStrings.DuplicateCheckConstraint("LargeId", nameof(Child), nameof(ChildBase)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<Child>().HasCheckConstraint("LargeId", "Id > 1000")).Message);
+            }
+
+            [ConditionalFact]
+            public void Adding_conflicting_check_constraint_to_derived_type_before_base_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Entity<Child>()
+                    .HasBaseType(null)
+                    .HasCheckConstraint("LargeId", "Id > 1000");
+                modelBuilder.Entity<ChildBase>()
+                    .HasCheckConstraint("LargeId", "Id > 100", c => c.HasName("CK_LargeId"));
+
+                Assert.Equal(
+                    RelationalStrings.DuplicateCheckConstraint("LargeId", nameof(Child), nameof(ChildBase)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<Child>().HasBaseType<ChildBase>()).Message);
             }
 
             public class Parent
@@ -651,16 +807,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public override void Can_configure_owned_type()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
-                var entityBuilder = modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
-                    .ToTable("CustomerDetails");
-                entityBuilder.Property(d => d.CustomerId);
-                entityBuilder.HasIndex(d => d.CustomerId);
-                entityBuilder.WithOwner(d => d.Customer)
+                var ownedBuilder = modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
+                    .ToTable("CustomerDetails")
+                    .HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0", c => c.HasName("CK_Guid"));
+                ownedBuilder.Property(d => d.CustomerId);
+                ownedBuilder.HasIndex(d => d.CustomerId);
+                ownedBuilder.WithOwner(d => d.Customer)
                     .HasPrincipalKey(c => c.AlternateKey);
 
-                modelBuilder.FinalizeModel();
+                var model = modelBuilder.FinalizeModel();
 
                 var owner = model.FindEntityType(typeof(Customer));
                 Assert.Equal(typeof(Customer).FullName, owner.Name);
@@ -670,7 +826,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("CustomerAlternateKey", ownership.Properties.Single().Name);
                 Assert.Equal(nameof(Customer.AlternateKey), ownership.PrincipalKey.Properties.Single().Name);
                 var owned = ownership.DeclaringEntityType;
-                Assert.Same(entityBuilder.OwnedEntityType, owned);
+                Assert.Same(ownedBuilder.OwnedEntityType, owned);
+                Assert.Equal("CustomerDetails", owned.GetTableName());
+                var checkConstraint = owned.GetCheckConstraints().Single();
+                Assert.Equal("CK_CustomerDetails_T", checkConstraint.ModelName);
+                Assert.Equal("AlternateKey <> 0", checkConstraint.Sql);
+                Assert.Equal("CK_Guid", checkConstraint.Name);
                 Assert.Single(owned.GetForeignKeys());
                 Assert.Equal(nameof(CustomerDetails.CustomerId), owned.GetIndexes().Single().Properties.Single().Name);
                 Assert.Equal(
@@ -700,8 +861,316 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey().Properties.Single().Name);
             }
 
+
+            [ConditionalFact]
+            public virtual void Temporal_table_default_settings()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal());
+                modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+                Assert.True(entity.IsTemporal());
+                Assert.Equal("CustomerHistory", entity.GetTemporalHistoryTableName());
+                Assert.Null(entity.GetTemporalHistoryTableSchema());
+
+                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+
+                Assert.Equal("PeriodStart", periodStart.Name);
+                Assert.True(periodStart.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodStart.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodStart.ValueGenerated);
+
+                Assert.Equal("PeriodEnd", periodEnd.Name);
+                Assert.True(periodEnd.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodEnd.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
+            }
+
+            [ConditionalFact]
+            public virtual void Temporal_table_with_history_table_configuration()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.WithHistoryTable("HistoryTable", "historySchema");
+                    ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
+                    ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
+                }));
+
+                modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+                Assert.True(entity.IsTemporal());
+                Assert.Equal(5, entity.GetProperties().Count());
+
+                Assert.Equal("HistoryTable", entity.GetTemporalHistoryTableName());
+                Assert.Equal("historySchema", entity.GetTemporalHistoryTableSchema());
+
+                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+
+                Assert.Equal("MyPeriodStart", periodStart.Name);
+                Assert.Equal("PeriodStartColumn", periodStart[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodStart.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodStart.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodStart.ValueGenerated);
+
+                Assert.Equal("MyPeriodEnd", periodEnd.Name);
+                Assert.Equal("PeriodEndColumn", periodEnd[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodEnd.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodEnd.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
+            }
+
+            [ConditionalFact]
+            public virtual void Temporal_table_with_changed_configuration()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.WithHistoryTable("HistoryTable", "historySchema");
+                    ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
+                    ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
+                }));
+
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.WithHistoryTable("ChangedHistoryTable", "changedHistorySchema");
+                    ttb.HasPeriodStart("ChangedMyPeriodStart").HasColumnName("ChangedPeriodStartColumn");
+                    ttb.HasPeriodEnd("ChangedMyPeriodEnd").HasColumnName("ChangedPeriodEndColumn");
+                }));
+
+                modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+                Assert.True(entity.IsTemporal());
+                Assert.Equal(5, entity.GetProperties().Count());
+
+                Assert.Equal("ChangedHistoryTable", entity.GetTemporalHistoryTableName());
+                Assert.Equal("changedHistorySchema", entity.GetTemporalHistoryTableSchema());
+
+                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+
+                Assert.Equal("ChangedMyPeriodStart", periodStart.Name);
+                Assert.Equal("ChangedPeriodStartColumn", periodStart[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodStart.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodStart.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodStart.ValueGenerated);
+
+                Assert.Equal("ChangedMyPeriodEnd", periodEnd.Name);
+                Assert.Equal("ChangedPeriodEndColumn", periodEnd[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodEnd.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodEnd.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
+            }
+
+            [ConditionalFact]
+            public virtual void Temporal_table_with_explicit_properties_mapped_to_the_period_columns()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.WithHistoryTable("HistoryTable", schema: null);
+                    ttb.HasPeriodStart("Start").HasColumnName("PeriodStartColumn");
+                    ttb.HasPeriodEnd("End").HasColumnName("PeriodEndColumn");
+                }));
+
+                modelBuilder.Entity<Customer>()
+                    .Property<DateTime>("MappedStart")
+                    .HasColumnName("PeriodStartColumn")
+                    .ValueGeneratedOnAddOrUpdate();
+
+                modelBuilder.Entity<Customer>()
+                    .Property<DateTime>("MappedEnd")
+                    .HasColumnName("PeriodEndColumn")
+                    .ValueGeneratedOnAddOrUpdate();
+
+                modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+                Assert.True(entity.IsTemporal());
+                Assert.Equal(7, entity.GetProperties().Count());
+
+                Assert.Equal("HistoryTable", entity.GetTemporalHistoryTableName());
+
+                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+
+                Assert.Equal("Start", periodStart.Name);
+                Assert.Equal("PeriodStartColumn", periodStart[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodStart.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodStart.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodStart.ValueGenerated);
+
+                Assert.Equal("End", periodEnd.Name);
+                Assert.Equal("PeriodEndColumn", periodEnd[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodEnd.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodEnd.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
+
+                var propertyMappedToStart = entity.GetProperty("MappedStart");
+                Assert.Equal("PeriodStartColumn", propertyMappedToStart[RelationalAnnotationNames.ColumnName]);
+
+                var propertyMappedToEnd = entity.GetProperty("MappedEnd");
+                Assert.Equal("PeriodEndColumn", propertyMappedToEnd[RelationalAnnotationNames.ColumnName]);
+            }
+
+            [ConditionalFact]
+            public virtual void Temporal_table_with_explicit_properties_with_same_name_as_default_periods_but_different_periods_defined_explicity_as_well()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>()
+                    .Property<DateTime>("PeriodStart")
+                    .HasColumnName("PeriodStartColumn");
+
+                modelBuilder.Entity<Customer>()
+                    .Property<DateTime>("PeriodEnd")
+                    .HasColumnName("PeriodEndColumn");
+
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
+                {
+                    ttb.WithHistoryTable("HistoryTable", schema: null);
+                    ttb.HasPeriodStart("Start");
+                    ttb.HasPeriodEnd("End");
+                }));
+
+                modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+                Assert.True(entity.IsTemporal());
+                Assert.Equal(7, entity.GetProperties().Count());
+
+                Assert.Equal("HistoryTable", entity.GetTemporalHistoryTableName());
+
+                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+
+                Assert.Equal("Start", periodStart.Name);
+                Assert.Equal("Start", periodStart[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodStart.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodStart.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodStart.ValueGenerated);
+
+                Assert.Equal("End", periodEnd.Name);
+                Assert.Equal("End", periodEnd[RelationalAnnotationNames.ColumnName]);
+                Assert.True(periodEnd.IsShadowProperty());
+                Assert.Equal(typeof(DateTime), periodEnd.ClrType);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, periodEnd.ValueGenerated);
+
+                var propertyMappedToStart = entity.GetProperty("PeriodStart");
+                Assert.Equal("PeriodStartColumn", propertyMappedToStart[RelationalAnnotationNames.ColumnName]);
+                Assert.Equal(ValueGenerated.Never, propertyMappedToStart.ValueGenerated);
+
+                var propertyMappedToEnd = entity.GetProperty("PeriodEnd");
+                Assert.Equal("PeriodEndColumn", propertyMappedToEnd[RelationalAnnotationNames.ColumnName]);
+                Assert.Equal(ValueGenerated.Never, propertyMappedToEnd.ValueGenerated);
+            }
+
+            [ConditionalFact]
+            public virtual void Switching_from_temporal_to_non_temporal_default_settings()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal());
+                modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(false));
+
+                modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(Customer));
+                Assert.False(entity.IsTemporal());
+                Assert.Null(entity.GetTemporalPeriodStartPropertyName());
+                Assert.Null(entity.GetTemporalPeriodEndPropertyName());
+                Assert.Equal(3, entity.GetProperties().Count());
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
+        }
+
+        public abstract class TestTemporalTableBuilder<TEntity>
+            where TEntity : class
+        {
+            public abstract TestTemporalTableBuilder<TEntity> WithHistoryTable(string name, string schema);
+
+            public abstract TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);
+            public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
+        }
+
+        public class GenericTestTemporalTableBuilder<TEntity> : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder<TEntity>>
+            where TEntity : class
+        {
+            public GenericTestTemporalTableBuilder(TemporalTableBuilder<TEntity> temporalTableBuilder)
+            {
+                TemporalTableBuilder = temporalTableBuilder;
+            }
+
+            protected TemporalTableBuilder<TEntity> TemporalTableBuilder { get; }
+
+            public TemporalTableBuilder<TEntity> Instance => TemporalTableBuilder;
+
+            protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder<TEntity> tableBuilder)
+                => new GenericTestTemporalTableBuilder<TEntity>(tableBuilder);
+
+            public override TestTemporalTableBuilder<TEntity> WithHistoryTable(string name, string schema)
+                => Wrap(TemporalTableBuilder.WithHistoryTable(name, schema));
+
+            public override TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
+                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodStart(propertyName));
+
+            public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
+                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodEnd(propertyName));
+        }
+
+        public class NonGenericTestTemporalTableBuilder<TEntity> : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder>
+            where TEntity : class
+        {
+            public NonGenericTestTemporalTableBuilder(TemporalTableBuilder temporalTableBuilder)
+            {
+                TemporalTableBuilder = temporalTableBuilder;
+            }
+
+            protected TemporalTableBuilder TemporalTableBuilder { get; }
+
+            public TemporalTableBuilder Instance => TemporalTableBuilder;
+
+            protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder temporalTableBuilder)
+                => new NonGenericTestTemporalTableBuilder<TEntity>(temporalTableBuilder);
+
+            public override TestTemporalTableBuilder<TEntity> WithHistoryTable(string name, string schema)
+                => Wrap(TemporalTableBuilder.WithHistoryTable(name, schema));
+
+            public override TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
+                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodStart(propertyName));
+
+            public override TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
+                => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodEnd(propertyName));
+        }
+
+        public class TestTemporalPeriodPropertyBuilder
+        {
+            public TestTemporalPeriodPropertyBuilder(TemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
+            {
+                TemporalPeriodPropertyBuilder = temporalPeriodPropertyBuilder;
+            }
+
+            protected TemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; }
+
+            public TestTemporalPeriodPropertyBuilder HasColumnName(string name)
+                => new TestTemporalPeriodPropertyBuilder(TemporalPeriodPropertyBuilder.HasColumnName(name));
         }
     }
 }

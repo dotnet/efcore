@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
@@ -56,6 +57,108 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Assert.Same(
                 fakeConnection.DbConnections[0].DbTransactions[0],
                 fakeConnection.DbConnections[0].DbCommands[1].Transaction);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Executes_migration_commands_in_user_transaction(bool async)
+        {
+            var fakeConnection = CreateConnection();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
+
+            var commandList = new List<MigrationCommand>
+            {
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger)
+            };
+
+            var migrationCommandExecutor = new MigrationCommandExecutor();
+
+            IDbContextTransaction tx;
+            using (tx = fakeConnection.BeginTransaction())
+            {
+                if (async)
+                {
+                    await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection);
+                }
+                else
+                {
+                    migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection);
+                }
+
+                tx.Commit();
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].OpenCount);
+            Assert.Equal(1, fakeConnection.DbConnections[0].CloseCount);
+
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions[0].CommitCount);
+            Assert.Equal(0, fakeConnection.DbConnections[0].DbTransactions[0].RollbackCount);
+
+            Assert.Equal(2, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Same(
+                fakeConnection.DbConnections[0].DbTransactions[0],
+                fakeConnection.DbConnections[0].DbCommands[0].Transaction);
+            Assert.Same(
+                fakeConnection.DbConnections[0].DbTransactions[0],
+                fakeConnection.DbConnections[0].DbCommands[1].Transaction);
+            Assert.Same(
+                tx.GetDbTransaction(),
+                fakeConnection.DbConnections[0].DbTransactions[0]);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Executes_transaction_suppressed_migration_commands_in_user_transaction(bool async)
+        {
+            var fakeConnection = CreateConnection();
+            var logger = new FakeRelationalCommandDiagnosticsLogger();
+
+            var commandList = new List<MigrationCommand>
+            {
+                new(CreateRelationalCommand(), null, logger),
+                new(CreateRelationalCommand(), null, logger, transactionSuppressed: true)
+            };
+
+            var migrationCommandExecutor = new MigrationCommandExecutor();
+
+            IDbContextTransaction tx;
+            using (tx = fakeConnection.BeginTransaction())
+            {
+                if (async)
+                {
+                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                        (await Assert.ThrowsAsync<NotSupportedException>(
+                        async ()
+                            => await migrationCommandExecutor.ExecuteNonQueryAsync(commandList, fakeConnection))).Message);
+                }
+                else
+                {
+                    Assert.Equal(RelationalStrings.TransactionSuppressedMigrationInUserTransaction,
+                        Assert.Throws<NotSupportedException>(
+                            ()
+                                => migrationCommandExecutor.ExecuteNonQuery(commandList, fakeConnection)).Message);
+                }
+
+                tx.Rollback();
+            }
+
+            Assert.Equal(1, fakeConnection.DbConnections.Count);
+            Assert.Equal(1, fakeConnection.DbConnections[0].OpenCount);
+            Assert.Equal(1, fakeConnection.DbConnections[0].CloseCount);
+
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions.Count);
+            Assert.Equal(0, fakeConnection.DbConnections[0].DbTransactions[0].CommitCount);
+            Assert.Equal(1, fakeConnection.DbConnections[0].DbTransactions[0].RollbackCount);
+
+            Assert.Equal(0, fakeConnection.DbConnections[0].DbCommands.Count);
+            Assert.Same(
+                tx.GetDbTransaction(),
+                fakeConnection.DbConnections[0].DbTransactions[0]);
         }
 
         [ConditionalTheory]

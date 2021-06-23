@@ -27,12 +27,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalDotNetPackage Include="$(MicrosoftNETCoreBrowserDebugHostTransportVersion)">
-      <PackageType>runtime</PackageType>
-    </AdditionalDotNetPackage>
-  </ItemGroup>
-
-  <ItemGroup>
     <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
