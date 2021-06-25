@@ -135,9 +135,13 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             return builder.Model;
         }
 
-        public ModelBuilder CreateConventionBuilder(bool skipValidation = false)
+        public ModelBuilder CreateConventionBuilder(
+            bool skipValidation = false,
+            IServiceCollection customServices = null)
         {
-            var conventionSet = CreateConventionSetBuilder().CreateConventionSet();
+            customServices ??= new ServiceCollection();
+            var contextServices = CreateContextServices(customServices);
+            var conventionSet = contextServices.GetRequiredService<IConventionSetBuilder>().CreateConventionSet();
 
             if (skipValidation)
             {

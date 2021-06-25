@@ -20,18 +20,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Action<ModelBuilder> buildModel,
             ModelCodeGenerationOptions options,
             Action<ScaffoldedModel> assertScaffold,
-            Action<IModel> assertModel)
+            Action<IModel> assertModel,
+            bool skipBuild = false)
         {
-            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(skipValidation: true);
+            var designServices = new ServiceCollection();
+            AddModelServices(designServices);
+
+            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(skipValidation: true, customServices: designServices);
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
             var _ = modelBuilder.Model.GetEntityTypeErrors();
 
             var model = modelBuilder.FinalizeModel();
 
-            var services = new ServiceCollection()
-                .AddEntityFrameworkDesignTimeServices();
+            var services = new ServiceCollection();
+
+            services.AddEntityFrameworkDesignTimeServices();
             new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+            AddScaffoldingServices(services);
 
             var generator = services
                 .BuildServiceProvider()
@@ -60,14 +66,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         scaffoldedModel.AdditionalFiles.Select(f => f.Code)))
             };
 
-            var assembly = build.BuildInMemory();
-            var context = (DbContext)assembly.CreateInstance("TestNamespace.TestDbContext");
-
-            if (assertModel != null)
+            if (!skipBuild)
             {
-                var compiledModel = context.Model;
-                assertModel(compiledModel);
+                var assembly = build.BuildInMemory();
+                var context = (DbContext)assembly.CreateInstance("TestNamespace.TestDbContext");
+
+                if (assertModel != null)
+                {
+                    var compiledModel = context.Model;
+                    assertModel(compiledModel);
+                }
             }
+        }
+
+        protected virtual void AddModelServices(IServiceCollection services)
+        {
+        }
+
+        protected virtual void AddScaffoldingServices(IServiceCollection services)
+        {
         }
 
         protected static void AssertFileContents(
