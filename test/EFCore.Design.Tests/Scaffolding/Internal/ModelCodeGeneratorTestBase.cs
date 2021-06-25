@@ -19,16 +19,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Action<ModelBuilder> buildModel,
             ModelCodeGenerationOptions options,
             Action<ScaffoldedModel> assertScaffold,
-            Action<IModel> assertModel)
+            Action<IModel> assertModel,
+            bool skipBuild = false)
         {
-            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
+            var designServices = new ServiceCollection();
+            AddModelServices(designServices);
+
+            var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(customServices: designServices);
             modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
             buildModel(modelBuilder);
 
             var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
 
-            var generator = CreateServices()
-                .BuildServiceProvider()
+            var services = CreateServices();
+            AddScaffoldingServices(services);
+
+            var generator = services.BuildServiceProvider()
                 .GetRequiredService<IModelCodeGenerator>();
 
             options.ModelNamespace ??= "TestNamespace";
@@ -54,17 +60,20 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 NullableReferenceTypes = options.UseNullableReferenceTypes
             };
 
-            var assembly = build.BuildInMemory();
-            var contextNamespace = options.ContextNamespace ?? options.ModelNamespace;
-            var context = (DbContext)assembly.CreateInstance(
-                !string.IsNullOrEmpty(contextNamespace)
-                    ? contextNamespace + "." + options.ContextName
-                    : options.ContextName);
-
-            if (assertModel != null)
+            if (!skipBuild)
             {
-                var compiledModel = context.GetService<IDesignTimeModel>().Model;
-                assertModel(compiledModel);
+                var assembly = build.BuildInMemory();
+                var contextNamespace = options.ContextNamespace ?? options.ModelNamespace;
+                var context = (DbContext)assembly.CreateInstance(
+                    !string.IsNullOrEmpty(contextNamespace)
+                        ? contextNamespace + "." + options.ContextName
+                        : options.ContextName);
+
+                if (assertModel != null)
+                {
+                    var compiledModel = context.GetService<IDesignTimeModel>().Model;
+                    assertModel(compiledModel);
+                }
             }
         }
 
@@ -75,6 +84,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer");
             return services;
+        }
+
+        protected virtual void AddModelServices(IServiceCollection services)
+        {
+        }
+
+        protected virtual void AddScaffoldingServices(IServiceCollection services)
+        {
         }
 
         protected static void AssertFileContents(

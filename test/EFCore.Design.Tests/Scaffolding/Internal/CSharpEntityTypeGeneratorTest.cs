@@ -2,8 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -1839,6 +1847,270 @@ namespace TestNamespace
                     Assert.Equal("TestNamespace.Blog", originalInverseNavigation.DeclaringEntityType.Name);
                     Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
                 });
+        }
+
+        [ConditionalFact]
+        public void Entity_with_custom_annotation()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithAnnotation",
+                        x =>
+                        {
+                            x.HasAnnotation("Custom:EntityAnnotation", "first argument");
+                            x.Property<int>("Id");
+                            x.HasKey("Id");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace
+{
+    [CustomEntityDataAnnotation(""first argument"")]
+    public partial class EntityWithAnnotation
+    {
+        [Key]
+        public int Id { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(f => f.Path == "EntityWithAnnotation.cs"));
+
+                    AssertFileContents(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<EntityWithAnnotation> EntityWithAnnotation { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EntityWithAnnotation>(entity =>
+            {
+                entity.Property(e => e.Id).UseIdentityColumn();
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+                },
+                assertModel: null,
+                skipBuild: true);
+        }
+
+        [ConditionalFact]
+        public void Entity_property_with_custom_annotation()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "EntityWithPropertyAnnotation",
+                        x =>
+                        {
+                            x.Property<int>("Id")
+                                .HasAnnotation("Custom:PropertyAnnotation", "first argument");
+                            x.HasKey("Id");
+                        }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace
+{
+    public partial class EntityWithPropertyAnnotation
+    {
+        [Key]
+        [CustomPropertyDataAnnotation(""first argument"")]
+        public int Id { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(f => f.Path == "EntityWithPropertyAnnotation.cs"));
+
+                    AssertFileContents(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<EntityWithPropertyAnnotation> EntityWithPropertyAnnotation { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EntityWithPropertyAnnotation>(entity =>
+            {
+                entity.Property(e => e.Id).UseIdentityColumn();
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+                },
+                assertModel: null,
+                skipBuild: true);
+        }
+
+        protected override void AddModelServices(IServiceCollection services)
+        {
+            services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, ModelAnnotationProvider>());
+        }
+
+        protected override void AddScaffoldingServices(IServiceCollection services)
+        {
+            services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, ModelAnnotationCodeGenerator>());
+        }
+
+        public class ModelAnnotationProvider : SqlServerAnnotationProvider
+        {
+            public ModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
+            /// <inheritdoc />
+            public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
+            {
+                foreach (var annotation in base.For(table, designTime))
+                {
+                    yield return annotation;
+                }
+
+                var entityType = table.EntityTypeMappings.First().EntityType;
+
+                foreach (var annotation in entityType.GetAnnotations().Where(a => a.Name == "Custom:EntityAnnotation"))
+                {
+                    yield return annotation;
+                }
+            }
+
+            /// <inheritdoc />
+            public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
+            {
+                foreach (var annotation in base.For(column, designTime))
+                {
+                    yield return annotation;
+                }
+
+                var properties = column.PropertyMappings.Select(m => m.Property);
+                var annotations = properties.SelectMany(p => p.GetAnnotations()).GroupBy(a => a.Name).Select(g => g.First());
+
+                foreach (var annotation in annotations.Where(a => a.Name == "Custom:PropertyAnnotation"))
+                {
+                    yield return annotation;
+                }
+            }
+        }
+
+        public class ModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
+        {
+            public ModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
+            protected override AttributeCodeFragment GenerateDataAnnotation(IEntityType entityType, IAnnotation annotation)
+                => annotation.Name switch
+                {
+                    "Custom:EntityAnnotation" => new AttributeCodeFragment(
+                        typeof(CustomEntityDataAnnotationAttribute), new object[] { annotation.Value as string }),
+                    _ => base.GenerateDataAnnotation(entityType, annotation)
+                };
+
+            protected override AttributeCodeFragment GenerateDataAnnotation(IProperty property, IAnnotation annotation)
+                => annotation.Name switch
+                {
+                    "Custom:PropertyAnnotation" => new AttributeCodeFragment(typeof(CustomPropertyDataAnnotationAttribute), new object[] {annotation.Value as string}),
+                    _ => base.GenerateDataAnnotation(property, annotation)
+                };
+        }
+
+        [AttributeUsage(AttributeTargets.Class)]
+        public class CustomEntityDataAnnotationAttribute : Attribute
+        {
+            public CustomEntityDataAnnotationAttribute(string argument)
+                => Argument = argument;
+
+            public virtual string Argument { get; }
+        }
+
+        [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+        public class CustomPropertyDataAnnotationAttribute : Attribute
+        {
+            public CustomPropertyDataAnnotationAttribute(string argument)
+                => Argument = argument;
+
+            public virtual string Argument { get; }
         }
     }
 }
