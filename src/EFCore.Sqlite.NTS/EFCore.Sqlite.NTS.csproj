@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="mod_spatialite" Version="4.3.0.1" />
-    <PackageReference Include="NetTopologySuite" Version="2.1.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.IO.SpatiaLite" Version="2.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
   </ItemGroup>
