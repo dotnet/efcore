@@ -3,7 +3,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -18,11 +17,14 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
+        protected string NormalizeDelimitersInRawString(string sql)
+            => (Fixture.TestStore as RelationalTestStore)?.NormalizeDelimitersInRawString(sql) ?? sql;
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task FromSql(bool async)
             => ConcurrencyDetectorTest(async c => async
-                ? await c.Products.FromSqlRaw("select * from products").ToListAsync()
-                : c.Products.FromSqlRaw("select * from products").ToList());
+                ? await c.Products.FromSqlRaw(NormalizeDelimitersInRawString("select * from [Products]")).ToListAsync()
+                : c.Products.FromSqlRaw(NormalizeDelimitersInRawString("select * from [Products]")).ToList());
     }
 }
