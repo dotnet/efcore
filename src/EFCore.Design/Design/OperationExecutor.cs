@@ -228,6 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             var info = ContextOperations.GetContextInfo(contextType);
             return new Hashtable
             {
+                ["Type"] = info.Type,
                 ["ProviderName"] = info.ProviderName,
                 ["DatabaseName"] = info.DatabaseName,
                 ["DataSource"] = info.DataSource,

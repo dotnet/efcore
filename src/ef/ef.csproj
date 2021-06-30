@@ -6,21 +6,18 @@
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
-    <!--
-      This keeps ef.exe targeting the default version of .NET Core for netcoreapp2.0,
-      which maximizes the machines on which this tool will be compatible.
-    -->
-    <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
     <CheckEolTargetFramework>False</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\dotnet-ef\Exe.cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\EFCore\Infrastructure\ProductInfo.cs" />
     <Compile Include="..\EFCore.Design\Design\IOperationReportHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\IOperationResultHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\OperationReportHandler.cs" />
     <Compile Include="..\EFCore.Design\Design\OperationResultHandler.cs" />
+    <Compile Include="..\EFCore.Relational\Internal\SemanticVersionComparer.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
@@ -29,6 +26,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Generators\BundleProgramGenerator.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>BundleProgramGenerator.cs</LastGenOutput>
+    </None>
+    <None Update="Generators\BundleProjectGenerator.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>BundleProjectGenerator.cs</LastGenOutput>
+    </None>
     <None Update="Properties\Resources.Designer.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -40,6 +45,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Generators\BundleProgramGenerator.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BundleProgramGenerator.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Generators\BundleProjectGenerator.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BundleProjectGenerator.tt</DependentUpon>
+    </Compile>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

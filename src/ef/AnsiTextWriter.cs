@@ -17,11 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         public void WriteLine(string? text)
         {
-            Interpret(text);
+            if (text != null)
+            {
+                Interpret(text);
+            }
+
             _writer.Write(Environment.NewLine);
         }
 
-        private void Interpret(string? value)
+        private void Interpret(string value)
         {
             var matches = Regex.Matches(value, "\x1b\\[([0-9]+)?m");
 
@@ -31,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 var length = match.Index - start;
                 if (length != 0)
                 {
-                    _writer.Write(value!.Substring(start, length));
+                    _writer.Write(value.Substring(start, length));
                 }
 
                 Apply(match.Groups[1].Value);
@@ -39,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 start = match.Index + match.Length;
             }
 
-            if (start != value?.Length)
+            if (start != value.Length)
             {
-                _writer.Write(value?.Substring(start));
+                _writer.Write(value.Substring(start));
             }
         }
 

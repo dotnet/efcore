@@ -80,7 +80,7 @@ function Add-Migration
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
     Write-Host 'To undo this action, use Remove-Migration.'
 
-    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true') 
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true')
     {
        $dteProject.ProjectItems.AddFromFile($result.migrationFile) | Out-Null
 
@@ -91,6 +91,91 @@ function Add-Migration
 
     $DTE.ItemOperations.OpenFile($result.migrationFile) | Out-Null
     ShowConsole
+}
+
+#
+# Bundle-Migration
+#
+
+Register-TabExpansion Bundle-Migration @{
+    Context = { param($x) GetContextTypes $x.Project $x.StartupProject }
+    Project = { GetProjects }
+    StartupProject = { GetProjects }
+}
+
+<#
+.SYNOPSIS
+    Creates an executable to update the database.
+
+.DESCRIPTION
+    Creates an executable to update the database.
+
+.PARAMETER SelfContained
+    Also bundle the .NET runtime so it doesn't need to be installed on the machine.
+
+.PARAMETER Runtime
+    The target runtime to bundle for.
+
+.PARAMETER Configuration
+    The configuration to use.
+
+.PARAMETER Context
+    The DbContext to use.
+
+.PARAMETER Project
+    The project to use.
+
+.PARAMETER StartupProject
+    The startup project to use. Defaults to the solution's startup project.
+
+.PARAMETER Namespace
+    The namespace to use. Matches the directory by default.
+
+.PARAMETER Args
+    Arguments passed to the application.
+
+.LINK
+    Script-Migration
+    Update-Database
+    about_EntityFrameworkCore
+#>
+function Bundle-Migration
+{
+    [CmdletBinding(PositionalBinding = $false)]
+    param(
+        [switch] $SelfContained,
+        [string] $Runtime,
+        [string] $Configuration,
+        [string] $OutputDir,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Namespace,
+        [string] $Args)
+
+    $dteProject = GetProject $Project
+    $dteStartupProject = GetStartupProject $StartupProject $dteProject
+
+    $params = 'migrations', 'bundle'
+
+    if ($SelfContained)
+    {
+        $params += '--self-contained'
+    }
+
+    if ($Runtime)
+    {
+        $params += '--runtime', $Runtime
+    }
+
+    if ($Configuration)
+    {
+        $params += '--configuration', $Configuration
+    }
+
+    $params += GetParams $Context
+
+    EF $dteProject $dteStartupProject $params $Args
 }
 
 #
@@ -599,7 +684,7 @@ function Scaffold-DbContext
     # NB: -join is here to support ConvertFrom-Json on PowerShell 3.0
     $result = (EF $dteProject $dteStartupProject $params $Args) -join "`n" | ConvertFrom-Json
 
-    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true') 
+    if (!(IsCpsProject $dteProject) -or (GetCpsProperty $dteProject 'EnableDefaultItems') -ne 'true' -or (GetCpsProperty $dteProject 'EnableDefaultCompileItems') -ne 'true')
     {
        $files = $result.entityTypeFiles + $result.contextFile
        $files | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
@@ -1196,7 +1281,9 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         '--no-color',
         '--prefix-output',
         '--assembly', $targetPath,
+        '--project', $project.FullName,
         '--startup-assembly', $startupTargetPath,
+        '--startup-project', $startupProject.FullName,
         '--project-dir', $projectDir,
         '--language', $language,
         '--working-dir', $PWD.Path

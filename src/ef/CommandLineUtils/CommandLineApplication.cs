@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Tools.Properties;
 
 namespace Microsoft.DotNet.Cli.CommandLine
 {
@@ -91,7 +90,10 @@ namespace Microsoft.DotNet.Cli.CommandLine
             var lastArg = Arguments.LastOrDefault();
             if (lastArg?.MultipleValues == true)
             {
-                throw new InvalidOperationException(Resources.LastArgumentHasMultipleValues(lastArg.Name));
+                var message = string.Format(
+                    "The last argument '{0}' accepts multiple values. No more argument can be added.",
+                    lastArg.Name);
+                throw new InvalidOperationException(message);
             }
 
             var argument = new CommandArgument { Name = name, Description = description, MultipleValues = multipleValues };
@@ -234,7 +236,9 @@ namespace Microsoft.DotNet.Cli.CommandLine
                     if (!option.TryParse(optionComponents[1]))
                     {
                         command.ShowHint();
-                        throw new CommandParsingException(command, Resources.UnexpectedOptionValue(optionComponents[1], optionName));
+                        throw new CommandParsingException(
+                            command,
+                            $"Unexpected value '{optionComponents[1]}' for option '{optionName}'");
                     }
                 }
                 else
@@ -252,7 +256,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
                         if (!option.TryParse(arg))
                         {
                             command.ShowHint();
-                            throw new CommandParsingException(command, Resources.UnexpectedOptionValue(arg, optionName));
+                            throw new CommandParsingException(command, $"Unexpected value '{arg}' for option '{optionName}'");
                         }
                     }
                 }
@@ -537,7 +541,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             if (command._throwOnUnexpectedArg)
             {
                 command.ShowHint();
-                throw new CommandParsingException(command, Resources.UnexpectedArgument(argTypeName, args[index]));
+                throw new CommandParsingException(command, $"Unrecognized {argTypeName} '{args[index]}'");
             }
 
             command.RemainingArguments.Add(args[index]);
@@ -585,7 +589,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
 
             if (!File.Exists(fileName))
             {
-                throw new InvalidOperationException(Resources.ResponseFileMissing(fileName));
+                throw new InvalidOperationException($"Response file '{fileName}' doesn't exist.");
             }
 
             return File.ReadLines(fileName);

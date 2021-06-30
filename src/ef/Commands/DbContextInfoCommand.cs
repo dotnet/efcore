@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private static void ReportJsonResult(IDictionary result)
         {
             Reporter.WriteData("{");
+            Reporter.WriteData("  \"type\": " + Json.Literal(result["Type"] as string) + ",");
             Reporter.WriteData("  \"providerName\": " + Json.Literal(result["ProviderName"] as string) + ",");
             Reporter.WriteData("  \"databaseName\": " + Json.Literal(result["DatabaseName"] as string) + ",");
             Reporter.WriteData("  \"dataSource\": " + Json.Literal(result["DataSource"] as string) + ",");
@@ -38,6 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
         private static void ReportResult(IDictionary result)
         {
+            Reporter.WriteData(Resources.DbContextType(result["Type"]));
             Reporter.WriteData(Resources.ProviderName(result["ProviderName"]));
             Reporter.WriteData(Resources.DatabaseName(result["DatabaseName"]));
             Reporter.WriteData(Resources.DataSource(result["DataSource"]));

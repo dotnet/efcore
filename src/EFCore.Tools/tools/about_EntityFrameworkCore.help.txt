@@ -22,6 +22,8 @@ LONG DESCRIPTION
         --------------------------  ---------------------------------------------------
         Add-Migration               Adds a new migration.
 
+        Bundle-Migration            Creates an executable to update the database.
+
         Drop-Database               Drops the database.
 
         Get-DbContext               Lists and gets information about available DbContext types.
@@ -42,6 +44,7 @@ LONG DESCRIPTION
 
 SEE ALSO
     Add-Migration
+    Bundle-Migration
     Drop-Database
     Get-DbContext
     Get-Migration

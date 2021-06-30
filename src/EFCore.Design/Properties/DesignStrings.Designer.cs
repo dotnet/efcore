@@ -36,6 +36,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 sequenceName, typeName);
 
         /// <summary>
+        ///     Entity Framework Core Migrations Bundle
+        /// </summary>
+        public static string BundleFullName
+            => GetString("BundleFullName");
+
+        /// <summary>
         ///     Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.
         /// </summary>
         public static string CannotFindDesignTimeProviderAssemblyAttribute(object? runtimeProviderAssemblyName)
@@ -138,6 +144,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ConflictingContextAndMigrationName", nameof(name)),
                 name);
+
+        /// <summary>
+        ///     The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.
+        /// </summary>
+        public static string ConnectionDescription
+            => GetString("ConnectionDescription");
 
         /// <summary>
         ///     The context class name '{contextClassName}' is not a valid C# identifier.
@@ -364,6 +376,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("ManuallyDeleted");
 
         /// <summary>
+        ///     The target migration. If '0', all migrations will be reverted. Defaults to the last migration.
+        /// </summary>
+        public static string MigrationDescription
+            => GetString("MigrationDescription");
+
+        /// <summary>
         ///     Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
         ///     Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
         ///     Change your target project to the migrations project by using the Package Manager Console's Default project drop-down list, or by executing "dotnet ef" from the directory containing the migrations project.
@@ -402,6 +420,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("MultipleContextsWithQualifiedName", nameof(name)),
                 name);
+
+        /// <summary>
+        ///     Don't colorize output.
+        /// </summary>
+        public static string NoColorDescription
+            => GetString("NoColorDescription");
 
         /// <summary>
         ///     No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.
@@ -518,6 +542,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NotExistDatabase", nameof(name)),
                 name);
+
+        /// <summary>
+        ///     Prefix output with level.
+        /// </summary>
+        public static string PrefixDescription
+            => GetString("PrefixDescription");
 
         /// <summary>
         ///     Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.
@@ -700,6 +730,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("UsingReferencedServices", nameof(referencedAssembly)),
                 referencedAssembly);
+
+        /// <summary>
+        ///     Show verbose output.
+        /// </summary>
+        public static string VerboseDescription
+            => GetString("VerboseDescription");
 
         /// <summary>
         ///     The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.

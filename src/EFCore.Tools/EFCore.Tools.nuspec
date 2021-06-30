@@ -5,7 +5,7 @@
     $CommonMetadataElements$
     <minClientVersion>3.6</minClientVersion>
     <dependencies>
-      <group targetFramework=".NET5.0">
+      <group targetFramework=".NET6.0">
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
       </group>
     </dependencies>

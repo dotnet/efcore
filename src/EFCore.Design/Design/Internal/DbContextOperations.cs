@@ -332,7 +332,10 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public virtual ContextInfo GetContextInfo(string? contextType)
         {
             using var context = CreateContext(contextType);
-            var info = new ContextInfo();
+            var info = new ContextInfo
+            {
+                Type = context.GetType().FullName!
+            };
 
             var provider = context.GetService<IDatabaseProvider>();
             info.ProviderName = provider.Name;

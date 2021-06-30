@@ -15,6 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\ef\CommandLineUtils\*.cs" Link="CommandLineUtils\%(Filename).cs" />
+    <Compile Include="..\ef\Reporter.cs" />
+    <Compile Include="..\ef\AnsiConstants.cs" />
+    <Compile Include="..\ef\AnsiConsole.cs" />
+    <Compile Include="..\ef\AnsiTextWriter.cs" />
     <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
 

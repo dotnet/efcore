@@ -169,8 +169,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.AddRange(_args!);
             args.Add("--assembly");
             args.Add(targetPath);
+            args.Add("--project");
+            args.Add(projectFile);
             args.Add("--startup-assembly");
             args.Add(startupTargetPath);
+            args.Add("--startup-project");
+            args.Add(startupProjectFile);
             args.Add("--project-dir");
             args.Add(project.ProjectDir!);
             args.Add("--root-namespace");

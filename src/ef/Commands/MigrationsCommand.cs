@@ -13,6 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             command.Description = Resources.MigrationsDescription;
 
             command.Command("add", new MigrationsAddCommand().Configure);
+            command.Command("bundle", new MigrationsBundleCommand().Configure);
             command.Command("list", new MigrationsListCommand().Configure);
             command.Command("remove", new MigrationsRemoveCommand().Configure);
             command.Command("script", new MigrationsScriptCommand().Configure);

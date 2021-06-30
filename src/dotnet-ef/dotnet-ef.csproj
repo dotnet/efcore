@@ -21,31 +21,26 @@ dotnet ef database update
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <IncludeSource>false</IncludeSource>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
-    <!--
-      This keeps ef.exe targeting the default version of .NET Core for netcoreapp3.1,
-      which maximizes the machines on which this tool will be compatible.
-    -->
-    <TargetLatestDotNetRuntime Condition=" '$(IsServicingBuild)' == 'true' ">false</TargetLatestDotNetRuntime>
     <RollForward>Major</RollForward>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\ef\CommandLineUtils\*.cs" />
-    <Compile Include="..\ef\Commands\CommandBase.cs" />
-    <Compile Include="..\ef\Commands\ContextCommandBase.cs" />
-    <Compile Include="..\ef\Commands\DatabaseCommand.cs" />
-    <Compile Include="..\ef\Commands\DbContextCommand.cs" />
-    <Compile Include="..\ef\Commands\EFCommandBase.cs" />
-    <Compile Include="..\ef\Commands\HelpCommandBase.cs" />
-    <Compile Include="..\ef\Commands\MigrationsCommand.cs" />
-    <Compile Include="..\ef\Commands\RootCommand.cs" />
+    <Compile Include="..\ef\CommandLineUtils\*.cs" Link="CommandLineUtils\%(Filename).cs" />
+    <Compile Include="..\ef\Commands\CommandBase.cs" Link="Commands\CommandBase.cs" />
+    <Compile Include="..\ef\Commands\ContextCommandBase.cs" Link="Commands\ContextCommandBase.cs" />
+    <Compile Include="..\ef\Commands\DatabaseCommand.cs" Link="Commands\DatabaseCommand.cs" />
+    <Compile Include="..\ef\Commands\DbContextCommand.cs" Link="Commands\DbContextCommand.cs" />
+    <Compile Include="..\ef\Commands\EFCommandBase.cs" Link="Commands\EFCommandBase.cs" />
+    <Compile Include="..\ef\Commands\HelpCommandBase.cs" Link="Commands\HelpCommandBase.cs" />
+    <Compile Include="..\ef\Commands\MigrationsCommand.cs" Link="Commands\MigrationsCommand.cs" />
+    <Compile Include="..\ef\Commands\RootCommand.cs" Link="Commands\Commands.cs" />
     <Compile Include="..\ef\AnsiConsole.cs" />
     <Compile Include="..\ef\AnsiConstants.cs" />
     <Compile Include="..\ef\AnsiTextWriter.cs" />
     <Compile Include="..\ef\CommandException.cs" />
     <Compile Include="..\ef\Json.cs" />
     <Compile Include="..\ef\Reporter.cs" />
-    <Compile Include="..\ef\Commands\**\*.Configure.cs" />
+    <Compile Include="..\ef\Commands\**\*.Configure.cs" Link="Commands\%(RecursiveDir)%(Filename).cs" />
     <Compile Include="..\Shared\CodeAnnotations.cs" />
   </ItemGroup>
 

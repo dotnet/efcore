@@ -15,22 +15,32 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal abstract class ProjectCommandBase : EFCommandBase
     {
-        private CommandOption? _assembly;
-        private CommandOption? _startupAssembly;
         private CommandOption? _dataDir;
         private CommandOption? _projectDir;
         private CommandOption? _rootNamespace;
         private CommandOption? _language;
         private CommandOption? _nullable;
+        private string? _efcoreVersion;
 
+        protected CommandOption? Assembly { get; private set; }
+        protected CommandOption? Project { get; private set; }
+        protected CommandOption? StartupAssembly { get; private set; }
+        protected CommandOption? StartupProject { get; private set; }
         protected CommandOption? WorkingDir { get; private set; }
+
+        protected string? EFCoreVersion
+            => _efcoreVersion ??= System.Reflection.Assembly.Load("Microsoft.EntityFrameworkCore.Design")
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                ?.InformationalVersion;
 
         public override void Configure(CommandLineApplication command)
         {
             command.AllowArgumentSeparator = true;
 
-            _assembly = command.Option("-a|--assembly <PATH>", Resources.AssemblyDescription);
-            _startupAssembly = command.Option("-s|--startup-assembly <PATH>", Resources.StartupAssemblyDescription);
+            Assembly = command.Option("-a|--assembly <PATH>", Resources.AssemblyDescription);
+            Project = command.Option("--project <PATH>", Resources.ProjectDescription);
+            StartupAssembly = command.Option("-s|--startup-assembly <PATH>", Resources.StartupAssemblyDescription);
+            StartupProject = command.Option("--startup-project <PATH>", Resources.StartupProjectDescription);
             _dataDir = command.Option("--data-dir <PATH>", Resources.DataDirDescription);
             _projectDir = command.Option("--project-dir <PATH>", Resources.ProjectDirDescription);
             _rootNamespace = command.Option("--root-namespace <NAMESPACE>", Resources.RootNamespaceDescription);
@@ -45,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             base.Validate();
 
-            if (!_assembly!.HasValue())
+            if (!Assembly!.HasValue())
             {
-                throw new CommandException(Resources.MissingOption(_assembly.LongName));
+                throw new CommandException(Resources.MissingOption(Assembly.LongName));
             }
         }
 
@@ -59,8 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 try
                 {
                     return new AppDomainOperationExecutor(
-                        _assembly!.Value()!,
-                        _startupAssembly!.Value(),
+                        Assembly!.Value()!,
+                        StartupAssembly!.Value(),
                         _projectDir!.Value(),
                         _dataDir!.Value(),
                         _rootNamespace!.Value(),
@@ -70,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 }
                 catch (MissingMethodException) // NB: Thrown with EF Core 3.1
                 {
-                    var configurationFile = (_startupAssembly!.Value() ?? _assembly!.Value()!) + ".config";
+                    var configurationFile = (StartupAssembly!.Value() ?? Assembly!.Value()!) + ".config";
                     if (File.Exists(configurationFile))
                     {
                         AppDomain.CurrentDomain.SetData("APP_CONFIG_FILE", configurationFile);
@@ -96,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 #error target frameworks need to be updated.
 #endif
                 return new ReflectionOperationExecutor(
-                    _assembly!.Value()!,
-                    _startupAssembly!.Value(),
+                    Assembly!.Value()!,
+                    StartupAssembly!.Value(),
                     _projectDir!.Value(),
                     _dataDir!.Value(),
                     _rootNamespace!.Value(),
@@ -112,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                 throw new CommandException(
                     Resources.DesignNotFound(
                         Path.GetFileNameWithoutExtension(
-                            _startupAssembly!.HasValue() ? _startupAssembly.Value() : _assembly!.Value())),
+                            StartupAssembly!.HasValue() ? StartupAssembly.Value() : Assembly!.Value())),
                     ex);
             }
         }

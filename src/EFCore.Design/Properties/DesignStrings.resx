@@ -123,6 +123,9 @@
   <data name="BadSequenceType" xml:space="preserve">
     <value>Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.</value>
   </data>
+  <data name="BundleFullName" xml:space="preserve">
+    <value>Entity Framework Core Migrations Bundle</value>
+  </data>
   <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
     <value>Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.</value>
   </data>
@@ -161,6 +164,9 @@
   </data>
   <data name="ConflictingContextAndMigrationName" xml:space="preserve">
     <value>The name you have chosen for the migration, '{name}', is the same as the context class name. Please choose a different name for your migration. Might we suggest 'InitialCreate' for your first migration?</value>
+  </data>
+  <data name="ConnectionDescription" xml:space="preserve">
+    <value>The connection string to the database. Defaults to the one specified in AddDbContext or OnConfiguring.</value>
   </data>
   <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
     <value>The context class name '{contextClassName}' is not a valid C# identifier.</value>
@@ -252,6 +258,9 @@
   <data name="ManuallyDeleted" xml:space="preserve">
     <value>The model snapshot and the backing model of the last migration are different. Continuing under the assumption that the last migration was deleted manually.</value>
   </data>
+  <data name="MigrationDescription" xml:space="preserve">
+    <value>The target migration. If '0', all migrations will be reverted. Defaults to the last migration.</value>
+  </data>
   <data name="MigrationsAssemblyMismatch" xml:space="preserve">
     <value>Your target project '{assembly}' doesn't match your migrations assembly '{migrationsAssembly}'. Either change your target project or change your migrations assembly.
 Change your migrations assembly by using DbContextOptionsBuilder. E.g. options.UseSqlServer(connection, b =&gt; b.MigrationsAssembly("{assembly}")). By default, the migrations assembly is the assembly containing the DbContext.
@@ -268,6 +277,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="MultipleContextsWithQualifiedName" xml:space="preserve">
     <value>More than one DbContext named '{name}' was found. Specify which one to use by providing its fully qualified name using its exact case.</value>
+  </data>
+  <data name="NoColorDescription" xml:space="preserve">
+    <value>Don't colorize output.</value>
   </data>
   <data name="NoContext" xml:space="preserve">
     <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
@@ -316,6 +328,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>
+  </data>
+  <data name="PrefixDescription" xml:space="preserve">
+    <value>Prefix output with level.</value>
   </data>
   <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
     <value>Could not scaffold the primary key for '{tableName}'. The following columns in the primary key could not be scaffolded: {columnNames}.</value>
@@ -389,6 +404,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="UsingReferencedServices" xml:space="preserve">
     <value>Using design-time services from assembly '{referencedAssembly}'.</value>
+  </data>
+  <data name="VerboseDescription" xml:space="preserve">
+    <value>Show verbose output.</value>
   </data>
   <data name="VersionMismatch" xml:space="preserve">
     <value>The Entity Framework tools version '{toolsVersion}' is older than that of the runtime '{runtimeVersion}'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.</value>
