@@ -841,13 +841,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 || entityType.BaseType == null)
             {
                 var tableName = (string)tableNameAnnotation?.Value ?? entityType.GetTableName();
-                if (tableName != null)
+                if (tableName != null
+                    || tableNameAnnotation != null)
                 {
                     stringBuilder
                         .AppendLine()
                         .Append(builderName)
                         .Append(".ToTable(")
-                        .Append(Code.Literal(tableName));
+                        .Append(Code.UnknownLiteral(tableName));
                     if (tableNameAnnotation != null)
                     {
                         annotations.Remove(tableNameAnnotation.Name);

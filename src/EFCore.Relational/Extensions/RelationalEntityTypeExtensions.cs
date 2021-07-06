@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore
             [CanBeNull] string name,
             bool fromDataAnnotation = false)
             => (string)entityType.SetAnnotation(
-                RelationalAnnotationNames.ViewName,
+                RelationalAnnotationNames.FunctionName,
                 Check.NullButNotEmpty(name, nameof(name)),
                 fromDataAnnotation)?.Value;
 

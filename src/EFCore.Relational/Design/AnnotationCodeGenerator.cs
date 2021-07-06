@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         public virtual IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations)
             => annotations.Where(
                 a => !(
-                    a.Value is null
+                    (a.Value is null && a.Name != RelationalAnnotationNames.TableName)
                     || CoreAnnotationNames.AllNames.Contains(a.Name)
                     || _ignoredRelationalAnnotations.Contains(a.Name)));
 
