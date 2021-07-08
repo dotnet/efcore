@@ -1623,7 +1623,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         FindConflictingMembers(
                             Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredProperties()),
                             baseMemberNames,
-                            n => baseEntityType.FindProperty(n.Name) != null,
+                            p => baseEntityType.FindProperty(p.Name) != null,
                             p => p.DeclaringEntityType.Builder.RemoveProperty(p, ConfigurationSource.Explicit));
 
                     if (propertiesToDetach != null)
@@ -1851,7 +1851,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             && configurationSource == ConfigurationSource.Explicit
                             && member.GetConfigurationSource() == ConfigurationSource.Explicit)
                         {
-                            continue;
+                            throw new InvalidOperationException(
+                                CoreStrings.DuplicatePropertiesOnBase(
+                                    Metadata.DisplayName(),
+                                    baseEntityType.DisplayName(),
+                                    ((IReadOnlyTypeBase)member.DeclaringType).DisplayName(),
+                                    member.Name,
+                                    baseEntityType.DisplayName(),
+                                    member.Name));
                         }
 
                         if (membersToBeRemoved == null)
@@ -2786,6 +2793,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 "required should only be set if principal end is known");
 
             var navigationProperty = navigationToTarget?.MemberInfo;
+            var inverseProperty = inverseNavigation?.MemberInfo;
             if (setTargetAsPrincipal == false
                 || (inverseNavigation == null
                     && navigationProperty?.GetMemberType().IsAssignableFrom(
@@ -2971,6 +2979,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
+                    if (navigationToTarget?.Name != null
+                        && navigationToTarget!.Value.MemberInfo == null
+                        && Metadata.ClrType != Model.DefaultPropertyBagType)
+                    {
+                        navigationProperty = InternalForeignKeyBuilder.FindCompatibleClrMember(
+                            navigationToTarget!.Value.Name!, Metadata, targetEntityType, shouldThrow: configurationSource == ConfigurationSource.Explicit);
+                        if (navigationProperty != null)
+                        {
+                            navigationToTarget = MemberIdentity.Create(navigationProperty);
+                        }
+                    }
+
+                    if (inverseNavigation?.Name != null
+                        && inverseNavigation!.Value.MemberInfo == null
+                        && targetEntityType.ClrType != Model.DefaultPropertyBagType)
+                    {
+                        inverseProperty = InternalForeignKeyBuilder.FindCompatibleClrMember(
+                            inverseNavigation!.Value.Name!, targetEntityType, Metadata, shouldThrow: configurationSource == ConfigurationSource.Explicit);
+                        if (inverseProperty != null)
+                        {
+                            inverseNavigation = MemberIdentity.Create(inverseProperty);
+                        }
+                    }
+
                     if (!InternalForeignKeyBuilder.AreCompatible(
                         navigationToTarget?.MemberInfo,
                         inverseNavigation?.MemberInfo,
@@ -3018,6 +3050,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         inverseNavigation = navigation;
 
                         navigationProperty = navigationToTarget?.MemberInfo;
+                        inverseProperty = inverseNavigation?.MemberInfo;
 
                         newRelationship = targetEntityType.Builder.CreateForeignKey(
                             this,
@@ -3047,7 +3080,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                 }
 
-                var inverseProperty = inverseNavigation?.MemberInfo;
                 if (inverseNavigation == null)
                 {
                     relationship = navigationProperty != null

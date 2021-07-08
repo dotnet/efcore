@@ -588,7 +588,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit, shouldBeOwned: true);
 
-            var relationshipBuilder = orderEntityBuilder.HasRelationship(customerEntityBuilder.Metadata, ConfigurationSource.Convention);
+            var relationshipBuilder = orderEntityBuilder.HasRelationship(
+                customerEntityBuilder.Metadata, null, nameof(Customer.Orders), ConfigurationSource.Convention);
             Assert.False(relationshipBuilder.Metadata.IsOwnership);
 
             relationshipBuilder = relationshipBuilder.IsOwnership(true, ConfigurationSource.Convention);
@@ -599,6 +600,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(relationshipBuilder.IsOwnership(true, ConfigurationSource.Convention));
             Assert.False(relationshipBuilder.Metadata.IsOwnership);
+        }
+
+        [ConditionalFact]
+        public void HasRelationship_throws_when_incompatible_navigations()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.PrincipalEndIncompatibleNavigations(
+                    "Customer.Orders",
+                    "Order.Customer",
+                    nameof(Order)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    customerEntityBuilder.HasRelationship(
+                        orderEntityBuilder.Metadata, nameof(Customer.Orders), nameof(Order.Customer), ConfigurationSource.Convention,
+                        setTargetAsPrincipal: true)).Message);
         }
 
         [ConditionalFact]

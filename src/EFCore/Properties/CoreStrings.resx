@@ -1067,7 +1067,7 @@
     <value>The property '{1_entityType}.{0_property}' is being accessed using the '{referenceMethod}' or '{collectionMethod}' method, but is defined in the model as a non-navigation. Use the '{propertyMethod}' method to access non-navigation properties.</value>
   </data>
   <data name="NavigationlessOwnership" xml:space="preserve">
-    <value>The relationship between '{principalEntityType}' and '{dependentEntityType}' is an ownership, but there is no associated navigation to the owned type. An ownership must always have an associated navigation.</value>
+    <value>The relationship between '{principalEntityType}' and '{dependentEntityType}' cannot be configured as an ownership as there is no associated navigation to the owned type. An ownership must always have an associated navigation.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' does not have a setter and no writable backing field was found or specified. Read-only collection navigations must be initialized before use.</value>

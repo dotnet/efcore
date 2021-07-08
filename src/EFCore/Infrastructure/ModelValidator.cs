@@ -698,12 +698,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         throw new InvalidOperationException(CoreStrings.OwnedDerivedType(entityType.DisplayName()));
                     }
 
-                    if (ownership.PrincipalToDependent == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.NavigationlessOwnership(
-                            ownership.PrincipalEntityType.DisplayName(), entityType.DisplayName()));
-                    }
-
                     foreach (var referencingFk in entityType.GetReferencingForeignKeys().Where(
                         fk => !fk.IsOwnership
                             && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))

@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <inheritdoc />
         public override void ProcessEntityTypeRemoved(
             IConventionModelBuilder modelBuilder,
-            Type type,
+            IConventionEntityType entityType,
             MemberInfo navigationMemberInfo,
             Type targetClrType,
             InversePropertyAttribute attribute,
@@ -319,18 +319,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var targetEntityType = modelBuilder.Metadata.FindEntityType(targetClrType);
             if (targetEntityType != null)
             {
-                RemoveInverseNavigation(type, navigationMemberInfo, targetEntityType, attribute.Property);
+                RemoveInverseNavigation(entityType.ClrType, navigationMemberInfo, targetEntityType, attribute.Property);
             }
 
             var declaringType = navigationMemberInfo.DeclaringType;
             Check.DebugAssert(declaringType != null, "declaringType is null");
-            if (modelBuilder.Metadata.FindEntityType(declaringType) != null)
+            if (modelBuilder.Metadata.FindEntityType(declaringType) != null
+                || entityType.HasSharedClrType)
             {
                 return;
             }
 
             var navigationName = navigationMemberInfo.GetSimpleMemberName();
-            var leastDerivedEntityTypes = modelBuilder.Metadata.FindLeastDerivedEntityTypes(declaringType);
+            var leastDerivedEntityTypes = modelBuilder.Metadata.FindLeastDerivedEntityTypes(
+                declaringType, t => !t.HasSharedClrType);
             foreach (var leastDerivedEntityType in leastDerivedEntityTypes)
             {
                 if (leastDerivedEntityType.Builder.IsIgnored(navigationName, fromDataAnnotation: true))

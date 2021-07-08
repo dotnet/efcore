@@ -826,10 +826,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             EnsureMutable();
 
-            if (ownership == true
-                && !DeclaringEntityType.IsOwned())
+            if (ownership == true)
             {
-                throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(DeclaringEntityType.DisplayName()));
+                if (!DeclaringEntityType.IsOwned())
+                {
+                    throw new InvalidOperationException(CoreStrings.ClashingNonOwnedEntityType(DeclaringEntityType.DisplayName()));
+                }
+
+                if (PrincipalToDependent == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationlessOwnership(
+                            PrincipalEntityType.DisplayName(), DeclaringEntityType.DisplayName()));
+                }
             }
 
             var oldIsOwnership = IsOwnership;

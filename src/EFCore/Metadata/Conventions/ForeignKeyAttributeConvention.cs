@@ -208,7 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             ?? new List<string> { fkPropertyOnDependent!.GetSimpleMemberName() };
                     }
 
-                    if (fkPropertyOnDependent != null)
+                    if (fkPropertyOnDependent != null
+                        || fkPropertiesOnDependentToPrincipal != null)
                     {
                         upgradeDependentToPrincipalNavigationSource = true;
                     }
@@ -260,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
 
-            return newRelationshipBuilder?.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
+            return newRelationshipBuilder.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
         }
 
         private static IConventionForeignKeyBuilder? SplitNavigationsToSeparateRelationships(

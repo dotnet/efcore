@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionModelBuilder> context)
         {
             var model = modelBuilder.Metadata;
-            var rootEntityTypes = GetRoots(model, ConfigurationSource.Explicit);
+            var rootEntityTypes = GetRoots(model, ConfigurationSource.DataAnnotation);
 
             foreach (var orphan in new GraphAdapter(model).GetUnreachableVertices(rootEntityTypes))
             {

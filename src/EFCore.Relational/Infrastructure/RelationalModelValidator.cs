@@ -732,22 +732,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     foreach (var missingColumn in missingConcurrencyTokens)
                     {
-                        var columnFound = false;
-                        foreach (var property in entityType.GetAllBaseTypesAscending().SelectMany(t => t.GetDeclaredProperties()))
-                        {
-                            if (property.GetColumnName(storeObject) == missingColumn)
-                            {
-                                columnFound = true;
-                                break;
-                            }
-                        }
-
-                        if (!columnFound)
-                        {
-                            throw new InvalidOperationException(
-                                RelationalStrings.MissingConcurrencyColumn(
-                                    entityType.DisplayName(), missingColumn, storeObject.DisplayName()));
-                        }
+                        throw new InvalidOperationException(
+                            RelationalStrings.MissingConcurrencyColumn(
+                                entityType.DisplayName(), missingColumn, storeObject.DisplayName()));
                     }
                 }
             }

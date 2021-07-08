@@ -864,7 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property(a => a.Id).HasMaxLength(20).HasPrecision(15, 10).IsUnicode();
             modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson);
-            modelBuilder.Entity<Dog>();
+            modelBuilder.Entity<Dog>().Ignore(d => d.FavoritePerson);
 
             Validate(modelBuilder);
         }
@@ -1451,7 +1451,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>().OwnsOne(
                 a => a.FavoritePerson,
                 pb => pb.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version"));
-            modelBuilder.Entity<Dog>();
+            modelBuilder.Entity<Dog>().Ignore(d => d.FavoritePerson);
 
             Validate(modelBuilder);
         }
@@ -1464,7 +1464,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             modelBuilder.Entity<Cat>().OwnsOne(
                 a => a.FavoritePerson,
                 pb => pb.Property<byte[]>("Version").IsRowVersion());
-            modelBuilder.Entity<Dog>();
+            modelBuilder.Entity<Dog>().Ignore(d => d.FavoritePerson);
 
             Validate(modelBuilder);
         }
@@ -2098,56 +2098,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             baseEntityType.SetDiscriminatorProperty(baseEntityType.AddProperty("Discriminator", typeof(string)));
             baseEntityType.SetDiscriminatorValue(baseEntityType.Name);
             entityType.SetDiscriminatorValue(entityType.Name);
-        }
-
-        protected class Animal
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-
-            public Person FavoritePerson { get; set; }
-        }
-
-        protected class Cat : Animal
-        {
-            public string Breed { get; set; }
-
-            [NotMapped]
-            public string Type { get; set; }
-
-            public int Identity { get; set; }
-        }
-
-        protected class Dog : Animal
-        {
-            public string Breed { get; set; }
-
-            [NotMapped]
-            public int Type { get; set; }
-
-            public int Identity { get; set; }
-        }
-
-        protected class Person
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
-            public string FavoriteBreed { get; set; }
-        }
-
-        protected class Employee : Person
-        {
-        }
-
-        protected class Owner
-        {
-            public int Id { get; set; }
-            public OwnedEntity Owned { get; set; }
-        }
-
-        protected class OwnedEntity
-        {
-            public string Value { get; set; }
         }
 
         public class TestDecimalToLongConverter : ValueConverter<decimal, long>

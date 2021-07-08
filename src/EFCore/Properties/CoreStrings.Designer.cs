@@ -1681,7 +1681,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, referenceMethod, collectionMethod, propertyMethod);
 
         /// <summary>
-        ///     The relationship between '{principalEntityType}' and '{dependentEntityType}' is an ownership, but there is no associated navigation to the owned type. An ownership must always have an associated navigation.
+        ///     The relationship between '{principalEntityType}' and '{dependentEntityType}' cannot be configured as an ownership as there is no associated navigation to the owned type. An ownership must always have an associated navigation.
         /// </summary>
         public static string NavigationlessOwnership(object? principalEntityType, object? dependentEntityType)
             => string.Format(

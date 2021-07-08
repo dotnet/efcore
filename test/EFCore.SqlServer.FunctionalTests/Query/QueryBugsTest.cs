@@ -7616,7 +7616,7 @@ FROM [Entity21807] AS [e]");
                 Assert.NotNull(query[2].Contact.Address);
 
                 AssertSql(
-                    @"SELECT [u].[Id], [u].[RowVersion], [u].[Contact_MobileNumber], [u].[SharedProperty], [u].[RowVersion], [u].[Contact_Address_City], [u].[Contact_Address_Zip], [u].[Data_Data], [u].[Data_Exists]
+                    @"SELECT [u].[Id], [u].[RowVersion], [u].[Contact_MobileNumber], [u].[SharedProperty], [u].[Contact_Address_City], [u].[Contact_Address_Zip], [u].[Data_Data], [u].[Data_Exists], [u].[RowVersion]
 FROM [User22054] AS [u]
 ORDER BY [u].[Id] DESC");
             }
