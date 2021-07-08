@@ -1018,8 +1018,9 @@ SELECT @@ROWCOUNT;
 
             var storeType = isUnicode ? "nvarchar(max)" : "varchar(max)";
             var unicodePrefix = isUnicode ? "N" : string.Empty;
+            var unicodePrefixForType = isUnicode ? "n" : string.Empty;
             var expectedSql = @$"CREATE TABLE [dbo].[TestLineBreaks] (
-    [TestDefaultValue] {storeType} NOT NULL DEFAULT CONCAT({unicodePrefix}CHAR(13), {unicodePrefix}CHAR(10), {unicodePrefix}'Various Line', {unicodePrefix}CHAR(13), {unicodePrefix}'Breaks', {unicodePrefix}CHAR(10))
+    [TestDefaultValue] {storeType} NOT NULL DEFAULT CONCAT(CAST({unicodePrefixForType}char(13) AS {storeType}), {unicodePrefixForType}char(10), {unicodePrefix}'Various Line', {unicodePrefixForType}char(13), {unicodePrefix}'Breaks', {unicodePrefixForType}char(10))
 );
 ";
             AssertSql(expectedSql);

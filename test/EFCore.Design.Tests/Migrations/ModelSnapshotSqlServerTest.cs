@@ -526,9 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => throw new NotImplementedException();
 
         [ConditionalFact]
-        public void TVF_types_are_stored_in_the_model_snapshot()
-        {
-            Test(
+        public void TVF_types_are_stored_in_the_model_snapshot() => Test(
                 builder =>
                 {
                     builder.HasDbFunction(
@@ -548,8 +546,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.ToTable(null, (string)null);
                 });"),
-                o => Assert.Null(o.GetEntityTypes().Single().GetFunctionName()));
-        }
+                o =>
+                {
+                    var entityType = o.GetEntityTypes().Single();
+                    Assert.Null(entityType.GetFunctionName());
+                    Assert.Null(entityType.GetTableName());
+                });
 
         [ConditionalFact]
         public void Entity_types_mapped_to_functions_are_stored_in_the_model_snapshot()

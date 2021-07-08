@@ -4,13 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -632,8 +630,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 firstDescription = false;
             }
 
-            foreach (var column in operation.Columns.Where(c => c.Comment != null))
+            foreach (var column in operation.Columns)
             {
+                if (column.Comment == null)
+                {
+                    continue;
+                }
+
                 AddDescription(
                     builder, column.Comment,
                     operation.Schema,
@@ -2008,14 +2011,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </param>
         protected virtual void AddDescription(
             MigrationCommandListBuilder builder,
-            string? description,
+            string description,
             string? schema,
             string table,
             string? column = null,
             bool omitVariableDeclarations = false)
         {
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
-
             string schemaLiteral;
             if (schema == null)
             {
@@ -2060,8 +2061,120 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
-            string Literal(string? s)
-                => stringTypeMapping.GenerateSqlLiteral(s);
+            string Literal(string s)
+                => SqlLiteral(s);
+
+            static string SqlLiteral(string value)
+            {
+                var builder = new StringBuilder();
+
+                var start = 0;
+                int i;
+                int length;
+                var openApostrophe = false;
+                var lastConcatStartPoint = 0;
+                var concatCount = 1;
+                var concatStartList = new List<int>();
+                for (i = 0; i < value.Length; i++)
+                {
+                    var lineFeed = value[i] == '\n';
+                    var carriageReturn = value[i] == '\r';
+                    var apostrophe = value[i] == '\'';
+                    if (lineFeed || carriageReturn || apostrophe)
+                    {
+                        length = i - start;
+                        if (length != 0)
+                        {
+                            if (!openApostrophe)
+                            {
+                                AddConcatOperatorIfNeeded();
+                                builder.Append("N\'");
+                                openApostrophe = true;
+                            }
+
+                            builder.Append(value.AsSpan().Slice(start, length));
+                        }
+
+                        if (lineFeed || carriageReturn)
+                        {
+                            if (openApostrophe)
+                            {
+                                builder.Append('\'');
+                                openApostrophe = false;
+                            }
+
+                            AddConcatOperatorIfNeeded();
+                            builder
+                                .Append("NCHAR(")
+                                .Append(lineFeed ? "10" : "13")
+                                .Append(')');
+                        }
+                        else if (apostrophe)
+                        {
+                            if (!openApostrophe)
+                            {
+                                AddConcatOperatorIfNeeded();
+                                builder.Append("N'");
+                                openApostrophe = true;
+                            }
+                            builder.Append("''");
+                        }
+                        start = i + 1;
+                    }
+                }
+                length = i - start;
+                if (length != 0)
+                {
+                    if (!openApostrophe)
+                    {
+                        AddConcatOperatorIfNeeded();
+                        builder.Append("N\'");
+                        openApostrophe = true;
+                    }
+
+                    builder.Append(value.AsSpan().Slice(start, length));
+                }
+
+                if (openApostrophe)
+                {
+                    builder.Append('\'');
+                }
+
+                for (var j = concatStartList.Count - 1; j >= 0; j--)
+                {
+                    builder.Insert(concatStartList[j], "CONCAT(");
+                    builder.Append(')');
+                }
+
+                if (builder.Length == 0)
+                {
+                    builder.Append("N''");
+                }
+
+                var result = builder.ToString();
+
+                return result;
+
+                void AddConcatOperatorIfNeeded()
+                {
+                    if (builder.Length != 0)
+                    {
+                        builder.Append(", ");
+                        concatCount++;
+
+                        if (concatCount == 2)
+                        {
+                            concatStartList.Add(lastConcatStartPoint);
+                        }
+
+                        if (concatCount == 254)
+                        {
+                            lastConcatStartPoint = builder.Length;
+                            concatCount = 1;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -173,6 +173,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             var lastConcatStartPoint = 0;
             var concatCount = 1;
             var concatStartList = new List<int>();
+            var castApplied = false;
             for (i = 0; i < stringValue.Length; i++)
             {
                 var lineFeed = stringValue[i] == '\n';
@@ -211,11 +212,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
                         if (IsUnicode)
                         {
-                            builder.Append('N');
+                            builder.Append('n');
                         }
 
                         builder
-                            .Append("CHAR(")
+                            .Append("char(")
                             .Append(lineFeed ? "10" : "13")
                             .Append(')');
                     }
@@ -264,8 +265,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
 
             for (var j = concatStartList.Count - 1; j >= 0; j--)
             {
-                builder.Insert(concatStartList[j], "CONCAT(")
-                    .Append(')');
+                if (castApplied && j == 0)
+                {
+                    builder.Insert(concatStartList[j], "CAST(");
+                }
+                builder.Insert(concatStartList[j], "CONCAT(");
+                builder.Append(')');
             }
 
             if (builder.Length == 0)
@@ -284,6 +289,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             {
                 if (builder.Length != 0)
                 {
+                    if (!castApplied)
+                    {
+                        builder.Append(" AS ");
+                        if (IsUnicode)
+                        {
+                            builder.Append("n");
+                        }
+                        builder.Append("varchar(max))");
+                        castApplied = true;
+                    }
+
                     builder.Append(", ");
                     concatCount++;
 
