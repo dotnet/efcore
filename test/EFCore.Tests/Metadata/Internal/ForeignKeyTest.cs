@@ -575,7 +575,34 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [ConditionalFact]
         public void Can_change_cascade_ownership()
         {
-            var entityType = CreateModel().AddEntityType("E");
+            var entityType = CreateModel().AddOwnedEntityType("E");
+            var keyProp = entityType.AddProperty("Id", typeof(int));
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("U", typeof(int));
+            entityType.SetPrimaryKey(keyProp);
+            var principalKey = entityType.AddKey(principalProp);
+
+            var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
+            foreignKey.SetPrincipalToDependent("S");
+
+            Assert.False(foreignKey.IsOwnership);
+
+            foreignKey.IsOwnership = true;
+
+            Assert.True(foreignKey.IsOwnership);
+
+            Assert.Equal(
+                CoreStrings.OwnershipToDependent(
+                    "S",
+                    "E (Dictionary<string, object>)",
+                    "E (Dictionary<string, object>)"),
+                Assert.Throws<InvalidOperationException>(() => foreignKey.SetPrincipalToDependent((string)null)).Message);
+        }
+
+        [ConditionalFact]
+        public void IsOwnership_throws_when_no_navigation()
+        {
+            var entityType = CreateModel().AddOwnedEntityType("E");
             var keyProp = entityType.AddProperty("Id", typeof(int));
             var dependentProp = entityType.AddProperty("P", typeof(int));
             var principalProp = entityType.AddProperty("U", typeof(int));
@@ -586,9 +613,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.False(foreignKey.IsOwnership);
 
-            foreignKey.IsOwnership = true;
-
-            Assert.True(foreignKey.IsOwnership);
+            Assert.Equal(
+                CoreStrings.NavigationlessOwnership(
+                    "E (Dictionary<string, object>)",
+                    "E (Dictionary<string, object>)"),
+                Assert.Throws<InvalidOperationException>(() => foreignKey.IsOwnership = true).Message);
         }
 
         [ConditionalFact]

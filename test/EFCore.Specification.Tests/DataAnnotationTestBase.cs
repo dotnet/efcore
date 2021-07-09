@@ -1987,7 +1987,6 @@ namespace Microsoft.EntityFrameworkCore
         public virtual void InversePropertyAttribute_pointing_to_same_skip_nav_on_base_causes_ambiguity()
         {
             var modelBuilder = CreateModelBuilder();
-
             modelBuilder.Entity<AmbiguousInversePropertyLeft>();
             modelBuilder.Entity<AmbiguousInversePropertyLeftDerived>();
 
@@ -2048,9 +2047,9 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(LogLevel.Warning, logEntry.Level);
             Assert.Equal(
                 CoreResources.LogForeignKeyAttributesOnBothProperties(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    nameof(PostDetails.Post), nameof(PostDetails),
                     nameof(Post.PostDetails), nameof(Post),
-                    nameof(Post.PostDetailsId), nameof(PostDetails.PostId)),
+                    nameof(PostDetails.Post), nameof(PostDetails),
+                    nameof(PostDetails.PostId), nameof(Post.PostDetailsId)),
                 logEntry.Message);
         }
 

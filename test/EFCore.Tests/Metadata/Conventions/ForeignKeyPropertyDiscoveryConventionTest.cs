@@ -652,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     "NavProp",
                     "InverseReferenceNav", ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.DataAnnotation)
-                .DependentEntityType(dependentTypeWithCompositeKey, ConfigurationSource.DataAnnotation);
+                .DependentEntityType(dependentTypeWithCompositeKey.Metadata, ConfigurationSource.DataAnnotation);
 
             var newRelationshipBuilder = RunConvention(relationshipBuilder);
 
@@ -796,7 +796,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
 
             Assert.Equal(
-                nameof(PrincipalEntity) + nameof(PrincipalEntity.PeeKay),
+                "SomeNav" + nameof(PrincipalEntity.PeeKay),
                 newRelationshipBuilder.Metadata.Properties.Single().Name);
 
             newRelationshipBuilder = RunConvention(newRelationshipBuilder);

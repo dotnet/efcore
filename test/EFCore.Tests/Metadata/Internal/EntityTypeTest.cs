@@ -2635,10 +2635,110 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Setting_base_type_for_owned_throws()
+        {
+            var model = CreateModel();
+            var baseType = model.AddEntityType(typeof(BaseType));
+            var entityType = model.AddOwnedEntityType(typeof(Customer));
+
+            Assert.Equal(
+                CoreStrings.DerivedEntityOwnershipMismatch(
+                    nameof(BaseType), nameof(Customer), nameof(Customer), nameof(BaseType)),
+                Assert.Throws<InvalidOperationException>(
+                        () => entityType.BaseType = baseType)
+                    .Message);
+        }
+
+        [ConditionalFact]
         public void Entity_type_with_deeply_nested_owned_shared_types_builds_correctly()
         {
-            using var context = new RejectionContext(nameof(RejectionContext));
-            var entityTypes = context.Model.GetEntityTypes();
+            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+            modelBuilder.Entity<Application>(
+                entity =>
+                {
+                    entity.OwnsOne(
+                        x => x.Attitude,
+                        amb =>
+                        {
+                            amb.OwnsOne(
+                                x => x.FirstTest, mb =>
+                                {
+                                    mb.OwnsOne(a => a.Tester);
+                                });
+                        });
+
+                    entity.OwnsOne(
+                        x => x.Rejection,
+                        amb =>
+                        {
+                            amb.OwnsOne(
+                                x => x.FirstTest, mb =>
+                                {
+                                    mb.OwnsOne(a => a.Tester);
+                                });
+                        });
+                });
+
+            Assert.Equal(
+                new[]
+                {
+                        "Application",
+                        "Attitude",
+                        "Attitude.FirstTest#FirstTest", // FirstTest is shared
+                        "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // SpecialistStaff is shared
+                        "Rejection",
+                        "Rejection.FirstTest#FirstTest", // FirstTest is shared
+                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff" // SpecialistStaff is shared
+                }, GetTypeNames());
+
+            modelBuilder.Entity<ApplicationVersion>(
+                entity =>
+                {
+                    Assert.Equal(
+                        new[]
+                        {
+                                "Application",
+                                "ApplicationVersion",
+                                "Attitude",
+                                "Attitude.FirstTest#FirstTest",
+                                "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
+                                "Rejection",
+                                "Rejection.FirstTest#FirstTest",
+                                "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
+                        }, GetTypeNames());
+
+                    entity.OwnsOne(
+                        x => x.Attitude,
+                        amb =>
+                        {
+                            amb.OwnsOne(
+                                x => x.FirstTest, mb =>
+                                {
+                                    mb.OwnsOne(a => a.Tester);
+                                });
+
+                            var typeNames = GetTypeNames();
+                            Assert.Equal(
+                                new[]
+                                {
+                                        "Application",
+                                        "Application.Attitude#Attitude", // Attitude becomes shared
+                                        "Application.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
+                                        "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
+                                        "ApplicationVersion",
+                                        "ApplicationVersion.Attitude#Attitude", // Attitude becomes shared
+                                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
+                                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
+                                        "Rejection",
+                                        "Rejection.FirstTest#FirstTest",
+                                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
+                                }, typeNames);
+                        });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityTypes = model.GetEntityTypes();
 
             Assert.Equal(
                 new[]
@@ -2655,6 +2755,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     "Rejection.FirstTest#FirstTest",
                     "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
                 }, entityTypes.Select(e => e.DisplayName()).ToList());
+
+            List<string> GetTypeNames()
+                => modelBuilder.Model.GetEntityTypes().Select(e => e.DisplayName()).ToList();
         }
 
         //
@@ -2711,124 +2814,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private class SpecialistStaff
         {
-        }
-
-        private class RejectionContext : DbContext
-        {
-            private readonly string _databaseName;
-
-            public RejectionContext(string databaseName)
-            {
-                _databaseName = databaseName;
-            }
-
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                => optionsBuilder.UseInMemoryDatabase(_databaseName);
-
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                List<string> GetTypeNames()
-                    => modelBuilder.Model.GetEntityTypes().Select(e => e.DisplayName()).ToList();
-
-                modelBuilder.Entity<Application>(
-                    entity =>
-                    {
-                        entity.OwnsOne(
-                            x => x.Attitude,
-                            amb =>
-                            {
-                                amb.OwnsOne(
-                                    x => x.FirstTest, mb =>
-                                    {
-                                        mb.OwnsOne(a => a.Tester);
-                                    });
-                            });
-
-                        entity.OwnsOne(
-                            x => x.Rejection,
-                            amb =>
-                            {
-                                amb.OwnsOne(
-                                    x => x.FirstTest, mb =>
-                                    {
-                                        mb.OwnsOne(a => a.Tester);
-                                    });
-                            });
-                    });
-
-                Assert.Equal(
-                    new[]
-                    {
-                        "Application",
-                        "Attitude",
-                        "Attitude.FirstTest#FirstTest", // FirstTest is shared
-                        "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // SpecialistStaff is shared
-                        "Rejection",
-                        "Rejection.FirstTest#FirstTest", // FirstTest is shared
-                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff" // SpecialistStaff is shared
-                    }, GetTypeNames());
-
-                modelBuilder.Entity<ApplicationVersion>(
-                    entity =>
-                    {
-                        Assert.Equal(
-                            new[]
-                            {
-                                "Application",
-                                "ApplicationVersion",
-                                "Attitude",
-                                "Attitude.FirstTest#FirstTest",
-                                "Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
-                                "Rejection",
-                                "Rejection.FirstTest#FirstTest",
-                                "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
-                            }, GetTypeNames());
-
-                        entity.OwnsOne(
-                            x => x.Attitude,
-                            amb =>
-                            {
-                                amb.OwnsOne(
-                                    x => x.FirstTest, mb =>
-                                    {
-                                        mb.OwnsOne(a => a.Tester);
-                                    });
-
-                                var typeNames = GetTypeNames();
-                                Assert.Equal(
-                                    new[]
-                                    {
-                                        "Application",
-                                        "Application.Attitude#Attitude", // Attitude becomes shared
-                                        "Application.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
-                                        "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
-                                        "ApplicationVersion",
-                                        "ApplicationVersion.Attitude#Attitude", // Attitude becomes shared
-                                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest", // Attitude becomes shared
-                                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff", // Attitude becomes shared
-                                        "Rejection",
-                                        "Rejection.FirstTest#FirstTest",
-                                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
-                                    }, typeNames);
-                            });
-                    });
-
-                Assert.Equal(
-                    new[]
-                    {
-                        "Application",
-                        "Application.Attitude#Attitude",
-                        "Application.Attitude#Attitude.FirstTest#FirstTest",
-                        "Application.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
-                        "ApplicationVersion",
-                        "ApplicationVersion.Attitude#Attitude",
-                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest",
-                        "ApplicationVersion.Attitude#Attitude.FirstTest#FirstTest.Tester#SpecialistStaff",
-                        "Rejection",
-                        "Rejection.FirstTest#FirstTest",
-                        "Rejection.FirstTest#FirstTest.Tester#SpecialistStaff"
-                    }, GetTypeNames());
-            }
         }
 
         [ConditionalFact]

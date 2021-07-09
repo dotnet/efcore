@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var model = (Model)CreateModel();
             Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
 
-            model.AddEntityType(typeof(Customer), ConfigurationSource.Explicit);
+            model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit);
 
             Assert.Equal(
                 CoreStrings.CannotMarkShared(nameof(Customer)),

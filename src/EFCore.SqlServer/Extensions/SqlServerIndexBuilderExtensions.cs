@@ -138,7 +138,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A builder to further configure the index. </returns>
         public static IndexBuilder<TEntity> IncludeProperties<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
-            Expression<Func<TEntity, object>> includeExpression)
+            Expression<Func<TEntity, object?>> includeExpression)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NotNull(includeExpression, nameof(includeExpression));

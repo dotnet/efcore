@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An object that can be used to configure the entity type. </returns>
         public virtual EntityTypeBuilder<TEntity> Entity<TEntity>()
             where TEntity : class
-            => new(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit)!.Metadata);
+            => new(Builder.Entity(typeof(TEntity), ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
 
         /// <summary>
         ///     <para>
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit)!.Metadata);
+            return new EntityTypeBuilder(Builder.Entity(type, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotEmpty(name, nameof(name));
 
-            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit)!.Metadata);
+            return new EntityTypeBuilder(Builder.Entity(name, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
 
-            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit)!.Metadata);
+            return new EntityTypeBuilder(Builder.SharedTypeEntity(name, type, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata);
         }
 
         /// <summary>

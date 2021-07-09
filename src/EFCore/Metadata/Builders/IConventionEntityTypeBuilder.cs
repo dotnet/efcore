@@ -553,6 +553,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
+        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
+        /// <param name="navigationName"> The name of the navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> An object that can be used to configure the relationship. </returns>
+        IConventionForeignKeyBuilder? HasOwnership(
+            IConventionEntityType targetEntityType,
+            string navigationName,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
         /// <param name="targetEntityType"> The type that this relationship targets. </param>
         /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -562,6 +574,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             Type targetEntityType,
+            MemberInfo navigation,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
+        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionForeignKeyBuilder? HasOwnership(
+            IConventionEntityType targetEntityType,
             MemberInfo navigation,
             bool fromDataAnnotation = false);
 
@@ -588,6 +615,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures a relationship where the target entity is owned by (or part of) this entity.
         /// </summary>
+        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
+        /// <param name="navigationName"> The name of the navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="inverseNavigationName">
+        ///     The name of the navigation property on the target entity type that is part of the relationship. If <see langword="null" />
+        ///     is specified, the relationship will be configured without a navigation property on the target end.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionForeignKeyBuilder? HasOwnership(
+            IConventionEntityType targetEntityType,
+            string navigationName,
+            string? inverseNavigationName,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
         /// <param name="targetEntityType"> The type that this relationship targets. </param>
         /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
         /// <param name="inverseNavigation">
@@ -601,6 +648,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </returns>
         IConventionForeignKeyBuilder? HasOwnership(
             Type targetEntityType,
+            MemberInfo navigation,
+            MemberInfo? inverseNavigation,
+            bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Configures a relationship where the target entity is owned by (or part of) this entity.
+        /// </summary>
+        /// <param name="targetEntityType"> The entity type that this relationship targets. </param>
+        /// <param name="navigation"> The navigation property on this entity type that is part of the relationship. </param>
+        /// <param name="inverseNavigation">
+        ///     The navigation property on the target entity type that is part of the relationship. If <see langword="null" />
+        ///     is specified, the relationship will be configured without a navigation property on the target end.
+        /// </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     An object that can be used to configure the relationship if it exists on the entity type,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        IConventionForeignKeyBuilder? HasOwnership(
+            IConventionEntityType targetEntityType,
             MemberInfo navigation,
             MemberInfo? inverseNavigation,
             bool fromDataAnnotation = false);
@@ -654,7 +721,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     The same builder instance if the skip navigation was removed,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        IConventionEntityTypeBuilder? HasNoSkipNavigation(IReadOnlySkipNavigation skipNavigation, bool fromDataAnnotation = false);
+        IConventionEntityTypeBuilder? HasNoSkipNavigation(IConventionSkipNavigation skipNavigation, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the skip navigation can be removed from this entity type.
@@ -662,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="skipNavigation"> The skip navigation to be removed. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the skip navigation can be removed from this entity type. </returns>
-        bool CanRemoveSkipNavigation(IReadOnlySkipNavigation skipNavigation, bool fromDataAnnotation = false);
+        bool CanRemoveSkipNavigation(IConventionSkipNavigation skipNavigation, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given navigation can be added to this entity type.

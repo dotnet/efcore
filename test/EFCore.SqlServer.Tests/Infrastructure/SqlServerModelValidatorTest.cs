@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var modelBuilder = CreateConventionalModelBuilder();
             modelBuilder.Entity<Animal>().Property(a => a.Id).UseIdentityColumn(2, 3);
             modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson);
-            modelBuilder.Entity<Dog>();
+            modelBuilder.Entity<Dog>().Ignore(d => d.FavoritePerson);
 
             Validate(modelBuilder);
         }

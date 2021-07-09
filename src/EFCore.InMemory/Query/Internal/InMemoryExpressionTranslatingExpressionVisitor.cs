@@ -1408,7 +1408,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var rightEntityType = rightEntityReference?.EntityType;
             var entityType = leftEntityType ?? rightEntityType;
 
-            Debug.Assert(entityType != null, "At least either side should be entityReference so entityType should be non-null.");
+            Check.DebugAssert(entityType != null, "At least either side should be entityReference so entityType should be non-null.");
 
             if (leftEntityType != null
                 && rightEntityType != null

@@ -40,7 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private bool _connectionOwned;
         private int _openedCount;
         private bool _openedInternally;
-        private int? _commandTimeout, _defaultCommandTimeout;
+        private int? _commandTimeout;
+        private readonly int? _defaultCommandTimeout;
         private readonly ConcurrentStack<Transaction> _ambientTransactions = new();
         private DbConnection? _connection;
         private readonly IRelationalCommandBuilder _relationalCommandBuilder;

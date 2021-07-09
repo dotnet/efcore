@@ -2849,14 +2849,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            dependentEntityBuilder.HasRelationship(
-                principalEntityBuilder.Metadata, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit);
+            Assert.NotNull(dependentEntityBuilder.HasRelationship(
+                principalEntityBuilder.Metadata, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit));
 
             var derivedPrincipalEntityBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit)
                 .HasBaseType((string)null, ConfigurationSource.Explicit);
             var derivedDependentEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
-            derivedDependentEntityBuilder.HasRelationship(
-                derivedPrincipalEntityBuilder.Metadata, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit);
+            Assert.NotNull(derivedDependentEntityBuilder.HasRelationship(
+                derivedPrincipalEntityBuilder.Metadata, Order.CustomerProperty.Name, null, ConfigurationSource.Explicit));
 
             Assert.Null(derivedDependentEntityBuilder.HasBaseType(dependentEntityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Null(derivedDependentEntityBuilder.Metadata.BaseType);

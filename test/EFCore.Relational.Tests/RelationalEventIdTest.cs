@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -26,7 +25,6 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Xunit;
 using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -41,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var constantExpression = Expression.Constant("A");
             var model = new Model();
-            var entityType = new EntityType(typeof(object), model, ConfigurationSource.Convention);
+            var entityType = new EntityType(typeof(object), model, owned: false, ConfigurationSource.Convention);
             var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var key = entityType.AddKey(property, ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(new List<Property> { property }, key, entityType, entityType, ConfigurationSource.Convention);

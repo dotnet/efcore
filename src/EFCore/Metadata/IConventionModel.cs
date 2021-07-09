@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     <para>
-        ///         Adds a shadow state entity type to the model.
+        ///         Adds a state entity type of default type to the model.
         ///     </para>
         ///     <para>
         ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IConventionEntityType? AddEntityType(string name, Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Adds an entity type with a defining navigation to the model.
+        ///     Adds an owned entity type with a defining navigation to the model.
         /// </summary>
         /// <param name="name"> The name of the entity type to be added. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             bool fromDataAnnotation = false);
 
         /// <summary>
-        ///     Adds an entity type with a defining navigation to the model.
+        ///     Adds an owned entity type with a defining navigation to the model.
         /// </summary>
         /// <param name="type"> The CLR class that is used to represent instances of this entity type. </param>
         /// <param name="definingNavigationName"> The defining navigation. </param>
@@ -141,6 +141,43 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             string definingNavigationName,
             IConventionEntityType definingEntityType,
             bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     <para>
+        ///         Adds an owned entity type of default type to the model.
+        ///     </para>
+        ///     <para>
+        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
+        ///         Therefore, shadow state entity types will only exist in migration model snapshots, etc.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the entity to be added. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new entity type. </returns>
+        IConventionEntityType? AddOwnedEntityType(string name, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Adds an owned entity type to the model.
+        /// </summary>
+        /// <param name="type"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new entity type. </returns>
+        IConventionEntityType? AddOwnedEntityType(Type type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     <para>
+        ///         Adds an owned shared type entity type to the model.
+        ///     </para>
+        ///     <para>
+        ///         Shared type entity type is an entity type which can share CLR type with other types in the model but has
+        ///         a unique name and always identified by the name.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the entity to be added. </param>
+        /// <param name="clrType"> The CLR class that is used to represent instances of the entity type. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> The new entity type. </returns>
+        IConventionEntityType? AddOwnedEntityType(string name, Type clrType, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Gets the entity with the given name. Returns <see langword="null" /> if no entity type with the given name is found

@@ -830,6 +830,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" Keyless");
             }
 
+            if (IsOwned())
+            {
+                builder.Append(" Owned");
+            }
+
             if (this is EntityType
                 && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
             {

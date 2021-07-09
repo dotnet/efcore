@@ -70,26 +70,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var entityType = model.FindEntityType(elementType);
             if (entityType?.IsOwned() == true
                 || model.IsOwned(elementType)
-                || (entityType == null && model.GetEntityTypes().Any(e => e.ClrType == elementType)))
+                || (entityType == null && model.FindEntityTypes(elementType).Any()))
             {
                 return;
             }
 
-            IConventionEntityTypeBuilder? entityTypeBuilder;
-            if (entityType != null)
-            {
-                entityTypeBuilder = entityType.Builder;
-            }
-            else
-            {
-                entityTypeBuilder = dbFunctionBuilder.ModelBuilder.Entity(elementType);
-                if (entityTypeBuilder == null)
-                {
-                    return;
-                }
-
-                entityType = entityTypeBuilder.Metadata;
-            }
+            dbFunctionBuilder.ModelBuilder.Entity(elementType);
         }
     }
 }

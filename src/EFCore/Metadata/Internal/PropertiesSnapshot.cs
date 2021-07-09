@@ -121,6 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     var originalEntityType = indexBuilder.Metadata.DeclaringEntityType;
                     var targetEntityTypeBuilder = originalEntityType.Name == entityTypeBuilder.Metadata.Name
+                        || (!originalEntityType.HasSharedClrType && originalEntityType.ClrType == entityTypeBuilder.Metadata.ClrType)
                         ? entityTypeBuilder
                         : originalEntityType.Builder;
                     indexBuilder.Attach(targetEntityTypeBuilder);

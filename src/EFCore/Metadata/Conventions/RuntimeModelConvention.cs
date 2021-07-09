@@ -192,7 +192,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
-                annotations.Remove(CoreAnnotationNames.OwnedTypes);
                 annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
             }
         }

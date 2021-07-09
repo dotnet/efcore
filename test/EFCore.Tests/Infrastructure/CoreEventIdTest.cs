@@ -22,9 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public void Every_eventId_has_a_logger_method_and_logs_when_level_enabled()
         {
             var propertyInfo = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
-            var entityType = new Model().AddEntityType(typeof(object), ConfigurationSource.Convention);
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(object), owned: false, ConfigurationSource.Convention);
             var property = entityType.AddProperty("A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
-            var otherEntityType = new EntityType(typeof(object), entityType.Model, ConfigurationSource.Convention);
+            var otherEntityType = new EntityType(typeof(object), entityType.Model, owned: false, ConfigurationSource.Convention);
             var otherProperty = otherEntityType.AddProperty(
                 "A", typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
             var otherKey = otherEntityType.AddKey(otherProperty, ConfigurationSource.Convention);

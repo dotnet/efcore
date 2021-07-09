@@ -79,12 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
         private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
-            var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.DataAnnotation);
-
-            return entityBuilder;
-        }
+            => new InternalModelBuilder(new Model()).Entity(typeof(T), ConfigurationSource.Explicit);
 
         private class Base
         {

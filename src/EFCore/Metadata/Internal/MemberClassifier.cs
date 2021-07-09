@@ -53,23 +53,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ImmutableSortedDictionary<PropertyInfo, Type> GetNavigationCandidates(IConventionEntityType entityType)
+        public virtual ImmutableSortedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> GetNavigationCandidates(
+            IConventionEntityType entityType)
         {
             if (entityType.FindAnnotation(CoreAnnotationNames.NavigationCandidates)?.Value
-                is ImmutableSortedDictionary<PropertyInfo, Type> navigationCandidates)
+                is ImmutableSortedDictionary<PropertyInfo, (Type Type, bool? ShouldBeOwned)> navigationCandidates)
             {
                 return navigationCandidates;
             }
 
-            var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, Type>(MemberInfoNameComparer.Instance);
+            var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, (Type Type, bool? shouldBeOwned)>(
+                MemberInfoNameComparer.Instance);
 
             var configuration = ((Model)entityType.Model).Configuration;
             foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
             {
-                var targetType = FindCandidateNavigationPropertyType(propertyInfo, configuration);
+                var targetType = FindCandidateNavigationPropertyType(propertyInfo, configuration, out var shouldBeOwned);
                 if (targetType != null)
                 {
-                    dictionaryBuilder[propertyInfo] = targetType;
+                    dictionaryBuilder[propertyInfo] = (targetType, shouldBeOwned);
                 }
             }
 
@@ -80,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 entityType.Builder.HasAnnotation(CoreAnnotationNames.NavigationCandidates, navigationCandidates);
             }
+
             return navigationCandidates;
         }
 
@@ -89,44 +92,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Type? FindCandidateNavigationPropertyType(MemberInfo memberInfo, ModelConfiguration? configuration)
+        public virtual Type? FindCandidateNavigationPropertyType(
+            MemberInfo memberInfo, IConventionModel model, out bool? shouldBeOwned)
+            => FindCandidateNavigationPropertyType(memberInfo, ((Model)model).Configuration, out shouldBeOwned);
+
+        private Type? FindCandidateNavigationPropertyType(
+            MemberInfo memberInfo, ModelConfiguration? configuration, out bool? shouldBeOwned)
         {
+            shouldBeOwned = null;
+            var propertyInfo = memberInfo as PropertyInfo;
             var targetType = memberInfo.GetMemberType();
             var targetSequenceType = targetType.TryGetSequenceType();
-            if (!(memberInfo is PropertyInfo propertyInfo)
-                || !propertyInfo.IsCandidateProperty(targetSequenceType == null))
+            return targetSequenceType != null
+                && (propertyInfo == null
+                    || propertyInfo.IsCandidateProperty(needsWrite: false))
+                && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, configuration, out shouldBeOwned)
+                ? targetSequenceType
+                : (propertyInfo == null
+                    || propertyInfo.IsCandidateProperty(needsWrite: true))
+                    && IsCandidateNavigationPropertyType(targetType, memberInfo, configuration, out shouldBeOwned)
+                    ? targetType
+                    : null;
+        }
+
+        private bool IsCandidateNavigationPropertyType(
+           Type targetType, MemberInfo memberInfo, ModelConfiguration? configuration, out bool? shouldBeOwned)
+        {
+            shouldBeOwned = null;
+            var configurationType = configuration?.GetConfigurationType(targetType);
+            var isConfiguredAsEntityType = configurationType.IsEntityType();
+            if (isConfiguredAsEntityType == false
+                || !targetType.IsValidEntityType())
             {
-                return null;
+                return false;
             }
 
-            var isConfiguredAsEntityType = configuration?.GetConfigurationType(targetType).IsEntityType();
-            if (isConfiguredAsEntityType == false)
+            if (configurationType != null)
             {
-                return null;
+                shouldBeOwned = configurationType == TypeConfigurationType.OwnedEntityType;
             }
 
-            if (targetSequenceType != null)
-            {
-                isConfiguredAsEntityType ??= configuration?.GetConfigurationType(targetSequenceType).IsEntityType();
-                if (isConfiguredAsEntityType == false)
-                {
-                    return null;
-                }
-            }
-
-            targetType = targetSequenceType ?? targetType;
-            if (!targetType.IsValidEntityType())
-            {
-                return null;
-            }
-
-            targetType = targetType.UnwrapNullableType();
-            return isConfiguredAsEntityType == null
-                && (targetType == typeof(object)
-                    || _parameterBindingFactories.FindFactory(targetType, memberInfo.GetSimpleMemberName()) != null
-                    || _typeMappingSource.FindMapping(targetType) != null)
-                    ? null
-                    : targetType;
+            return isConfiguredAsEntityType == true
+                || (targetType != typeof(object)
+                    && _parameterBindingFactories.FindFactory(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()) == null
+                    && _typeMappingSource.FindMapping(targetType) == null);
         }
 
         /// <summary>

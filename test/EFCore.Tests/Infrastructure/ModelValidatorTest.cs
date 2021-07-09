@@ -688,6 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityTypeBuilder.Ignore(nameof(SampleEntity.Name), ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(SampleEntity.Number), ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(SampleEntity.OtherSamples), ConfigurationSource.Explicit);
+            entityTypeBuilder.Ignore(nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Explicit);
 
             var ownershipBuilder = entityTypeBuilder.HasOwnership(
                 typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
@@ -719,14 +720,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
 
             ownedTypeBuilder.HasRelationship(
-                    entityTypeBuilder.Metadata, (string)null, null, ConfigurationSource.Convention, setTargetAsPrincipal: true)
+                    entityTypeBuilder.Metadata, null, nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Convention, setTargetAsPrincipal: true)
                 .Metadata.IsOwnership = true;
 
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.Id), ConfigurationSource.Explicit);
             ownedTypeBuilder.Ignore(nameof(ReferencedEntity.SampleEntityId), ConfigurationSource.Explicit);
 
             VerifyError(
-                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.'"),
+                CoreStrings.MultipleOwnerships(nameof(ReferencedEntity), "'SampleEntity.ReferencedEntity', 'SampleEntity.AnotherReferencedEntity'"),
                 builder);
         }
 
@@ -741,6 +742,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityTypeBuilder.Ignore(nameof(SampleEntity.Number), ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(SampleEntity.Name), ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(SampleEntity.OtherSamples), ConfigurationSource.Explicit);
+            entityTypeBuilder.Ignore(nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Explicit);
 
             var ownershipBuilder = entityTypeBuilder.HasOwnership(
                 typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
@@ -776,6 +778,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             entityTypeBuilder.Ignore(nameof(SampleEntity.Number), ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(SampleEntity.Name), ConfigurationSource.Explicit);
             entityTypeBuilder.Ignore(nameof(SampleEntity.OtherSamples), ConfigurationSource.Explicit);
+            entityTypeBuilder.Ignore(nameof(SampleEntity.AnotherReferencedEntity), ConfigurationSource.Explicit);
 
             var ownershipBuilder = entityTypeBuilder.HasOwnership(
                 typeof(ReferencedEntity), nameof(SampleEntity.ReferencedEntity), ConfigurationSource.Convention);
@@ -817,14 +820,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var ownedTypeBuilder = ownershipBuilder.Metadata.DeclaringEntityType.Builder;
             ownedTypeBuilder.PrimaryKey(ownershipBuilder.Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
 
-            var anotherEntityTypeBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
+            var baseOwnershipBuilder = entityTypeBuilder.HasOwnership(typeof(A), nameof(B.A), ConfigurationSource.Convention);
+            var anotherEntityTypeBuilder = baseOwnershipBuilder.Metadata.DeclaringEntityType.Builder;
+            anotherEntityTypeBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
             anotherEntityTypeBuilder.PrimaryKey(new[] { nameof(A.Id) }, ConfigurationSource.Convention);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P0), ConfigurationSource.Explicit);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P1), ConfigurationSource.Explicit);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P2), ConfigurationSource.Explicit);
             anotherEntityTypeBuilder.Property(typeof(int?), nameof(A.P3), ConfigurationSource.Explicit);
 
-            ownedTypeBuilder.HasBaseType(typeof(A), ConfigurationSource.Convention);
+            Assert.NotNull(ownedTypeBuilder.HasBaseType(typeof(A), ConfigurationSource.DataAnnotation));
 
             VerifyError(CoreStrings.OwnedDerivedType(nameof(D)), builder);
         }

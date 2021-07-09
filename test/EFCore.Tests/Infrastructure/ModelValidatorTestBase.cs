@@ -121,6 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public int Number { get; set; }
             public string Name { get; set; }
             public ReferencedEntity ReferencedEntity { get; set; }
+            [NotMapped]
+            public ReferencedEntity AnotherReferencedEntity { get; set; }
             public ICollection<SampleEntity> OtherSamples { get; set; }
         }
 

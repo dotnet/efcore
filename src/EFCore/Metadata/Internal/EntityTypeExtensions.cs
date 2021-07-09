@@ -85,6 +85,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public static IConventionForeignKey? FindDeclaredOwnership(this IConventionEntityType entityType)
+            => entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static IReadOnlyEntityType? FindInOwnershipPath(this IReadOnlyEntityType entityType, Type targetType)
         {
             if (entityType.ClrType == targetType)
@@ -117,6 +126,37 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public static bool IsInOwnershipPath(this IReadOnlyEntityType entityType, Type targetType)
             => entityType.FindInOwnershipPath(targetType) != null;
+
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static bool IsInOwnershipPath(this IReadOnlyEntityType entityType, IReadOnlyEntityType targetType)
+        {
+            if (entityType == targetType)
+            {
+                return true;
+            }
+
+            var owner = entityType;
+            while (true)
+            {
+                var ownership = owner.FindOwnership();
+                if (ownership == null)
+                {
+                    return false;
+                }
+
+                owner = ownership.PrincipalEntityType;
+                if (owner.IsAssignableFrom(targetType))
+                {
+                    return true;
+                }
+            }
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

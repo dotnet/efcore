@@ -34,23 +34,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
             var entityType = entityTypeBuilder.Metadata;
-            var clrType = entityType.ClrType;
-            if (clrType == null
-                || entityType.HasSharedClrType
+            if (entityType.HasSharedClrType
                 || entityType.HasDefiningNavigation()
-                || entityType.Model.IsOwned(clrType)
-                || entityType.FindOwnership() != null)
+                || entityType.IsOwned())
             {
                 return;
             }
 
+            var clrType = entityType.ClrType;
             var model = entityType.Model;
             foreach (var directlyDerivedType in model.GetEntityTypes())
             {
                 if (directlyDerivedType != entityType
                         && !directlyDerivedType.HasSharedClrType
                         && !directlyDerivedType.HasDefiningNavigation()
-                        && !model.IsOwned(directlyDerivedType.ClrType)
+                        && !directlyDerivedType.IsOwned()
                         && directlyDerivedType.FindDeclaredOwnership() == null
                         && ((directlyDerivedType.BaseType == null && clrType.IsAssignableFrom(directlyDerivedType.ClrType))
                             || (directlyDerivedType.BaseType == entityType.BaseType && FindClosestBaseType(directlyDerivedType) == entityType)))

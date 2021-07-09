@@ -4,10 +4,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -121,6 +122,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Assert.Equal(
                 CoreStrings.NavigationNotAdded(
                     typeof(NavigationEntity).ShortDisplayName(), "Navigation", typeof(PrimitivePropertyEntity).Name),
+                Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Throws_when_navigation_to_owned_type_is_not_added_or_ignored()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>().Property(a => a.Id);
+            modelBuilder.Entity<Cat>().OwnsOne(a => a.FavoritePerson);
+            modelBuilder.Entity<Dog>();
+
+            Assert.Equal(
+                CoreStrings.NavigationNotAdded(
+                    typeof(Dog).ShortDisplayName(), nameof(Dog.FavoritePerson), typeof(Person).Name),
                 Assert.Throws<InvalidOperationException>(() => Validate(modelBuilder)).Message);
         }
 
@@ -304,6 +319,56 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         protected class InterfaceNavigationEntity
         {
             public IList<INavigationEntity> Navigation { get; set; }
+        }
+
+        protected class Animal
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public Person FavoritePerson { get; set; }
+        }
+
+        protected class Cat : Animal
+        {
+            public string Breed { get; set; }
+
+            [NotMapped]
+            public string Type { get; set; }
+
+            public int Identity { get; set; }
+        }
+
+        protected class Dog : Animal
+        {
+            public string Breed { get; set; }
+
+            [NotMapped]
+            public int Type { get; set; }
+
+            public int Identity { get; set; }
+        }
+
+        protected class Person
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string FavoriteBreed { get; set; }
+        }
+
+        protected class Employee : Person
+        {
+        }
+
+        protected class Owner
+        {
+            public int Id { get; set; }
+            public OwnedEntity Owned { get; set; }
+        }
+
+        protected class OwnedEntity
+        {
+            public string Value { get; set; }
         }
     }
 }

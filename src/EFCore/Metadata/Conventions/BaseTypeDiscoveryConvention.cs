@@ -19,8 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 #pragma warning disable CS0612 // Type or member is obsolete
         InheritanceDiscoveryConventionBase,
 #pragma warning restore CS0612 // Type or member is obsolete
-        IEntityTypeAddedConvention,
-        IForeignKeyOwnershipChangedConvention
+        IEntityTypeAddedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="BaseTypeDiscoveryConvention" />.
@@ -37,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
             var entityType = entityTypeBuilder.Metadata;
-            var clrType = entityType.ClrType;
-            if (clrType == null
-                || entityType.HasSharedClrType
-                || entityType.Model.IsOwned(clrType)
-                || entityType.FindDeclaredOwnership() != null)
+            if (entityType.HasSharedClrType
+                || entityType.IsOwned())
             {
                 return;
             }
+
+            Check.DebugAssert(entityType.GetDeclaredForeignKeys().FirstOrDefault(fk => fk.IsOwnership) == null,
+                "Ownerships present on non-owned entity type");
 
             var model = entityType.Model;
             var derivedTypesMap = (Dictionary<Type, List<IConventionEntityType>>?)model[CoreAnnotationNames.DerivedTypes];
@@ -54,12 +53,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 model.SetAnnotation(CoreAnnotationNames.DerivedTypes, derivedTypesMap);
             }
 
+            var clrType = entityType.ClrType;
             var baseType = clrType.BaseType!;
             if (derivedTypesMap.TryGetValue(clrType, out var derivedTypes))
             {
                 foreach (var derivedType in derivedTypes)
                 {
-                    derivedType.Builder.HasBaseType(entityType);
+                    if (!derivedType.IsOwned())
+                    {
+                        derivedType.Builder.HasBaseType(entityType);
+                    }
 
                     var otherBaseType = baseType;
                     while (otherBaseType != typeof(object))
@@ -101,27 +104,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
 
             if (!baseEntityType.HasSharedClrType
-                && baseEntityType.FindOwnership() == null)
+                && !baseEntityType.IsOwned())
             {
                 if (entityTypeBuilder.HasBaseType(baseEntityType) is IConventionEntityTypeBuilder newEntityTypeBuilder)
                 {
                     context.StopProcessingIfChanged(newEntityTypeBuilder);
-                }
-            }
-        }
-
-        /// <inheritdoc />
-        public virtual void ProcessForeignKeyOwnershipChanged(
-            IConventionForeignKeyBuilder relationshipBuilder,
-            IConventionContext<bool?> context)
-        {
-            var foreignKey = relationshipBuilder.Metadata;
-            if (foreignKey.IsOwnership
-                && foreignKey.DeclaringEntityType.GetDirectlyDerivedTypes().Any())
-            {
-                foreach (var derivedType in foreignKey.DeclaringEntityType.GetDirectlyDerivedTypes().ToList())
-                {
-                    derivedType.Builder.HasBaseType(null);
                 }
             }
         }

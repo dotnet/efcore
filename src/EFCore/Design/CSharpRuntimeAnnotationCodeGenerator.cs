@@ -43,7 +43,6 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
             else
             {
-                parameters.Annotations.Remove(CoreAnnotationNames.OwnedTypes);
                 parameters.Annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
             }
 

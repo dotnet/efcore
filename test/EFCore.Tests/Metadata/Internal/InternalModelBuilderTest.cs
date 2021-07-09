@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_ignore_existing_entity_type_using_entity_clr_type()
         {
             var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer), ConfigurationSource.Explicit);
+            var entityType = model.AddEntityType(typeof(Customer), owned: false, ConfigurationSource.Explicit);
             var modelBuilder = CreateModelBuilder(model);
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention).Metadata);
             Assert.Null(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public void Can_ignore_existing_entity_type_using_entity_type_name()
         {
             var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer).FullName, ConfigurationSource.Explicit);
+            var entityType = model.AddEntityType(typeof(Customer).FullName, owned: false, ConfigurationSource.Explicit);
             var modelBuilder = CreateModelBuilder(model);
 
             Assert.Same(entityType, modelBuilder.Entity(typeof(Customer).FullName, ConfigurationSource.Convention).Metadata);
@@ -302,13 +302,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
 
-            Assert.NotNull(modelBuilder.Entity(typeof(Details), ConfigurationSource.Convention));
+            var ownedEntityTypeBuilder = modelBuilder.Entity(typeof(Details), ConfigurationSource.Convention);
+            Assert.NotNull(ownedEntityTypeBuilder);
 
             Assert.False(model.IsOwned(typeof(Details)));
+            Assert.False(ownedEntityTypeBuilder.Metadata.IsOwned());
 
-            Assert.NotNull(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
+            Assert.Null(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.Convention));
 
-            Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
+            Assert.NotNull(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.DataAnnotation));
+
+            Assert.False(model.IsOwned(typeof(Details)));
+            Assert.True(ownedEntityTypeBuilder.Metadata.IsOwned());
+
+            Assert.NotNull(modelBuilder.Ignore(typeof(Details), ConfigurationSource.DataAnnotation));
 
             Assert.Empty(model.FindEntityTypes(typeof(Details)));
 
@@ -316,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.Null(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
-            Assert.NotNull(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.DataAnnotation));
+            Assert.NotNull(entityBuilder.HasOwnership(typeof(Details), nameof(Customer.Details), ConfigurationSource.Explicit));
 
             Assert.NotNull(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
@@ -352,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Null(modelBuilder.Owned(typeof(Details), ConfigurationSource.Convention));
 
             Assert.Equal(
-                CoreStrings.ClashingNonOwnedEntityType(typeof(Details).Name),
+                CoreStrings.ClashingNonOwnedEntityType("Details (Details)"),
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.Owned(typeof(Details), ConfigurationSource.Explicit)).Message);
         }
 
@@ -381,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 model.AddEntityType(
                     "JoinEntity",
                     typeof(Dictionary<string, object>),
+                    owned: false,
                     ConfigurationSource.Convention).Builder;
             var leftFK = joinEntityTypeBuilder
                 .HasRelationship(
