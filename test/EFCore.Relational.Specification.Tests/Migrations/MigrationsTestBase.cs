@@ -897,6 +897,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
         [ConditionalFact]
+        public virtual Task Drop_column_computed_and_non_computed_with_dependency()
+            => Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => builder.Entity("People", e =>
+                {
+                    e.Property<int>("X");
+                    e.Property<int>("Y").HasComputedColumnSql($"{DelimitIdentifier("X")} + 1");
+                }),
+                builder => { },
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal("Id", Assert.Single(table.Columns).Name);
+                });
+
+        [ConditionalFact]
         public virtual Task Rename_column()
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),

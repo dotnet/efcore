@@ -179,6 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var dropForeignKeyOperations = new List<MigrationOperation>();
             var dropOperations = new List<MigrationOperation>();
             var dropColumnOperations = new List<MigrationOperation>();
+            var dropComputedColumnOperations = new List<MigrationOperation>();
             var dropTableOperations = new List<DropTableOperation>();
             var ensureSchemaOperations = new List<MigrationOperation>();
             var createSequenceOperations = new List<MigrationOperation>();
@@ -209,7 +210,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
                 else if (type == typeof(DropColumnOperation))
                 {
-                    dropColumnOperations.Add(operation);
+                    if (string.IsNullOrWhiteSpace(diffContext.FindColumn((DropColumnOperation)operation)!.ComputedColumnSql))
+                    {
+                        dropColumnOperations.Add(operation);
+                    }
+                    else
+                    {
+                        dropComputedColumnOperations.Add(operation);
+                    }
                 }
                 else if (type == typeof(DropTableOperation))
                 {
@@ -352,6 +360,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 .Concat(dropTableOperations)
                 .Concat(dropOperations)
                 .Concat(sourceDataOperations)
+                .Concat(dropComputedColumnOperations)
                 .Concat(dropColumnOperations)
                 .Concat(ensureSchemaOperations)
                 .Concat(renameTableOperations)
@@ -2599,6 +2608,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             private readonly IDictionary<DropTableOperation, ITable> _removedTables
                 = new Dictionary<DropTableOperation, ITable>();
 
+            private readonly IDictionary<DropColumnOperation, IColumn> _removedColumns
+                = new Dictionary<DropColumnOperation, IColumn>();
+
             /// <summary>
             ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
             ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -2642,6 +2654,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             public virtual void AddDrop(IColumn source, DropColumnOperation operation)
             {
                 _dropColumnOperations.Add(source, operation);
+                _removedColumns.Add(operation, source);
             }
 
             /// <summary>
@@ -2722,6 +2735,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             /// </summary>
             public virtual ITable? FindTable(DropTableOperation operation)
                 => _removedTables.TryGetValue(operation, out var source)
+                    ? source
+                    : null;
+
+            /// <summary>
+            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+            ///     any release. You should only use it directly in your code with extreme caution and knowing that
+            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+            /// </summary>
+            public virtual IColumn? FindColumn(DropColumnOperation operation)
+                => _removedColumns.TryGetValue(operation, out var source)
                     ? source
                     : null;
         }
