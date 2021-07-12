@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
+    ///     <para>
+    ///          dummy
+    ///     </para>
     /// </summary>
     public class QueryRootExpression : Expression, IPrintableExpression
     {
