@@ -28,7 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeMemberIgnoredConvention,
         INavigationRemovedConvention,
         INavigationAddedConvention,
-        IForeignKeyOwnershipChangedConvention
+        IForeignKeyOwnershipChangedConvention,
+        IForeignKeyNullNavigationSetConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="RelationshipDiscoveryConvention" />.
@@ -820,7 +821,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach (var ignoredMember in newBaseType.GetAllBaseTypesInclusive().SelectMany(et => et.GetIgnoredMembers()))
                 {
-                    ProcessEntityTypeMemberIgnoredOnBase(entityType, ignoredMember);
+                    entityTypeBuilder.Metadata.GetRuntimeProperties().TryGetValue(ignoredMember, out var ignoredPropertyInfo);
+                    ProcessEntityTypeMemberIgnoredOnBase(entityType, ignoredMember, ignoredPropertyInfo);
                 }
             }
 
@@ -924,10 +926,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             string name,
             IConventionContext<string> context)
         {
+            entityTypeBuilder.Metadata.GetRuntimeProperties().TryGetValue(name, out var ignoredPropertyInfo);
             var anyAmbiguityRemoved = false;
             foreach (var derivedEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
-                anyAmbiguityRemoved |= ProcessEntityTypeMemberIgnoredOnBase(derivedEntityType, name);
+                anyAmbiguityRemoved |= ProcessEntityTypeMemberIgnoredOnBase(derivedEntityType, name, ignoredPropertyInfo);
             }
 
             if (anyAmbiguityRemoved)
@@ -936,7 +939,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private bool ProcessEntityTypeMemberIgnoredOnBase(IConventionEntityType entityType, string name)
+        private bool ProcessEntityTypeMemberIgnoredOnBase(IConventionEntityType entityType, string name, PropertyInfo? property)
         {
             var ambiguousNavigations = GetAmbiguousNavigations(entityType);
             if (ambiguousNavigations == null)
@@ -944,31 +947,77 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return false;
             }
 
-            KeyValuePair<MemberInfo, Type>? ambiguousNavigation = null;
+            var ambiguousNavigationFound = false;
             foreach (var navigation in ambiguousNavigations)
             {
-                if (navigation.Key.GetSimpleMemberName() == name)
+                if (navigation.Key.GetSimpleMemberName() != name
+                    && navigation.Key.GetMemberType() != property?.PropertyType)
                 {
-                    ambiguousNavigation = navigation;
+                    continue;
+                }
+
+                ambiguousNavigationFound = true;
+
+                var targetClrType = navigation.Value;
+                RemoveAmbiguous(entityType, targetClrType);
+
+                var targetType = TryGetTargetEntityTypeBuilder(
+                    entityType.Builder, targetClrType, navigation.Key, shouldCreate: false)?.Metadata;
+                if (targetType != null)
+                {
+                    RemoveAmbiguous(targetType, entityType.ClrType);
                 }
             }
 
-            if (ambiguousNavigation == null)
+            return ambiguousNavigationFound;
+        }
+
+        /// <inheritdoc />
+        public virtual void ProcessForeignKeyNullNavigationSet(
+            IConventionForeignKeyBuilder relationshipBuilder,
+            bool pointsToPrincipal,
+            IConventionContext<IConventionNavigation> context)
+        {
+            var entityType =
+                pointsToPrincipal
+                    ? relationshipBuilder.Metadata.DeclaringEntityType
+                    : relationshipBuilder.Metadata.PrincipalEntityType;
+
+            var targetEntityType =
+                pointsToPrincipal
+                    ? relationshipBuilder.Metadata.PrincipalEntityType
+                    : relationshipBuilder.Metadata.DeclaringEntityType;
+            var ambiguousNavigations = GetAmbiguousNavigations(entityType);
+            if (ambiguousNavigations == null)
             {
-                return false;
+                return;
             }
 
-            var targetClrType = ambiguousNavigation.Value.Value;
-            RemoveAmbiguous(entityType, targetClrType);
-
-            var targetType = TryGetTargetEntityTypeBuilder(
-                entityType.Builder, targetClrType, ambiguousNavigation.Value.Key, shouldCreate: false)?.Metadata;
-            if (targetType != null)
+            var ambiguousNavigationFound = false;
+            foreach (var navigation in ambiguousNavigations)
             {
-                RemoveAmbiguous(targetType, entityType.ClrType);
+                if (navigation.Value != targetEntityType.ClrType)
+                {
+                    continue;
+                }
+
+                ambiguousNavigationFound = true;
+
+                var targetClrType = navigation.Value;
+                RemoveAmbiguous(entityType, targetClrType);
+
+                var targetType = TryGetTargetEntityTypeBuilder(
+                    entityType.Builder, targetClrType, navigation.Key, shouldCreate: false)?.Metadata;
+                if (targetType != null)
+                {
+                    RemoveAmbiguous(targetType, entityType.ClrType);
+                }
             }
 
-            return true;
+            if (ambiguousNavigationFound)
+            {
+                DiscoverRelationships(entityType.Builder, context);
+            }
         }
 
         /// <inheritdoc />

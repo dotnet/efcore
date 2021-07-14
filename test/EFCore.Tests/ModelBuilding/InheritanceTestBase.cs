@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
             }
 
-            [ConditionalFact(Skip = "Issue #18388")]
+            [ConditionalFact]
             public virtual void Can_promote_shadow_fk_to_the_base_type()
             {
                 var modelBuilder = CreateModelBuilder();

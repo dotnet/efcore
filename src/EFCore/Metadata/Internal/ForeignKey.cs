@@ -452,6 +452,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
             if (name == oldNavigation?.Name)
             {
+                var oldConfigurationSource = pointsToPrincipal
+                    ? _dependentToPrincipalConfigurationSource
+                    : _principalToDependentConfigurationSource;
+
                 if (pointsToPrincipal)
                 {
                     UpdateDependentToPrincipalConfigurationSource(configurationSource);
@@ -459,6 +463,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 else
                 {
                     UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                }
+
+                if (name == null
+                    && configurationSource.OverridesStrictly(oldConfigurationSource))
+                {
+                    DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyNullNavigationSet(Builder, pointsToPrincipal);
                 }
 
                 return oldNavigation!;
@@ -516,7 +526,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 Check.DebugAssert(oldNavigation.Name != null, "oldNavigation.Name is null");
 
-                string? removedNavigationName = null;
+                string? removedNavigationName;
                 if (pointsToPrincipal)
                 {
                     removedNavigationName = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
@@ -536,6 +546,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (navigation == null)
                 {
+                    DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyNullNavigationSet(Builder, pointsToPrincipal);
                     return oldNavigation.Name == removedNavigationName ? oldNavigation : null;
                 }
             }
@@ -543,6 +554,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (navigation != null)
             {
                 navigation = (Navigation?)DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(navigation.Builder)?.Metadata;
+            }
+            else
+            {
+                DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyNullNavigationSet(Builder, pointsToPrincipal);
             }
 
             return navigation;

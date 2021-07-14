@@ -55,6 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (DiscriminatorConvention)discriminatorConvention);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
 
+            ReplaceConvention(conventionSet.EntityTypeMemberIgnoredConventions, (KeyDiscoveryConvention)keyDiscoveryConvention);
+
             conventionSet.EntityTypePrimaryKeyChangedConventions.Add(storeKeyConvention);
 
             conventionSet.KeyAddedConventions.Add(storeKeyConvention);

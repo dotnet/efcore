@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
@@ -133,6 +132,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Assert.Equal(
                 CoreResources.LogMultiplePrimaryKeyCandidates(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
                     nameof(EntityWithMultipleIds.ID), nameof(EntityWithMultipleIds.Id), nameof(EntityWithMultipleIds)), logEntry.Message);
+
+            var context = new ConventionContext<string>(
+                entityBuilder.Metadata.Model.ConventionDispatcher);
+
+            entityBuilder.Ignore("ID", ConfigurationSource.DataAnnotation);
+
+            CreateKeyDiscoveryConvention().ProcessEntityTypeMemberIgnored(entityBuilder, "ID", context);
+
+            Assert.Equal("Id", entityBuilder.Metadata.FindPrimaryKey().Properties.Single().Name);
         }
 
         public ListLoggerFactory ListLoggerFactory { get; }
