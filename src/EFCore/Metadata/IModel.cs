@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IEntityType> FindLeastDerivedEntityTypes(
             Type type,
             Func<IReadOnlyEntityType, bool>? condition = null)
-            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition(t))
+            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition)
                 .Cast<IEntityType>();
 
         /// <summary>

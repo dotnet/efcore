@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 return false;
             }
 
-            var converter = property.GetValueConverter() ?? PropertyMappings.First().TypeMapping?.Converter;
+            var converter = property.GetValueConverter() ?? PropertyMappings.First().TypeMapping.Converter;
 
             if (converter != null)
             {

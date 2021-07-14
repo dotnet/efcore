@@ -429,6 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        // TODO: Use layering to get the updated type #15898
         public virtual EntityType? FindActualEntityType(EntityType entityType)
             => entityType.IsInModel
                 ? entityType
@@ -512,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsShared(Type type)
-            => _sharedTypes.ContainsKey(type)
+            => FindIsSharedConfigurationSource(type) != null
             || Configuration?.GetConfigurationType(type) == TypeConfigurationType.SharedTypeEntityType;
 
         /// <summary>
@@ -722,9 +723,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return null;
             }
 
-            var name = GetDisplayName(type);
-            return _ownedTypes.Remove(name) ? name : null;
+            var currentType = type;
+            while (currentType != null)
+            {
+                var name = GetDisplayName(type);
+                if (_ownedTypes.Remove(name))
+                {
+                    return name;
+                }
+
+                currentType = currentType.BaseType;
+            }
+
+            return null;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ConfigurationSource? FindIsSharedConfigurationSource(Type type)
+            => _sharedTypes.TryGetValue(type, out var existingTypes) ? existingTypes.ConfigurationSource : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -736,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             EnsureMutable();
 
-            if (_entityTypes.Any(et => !et.Value.HasSharedClrType && et.Value.ClrType == type))
+            if (FindEntityType(type) != null)
             {
                 throw new InvalidOperationException(CoreStrings.CannotMarkShared(type.ShortDisplayName()));
             }
@@ -749,6 +770,25 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 _sharedTypes.Add(type, (configurationSource, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)));
             }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Type? RemoveShared(Type type)
+        {
+            EnsureMutable();
+
+            if (_sharedTypes.TryGetValue(type, out var existingTypes)
+                && existingTypes.Types.Any())
+            {
+                throw new InvalidOperationException(CoreStrings.CannotMarkNonShared(type.ShortDisplayName()));
+            }
+
+            return _sharedTypes.Remove(type) ? type : null;
         }
 
         /// <summary>

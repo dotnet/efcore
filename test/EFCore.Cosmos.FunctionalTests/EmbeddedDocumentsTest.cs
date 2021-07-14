@@ -560,12 +560,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
+                //modelBuilder.Ignore<Operator>();
                 modelBuilder.Entity<Vehicle>(
                     eb =>
                     {
                         eb.HasKey(e => e.Name);
                         eb.OwnsOne(v => v.Operator).OwnsOne(v => v.Details);
                     });
+                modelBuilder.Entity<PoweredVehicle>();
 
                 modelBuilder.Entity<Engine>(
                     eb =>

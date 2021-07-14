@@ -320,6 +320,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Ignore<Customer>();
                 modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Entity<OrderDetails>().Ignore(d => d.Id);
                 modelBuilder.Entity<Order>().Ignore(o => o.Details);
 
@@ -1164,6 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = (Model)modelBuilder.Model;
                 modelBuilder.Entity<Order>();
                 modelBuilder.Entity<OrderDetails>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<Customer>();
 
                 var dependentType = model.FindEntityType(typeof(OrderDetails));
@@ -1209,6 +1211,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = (Model)modelBuilder.Model;
                 modelBuilder.Entity<Order>();
                 modelBuilder.Entity<OrderDetails>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<Customer>();
 
                 var dependentType = model.FindEntityType(typeof(OrderDetails));
@@ -1643,6 +1646,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<OrderDetails>()
                     .HasOne(e => e.Order).WithOne(e => e.Details)
                     .HasPrincipalKey<OrderDetails>(e => e.Id);
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<Customer>();
                 modelBuilder.Ignore<CustomerDetails>();
 
@@ -1739,6 +1743,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Ignore<Customer>();
                 modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Entity<OrderDetails>();
                 modelBuilder.Entity<Order>().Property<int>("OrderDetailsId");
 
                 Assert.Equal(

@@ -135,11 +135,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             else
             {
                 clrType = type.Type!;
-                if (Metadata.IsShared(clrType))
+                var sharedConfigurationSource = Metadata.FindIsSharedConfigurationSource(clrType);
+                if (sharedConfigurationSource != null)
                 {
-                    return configurationSource == ConfigurationSource.Explicit
-                        ? throw new InvalidOperationException(CoreStrings.ClashingSharedType(clrType.ShortDisplayName()))
-                        : null;
+                    if (!configurationSource.OverridesStrictly(sharedConfigurationSource.Value))
+                    {
+                        return configurationSource == ConfigurationSource.Explicit
+                            ? throw new InvalidOperationException(CoreStrings.ClashingSharedType(clrType.ShortDisplayName()))
+                            : null;
+                    }
+
+                    foreach (var sharedTypeEntityType in Metadata.FindEntityTypes(clrType).ToList())
+                    {
+                        HasNoEntityType(sharedTypeEntityType, configurationSource);
+                    }
+
+                    Metadata.RemoveShared(clrType);
                 }
 
                 entityType = Metadata.FindEntityType(clrType);
@@ -165,10 +176,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 if (type.Type == null
                     || entityType.ClrType == type.Type)
                 {
-                    if (shouldBeOwned.HasValue
-                        && entityType.Builder.IsOwned(shouldBeOwned.Value, configurationSource) == null)
+                    if (shouldBeOwned.HasValue)
                     {
-                        return null;
+                        entityType.Builder.IsOwned(shouldBeOwned.Value, configurationSource);
                     }
 
                     entityType.UpdateConfigurationSource(configurationSource);
@@ -362,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsIgnored(Type type, ConfigurationSource configurationSource)
+        public virtual bool IsIgnored(Type type, ConfigurationSource? configurationSource)
             => IsIgnored(new TypeIdentity(type, Metadata), configurationSource);
 
         /// <summary>
@@ -371,10 +381,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsIgnored(string name, ConfigurationSource configurationSource)
+        public virtual bool IsIgnored(string name, ConfigurationSource? configurationSource)
             => IsIgnored(new TypeIdentity(name), configurationSource);
 
-        private bool IsIgnored(in TypeIdentity type, ConfigurationSource configurationSource)
+        private bool IsIgnored(in TypeIdentity type, ConfigurationSource? configurationSource)
         {
             if (configurationSource == ConfigurationSource.Explicit)
             {
@@ -536,6 +546,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalModelBuilder? HasNoEntityType(EntityType entityType, ConfigurationSource configurationSource)
         {
+            if (!entityType.IsInModel)
+            {
+                return this;
+            }
+
             var entityTypeConfigurationSource = entityType.GetConfigurationSource();
             if (!configurationSource.Overrides(entityTypeConfigurationSource))
             {
@@ -544,11 +559,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             using (Metadata.DelayConventions())
             {
-                var entityTypeBuilder = entityType.Builder;
                 foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
                 {
-                    var removed = foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
-                    Check.DebugAssert(removed != null, "removed is null");
+                    if (foreignKey.IsOwnership
+                        && configurationSource.Overrides(foreignKey.DeclaringEntityType.GetConfigurationSource()))
+                    {
+                        HasNoEntityType(foreignKey.DeclaringEntityType, configurationSource);
+                    }
+                    else
+                    {
+                        var removed = foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                        Check.DebugAssert(removed != null, "removed is null");
+                    }
                 }
 
                 foreach (var skipNavigation in entityType.GetDeclaredReferencingSkipNavigations().ToList())

@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Order>()
                     .HasOne(o => o.Customer).WithMany(c => c.Orders)
                     .HasForeignKey(c => c.CustomerId);
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<BackOrder>();
@@ -124,6 +125,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder
                     .Entity<Order>().HasOne(c => c.Customer).WithMany()
                     .HasForeignKey(c => c.CustomerId);
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
 
@@ -156,6 +158,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Customer>().HasMany(e => e.Orders).WithOne()
                     .HasForeignKey(e => e.CustomerId);
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
 
@@ -191,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder
                     .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                     .HasForeignKey(c => c.CustomerId);
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<BackOrder>();
@@ -226,6 +230,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<BackOrder>();
@@ -365,6 +370,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<BackOrder>();
@@ -823,6 +829,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<BackOrder>();
@@ -866,6 +873,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
 
@@ -949,6 +957,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Ignore<Order>();
                 modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<Product>();
 
                 modelBuilder.Entity<KeylessEntity>().HasNoKey();
                 modelBuilder.Entity<Customer>();
@@ -970,6 +979,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<BackOrder>();
@@ -1013,6 +1023,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Ignore<BackOrder>();
@@ -1056,6 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
 
@@ -1104,6 +1116,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
 
@@ -1152,6 +1165,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.Model;
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
 
@@ -1199,6 +1213,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Ignore<OrderDetails>();
                 modelBuilder.Ignore<CustomerDetails>();
                 modelBuilder.Entity<Customer>();
@@ -1895,6 +1910,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Ignore<OrderDetails>();
+                modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>(
                     eb =>
                     {
@@ -2234,8 +2250,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Creates_shadow_property_for_foreign_key_according_to_navigation_to_principal_name_when_present()
             {
                 var modelBuilder = CreateModelBuilder();
-                var entityB = modelBuilder.Entity<Beta>().Metadata;
+                modelBuilder.Entity<Beta>();
+                modelBuilder.Entity<Alpha>();
+                modelBuilder.Ignore<Theta>();
 
+                var model = modelBuilder.FinalizeModel();
+
+                var entityB = model.FindEntityType(typeof(Beta));
                 Assert.Equal("FirstNavId", entityB.FindNavigation("FirstNav").ForeignKey.Properties.First().Name);
                 Assert.Equal("SecondNavId", entityB.FindNavigation("SecondNav").ForeignKey.Properties.First().Name);
             }
@@ -2310,6 +2331,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Throws_when_foreign_key_references_shadow_key()
             {
                 var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders).HasForeignKey(e => e.AnotherCustomerId);
 
                 Assert.Equal(
@@ -2551,6 +2573,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<Kappa>().Ignore(e => e.Omegas);
                 modelBuilder.Entity<Omega>().HasOne(e => e.Kappa).WithMany();
+                modelBuilder.Entity<Alpha>();
 
                 modelBuilder.FinalizeModel();
 
@@ -2595,12 +2618,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Entity<Parent>();
                 modelBuilder.Entity<CompositeChild>().HasKey(e => new { e.Id, e.Value });
 
-                var fk = modelBuilder.Model.FindEntityType(typeof(CompositeChild)).GetForeignKeys().Single();
-                Assert.Equal("ParentId", fk.Properties[0].Name);
+                var model = modelBuilder.FinalizeModel();
 
-                modelBuilder.FinalizeModel();
+                var child = model.FindEntityType(typeof(CompositeChild));
+                var fk = child.GetForeignKeys().Single();
+                Assert.Equal("ParentId", fk.Properties[0].Name);
             }
 
             [ConditionalFact]

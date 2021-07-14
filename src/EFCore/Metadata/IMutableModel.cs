@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IMutableEntityType> FindLeastDerivedEntityTypes(
             Type type,
             Func<IReadOnlyEntityType, bool>? condition = null)
-            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition(t))
+            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition)
                 .Cast<IMutableEntityType>();
 
         /// <summary>
@@ -272,6 +272,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type that should be shared. </param>
         void AddShared(Type type);
+
+        /// <summary>
+        ///     Marks the given type as not shared, indicating that when discovered matching entity types
+        ///     should not be configured as shared type entity types.
+        /// </summary>
+        /// <param name="type"> The type of the entity type that should be shared. </param>
+        /// <returns> The removed type. </returns>
+        Type? RemoveShared(Type type);
 
         /// <summary>
         ///     Marks the given entity type as owned, indicating that when discovered matching entity types
