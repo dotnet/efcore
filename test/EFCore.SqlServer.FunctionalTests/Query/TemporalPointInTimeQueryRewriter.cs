@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             = typeof(ISetSource).GetMethod(nameof(ISetSource.Set));
 
         private static readonly MethodInfo _asOfMethodInfo
-            = typeof(SqlServerQueryableExtensions).GetMethod(nameof(SqlServerQueryableExtensions.TemporalAsOf));
+            = typeof(SqlServerDbSetExtensions).GetMethod(nameof(SqlServerDbSetExtensions.TemporalAsOf));
 
         private readonly DateTime _pointInTime;
 

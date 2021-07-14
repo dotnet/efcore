@@ -10,13 +10,20 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions
 {
     /// <summary>
-    ///     Fill in later
+    ///     <para>
+    ///         An expression that represents a temporal table source in a SQL tree.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public class TemporalTableExpression : TableExpressionBase, ICloneable
     {
         /// <summary>
-        ///     Fill in later
+        ///     Creates a new instance of the <see cref="TemporalTableExpression" /> class representing temporal 'All' operation.
         /// </summary>
+        /// <param name="table"> A table source. </param>
         public TemporalTableExpression(ITableBase table)
             : base(table.Name.Substring(0, 1).ToLowerInvariant())
         {
@@ -26,8 +33,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Fill in later
+        ///     Creates a new instance of the <see cref="TemporalTableExpression" /> class representing temporal 'AsOf' operation.
         /// </summary>
+        /// <param name="table"> A table source. </param>
+        /// <param name="pointInTime">Point in time. </param>
         public TemporalTableExpression(ITableBase table, DateTime pointInTime)
             : base(table.Name.Substring(0, 1).ToLowerInvariant())
         {
@@ -38,8 +47,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Fill in later
+        ///     Creates a new instance of the <see cref="TemporalTableExpression" /> class representing temporal range operation.
         /// </summary>
+        /// <param name="table"> A table source. </param>
+        /// <param name="from">Start of the time range.</param>
+        /// <param name="to">End of the time range.</param>
+        /// <param name="temporalOperationType">Temporal operation type.</param>
         public TemporalTableExpression(ITableBase table, DateTime from, DateTime to, TemporalOperationType temporalOperationType)
             : base(table.Name.Substring(0, 1).ToLowerInvariant())
         {
@@ -69,32 +82,32 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Fill in later
+        ///     Table schema.
         /// </summary>
         public virtual string? Schema { get; }
 
         /// <summary>
-        ///     Fill in later
+        ///     Table name.
         /// </summary>
         public virtual string Name { get; }
 
         /// <summary>
-        ///     Fill in later
+        ///     Point in time for the temporal 'AsOf' operation.
         /// </summary>
         public virtual DateTime? PointInTime { get; }
 
         /// <summary>
-        ///     Fill in later
+        ///     Start date for the temporal range operation.
         /// </summary>
         public virtual DateTime? From { get; }
 
         /// <summary>
-        ///     Fill in later
+        ///     End date for the temporal range operation.
         /// </summary>
         public virtual DateTime? To { get; }
 
         /// <summary>
-        ///     Fill in later
+        ///     Temporal operation type.
         /// </summary>
         public virtual TemporalOperationType TemporalOperationType { get; }
 

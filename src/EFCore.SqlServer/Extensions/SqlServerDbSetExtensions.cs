@@ -12,9 +12,9 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Sql Server database specific extension methods for LINQ queries.
+    ///     Sql Server database specific extension methods for LINQ queries rooted in DbSet.
     /// </summary>
-    public static class SqlServerQueryableExtensions
+    public static class SqlServerDbSetExtensions
     {
         /// <summary>
         ///     <para>
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="to">Point in time representing the end of the period for which results should be returned.</param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
         public static IQueryable<TEntity> TemporalBetween<TEntity>(
-            this IQueryable<TEntity> source,
+            this DbSet<TEntity> source,
             DateTime from,
             DateTime to)
             where TEntity : class

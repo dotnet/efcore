@@ -1097,6 +1097,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal(3, entity.GetProperties().Count());
             }
 
+            [ConditionalFact]
+            public virtual void Implicit_many_to_many_converted_from_non_temporal_to_temporal()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
+
+                modelBuilder.Entity<ImplicitManyToManyA>();
+                modelBuilder.Entity<ImplicitManyToManyB>();
+
+                modelBuilder.Entity<ImplicitManyToManyA>().ToTable(tb => tb.IsTemporal());
+                modelBuilder.Entity<ImplicitManyToManyB>().ToTable(tb => tb.IsTemporal());
+
+                modelBuilder.FinalizeModel();
+
+                var entity = model.FindEntityType(typeof(ImplicitManyToManyA));
+                var joinEntity = entity.GetSkipNavigations().Single().JoinEntityType;
+
+                Assert.True(joinEntity.IsTemporal());
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
         }

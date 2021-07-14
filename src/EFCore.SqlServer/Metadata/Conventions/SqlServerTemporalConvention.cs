@@ -36,6 +36,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     {
                         entityTypeBuilder.HasPeriodEnd(PeriodEndDefaultName);
                     }
+
+                    foreach (var skipLevelNavigation in entityTypeBuilder.Metadata.GetSkipNavigations())
+                    {
+                        if (skipLevelNavigation.DeclaringEntityType.IsTemporal()
+                            && skipLevelNavigation.Inverse is IConventionSkipNavigation inverse
+                            && inverse.DeclaringEntityType.IsTemporal()
+                            && skipLevelNavigation.JoinEntityType is IConventionEntityType joinEntityType
+                            && joinEntityType.HasSharedClrType
+                            && !joinEntityType.IsTemporal()
+                            && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention)
+                        {
+                            joinEntityType.SetIsTemporal(true);
+                        }
+                    }
                 }
                 else
                 {
