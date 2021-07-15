@@ -55,6 +55,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 keys.Clear();
                 foreignKeys.Clear();
 
+                if (!IndexesUniqueAcrossTables)
+                {
+                    indexes.Clear();
+                }
+
+                if (!CheckConstraintsUniqueAcrossTables)
+                {
+                    checkConstraints.Clear();
+                }
+
                 var storeObject = StoreObjectIdentifier.Table(table.Key.TableName, table.Key.Schema);
                 foreach (var entityType in table.Value)
                 {
@@ -66,6 +76,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 }
             }
         }
+
+        /// <summary>
+        ///     Gets a value indicating whether the index names should be unique across tables.
+        /// </summary>
+        protected virtual bool IndexesUniqueAcrossTables
+            => true;
+
+        /// <summary>
+        ///     Gets a value indicating whether the index names should be unique across tables.
+        /// </summary>
+        protected virtual bool CheckConstraintsUniqueAcrossTables
+            => true;
 
         private static void TryUniquifyTableNames(
             IConventionModel model,
@@ -494,6 +516,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var checkConstraint in entityType.GetDeclaredCheckConstraints())
             {
                 var constraintName = checkConstraint.GetName(storeObject);
+                if (constraintName == null)
+                {
+                    continue;
+                }
+
                 if (!checkConstraints.TryGetValue((constraintName, storeObject.Schema), out var otherCheckConstraint))
                 {
                     checkConstraints[(constraintName, storeObject.Schema)] = checkConstraint;
