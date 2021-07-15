@@ -17,7 +17,7 @@
   <PropertyGroup Label="Dependencies from dotnet/runtime">
     <SystemCollectionsImmutableVersion>6.0.0-preview.7.21361.10</SystemCollectionsImmutableVersion>
     <SystemDiagnosticsDiagnosticSourceVersion>6.0.0-preview.7.21361.10</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>6.0.0-preview.6.21276.2</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsCachingMemoryVersion>
     <MicrosoftExtensionsConfigurationVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsConfigurationVersion>
     <MicrosoftExtensionsConfigurationAbstractionsVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsConfigurationAbstractionsVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
@@ -25,7 +25,7 @@
     <MicrosoftExtensionsDependencyInjectionVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsDependencyModelVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsDependencyModelVersion>
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>6.0.0-preview.6.21276.2</MicrosoftExtensionsLoggingVersion>
+    <MicrosoftExtensionsLoggingVersion>6.0.0-preview.7.21361.10</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftCodeAnalysisVersion>3.7.0</MicrosoftCodeAnalysisVersion>

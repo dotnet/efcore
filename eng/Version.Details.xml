@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <!-- NB: Pinned for compatibility with Preview 5 -->
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-preview.6.21276.2" Pinned="True">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-preview.7.21361.10">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>293d47286161827ecc0d6e96f9eb7b82dafe8307</Sha>
+      <Sha>98b7ed1a3b0543a31b5a0f9069cf44cb70c9230c</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-preview.7.21361.10">
       <Uri>https://github.com/dotnet/runtime</Uri>
@@ -34,10 +33,9 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>98b7ed1a3b0543a31b5a0f9069cf44cb70c9230c</Sha>
     </Dependency>
-    <!-- NB: Pinned for compatibility with Preview 5 -->
-    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-preview.6.21276.2" Pinned="True">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-preview.7.21361.10">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>293d47286161827ecc0d6e96f9eb7b82dafe8307</Sha>
+      <Sha>98b7ed1a3b0543a31b5a0f9069cf44cb70c9230c</Sha>
     </Dependency>
     <Dependency Name="System.Collections.Immutable" Version="6.0.0-preview.7.21361.10">
       <Uri>https://github.com/dotnet/runtime</Uri>
