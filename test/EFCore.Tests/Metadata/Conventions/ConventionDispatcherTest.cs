@@ -1700,6 +1700,87 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         [InlineData(false, true)]
         [InlineData(true, true)]
         [ConditionalTheory]
+        public void OnForeignKeyNullNavigationSet_calls_conventions_in_order(bool useBuilder, bool useScope)
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new ForeignKeyNullNavigationSetConvention(terminate: false);
+            var convention2 = new ForeignKeyNullNavigationSetConvention(terminate: true);
+            var convention3 = new ForeignKeyNullNavigationSetConvention(terminate: false);
+            conventions.ForeignKeyNullNavigationSetConventions.Add(convention1);
+            conventions.ForeignKeyNullNavigationSetConventions.Add(convention2);
+            conventions.ForeignKeyNullNavigationSetConventions.Add(convention3);
+
+            var builder = new InternalModelBuilder(new Model(conventions));
+            var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
+
+            var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+            if (useBuilder)
+            {
+                var result = dependentEntityBuilder.HasRelationship(
+                    principalEntityBuilder.Metadata, (MemberInfo)null, null, ConfigurationSource.Convention);
+
+                Assert.NotNull(result);
+            }
+            else
+            {
+                var fk = dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Convention)
+                    .IsUnique(true, ConfigurationSource.Convention)
+                    .Metadata;
+                var result = fk.SetDependentToPrincipal((MemberInfo)null, ConfigurationSource.Explicit);
+
+                Assert.Null(result);
+
+                result = fk.SetPrincipalToDependent((MemberInfo)null, ConfigurationSource.Explicit);
+
+                Assert.Null(result);
+            }
+
+            if (useScope)
+            {
+                Assert.Empty(convention1.Calls);
+                Assert.Empty(convention2.Calls);
+                scope.Dispose();
+            }
+
+            Assert.Equal(new[] { true, false }, convention1.Calls);
+            Assert.Equal(new[] { true, false }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+        }
+
+        private class ForeignKeyNullNavigationSetConvention : IForeignKeyNullNavigationSetConvention
+        {
+            private readonly bool _terminate;
+            public readonly List<bool> Calls = new();
+
+            public ForeignKeyNullNavigationSetConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public void ProcessForeignKeyNullNavigationSet(
+                IConventionForeignKeyBuilder relationshipBuilder,
+                bool pointsToPrincipal,
+                IConventionContext<IConventionNavigation> context)
+            {
+                Assert.NotNull(relationshipBuilder.Metadata.Builder);
+
+                Calls.Add(pointsToPrincipal);
+
+                if (_terminate)
+                {
+                    context.StopProcessing();
+                }
+            }
+        }
+
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        [ConditionalTheory]
         public void OnNavigationAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
         {
             var conventions = new ConventionSet();

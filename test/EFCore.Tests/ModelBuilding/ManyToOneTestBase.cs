@@ -1688,6 +1688,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Relationships_discovered_when_ambiguity_on_the_inverse_is_resolved()
+            {
+                var modelBuilder = HobNobBuilder();
+                modelBuilder.Entity<Nob>()
+                    .Ignore(e => e.Hobs)
+                    .HasOne(e => e.Hob).WithOne()
+                    .HasForeignKey<Nob>(
+                        e => new { e.HobId1, e.HobId2 });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var hobType = model.FindEntityType(typeof(Hob));
+                var nobType = model.FindEntityType(typeof(Nob));
+
+                Assert.Null(hobType.GetNavigations().Single(n => n.Name == nameof(Hob.Nob)).Inverse);
+                Assert.Null(hobType.GetNavigations().Single(n => n.Name == nameof(Hob.Nobs)).Inverse);
+                Assert.Null(nobType.GetNavigations().Single(n => n.Name == nameof(Nob.Hob)).Inverse);
+                Assert.DoesNotContain(nobType.GetNavigations(), n => n.Name == nameof(Nob.Hobs));
+            }
+
+            [ConditionalFact]
             public virtual void Can_add_annotations()
             {
                 var modelBuilder = CreateModelBuilder();

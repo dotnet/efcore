@@ -2861,7 +2861,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (navigationToTarget.Value.Name == existingRelationship.Metadata.DependentToPrincipal?.Name)
                     {
-                        existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                        existingRelationship.Metadata.SetDependentToPrincipal(navigationToTarget.Value.Name, configurationSource);
                     }
                     else if (setTargetAsPrincipal == true)
                     {
@@ -2869,7 +2869,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     else
                     {
-                        existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                        existingRelationship.Metadata.SetPrincipalToDependent(navigationToTarget.Value.Name, configurationSource);
                     }
 
                     if (navigationToTarget.Value.Name != null)
@@ -2882,7 +2882,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 {
                     if (inverseNavigation.Value.Name == existingRelationship.Metadata.PrincipalToDependent?.Name)
                     {
-                        existingRelationship.Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                        existingRelationship.Metadata.SetPrincipalToDependent(inverseNavigation.Value.Name, configurationSource);
                     }
                     else if (setTargetAsPrincipal == true)
                     {
@@ -2890,7 +2890,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     }
                     else
                     {
-                        existingRelationship.Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                        existingRelationship.Metadata.SetDependentToPrincipal(inverseNavigation.Value.Name, configurationSource);
                     }
 
                     if (inverseNavigation.Value.Name != null)
@@ -4304,6 +4304,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var removed = skipNavigation.Inverse.Builder.HasInverse(null, configurationSource);
                 Check.DebugAssert(removed != null, "Expected inverse to be removed");
+            }
+
+            if (skipNavigation.ForeignKey != null)
+            {
+                skipNavigation.Builder.HasForeignKey(null, configurationSource);
             }
 
             Metadata.RemoveSkipNavigation(skipNavigation);

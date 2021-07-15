@@ -98,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
 
             conventionSet.EntityTypeMemberIgnoredConventions.Add(inversePropertyAttributeConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.EntityTypeMemberIgnoredConventions.Add(keyDiscoveryConvention);
             conventionSet.EntityTypeMemberIgnoredConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             var keyAttributeConvention = new KeyAttributeConvention(Dependencies);
@@ -168,6 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(relationshipDiscoveryConvention);
             conventionSet.ForeignKeyOwnershipChangedConventions.Add(valueGeneratorConvention);
+
+            conventionSet.ForeignKeyNullNavigationSetConventions.Add(relationshipDiscoveryConvention);
 
             var requiredNavigationAttributeConvention = new RequiredNavigationAttributeConvention(Dependencies);
             var nonNullableNavigationConvention = new NonNullableNavigationConvention(Dependencies);

@@ -178,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 Metadata.UpdateConfigurationSource(configurationSource);
                 if (navigationToPrincipal != null)
                 {
-                    Metadata.UpdateDependentToPrincipalConfigurationSource(configurationSource);
+                    Metadata.SetDependentToPrincipal(navigationToPrincipal?.Name, configurationSource);
                     if (navigationToPrincipalName != null)
                     {
                         dependentEntityType.RemoveIgnored(navigationToPrincipalName);
@@ -187,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (navigationToDependent != null)
                 {
-                    Metadata.UpdatePrincipalToDependentConfigurationSource(configurationSource);
+                    Metadata.SetPrincipalToDependent(navigationToDependent?.Name, configurationSource);
                     if (navigationToDependentName != null)
                     {
                         principalEntityType.RemoveIgnored(navigationToDependentName);

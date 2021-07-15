@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 
+// ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
@@ -686,7 +687,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         There navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.
+        ///         The navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
@@ -700,7 +701,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         There navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.
+        ///         The navigation that <see cref="InversePropertyAttribute" /> points to is not the defining navigation.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.

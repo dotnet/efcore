@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             entityType.AddProperty(nameof(Blog.Id), typeof(int), ConfigurationSource.Explicit, ConfigurationSource.Explicit);
 
-            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityType.Model.ConventionDispatcher);
+            var context = new ConventionContext<IConventionEntityTypeBuilder?>(entityType.Model.ConventionDispatcher);
             CreateServicePropertyDiscoveryConvention().ProcessEntityTypeAdded(entityType.Builder, context);
 
             return context.ShouldStopProcessing() ? (EntityType)context.Result!.Metadata : entityType;
