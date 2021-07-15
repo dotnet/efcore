@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="storeObject"> The identifier of the store object. </param>
         /// <returns> The database name of the check constraint for the given store object. </returns>
-        string GetName(in StoreObjectIdentifier storeObject);
+        string? GetName(in StoreObjectIdentifier storeObject);
 
         /// <summary>
         ///     Returns the default database name that would be used for this check constraint.

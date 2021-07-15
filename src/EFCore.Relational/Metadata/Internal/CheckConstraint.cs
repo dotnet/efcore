@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         /// <inheritdoc/>
-        public virtual string GetName(in StoreObjectIdentifier storeObject)
+        public virtual string? GetName(in StoreObjectIdentifier storeObject)
             => _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject) ?? ModelName;
 
         /// <summary>
