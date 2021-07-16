@@ -22,6 +22,7 @@ dotnet ef database update
     <IncludeSource>false</IncludeSource>
     <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     <RollForward>Major</RollForward>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
@@ -71,8 +72,7 @@ dotnet ef database update
     </Compile>
   </ItemGroup>
 
-  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties"
-      DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup" >
+  <Target Name="SetPackageProperties" BeforeTargets="InitializeStandardNuspecProperties" DependsOnTargets="BuiltProjectOutputGroup;DebugSymbolsProjectOutputGroup">
     <PropertyGroup>
       <!-- Make sure we create a symbols.nupkg. -->
       <IncludeSymbols>true</IncludeSymbols>
