@@ -31,6 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IPropertyAddedConvention,
         IKeyRemovedConvention,
         IEntityTypeBaseTypeChangedConvention,
+        IEntityTypeMemberIgnoredConvention,
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,
         IForeignKeyPropertiesChangedConvention,
@@ -186,6 +187,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             return keyProperties;
             // ReSharper restore PossibleMultipleEnumeration
+        }
+
+        /// <summary>
+        ///     Called after an entity type member is ignored.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="name"> The name of the ignored member. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeMemberIgnored(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionContext<string> context)
+        {
+            var entityTypeName = entityTypeBuilder.Metadata.ShortName();
+            if (string.Equals(name, KeySuffix, StringComparison.OrdinalIgnoreCase)
+                || (name.Length == entityTypeName.Length + KeySuffix.Length
+                    && name.StartsWith(entityTypeName, StringComparison.OrdinalIgnoreCase)
+                    && name.EndsWith(KeySuffix, StringComparison.OrdinalIgnoreCase)))
+            {
+                TryConfigurePrimaryKey(entityTypeBuilder);
+            }
         }
 
         /// <inheritdoc />

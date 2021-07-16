@@ -121,6 +121,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 return foreignKey;
             }
 
+            public override IConventionNavigation? OnForeignKeyNullNavigationSet(
+                IConventionForeignKeyBuilder relationshipBuilder,
+                bool pointsToPrincipal)
+            {
+                Add(new OnForeignKeyNullNavigationSetNode(relationshipBuilder, pointsToPrincipal));
+                return null;
+            }
+
             public override IConventionAnnotation? OnForeignKeyAnnotationChanged(
                 IConventionForeignKeyBuilder relationshipBuilder,
                 string name,
@@ -600,6 +608,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
 
             public override void Run(ConventionDispatcher dispatcher)
                 => dispatcher._immediateConventionScope.OnForeignKeyOwnershipChanged(RelationshipBuilder);
+        }
+
+        private sealed class OnForeignKeyNullNavigationSetNode : ConventionNode
+        {
+            public OnForeignKeyNullNavigationSetNode(IConventionForeignKeyBuilder relationshipBuilder, bool pointsToPrincipal)
+            {
+                RelationshipBuilder = relationshipBuilder;
+                PointsToPrincipal = pointsToPrincipal;
+            }
+
+            public IConventionForeignKeyBuilder RelationshipBuilder { get; }
+            public bool PointsToPrincipal { get; }
+
+            public override void Run(ConventionDispatcher dispatcher)
+                => dispatcher._immediateConventionScope.OnForeignKeyNullNavigationSet(RelationshipBuilder, PointsToPrincipal);
         }
 
         private sealed class OnForeignKeyPrincipalEndChangedNode : ConventionNode

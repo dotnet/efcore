@@ -22,6 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             private readonly ConventionContext<IConventionSkipNavigationBuilder> _skipNavigationBuilderConventionContext;
             private readonly ConventionContext<IConventionSkipNavigation> _skipNavigationConventionContext;
             private readonly ConventionContext<IConventionNavigationBuilder> _navigationConventionBuilderContext;
+            private readonly ConventionContext<IConventionNavigation> _navigationConventionContext;
             private readonly ConventionContext<IConventionIndexBuilder> _indexBuilderConventionContext;
             private readonly ConventionContext<IConventionIndex> _indexConventionContext;
             private readonly ConventionContext<IConventionKeyBuilder> _keyBuilderConventionContext;
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 _skipNavigationBuilderConventionContext = new ConventionContext<IConventionSkipNavigationBuilder>(dispatcher);
                 _skipNavigationConventionContext = new ConventionContext<IConventionSkipNavigation>(dispatcher);
                 _navigationConventionBuilderContext = new ConventionContext<IConventionNavigationBuilder>(dispatcher);
+                _navigationConventionContext = new ConventionContext<IConventionNavigation>(dispatcher);
                 _indexBuilderConventionContext = new ConventionContext<IConventionIndexBuilder>(dispatcher);
                 _indexConventionContext = new ConventionContext<IConventionIndex>(dispatcher);
                 _keyBuilderConventionContext = new ConventionContext<IConventionKeyBuilder>(dispatcher);
@@ -615,6 +617,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
                 }
 
                 return annotation;
+            }
+
+            public override IConventionNavigation? OnForeignKeyNullNavigationSet(
+                IConventionForeignKeyBuilder relationshipBuilder,
+                bool pointsToPrincipal)
+            {
+                using (_dispatcher.DelayConventions())
+                {
+                    _navigationConventionContext.ResetState(null);
+                    foreach (var foreignKeyConvention in _conventionSet.ForeignKeyNullNavigationSetConventions)
+                    {
+                        if (!relationshipBuilder.Metadata.IsInModel)
+                        {
+                            return null;
+                        }
+
+                        foreignKeyConvention.ProcessForeignKeyNullNavigationSet(
+                            relationshipBuilder, pointsToPrincipal, _navigationConventionContext);
+                        if (_navigationConventionContext.ShouldStopProcessing())
+                        {
+                            return _navigationConventionContext.Result;
+                        }
+                    }
+                }
+
+                return null;
             }
 
             public override IConventionNavigationBuilder? OnNavigationAdded(IConventionNavigationBuilder navigationBuilder)

@@ -449,7 +449,7 @@ namespace Microsoft.EntityFrameworkCore
                         && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
                         == typeof(IEntityTypeConfiguration<>));
 
-            foreach (var type in assembly.GetConstructibleTypes())
+            foreach (var type in assembly.GetConstructibleTypes().OrderBy(t => t.FullName))
             {
                 // Only accept types that contain a parameterless constructor, are not abstract and satisfy a predicate if it was used.
                 if (type.GetConstructor(Type.EmptyTypes) == null

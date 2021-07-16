@@ -115,6 +115,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
             public abstract bool? OnForeignKeyUniquenessChanged(
                 IConventionForeignKeyBuilder relationshipBuilder);
 
+            public abstract IConventionNavigation? OnForeignKeyNullNavigationSet(
+                IConventionForeignKeyBuilder relationshipBuilder,
+                bool pointsToPrincipal);
+
             public abstract IConventionIndexBuilder? OnIndexAdded(IConventionIndexBuilder indexBuilder);
 
             public abstract IConventionAnnotation? OnIndexAnnotationChanged(
