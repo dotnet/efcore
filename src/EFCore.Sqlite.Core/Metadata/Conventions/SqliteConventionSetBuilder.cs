@@ -43,6 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var conventionSet = base.CreateConventionSet();
 
             ReplaceConvention(
+                conventionSet.ModelFinalizingConventions,
+                (SharedTableConvention)new SqliteSharedTableConvention(Dependencies, RelationalDependencies));
+
+            ReplaceConvention(
                 conventionSet.ModelFinalizedConventions,
                 (RuntimeModelConvention)new SqliteRuntimeModelConvention(Dependencies, RelationalDependencies));
 
