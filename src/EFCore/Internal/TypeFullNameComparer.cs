@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 return 1;
             }
 
-            return StringComparer.Ordinal.Compare(x.Name, y.Name);
+            return StringComparer.Ordinal.Compare(x.FullName, y.FullName);
         }
 
         /// <summary>
