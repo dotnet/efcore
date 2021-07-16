@@ -2,7 +2,7 @@
 
 [![build status](https://img.shields.io/azure-devops/build/dnceng/public/51/main)](https://dev.azure.com/dnceng/public/_build?definitionId=51) [![test results](https://img.shields.io/azure-devops/tests/dnceng/public/51/main)](https://dev.azure.com/dnceng/public/_build?definitionId=51)
 
-This repository is home to the following [.NET Foundation](https://dotnetfoundation.org/) projects. These projects are maintained by [Microsoft](https://github.com/microsoft) and licensed under the [Apache License, Version 2.0](LICENSE.txt).
+This repository is home to the following [.NET Foundation](https://dotnetfoundation.org/) projects. These projects are maintained by [Microsoft](https://github.com/microsoft) and licensed under the [MIT License](LICENSE.txt).
 
 * [Entity Framework Core](#entity-framework-core)
 * [Microsoft.Data.Sqlite](#microsoftdatasqlite)

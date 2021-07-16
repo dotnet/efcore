@@ -1,6 +1,10 @@
 <Project>
   <Import Project="..\Directory.Build.props" />
 
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
     <PackageReference Include="xunit.assert" Version="$(XunitVersion)" />

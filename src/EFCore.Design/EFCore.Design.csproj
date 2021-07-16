@@ -9,11 +9,6 @@
     <DevelopmentDependency>True</DevelopmentDependency>
   </PropertyGroup>
 
-  <!-- NB: Source from dotnet/runtime has a different header -->
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);SA1636</NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="..\ef\CommandLineUtils\*.cs" Link="CommandLineUtils\%(Filename).cs" />
     <Compile Include="..\ef\Reporter.cs" />
@@ -37,11 +32,6 @@
   <ItemGroup>
     <PackageReference Include="Humanizer.Core" Version="2.8.26" />
     <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
-    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>

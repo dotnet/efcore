@@ -7,6 +7,7 @@
     <IsPackable>false</IsPackable>
     <RootNamespace>Microsoft.EntityFrameworkCore.Tools</RootNamespace>
     <CheckEolTargetFramework>False</CheckEolTargetFramework>
+    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)..\..\rulesets\EFCore.noxmldocs.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>
