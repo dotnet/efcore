@@ -36,7 +36,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             RemoveEntityTypesUnreachableByNavigations(modelBuilder, context);
             RemoveNavigationlessForeignKeys(modelBuilder);
-            RemoveModelBuildingAnnotations(modelBuilder);
         }
 
         private void RemoveEntityTypesUnreachableByNavigations(
@@ -81,16 +80,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         entityType.Builder.HasNoRelationship(foreignKey, fromDataAnnotation: true);
                     }
                 }
-            }
-        }
-
-        private void RemoveModelBuildingAnnotations(IConventionModelBuilder modelBuilder)
-        {
-            modelBuilder.Metadata.RemoveAnnotation(CoreAnnotationNames.DerivedTypes);
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
-            {
-                entityType.RemoveAnnotation(CoreAnnotationNames.AmbiguousNavigations);
-                entityType.RemoveAnnotation(CoreAnnotationNames.NavigationCandidates);
             }
         }
 

@@ -247,6 +247,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public const string InverseNavigationCandidates = "RelationshipDiscoveryConvention:InverseNavigationCandidates";
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public const string NavigationCandidates = "RelationshipDiscoveryConvention:NavigationCandidates";
 
         /// <summary>
@@ -287,7 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public const string FullChangeTrackingNotificationsRequiredAnnotation = "ModelValidator.FullChangeTrackingNotificationsRequired";
+        public const string FullChangeTrackingNotificationsRequired = "ModelValidator.FullChangeTrackingNotificationsRequired";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -330,11 +338,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             PreUniquificationName,
             InverseNavigations,
             DerivedTypes,
+            InverseNavigationCandidates,
             NavigationCandidates,
             AmbiguousNavigations,
             AmbiguousField,
             DuplicateServiceProperties,
-            FullChangeTrackingNotificationsRequiredAnnotation
+            FullChangeTrackingNotificationsRequired
         };
     }
 }

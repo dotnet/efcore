@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(
                 typeof(TEntity),
                 typeof(TCollection),
-                navigation.DeclaringEntityType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] != null);
+                navigation.DeclaringEntityType.Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] != null);
 
             if (concreteType != null)
             {

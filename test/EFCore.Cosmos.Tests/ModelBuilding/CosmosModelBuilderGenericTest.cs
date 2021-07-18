@@ -271,12 +271,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class CosmosGenericOneToMany : GenericOneToMany
         {
-            [ConditionalFact(Skip = "#25279")]
-            public override void Keyless_type_discovered_before_referenced_entity_type_does_not_leave_temp_id()
-            {
-                base.Keyless_type_discovered_before_referenced_entity_type_does_not_leave_temp_id();
-            }
-
             public override void Navigation_to_shared_type_is_not_discovered_by_convention()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -319,6 +313,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(owned.HasSharedClrType);
                 Assert.Equal("ReferenceNavigationToSharedType.Navigation#Dictionary<string, object>",
                     owned.DisplayName());
+            }
+
+            [ConditionalFact]
+            public virtual void Inverse_discovered_after_entity_becomes_non_owned()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<QueryResult>();
+                modelBuilder.Entity<Value>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var queryResult = model.FindEntityType(typeof(QueryResult));
+                Assert.NotNull(queryResult.FindNavigation(nameof(QueryResult.Value)));
             }
 
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
@@ -468,12 +476,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class CosmosGenericOwnedTypes : GenericOwnedTypes
         {
-            [ConditionalFact(Skip = "#25279")]
-            public override void Can_configure_owned_type_collection_with_one_call_afterwards()
-            {
-                base.Can_configure_owned_type_collection_with_one_call_afterwards();
-            }
-
             public override void Deriving_from_owned_type_throws()
             {
                 // On Cosmos the base type starts as owned
