@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
-        public virtual IndexBuilder<TEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
+        public virtual IndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
             => new(
                 DependentEntityType.Builder.HasIndex(
                         Check.NotNull(indexExpression, nameof(indexExpression)).GetMemberAccessList(), ConfigurationSource.Explicit)!
@@ -188,7 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
-        public new virtual IndexBuilder<TEntity> HasIndex(params string[] propertyNames)
+        public new virtual IndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames)
             => new(
                 DependentEntityType.Builder.HasIndex(
                     Check.NotEmpty(propertyNames, nameof(propertyNames)), ConfigurationSource.Explicit)!.Metadata);

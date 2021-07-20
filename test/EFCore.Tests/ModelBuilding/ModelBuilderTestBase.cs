@@ -610,8 +610,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public abstract TestOwnedNavigationBuilder<TEntity, TDependentEntity> Ignore(
                 Expression<Func<TDependentEntity, object?>> propertyExpression);
 
-            public abstract TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames);
-            public abstract TestIndexBuilder<TEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression);
+            public abstract TestIndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames);
+            public abstract TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression);
 
             public abstract TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference);
 

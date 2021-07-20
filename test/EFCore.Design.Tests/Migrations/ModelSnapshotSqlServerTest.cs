@@ -1901,7 +1901,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     eb.WithOwner(e => e.EntityWithOneProperty)
                                         .HasForeignKey(e => e.AlternateId)
                                         .HasConstraintName("FK_Custom");
-                                    eb.HasIndex(e => e.Id);
+                                    eb.HasIndex(e => e.Id)
+                                        .IncludeProperties(e => e.AlternateId);
 
                                     eb.HasOne(e => e.EntityWithStringKey).WithOne();
 
@@ -1973,7 +1974,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 .IsUnique()
                                 .HasFilter(""[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL"");
 
-                            b1.HasIndex(""Id"");
+                            b1.HasIndex(""Id"")
+                                .HasAnnotation(""SqlServer:Include"", new[] { ""AlternateId"" });
 
                             b1.ToTable(""EntityWithOneProperty"");
 
@@ -2061,10 +2063,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     Assert.Equal("EntityWithStringKeyId", owned1index1.Properties[0].Name);
                     Assert.True(owned1index1.IsUnique);
                     Assert.Equal("[EntityWithTwoProperties_EntityWithStringKeyId] IS NOT NULL", owned1index1.GetFilter());
+                    Assert.Null(owned1index1.GetIncludeProperties());
                     var owned1index2 = ownedType1.GetIndexes().Last();
                     Assert.Equal("Id", owned1index2.Properties[0].Name);
                     Assert.False(owned1index2.IsUnique);
                     Assert.Null(owned1index2.GetFilter());
+                    Assert.Equal(new[] { nameof(EntityWithTwoProperties.AlternateId) }, owned1index2.GetIncludeProperties());
                     Assert.Equal(new object[] { 1, -1 }, ownedType1.GetSeedData().Single().Values);
                     Assert.Equal(nameof(EntityWithOneProperty), ownedType1.GetTableName());
                     Assert.False(ownedType1.IsTableExcludedFromMigrations());
