@@ -942,11 +942,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Expression<Func<TDependentEntity, object?>> propertyExpression)
                 => Wrap(OwnedNavigationBuilder.Ignore(propertyExpression));
 
-            public override TestIndexBuilder<TEntity> HasIndex(params string[] propertyNames)
-                => new GenericTestIndexBuilder<TEntity>(OwnedNavigationBuilder.HasIndex(propertyNames));
+            public override TestIndexBuilder<TDependentEntity> HasIndex(params string[] propertyNames)
+                => new GenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(propertyNames));
 
-            public override TestIndexBuilder<TEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
-                => new GenericTestIndexBuilder<TEntity>(OwnedNavigationBuilder.HasIndex(indexExpression));
+            public override TestIndexBuilder<TDependentEntity> HasIndex(Expression<Func<TDependentEntity, object?>> indexExpression)
+                => new GenericTestIndexBuilder<TDependentEntity>(OwnedNavigationBuilder.HasIndex(indexExpression));
 
             public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(string? ownerReference)
                 => new GenericTestOwnershipBuilder<TEntity, TDependentEntity>(
