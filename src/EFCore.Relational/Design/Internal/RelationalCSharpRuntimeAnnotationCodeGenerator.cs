@@ -11,13 +11,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Design
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
     ///     <para>
     ///         Base class to be used by relational database providers when implementing an <see cref="ICSharpRuntimeAnnotationCodeGenerator" />
     ///     </para>
     /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
     public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotationCodeGenerator
     {
         /// <summary>
@@ -137,12 +138,12 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var method = function.MethodInfo;
                 mainBuilder.AppendLine(",")
                     .Append("methodInfo: ").Append(code.Literal(method.DeclaringType!)).AppendLine(".GetMethod(").IncrementIndent()
-                    .Append(code.Literal(method.Name)).AppendLine(",")
+                    .Append(code.Literal(method.Name!)).AppendLine(",")
                     .Append(method.IsPublic ? "BindingFlags.Public" : "BindingFlags.NonPublic")
                     .Append(method.IsStatic ? " | BindingFlags.Static" : " | BindingFlags.Instance")
                     .AppendLine(" | BindingFlags.DeclaredOnly,")
                     .AppendLine("null,")
-                    .Append("new Type[] { ").Append(string.Join(", ", method.GetParameters().Select(p => code.Literal(p.ParameterType)))).AppendLine(" },")
+                    .Append("new Type[] { ").Append(string.Join(", ", method.GetParameters().Select(p => code.Literal((Type)p.ParameterType)))).AppendLine(" },")
                     .Append("null)").DecrementIndent();
             }
 

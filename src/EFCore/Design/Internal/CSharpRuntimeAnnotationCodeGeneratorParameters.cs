@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.Design
+namespace Microsoft.EntityFrameworkCore.Design.Internal
 {
     /// <summary>
     ///     The parameter object for a <see cref="ICSharpRuntimeAnnotationCodeGenerator" />

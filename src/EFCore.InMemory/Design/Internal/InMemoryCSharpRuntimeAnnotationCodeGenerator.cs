@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal
 {
@@ -11,6 +11,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Design.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+#pragma warning disable EF1001 // Internal EF Core API usage.
     public class InMemoryCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnotationCodeGenerator
     {
         /// <summary>
