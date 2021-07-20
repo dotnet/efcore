@@ -560,7 +560,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                //modelBuilder.Ignore<Operator>();
                 modelBuilder.Entity<Vehicle>(
                     eb =>
                     {

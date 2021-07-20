@@ -783,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EnsureMutable();
 
             if (_sharedTypes.TryGetValue(type, out var existingTypes)
-                && existingTypes.Types.Any())
+                && existingTypes.Types.Count != 0)
             {
                 throw new InvalidOperationException(CoreStrings.CannotMarkNonShared(type.ShortDisplayName()));
             }
