@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEnumerable<IConventionEntityType> FindLeastDerivedEntityTypes(
             Type type,
             Func<IReadOnlyEntityType, bool>? condition = null)
-            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition == null ? null : t => condition(t))
+            => ((IReadOnlyModel)this).FindLeastDerivedEntityTypes(type, condition)
                 .Cast<IConventionEntityType>();
 
         /// <summary>
@@ -303,6 +303,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="type"> The type of the entity type that should be shared. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         void AddShared(Type type, bool fromDataAnnotation = false);
+
+        /// <summary>
+        ///     Marks the given type as not shared, indicating that when discovered matching entity types
+        ///     should not be configured as shared type entity types.
+        /// </summary>
+        /// <param name="type"> The type of the entity type that should be shared. </param>
+        /// <returns> The removed type. </returns>
+        Type? RemoveShared(Type type);
+
+        /// <summary>
+        ///     Returns the configuration source if the given type is marked as shared.
+        /// </summary>
+        /// <param name="type"> The type that could be shared. </param>
+        /// <returns>
+        ///     The configuration source if the given type is marked as shared,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        ConfigurationSource? FindIsSharedConfigurationSource(Type type);
 
         /// <summary>
         ///     Marks the given entity type as owned, indicating that when discovered entity types using the given type
@@ -326,18 +344,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="type"> The type of the entity type that could be owned. </param>
         /// <returns>
-        ///     <see langword="true" /> if the given type name is marked as owned,
+        ///     <see langword="true" /> if the given type is marked as owned,
         ///     <see langword="null" /> otherwise.
         /// </returns>
         bool IsOwned(Type type) => FindIsOwnedConfigurationSource(type) != null;
 
         /// <summary>
-        ///     Returns a value indicating whether the entity types using the given type should be configured
-        ///     as owned types when discovered.
+        ///     Returns the configuration source if the given type is marked as owned.
         /// </summary>
         /// <param name="type"> The type of the entity type that could be owned. </param>
         /// <returns>
-        ///     The configuration source if the given type name is marked as owned,
+        ///     The configuration source if the given type is marked as owned,
         ///     <see langword="null" /> otherwise.
         /// </returns>
         ConfigurationSource? FindIsOwnedConfigurationSource(Type type);

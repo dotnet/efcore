@@ -137,6 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_missing_partition_key_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>();
             modelBuilder.Entity<Order>().HasPartitionKey("PartitionKey");
 
             VerifyError(CosmosStrings.PartitionKeyMissingProperty(typeof(Order).Name, "PartitionKey"), modelBuilder);
@@ -193,6 +194,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_properties_mapped_to_same_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>();
             modelBuilder.Entity<Order>(
                 ob =>
                 {
@@ -209,6 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Detects_property_and_embedded_type_mapped_to_same_property()
         {
             var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>();
             modelBuilder.Entity<Order>(
                 ob =>
                 {

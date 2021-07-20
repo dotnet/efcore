@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         /// </summary>
         public static bool IsDocumentRoot(this IReadOnlyEntityType entityType)
             => entityType.BaseType?.IsDocumentRoot()
-                ?? (!entityType.IsOwned()
+                ?? (entityType.FindOwnership() == null
                     || entityType[CosmosAnnotationNames.ContainerName] != null);
     }
 }

@@ -220,7 +220,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         .Where(et => ((EntityType)et).IsImplicitlyCreatedJoinEntityType));
 
                 Assert.Empty(hob.GetSkipNavigations());
-                Assert.Empty(nob.GetSkipNavigations());
+                if (nob != null)
+                {
+                    Assert.Empty(nob.GetSkipNavigations());
+                }
             }
 
             [ConditionalFact]
@@ -441,6 +444,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Navigation(e => e.Dependents)
                     .UsePropertyAccessMode(PropertyAccessMode.Field);
 
+                modelBuilder.Entity<OneToManyNavPrincipal>();
                 modelBuilder.Entity<NavDependent>()
                     .Navigation(e => e.ManyToManyPrincipals)
                     .UsePropertyAccessMode(PropertyAccessMode.Property);

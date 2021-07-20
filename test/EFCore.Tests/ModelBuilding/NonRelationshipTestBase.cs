@@ -79,6 +79,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<Order>().Property<int>("Id");
+                modelBuilder.Entity<Customer>();
+                modelBuilder.Ignore<Product>();
 
                 var entity = modelBuilder.Model.FindEntityType(typeof(Order));
 
@@ -313,6 +315,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<Product>();
                 modelBuilder
                     .Entity<Customer>()
                     .Property(c => c.Name).HasAnnotation("foo", "bar");
@@ -327,6 +330,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<Product>();
                 modelBuilder
                     .Entity<Customer>()
                     .Property<string>(Customer.NameProperty.Name).HasAnnotation("foo", "bar");
@@ -341,6 +345,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveAnnotation("foo", "bar"));
 
+                modelBuilder.Ignore<Product>();
                 var propertyBuilder = modelBuilder
                     .Entity<Customer>()
                     .Property(c => c.Name).HasAnnotation("foo", "bar");
@@ -404,6 +409,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder(c => c.IgnoreAny<Guid>());
 
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Entity<Customer>();
 
                 var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(Customer));
@@ -446,6 +452,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<Product>();
                 modelBuilder.Entity<Customer>(
                     b =>
                     {
@@ -1521,6 +1528,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<Product>();
                 modelBuilder
                     .Entity<Customer>()
                     .HasIndex(ix => ix.Name);
@@ -1537,6 +1545,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<Product>();
                 modelBuilder
                     .Entity<Customer>(
                         b =>
@@ -1557,6 +1566,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<Product>();
                 var entityBuilder = modelBuilder.Entity<Customer>();
                 entityBuilder.HasIndex(ix => ix.Id).IsUnique();
                 entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
@@ -1583,6 +1593,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<Product>();
                 var entityBuilder = modelBuilder.Entity<Customer>();
                 var firstIndexBuilder = entityBuilder.HasIndex(
                     ix => new { ix.Id, ix.AlternateKey }).IsUnique();
@@ -1798,6 +1809,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
+                modelBuilder.Ignore<Theta>();
                 modelBuilder.Entity<Beta>(
                     c =>
                     {
@@ -1822,6 +1834,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Can_add_seed_data_anonymous_objects()
             {
                 var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Theta>();
                 modelBuilder.Entity<Beta>(
                     c =>
                     {

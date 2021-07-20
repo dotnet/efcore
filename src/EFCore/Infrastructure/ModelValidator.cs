@@ -221,7 +221,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     if (targetType != null)
                     {
                         var targetShared = conventionModel.IsShared(targetType);
-                        targetOwned ??= conventionModel.IsOwned(targetType);
+                        targetOwned ??= IsOwned(targetType, conventionModel);
                         // ReSharper disable CheckForReferenceEqualityInstead.1
                         // ReSharper disable CheckForReferenceEqualityInstead.3
                         if ((!entityType.IsKeyless
@@ -230,10 +230,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                                 dt => dt.GetDeclaredNavigations().FirstOrDefault(n => n.Name == clrProperty.GetSimpleMemberName())
                                     == null)
                             && (!(targetShared || targetOwned.Value)
-                                || (!targetType.Equals(entityType.ClrType)
-                                    && (!entityType.IsInOwnershipPath(targetType)
-                                        || (entityType.FindOwnership()!.PrincipalEntityType.ClrType.Equals(targetType)
-                                            && targetSequenceType == null)))))
+                                || !targetType.Equals(entityType.ClrType))
+                            && (!entityType.IsInOwnershipPath(targetType)
+                                || targetSequenceType == null))
                         {
                             if (entityType.IsOwned()
                                 && targetOwned.Value)
@@ -273,6 +272,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
         }
+
+        /// <summary>
+        ///     Returns a value indicating whether that target CLR type would correspond to an owned entity type.
+        /// </summary>
+        /// <param name="targetType"> The target CLR type. </param>
+        /// <param name="conventionModel"> The model. </param>
+        /// <returns> <see langword="true"/> if the given CLR type corresponds to an owned entity type. </returns>
+        protected virtual bool IsOwned(Type targetType, IConventionModel conventionModel)
+            => conventionModel.FindIsOwnedConfigurationSource(targetType) != null
+                || conventionModel.FindEntityTypes(targetType).Any(t => t.IsOwned());
 
         /// <summary>
         ///     Validates that no attempt is made to ignore inherited properties.

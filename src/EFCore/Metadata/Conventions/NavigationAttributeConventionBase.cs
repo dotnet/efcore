@@ -120,8 +120,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityType entityType,
             IConventionContext<IConventionEntityType> context)
         {
-            var type = entityType.ClrType;
-
             var navigations = GetNavigationsWithAttribute(entityType);
             if (navigations == null)
             {

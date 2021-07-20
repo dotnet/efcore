@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             Assert.NotNull(
                 modelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)
-                    .HasOwnership(typeof(Details), nameof(Product.Details), ConfigurationSource.Convention));
+                    .HasOwnership(typeof(Details), nameof(Product.Details), ConfigurationSource.Explicit));
 
             Assert.Null(modelBuilder.Ignore(typeof(Details), ConfigurationSource.Convention));
 

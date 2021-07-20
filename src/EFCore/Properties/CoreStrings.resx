@@ -211,6 +211,9 @@
   <data name="CannotLoadDetached" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.</value>
   </data>
+  <data name="CannotMarkNonShared" xml:space="preserve">
+    <value>The type '{type}' cannot be marked as a non-shared type since a shared type entity type with this CLR type exists in the model.</value>
+  </data>
   <data name="CannotMarkShared" xml:space="preserve">
     <value>The type '{type}' cannot be marked as a shared type since an entity type with the same CLR type already exists in the model.</value>
   </data>

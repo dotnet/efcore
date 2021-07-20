@@ -1,12 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
@@ -16,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         DiscriminatorConvention,
         IForeignKeyOwnershipChangedConvention,
         IForeignKeyRemovedConvention,
-        IEntityTypeAddedConvention
+        IEntityTypeAddedConvention,
+        IEntityTypeAnnotationChangedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="CosmosDiscriminatorConvention" />.
@@ -36,16 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionContext<IConventionEntityTypeBuilder> context)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotNull(context, nameof(context));
-
-            var entityType = entityTypeBuilder.Metadata;
-            if (entityType.BaseType == null
-                && entityType.IsDocumentRoot())
-            {
-                entityTypeBuilder.HasDiscriminator(typeof(string))
-                    ?.HasValue(entityType, entityType.ShortName());
-            }
+            ProcessEntityType(entityTypeBuilder);
         }
 
         /// <summary>
@@ -57,17 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionForeignKeyBuilder relationshipBuilder,
             IConventionContext<bool?> context)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(context, nameof(context));
-
             var entityType = relationshipBuilder.Metadata.DeclaringEntityType;
-            if (relationshipBuilder.Metadata.IsOwnership
-                && !entityType.IsDocumentRoot()
-                && entityType.BaseType == null
-                && !entityType.GetDerivedTypes().Any())
-            {
-                entityType.Builder.HasNoDiscriminator();
-            }
+
+            ProcessEntityType(entityType.Builder);
         }
 
         /// <summary>
@@ -81,13 +64,52 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionForeignKey foreignKey,
             IConventionContext<IConventionForeignKey> context)
         {
-            var entityType = foreignKey.DeclaringEntityType;
-            if (foreignKey.IsOwnership
-                && !entityType.IsDocumentRoot()
-                && entityType.BaseType == null
-                && !entityType.GetDerivedTypes().Any())
+            if (foreignKey.IsOwnership)
             {
-                entityType.Builder.HasNoDiscriminator();
+                ProcessEntityType(entityTypeBuilder);
+            }
+        }
+
+        /// <summary>
+        ///     Called after an annotation is changed on an entity type.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="name"> The annotation name. </param>
+        /// <param name="annotation"> The new annotation. </param>
+        /// <param name="oldAnnotation"> The old annotation.  </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeAnnotationChanged(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
+        {
+            if (name != CosmosAnnotationNames.ContainerName
+                || (annotation == null) == (oldAnnotation == null))
+            {
+                return;
+            }
+
+            ProcessEntityType(entityTypeBuilder);
+        }
+
+        private void ProcessEntityType(IConventionEntityTypeBuilder entityTypeBuilder)
+        {
+            var entityType = entityTypeBuilder.Metadata;
+            if (entityType.BaseType != null)
+            {
+                return;
+            }
+
+            if (!entityType.IsDocumentRoot())
+            {
+                entityTypeBuilder.HasNoDiscriminator();
+            }
+            else
+            {
+                entityTypeBuilder.HasDiscriminator(typeof(string))
+                    ?.HasValue(entityType, entityType.ShortName());
             }
         }
 

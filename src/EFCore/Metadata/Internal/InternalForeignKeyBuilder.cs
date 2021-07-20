@@ -390,8 +390,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 using var batch = Metadata.DeclaringEntityType.Model.DelayConventions();
                 builder = this;
 
-                IsUnique(shouldBeUnique, shouldBeUnique.HasValue ? configurationSource : ConfigurationSource.Convention);
-
                 if (navigationToPrincipal != null)
                 {
                     if (navigationToPrincipal.Value.Name == Metadata.PrincipalToDependent?.Name)
@@ -424,6 +422,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (navigationToDependent != null)
                 {
+                    // TODO: Use layering instead, issue #15898
+                    IsUnique(shouldBeUnique, shouldBeUnique.HasValue ? configurationSource : ConfigurationSource.Convention);
+
                     var navigationProperty = navigationToDependent.Value.MemberInfo;
                     if (navigationToDependentName != null)
                     {
@@ -1099,7 +1100,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 Metadata.SetIsOwnership(ownership: true, configurationSource);
-                newRelationshipBuilder = newRelationshipBuilder?.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
+                newRelationshipBuilder = newRelationshipBuilder.OnDelete(DeleteBehavior.Cascade, ConfigurationSource.Convention);
 
                 if (newRelationshipBuilder == null)
                 {
@@ -1186,7 +1187,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 foreach (var invertedOwnership in invertedOwnerships)
                 {
-                    invertedOwnership.DeclaringEntityType.Builder.HasNoRelationship(invertedOwnership, configurationSource);
+                    if (configurationSource.Overrides(invertedOwnership.DeclaringEntityType.GetConfigurationSource()))
+                    {
+                        ModelBuilder.HasNoEntityType(invertedOwnership.DeclaringEntityType, configurationSource);
+                    }
+                    else
+                    {
+                        invertedOwnership.DeclaringEntityType.Builder.HasNoRelationship(invertedOwnership, configurationSource);
+                    }
                 }
 
                 return batch.Run(newRelationshipBuilder);
@@ -1720,14 +1728,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             using (var batch = Metadata.DeclaringEntityType.Model.DelayConventions())
             {
+                var useDefaultType = Metadata.GetPrincipalKeyConfigurationSource() == null
+                    || (propertyNames != null
+                        && Metadata.PrincipalKey.Properties.Count != propertyNames.Count);
                 var relationship = HasForeignKey(
                            dependentEntityType.Builder.GetOrCreateProperties(
                                propertyNames,
                                configurationSource,
                                Metadata.PrincipalKey.Properties,
                                Metadata.GetIsRequiredConfigurationSource() != null && Metadata.IsRequired,
-                               Metadata.GetPrincipalKeyConfigurationSource() == null
-                               && Metadata.PrincipalEntityType.FindPrimaryKey() == null),
+                               useDefaultType),
                            dependentEntityType,
                            configurationSource);
 

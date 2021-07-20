@@ -236,12 +236,49 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // Fails due to presence of __jObject
             }
 
+            public override void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
+            {
+                // Base discovered as owned
+            }
+
+            public override void Base_types_are_mapped_correctly_if_discovered_last()
+            {
+                // Base discovered as owned
+            }
+
+            public override void Relationships_on_derived_types_are_discovered_first_if_base_is_one_sided()
+            {
+                // Base discovered as owned
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOneToMany : GenericOneToMany
         {
+            [ConditionalFact(Skip = "#25279")]
+            public override void Keyless_type_discovered_before_referenced_entity_type_does_not_leave_temp_id()
+            {
+                base.Keyless_type_discovered_before_referenced_entity_type_does_not_leave_temp_id();
+            }
+
+            public override void Navigation_to_shared_type_is_not_discovered_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<CollectionNavigationToSharedType>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var principal = model.FindEntityType(typeof(CollectionNavigationToSharedType));
+                var owned = principal.FindNavigation(nameof(CollectionNavigationToSharedType.Navigation)).TargetEntityType;
+                Assert.True(owned.IsOwned());
+                Assert.True(owned.HasSharedClrType);
+                Assert.Equal("CollectionNavigationToSharedType.Navigation#Dictionary<string, object>",
+                    owned.DisplayName());
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
@@ -254,6 +291,22 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         public class CosmosGenericOneToOne : GenericOneToOne
         {
+            public override void Navigation_to_shared_type_is_not_discovered_by_convention()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<ReferenceNavigationToSharedType>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var principal = model.FindEntityType(typeof(ReferenceNavigationToSharedType));
+                var owned = principal.FindNavigation(nameof(ReferenceNavigationToSharedType.Navigation)).TargetEntityType;
+                Assert.True(owned.IsOwned());
+                Assert.True(owned.HasSharedClrType);
+                Assert.Equal("ReferenceNavigationToSharedType.Navigation#Dictionary<string, object>",
+                    owned.DisplayName());
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
@@ -303,12 +356,67 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("PartitionId", joinType.FindPrimaryKey().Properties.Last().Name);
             }
 
+            public override void Join_type_is_automatically_configured_by_convention()
+            {
+                // Many-to-many not configured by convention on Cosmos
+            }
+
+            public override void Throws_for_ForeignKeyAttribute_on_navigation()
+            {
+                // Many-to-many not configured by convention on Cosmos
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }
 
         public class CosmosGenericOwnedTypes : GenericOwnedTypes
         {
+            [ConditionalFact(Skip = "#25279")]
+            public override void Can_configure_owned_type_collection_with_one_call_afterwards()
+            {
+                base.Can_configure_owned_type_collection_with_one_call_afterwards();
+            }
+
+            public override void Deriving_from_owned_type_throws()
+            {
+                // On Cosmos the base type starts as owned
+            }
+
+            public override void Configuring_base_type_as_owned_throws()
+            {
+                // On Cosmos the base type starts as owned
+            }
+
+            [ConditionalFact]
+            public virtual void Reference_type_is_discovered_as_owned()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OneToOneOwnerWithField>(
+                    e =>
+                    {
+                        e.Property(p => p.Id);
+                        e.Property(p => p.AlternateKey);
+                        e.Property(p => p.Description);
+                        e.HasKey(p => p.Id);
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+
+                var owner = model.FindEntityType(typeof(OneToOneOwnerWithField));
+                Assert.Equal(typeof(OneToOneOwnerWithField).FullName, owner.Name);
+                var ownership = owner.FindNavigation(nameof(OneToOneOwnerWithField.OwnedDependent)).ForeignKey;
+                Assert.True(ownership.IsOwnership);
+                Assert.Equal(nameof(OneToOneOwnerWithField.OwnedDependent), ownership.PrincipalToDependent.Name);
+                Assert.Equal(nameof(OneToOneOwnedWithField.OneToOneOwner), ownership.DependentToPrincipal.Name);
+                Assert.Equal(nameof(OneToOneOwnerWithField.Id), ownership.PrincipalKey.Properties.Single().Name);
+                var owned = ownership.DeclaringEntityType;
+                Assert.Single(owned.GetForeignKeys());
+                Assert.NotNull(model.FindEntityType(typeof(OneToOneOwnedWithField)));
+                Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(OneToOneOwnedWithField)));
+            }
+
             protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
                 => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
         }

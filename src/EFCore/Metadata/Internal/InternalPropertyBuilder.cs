@@ -89,7 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         && configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource()))
                     || (Metadata.IsNullable == !required))
                 && (required != false
-                    || Metadata.ClrType.IsNullableType());
+                    || (Metadata.ClrType.IsNullableType()
+                        && Metadata.GetContainingKeys().All(k => configurationSource.Overrides(k.GetConfigurationSource()))));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

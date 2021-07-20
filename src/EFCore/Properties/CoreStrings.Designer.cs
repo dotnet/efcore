@@ -272,6 +272,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, entityType);
 
         /// <summary>
+        ///     The type '{type}' cannot be marked as a non-shared type since a shared type entity type with this CLR type exists in the model.
+        /// </summary>
+        public static string CannotMarkNonShared(object? type)
+            => string.Format(
+                GetString("CannotMarkNonShared", nameof(type)),
+                type);
+
+        /// <summary>
         ///     The type '{type}' cannot be marked as a shared type since an entity type with the same CLR type already exists in the model.
         /// </summary>
         public static string CannotMarkShared(object? type)
