@@ -1803,6 +1803,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_count_filter(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Select(e => new { e.OrderID, Name = "Order" })
+                    .GroupBy(o => o.Name)
+                    .Select(g => new { Name = g.Key, Count = g.Count() })
+                    .Where(o => o.Count > 0));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_count_OrderBy_count_Select_sum(bool async)
         {
             return AssertQuery(

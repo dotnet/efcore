@@ -1378,6 +1378,20 @@ GROUP BY [o].[CustomerID]
 HAVING COUNT(*) > 4");
         }
 
+        public override async Task GroupBy_count_filter(bool async)
+        {
+            await base.GroupBy_count_filter(async);
+
+            AssertSql(
+                @"SELECT [t].[Key] AS [Name], COUNT(*) AS [Count]
+FROM (
+    SELECT N'Order' AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]
+HAVING COUNT(*) > 0");
+        }
+
         public override async Task GroupBy_filter_count_OrderBy_count_Select_sum(bool async)
         {
             await base.GroupBy_filter_count_OrderBy_count_Select_sum(async);
