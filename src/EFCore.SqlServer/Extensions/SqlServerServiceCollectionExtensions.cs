@@ -57,14 +57,19 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <param name="connectionString"> The connection string of the database to connect to. </param>
         /// <param name="sqlServerOptionsAction"> An optional action to allow additional SQL Server specific configuration. </param>
+        /// <param name="optionsAction"> An optional action to configure the <see cref="DbContextOptions" /> for the context. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
-        public static IServiceCollection AddSqlServer<TContext>(this IServiceCollection serviceCollection, string connectionString, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null)
+        public static IServiceCollection AddSqlServer<TContext>(this IServiceCollection serviceCollection, string connectionString, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null, Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction = null)
             where TContext : DbContext
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            return serviceCollection.AddDbContext<TContext>(options => options.UseSqlServer(connectionString, sqlServerOptionsAction));
+            return serviceCollection.AddDbContext<TContext>((serviceProvider, options) =>
+            {
+                optionsAction?.Invoke(serviceProvider, options);
+                options.UseSqlServer(connectionString, sqlServerOptionsAction);
+            });
         }
 
         /// <summary>
