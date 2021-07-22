@@ -186,12 +186,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
                 }
             }
 
-            public override long GetServiceProviderHashCode()
-                => Extension._databaseRoot?.GetHashCode() ?? 0L;
+            public override int GetServiceProviderHashCode()
+                => Extension._databaseRoot?.GetHashCode() ?? 0;
+
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => other is ExtensionInfo otherInfo
+                    && Extension._databaseRoot == otherInfo.Extension._databaseRoot;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["InMemoryDatabase:DatabaseRoot"]
-                    = (Extension._databaseRoot?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+                    = (Extension._databaseRoot?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
         }
     }
 }

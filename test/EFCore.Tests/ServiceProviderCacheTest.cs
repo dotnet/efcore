@@ -250,8 +250,11 @@ namespace Microsoft.EntityFrameworkCore
                 public override bool IsDatabaseProvider
                     => false;
 
-                public override long GetServiceProviderHashCode()
+                public override int GetServiceProviderHashCode()
                     => 0;
+
+                public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                    => true;
 
                 public override string LogFragment
                     => "";
@@ -288,8 +291,11 @@ namespace Microsoft.EntityFrameworkCore
                 public override bool IsDatabaseProvider
                     => false;
 
-                public override long GetServiceProviderHashCode()
+                public override int GetServiceProviderHashCode()
                     => 0;
+
+                public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                    => true;
 
                 public override string LogFragment
                     => "";

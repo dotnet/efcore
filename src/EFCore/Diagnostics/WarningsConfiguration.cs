@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -20,11 +21,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// </summary>
     public class WarningsConfiguration
     {
-        private Dictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>? _explicitBehaviors = new();
+        private ImmutableSortedDictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors
+            = ImmutableSortedDictionary<int, (WarningBehavior? Behavior, LogLevel? Level)>.Empty;
 
         private WarningBehavior _defaultBehavior = WarningBehavior.Log;
 
-        private long? _serviceProviderHash;
+        private int? _serviceProviderHash;
 
         /// <summary>
         ///     Creates a new, empty configuration, with all options set to their defaults.
@@ -85,11 +87,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var clone = Clone();
 
-            clone._explicitBehaviors = _explicitBehaviors is null ? new() : new(_explicitBehaviors);
-
+            var builder = ImmutableSortedDictionary.CreateBuilder<int, (WarningBehavior? Behavior, LogLevel? Level)>();
+            builder.AddRange(clone._explicitBehaviors);
             foreach (var eventId in eventIds)
             {
-                if (clone._explicitBehaviors.TryGetValue(eventId.Id, out var pair))
+                if (_explicitBehaviors.TryGetValue(eventId.Id, out var pair))
                 {
                     pair = (warningBehavior, pair.Level);
                 }
@@ -98,8 +100,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     pair = (warningBehavior, null);
                 }
 
-                clone._explicitBehaviors[eventId.Id] = pair;
+                builder[eventId.Id] = pair;
             }
+
+            clone._explicitBehaviors = builder.ToImmutable();
 
             return clone;
         }
@@ -115,12 +119,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var clone = Clone();
 
-            clone._explicitBehaviors = _explicitBehaviors is null ? new() : new(_explicitBehaviors);
+            var builder = ImmutableSortedDictionary.CreateBuilder<int, (WarningBehavior? Behavior, LogLevel? Level)>();
+            builder.AddRange(clone._explicitBehaviors);
 
             foreach (var (id, level) in eventsAndLevels)
             {
-                clone._explicitBehaviors[id.Id] = (WarningBehavior.Log, level);
+                builder[id.Id] = (WarningBehavior.Log, level);
             }
+
+            clone._explicitBehaviors = builder.ToImmutable();
 
             return clone;
         }
@@ -130,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     if no explicit behavior has been set.
         /// </summary>
         public virtual WarningBehavior? GetBehavior(EventId eventId)
-            => _explicitBehaviors is not null && _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
+            => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
                 ? warningBehavior.Behavior
                 : null;
 
@@ -140,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         /// <returns> The <see cref="LogLevel" /> set for the given event ID. </returns>
         public virtual LogLevel? GetLevel(EventId eventId)
-            => _explicitBehaviors is not null && _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
+            => _explicitBehaviors.TryGetValue(eventId.Id, out var warningBehavior)
                 ? warningBehavior.Level
                 : null;
 
@@ -153,31 +160,40 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="warningBehavior"> The behavior to set. </param>
         /// <returns> A new instance with the behavior set, or this instance if a behavior was already set. </returns>
         public virtual WarningsConfiguration TryWithExplicit(EventId eventId, WarningBehavior warningBehavior)
-            => _explicitBehaviors is not null && _explicitBehaviors.ContainsKey(eventId.Id)
+            => _explicitBehaviors.ContainsKey(eventId.Id)
                 ? this
                 : WithExplicit(new[] { eventId }, warningBehavior);
+
+        /// <summary>
+        ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode"/>
+        ///     are the same as in the given extension.
+        /// </summary>
+        /// <param name="other"> The other configuration object. </param>
+        /// <returns> A value indicating whether all of the options that require a new service provider are the same. </returns>
+        public virtual bool ShouldUseSameServiceProvider(WarningsConfiguration other)
+            => _defaultBehavior == other._defaultBehavior
+                && _explicitBehaviors.Count == other._explicitBehaviors.Count
+                && _explicitBehaviors.SequenceEqual(other._explicitBehaviors);
 
         /// <summary>
         ///     Returns a hash code created from any options that would cause a new <see cref="IServiceProvider" />
         ///     to be needed.
         /// </summary>
         /// <returns> A hash over options that require a new service provider when changed. </returns>
-        public virtual long GetServiceProviderHashCode()
+        public virtual int GetServiceProviderHashCode()
         {
             if (_serviceProviderHash == null)
             {
-                var hashCode = (long)_defaultBehavior.GetHashCode();
+                var hashCode = new HashCode();
+                hashCode.Add(_defaultBehavior);
 
-                if (_explicitBehaviors != null)
+                foreach (var explicitBehavior in _explicitBehaviors)
                 {
-                    hashCode = _explicitBehaviors
-                        .OrderBy(b => b.Key)
-                        .Aggregate(
-                            hashCode,
-                            (t, e) => (t * 397) ^ (((long)e.Value.GetHashCode() * 3163) ^ (long)e.Key.GetHashCode()));
+                    hashCode.Add(explicitBehavior.Key);
+                    hashCode.Add(explicitBehavior.Value);
                 }
 
-                _serviceProviderHash = hashCode;
+                _serviceProviderHash = hashCode.ToHashCode();
             }
 
             return _serviceProviderHash.Value;

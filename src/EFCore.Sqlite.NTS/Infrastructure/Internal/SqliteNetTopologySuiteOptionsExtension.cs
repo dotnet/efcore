@@ -76,8 +76,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal
             public override string LogFragment
                 => "using NetTopologySuite ";
 
-            public override long GetServiceProviderHashCode()
+            public override int GetServiceProviderHashCode()
                 => 0;
+
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => true;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["NetTopologySuite"] = "1";

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -876,7 +877,51 @@ namespace Microsoft.EntityFrameworkCore
                     () => new FakeRelationalConnection(
                         CreateOptions(
                             new FakeRelationalOptionsExtension(),
-                            new FakeRelationalOptionsExtension()))).Message);
+                            new AnotherFakeRelationalOptionsExtension()))).Message);
+        }
+
+        private class AnotherFakeRelationalOptionsExtension : RelationalOptionsExtension
+        {
+            private DbContextOptionsExtensionInfo _info;
+
+            public AnotherFakeRelationalOptionsExtension()
+            {
+            }
+
+            protected AnotherFakeRelationalOptionsExtension(AnotherFakeRelationalOptionsExtension copyFrom)
+                : base(copyFrom)
+            {
+            }
+
+            public override DbContextOptionsExtensionInfo Info
+                => _info ??= new ExtensionInfo(this);
+
+            protected override RelationalOptionsExtension Clone()
+                => new AnotherFakeRelationalOptionsExtension(this);
+
+            public override void ApplyServices(IServiceCollection services)
+                => AddEntityFrameworkRelationalDatabase(services);
+
+            public static IServiceCollection AddEntityFrameworkRelationalDatabase(IServiceCollection serviceCollection)
+            {
+                var builder = new EntityFrameworkRelationalServicesBuilder(serviceCollection);
+
+                builder.TryAddCoreServices();
+
+                return serviceCollection;
+            }
+
+            private sealed class ExtensionInfo : RelationalExtensionInfo
+            {
+                public ExtensionInfo(IDbContextOptionsExtension extension)
+                    : base(extension)
+                {
+                }
+
+                public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+                {
+                }
+            }
         }
 
         [ConditionalFact]
