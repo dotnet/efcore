@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
             private string? _logFragment;
-            private long? _serviceProviderHash;
+            private int? _serviceProviderHash;
 
             public ExtensionInfo(IDbContextOptionsExtension extension)
                 : base(extension)
@@ -532,36 +532,56 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             public override bool IsDatabaseProvider
                 => true;
 
-            public override long GetServiceProviderHashCode()
+            public override int GetServiceProviderHashCode()
             {
                 if (_serviceProviderHash == null)
                 {
-                    long hashCode;
+                    var hashCode = new HashCode();
+
                     if (!string.IsNullOrEmpty(Extension._connectionString))
                     {
-                        hashCode = Extension._connectionString.GetHashCode();
+                        hashCode.Add(Extension._connectionString);
                     }
                     else
                     {
-                        hashCode = (Extension._accountEndpoint?.GetHashCode() ?? 0);
-                        hashCode = (hashCode * 397) ^ (Extension._accountKey?.GetHashCode() ?? 0);
+                        hashCode.Add(Extension._accountEndpoint);
+                        hashCode.Add(Extension._accountKey);
                     }
 
-                    hashCode = (hashCode * 397) ^ (Extension._region?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 3) ^ (Extension._connectionMode?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 3) ^ (Extension._limitToEndpoint?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 397) ^ (Extension._webProxy?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 397) ^ (Extension._requestTimeout?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 397) ^ (Extension._openTcpConnectionTimeout?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 397) ^ (Extension._idleTcpConnectionTimeout?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 131) ^ (Extension._gatewayModeMaxConnectionLimit?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 397) ^ (Extension._maxTcpConnectionsPerEndpoint?.GetHashCode() ?? 0);
-                    hashCode = (hashCode * 131) ^ (Extension._maxRequestsPerTcpConnection?.GetHashCode() ?? 0);
-                    _serviceProviderHash = hashCode;
+                    hashCode.Add(Extension._region);
+                    hashCode.Add(Extension._connectionMode);
+                    hashCode.Add(Extension._limitToEndpoint);
+                    hashCode.Add(Extension._enableContentResponseOnWrite);
+                    hashCode.Add(Extension._webProxy);
+                    hashCode.Add(Extension._requestTimeout);
+                    hashCode.Add(Extension._openTcpConnectionTimeout);
+                    hashCode.Add(Extension._idleTcpConnectionTimeout);
+                    hashCode.Add(Extension._gatewayModeMaxConnectionLimit);
+                    hashCode.Add(Extension._maxTcpConnectionsPerEndpoint);
+                    hashCode.Add(Extension._maxRequestsPerTcpConnection);
+
+                    _serviceProviderHash = hashCode.ToHashCode();
                 }
 
                 return _serviceProviderHash.Value;
             }
+
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => other is ExtensionInfo otherInfo
+                    && Extension._connectionString == otherInfo.Extension._connectionString
+                    && Extension._accountEndpoint == otherInfo.Extension._accountEndpoint
+                    && Extension._accountKey == otherInfo.Extension._accountKey
+                    && Extension._region == otherInfo.Extension._region
+                    && Extension._connectionMode == otherInfo.Extension._connectionMode
+                    && Extension._limitToEndpoint == otherInfo.Extension._limitToEndpoint
+                    && Extension._enableContentResponseOnWrite == otherInfo.Extension._enableContentResponseOnWrite
+                    && Extension._webProxy == otherInfo.Extension._webProxy
+                    && Extension._requestTimeout == otherInfo.Extension._requestTimeout
+                    && Extension._openTcpConnectionTimeout == otherInfo.Extension._openTcpConnectionTimeout
+                    && Extension._idleTcpConnectionTimeout == otherInfo.Extension._idleTcpConnectionTimeout
+                    && Extension._gatewayModeMaxConnectionLimit == otherInfo.Extension._gatewayModeMaxConnectionLimit
+                    && Extension._maxTcpConnectionsPerEndpoint == otherInfo.Extension._maxTcpConnectionsPerEndpoint
+                    && Extension._maxRequestsPerTcpConnection == otherInfo.Extension._maxRequestsPerTcpConnection;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {

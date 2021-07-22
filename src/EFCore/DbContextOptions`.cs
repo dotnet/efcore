@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -24,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     to create instances of this class and it is not designed to be directly constructed in your application code.
         /// </summary>
         public DbContextOptions()
-            : base(new Dictionary<Type, IDbContextOptionsExtension>())
+            : this(ImmutableSortedDictionary.Create<Type, IDbContextOptionsExtension>(TypeFullNameComparer.Instance))
         {
         }
 
@@ -40,21 +41,12 @@ namespace Microsoft.EntityFrameworkCore
         {
         }
 
-        /// <summary>
-        ///     Adds the given extension to the underlying options and creates a new
-        ///     <see cref="DbContextOptions" /> with the extension added.
-        /// </summary>
-        /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
-        /// <param name="extension"> The extension to be added. </param>
-        /// <returns> The new options instance with the given extension added. </returns>
+        /// <inheritdoc />
         public override DbContextOptions WithExtension<TExtension>(TExtension extension)
         {
             Check.NotNull(extension, nameof(extension));
 
-            var extensions = Extensions.ToDictionary(p => p.GetType(), p => p);
-            extensions[typeof(TExtension)] = extension;
-
-            return new DbContextOptions<TContext>(extensions);
+            return new DbContextOptions<TContext>(ExtensionsMap.SetItem(extension.GetType(), extension));
         }
 
         /// <summary>

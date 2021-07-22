@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private bool _detailedErrorsEnabled;
         private bool _threadSafetyChecksEnabled = true;
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
-        private IDictionary<(Type, Type?), Type>? _replacedServices;
+        private Dictionary<(Type, Type?), Type>? _replacedServices;
         private int? _maxPoolSize;
         private TimeSpan _loggingCacheTime = DefaultLoggingCacheTime;
         private bool _serviceProviderCachingEnabled = true;
@@ -436,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The options set from the <see cref="DbContextOptionsBuilder.ReplaceService{TService,TImplementation}" /> method.
         /// </summary>
         public virtual IReadOnlyDictionary<(Type, Type?), Type>? ReplacedServices
-            => (IReadOnlyDictionary<(Type, Type?), Type>?)_replacedServices;
+            => _replacedServices;
 
         /// <summary>
         ///     The option set from the
@@ -525,7 +525,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
         {
-            private long? _serviceProviderHash;
+            private int? _serviceProviderHash;
             private string? _logFragment;
 
             public ExtensionInfo(CoreOptionsExtension extension)
@@ -610,26 +610,43 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 }
             }
 
-            public override long GetServiceProviderHashCode()
+            public override int GetServiceProviderHashCode()
             {
                 if (_serviceProviderHash == null)
                 {
-                    var hashCode = Extension.GetMemoryCache()?.GetHashCode() ?? 0L;
-                    hashCode = (hashCode * 3) ^ Extension._sensitiveDataLoggingEnabled.GetHashCode();
-                    hashCode = (hashCode * 3) ^ Extension._detailedErrorsEnabled.GetHashCode();
-                    hashCode = (hashCode * 3) ^ Extension._threadSafetyChecksEnabled.GetHashCode();
-                    hashCode = (hashCode * 1073742113) ^ Extension._warningsConfiguration.GetServiceProviderHashCode();
+                    var hashCode = new HashCode();
+                    hashCode.Add(Extension.GetMemoryCache());
+                    hashCode.Add(Extension._sensitiveDataLoggingEnabled);
+                    hashCode.Add(Extension._detailedErrorsEnabled);
+                    hashCode.Add(Extension._threadSafetyChecksEnabled);
+                    hashCode.Add(Extension._warningsConfiguration.GetServiceProviderHashCode());
 
                     if (Extension._replacedServices != null)
                     {
-                        hashCode = Extension._replacedServices.Aggregate(hashCode, (t, e) => (t * 397) ^ e.Value.GetHashCode());
+                        foreach (var replacedService in Extension._replacedServices)
+                        {
+                            hashCode.Add(replacedService.Value);
+                        }
                     }
 
-                    _serviceProviderHash = hashCode;
+                    _serviceProviderHash = hashCode.ToHashCode();
                 }
 
                 return _serviceProviderHash.Value;
             }
+
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => other is ExtensionInfo otherInfo
+                    && Extension.GetMemoryCache() == otherInfo.Extension.GetMemoryCache()
+                    && Extension._sensitiveDataLoggingEnabled == otherInfo.Extension._sensitiveDataLoggingEnabled
+                    && Extension._detailedErrorsEnabled == otherInfo.Extension._detailedErrorsEnabled
+                    && Extension._threadSafetyChecksEnabled == otherInfo.Extension._threadSafetyChecksEnabled
+                    && Extension._warningsConfiguration.ShouldUseSameServiceProvider(otherInfo.Extension._warningsConfiguration)
+                    && (Extension._replacedServices == otherInfo.Extension._replacedServices
+                        || (Extension._replacedServices != null
+                            && otherInfo.Extension._replacedServices != null
+                            && Extension._replacedServices.Count == otherInfo.Extension._replacedServices.Count
+                            && Extension._replacedServices.SequenceEqual(otherInfo.Extension._replacedServices)));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Logs_context_initialization_no_tracking()
         {
             Assert.Equal(
-                ExpectedMessage("NoTracking " + DefaultOptions),
+                ExpectedMessage(DefaultOptions + "NoTracking"),
                 ActualMessage(s => CreateOptionsBuilder(s).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)));
         }
 
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Logs_context_initialization_sensitive_data_logging()
         {
             Assert.Equal(
-                ExpectedMessage("SensitiveDataLoggingEnabled " + DefaultOptions),
+                ExpectedMessage(DefaultOptions + "SensitiveDataLoggingEnabled"),
                 ActualMessage(s => CreateOptionsBuilder(s).EnableSensitiveDataLogging()));
         }
 

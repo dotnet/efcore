@@ -153,6 +153,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                 ConnectionString = cosmosOptions.ConnectionString;
                 Region = cosmosOptions.Region;
                 LimitToEndpoint = cosmosOptions.LimitToEndpoint;
+                EnableContentResponseOnWrite = cosmosOptions.EnableContentResponseOnWrite;
                 ConnectionMode = cosmosOptions.ConnectionMode;
                 WebProxy = cosmosOptions.WebProxy;
                 RequestTimeout = cosmosOptions.RequestTimeout;
@@ -161,7 +162,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                 GatewayModeMaxConnectionLimit = cosmosOptions.GatewayModeMaxConnectionLimit;
                 MaxTcpConnectionsPerEndpoint = cosmosOptions.MaxTcpConnectionsPerEndpoint;
                 MaxRequestsPerTcpConnection = cosmosOptions.MaxRequestsPerTcpConnection;
-                EnableContentResponseOnWrite = cosmosOptions.EnableContentResponseOnWrite;
             }
         }
 

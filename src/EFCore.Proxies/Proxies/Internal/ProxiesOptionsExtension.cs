@@ -189,8 +189,12 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                             ? "using change tracking proxies "
                             : "";
 
-            public override long GetServiceProviderHashCode()
-                => Extension.UseProxies ? 541 : 0;
+            public override int GetServiceProviderHashCode()
+                => Extension.UseProxies.GetHashCode();
+
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => other is ExtensionInfo otherInfo
+                    && Extension.UseProxies == otherInfo.Extension.UseProxies;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
