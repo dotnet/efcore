@@ -44,9 +44,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         To configure the <see cref="DbContextOptions{TContext}" /> for the context, either override the
-        ///         <see cref="DbContext.OnConfiguring" /> method in your derived context, or use the appropriate
-        ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddDbContext{TContext}(IServiceCollection, Action{DbContextOptionsBuilder}?, ServiceLifetime, ServiceLifetime)"/>
-        ///         method and supply an optional action to configure the <see cref="DbContextOptions" /> for the context. 
+        ///         <see cref="DbContext.OnConfiguring" /> method in your derived context, or supply 
+        ///         an optional action to configure the <see cref="DbContextOptions" /> for the context. 
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -59,7 +58,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="sqlServerOptionsAction"> An optional action to allow additional SQL Server specific configuration. </param>
         /// <param name="optionsAction"> An optional action to configure the <see cref="DbContextOptions" /> for the context. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
-        public static IServiceCollection AddSqlServer<TContext>(this IServiceCollection serviceCollection, string connectionString, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null, Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction = null)
+        public static IServiceCollection AddSqlServer<TContext>(this IServiceCollection serviceCollection, string connectionString, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null, Action<DbContextOptionsBuilder>? optionsAction = null)
             where TContext : DbContext
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
@@ -67,7 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return serviceCollection.AddDbContext<TContext>((serviceProvider, options) =>
             {
-                optionsAction?.Invoke(serviceProvider, options);
+                optionsAction?.Invoke(options);
                 options.UseSqlServer(connectionString, sqlServerOptionsAction);
             });
         }
