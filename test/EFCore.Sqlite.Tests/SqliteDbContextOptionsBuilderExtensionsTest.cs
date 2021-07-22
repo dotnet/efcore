@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
                     sqlServerOption.MaxBatchSize(123);
                     sqlServerOption.CommandTimeout(30);
                 },
-                (serviceProvider, dbContextOption) =>
+                dbContextOption =>
                 {
                     dbContextOption.EnableDetailedErrors(true);
                 });
