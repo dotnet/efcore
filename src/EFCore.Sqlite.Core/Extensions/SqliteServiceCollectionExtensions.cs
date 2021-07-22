@@ -42,7 +42,6 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         To configure the <see cref="DbContextOptions{TContext}" /> for the context, either override the
-
         ///         <see cref="DbContext.OnConfiguring" /> method in your derived context, or supply 
         ///         an optional action to configure the <see cref="DbContextOptions" /> for the context. 
         ///     </para>
