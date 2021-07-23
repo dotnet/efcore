@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         var command = parameterObject.Connection.DbConnection.CreateCommand();
                         command.CommandText = CommandText;
-                        var reader = new BadDataRelationalDataReader(this);
+                        var reader = new BadDataRelationalDataReader();
                         reader.Initialize(
                             new FakeConnection(),
                             command,
@@ -191,8 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     private class BadDataRelationalDataReader : RelationalDataReader
                     {
-                        public BadDataRelationalDataReader(BadDataRelationalCommand relationalCommand)
-                            : base(relationalCommand)
+                        public BadDataRelationalDataReader()
+                            : base()
                         {
                         }
                     }

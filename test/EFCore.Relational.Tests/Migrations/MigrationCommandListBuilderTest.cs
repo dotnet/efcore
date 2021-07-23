@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
@@ -146,6 +147,7 @@ Statement3
                     generationHelper,
                     typeMappingSource,
                     new CurrentDbContext(new FakeDbContext()),
+                    new MutableModificationCommandFactory(),
                     new LoggingOptions(),
                     logger,
                     migrationsLogger));

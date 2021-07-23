@@ -2212,7 +2212,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             if (forSource)
                             {
-                                // There shouldn't be any inserts using the source model
                                 Check.DebugAssert(false, "Insert using the source model");
                                 break;
                             }
@@ -2236,7 +2235,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             if (forSource)
                             {
-                                // There shouldn't be any updates using the source model
                                 Check.DebugAssert(false, "Update using the source model");
                                 break;
                             }
@@ -2311,10 +2309,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             }
         }
 
-        private object? GetValue(ColumnModification columnModification)
+        private object? GetValue(IColumnModification columnModification)
         {
             var converter = GetValueConverter(columnModification.Property!);
-            var value = columnModification.UseCurrentValueParameter
+            var value = columnModification.UseCurrentValue
                 ? columnModification.Value
                 : columnModification.OriginalValue;
             return converter != null

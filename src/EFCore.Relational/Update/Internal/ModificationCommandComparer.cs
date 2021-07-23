@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public class ModificationCommandComparer : IComparer<ModificationCommand>
+    public class ModificationCommandComparer : IComparer<IModificationCommand>
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual int Compare(ModificationCommand? x, ModificationCommand? y)
+        public virtual int Compare(IModificationCommand? x, IModificationCommand? y)
         {
             var result = 0;
             if (ReferenceEquals(x, y))

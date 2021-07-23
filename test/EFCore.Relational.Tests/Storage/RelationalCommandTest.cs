@@ -867,7 +867,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             }
 
             protected override RelationalDataReader CreateRelationalDataReader()
-                => new ThrowingRelationalReader(this);
+                => new ThrowingRelationalReader();
 
             public static IRelationalCommand Create(string commandText = "Command Text")
                 => new ReaderThrowingRelationalCommand(
@@ -880,8 +880,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             private class ThrowingRelationalReader : RelationalDataReader
             {
-                public ThrowingRelationalReader(IRelationalCommand relationalCommand)
-                    : base(relationalCommand)
+                public ThrowingRelationalReader()
+                    : base()
                 {
                 }
 

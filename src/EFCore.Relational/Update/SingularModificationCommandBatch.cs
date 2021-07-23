@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="modificationCommand"> The command to potentially add. </param>
         /// <returns> <see langword="true" /> if no command has already been added. </returns>
-        protected override bool CanAddCommand(ModificationCommand modificationCommand)
+        protected override bool CanAddCommand(IModificationCommand modificationCommand)
             => ModificationCommands.Count == 0;
 
         /// <summary>

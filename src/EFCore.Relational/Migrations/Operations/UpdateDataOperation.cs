@@ -8,6 +8,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -87,27 +88,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 ? MigrationsModelDiffer.GetMappedProperties(table, Columns)
                 : null;
 
+            var modificationCommandFactory = new MutableModificationCommandFactory();
+
             for (var i = 0; i < KeyValues.GetLength(0); i++)
             {
-                var keys = new ColumnModification[KeyColumns.Length];
+                var modificationCommand = modificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
+                    Table, Schema, sensitiveLoggingEnabled: false));
+
                 for (var j = 0; j < KeyColumns.Length; j++)
                 {
-                    keys[j] = new ColumnModification(
+                    var columnModificationParameters = new ColumnModificationParameters(
                         KeyColumns[j], originalValue: null, value: KeyValues[i, j], property: keyProperties?[j],
-                        columnType: KeyColumnTypes?[j], isRead: false, isWrite: false, isKey: true, isCondition: true,
+                        columnType: KeyColumnTypes?[j], typeMapping: null, read: false, write: false, key: true, condition: true,
                         sensitiveLoggingEnabled: false);
+
+                    modificationCommand.AddColumnModification(columnModificationParameters);
                 }
 
-                var modifications = new ColumnModification[Columns.Length];
                 for (var j = 0; j < Columns.Length; j++)
                 {
-                    modifications[j] = new ColumnModification(
+                    var columnModificationParameters = new ColumnModificationParameters(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?[j],
-                        columnType: ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        columnType: ColumnTypes?[j], typeMapping: null, read: false, write: true, key: true, condition: false,
                         sensitiveLoggingEnabled: false);
+
+                    modificationCommand.AddColumnModification(columnModificationParameters);
                 }
 
-                yield return new ModificationCommand(Table, Schema, keys.Concat(modifications).ToArray(), sensitiveLoggingEnabled: false);
+                yield return (ModificationCommand)modificationCommand;
             }
         }
     }
