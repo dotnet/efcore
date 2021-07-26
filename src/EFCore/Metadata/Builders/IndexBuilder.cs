@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         [EntityFrameworkInternal]
         public IndexBuilder(IMutableIndex index)
         {
-            Builder = ((Index)index).Builder;
+            Builder = ((Internal.Index)index).Builder;
         }
 
         /// <summary>
