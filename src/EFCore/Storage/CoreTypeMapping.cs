@@ -146,11 +146,21 @@ namespace Microsoft.EntityFrameworkCore.Storage
             var clrType = converter?.ModelClrType ?? parameters.ClrType;
             ClrType = clrType;
 
+            Check.DebugAssert(parameters.Comparer == null
+                || parameters.ClrType == null
+                || converter != null
+                || parameters.Comparer.Type == parameters.ClrType,
+                $"Expected {parameters.ClrType}, got {parameters.Comparer?.Type}");
             if (parameters.Comparer?.Type == clrType)
             {
                 _comparer = parameters.Comparer;
             }
 
+            Check.DebugAssert(parameters.KeyComparer == null
+                || parameters.ClrType == null
+                || converter != null
+                || parameters.KeyComparer.Type == parameters.ClrType,
+                $"Expected {parameters.ClrType}, got {parameters.KeyComparer?.Type}");
             if (parameters.KeyComparer?.Type == clrType)
             {
                 _keyComparer = parameters.KeyComparer;

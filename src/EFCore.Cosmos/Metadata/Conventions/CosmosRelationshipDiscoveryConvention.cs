@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 
 // ReSharper disable once CheckNamespace
@@ -30,6 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="model"> The model. </param>
         /// <returns> <see langword="true"/> if the given entity type should be owned. </returns>
         protected override bool? ShouldBeOwned(Type targetType, IConventionModel model)
-            => true;
+            => ShouldBeOwnedType(targetType, model);
+
+        /// <summary>
+        ///     Returns a value indicating whether the given entity type should be added as owned if it isn't currently in the model.
+        /// </summary>
+        /// <param name="targetType"> Target entity type. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> <see langword="true"/> if the given entity type should be owned. </returns>
+        public static bool ShouldBeOwnedType(Type targetType, IConventionModel model)
+            => !targetType.IsGenericType || targetType.GetGenericTypeDefinition() != typeof(List<>);
     }
 }
