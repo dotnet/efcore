@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         ResultSetMapping AppendDeleteOperation(
             StringBuilder commandStringBuilder,
-            ModificationCommand command,
+            IModificationCommand command,
             int commandPosition);
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         ResultSetMapping AppendInsertOperation(
             StringBuilder commandStringBuilder,
-            ModificationCommand command,
+            IModificationCommand command,
             int commandPosition);
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         ResultSetMapping AppendUpdateOperation(
             StringBuilder commandStringBuilder,
-            ModificationCommand command,
+            IModificationCommand command,
             int commandPosition);
     }
 }

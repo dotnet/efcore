@@ -943,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The data operation to generate commands for. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The commands that correspond to the given operation. </returns>
-        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+        protected virtual IEnumerable<IModificationCommand> GenerateModificationCommands(
             InsertDataOperation operation,
             IModel? model)
         {
@@ -976,7 +976,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.Values.GetLength(0); i++)
             {
-                var modifications = new ColumnModification[operation.Columns.Length];
+                var modificationCommand = Dependencies.MutableModificationCommandFactory.CreateModificationCommand(
+                    new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
                 for (var j = 0; j < operation.Columns.Length; j++)
                 {
                     var name = operation.Columns[j];
@@ -989,14 +990,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
-                    modifications[j] = new ColumnModification(
+                    modificationCommand.AddColumnModification(new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: true, isKey: true, isCondition: false,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        read: false, write: true, key: true, condition: false,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
                 }
 
-                yield return new ModificationCommand(
-                    operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                yield return modificationCommand;
             }
         }
 
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The data operation to generate commands for. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The commands that correspond to the given operation. </returns>
-        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+        protected virtual IEnumerable<IModificationCommand> GenerateModificationCommands(
             DeleteDataOperation operation,
             IModel? model)
         {
@@ -1067,7 +1067,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
             {
-                var modifications = new ColumnModification[operation.KeyColumns.Length];
+                var modificationCommand = Dependencies.MutableModificationCommandFactory.CreateModificationCommand(
+                    new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {
                     var name = operation.KeyColumns[j];
@@ -1080,14 +1081,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
-                    modifications[j] = new ColumnModification(
+                    modificationCommand.AddColumnModification(new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: true, isKey: true, isCondition: true,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        read: false, write: true, key: true, condition: true,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
                 }
 
-                yield return new ModificationCommand(
-                    operation.Table, operation.Schema, modifications, sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                yield return modificationCommand;
             }
         }
 
@@ -1125,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The data operation to generate commands for. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The commands that correspond to the given operation. </returns>
-        protected virtual IEnumerable<ModificationCommand> GenerateModificationCommands(
+        protected virtual IEnumerable<IModificationCommand> GenerateModificationCommands(
             UpdateDataOperation operation,
             IModel? model)
         {
@@ -1183,7 +1183,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
             {
-                var keys = new ColumnModification[operation.KeyColumns.Length];
+                var modificationCommand = Dependencies.MutableModificationCommandFactory.CreateModificationCommand(
+                    new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {
                     var name = operation.KeyColumns[j];
@@ -1196,13 +1197,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
-                    keys[j] = new ColumnModification(
+                    modificationCommand.AddColumnModification(new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: false, isKey: true, isCondition: true,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        read: false, write: false, key: true, condition: true,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
                 }
 
-                var modifications = new ColumnModification[operation.Columns.Length];
                 for (var j = 0; j < operation.Columns.Length; j++)
                 {
                     var name = operation.Columns[j];
@@ -1215,15 +1215,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ? Dependencies.TypeMappingSource.FindMapping(value.GetType(), columnType)
                             : Dependencies.TypeMappingSource.FindMapping(columnType!);
 
-                    modifications[j] = new ColumnModification(
+                    modificationCommand.AddColumnModification(new ColumnModificationParameters(
                         name, originalValue: null, value, propertyMapping?.Property, columnType, typeMapping,
-                        isRead: false, isWrite: true, isKey: true, isCondition: false,
-                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable);
+                        read: false, write: true, key: true, condition: false,
+                        SensitiveLoggingEnabled, propertyMapping?.Column.IsNullable));
                 }
 
-                yield return new ModificationCommand(
-                    operation.Table, operation.Schema, keys.Concat(modifications).ToArray(),
-                    sensitiveLoggingEnabled: SensitiveLoggingEnabled);
+                yield return modificationCommand;
             }
         }
 

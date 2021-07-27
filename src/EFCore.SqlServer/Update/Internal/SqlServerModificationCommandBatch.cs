@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         private const int MaxRowCount = 1000;
         private int _parameterCount = 1; // Implicit parameter for the command text
         private readonly int _maxBatchSize;
-        private readonly List<ModificationCommand> _bulkInsertCommands = new();
+        private readonly List<IModificationCommand> _bulkInsertCommands = new();
         private int _commandsLeftToLengthCheck = 50;
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected override bool CanAddCommand(ModificationCommand modificationCommand)
+        protected override bool CanAddCommand(IModificationCommand modificationCommand)
         {
             if (ModificationCommands.Count >= _maxBatchSize)
             {
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         protected override int GetParameterCount()
             => _parameterCount;
 
-        private static int CountParameters(ModificationCommand modificationCommand)
+        private static int CountParameters(IModificationCommand modificationCommand)
         {
             var parameterCount = 0;
             // ReSharper disable once ForCanBeConvertedToForeach
@@ -210,7 +210,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
         }
 
-        private static bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
+        private static bool CanBeInsertedInSameStatement(IModificationCommand firstCommand, IModificationCommand secondCommand)
             => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
                 && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
                 && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(

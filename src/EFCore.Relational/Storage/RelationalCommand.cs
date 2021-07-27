@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalCommand : IRelationalCommand
     {
-        private readonly RelationalDataReader _relationalReader;
+        private RelationalDataReader? _relationalReader;
         private readonly Stopwatch _stopwatch = new();
 
         /// <summary>
@@ -51,8 +51,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Dependencies = dependencies;
             CommandText = commandText;
             Parameters = parameters;
-
-            _relationalReader = CreateRelationalDataReader();
         }
 
         /// <summary>
@@ -503,6 +501,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     reader = new BufferedDataReader(reader, detailedErrorsEnabled).Initialize(readerColumns);
                 }
 
+                if (_relationalReader == null)
+                {
+                    _relationalReader = CreateRelationalDataReader();
+                }
+
                 _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
 
                 readerOpen = true;
@@ -618,6 +621,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     reader = await new BufferedDataReader(reader, detailedErrorsEnabled).InitializeAsync(readerColumns, cancellationToken)
                         .ConfigureAwait(false);
+                }
+
+                if (_relationalReader == null)
+                {
+                    _relationalReader = CreateRelationalDataReader();
                 }
 
                 _relationalReader.Initialize(parameterObject.Connection, command, reader, commandId, logger);
@@ -743,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>The created <see cref="RelationalDataReader" />.</returns>
         protected virtual RelationalDataReader CreateRelationalDataReader()
-             => new(this);
+             => new();
 
         /// <summary>
         ///     Populates this command from the provided <paramref name="command"/>.

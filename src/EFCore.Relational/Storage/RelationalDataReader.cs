@@ -22,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public class RelationalDataReader : IDisposable, IAsyncDisposable
     {
-        private readonly IRelationalCommand _relationalCommand;
-
         private IRelationalConnection _relationalConnection = default!;
         private DbCommand _command = default!;
         private DbDataReader _reader = default!;
@@ -35,19 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private int _readCount;
 
         private bool _disposed;
-
-        private static readonly TimeSpan _oneSecond = TimeSpan.FromSeconds(1);
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalDataReader" /> class.
-        /// </summary>
-        /// <param name="relationalCommand"> The relational command which owns this relational reader. </param>
-        public RelationalDataReader(IRelationalCommand relationalCommand)
-        {
-            Check.NotNull(relationalCommand, nameof(relationalCommand));
-
-            _relationalCommand = relationalCommand;
-        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDataReader" /> class.

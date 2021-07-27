@@ -1,10 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -46,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
-            Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
+            Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
+            Assert.False(batch.AddCommand(CreateModificationCommand("T1", null, false)));
         }
 
         [ConditionalFact]
@@ -83,12 +85,26 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             var batch = factory.Create();
 
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
-            Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null, null)));
+            Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
+            Assert.True(batch.AddCommand(CreateModificationCommand("T1", null, false)));
         }
 
         private class FakeDbContext : DbContext
         {
+        }
+
+        private static IMutableModificationCommand CreateModificationCommand(
+            string name,
+            string schema,
+            bool sensitiveLoggingEnabled)
+        {
+            var modificationCommandParameters = new ModificationCommandParameters(
+                name, schema, sensitiveLoggingEnabled);
+
+            var modificationCommand = new MutableModificationCommandFactory().CreateModificationCommand(
+                modificationCommandParameters);
+
+            return modificationCommand;
         }
     }
 }

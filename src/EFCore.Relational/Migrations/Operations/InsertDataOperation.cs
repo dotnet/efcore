@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Operations
@@ -59,18 +60,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 ? MigrationsModelDiffer.GetMappedProperties(table, Columns)
                 : null;
 
+            var modificationCommandFactory = new MutableModificationCommandFactory();
+
             for (var i = 0; i < Values.GetLength(0); i++)
             {
-                var modifications = new ColumnModification[Columns.Length];
+                var modificationCommand = modificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
+                    Table, Schema, sensitiveLoggingEnabled: false));
+
                 for (var j = 0; j < Columns.Length; j++)
                 {
-                    modifications[j] = new ColumnModification(
+                    var columnModificationParameters = new ColumnModificationParameters(
                         Columns[j], originalValue: null, value: Values[i, j], property: properties?[j],
-                        columnType: ColumnTypes?[j], isRead: false, isWrite: true, isKey: true, isCondition: false,
+                        columnType: ColumnTypes?[j], typeMapping: null, read: false, write: true, key: true, condition: false,
                         sensitiveLoggingEnabled: false);
+
+                    modificationCommand.AddColumnModification(columnModificationParameters);
                 }
 
-                yield return new ModificationCommand(Table, Schema, modifications, sensitiveLoggingEnabled: false);
+                yield return (ModificationCommand)modificationCommand;
             }
         }
     }

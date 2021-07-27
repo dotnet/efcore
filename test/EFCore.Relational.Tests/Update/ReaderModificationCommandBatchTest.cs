@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void AddCommand_adds_command_if_possible()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, true, columnModifications: null);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -44,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void AddCommand_does_not_add_command_if_not_possible()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, true, columnModifications: null);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -60,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         [ConditionalFact]
         public void AddCommand_does_not_add_command_if_resulting_sql_is_invalid()
         {
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, true, columnModifications: null);
 
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
@@ -78,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
@@ -97,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
@@ -116,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Deleted);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
@@ -135,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var fakeSqlGenerator = new FakeSqlGenerator(
@@ -154,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var dbDataReader = CreateFakeDataReader();
@@ -176,7 +178,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var connection = CreateConnection(
@@ -199,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var connection = CreateConnection(
@@ -221,7 +223,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(
                 EntityState.Modified, generateKeyValues: true, computeNonKeyValue: true);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var connection = CreateConnection(
@@ -243,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var connection = CreateConnection(
@@ -264,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
             var entry = CreateEntry(EntityState.Added);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var connection = CreateConnection(
@@ -286,7 +288,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
 
-            var command = new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null, null);
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
             command.AddEntry(entry, true);
 
             var connection = CreateConnection(
@@ -312,14 +314,13 @@ namespace Microsoft.EntityFrameworkCore.Update
             var parameterNameGenerator = new ParameterNameGenerator();
 
             batch.AddCommand(
-                new FakeModificationCommand(
+                CreateModificationCommand(
                     "T1",
                     null,
-                    parameterNameGenerator.GenerateNext,
                     true,
-                    new List<ColumnModification>
+                    new[]
                     {
-                        new(
+                        new ColumnModificationParameters(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -329,14 +330,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     }));
 
             batch.AddCommand(
-                new FakeModificationCommand(
+                CreateModificationCommand(
                     "T1",
                     null,
-                    parameterNameGenerator.GenerateNext,
                     true,
-                    new List<ColumnModification>
+                    new[]
                     {
-                        new(
+                        new ColumnModificationParameters(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
@@ -366,21 +366,20 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
-                new FakeModificationCommand(
+                CreateModificationCommand(
                     "T1",
                     null,
-                    parameterNameGenerator.GenerateNext,
                     true,
-                    new List<ColumnModification>
+                    new[]
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: false, isWrite: true, isKey: false, isCondition: false,
-                            sensitiveLoggingEnabled: true)
+                        new ColumnModificationParameters(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: false,
+                                sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -402,20 +401,19 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
-                new FakeModificationCommand(
+                CreateModificationCommand(
                     "T1",
                     null,
-                    parameterNameGenerator.GenerateNext,
                     true,
-                    new List<ColumnModification>
+                    new[]
                     {
-                        new(
+                        new ColumnModificationParameters(
                             entry,
                             property,
                             property.GetTableColumnMappings().Single().Column,
                             parameterNameGenerator.GenerateNext,
                             property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: false, isWrite: false, isKey: false, isCondition: true,
+                            valueIsRead: false, valueIsWrite: false, columnIsKey: false, columnIsCondition: true,
                             sensitiveLoggingEnabled: true)
                     }));
 
@@ -438,21 +436,20 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
-                new FakeModificationCommand(
+                CreateModificationCommand(
                     "T1",
                     null,
-                    parameterNameGenerator.GenerateNext,
                     true,
-                    new List<ColumnModification>
+                    new[]
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: false, isWrite: true, isKey: false, isCondition: true,
-                            sensitiveLoggingEnabled: true)
+                        new ColumnModificationParameters(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                valueIsRead: false, valueIsWrite: true, columnIsKey: false, columnIsCondition: true,
+                                sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -476,21 +473,20 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             var parameterNameGenerator = new ParameterNameGenerator();
             batch.AddCommand(
-                new FakeModificationCommand(
+                CreateModificationCommand(
                     "T1",
                     null,
-                    parameterNameGenerator.GenerateNext,
                     true,
-                    new List<ColumnModification>
+                    new[]
                     {
-                        new(
-                            entry,
-                            property,
-                            property.GetTableColumnMappings().Single().Column,
-                            parameterNameGenerator.GenerateNext,
-                            property.GetTableColumnMappings().Single().TypeMapping,
-                            isRead: true, isWrite: false, isKey: false, isCondition: false,
-                            sensitiveLoggingEnabled: true)
+                        new ColumnModificationParameters(
+                                entry,
+                                property,
+                                property.GetTableColumnMappings().Single().Column,
+                                parameterNameGenerator.GenerateNext,
+                                property.GetTableColumnMappings().Single().TypeMapping,
+                                valueIsRead: true, valueIsWrite: false, columnIsKey: false, columnIsCondition: false,
+                                sensitiveLoggingEnabled: true)
                     }));
 
             var storeCommand = batch.CreateStoreCommandBase();
@@ -585,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             public bool ShouldAddCommand { get; set; }
 
-            protected override bool CanAddCommand(ModificationCommand modificationCommand)
+            protected override bool CanAddCommand(IModificationCommand modificationCommand)
                 => ShouldAddCommand;
 
             public bool ShouldValidateSql { get; set; }
@@ -638,5 +634,48 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             return optionsBuilder.Options;
         }
+
+        private static IMutableModificationCommand CreateModificationCommand(
+            string table,
+            string schema,
+            Func<string> generateParameterName,
+            bool sensitiveLoggingEnabled,
+            IComparer<IUpdateEntry> comparer)
+        {
+            var modificationCommandParameters = new ModificationCommandParameters(
+                table,
+                schema,
+                sensitiveLoggingEnabled,
+                comparer,
+                generateParameterName,
+                logger: null);
+            return CreateModificationCommandSource().CreateModificationCommand(modificationCommandParameters);
+        }
+
+        private static IMutableModificationCommand CreateModificationCommand(
+            string name,
+            string schema,
+            bool sensitiveLoggingEnabled,
+            IReadOnlyList<ColumnModificationParameters> columnModifications)
+        {
+            var modificationCommandParameters = new ModificationCommandParameters(
+                name, schema, sensitiveLoggingEnabled);
+
+            var modificationCommand = CreateModificationCommandSource().CreateModificationCommand(
+                modificationCommandParameters);
+
+            if (columnModifications != null)
+            {
+                foreach (var columnModification in columnModifications)
+                {
+                    modificationCommand.AddColumnModification(columnModification);
+                }
+            }
+
+            return modificationCommand;
+        }
+
+        private static MutableModificationCommandFactory CreateModificationCommandSource()
+            => new MutableModificationCommandFactory();
     }
 }
