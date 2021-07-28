@@ -31,6 +31,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // Fails due to extra shadow properties
             }
 
+            protected override void Mapping_throws_for_non_ignored_array()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<OneDee>();
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(OneDee));
+
+                var property = entityType.FindProperty(nameof(OneDee.One));
+                Assert.Null(property.GetProviderClrType());
+                Assert.NotNull(property.FindTypeMapping());
+            }
+
             [ConditionalFact]
             public override void Properties_can_have_provider_type_set_for_type()
             {

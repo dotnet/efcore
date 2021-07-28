@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json.Linq;
@@ -32,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _clrTypeMappings
                 = new Dictionary<Type, CosmosTypeMapping>
                 {
-                    { typeof(byte[]), new CosmosTypeMapping(typeof(byte[]), keyComparer: new ArrayStructuralComparer<byte>()) },
                     { typeof(JObject), new CosmosTypeMapping(typeof(JObject)) }
                 };
         }
@@ -48,11 +48,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var clrType = mappingInfo.ClrType;
             Check.DebugAssert(clrType != null, "ClrType is null");
 
-            if (_clrTypeMappings.TryGetValue(clrType, out var mapping))
-            {
-                return mapping;
-            }
+            return _clrTypeMappings.TryGetValue(clrType, out var mapping)
+                ? mapping
+                : FindPrimitiveMapping(mappingInfo)
+                    ?? FindCollectionMapping(mappingInfo)
+                    ?? base.FindMapping(mappingInfo);
+        }
 
+        private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
+        {
+            var clrType = mappingInfo.ClrType!;
             if ((clrType.IsValueType
                     && !clrType.IsEnum)
                 || clrType == typeof(string))
@@ -60,7 +65,103 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 return new CosmosTypeMapping(clrType);
             }
 
-            return base.FindMapping(mappingInfo);
+            return null;
+        }
+
+        private CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
+        {
+            var clrType = mappingInfo.ClrType!;
+            var elementType = clrType.TryGetSequenceType();
+            if (elementType == null)
+            {
+                return null;
+            }
+
+            if (clrType.IsArray)
+            {
+                var elementMapping = FindPrimitiveMapping(new TypeMappingInfo(elementType));
+                return elementMapping == null
+                    ? null
+                    : new CosmosTypeMapping(clrType, CreateArrayComparer(elementMapping, elementType));
+            }
+
+            if (clrType.IsGenericType
+                && !clrType.IsGenericTypeDefinition)
+            {
+                var genericTypeDefinition = clrType.GetGenericTypeDefinition();
+                if (genericTypeDefinition == typeof(List<>)
+                    || genericTypeDefinition == typeof(IList<>)
+                    || genericTypeDefinition == typeof(IReadOnlyList<>))
+                {
+                    var elementMapping = FindPrimitiveMapping(new TypeMappingInfo(elementType));
+                    return elementMapping == null
+                        ? null
+                        : new CosmosTypeMapping(clrType,
+                            CreateListComparer(elementMapping, elementType, clrType, genericTypeDefinition == typeof(IReadOnlyList<>)));
+                }
+
+                if (genericTypeDefinition == typeof(Dictionary<,>)
+                    || genericTypeDefinition == typeof(IDictionary<,>)
+                    || genericTypeDefinition == typeof(IReadOnlyDictionary<,>))
+                {
+                    var genericArguments = clrType.GenericTypeArguments;
+                    if (genericArguments[0] != typeof(string))
+                    {
+                        return null;
+                    }
+
+                    elementType = genericArguments[1];
+                    var elementMapping = FindPrimitiveMapping(new TypeMappingInfo(elementType));
+                    if(elementMapping == null)
+                    {
+                        return null;
+                    }
+
+                    return elementMapping == null
+                        ? null
+                        : new CosmosTypeMapping(clrType,
+                            CreateStringDictionaryComparer(elementMapping, elementType, clrType, genericTypeDefinition == typeof(IReadOnlyDictionary<,>)));
+                }
+            }
+
+            return null;
+        }
+
+        private static ValueComparer CreateArrayComparer(CoreTypeMapping elementMapping, Type elementType)
+        {
+            var unwrappedType = elementType.UnwrapNullableType();
+
+            return (ValueComparer)Activator.CreateInstance(
+                elementType == unwrappedType
+                    ? typeof(SingleDimensionalArrayComparer<>).MakeGenericType(elementType)
+                    : typeof(NullableSingleDimensionalArrayComparer<>).MakeGenericType(unwrappedType),
+                elementMapping.Comparer)!;
+        }
+
+        private static ValueComparer CreateListComparer(
+            CoreTypeMapping elementMapping, Type elementType, Type listType, bool readOnly)
+        {
+            var unwrappedType = elementType.UnwrapNullableType();
+
+            return (ValueComparer)Activator.CreateInstance(
+                elementType == unwrappedType
+                    ? typeof(ListComparer<,>).MakeGenericType(elementType, listType)
+                    : typeof(NullableListComparer<,>).MakeGenericType(unwrappedType, listType),
+                elementMapping.Comparer,
+                readOnly)!;
+        }
+
+        private static ValueComparer CreateStringDictionaryComparer(
+            CoreTypeMapping elementMapping, Type elementType, Type dictType, bool readOnly)
+        {
+            var unwrappedType = elementType.UnwrapNullableType();
+
+            return (ValueComparer)Activator.CreateInstance(
+                elementType == unwrappedType
+                    ? typeof(StringDictionaryComparer<,>).MakeGenericType(elementType, dictType)
+                    : typeof(NullableStringDictionaryComparer<,>).MakeGenericType(unwrappedType, dictType),
+                elementMapping.Comparer,
+                readOnly)!;
         }
     }
 }

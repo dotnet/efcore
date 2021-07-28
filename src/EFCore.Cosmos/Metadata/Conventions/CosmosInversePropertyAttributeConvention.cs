@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     targetClrType,
                     navigationMemberInfo,
                     shouldCreate ? ConfigurationSource.DataAnnotation : null,
-                    targetShouldBeOwned: true);
+                    CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(targetClrType, entityTypeBuilder.Metadata.Model));
 #pragma warning restore EF1001 // Internal EF Core API usage.
     }
 }
