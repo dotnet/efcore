@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 this,
                 context,
                 _queryExpression,
-                static (t, c, q) =>
+                static(t, c, q) =>
                 {
                     var queryCompiler = c.GetService<IQueryCompiler>();
                     var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);

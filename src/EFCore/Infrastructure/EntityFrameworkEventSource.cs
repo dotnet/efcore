@@ -29,6 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private PollingCounter? _totalExecutionStrategyOperationFailuresCounter;
         private IncrementingPollingCounter? _executionStrategyOperationFailuresPerSecondCounter;
         private PollingCounter? _totalOptimisticConcurrencyFailuresCounter;
+
         private IncrementingPollingCounter? _optimisticConcurrencyFailuresPerSecondCounter;
         // ReSharper restore NotAccessedField.Local
 
@@ -106,7 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     DisplayName = "Active DbContexts"
                 };
 
-                _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => Interlocked.Read(ref _totalQueries)) { DisplayName = "Queries (Total)" };
+                _totalQueriesCounter ??=
+                    new PollingCounter(
+                        "total-queries", this, () => Interlocked.Read(ref _totalQueries)) { DisplayName = "Queries (Total)" };
 
                 _queriesPerSecondCounter ??= new IncrementingPollingCounter(
                     "queries-per-second",
@@ -121,7 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _saveChangesPerSecondCounter ??= new IncrementingPollingCounter(
                     "save-changes-per-second",
                     this,
-                    () => Interlocked.Read(ref _totalSaveChanges)) { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    () => Interlocked.Read(ref _totalSaveChanges))
+                {
+                    DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                };
 
                 _compiledQueryCacheHitRateCounter ??= new PollingCounter(
                     "compiled-query-cache-hit-rate",
@@ -131,7 +137,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
                     "total-execution-strategy-operation-failures",
                     this,
-                    () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures)) { DisplayName = "Execution Strategy Operation Failures (Total)" };
+                    () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
+                {
+                    DisplayName = "Execution Strategy Operation Failures (Total)"
+                };
 
                 _executionStrategyOperationFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "execution-strategy-operation-failures-per-second",
@@ -144,7 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
                     "total-optimistic-concurrency-failures",
                     this,
-                    () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures)) { DisplayName = "Optimistic Concurrency Failures (Total)" };
+                    () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
+                {
+                    DisplayName = "Optimistic Concurrency Failures (Total)"
+                };
 
                 _optimisticConcurrencyFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "optimistic-concurrency-failures-per-second",

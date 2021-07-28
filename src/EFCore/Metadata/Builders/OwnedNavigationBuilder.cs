@@ -935,8 +935,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                 }
             }
 
-            return relatedEntityType ?? DependentEntityType.Builder.ModelBuilder.Entity(
-                relatedType, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata;
+            return relatedEntityType
+                ?? DependentEntityType.Builder.ModelBuilder.Entity(
+                    relatedType, ConfigurationSource.Explicit, shouldBeOwned: false)!.Metadata;
         }
 
         /// <summary>

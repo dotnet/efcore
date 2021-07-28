@@ -57,7 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
         /// </returns>
-        bool IsShadowProperty() => this.GetIdentifyingMemberInfo() == null;
+        bool IsShadowProperty()
+            => this.GetIdentifyingMemberInfo() == null;
 
         /// <summary>
         ///     Gets a value indicating whether this is an indexer property. An indexer property is one that is accessed through

@@ -59,22 +59,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IEnumerable<IReadOnlyEntityType> GetEntityTypes();
 
         /// <summary>
-        ///     Gets the entity type with the given name. Returns <see langword="null"/> if no entity type with the given name is found
+        ///     Gets the entity type with the given name. Returns <see langword="null" /> if no entity type with the given name is found
         ///     or the given CLR type is being used by shared type entity type
         ///     or the entity type has a defining navigation.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null"/> if none is found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IReadOnlyEntityType? FindEntityType(string name);
 
         /// <summary>
         ///     Gets the entity type for the given base name, defining navigation name
-        ///     and the defining entity type. Returns <see langword="null"/> if no matching entity type is found.
+        ///     and the defining entity type. Returns <see langword="null" /> if no matching entity type is found.
         /// </summary>
         /// <param name="name"> The name of the entity type to find. </param>
         /// <param name="definingNavigationName"> The defining navigation of the entity type to find. </param>
         /// <param name="definingEntityType"> The defining entity type of the entity type to find. </param>
-        /// <returns> The entity type, or <see langword="null"/> if none is found. </returns>
+        /// <returns> The entity type, or <see langword="null" /> if none is found. </returns>
         IReadOnlyEntityType? FindEntityType(
             string name,
             string definingNavigationName,

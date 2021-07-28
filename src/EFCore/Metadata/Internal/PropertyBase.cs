@@ -66,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Indicates whether the model is read-only.
         /// </summary>
-        public override bool IsReadOnly => DeclaringType.Model.IsReadOnly;
+        public override bool IsReadOnly
+            => DeclaringType.Model.IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -400,11 +401,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual PropertyAccessors Accessors
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, static property =>
-            {
-                property.EnsureReadOnly();
-                return new PropertyAccessorsFactory().Create(property);
-            });
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _accessors, this, static property =>
+                {
+                    property.EnsureReadOnly();
+                    return new PropertyAccessorsFactory().Create(property);
+                });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -421,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 });
 
         private static readonly MethodInfo _containsKeyMethod =
-            typeof(IDictionary<string, object>).GetRequiredMethod(nameof(IDictionary<string, object>.ContainsKey), new[] { typeof(string) });
+            typeof(IDictionary<string, object>).GetRequiredMethod(nameof(IDictionary<string, object>.ContainsKey), typeof(string));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -535,7 +537,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         PropertyAccessMode? IConventionPropertyBase.SetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+            PropertyAccessMode? propertyAccessMode,
+            bool fromDataAnnotation)
             => SetPropertyAccessMode(
                 propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

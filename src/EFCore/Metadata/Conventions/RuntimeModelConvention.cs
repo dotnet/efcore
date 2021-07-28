@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
 
@@ -65,15 +64,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
                     var runtimeProperty = Create(property, runtimeEntityType);
-                    CreateAnnotations(property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
+                    CreateAnnotations(
+                        property, runtimeProperty, static(convention, annotations, source, target, runtime) =>
+                            convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
                 }
 
                 foreach (var serviceProperty in entityType.GetDeclaredServiceProperties())
                 {
                     var runtimeServiceProperty = Create(serviceProperty, runtimeEntityType);
-                    CreateAnnotations(serviceProperty, runtimeServiceProperty, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessServicePropertyAnnotations(annotations, source, target, runtime));
+                    CreateAnnotations(
+                        serviceProperty, runtimeServiceProperty, static(convention, annotations, source, target, runtime) =>
+                            convention.ProcessServicePropertyAnnotations(annotations, source, target, runtime));
                     runtimeServiceProperty.ParameterBinding =
                         (ServiceParameterBinding)Create(serviceProperty.ParameterBinding, runtimeEntityType);
                 }
@@ -86,15 +87,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         runtimeEntityType.SetPrimaryKey(runtimeKey);
                     }
 
-                    CreateAnnotations(key, runtimeKey, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessKeyAnnotations(annotations, source, target, runtime));
+                    CreateAnnotations(
+                        key, runtimeKey, static(convention, annotations, source, target, runtime) =>
+                            convention.ProcessKeyAnnotations(annotations, source, target, runtime));
                 }
 
                 foreach (var index in entityType.GetDeclaredIndexes())
                 {
                     var runtimeIndex = Create(index, runtimeEntityType);
-                    CreateAnnotations(index, runtimeIndex, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessIndexAnnotations(annotations, source, target, runtime));
+                    CreateAnnotations(
+                        index, runtimeIndex, static(convention, annotations, source, target, runtime) =>
+                            convention.ProcessIndexAnnotations(annotations, source, target, runtime));
                 }
 
                 runtimeEntityType.ConstructorBinding = Create(entityType.ConstructorBinding, runtimeEntityType);
@@ -112,20 +115,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (navigation != null)
                     {
                         var runtimeNavigation = Create(navigation, runtimeForeignKey);
-                        CreateAnnotations(navigation, runtimeNavigation, static (convention, annotations, source, target, runtime) =>
-                            convention.ProcessNavigationAnnotations(annotations, source, target, runtime));
+                        CreateAnnotations(
+                            navigation, runtimeNavigation, static(convention, annotations, source, target, runtime) =>
+                                convention.ProcessNavigationAnnotations(annotations, source, target, runtime));
                     }
 
                     navigation = foreignKey.PrincipalToDependent;
                     if (navigation != null)
                     {
                         var runtimeNavigation = Create(navigation, runtimeForeignKey);
-                        CreateAnnotations(navigation, runtimeNavigation, static (convention, annotations, source, target, runtime) =>
-                            convention.ProcessNavigationAnnotations(annotations, source, target, runtime));
+                        CreateAnnotations(
+                            navigation, runtimeNavigation, static(convention, annotations, source, target, runtime) =>
+                                convention.ProcessNavigationAnnotations(annotations, source, target, runtime));
                     }
 
-                    CreateAnnotations(foreignKey, runtimeForeignKey, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessForeignKeyAnnotations(annotations, source, target, runtime));
+                    CreateAnnotations(
+                        foreignKey, runtimeForeignKey, static(convention, annotations, source, target, runtime) =>
+                            convention.ProcessForeignKeyAnnotations(annotations, source, target, runtime));
                 }
             }
 
@@ -142,16 +148,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         inverse.Inverse = runtimeNavigation;
                     }
 
-                    CreateAnnotations(navigation, runtimeNavigation, static (convention, annotations, source, target, runtime) =>
-                        convention.ProcessSkipNavigationAnnotations(annotations, source, target, runtime));
+                    CreateAnnotations(
+                        navigation, runtimeNavigation, static(convention, annotations, source, target, runtime) =>
+                            convention.ProcessSkipNavigationAnnotations(annotations, source, target, runtime));
                 }
 
-                CreateAnnotations(entityType, runtimeEntityType, static (convention, annotations, source, target, runtime) =>
-                    convention.ProcessEntityTypeAnnotations(annotations, source, target, runtime));
+                CreateAnnotations(
+                    entityType, runtimeEntityType, static(convention, annotations, source, target, runtime) =>
+                        convention.ProcessEntityTypeAnnotations(annotations, source, target, runtime));
             }
 
-            CreateAnnotations(model, runtimeModel, static (convention, annotations, source, target, runtime) =>
-                convention.ProcessModelAnnotations(annotations, source, target, runtime));
+            CreateAnnotations(
+                model, runtimeModel, static(convention, annotations, source, target, runtime) =>
+                    convention.ProcessModelAnnotations(annotations, source, target, runtime));
 
             return runtimeModel;
         }
@@ -197,7 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private RuntimeEntityType Create(IEntityType entityType, RuntimeModel model)
-            => model.AddEntityType(entityType.Name,
+            => model.AddEntityType(
+                entityType.Name,
                 entityType.ClrType,
                 entityType.BaseType == null ? null : model.FindEntityType(entityType.BaseType.Name)!,
                 entityType.HasSharedClrType,
@@ -207,11 +217,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityType.IsPropertyBag);
 
         private ParameterBinding Create(ParameterBinding parameterBinding, RuntimeEntityType entityType)
-            => parameterBinding.With(parameterBinding.ConsumedProperties.Select(property =>
-            (entityType.FindProperty(property.Name)
-                ?? entityType.FindServiceProperty(property.Name)
-                ?? entityType.FindNavigation(property.Name)
-                ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
+            => parameterBinding.With(
+                parameterBinding.ConsumedProperties.Select(
+                    property =>
+                        (entityType.FindProperty(property.Name)
+                            ?? entityType.FindServiceProperty(property.Name)
+                            ?? entityType.FindNavigation(property.Name)
+                            ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
 
         private InstantiationBinding? Create(InstantiationBinding? instantiationBinding, RuntimeEntityType entityType)
             => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
@@ -436,7 +448,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             => runtimeEntityType.AddSkipNavigation(
                 navigation.Name,
                 runtimeEntityType.Model.FindEntityType(navigation.TargetEntityType.Name)!,
-                GetForeignKey(navigation.ForeignKey, runtimeEntityType.Model.FindEntityType(navigation.ForeignKey.DeclaringEntityType.Name)!),
+                GetForeignKey(
+                    navigation.ForeignKey, runtimeEntityType.Model.FindEntityType(navigation.ForeignKey.DeclaringEntityType.Name)!),
                 navigation.IsCollection,
                 navigation.IsOnDependent,
                 navigation.ClrType,
@@ -453,10 +466,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns> The corresponding read-optimized foreign key. </returns>
         protected virtual RuntimeForeignKey GetForeignKey(IForeignKey foreignKey, RuntimeEntityType entityType)
             => entityType.FindDeclaredForeignKeys(
-                entityType.FindProperties(foreignKey.Properties.Select(p => p.Name))!)
-                .Single(fk => fk.PrincipalEntityType.Name == foreignKey.PrincipalEntityType.Name
-                && fk.PrincipalKey.Properties.Select(p => p.Name).SequenceEqual(
-                    foreignKey.PrincipalKey.Properties.Select(p => p.Name)));
+                    entityType.FindProperties(foreignKey.Properties.Select(p => p.Name))!)
+                .Single(
+                    fk => fk.PrincipalEntityType.Name == foreignKey.PrincipalEntityType.Name
+                        && fk.PrincipalKey.Properties.Select(p => p.Name).SequenceEqual(
+                            foreignKey.PrincipalKey.Properties.Select(p => p.Name)));
 
         /// <summary>
         ///     Gets the corresponding key in the read-optimized model.
@@ -475,8 +489,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <returns> The corresponding read-optimized index. </returns>
         protected virtual RuntimeIndex GetIndex(IIndex index, RuntimeEntityType entityType)
             => index.Name == null
-            ? entityType.FindIndex(entityType.FindProperties(index.Properties.Select(p => p.Name))!)!
-            : entityType.FindIndex(index.Name)!;
+                ? entityType.FindIndex(entityType.FindProperties(index.Properties.Select(p => p.Name))!)!
+                : entityType.FindIndex(index.Name)!;
 
         /// <summary>
         ///     Updates the skip navigation annotations that will be set on the read-only object.

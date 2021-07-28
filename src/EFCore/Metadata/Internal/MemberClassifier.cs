@@ -93,11 +93,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Type? FindCandidateNavigationPropertyType(
-            MemberInfo memberInfo, IConventionModel model, out bool? shouldBeOwned)
+            MemberInfo memberInfo,
+            IConventionModel model,
+            out bool? shouldBeOwned)
             => FindCandidateNavigationPropertyType(memberInfo, ((Model)model).Configuration, out shouldBeOwned);
 
         private Type? FindCandidateNavigationPropertyType(
-            MemberInfo memberInfo, ModelConfiguration? configuration, out bool? shouldBeOwned)
+            MemberInfo memberInfo,
+            ModelConfiguration? configuration,
+            out bool? shouldBeOwned)
         {
             shouldBeOwned = null;
             var propertyInfo = memberInfo as PropertyInfo;
@@ -107,16 +111,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 && (propertyInfo == null
                     || propertyInfo.IsCandidateProperty(needsWrite: false))
                 && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, configuration, out shouldBeOwned)
-                ? targetSequenceType
-                : (propertyInfo == null
-                    || propertyInfo.IsCandidateProperty(needsWrite: true))
+                    ? targetSequenceType
+                    : (propertyInfo == null
+                        || propertyInfo.IsCandidateProperty(needsWrite: true))
                     && IsCandidateNavigationPropertyType(targetType, memberInfo, configuration, out shouldBeOwned)
-                    ? targetType
-                    : null;
+                        ? targetType
+                        : null;
         }
 
         private bool IsCandidateNavigationPropertyType(
-           Type targetType, MemberInfo memberInfo, ModelConfiguration? configuration, out bool? shouldBeOwned)
+            Type targetType,
+            MemberInfo memberInfo,
+            ModelConfiguration? configuration,
+            out bool? shouldBeOwned)
         {
             shouldBeOwned = null;
             var configurationType = configuration?.GetConfigurationType(targetType);
@@ -153,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             var configurationType = configuration?.GetConfigurationType(propertyInfo.PropertyType);
             return configurationType == TypeConfigurationType.Property
-                    || (configurationType == null && _typeMappingSource.FindMapping(propertyInfo) != null);
+                || (configurationType == null && _typeMappingSource.FindMapping(propertyInfo) != null);
         }
 
         /// <summary>
@@ -163,7 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(
-            PropertyInfo propertyInfo, ModelConfiguration? configuration)
+            PropertyInfo propertyInfo,
+            ModelConfiguration? configuration)
         {
             if (!propertyInfo.IsCandidateProperty(publicOnly: false))
             {

@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public abstract int GetServiceProviderHashCode();
 
         /// <summary>
-        ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode"/>
+        ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode" />
         ///     are the same as in the given extension.
         /// </summary>
         /// <param name="other"> The other extension. </param>

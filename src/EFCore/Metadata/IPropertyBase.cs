@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new ITypeBase DeclaringType
         {
             [DebuggerStepThrough]
-            get => (ITypeBase) ((IReadOnlyPropertyBase)this).DeclaringType;
+            get => (ITypeBase)((IReadOnlyPropertyBase)this).DeclaringType;
         }
 
         /// <summary>

@@ -339,8 +339,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            FindOrCreateJoinEntry((
-                                entry, newTargetEntry, skipNavigation, FromQuery: false, SetModified: true));
+                            FindOrCreateJoinEntry(
+                                (
+                                    entry, newTargetEntry, skipNavigation, FromQuery: false, SetModified: true));
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,
@@ -958,16 +959,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void FindOrCreateJoinEntry(
             (InternalEntityEntry Entry,
-            InternalEntityEntry OtherEntry,
-            ISkipNavigation SkipNavigation,
-            bool FromQuery,
-            bool SetModified) arguments)
+                InternalEntityEntry OtherEntry,
+                ISkipNavigation SkipNavigation,
+                bool FromQuery,
+                bool SetModified) arguments)
         {
             var joinEntry = FindJoinEntry(arguments.Entry, arguments.OtherEntry, arguments.SkipNavigation);
             if (joinEntry != null)
             {
-                SetForeignKeyProperties(joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
-                SetForeignKeyProperties(joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified,
+                    arguments.FromQuery);
             }
             else if (!_inAttachGraph)
             {
@@ -977,8 +981,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
 
-                SetForeignKeyProperties(joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
-                SetForeignKeyProperties(joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified,
+                    arguments.FromQuery);
 
                 joinEntry.SetEntityState(
                     arguments.SetModified
@@ -990,7 +997,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else
             {
                 _danglingJoinEntities ??= new List<Action>();
-            
+
                 _danglingJoinEntities.Add(() => FindOrCreateJoinEntry(arguments));
             }
         }

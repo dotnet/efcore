@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                                 Expression.IsFalse(yNull),
                                 Expression.Call(
                                     x,
-                                    typeof(TGeometry).GetRequiredRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) }),
+                                    typeof(TGeometry).GetRequiredRuntimeMethod("EqualsExact", typeof(TGeometry)),
                                     y))))),
                 left,
                 right);

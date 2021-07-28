@@ -454,7 +454,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual DebugView DebugView
             => new(
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
-                () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+                () => this.ToDebugString());
 
         #region Hidden System.Object members
 

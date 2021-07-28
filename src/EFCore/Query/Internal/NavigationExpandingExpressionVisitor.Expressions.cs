@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             public bool IsOptional { get; private set; }
             public IncludeTreeNode IncludePaths { get; private set; }
             public IncludeTreeNode? LastIncludeTreeNode { get; private set; }
-            public QueryRootExpression? QueryRootExpression { get; private set; }
+            public QueryRootExpression? QueryRootExpression { get; }
 
             public override ExpressionType NodeType
                 => ExpressionType.Extension;

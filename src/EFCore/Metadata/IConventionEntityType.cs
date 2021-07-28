@@ -51,7 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the defining entity type.
         /// </summary>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        new IConventionEntityType? DefiningEntityType => null;
+        new IConventionEntityType? DefiningEntityType
+            => null;
 
         /// <summary>
         ///     Gets a value indicating whether the entity type has no keys.
@@ -133,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The configured value. </returns>
         object? SetDiscriminatorValue(object? value, bool fromDataAnnotation = false)
             => SetAnnotation(CoreAnnotationNames.DiscriminatorValue, EntityType.CheckDiscriminatorValue(this, value), fromDataAnnotation)
-            ?.Value;
+                ?.Value;
 
         /// <summary>
         ///     Removes the discriminator value for this entity type.
@@ -196,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> Base types. </returns>
         new IEnumerable<IConventionEntityType> GetAllBaseTypesInclusive()
-            => GetAllBaseTypesInclusiveAscending().Reverse().Cast<IConventionEntityType>();
+            => GetAllBaseTypesInclusiveAscending().Reverse();
 
         /// <summary>
         ///     Returns all base types of the given entity type, including the type itself, bottom to top.
@@ -349,7 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
         new IConventionKey? FindKey(IReadOnlyProperty property)
-             => FindKey(new[] { property });
+            => FindKey(new[] { property });
 
         /// <summary>
         ///     <para>
@@ -569,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="memberInfo"> The navigation property on the entity class. </param>
         /// <returns> The navigation property, or <see langword="null" /> if none is found. </returns>
         new IConventionNavigation? FindNavigation(MemberInfo memberInfo)
-           => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
+            => FindNavigation(Check.NotNull(memberInfo, nameof(memberInfo)).GetSimpleMemberName());
 
         /// <summary>
         ///     Gets a navigation property on the given entity type. Returns <see langword="null" /> if no navigation property is found.

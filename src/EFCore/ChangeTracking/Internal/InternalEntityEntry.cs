@@ -631,7 +631,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 return CurrentValueType.Normal;
             }
 
-            @equals ??= ValuesEqualFunc(property);
+            equals ??= ValuesEqualFunc(property);
             var defaultValue = property.ClrType.GetDefaultValue();
             var value = ReadPropertyValue(property);
             if (!equals(value, defaultValue))
@@ -1343,7 +1343,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var comparer = property.GetValueComparer();
 
             return comparer != null
-                ? (Func<object?, object?, bool>)((l, r) => comparer.Equals(l, r))
+                ? (l, r) => comparer.Equals(l, r)
                 : (l, r) => Equals(l, r);
         }
 
@@ -1869,7 +1869,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public DebugView DebugView
             => new(
                 () => this.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
-                () => this.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+                () => this.ToDebugString());
 
         IUpdateEntry? IUpdateEntry.SharedIdentityEntry
             => SharedIdentityEntry;

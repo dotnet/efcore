@@ -48,7 +48,7 @@ namespace System
 
         public static bool IsValidEntityType(this Type type)
             => type.IsClass
-            && !type.IsArray;
+                && !type.IsArray;
 
         public static bool IsPropertyBagType(this Type type)
         {
@@ -550,7 +550,12 @@ namespace System
         }
 
         private static void ProcessGenericType(
-            StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName, bool compilable)
+            StringBuilder builder,
+            Type type,
+            Type[] genericArguments,
+            int length,
+            bool fullName,
+            bool compilable)
         {
             if (type.IsConstructedGenericType
                 && type.GetGenericTypeDefinition() == typeof(Nullable<>))

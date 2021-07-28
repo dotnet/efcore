@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return GetPropertyCount(entityType) == 0
                 ? (() => Snapshot.Empty)
                 : Expression.Lambda<Func<ISnapshot>>(
-                    // TODO-Nullable: This whole code path is null unsafe. We are passing null parameter but later using parameter
-                    // as if always exists.
+                        // TODO-Nullable: This whole code path is null unsafe. We are passing null parameter but later using parameter
+                        // as if always exists.
                         CreateConstructorExpression(entityType, null!))
                     .Compile();
         }

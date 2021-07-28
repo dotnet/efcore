@@ -228,6 +228,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     || unwrappedType == typeof(ushort)
                     || unwrappedType == typeof(sbyte)
                     || unwrappedType == typeof(char)
+                        // ReSharper disable once RedundantCast
                         ? (Expression)Expression.Convert(param, typeof(int))
                         : Expression.Call(
                             Expression.Convert(param, typeof(object)), ObjectGetHashCodeMethod);

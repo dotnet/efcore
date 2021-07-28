@@ -62,12 +62,13 @@ namespace Microsoft.EntityFrameworkCore.Internal
             return defaultPropertyAttribute == null
                 ? null
                 : type.GetRuntimeProperties()
-                    .FirstOrDefault(pi =>
-                        pi.Name == defaultPropertyAttribute.MemberName
-                        && pi.IsIndexerProperty()
-                        && pi.SetMethod?.GetParameters() is ParameterInfo[] parameters
-                        && parameters.Length == 2
-                        && parameters[0].ParameterType == typeof(string));
+                    .FirstOrDefault(
+                        pi =>
+                            pi.Name == defaultPropertyAttribute.MemberName
+                            && pi.IsIndexerProperty()
+                            && pi.SetMethod?.GetParameters() is ParameterInfo[] parameters
+                            && parameters.Length == 2
+                            && parameters[0].ParameterType == typeof(string));
         }
     }
 }

@@ -149,10 +149,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public virtual InternalEntityEntry? TryGetEntry(
-            IKey key,
-            object[] keyValues,
-            bool throwOnNullKey,
-            out bool hasNullKey)
+                IKey key,
+                object[] keyValues,
+                bool throwOnNullKey,
+                out bool hasNullKey)
             // InitializeStateManager will populate the field before calling here
             => _stateManager!.TryGetEntry(key, keyValues, throwOnNullKey, out hasNullKey);
 
@@ -164,9 +164,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         [EntityFrameworkInternal]
         public virtual InternalEntityEntry StartTracking(
-            IEntityType entityType,
-            object entity,
-            ValueBuffer valueBuffer)
+                IEntityType entityType,
+                object entity,
+                ValueBuffer valueBuffer)
             // InitializeStateManager will populate the field before calling here
             => _stateManager!.StartTrackingFromQuery(entityType, entity, valueBuffer);
     }

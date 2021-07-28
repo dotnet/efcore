@@ -89,39 +89,39 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public static Type CreateSnapshotType(Type[] types)
             => types.Length switch
-        {
-            1 => typeof(Snapshot<>).MakeGenericType(types),
-            2 => typeof(Snapshot<,>).MakeGenericType(types),
-            3 => typeof(Snapshot<,,>).MakeGenericType(types),
-            4 => typeof(Snapshot<,,,>).MakeGenericType(types),
-            5 => typeof(Snapshot<,,,,>).MakeGenericType(types),
-            6 => typeof(Snapshot<,,,,,>).MakeGenericType(types),
-            7 => typeof(Snapshot<,,,,,,>).MakeGenericType(types),
-            8 => typeof(Snapshot<,,,,,,,>).MakeGenericType(types),
-            9 => typeof(Snapshot<,,,,,,,,>).MakeGenericType(types),
-            10 => typeof(Snapshot<,,,,,,,,,>).MakeGenericType(types),
-            11 => typeof(Snapshot<,,,,,,,,,,>).MakeGenericType(types),
-            12 => typeof(Snapshot<,,,,,,,,,,,>).MakeGenericType(types),
-            13 => typeof(Snapshot<,,,,,,,,,,,,>).MakeGenericType(types),
-            14 => typeof(Snapshot<,,,,,,,,,,,,,>).MakeGenericType(types),
-            15 => typeof(Snapshot<,,,,,,,,,,,,,,>).MakeGenericType(types),
-            16 => typeof(Snapshot<,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            17 => typeof(Snapshot<,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            18 => typeof(Snapshot<,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            19 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            20 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            21 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            22 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            23 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            24 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            25 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            26 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            27 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            28 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            29 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            30 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            _ => throw new IndexOutOfRangeException(),
-        };
+            {
+                1 => typeof(Snapshot<>).MakeGenericType(types),
+                2 => typeof(Snapshot<,>).MakeGenericType(types),
+                3 => typeof(Snapshot<,,>).MakeGenericType(types),
+                4 => typeof(Snapshot<,,,>).MakeGenericType(types),
+                5 => typeof(Snapshot<,,,,>).MakeGenericType(types),
+                6 => typeof(Snapshot<,,,,,>).MakeGenericType(types),
+                7 => typeof(Snapshot<,,,,,,>).MakeGenericType(types),
+                8 => typeof(Snapshot<,,,,,,,>).MakeGenericType(types),
+                9 => typeof(Snapshot<,,,,,,,,>).MakeGenericType(types),
+                10 => typeof(Snapshot<,,,,,,,,,>).MakeGenericType(types),
+                11 => typeof(Snapshot<,,,,,,,,,,>).MakeGenericType(types),
+                12 => typeof(Snapshot<,,,,,,,,,,,>).MakeGenericType(types),
+                13 => typeof(Snapshot<,,,,,,,,,,,,>).MakeGenericType(types),
+                14 => typeof(Snapshot<,,,,,,,,,,,,,>).MakeGenericType(types),
+                15 => typeof(Snapshot<,,,,,,,,,,,,,,>).MakeGenericType(types),
+                16 => typeof(Snapshot<,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                17 => typeof(Snapshot<,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                18 => typeof(Snapshot<,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                19 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                20 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                21 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                22 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                23 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                24 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                25 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                26 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                27 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                28 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                29 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                30 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                _ => throw new IndexOutOfRangeException(),
+            };
     }
 
     /// <summary>
@@ -258,40 +258,41 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                23 => _value23,
-                24 => _value24,
-                25 => _value25,
-                26 => _value26,
-                27 => _value27,
-                28 => _value28,
-                29 => _value29,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    23 => _value23,
+                    24 => _value24,
+                    25 => _value25,
+                    26 => _value26,
+                    27 => _value27,
+                    28 => _value28,
+                    29 => _value29,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -524,39 +525,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                23 => _value23,
-                24 => _value24,
-                25 => _value25,
-                26 => _value26,
-                27 => _value27,
-                28 => _value28,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    23 => _value23,
+                    24 => _value24,
+                    25 => _value25,
+                    26 => _value26,
+                    27 => _value27,
+                    28 => _value28,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -783,38 +785,39 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                23 => _value23,
-                24 => _value24,
-                25 => _value25,
-                26 => _value26,
-                27 => _value27,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    23 => _value23,
+                    24 => _value24,
+                    25 => _value25,
+                    26 => _value26,
+                    27 => _value27,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -1035,37 +1038,38 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                23 => _value23,
-                24 => _value24,
-                25 => _value25,
-                26 => _value26,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    23 => _value23,
+                    24 => _value24,
+                    25 => _value25,
+                    26 => _value26,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -1280,36 +1284,37 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                23 => _value23,
-                24 => _value24,
-                25 => _value25,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    23 => _value23,
+                    24 => _value24,
+                    25 => _value25,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -1518,35 +1523,36 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                23 => _value23,
-                24 => _value24,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    23 => _value23,
+                    24 => _value24,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -1749,34 +1755,35 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                23 => _value23,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    23 => _value23,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -1972,33 +1979,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                22 => _value22,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    22 => _value22,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -2188,32 +2196,33 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                21 => _value21,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    21 => _value21,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -2396,31 +2405,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                20 => _value20,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    20 => _value20,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -2596,30 +2606,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                19 => _value19,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    19 => _value19,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -2789,29 +2800,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                18 => _value18,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    18 => _value18,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -2975,28 +2987,29 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                17 => _value17,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    17 => _value17,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -3153,27 +3166,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                16 => _value16,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    16 => _value16,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -3324,26 +3338,27 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                15 => _value15,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    15 => _value15,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -3488,25 +3503,26 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                14 => _value14,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    14 => _value14,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -3645,24 +3661,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                13 => _value13,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    13 => _value13,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -3795,23 +3812,24 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                12 => _value12,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    12 => _value12,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -3938,22 +3956,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                11 => _value11,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    11 => _value11,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4074,21 +4093,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                10 => _value10,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    10 => _value10,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4203,20 +4223,21 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                9 => _value9,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    9 => _value9,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4325,19 +4346,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                8 => _value8,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    8 => _value8,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4440,18 +4462,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                7 => _value7,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    7 => _value7,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4548,17 +4571,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                6 => _value6,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    6 => _value6,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4649,16 +4673,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                5 => _value5,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    5 => _value5,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4743,15 +4768,16 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                4 => _value4,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    4 => _value4,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4830,14 +4856,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                3 => _value3,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    3 => _value3,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4910,13 +4937,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                2 => _value2,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    2 => _value2,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -4983,12 +5011,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                1 => _value1,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get
+                => index switch
+                {
+                    0 => _value0,
+                    1 => _value1,
+                    _ => throw new IndexOutOfRangeException(),
+                };
             set
             {
                 switch (index)
@@ -5049,12 +5078,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
+            get
+                => index switch
                 {
                     0 => _value0,
                     _ => throw new IndexOutOfRangeException(),
                 };
-            set => _value0 = index switch
+            set
+                => _value0 = index switch
                 {
                     0 => (T0)value!,
                     _ => throw new IndexOutOfRangeException(),

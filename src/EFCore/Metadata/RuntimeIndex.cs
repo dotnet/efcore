@@ -72,40 +72,40 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [EntityFrameworkInternal]
         public virtual DebugView DebugView
             => new(
-                () => ((IIndex)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IIndex)this).ToDebugString(),
                 () => ((IIndex)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IReadOnlyList<IReadOnlyProperty> IReadOnlyIndex.Properties
         {
             [DebuggerStepThrough] get => Properties;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IReadOnlyEntityType IReadOnlyIndex.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IReadOnlyList<IProperty> IIndex.Properties
         {
             [DebuggerStepThrough] get => Properties;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IEntityType IIndex.DeclaringEntityType
         {
             [DebuggerStepThrough] get => DeclaringEntityType;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         bool IReadOnlyIndex.IsUnique
         {
             [DebuggerStepThrough] get => _isUnique;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IDependentKeyValueFactory<TKey> IIndex.GetNullableValueFactory<TKey>()
             => (IDependentKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(

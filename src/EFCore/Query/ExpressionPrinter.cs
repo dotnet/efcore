@@ -472,6 +472,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         _stringBuilder.Append(", ");
                     }
+
                     Print(item);
                 }
 

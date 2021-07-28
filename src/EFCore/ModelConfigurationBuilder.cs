@@ -45,7 +45,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual ModelConfiguration ModelConfiguration => _modelConfiguration;
+        protected virtual ModelConfiguration ModelConfiguration
+            => _modelConfiguration;
 
         /// <summary>
         ///     Prevents the conventions from the given type from discovering properties of the given or derived types.

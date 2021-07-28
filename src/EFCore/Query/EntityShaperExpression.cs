@@ -93,9 +93,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type. </returns>
         protected static Expression CreateUnableToDiscriminateExceptionExpression(IEntityType entityType, Expression discriminatorValue)
             => Block(
-                Throw(Call(_createUnableToDiscriminateException,
-                    Constant(Check.NotNull(entityType, nameof(entityType))),
-                    Convert(Check.NotNull(discriminatorValue, nameof(discriminatorValue)), typeof(object)))),
+                Throw(
+                    Call(
+                        _createUnableToDiscriminateException,
+                        Constant(Check.NotNull(entityType, nameof(entityType))),
+                        Convert(Check.NotNull(discriminatorValue, nameof(discriminatorValue)), typeof(object)))),
                 Constant(null, typeof(IEntityType)));
 
         /// <summary>
@@ -154,6 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     expressions.Add(conditions);
                 }
+
                 body = Block(new[] { discriminatorValueVariable }, expressions);
             }
             else

@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Query;
@@ -29,22 +28,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
     {
         private static readonly MethodInfo _doubleEqualsMethodInfo
-            = typeof(double).GetRequiredRuntimeMethod(nameof(double.Equals), new[] { typeof(double) });
+            = typeof(double).GetRequiredRuntimeMethod(nameof(double.Equals), typeof(double));
 
         private static readonly MethodInfo _floatEqualsMethodInfo
-            = typeof(float).GetRequiredRuntimeMethod(nameof(float.Equals), new[] { typeof(float) });
+            = typeof(float).GetRequiredRuntimeMethod(nameof(float.Equals), typeof(float));
 
         internal static readonly MethodInfo ArrayCopyMethod
-            = typeof(Array).GetRequiredRuntimeMethod(nameof(Array.Copy), new[] { typeof(Array), typeof(Array), typeof(int) });
+            = typeof(Array).GetRequiredRuntimeMethod(nameof(Array.Copy), typeof(Array), typeof(Array), typeof(int));
 
         internal static readonly MethodInfo EqualityComparerHashCodeMethod
-            = typeof(IEqualityComparer).GetRequiredRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) });
+            = typeof(IEqualityComparer).GetRequiredRuntimeMethod(nameof(IEqualityComparer.GetHashCode), typeof(object));
 
         internal static readonly MethodInfo EqualityComparerEqualsMethod
-            = typeof(IEqualityComparer).GetRequiredRuntimeMethod(nameof(IEqualityComparer.Equals), new[] { typeof(object), typeof(object) });
+            = typeof(IEqualityComparer).GetRequiredRuntimeMethod(nameof(IEqualityComparer.Equals), typeof(object), typeof(object));
 
         internal static readonly MethodInfo ObjectEqualsMethod
-            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
         internal static readonly MethodInfo ObjectGetHashCodeMethod
             = typeof(object).GetRequiredRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes);

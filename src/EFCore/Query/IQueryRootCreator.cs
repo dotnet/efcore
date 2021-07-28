@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     Service which can create a new <see cref="QueryRootExpression"/> given the entity type and source expression.
+    ///     Service which can create a new <see cref="QueryRootExpression" /> given the entity type and source expression.
     /// </summary>
     public interface IQueryRootCreator
     {
         /// <summary>
-        ///     Creates a new <see cref="QueryRootExpression"/>.
+        ///     Creates a new <see cref="QueryRootExpression" />.
         /// </summary>
-        /// <param name="entityType">Entity type of the new <see cref="QueryRootExpression"/>.</param>
+        /// <param name="entityType">Entity type of the new <see cref="QueryRootExpression" />.</param>
         /// <param name="source">Source expression.</param>
         QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source);
 

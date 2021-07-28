@@ -19,16 +19,16 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo _stringCompareWithComparisonMethod =
-            typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string), typeof(StringComparison) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), typeof(string), typeof(string), typeof(StringComparison));
 
         private static readonly MethodInfo _stringCompareWithoutComparisonMethod =
-            typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), typeof(string), typeof(string));
 
         private static readonly MethodInfo _startsWithMethodInfo =
-            typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
 
         private static readonly MethodInfo _endsWithMethodInfo =
-            typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
+            typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
 
         private static readonly Expression _constantNullString = Expression.Constant(null, typeof(string));
 
@@ -163,15 +163,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 return textCompareConstantExpression.Value is bool boolValue
                     && boolValue
-                    ? Expression.Call(
-                        _stringCompareWithComparisonMethod,
-                        visited.Arguments[0],
-                        visited.Arguments[1],
-                        Expression.Constant(StringComparison.OrdinalIgnoreCase))
-                    : Expression.Call(
-                        _stringCompareWithoutComparisonMethod,
-                        visited.Arguments[0],
-                        visited.Arguments[1]);
+                        ? Expression.Call(
+                            _stringCompareWithComparisonMethod,
+                            visited.Arguments[0],
+                            visited.Arguments[1],
+                            Expression.Constant(StringComparison.OrdinalIgnoreCase))
+                        : Expression.Call(
+                            _stringCompareWithoutComparisonMethod,
+                            visited.Arguments[0],
+                            visited.Arguments[1]);
             }
 
             return visited;
@@ -416,7 +416,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         return true;
                     }
-                    else if (methodCallExpression.Arguments.Count == 2
+
+                    if (methodCallExpression.Arguments.Count == 2
                         && methodCallExpression.Arguments[0].Type == methodCallExpression.Arguments[1].Type)
                     {
                         (left, right) = (methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]);

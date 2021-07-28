@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -37,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         Type ClrType { get; }
 
         /// <summary>
-        ///     Gets a value indicating whether this entity type is mapped to a <see cref="Type"/> that
+        ///     Gets a value indicating whether this entity type is mapped to a <see cref="Type" /> that
         ///     other entity types are also mapped to.
         /// </summary>
         bool HasSharedClrType { get; }
@@ -53,7 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> <see langword="true" /> if the type is abstract, <see langword="false" /> otherwise. </returns>
         [DebuggerStepThrough]
-        bool IsAbstract() => ClrType.IsAbstract;
+        bool IsAbstract()
+            => ClrType.IsAbstract;
 
         /// <summary>
         ///     Gets the friendly display name for the given <see cref="IReadOnlyTypeBase" />.
@@ -94,8 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return shortName == Name
-                       ? shortName + " (" + ClrType.ShortDisplayName() + ")"
-                       : shortName;
+                ? shortName + " (" + ClrType.ShortDisplayName() + ")"
+                : shortName;
         }
 
         /// <summary>
@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 {
                     var dotIndex = Name.LastIndexOf(".", StringComparison.Ordinal);
                     return dotIndex == -1
-                            ? Name
-                            : Name[(dotIndex + 1)..];
+                        ? Name
+                        : Name[(dotIndex + 1)..];
                 }
 
                 return Name[(plusIndex + 1)..];
@@ -153,9 +153,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         PropertyAccessMode GetNavigationAccessMode();
 
         /// <summary>
-        ///     Returns the <see cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists.
+        ///     Returns the <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.
         /// </summary>
-        /// <returns> The <see cref="PropertyInfo"/> for the indexer on the associated CLR type if one exists. </returns>
+        /// <returns> The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists. </returns>
         PropertyInfo? FindIndexerPropertyInfo();
     }
 }

@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyNavigation)this).ToDebugString(),
                 () => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>

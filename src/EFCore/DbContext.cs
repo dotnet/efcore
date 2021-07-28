@@ -440,7 +440,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Override this method to set defaults and configure conventions before they run. This method is invoked before
-        ///     <see cref="OnModelCreating"/>.
+        ///     <see cref="OnModelCreating" />.
         /// </summary>
         /// <remarks>
         ///     If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)" />)
@@ -1845,6 +1845,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         #region Hidden System.Object members
+
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
@@ -1869,6 +1870,7 @@ namespace Microsoft.EntityFrameworkCore
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();
+
         #endregion
     }
 }

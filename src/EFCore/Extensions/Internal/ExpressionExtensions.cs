@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
 
         private static readonly MethodInfo _objectEqualsMethodInfo
-            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+            = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                                     ValueBuffer.GetValueMethod,
                                     Expression.Constant(i)),
                                 typeof(object)))
-                        : (Expression)Expression.Equal(
+                        : Expression.Equal(
                             Expression.Call(
                                 EF.PropertyMethod.MakeGenericMethod(property.ClrType),
                                 entityParameterExpression,

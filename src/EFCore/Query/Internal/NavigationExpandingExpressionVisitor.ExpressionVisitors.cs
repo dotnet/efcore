@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private class ExpandingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _objectEqualsMethodInfo
-                = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+                = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
             private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
             private readonly NavigationExpansionExpression _source;
@@ -1167,7 +1167,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 switch (expression)
                 {
                     case MemberExpression memberExpression
-                    when memberExpression.Expression != null:
+                        when memberExpression.Expression != null:
                         var innerExpression = ProcessNavigationPath(memberExpression.Expression);
                         if (innerExpression is NavigationDataExpression navigationDataExpression
                             && navigationDataExpression.EntityType != null)

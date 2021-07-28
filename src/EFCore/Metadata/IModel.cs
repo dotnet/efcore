@@ -145,9 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 .Cast<IEntityType>();
 
         /// <summary>
-        ///     Gets a value indicating whether the given <see cref="MethodInfo"/> reprensents an indexer access.
+        ///     Gets a value indicating whether the given <see cref="MethodInfo" /> reprensents an indexer access.
         /// </summary>
-        /// <param name="methodInfo"> The <see cref="MethodInfo"/> to check. </param>
+        /// <param name="methodInfo"> The <see cref="MethodInfo" /> to check. </param>
         bool IsIndexerMethod(MethodInfo methodInfo);
     }
 }

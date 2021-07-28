@@ -84,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             _changeTrackingLogger = dependencies.ChangeTrackingLogger;
             _changeDetectorInitialized = false;
         }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -415,7 +416,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? throwOnTypeMismatch
                         ? throw new InvalidOperationException(
                             CoreStrings.TrackingTypeMismatch(entry.EntityType.DisplayName(), entityType.DisplayName()))
-                        : (InternalEntityEntry?)null
+                        : null
                     : entry
                 : null;
 
@@ -699,7 +700,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void CompleteAttachGraph()
             => Dependencies.NavigationFixer.CompleteAttachGraph();
-        
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

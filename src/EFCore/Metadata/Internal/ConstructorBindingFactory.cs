@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             out InstantiationBinding? serviceOnlyBinding)
             => GetBindings(
                 entityType,
-                static (f, e, p, n) => f?.Bind((IConventionEntityType)e, p, n),
+                static(f, e, p, n) => f?.Bind((IConventionEntityType)e, p, n),
                 out constructorBinding,
                 out serviceOnlyBinding);
 
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             out InstantiationBinding? serviceOnlyBinding)
             => GetBindings(
                 entityType,
-                static (f, e, p, n) => f?.Bind((IMutableEntityType)e, p, n),
+                static(f, e, p, n) => f?.Bind((IMutableEntityType)e, p, n),
                 out constructorBinding,
                 out serviceOnlyBinding);
 
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             out InstantiationBinding? serviceOnlyBinding)
             => GetBindings(
                 entityType,
-                static (f, e, p, n) => f?.Bind(e, p, n),
+                static(f, e, p, n) => f?.Bind(e, p, n),
                 out constructorBinding,
                 out serviceOnlyBinding);
 
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => TryBindConstructor(
                 entityType,
                 constructor,
-                static (f, e, p, n) => f?.Bind((IMutableEntityType)e, p, n),
+                static(f, e, p, n) => f?.Bind((IMutableEntityType)e, p, n),
                 out binding,
                 out unboundParameters);
 
@@ -234,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => TryBindConstructor(
                 entityType,
                 constructor,
-                static (f, e, p, n) => f?.Bind((IConventionEntityType)e, p, n),
+                static(f, e, p, n) => f?.Bind((IConventionEntityType)e, p, n),
                 out binding,
                 out unboundParameters);
 

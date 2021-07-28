@@ -102,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool IsReadOnly => DeclaringEntityType.Model.IsReadOnly;
+        public override bool IsReadOnly
+            => DeclaringEntityType.Model.IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -205,7 +206,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IReadOnlyKey)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyKey)this).ToDebugString(),
                 () => ((IReadOnlyKey)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>

@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         [EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> Services
-            = new Dictionary<Type, ServiceCharacteristics>{
+            = new Dictionary<Type, ServiceCharacteristics>
+            {
                 { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICSharpRuntimeAnnotationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) }

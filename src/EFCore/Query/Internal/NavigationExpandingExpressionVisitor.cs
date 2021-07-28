@@ -228,7 +228,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 // due to SubqueryMemberPushdown, this may be collection navigation which was not pushed down
                 navigationExpansionExpression =
                     (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(navigationExpansionExpression);
-                var expandedExpression = new ExpandingExpressionVisitor(this, navigationExpansionExpression, _queryRootCreator).Visit(updatedExpression);
+                var expandedExpression =
+                    new ExpandingExpressionVisitor(this, navigationExpansionExpression, _queryRootCreator).Visit(updatedExpression);
                 if (expandedExpression != updatedExpression)
                 {
                     updatedExpression = Visit(expandedExpression);
@@ -575,7 +576,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 if (firstArgument.Type.TryGetElementType(typeof(IQueryable<>)) == null)
                 {
                     // firstArgument was not an queryable
-                    var visitedArguments = new [] { firstArgument }
+                    var visitedArguments = new[] { firstArgument }
                         .Concat(methodCallExpression.Arguments.Skip(1).Select(e => Visit(e)!));
 
                     return ConvertToEnumerable(method, visitedArguments);
@@ -841,7 +842,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private NavigationExpansionExpression ProcessInclude(
-            NavigationExpansionExpression source, Expression expression, bool thenInclude, bool setLoaded)
+            NavigationExpansionExpression source,
+            Expression expression,
+            bool thenInclude,
+            bool setLoaded)
         {
             if (source.PendingSelector is NavigationTreeExpression navigationTree
                 && navigationTree.Value is EntityReference entityReference)
@@ -1507,11 +1511,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 : Array.Empty<Type>();
 
             var enumerableArguments = arguments.Select(
-                    arg => arg is UnaryExpression unaryExpression
-                        && unaryExpression.NodeType == ExpressionType.Quote
-                        && unaryExpression.Operand is LambdaExpression
-                            ? unaryExpression.Operand
-                            : arg).ToList();
+                arg => arg is UnaryExpression unaryExpression
+                    && unaryExpression.NodeType == ExpressionType.Quote
+                    && unaryExpression.Operand is LambdaExpression
+                        ? unaryExpression.Operand
+                        : arg).ToList();
 
             if (queryableMethod.Name == nameof(Enumerable.Min))
             {
@@ -1768,7 +1772,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         }
 
         private void VerifyNoAutoIncludeCycles(
-            IEntityType entityType, HashSet<IEntityType> visitedEntityTypes, List<INavigationBase> navigationChain)
+            IEntityType entityType,
+            HashSet<IEntityType> visitedEntityTypes,
+            List<INavigationBase> navigationChain)
         {
             if (_nonCyclicAutoIncludeEntityTypes.Contains(entityType))
             {
@@ -1777,8 +1783,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (!visitedEntityTypes.Add(entityType))
             {
-                throw new InvalidOperationException(CoreStrings.AutoIncludeNavigationCycle(
-                    navigationChain.Select(e => $"'{e.DeclaringEntityType.ShortName()}.{e.Name}'").Join()));
+                throw new InvalidOperationException(
+                    CoreStrings.AutoIncludeNavigationCycle(
+                        navigationChain.Select(e => $"'{e.DeclaringEntityType.ShortName()}.{e.Name}'").Join()));
             }
 
             var autoIncludedNavigations = GetOutgoingEagerLoadedNavigations(entityType)
@@ -1818,7 +1825,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     return includeTreeNode;
 
                 case MemberExpression memberExpression
-                when memberExpression.Expression != null:
+                    when memberExpression.Expression != null:
                     var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
                     var innerIncludeTreeNode = PopulateIncludeTree(includeTreeNode, innerExpression, setLoaded);
                     var entityType = innerIncludeTreeNode.EntityType;
@@ -1886,7 +1893,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                     return allDefault
                         ? Expression.Default(newExpression.Type)
-                        : (Expression)newExpression.Update(arguments);
+                        : newExpression.Update(arguments);
                 }
 
                 case OwnedNavigationReference ownedNavigationReference:

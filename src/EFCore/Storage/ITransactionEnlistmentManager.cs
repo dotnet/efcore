@@ -19,7 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The current ambient transaction. Defaults to <see cref="Transaction.Current" />.
         /// </summary>
-        Transaction? CurrentAmbientTransaction => Transaction.Current;
+        Transaction? CurrentAmbientTransaction
+            => Transaction.Current;
 
         /// <summary>
         ///     The currently enlisted transaction.

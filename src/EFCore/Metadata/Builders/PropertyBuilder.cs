@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         usually handled automatically by the database provider.
         ///     </para>
         ///     <para>
-        ///         Setting <see langword="null"/> does not disable value generation for this property, it just clears any generator explicitly
+        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
         ///         configured for this property. The database provider may still have a value generator for the property type.
         ///     </para>
         /// </summary>
@@ -266,7 +266,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         usually handled automatically by the database provider.
         ///     </para>
         ///     <para>
-        ///         Setting <see langword="null"/> does not disable value generation for this property, it just clears any generator explicitly
+        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
         ///         configured for this property. The database provider may still have a value generator for the property type.
         ///     </para>
         /// </summary>
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         usually handled automatically by the database provider.
         ///     </para>
         ///     <para>
-        ///         Setting <see langword="null"/> does not disable value generation for this property, it just clears any generator explicitly
+        ///         Setting <see langword="null" /> does not disable value generation for this property, it just clears any generator explicitly
         ///         configured for this property. The database provider may still have a value generator for the property type.
         ///     </para>
         /// </summary>
@@ -520,8 +520,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted to and from the database
         ///     using the given <see cref="ValueConverter" />.
         /// </summary>
-        /// <typeparam name="TConverter"> A type that derives from <see cref="ValueConverter"/>. </typeparam>
-        /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer"/>. </typeparam>
+        /// <typeparam name="TConverter"> A type that derives from <see cref="ValueConverter" />. </typeparam>
+        /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer" />. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder HasConversion<TConverter, TComparer>()
             where TConverter : ValueConverter
@@ -532,8 +532,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted to and from the database
         ///     using the given <see cref="ValueConverter" />.
         /// </summary>
-        /// <param name="converterType"> A type that derives from <see cref="ValueConverter"/>. </param>
-        /// <param name="comparerType"> A type that derives from <see cref="ValueComparer"/>. </param>
+        /// <param name="converterType"> A type that derives from <see cref="ValueConverter" />. </param>
+        /// <param name="comparerType"> A type that derives from <see cref="ValueComparer" />. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual PropertyBuilder HasConversion(Type converterType, Type? comparerType)
         {

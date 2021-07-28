@@ -48,8 +48,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = new(StringComparer.Ordinal);
         private Dictionary<string, ConfigurationSource>? _ownedTypes;
+
         private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
-            new() { { DefaultPropertyBagType, (ConfigurationSource.Convention, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) } };
+            new()
+            {
+                {
+                    DefaultPropertyBagType, (ConfigurationSource.Convention, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance))
+                }
+            };
 
         private ConventionDispatcher? _conventionDispatcher;
         private IList<IModelFinalizedConvention>? _modelFinalizedConventions;
@@ -82,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 ScopedModelDependencies = modelDependencies;
             }
+
             var dispatcher = new ConventionDispatcher(conventions);
             var builder = new InternalModelBuilder(this);
             _conventionDispatcher = dispatcher;
@@ -119,7 +126,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Indicates whether the model is read-only.
         /// </summary>
-        public override bool IsReadOnly => _conventionDispatcher == null;
+        public override bool IsReadOnly
+            => _conventionDispatcher == null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ModelConfiguration? Configuration { get; private set; }
+        public virtual ModelConfiguration? Configuration { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -434,12 +442,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => entityType.IsInModel
                 ? entityType
                 : FindEntityType(entityType.Name)
-                    ?? (entityType.HasSharedClrType
-                        ? entityType.FindOwnership() is ForeignKey ownership
-                            ? FindActualEntityType(ownership.PrincipalEntityType)
-                                ?.FindNavigation(ownership.PrincipalToDependent!.Name)?.TargetEntityType
-                            : null
-                        : null);
+                ?? (entityType.HasSharedClrType
+                    ? entityType.FindOwnership() is ForeignKey ownership
+                        ? FindActualEntityType(ownership.PrincipalEntityType)
+                            ?.FindNavigation(ownership.PrincipalToDependent!.Name)?.TargetEntityType
+                        : null
+                    : null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -514,7 +522,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsShared(Type type)
             => FindIsSharedConfigurationSource(type) != null
-            || Configuration?.GetConfigurationType(type) == TypeConfigurationType.SharedTypeEntityType;
+                || Configuration?.GetConfigurationType(type) == TypeConfigurationType.SharedTypeEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -657,7 +665,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool IsOwned(Type type)
             => FindIsOwnedConfigurationSource(type) != null
-               || Configuration?.GetConfigurationType(type) == TypeConfigurationType.OwnedEntityType;
+                || Configuration?.GetConfigurationType(type) == TypeConfigurationType.OwnedEntityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -855,7 +863,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _changeTrackingStrategy = changeTrackingStrategy;
 
             _changeTrackingStrategyConfigurationSource = _changeTrackingStrategy == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_changeTrackingStrategyConfigurationSource);
 
             return changeTrackingStrategy;
@@ -1025,7 +1033,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IReadOnlyModel)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyModel)this).ToDebugString(),
                 () => ((IReadOnlyModel)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>
@@ -1167,7 +1175,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [DebuggerStepThrough]
-        IReadOnlyEntityType? IReadOnlyModel.FindEntityType(string name, string definingNavigationName, IReadOnlyEntityType definingEntityType)
+        IReadOnlyEntityType? IReadOnlyModel.FindEntityType(
+            string name,
+            string definingNavigationName,
+            IReadOnlyEntityType definingEntityType)
             => FindEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
         /// <summary>
@@ -1340,7 +1351,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionEntityType? IConventionModel.AddEntityType(string name, Type type, bool fromDataAnnotation)
-            => AddEntityType(name, type, owned: false, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+            => AddEntityType(
+                name, type, owned: false, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1460,7 +1472,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionEntityType? IConventionModel.AddOwnedEntityType(string name, Type type, bool fromDataAnnotation)
-            => AddEntityType(name, type, owned: true,
+            => AddEntityType(
+                name, type, owned: true,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -1511,7 +1524,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableEntityType? IMutableModel.RemoveEntityType(
-            Type type, string definingNavigationName, IMutableEntityType definingEntityType)
+            Type type,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType)
             => RemoveEntityType(type, definingNavigationName, (EntityType)definingEntityType);
 
         /// <summary>
@@ -1522,7 +1537,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionEntityType? IConventionModel.RemoveEntityType(
-            Type type, string definingNavigationName, IConventionEntityType definingEntityType)
+            Type type,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType)
             => RemoveEntityType(type, definingNavigationName, (EntityType)definingEntityType);
 
         /// <summary>
@@ -1553,7 +1570,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IMutableEntityType? IMutableModel.RemoveEntityType(
-            string name, string definingNavigationName, IMutableEntityType definingEntityType)
+            string name,
+            string definingNavigationName,
+            IMutableEntityType definingEntityType)
             => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
         /// <summary>
@@ -1564,7 +1583,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [DebuggerStepThrough]
         IConventionEntityType? IConventionModel.RemoveEntityType(
-            string name, string definingNavigationName, IConventionEntityType definingEntityType)
+            string name,
+            string definingNavigationName,
+            IConventionEntityType definingEntityType)
             => RemoveEntityType(name, definingNavigationName, (EntityType)definingEntityType);
 
         /// <summary>
