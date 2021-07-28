@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         null,
                         null,
                         null,
-                        _detailedErrorsEnabled),
+                        _detailedErrorsEnabled, CommandSource.FromSqlQuery),
                     Guid.Empty,
                     (DbCommandMethod)(-1));
 
@@ -238,7 +238,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._relationalCommandCache.ReaderColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled));
+                        enumerator._detailedErrorsEnabled, CommandSource.FromSqlQuery));
 
                 enumerator._indexMap = BuildIndexMap(enumerator._columnNames, enumerator._dataReader.DbDataReader);
 
@@ -353,7 +353,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._relationalCommandCache.ReaderColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled),
+                        enumerator._detailedErrorsEnabled, CommandSource.FromSqlQuery),
                     cancellationToken)
                     .ConfigureAwait(false);
 

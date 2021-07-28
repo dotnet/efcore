@@ -282,7 +282,10 @@ namespace Microsoft.EntityFrameworkCore
                 CancellationToken cancellationToken = default)
                 => throw new NotImplementedException();
 
-            public DbCommand CreateDbCommand(RelationalCommandParameterObject parameterObject, Guid commandId, DbCommandMethod commandMethod)
+            public DbCommand CreateDbCommand(
+                RelationalCommandParameterObject parameterObject,
+                Guid commandId,
+                DbCommandMethod commandMethod)
                 => throw new NotImplementedException();
 
             public object ExecuteScalar(RelationalCommandParameterObject parameterObject)

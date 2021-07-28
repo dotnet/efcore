@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     parameterValues,
                     null,
                     _context,
-                    CommandLogger));
+                    CommandLogger, CommandSource.Migrations));
 
         /// <summary>
         ///     Executes the command and returns the number of rows affected.
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     parameterValues,
                     null,
                     _context,
-                    CommandLogger),
+                    CommandLogger, CommandSource.Migrations),
                 cancellationToken);
     }
 }

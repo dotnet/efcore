@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _relationalQueryContext.ParameterValues,
                         null,
                         null,
-                        null),
+                        null, CommandSource.LinqQuery),
                     Guid.Empty,
                     (DbCommandMethod)(-1));
 
@@ -234,7 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._relationalCommandCache.ReaderColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled));
+                        enumerator._detailedErrorsEnabled, 
+                        CommandSource.LinqQuery));
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
                 enumerator._resultCoordinator = new SingleQueryResultCoordinator();
@@ -381,7 +382,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._relationalCommandCache.ReaderColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled),
+                        enumerator._detailedErrorsEnabled, CommandSource.LinqQuery),
                     cancellationToken)
                     .ConfigureAwait(false);
                 enumerator._dbDataReader = dataReader.DbDataReader;

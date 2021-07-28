@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -141,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             null,
                             null,
                             Dependencies.CurrentContext.Context,
-                            Dependencies.CommandLogger)));
+                            Dependencies.CommandLogger, CommandSource.Migrations)));
 
         /// <summary>
         ///     Checks whether or not the history table exists.
@@ -161,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             null,
                             null,
                             Dependencies.CurrentContext.Context,
-                            Dependencies.CommandLogger),
+                            Dependencies.CommandLogger, CommandSource.Migrations),
                         cancellationToken).ConfigureAwait(false));
 
         /// <summary>
@@ -226,7 +227,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         null,
                         null,
                         Dependencies.CurrentContext.Context,
-                        Dependencies.CommandLogger));
+                        Dependencies.CommandLogger, CommandSource.Migrations));
                 while (reader.Read())
                 {
                     rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
@@ -260,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         null,
                         null,
                         Dependencies.CurrentContext.Context,
-                        Dependencies.CommandLogger),
+                        Dependencies.CommandLogger, CommandSource.Migrations),
                     cancellationToken).ConfigureAwait(false);
                 while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {

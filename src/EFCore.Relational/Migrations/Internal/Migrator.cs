@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         null,
                         null,
                         _currentContext.Context,
-                        _commandLogger));
+                        _commandLogger, CommandSource.Migrations));
             }
 
             var commandLists = GetMigrationCommandLists(_historyRepository.GetAppliedMigrations(), targetMigration);
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             null,
                             null,
                             _currentContext.Context,
-                            _commandLogger),
+                            _commandLogger, CommandSource.Migrations),
                         cancellationToken)
                     .ConfigureAwait(false);
             }

@@ -24,6 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
         /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
         /// <param name="startTime"> The start time of this event. </param>
+        [Obsolete("Use the overload with CommandSource")]
         public CommandCorrelatedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,
@@ -34,6 +35,45 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             Guid connectionId,
             bool async,
             DateTimeOffset startTime)
+            : this(
+                eventDefinition,
+                messageGenerator,
+                connection,
+                context,
+                executeMethod,
+                commandId,
+                connectionId,
+                async,
+                startTime,
+                CommandSource.Unknown)
+        {
+            
+        }
+
+        /// <summary>
+        ///     Constructs the event payload.
+        /// </summary>
+        /// <param name="eventDefinition"> The event definition. </param>
+        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="connection"> The <see cref="DbConnection" /> being used. </param>
+        /// <param name="context"> The <see cref="DbContext" /> currently being used, to null if not known. </param>
+        /// <param name="executeMethod"> The <see cref="DbCommand" /> method. </param>
+        /// <param name="commandId"> A correlation ID that identifies the <see cref="DbCommand" /> instance being used. </param>
+        /// <param name="connectionId"> A correlation ID that identifies the <see cref="DbConnection" /> instance being used. </param>
+        /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
+        /// <param name="startTime"> The start time of this event. </param>
+        /// <param name="commandSource">Source of the command.</param>
+        public CommandCorrelatedEventData(
+            EventDefinitionBase eventDefinition,
+            Func<EventDefinitionBase, EventData, string> messageGenerator,
+            DbConnection connection,
+            DbContext? context,
+            DbCommandMethod executeMethod,
+            Guid commandId,
+            Guid connectionId,
+            bool async,
+            DateTimeOffset startTime,
+            CommandSource commandSource)
             : base(eventDefinition, messageGenerator, context)
         {
             Connection = connection;
@@ -42,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ExecuteMethod = executeMethod;
             IsAsync = async;
             StartTime = startTime;
+            CommandSource = commandSource;
         }
 
         /// <summary>
@@ -73,5 +114,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The start time of this event.
         /// </summary>
         public virtual DateTimeOffset StartTime { get; }
+
+        /// <summary>
+        /// Source of the command.
+        /// </summary>
+        public virtual CommandSource CommandSource { get; }
     }
 }

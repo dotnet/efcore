@@ -101,7 +101,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             context,
                             commandId,
                             connection.ConnectionId,
-                            startTime)
+                            startTime,
+                            parameterObject.CommandSource)
                         ?? default;
 
                     var nonQueryResult = interceptionResult.HasResult
@@ -116,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             nonQueryResult,
                             startTime,
+                            parameterObject.CommandSource,
                             _stopwatch.Elapsed)
                         ?? nonQueryResult;
                 }
@@ -135,6 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
+                    parameterObject.CommandSource,
                     _stopwatch.Elapsed);
 
                 throw;
@@ -187,6 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 commandId,
                                 connection.ConnectionId,
                                 startTime,
+                                parameterObject.CommandSource,
                                 cancellationToken)
                             .ConfigureAwait(false);
 
@@ -204,6 +208,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 connection.ConnectionId,
                                 result,
                                 startTime,
+                                parameterObject.CommandSource,
                                 _stopwatch.Elapsed,
                                 cancellationToken)
                             .ConfigureAwait(false);
@@ -229,6 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
+                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -275,7 +281,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             context,
                             commandId,
                             connection.ConnectionId,
-                            startTime)
+                            startTime,
+                            parameterObject.CommandSource)
                         ?? default;
 
                     var result = interceptionResult.HasResult
@@ -290,6 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             result,
                             startTime,
+                            parameterObject.CommandSource,
                             _stopwatch.Elapsed)
                         ?? result;
                 }
@@ -309,6 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
+                    parameterObject.CommandSource,
                     _stopwatch.Elapsed);
 
                 throw;
@@ -361,6 +370,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 commandId,
                                 connection.ConnectionId,
                                 startTime,
+                                parameterObject.CommandSource,
                                 cancellationToken)
                             .ConfigureAwait(false);
 
@@ -378,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             result,
                             startTime,
+                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
                             cancellationToken).ConfigureAwait(false);
                     }
@@ -402,6 +413,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
+                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -455,7 +467,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         context,
                         commandId,
                         connection.ConnectionId,
-                        startTime);
+                        startTime,
+                        parameterObject.CommandSource);
 
                     reader = interceptionResult.HasResult
                         ? interceptionResult.Result
@@ -469,6 +482,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         connection.ConnectionId,
                         reader,
                         startTime,
+                        parameterObject.CommandSource,
                         _stopwatch.Elapsed);
                 }
                 else
@@ -487,6 +501,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
+                    parameterObject.CommandSource,
                     _stopwatch.Elapsed);
 
                 CleanupCommand(command, connection);
@@ -568,6 +583,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             commandId,
                             connection.ConnectionId,
                             startTime,
+                            parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
 
@@ -583,6 +599,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             reader,
                             startTime,
+                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -605,6 +622,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
+                            parameterObject.CommandSource,
                             DateTimeOffset.UtcNow - startTime,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -675,14 +693,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _stopwatch.Restart();
 
                 var interceptionResult = logger.CommandCreating(
-                    connection, commandMethod, context, commandId, connectionId, startTime);
+                    connection, commandMethod, context, commandId, connectionId, startTime,
+                    parameterObject.CommandSource);
 
                 command = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : connection.DbConnection.CreateCommand();
 
                 command = logger.CommandCreated(
-                    connection, command, commandMethod, context, commandId, connectionId, startTime, _stopwatch.Elapsed);
+                    connection, command, commandMethod, context, commandId, connectionId, startTime, parameterObject.CommandSource, _stopwatch.Elapsed);
             }
             else
             {

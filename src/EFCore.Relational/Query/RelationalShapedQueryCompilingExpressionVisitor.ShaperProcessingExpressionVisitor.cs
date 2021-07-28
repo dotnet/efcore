@@ -1414,7 +1414,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 relationalCommandCache.ReaderColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
-                                detailedErrorsEnabled));
+                                detailedErrorsEnabled, CommandSource.LinqQuery));
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
@@ -1503,7 +1503,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                     relationalCommandCache.ReaderColumns,
                                     queryContext.Context,
                                     queryContext.CommandLogger,
-                                    detailedErrorsEnabled),
+                                    detailedErrorsEnabled, CommandSource.LinqQuery),
                                 cancellationToken)
                             .ConfigureAwait(false);
                     }
@@ -1743,7 +1743,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 relationalCommandCache.ReaderColumns,
                                 queryContext.Context,
                                 queryContext.CommandLogger,
-                                detailedErrorsEnabled));
+                                detailedErrorsEnabled, CommandSource.LinqQuery));
                     }
 
                     resultCoordinator.SetDataReader(collectionId, dataReader);
@@ -1816,14 +1816,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                         var relationalCommand = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
 
                         return await relationalCommand.ExecuteReaderAsync(
-                                new RelationalCommandParameterObject(
-                                    queryContext.Connection,
-                                    queryContext.ParameterValues,
-                                    relationalCommandCache.ReaderColumns,
-                                    queryContext.Context,
-                                    queryContext.CommandLogger,
-                                    detailedErrorsEnabled),
-                                cancellationToken)
+                            new RelationalCommandParameterObject(
+                                queryContext.Connection,
+                                queryContext.ParameterValues,
+                                relationalCommandCache.ReaderColumns,
+                                queryContext.Context,
+                                queryContext.CommandLogger,
+                                detailedErrorsEnabled, 
+                                CommandSource.LinqQuery),
+                            cancellationToken)
                             .ConfigureAwait(false);
                     }
 

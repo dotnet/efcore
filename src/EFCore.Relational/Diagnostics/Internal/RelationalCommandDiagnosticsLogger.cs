@@ -66,7 +66,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             _suppressCommandCreateExpiration = startTime + _loggingCacheTime;
 
@@ -92,6 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     async: false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -113,6 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             EventDefinition<string> definition,
             bool diagnosticSourceEnabled,
             bool simpleLogEnabled)
@@ -126,7 +129,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 commandId,
                 connectionId,
                 async,
-                startTime);
+                startTime,
+                commandSource);
 
             DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
@@ -158,6 +162,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogCommandCreated(this);
@@ -183,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     async: false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -206,6 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             EventDefinition<string, int> definition,
             bool diagnosticSourceEnabled,
@@ -223,6 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 async,
                 false,
                 startTime,
+                commandSource,
                 duration);
 
             DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -253,7 +261,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
@@ -286,6 +295,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -311,7 +321,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
@@ -344,6 +355,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -369,7 +381,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             DbContext? context,
             Guid commandId,
             Guid connectionId,
-            DateTimeOffset startTime)
+            DateTimeOffset startTime,
+            CommandSource commandSource)
         {
             _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
 
@@ -402,6 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     false,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -428,6 +442,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
         {
             _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
@@ -461,6 +476,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     async: true,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -487,6 +503,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
         {
             _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
@@ -520,6 +537,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     async: true,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -546,6 +564,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
         {
             _suppressCommandExecuteExpiration = startTime + _loggingCacheTime;
@@ -579,6 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     connectionId,
                     async: true,
                     startTime,
+                    commandSource,
                     definition,
                     diagnosticSourceEnabled,
                     simpleLogEnabled);
@@ -601,6 +621,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             EventDefinition<string, CommandType, int, string, string> definition,
             bool diagnosticSourceEnabled,
             bool simpleLogEnabled)
@@ -616,7 +637,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 connectionId,
                 async,
                 ShouldLogParameterValues(command),
-                startTime);
+                startTime,
+                commandSource);
 
             DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
@@ -653,6 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             DbDataReader methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogExecutedCommand(this);
@@ -686,6 +709,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     methodResult,
                     async: false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -714,6 +738,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             object? methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogExecutedCommand(this);
@@ -747,6 +772,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     methodResult,
                     async: false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -775,6 +801,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             int methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogExecutedCommand(this);
@@ -808,6 +835,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     methodResult,
                     async: false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -836,6 +864,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             DbDataReader methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -870,6 +899,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     methodResult,
                     async: true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -898,6 +928,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             object? methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -932,6 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     methodResult,
                     async: true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -960,6 +992,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             int methodResult,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -994,6 +1027,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     methodResult,
                     async: true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -1018,6 +1052,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             object? methodResult,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition,
             bool diagnosticSourceEnabled,
@@ -1036,6 +1071,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 async,
                 ShouldLogParameterValues(command),
                 startTime,
+                commandSource,
                 duration);
 
             DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
@@ -1075,6 +1111,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             Exception exception,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration)
         {
             var definition = RelationalResources.LogCommandFailed(this);
@@ -1094,6 +1131,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     exception,
                     false,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -1136,6 +1174,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Guid connectionId,
             Exception exception,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             CancellationToken cancellationToken = default)
         {
@@ -1156,6 +1195,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     exception,
                     true,
                     startTime,
+                    commandSource,
                     duration,
                     definition,
                     diagnosticSourceEnabled,
@@ -1180,6 +1220,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             Exception exception,
             bool async,
             DateTimeOffset startTime,
+            CommandSource commandSource,
             TimeSpan duration,
             EventDefinition<string, string, CommandType, int, string, string> definition,
             bool diagnosticSourceEnabled,
@@ -1198,6 +1239,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 async,
                 ShouldLogParameterValues(command),
                 startTime,
+                commandSource,
                 duration);
 
             DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);

@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class PassiveReaderCommandInterceptor : CommandInterceptorBase
         {
             public PassiveReaderCommandInterceptor()
-                : base(DbCommandMethod.ExecuteReader)
+                : base(DbCommandMethod.ExecuteReader, CommandSource.FromSqlQuery)
             {
             }
         }
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class PassiveNonQueryCommandInterceptor : CommandInterceptorBase
         {
             public PassiveNonQueryCommandInterceptor()
-                : base(DbCommandMethod.ExecuteNonQuery)
+                : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
             {
             }
         }
@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class SuppressingReaderCommandInterceptor : CommandInterceptorBase
         {
             public SuppressingReaderCommandInterceptor()
-                : base(DbCommandMethod.ExecuteReader)
+                : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
             {
             }
 
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class SuppressingCreateCommandInterceptor : CommandInterceptorBase
         {
             public SuppressingCreateCommandInterceptor()
-                : base(DbCommandMethod.ExecuteReader)
+                : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
             {
             }
 
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class SuppressingNonQueryCommandInterceptor : CommandInterceptorBase
         {
             public SuppressingNonQueryCommandInterceptor()
-                : base(DbCommandMethod.ExecuteNonQuery)
+                : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
             {
             }
 
@@ -426,7 +426,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class MutatingReaderCommandInterceptor : CommandInterceptorBase
         {
             public MutatingReaderCommandInterceptor()
-                : base(DbCommandMethod.ExecuteReader)
+                : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
             {
             }
 
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore
             public readonly string MutatedSql;
 
             public MutatingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
-                : base(DbCommandMethod.ExecuteNonQuery)
+                : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
             {
                 MutatedSql =
                     testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
@@ -616,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class QueryReplacingReaderCommandInterceptor : CommandInterceptorBase
         {
             public QueryReplacingReaderCommandInterceptor()
-                : base(DbCommandMethod.ExecuteReader)
+                : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
             {
             }
 
@@ -762,7 +762,7 @@ namespace Microsoft.EntityFrameworkCore
             private readonly string commandText;
 
             public QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
-                : base(DbCommandMethod.ExecuteNonQuery)
+                : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
             {
                 commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
             }
@@ -838,7 +838,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class ResultReplacingReaderCommandInterceptor : CommandInterceptorBase
         {
             public ResultReplacingReaderCommandInterceptor()
-                : base(DbCommandMethod.ExecuteReader)
+                : base(DbCommandMethod.ExecuteReader, CommandSource.LinqQuery)
             {
             }
 
@@ -1045,7 +1045,7 @@ namespace Microsoft.EntityFrameworkCore
         protected class ResultReplacingNonQueryCommandInterceptor : CommandInterceptorBase
         {
             public ResultReplacingNonQueryCommandInterceptor()
-                : base(DbCommandMethod.ExecuteNonQuery)
+                : base(DbCommandMethod.ExecuteNonQuery, CommandSource.ExecuteSqlRaw)
             {
             }
 
@@ -1648,10 +1648,16 @@ namespace Microsoft.EntityFrameworkCore
         protected abstract class CommandInterceptorBase : IDbCommandInterceptor
         {
             private readonly DbCommandMethod _commandMethod;
+            private readonly CommandSource _commandSource;
 
-            protected CommandInterceptorBase(DbCommandMethod commandMethod)
+            protected CommandInterceptorBase(DbCommandMethod commandMethod) : this(commandMethod, CommandSource.Unknown)
+            {
+            }
+
+            protected CommandInterceptorBase(DbCommandMethod commandMethod, CommandSource commandSource)
             {
                 _commandMethod = commandMethod;
+                _commandSource = commandSource;
             }
 
             public DbContext Context { get; set; }
@@ -1659,6 +1665,7 @@ namespace Microsoft.EntityFrameworkCore
             public string CommandText { get; set; }
             public Guid CommandId { get; set; }
             public Guid ConnectionId { get; set; }
+            public CommandSource CommandSource { get; set; }
             public bool AsyncCalled { get; set; }
             public bool SyncCalled { get; set; }
             public bool ExecutingCalled { get; set; }
@@ -1878,11 +1885,13 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(CommandId, eventData.CommandId);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);
                 Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+                //Assert.Equal(_commandSource, eventData.CommandSource);
 
                 Context = eventData.Context;
                 CommandText = command.CommandText;
                 CommandId = eventData.CommandId;
                 ConnectionId = eventData.ConnectionId;
+                CommandSource = eventData.CommandSource;
                 ExecutingCalled = true;
             }
 
@@ -1893,6 +1902,7 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(CommandId, eventData.CommandId);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);
                 Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+                //Assert.Equal(_commandSource, eventData.CommandSource);
 
                 ExecutedCalled = true;
             }
@@ -1917,7 +1927,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(CommandId, eventData.CommandId);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);
                 Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+                //Assert.Equal(_commandSource, eventData.CommandSource);
 
+                CommandSource = eventData.CommandSource;
                 CreatedCalled = true;
             }
 
@@ -1928,8 +1940,10 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(CommandId, eventData.CommandId);
                 Assert.Equal(ConnectionId, eventData.ConnectionId);
                 Assert.Equal(_commandMethod, eventData.ExecuteMethod);
+                //Assert.Equal(_commandSource, eventData.CommandSource);
                 Assert.NotNull(eventData.Exception);
 
+                CommandSource = eventData.CommandSource;
                 Exception = eventData.Exception;
                 FailedCalled = true;
             }
