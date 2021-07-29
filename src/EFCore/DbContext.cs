@@ -47,8 +47,6 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </remarks>
     public class DbContext :
-        IDisposable,
-        IAsyncDisposable,
         IInfrastructure<IServiceProvider>,
         IDbContextDependencies,
         IDbSetCache,
@@ -725,42 +723,45 @@ namespace Microsoft.EntityFrameworkCore
         [EntityFrameworkInternal]
         void IDbContextPoolable.SetLease(DbContextLease lease)
         {
+            SetLeaseInternal(lease);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        Task IDbContextPoolable.SetLeaseAsync(DbContextLease lease, CancellationToken cancellationToken)
+        {
+            SetLeaseInternal(lease);
+
+            return Task.CompletedTask;
+        }
+
+        private void SetLeaseInternal(DbContextLease lease)
+        {
             _lease = lease;
             _disposed = false;
             ++_leaseCount;
 
-            if (_configurationSnapshot?.AutoDetectChangesEnabled != null)
-            {
-                Check.DebugAssert(
-                    _configurationSnapshot.QueryTrackingBehavior.HasValue, "!configurationSnapshot.QueryTrackingBehavior.HasValue");
-                Check.DebugAssert(_configurationSnapshot.LazyLoadingEnabled.HasValue, "!configurationSnapshot.LazyLoadingEnabled.HasValue");
-                Check.DebugAssert(
-                    _configurationSnapshot.CascadeDeleteTiming.HasValue, "!configurationSnapshot.CascadeDeleteTiming.HasValue");
-                Check.DebugAssert(
-                    _configurationSnapshot.DeleteOrphansTiming.HasValue, "!configurationSnapshot.DeleteOrphansTiming.HasValue");
+            Check.DebugAssert(_configurationSnapshot != null, "configurationSnapshot is null");
 
-                var changeTracker = ChangeTracker;
-                changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled.Value;
-                changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
-                changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled.Value;
-                changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming.Value;
-                changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming.Value;
-            }
-            else
-            {
-                ((IResettableService?)_changeTracker)?.ResetState();
-            }
+            var changeTracker = ChangeTracker;
+            changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled;
+            changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior;
+            changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled;
+            changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming;
+            changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming;
 
-            if (_database != null)
-            {
-                _database.AutoTransactionsEnabled
-                    = _configurationSnapshot?.AutoTransactionsEnabled == null
-                    || _configurationSnapshot.AutoTransactionsEnabled.Value;
+            var database = Database;
+            database.AutoTransactionsEnabled = _configurationSnapshot.AutoTransactionsEnabled;
+            database.AutoSavepointsEnabled = _configurationSnapshot.AutoSavepointsEnabled;
 
-                _database.AutoSavepointsEnabled
-                    = _configurationSnapshot?.AutoSavepointsEnabled == null
-                    || _configurationSnapshot.AutoSavepointsEnabled.Value;
-            }
+            SavingChanges = _configurationSnapshot.SavingChanges;
+            SavedChanges = _configurationSnapshot.SavedChanges;
+            SaveChangesFailed = _configurationSnapshot.SaveChangesFailed;
         }
 
         /// <summary>
@@ -771,14 +772,21 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         [EntityFrameworkInternal]
         void IDbContextPoolable.SnapshotConfiguration()
-            => _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
-                _changeTracker?.AutoDetectChangesEnabled,
-                _changeTracker?.QueryTrackingBehavior,
-                _database?.AutoTransactionsEnabled,
-                _database?.AutoSavepointsEnabled,
-                _changeTracker?.LazyLoadingEnabled,
-                _changeTracker?.CascadeDeleteTiming,
-                _changeTracker?.DeleteOrphansTiming);
+        {
+            var changeTracker = ChangeTracker;
+            var database = Database;
+            _configurationSnapshot = new DbContextPoolConfigurationSnapshot(
+                changeTracker.AutoDetectChangesEnabled,
+                changeTracker.QueryTrackingBehavior,
+                database.AutoTransactionsEnabled,
+                database.AutoSavepointsEnabled,
+                changeTracker.LazyLoadingEnabled,
+                changeTracker.CascadeDeleteTiming,
+                changeTracker.DeleteOrphansTiming,
+                SavingChanges,
+                SavedChanges,
+                SaveChangesFailed);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -793,8 +801,6 @@ namespace Microsoft.EntityFrameworkCore
             {
                 service.ResetState();
             }
-
-            ClearEvents();
 
             _disposed = true;
         }
@@ -812,8 +818,6 @@ namespace Microsoft.EntityFrameworkCore
             {
                 await service.ResetStateAsync(cancellationToken).ConfigureAwait(false);
             }
-
-            ClearEvents();
 
             _disposed = true;
         }
@@ -851,22 +855,22 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         public virtual void Dispose()
         {
-            if (DisposeSync())
+            var leaseActive = _lease.IsActive;
+            var contextDisposed = leaseActive && _lease.ContextDisposed();
+
+            if (DisposeSync(leaseActive, contextDisposed))
             {
                 _serviceScope?.Dispose();
             }
         }
 
-        private bool DisposeSync()
+        private bool DisposeSync(bool leaseActive, bool contextDisposed)
         {
-            if (_lease.IsActive)
+            if (leaseActive)
             {
-                if (_lease.ContextDisposed())
+                if (contextDisposed)
                 {
                     _disposed = true;
-
-                    ClearEvents();
-
                     _lease = DbContextLease.InactiveLease;
                 }
             }
@@ -883,8 +887,11 @@ namespace Microsoft.EntityFrameworkCore
                 _dbContextDependencies = null;
                 _changeTracker = null;
                 _database = null;
+                _configurationSnapshot = null;
 
-                ClearEvents();
+                SavingChanges = null;
+                SavedChanges = null;
+                SaveChangesFailed = null;
 
                 return true;
             }
@@ -895,14 +902,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Releases the allocated resources for this context.
         /// </summary>
-        public virtual ValueTask DisposeAsync()
-            => DisposeSync() ? _serviceScope.DisposeAsyncIfAvailable() : default;
-
-        private void ClearEvents()
+        public virtual async ValueTask DisposeAsync()
         {
-            SavingChanges = null;
-            SavedChanges = null;
-            SaveChangesFailed = null;
+            var leaseActive = _lease.IsActive;
+            var contextDisposed = leaseActive && await _lease.ContextDisposedAsync();
+
+            if (DisposeSync(leaseActive, contextDisposed))
+            {
+                await _serviceScope.DisposeAsyncIfAvailable();
+            }
         }
 
         /// <summary>
