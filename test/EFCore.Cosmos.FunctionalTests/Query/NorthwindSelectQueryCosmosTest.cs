@@ -1098,27 +1098,27 @@ WHERE (c[""Discriminator""] = ""Order"")");
             return base.Project_keyless_entity_FirstOrDefault_without_orderby(async);
         }
 
-//        public override async Task Reverse_changes_asc_order_to_desc(bool async)
-//        {
-//            await base.Reverse_changes_asc_order_to_desc(async);
+        public override async Task Reverse_changes_asc_order_to_desc(bool async)
+        {
+            await base.Reverse_changes_asc_order_to_desc(async);
 
-//            AssertSql(
-//                @"SELECT c[""EmployeeID""]
-//FROM root c
-//WHERE (c[""Discriminator""] = ""Employee"")
-//ORDER BY c[""EmployeeID""] DESC");
-//        }
+            AssertSql(
+                @"SELECT c[""EmployeeID""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")
+ORDER BY c[""EmployeeID""] DESC");
+        }
 
-//        public override async Task Reverse_changes_desc_order_to_asc(bool async)
-//        {
-//            await base.Reverse_changes_desc_order_to_asc(async);
+        public override async Task Reverse_changes_desc_order_to_asc(bool async)
+        {
+            await base.Reverse_changes_desc_order_to_asc(async);
 
-//            AssertSql(
-//                @"SELECT c[""EmployeeID""]
-//FROM root c
-//WHERE (c[""Discriminator""] = ""Employee"")
-//ORDER BY c[""EmployeeID""]");
-//        }
+            AssertSql(
+                @"SELECT c[""EmployeeID""]
+FROM root c
+WHERE (c[""Discriminator""] = ""Employee"")
+ORDER BY c[""EmployeeID""]");
+        }
 
         [ConditionalTheory(Skip = "Issue#17246")]
         public override Task Projection_AsEnumerable_projection(bool async)
