@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -79,7 +77,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
             if (clrType.IsArray)
             {
-                var elementMapping = FindPrimitiveMapping(new TypeMappingInfo(elementType));
+                var elementMappingInfo = new TypeMappingInfo(elementType);
+                var elementMapping = FindPrimitiveMapping(elementMappingInfo)
+                    ?? FindCollectionMapping(elementMappingInfo);
                 return elementMapping == null
                     ? null
                     : new CosmosTypeMapping(clrType, CreateArrayComparer(elementMapping, elementType));
@@ -93,11 +93,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     || genericTypeDefinition == typeof(IList<>)
                     || genericTypeDefinition == typeof(IReadOnlyList<>))
                 {
-                    var elementMapping = FindPrimitiveMapping(new TypeMappingInfo(elementType));
+                    var elementMappingInfo = new TypeMappingInfo(elementType);
+                    var elementMapping = FindPrimitiveMapping(elementMappingInfo)
+                        ?? FindCollectionMapping(elementMappingInfo);
                     return elementMapping == null
                         ? null
-                        : new CosmosTypeMapping(clrType,
-                            CreateListComparer(elementMapping, elementType, clrType, genericTypeDefinition == typeof(IReadOnlyList<>)));
+                        : new CosmosTypeMapping(clrType, CreateListComparer(elementMapping, elementType, clrType));
                 }
 
                 if (genericTypeDefinition == typeof(Dictionary<,>)
@@ -111,16 +112,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     }
 
                     elementType = genericArguments[1];
-                    var elementMapping = FindPrimitiveMapping(new TypeMappingInfo(elementType));
-                    if(elementMapping == null)
-                    {
-                        return null;
-                    }
-
+                    var elementMappingInfo = new TypeMappingInfo(elementType);
+                    var elementMapping = FindPrimitiveMapping(elementMappingInfo)
+                        ?? FindCollectionMapping(elementMappingInfo);
                     return elementMapping == null
                         ? null
-                        : new CosmosTypeMapping(clrType,
-                            CreateStringDictionaryComparer(elementMapping, elementType, clrType, genericTypeDefinition == typeof(IReadOnlyDictionary<,>)));
+                        : new CosmosTypeMapping(clrType, CreateStringDictionaryComparer(elementMapping, elementType, clrType));
                 }
             }
 
@@ -139,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         private static ValueComparer CreateListComparer(
-            CoreTypeMapping elementMapping, Type elementType, Type listType, bool readOnly)
+            CoreTypeMapping elementMapping, Type elementType, Type listType, bool readOnly = false)
         {
             var unwrappedType = elementType.UnwrapNullableType();
 
@@ -152,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 
         private static ValueComparer CreateStringDictionaryComparer(
-            CoreTypeMapping elementMapping, Type elementType, Type dictType, bool readOnly)
+            CoreTypeMapping elementMapping, Type elementType, Type dictType, bool readOnly = false)
         {
             var unwrappedType = elementType.UnwrapNullableType();
 

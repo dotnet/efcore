@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -25,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
             o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
             source => Snapshot(source, (ValueComparer<TElement>)elementComparer))
-        { }
+        {
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,6 +45,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             if (b is null || a.Length != b.Length)
             {
                 return false;
+            }
+
+            if (ReferenceEquals(a, b))
+            {
+                return true;
             }
 
             for (var i = 0; i < a.Length; i++)
@@ -72,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
         [return: NotNullIfNotNull("source")]
         private static TElement[]? Snapshot(TElement[]? source, ValueComparer<TElement> elementComparer)
         {
-            if (source == null)
+            if (source is null)
             {
                 return null;
             }

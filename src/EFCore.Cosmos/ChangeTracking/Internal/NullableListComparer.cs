@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
@@ -28,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
                 (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
                 o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
                 source => Snapshot(source, (ValueComparer<TElement>)elementComparer, readOnly))
-        { }
+        {
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
                 return false;
             }
 
-            if (aList == bList)
+            if (ReferenceEquals(aList, bList))
             {
                 return true;
             }
@@ -90,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
 
         private static TCollection? Snapshot(TCollection? source, ValueComparer<TElement> elementComparer, bool readOnly)
         {
-            if (source == null)
+            if (source is null)
             {
                 return null;
             }
