@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 ModelBuilder = testHelpers.CreateConventionBuilder(
                     modelLogger,
                     ValidationLogger,
-                    configure == null ? null : c => configure(c));
+                    configure);
             }
 
             public virtual IMutableModel Model
@@ -521,6 +521,45 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             where TLeftEntity : class
             where TRightEntity : class
         {
+            public abstract TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(
+                string joinEntityName);
+
+            public abstract TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>()
+                where TJoinEntity : class;
+
+            public abstract TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
+                string joinEntityName)
+                where TJoinEntity : class;
+
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType);
+
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                string joinEntityName,
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType);
+
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
+                where TJoinEntity : class;
+
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
+                string joinEntityName,
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
+                where TJoinEntity : class;
+
+            public abstract TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft);
+
+            public abstract TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft);
+
             public abstract TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
@@ -536,12 +575,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft)
                 where TJoinEntity : class;
 
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft,
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType);
+
+            public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft,
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType);
+
             public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
-                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
                 where TJoinEntity : class;
 
             public abstract TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
@@ -550,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
-                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
                 where TJoinEntity : class;
         }
 

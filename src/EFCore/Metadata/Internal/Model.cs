@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = new(StringComparer.Ordinal);
         private Dictionary<string, ConfigurationSource>? _ownedTypes;
         private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
-            new() { { DefaultPropertyBagType, (ConfigurationSource.Convention, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) } };
+            new() { { DefaultPropertyBagType, (ConfigurationSource.Explicit, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) } };
 
         private ConventionDispatcher? _conventionDispatcher;
         private IList<IModelFinalizedConvention>? _modelFinalizedConventions;

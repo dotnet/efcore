@@ -862,6 +862,77 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             protected CollectionCollectionBuilder CollectionCollectionBuilder { get; }
 
+            public override TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(
+                string joinEntityName)
+                => new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(
+                    CollectionCollectionBuilder.UsingEntity(joinEntityName));
+
+            public override TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>()
+                => new NonGenericTestEntityTypeBuilder<TJoinEntity>(
+                    CollectionCollectionBuilder.UsingEntity(typeof(TJoinEntity)));
+
+            public override TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
+                string joinEntityName)
+                => new NonGenericTestEntityTypeBuilder<TJoinEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        joinEntityName,
+                        typeof(TJoinEntity)));
+
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType)
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(e))));
+
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                string joinEntityName,
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType)
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        joinEntityName,
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(e))));
+
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        typeof(TJoinEntity),
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
+
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
+                string joinEntityName,
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        joinEntityName,
+                        typeof(TJoinEntity),
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
+
+            public override TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft)
+                => new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(r))).ReferenceCollectionBuilder));
+
+            public override TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(
+                string joinEntityName, Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft)
+                => new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        joinEntityName,
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(r))).ReferenceCollectionBuilder));
+
             public override TestEntityTypeBuilder<TJoinEntity> UsingEntity<TJoinEntity>(
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
@@ -890,12 +961,42 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
                             new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder));
 
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft,
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType)
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(r))).ReferenceCollectionBuilder,
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(e))));
+
+            public override TestEntityTypeBuilder<TRightEntity> UsingEntity(
+                string joinEntityName,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>> configureRight,
+                Func<TestEntityTypeBuilder<Dictionary<string, object>>,
+                    TestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>> configureLeft,
+                Action<TestEntityTypeBuilder<Dictionary<string, object>>> configureJoinEntityType)
+                => new NonGenericTestEntityTypeBuilder<TRightEntity>(
+                    CollectionCollectionBuilder.UsingEntity(
+                        joinEntityName,
+                        l => ((NonGenericTestReferenceCollectionBuilder<TLeftEntity, Dictionary<string, object>>)configureRight(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(l))).ReferenceCollectionBuilder,
+                        r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, Dictionary<string, object>>)configureLeft(
+                            new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(r))).ReferenceCollectionBuilder,
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<Dictionary<string, object>>(e))));
+
             public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
-                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
                 where TJoinEntity : class
                 => new NonGenericTestEntityTypeBuilder<TRightEntity>(
                     CollectionCollectionBuilder.UsingEntity(
@@ -904,7 +1005,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
                         r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
                             new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder,
-                        e => configureJoin(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
 
             public override TestEntityTypeBuilder<TRightEntity> UsingEntity<TJoinEntity>(
                 string joinEntityName,
@@ -912,7 +1013,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     TestReferenceCollectionBuilder<TLeftEntity, TJoinEntity>> configureRight,
                 Func<TestEntityTypeBuilder<TJoinEntity>,
                     TestReferenceCollectionBuilder<TRightEntity, TJoinEntity>> configureLeft,
-                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoin)
+                Action<TestEntityTypeBuilder<TJoinEntity>> configureJoinEntityType)
                 where TJoinEntity : class
                 => new NonGenericTestEntityTypeBuilder<TRightEntity>(
                     CollectionCollectionBuilder.UsingEntity(
@@ -922,7 +1023,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                             new NonGenericTestEntityTypeBuilder<TJoinEntity>(l))).ReferenceCollectionBuilder,
                         r => ((NonGenericTestReferenceCollectionBuilder<TRightEntity, TJoinEntity>)configureLeft(
                             new NonGenericTestEntityTypeBuilder<TJoinEntity>(r))).ReferenceCollectionBuilder,
-                        e => configureJoin(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
+                        e => configureJoinEntityType(new NonGenericTestEntityTypeBuilder<TJoinEntity>(e))));
         }
 
         protected class NonGenericTestOwnershipBuilder<TEntity, TRelatedEntity>
@@ -1057,9 +1158,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     OwnedNavigationBuilder.WithOwner(ownerReference));
 
             public override TestOwnershipBuilder<TEntity, TDependentEntity> WithOwner(
-                Expression<Func<TDependentEntity, TEntity?>>? referenceExpression)
+                Expression<Func<TDependentEntity, TEntity?>>? referenceExpression = null)
                 => new NonGenericTestOwnershipBuilder<TEntity, TDependentEntity>(
-                    OwnedNavigationBuilder.WithOwner(referenceExpression?.GetMemberAccess()?.GetSimpleMemberName()));
+                    OwnedNavigationBuilder.WithOwner(referenceExpression?.GetMemberAccess().GetSimpleMemberName()));
 
             public override TestOwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
                 Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression)
