@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,7 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
             TryAdd<IAnnotationCodeGenerator, AnnotationCodeGenerator>();
+#pragma warning disable EF1001 // Internal EF Core API usage.
             TryAdd<ICSharpRuntimeAnnotationCodeGenerator, RelationalCSharpRuntimeAnnotationCodeGenerator>();
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
             ServiceCollectionMap.GetInfrastructure()
                 .AddDependencySingleton<AnnotationCodeGeneratorDependencies>()

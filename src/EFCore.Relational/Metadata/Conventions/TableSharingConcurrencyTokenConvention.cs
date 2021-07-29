@@ -232,22 +232,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private static void RemoveDerivedEntityTypes<T>(Dictionary<IConventionEntityType, T> entityTypeDictionary)
         {
-            var entityTypesWithDerivedTypes =
-                entityTypeDictionary.Where(e => e.Key.GetDirectlyDerivedTypes().Any());
-            foreach (var entityType in entityTypeDictionary.Where(e => e.Key.BaseType != null))
+            foreach (var entityType in entityTypeDictionary.Keys)
             {
-                foreach (var otherEntityType in entityTypesWithDerivedTypes)
+                var baseType = entityType.BaseType;
+                while (baseType != null)
                 {
-                    if (otherEntityType.Equals(entityType))
+                    if (entityTypeDictionary.ContainsKey(baseType))
                     {
-                        continue;
-                    }
-
-                    if (otherEntityType.Key.IsAssignableFrom(entityType.Key))
-                    {
-                        entityTypeDictionary.Remove(entityType.Key);
+                        entityTypeDictionary.Remove(entityType);
                         break;
                     }
+                    baseType = baseType.BaseType;
                 }
             }
         }

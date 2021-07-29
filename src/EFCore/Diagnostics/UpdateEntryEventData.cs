@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     A <see cref="DiagnosticSource" /> event payload class for events that have
     ///     an entity update entry.
     /// </summary>
-    public class UpdateEntryEventData : EventData
+    public class UpdateEntryEventData : DbContextEventData
     {
         /// <summary>
         ///     Constructs the event payload.
@@ -23,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,
             IUpdateEntry entityEntry)
-            : base(eventDefinition, messageGenerator)
+            : base(eventDefinition, messageGenerator, ((InternalEntityEntry)entityEntry).StateManager.Context)
         {
             EntityEntry = entityEntry;
         }
