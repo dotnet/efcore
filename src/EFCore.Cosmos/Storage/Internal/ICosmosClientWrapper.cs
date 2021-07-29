@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Task<bool> CreateDatabaseIfNotExistsAsync(CancellationToken cancellationToken = default);
+        bool CreateDatabaseIfNotExists(ThroughputProperties? throughput);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        bool CreateDatabaseIfNotExists();
+        Task<bool> CreateDatabaseIfNotExistsAsync(ThroughputProperties? throughput, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        bool CreateContainerIfNotExists(string containerId, string partitionKey);
+        bool CreateContainerIfNotExists(ContainerProperties properties);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,10 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Task<bool> CreateContainerIfNotExistsAsync(
-            string containerId,
-            string partitionKey,
-            CancellationToken cancellationToken = default);
+        Task<bool> CreateContainerIfNotExistsAsync(ContainerProperties properties, CancellationToken cancellationToken = default);
         
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -50,16 +48,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual bool EnsureCreated()
         {
-            var created = _cosmosClient.CreateDatabaseIfNotExists();
-            foreach (var entityType in _designTimeModel.Model.GetEntityTypes())
+            var model = _designTimeModel.Model;
+            var created = _cosmosClient.CreateDatabaseIfNotExists(model.GetThroughput());
+
+            foreach (var container in GetContainersToCreate(model))
             {
-                var containerName = entityType.GetContainer();
-                if (containerName != null)
-                {
-                    created |= _cosmosClient.CreateContainerIfNotExists(
-                        containerName,
-                        GetPartitionKeyStoreName(entityType));
-                }
+                created |= _cosmosClient.CreateContainerIfNotExists(container);
             }
 
             if (created)
@@ -78,19 +72,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual async Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
         {
-            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(cancellationToken)
+            var model = _designTimeModel.Model;
+            var created = await _cosmosClient.CreateDatabaseIfNotExistsAsync(model.GetThroughput(), cancellationToken)
                 .ConfigureAwait(false);
-            foreach (var entityType in _designTimeModel.Model.GetEntityTypes())
+
+            foreach (var container in GetContainersToCreate(model))
             {
-                var containerName = entityType.GetContainer();
-                if (containerName != null)
-                {
-                    created |= await _cosmosClient.CreateContainerIfNotExistsAsync(
-                            containerName,
-                            GetPartitionKeyStoreName(entityType),
-                            cancellationToken)
-                        .ConfigureAwait(false);
-                }
+                created |= await _cosmosClient.CreateContainerIfNotExistsAsync(container, cancellationToken)
+                    .ConfigureAwait(false);
             }
 
             if (created)
@@ -99,6 +88,52 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             }
 
             return created;
+        }
+
+        private IEnumerable<ContainerProperties> GetContainersToCreate(IModel model)
+        {
+            var containers = new Dictionary<string, List<IEntityType>>();
+            foreach (var entityType in model.GetEntityTypes().Where(et => et.FindPrimaryKey() != null))
+            {
+                var container = entityType.GetContainer();
+                if (container == null)
+                {
+                    continue;
+                }
+
+                if (!containers.TryGetValue(container, out var mappedTypes))
+                {
+                    mappedTypes = new List<IEntityType>();
+                    containers[container] = mappedTypes;
+                }
+
+                mappedTypes.Add(entityType);
+            }
+
+            foreach (var containerMapping in containers)
+            {
+                var mappedTypes = containerMapping.Value;
+                var containerName = containerMapping.Key;
+                string? partitionKey = null;
+                int? analyticalTTL = null;
+                int? defaultTTL = null;
+                ThroughputProperties? throughput = null;
+
+                foreach (var entityType in mappedTypes)
+                {
+                    partitionKey ??= GetPartitionKeyStoreName(entityType);
+                    analyticalTTL ??= entityType.GetAnalyticalStoreTimeToLive();
+                    defaultTTL ??= entityType.GetDefaultTimeToLive();
+                    throughput ??= entityType.GetThroughput();
+                }
+
+                yield return new ContainerProperties(
+                    containerName,
+                    partitionKey!,
+                    analyticalTTL,
+                    defaultTTL,
+                    throughput);
+            }
         }
 
         /// <summary>

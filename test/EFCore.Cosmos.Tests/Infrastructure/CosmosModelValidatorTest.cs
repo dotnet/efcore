@@ -90,7 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Passes_on_valid_partition_keys()
         {
             var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId);
+            modelBuilder.Entity<Customer>().ToContainer("Orders").HasPartitionKey(c => c.PartitionId)
+                .HasAnalyticalStoreTimeToLive(-1)
+                .HasDefaultTimeToLive(100)
+                .HasAutoscaleThroughput(200);
             modelBuilder.Entity<Order>().ToContainer("Orders").HasPartitionKey(o => o.PartitionId)
                 .Property(o => o.PartitionId).HasConversion<string>();
 
@@ -188,6 +191,54 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             VerifyError(
                 CosmosStrings.PartitionKeyNonStringStoreType(
                     nameof(Customer.PartitionId), typeof(Order).Name, "int"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_conflicting_analytical_ttl()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().ToContainer("Orders")
+                .HasAnalyticalStoreTimeToLive(-1);
+            modelBuilder.Entity<Order>().ToContainer("Orders")
+                .HasAnalyticalStoreTimeToLive(60);
+
+            VerifyError(CosmosStrings.AnalyticalTTLMismatch(-1, typeof(Customer).Name, typeof(Order).Name, 60, "Orders"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_conflicting_default_ttl()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().ToContainer("Orders")
+                .HasDefaultTimeToLive(100);
+            modelBuilder.Entity<Order>().ToContainer("Orders")
+                .HasDefaultTimeToLive(60);
+
+            VerifyError(CosmosStrings.DefaultTTLMismatch(100, typeof(Customer).Name, typeof(Order).Name, 60, "Orders"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_conflicting_throughput()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().ToContainer("Orders")
+                .HasAutoscaleThroughput(200);
+            modelBuilder.Entity<Order>().ToContainer("Orders")
+                .HasAutoscaleThroughput(60);
+
+            VerifyError(CosmosStrings.ThroughputMismatch(200, typeof(Customer).Name, typeof(Order).Name, 60, "Orders"), modelBuilder);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_conflicting_throughput_type()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Customer>().ToContainer("Orders")
+                .HasManualThroughput(200);
+            modelBuilder.Entity<Order>().ToContainer("Orders")
+                .HasAutoscaleThroughput(200);
+
+            VerifyError(CosmosStrings.ThroughputTypeMismatch(typeof(Customer).Name, typeof(Order).Name, "Orders"), modelBuilder);
         }
 
         [ConditionalFact]

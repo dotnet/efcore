@@ -1,9 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore
@@ -70,10 +73,88 @@ namespace Microsoft.EntityFrameworkCore
             string? name,
             bool fromDataAnnotation = false)
         {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
             return modelBuilder.CanSetAnnotation(CosmosAnnotationNames.ContainerName, name, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Configures the manual provisioned throughput offering.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        public static ModelBuilder HasManualThroughput(this ModelBuilder modelBuilder, int? throughput)
+        {
+            modelBuilder.Model.SetThroughput(throughput, autoscale: false);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the autoscale provisioned throughput offering.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        public static ModelBuilder HasAutoscaleThroughput(this ModelBuilder modelBuilder, int? throughput)
+        {
+            modelBuilder.Model.SetThroughput(throughput, autoscale: true);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the provisioned throughput.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static IConventionModelBuilder? HasThroughput(
+            this IConventionModelBuilder modelBuilder,
+            int? throughput,
+            bool autoscale,
+            bool fromDataAnnotation = false)
+        {
+            if (!modelBuilder.CanSetThroughput(throughput, autoscale, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            modelBuilder.Metadata.SetThroughput(throughput, autoscale, fromDataAnnotation);
+
+            return modelBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given throughput can be set.
+        /// </summary>
+        /// <param name="modelBuilder"> The model builder. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the given container name can be set as default. </returns>
+        public static bool CanSetThroughput(
+            this IConventionModelBuilder modelBuilder,
+            int? throughput,
+            bool autoscale,
+            bool fromDataAnnotation = false)
+        {
+            var existingAnnotation = modelBuilder.Metadata.FindAnnotation(CosmosAnnotationNames.Throughput);
+            if (existingAnnotation == null)
+            {
+                return true;
+            }
+
+            var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
+            if (configurationSource.Overrides(existingAnnotation.GetConfigurationSource()))
+            {
+                return true;
+            }
+
+            var existingThroughput = (ThroughputProperties?)existingAnnotation.Value;
+            return autoscale
+                ? existingThroughput?.Throughput == throughput
+                : existingThroughput?.AutoscaleMaxThroughput == throughput;
         }
     }
 }

@@ -102,9 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CreateDatabaseIfNotExists()
+        public virtual bool CreateDatabaseIfNotExists(ThroughputProperties? throughput)
             => _executionStrategyFactory.Create().Execute(
-                (object?)null, CreateDatabaseIfNotExistsOnce, null);
+                throughput, CreateDatabaseIfNotExistsOnce, null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,8 +114,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual bool CreateDatabaseIfNotExistsOnce(
             DbContext? context,
-            object? state)
-            => CreateDatabaseIfNotExistsOnceAsync(context, state).GetAwaiter().GetResult();
+            ThroughputProperties? throughput)
+            => CreateDatabaseIfNotExistsOnceAsync(context, throughput).GetAwaiter().GetResult();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -124,9 +124,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Task<bool> CreateDatabaseIfNotExistsAsync(
+            ThroughputProperties? throughput,
             CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (object?)null, CreateDatabaseIfNotExistsOnceAsync, null, cancellationToken);
+                throughput, CreateDatabaseIfNotExistsOnceAsync, null, cancellationToken);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -136,10 +137,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         /// </summary>
         public virtual async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
             DbContext? _,
-            object? __,
+            ThroughputProperties? throughput,
             CancellationToken cancellationToken = default)
         {
-            var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, cancellationToken: cancellationToken)
+            var response = await Client.CreateDatabaseIfNotExistsAsync(_databaseId, throughput, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.Created;
@@ -204,15 +205,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool CreateContainerIfNotExists(
-            string containerId,
-            string partitionKey)
+        public virtual bool CreateContainerIfNotExists(ContainerProperties properties)
             => _executionStrategyFactory.Create().Execute(
-                (containerId, partitionKey), CreateContainerIfNotExistsOnce, null);
+                properties, CreateContainerIfNotExistsOnce, null);
 
         private bool CreateContainerIfNotExistsOnce(
             DbContext context,
-            (string ContainerId, string PartitionKey) parameters)
+            ContainerProperties parameters)
             => CreateContainerIfNotExistsOnceAsync(context, parameters).GetAwaiter().GetResult();
 
         /// <summary>
@@ -221,24 +220,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task<bool> CreateContainerIfNotExistsAsync(
-            string containerId,
-            string partitionKey,
-            CancellationToken cancellationToken = default)
+        public virtual Task<bool> CreateContainerIfNotExistsAsync(ContainerProperties properties, CancellationToken cancellationToken = default)
             => _executionStrategyFactory.Create().ExecuteAsync(
-                (containerId, partitionKey), CreateContainerIfNotExistsOnceAsync, null, cancellationToken);
+                properties, CreateContainerIfNotExistsOnceAsync, null, cancellationToken);
 
         private async Task<bool> CreateContainerIfNotExistsOnceAsync(
             DbContext _,
-            (string ContainerId, string PartitionKey) parameters,
+            ContainerProperties parameters,
             CancellationToken cancellationToken = default)
         {
             using var response = await Client.GetDatabase(_databaseId).CreateContainerStreamAsync(
-                    new ContainerProperties(parameters.ContainerId, "/" + parameters.PartitionKey)
-                    {
-                        PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2
-                    },
-                    cancellationToken: cancellationToken)
+                new Azure.Cosmos.ContainerProperties(parameters.Id, "/" + parameters.PartitionKey)
+                {
+                    PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
+                    DefaultTimeToLive = parameters.DefaultTimeToLive,
+                    AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
+                },
+                parameters.Throughput,
+                cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.Conflict)
             {

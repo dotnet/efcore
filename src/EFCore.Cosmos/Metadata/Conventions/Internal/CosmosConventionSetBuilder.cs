@@ -110,6 +110,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.ModelFinalizingConventions, inversePropertyAttributeConvention);
 
+            ReplaceConvention(
+                conventionSet.ModelFinalizedConventions,
+                (RuntimeModelConvention)new CosmosRuntimeModelConvention(Dependencies));
+
             return conventionSet;
         }
 
