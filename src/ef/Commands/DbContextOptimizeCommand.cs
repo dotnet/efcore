@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected override int Execute(string[] args)
         {
             using var executor = CreateExecutor(args);
-            executor.Optimize(
+            executor.OptimizeContext(
                 _outputDir!.Value(),
                 _namespace!.Value(),
                 Context!.Value());

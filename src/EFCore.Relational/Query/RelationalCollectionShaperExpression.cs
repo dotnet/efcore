@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     A unique id for this collection shaper.
         /// </summary>
         [Obsolete("CollectionId are not stored in shaper anymore. Shaper compiler assigns it as needed.")]
-        public virtual int? CollectionId { get; }
+        public virtual int CollectionId { get; }
 
         /// <summary>
         ///     The identifier for the parent element.

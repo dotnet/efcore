@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         IDictionary GetContextInfo(string? name);
         void UpdateDatabase(string? migration, string? connectionString, string? contextType);
         IEnumerable<IDictionary> GetContextTypes();
-        void Optimize(string? outputDir, string? modelNamespace, string? contextType);
+        void OptimizeContext(string? outputDir, string? modelNamespace, string? contextType);
 
         IDictionary ScaffoldContext(
             string provider,
