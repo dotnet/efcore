@@ -54,13 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             string? navigationName = null)
-        {
-            return new(
+            => new(
                 DeclaringEntityType,
                 RelatedEntityType,
                 WithOneBuilder(
                     Check.NullButNotEmpty(navigationName, nameof(navigationName))).Metadata);
-        }
 
         /// <summary>
         ///     <para>
@@ -102,8 +100,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     WithLeftManyNavigation(navigationName),
                     WithRightManyNavigation(navigationName, leftName!));
 
-            Configure(collectionCollectionBuilder);
-
             return collectionCollectionBuilder;
         }
 
@@ -137,8 +133,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
                     DeclaringEntityType,
                     WithLeftManyNavigation(navigationExpression.GetMemberAccess()),
                     WithRightManyNavigation(navigationExpression.GetMemberAccess(), leftName));
-
-            Configure(collectionCollectionBuilder);
 
             return collectionCollectionBuilder;
         }

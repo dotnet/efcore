@@ -98,6 +98,50 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Finds_existing_navigations_and_uses_associated_FK_with_implicit_relationships()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var model = (IReadOnlyModel)modelBuilder.Model;
+
+                modelBuilder.Entity<Product>()
+                    .HasMany(p => p.Categories).WithMany(c => c.Products)
+                    .UsingEntity<ProductCategory>()
+                    .HasKey(pc => new { pc.ProductId, pc.CategoryId });
+
+                modelBuilder.Entity<Product>()
+                    .HasMany(p => p.Categories).WithMany(c => c.Products)
+                    .UsingEntity<ProductCategory>(pcb => pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId }));
+
+                var productType = model.FindEntityType(typeof(Product))!;
+                var categoryType = model.FindEntityType(typeof(Category))!;
+                var productCategoryType = model.FindEntityType(typeof(ProductCategory))!;
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+
+                modelBuilder.Entity<Category>()
+                    .HasMany(o => o.Products).WithMany(c => c.Categories)
+                    .UsingEntity<ProductCategory>(
+                        pcb => pcb.HasOne(pc => pc.Product).WithMany(),
+                        pcb => pcb.HasOne(pc => pc.Category).WithMany(c => c.ProductCategories));
+
+                model = modelBuilder.FinalizeModel();
+
+                Assert.Same(categoriesNavigation, productType.GetSkipNavigations().Single());
+                Assert.Same(productsNavigation, categoryType.GetSkipNavigations().Single());
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+            }
+
+            [ConditionalFact]
             public virtual void Finds_existing_navigations_and_uses_associated_FK_with_fields()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -227,7 +271,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_configure_join_type_using_fluent_api()
+            public virtual void Can_configure_join_type()
             {
                 var modelBuilder = CreateModelBuilder();
 
@@ -241,13 +285,90 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                         pcb => pcb.HasOne(pc => pc.Category).WithMany(c => c.ProductCategories),
                         pcb => pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId }));
 
-                var model = modelBuilder.FinalizeModel();
-
                 Assert.Equal(typeof(Category), manyToMany.Metadata.ClrType);
+
+                var model = modelBuilder.FinalizeModel();
 
                 var productType = model.FindEntityType(typeof(Product))!;
                 var categoryType = model.FindEntityType(typeof(Category))!;
                 var productCategoryType = model.FindEntityType(typeof(ProductCategory))!;
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+
+                var key = productCategoryType.FindPrimaryKey()!;
+                Assert.Equal(
+                    new[] { nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId) },
+                    key.Properties.Select(p => p.Name));
+            }
+
+            [ConditionalFact]
+            public virtual void Can_configure_join_type_with_implicit_join_relationships()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                var manyToMany = modelBuilder.Entity<Product>()
+                    .HasMany(p => p.Categories).WithMany(c => c.Products)
+                    .UsingEntity<ProductCategory>(
+                        pcb => pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId }));
+
+                Assert.Equal(typeof(Product), manyToMany.Metadata.ClrType);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product))!;
+                var categoryType = model.FindEntityType(typeof(Category))!;
+                var productCategoryType = model.FindEntityType(typeof(ProductCategory))!;
+
+                var categoriesNavigation = productType.GetSkipNavigations().Single();
+                var productsNavigation = categoryType.GetSkipNavigations().Single();
+
+                var categoriesFk = categoriesNavigation.ForeignKey;
+                var productsFk = productsNavigation.ForeignKey;
+
+                Assert.Same(categoriesFk, productCategoryType.GetForeignKeys().Last());
+                Assert.Same(productsFk, productCategoryType.GetForeignKeys().First());
+                Assert.Equal(2, productCategoryType.GetForeignKeys().Count());
+
+                var key = productCategoryType.FindPrimaryKey()!;
+                Assert.Equal(
+                    new[] { nameof(ProductCategory.ProductId), nameof(ProductCategory.CategoryId) },
+                    key.Properties.Select(p => p.Name));
+            }
+
+            [ConditionalFact]
+            public virtual void Can_configure_shared_join_type_with_implicit_join_relationships()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                var manyToMany = modelBuilder.Entity<Product>()
+                    .HasMany(p => p.Categories).WithMany(c => c.Products)
+                    .UsingEntity<ProductCategory>(
+                        "SharedProductCategory",
+                        pcb =>
+                        {
+                            pcb.Ignore(pc => pc.Category);
+                            pcb.Ignore(pc => pc.Product);
+                            pcb.HasKey(pc => new { pc.ProductId, pc.CategoryId });
+                        });
+
+                Assert.Equal(typeof(Product), manyToMany.Metadata.ClrType);
+
+                modelBuilder.Entity<Category>().Ignore(c => c.ProductCategories);
+
+                var model = modelBuilder.FinalizeModel();
+
+                var productType = model.FindEntityType(typeof(Product))!;
+                var categoryType = model.FindEntityType(typeof(Category))!;
+                Assert.Null(model.FindEntityType(typeof(ProductCategory)));
+                var productCategoryType = model.FindEntityType("SharedProductCategory")!;
 
                 var categoriesNavigation = productType.GetSkipNavigations().Single();
                 var productsNavigation = categoryType.GetSkipNavigations().Single();
@@ -558,21 +679,247 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void UsingEntity_with_shared_type_fails_when_not_marked()
+            public virtual void Can_use_implicit_shared_type_as_join_entity()
             {
                 var modelBuilder = CreateModelBuilder();
 
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity(
+                        "Shared1",
+                        e => e.HasOne<NavDependent>().WithMany(),
+                        e => e.HasOne<ManyToManyNavPrincipal>().WithMany());
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity(
+                        "Shared2",
+                        e => e.HasOne<DependentWithField>().WithMany(),
+                        e => e.HasOne<ManyToManyPrincipalWithField>().WithMany(),
+                        e => e.IndexerProperty<int>("Payload"));
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
+
+                var model = modelBuilder.Model;
+
+                var shared1 = model.FindEntityType("Shared1")!;
+                Assert.Equal(2, shared1.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
+                        nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
+                    },
+                    shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.True(shared1.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
+
+                var shared2 = model.FindEntityType("Shared2")!;
+                Assert.Equal(2, shared2.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
+                        nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
+                    },
+                    shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.NotNull(shared2.FindProperty("Payload"));
+                Assert.True(shared2.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared2.ClrType);
+
                 Assert.Equal(
-                    CoreStrings.TypeNotMarkedAsShared(typeof(ManyToManyJoinWithFields).DisplayName()),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.Entity<ManyToManyPrincipalWithField>()
-                            .HasMany(e => e.Dependents)
-                            .WithMany(e => e.ManyToManyPrincipals)
-                            .UsingEntity<ManyToManyJoinWithFields>(
-                                "Shared",
-                                r => r.HasOne<DependentWithField>().WithMany(),
-                                l => l.HasOne<ManyToManyPrincipalWithField>().WithMany())).Message);
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+
+                modelBuilder.FinalizeModel();
             }
+
+            [ConditionalFact]
+            public virtual void Can_use_implicit_shared_type_with_default_name_as_join_entity()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity(
+                        e => e.HasOne<NavDependent>().WithMany(),
+                        e => e.HasOne<ManyToManyNavPrincipal>().WithMany());
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity(
+                        e => e.HasOne<DependentWithField>().WithMany(),
+                        e => e.HasOne<ManyToManyPrincipalWithField>().WithMany(),
+                        e => e.IndexerProperty<int>("Payload"));
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
+
+                var model = modelBuilder.Model;
+
+                var shared1 = model.FindEntityType(typeof(ManyToManyNavPrincipal))!
+                    .FindSkipNavigation(nameof(ManyToManyNavPrincipal.Dependents))!.JoinEntityType!;
+                Assert.Equal(2, shared1.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
+                        nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
+                    },
+                    shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.True(shared1.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
+                Assert.Equal("ManyToManyNavPrincipalNavDependent", shared1.Name);
+
+                var shared2 = model.FindEntityType(typeof(ManyToManyPrincipalWithField))!
+                    .FindSkipNavigation(nameof(ManyToManyPrincipalWithField.Dependents))!.JoinEntityType!;
+                Assert.Equal(2, shared2.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
+                        nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
+                    },
+                    shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.NotNull(shared2.FindProperty("Payload"));
+                Assert.True(shared2.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared2.ClrType);
+                Assert.Equal("DependentWithFieldManyToManyPrincipalWithField", shared2.Name);
+
+                Assert.Equal(
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+
+                modelBuilder.FinalizeModel();
+            }
+
+            [ConditionalFact]
+            public virtual void Can_use_implicit_shared_type_with_implicit_relationships_as_join_entity()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity("Shared1");
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity(
+                        "Shared2",
+                        e => e.IndexerProperty<int>("Payload"));
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
+
+                var model = modelBuilder.Model;
+
+                var shared1 = model.FindEntityType("Shared1")!;
+                Assert.Equal(2, shared1.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
+                        nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
+                    },
+                    shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.True(shared1.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
+
+                var shared2 = model.FindEntityType("Shared2")!;
+                Assert.Equal(2, shared2.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
+                        nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
+                    },
+                    shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.NotNull(shared2.FindProperty("Payload"));
+                Assert.True(shared2.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared2.ClrType);
+
+                Assert.Equal(
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+
+                modelBuilder.FinalizeModel();
+            }
+
+            [ConditionalFact]
+            public virtual void Can_use_implicit_shared_type_with_default_name_and_implicit_relationships_as_join_entity()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<OneToManyNavPrincipal>();
+                modelBuilder.Ignore<OneToOneNavPrincipal>();
+
+                modelBuilder.Entity<ManyToManyNavPrincipal>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity<Dictionary<string, object>>("ManyToManyNavPrincipalNavDependent");
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>()
+                    .HasMany(e => e.Dependents)
+                    .WithMany(e => e.ManyToManyPrincipals)
+                    .UsingEntity(e => e.IndexerProperty<int>("Payload"));
+
+                modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
+                modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
+
+                var model = modelBuilder.Model;
+
+                var shared1 = model.FindEntityType(typeof(ManyToManyNavPrincipal))!
+                    .FindSkipNavigation(nameof(ManyToManyNavPrincipal.Dependents))!.JoinEntityType!;
+                Assert.Equal(2, shared1.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyNavPrincipal.Dependents) + nameof(NavDependent.Id),
+                        nameof(NavDependent.ManyToManyPrincipals) + nameof(ManyToManyNavPrincipal.Id)
+                    },
+                    shared1.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.True(shared1.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
+                Assert.Equal("ManyToManyNavPrincipalNavDependent", shared1.Name);
+
+                var shared2 = model.FindEntityType(typeof(ManyToManyPrincipalWithField))!
+                    .FindSkipNavigation(nameof(ManyToManyPrincipalWithField.Dependents))!.JoinEntityType!;
+                Assert.Equal(2, shared2.GetForeignKeys().Count());
+                Assert.Equal(new[]
+                    {
+                        nameof(ManyToManyPrincipalWithField.Dependents) + nameof(DependentWithField.DependentWithFieldId),
+                        nameof(DependentWithField.ManyToManyPrincipals) + nameof(ManyToManyPrincipalWithField.Id)
+                    },
+                    shared2.FindPrimaryKey()!.Properties.Select(p => p.Name));
+                Assert.NotNull(shared2.FindProperty("Payload"));
+                Assert.True(shared2.HasSharedClrType);
+                Assert.Equal(typeof(Dictionary<string, object>), shared2.ClrType);
+                Assert.Equal("DependentWithFieldManyToManyPrincipalWithField", shared2.Name);
+
+                Assert.Equal(
+                    CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+
+                modelBuilder.FinalizeModel();
+            }
+
 
             [ConditionalFact]
             public virtual void UsingEntity_with_shared_type_passed_when_marked_as_shared_type()

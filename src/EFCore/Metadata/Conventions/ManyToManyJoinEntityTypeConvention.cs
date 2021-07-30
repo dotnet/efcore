@@ -90,14 +90,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void CreateJoinEntityType(IConventionSkipNavigationBuilder skipNavigationBuilder)
         {
             var skipNavigation = (SkipNavigation)skipNavigationBuilder.Metadata;
-            if (skipNavigation.ForeignKey != null
-                || !skipNavigation.IsCollection)
-            {
-                return;
-            }
-
             var inverseSkipNavigation = skipNavigation.Inverse;
-            if (inverseSkipNavigation == null
+            if (skipNavigation.ForeignKey != null
+                || !skipNavigation.IsCollection
+                || inverseSkipNavigation == null
                 || inverseSkipNavigation.ForeignKey != null
                 || !inverseSkipNavigation.IsCollection)
             {
@@ -120,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             if (model.FindEntityType(joinEntityTypeName) != null)
             {
-                var otherIdentifiers = model.GetEntityTypes().ToDictionary(et => et.Name, et => 0);
+                var otherIdentifiers = model.GetEntityTypes().ToDictionary(et => et.Name, _ => 0);
                 joinEntityTypeName = Uniquifier.Uniquify(
                     joinEntityTypeName,
                     otherIdentifiers,
@@ -131,24 +127,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 joinEntityTypeName, Model.DefaultPropertyBagType, ConfigurationSource.Convention)!;
 
             var leftForeignKey = CreateSkipNavigationForeignKey(skipNavigation, joinEntityTypeBuilder);
-            if (leftForeignKey == null)
-            {
-                model.Builder.HasNoEntityType(joinEntityTypeBuilder.Metadata, ConfigurationSource.Convention);
-                return;
-            }
-
             var rightForeignKey = CreateSkipNavigationForeignKey(inverseSkipNavigation, joinEntityTypeBuilder);
-            if (rightForeignKey == null)
-            {
-                model.Builder.HasNoEntityType(joinEntityTypeBuilder.Metadata, ConfigurationSource.Convention);
-                return;
-            }
 
             skipNavigation.Builder.HasForeignKey(leftForeignKey, ConfigurationSource.Convention);
             inverseSkipNavigation.Builder.HasForeignKey(rightForeignKey, ConfigurationSource.Convention);
         }
 
-        private static ForeignKey? CreateSkipNavigationForeignKey(
+        private static ForeignKey CreateSkipNavigationForeignKey(
             SkipNavigation skipNavigation,
             InternalEntityTypeBuilder joinEntityTypeBuilder)
             => joinEntityTypeBuilder
