@@ -130,10 +130,7 @@
     <value>Building bundle...</value>
   </data>
   <data name="BuildBundleSucceeded" xml:space="preserve">
-    <value>Done.</value>
-  </data>
-  <data name="ConfigurationDescription" xml:space="preserve">
-    <value>The configuration to use.</value>
+    <value>Done. Migrations Bundle: {path}</value>
   </data>
   <data name="ConnectionDescription" xml:space="preserve">
     <value>The connection string to the database.</value>
@@ -216,6 +213,12 @@
   <data name="EFFullName" xml:space="preserve">
     <value>Entity Framework Core Command-line Tools</value>
   </data>
+  <data name="FileExists" xml:space="preserve">
+    <value>The file already exists: {path}. Use --force flag to overwrite it.</value>
+  </data>
+  <data name="FrameworkDescription" xml:space="preserve">
+    <value>The target framework.</value>
+  </data>
   <data name="IdempotentDescription" xml:space="preserve">
     <value>Generate a script that can be used on a database at any migration.</value>
   </data>
@@ -240,8 +243,17 @@
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
   </data>
+  <data name="MigrationsBundleConfigurationDescription" xml:space="preserve">
+    <value>The configuration to use for the bundle.</value>
+  </data>
   <data name="MigrationsBundleDescription" xml:space="preserve">
     <value>Creates an executable to update the database.</value>
+  </data>
+  <data name="MigrationsBundleOutputDescription" xml:space="preserve">
+    <value>The path of executable file to create.</value>
+  </data>
+  <data name="MigrationsBundleRuntimeDescription" xml:space="preserve">
+    <value>The target runtime to bundle for.</value>
   </data>
   <data name="MigrationsDescription" xml:space="preserve">
     <value>Commands to manage migrations.</value>
@@ -329,9 +341,6 @@
   </data>
   <data name="RootNamespaceDescription" xml:space="preserve">
     <value>The root namespace. Defaults to the target assembly name.</value>
-  </data>
-  <data name="RuntimeDescription" xml:space="preserve">
-    <value>The target runtime to bundle for.</value>
   </data>
   <data name="SchemasDescription" xml:space="preserve">
     <value>The schemas of tables to generate entity types for.</value>

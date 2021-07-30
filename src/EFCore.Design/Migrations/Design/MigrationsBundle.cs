@@ -1,58 +1,47 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools;
 
-namespace Microsoft.EntityFrameworkCore.Design
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
     /// <summary>
-    ///     Defines the entry point for Migations bundles.
+    ///     Defines the entry point for Migrations bundles.
     /// </summary>
     public static class MigrationsBundle
     {
+        private static string? _context;
+        private static Assembly? _assembly;
+        private static Assembly? _startupAssembly;
+        private static CommandArgument? _migration;
+        private static CommandOption? _connection;
+
         /// <summary>
         ///     The entry point for Migrations bundles.
         /// </summary>
         /// <param name="context"> The DbContext to use. </param>
         /// <param name="assembly"> The Migrations assembly. </param>
         /// <param name="startupAssembly"> The startup assembly. </param>
-        /// <param name="args"> The command-line arguemnts. </param>
-        /// <returns> Zero if the command succeedes; otherwise, one. </returns>
+        /// <param name="args"> The command-line arguments. </param>
+        /// <returns> Zero if the command succeeds; otherwise, one. </returns>
         public static int Execute(string? context, Assembly assembly, Assembly startupAssembly, string[] args)
         {
+            _context = context;
+            _assembly = assembly;
+            _startupAssembly = startupAssembly;
+
             var app = new CommandLineApplication
             {
                 Name = "bundle",
-                FullName = DesignStrings.BundleFullName,
                 HandleResponseFiles = true
             };
-
-            var migration = app.Argument("<MIGRATION>", DesignStrings.MigrationDescription);
-            var connection = app.Option("--connection <CONNECTION>", DesignStrings.ConnectionDescription);
-
-            app.VersionOption("--version", ProductInfo.GetVersion);
-            app.HelpOption("-h|--help");
-            var verbose = app.Option("-v|--verbose", DesignStrings.VerboseDescription);
-            var noColor = app.Option("--no-color", DesignStrings.NoColorDescription);
-            var prefixOutput = app.Option("--prefix-output", DesignStrings.PrefixDescription);
-
-            app.OnExecute(
-                args =>
-                {
-                    Reporter.IsVerbose = verbose.HasValue();
-                    Reporter.NoColor = noColor.HasValue();
-                    Reporter.PrefixOutput = prefixOutput.HasValue();
-
-                    ExecuteInternal(context, assembly, startupAssembly, args, migration.Value, connection.Value());
-
-                    return 0;
-                });
+            Configure(app);
 
             try
             {
@@ -76,13 +65,34 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
         }
 
-        private static void ExecuteInternal(
-            string? context,
-            Assembly assembly,
-            Assembly startupAssembly,
-            string[] args,
-            string? migration,
-            string? connection)
+        // Internal for testing
+        internal static void Configure(CommandLineApplication app)
+        {
+            app.FullName = DesignStrings.BundleFullName;
+
+            _migration = app.Argument("<MIGRATION>", DesignStrings.MigrationDescription);
+            _connection = app.Option("--connection <CONNECTION>", DesignStrings.ConnectionDescription);
+
+            app.VersionOption("--version", ProductInfo.GetVersion);
+            app.HelpOption("-h|--help");
+            var verbose = app.Option("-v|--verbose", DesignStrings.VerboseDescription);
+            var noColor = app.Option("--no-color", DesignStrings.NoColorDescription);
+            var prefixOutput = app.Option("--prefix-output", DesignStrings.PrefixDescription);
+
+            app.OnExecute(
+                args =>
+                {
+                    Reporter.IsVerbose = verbose.HasValue();
+                    Reporter.NoColor = noColor.HasValue();
+                    Reporter.PrefixOutput = prefixOutput.HasValue();
+
+                    ExecuteInternal(args);
+
+                    return 0;
+                });
+        }
+
+        private static void ExecuteInternal(string[] args)
         {
             new MigrationsOperations(
                 new OperationReporter(
@@ -91,14 +101,14 @@ namespace Microsoft.EntityFrameworkCore.Design
                         Reporter.WriteWarning,
                         Reporter.WriteInformation,
                         Reporter.WriteVerbose)),
-                assembly,
-                startupAssembly,
+                _assembly!,
+                _startupAssembly!,
                 projectDir: string.Empty,
                 rootNamespace: null,
                 language: null,
                 nullable: false,
                 args)
-                .UpdateDatabase(migration, connection, context);
+                .UpdateDatabase(_migration!.Value, _connection!.Value(), _context);
         }
     }
 }

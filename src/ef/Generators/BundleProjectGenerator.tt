@@ -1,17 +1,16 @@
 ﻿<#@ template visibility="internal" linePragmas="false" #>
+<#@ parameter name="TargetFramework" type="System.String" #>
 <#@ parameter name="EFCoreVersion" type="System.String" #>
 <#@ parameter name="Project" type="System.String" #>
 <#@ parameter name="StartupProject" type="System.String" #>
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- TODO: Match startup project's TargetFramework, RuntimeIdentifier, and SelfContained -->
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework><#= TargetFramework #></TargetFramework>
     <PublishSingleFile>True</PublishSingleFile>
-    <SelfContained Condition="'$(SelfContained)' == ''">False</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>True</IncludeNativeLibrariesForSelfExtract>
-    <UseCurrentRuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">True</UseCurrentRuntimeIdentifier>
+    <ValidateExecutableReferencesMatchSelfContained>False</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,15 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="<#= StartupProject #>">
+      <!-- HACK: Work around dotnet/sdk#10566 -->
+      <GlobalPropertiesToRemove>SelfContained</GlobalPropertiesToRemove>
+    </ProjectReference>
+    <# if (Project != StartupProject) { #>
     <ProjectReference Include="<#= Project #>" />
-<#
-  if (StartupProject != Project)
-  {
-#>
-    <ProjectReference Include="<#= StartupProject #>" />
-<#
-  }
-#>
+    <# } #>
   </ItemGroup>
 
 </Project>

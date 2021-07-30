@@ -216,8 +216,17 @@
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
   </data>
+  <data name="MigrationsBundleConfigurationDescription" xml:space="preserve">
+    <value>The configuration to use for the bundle.</value>
+  </data>
   <data name="MigrationsBundleDescription" xml:space="preserve">
     <value>Creates an executable to update the database.</value>
+  </data>
+  <data name="MigrationsBundleOutputDescription" xml:space="preserve">
+    <value>The path of executable file to create.</value>
+  </data>
+  <data name="MigrationsBundleRuntimeDescription" xml:space="preserve">
+    <value>The target runtime to bundle for.</value>
   </data>
   <data name="MigrationsDescription" xml:space="preserve">
     <value>Commands to manage migrations.</value>

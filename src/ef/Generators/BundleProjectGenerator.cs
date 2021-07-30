@@ -22,37 +22,43 @@ namespace Microsoft.EntityFrameworkCore.Tools.Generators
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write(@"<Project Sdk=""Microsoft.NET.Sdk"">
-
-  <!-- TODO: Match startup project's TargetFramework, RuntimeIdentifier, and SelfContained -->
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+            this.Write("<Project Sdk=\"Microsoft.NET.Sdk\">\r\n\r\n  <PropertyGroup>\r\n    <OutputType>Exe</Outp" +
+                    "utType>\r\n    <TargetFramework>");
+            this.Write(this.ToStringHelper.ToStringWithCulture(TargetFramework));
+            this.Write(@"</TargetFramework>
     <PublishSingleFile>True</PublishSingleFile>
-    <SelfContained Condition=""'$(SelfContained)' == ''"">False</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>True</IncludeNativeLibrariesForSelfExtract>
-    <UseCurrentRuntimeIdentifier Condition=""'$(RuntimeIdentifier)' == ''"">True</UseCurrentRuntimeIdentifier>
+    <ValidateExecutableReferencesMatchSelfContained>False</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include=""Microsoft.EntityFrameworkCore.Design"" Version=""");
             this.Write(this.ToStringHelper.ToStringWithCulture(EFCoreVersion));
             this.Write("\" />\r\n  </ItemGroup>\r\n\r\n  <ItemGroup>\r\n    <ProjectReference Include=\"");
-            this.Write(this.ToStringHelper.ToStringWithCulture(Project));
-            this.Write("\" />\r\n");
-
-  if (StartupProject != Project)
-  {
-
-            this.Write("    <ProjectReference Include=\"");
             this.Write(this.ToStringHelper.ToStringWithCulture(StartupProject));
-            this.Write("\" />\r\n");
-
-  }
-
+            this.Write("\">\r\n      <!-- HACK: Work around dotnet/sdk#10566 -->\r\n      <GlobalPropertiesToR" +
+                    "emove>SelfContained</GlobalPropertiesToRemove>\r\n    </ProjectReference>\r\n    ");
+ if (Project != StartupProject) { 
+            this.Write("    <ProjectReference Include=\"");
+            this.Write(this.ToStringHelper.ToStringWithCulture(Project));
+            this.Write("\" />\r\n    ");
+ } 
             this.Write("  </ItemGroup>\r\n\r\n</Project>\r\n");
             return this.GenerationEnvironment.ToString();
         }
+
+private string _TargetFrameworkField;
+
+/// <summary>
+/// Access the TargetFramework parameter of the template.
+/// </summary>
+private string TargetFramework
+{
+    get
+    {
+        return this._TargetFrameworkField;
+    }
+}
 
 private string _EFCoreVersionField;
 
@@ -101,6 +107,20 @@ public virtual void Initialize()
 {
     if ((this.Errors.HasErrors == false))
     {
+bool TargetFrameworkValueAcquired = false;
+if (this.Session.ContainsKey("TargetFramework"))
+{
+    this._TargetFrameworkField = ((string)(this.Session["TargetFramework"]));
+    TargetFrameworkValueAcquired = true;
+}
+if ((TargetFrameworkValueAcquired == false))
+{
+    object data = global::System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TargetFramework");
+    if ((data != null))
+    {
+        this._TargetFrameworkField = ((string)(data));
+    }
+}
 bool EFCoreVersionValueAcquired = false;
 if (this.Session.ContainsKey("EFCoreVersion"))
 {

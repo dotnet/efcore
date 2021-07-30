@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Generators
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("using System.Reflection;\r\nusing Microsoft.EntityFrameworkCore.Design;\r\n\r\nreturn M" +
-                    "igrationsBundle.Execute(\r\n    \"");
+            this.Write("using System.Reflection;\r\nusing Microsoft.EntityFrameworkCore.Migrations.Design;\r" +
+                    "\n\r\nreturn MigrationsBundle.Execute(\r\n    \"");
             this.Write(this.ToStringHelper.ToStringWithCulture(ContextType));
             this.Write("\",\r\n    Assembly.Load(new AssemblyName(\"");
             this.Write(this.ToStringHelper.ToStringWithCulture(Assembly));

@@ -181,6 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add(project.RootNamespace!);
             args.Add("--language");
             args.Add(project.Language!);
+            args.Add("--framework");
+            args.Add(startupProject.TargetFramework!);
 
             if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(project.Nullable, "annotations", StringComparison.OrdinalIgnoreCase))

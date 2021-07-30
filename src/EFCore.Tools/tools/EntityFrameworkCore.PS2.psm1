@@ -56,6 +56,12 @@ function Add-Migration(
 .DESCRIPTION
     Creates an executable to update the database.
 
+.PARAMETER Output
+    The path of executable file to create.
+
+.PARAMETER Force
+    Overwrite existing files.
+
 .PARAMETER SelfContained
     Also bundle the .NET runtime so it doesn't need to be installed on the machine.
 
@@ -63,7 +69,10 @@ function Add-Migration(
     The target runtime to bundle for.
 
 .PARAMETER Configuration
-    The configuration to use.
+    The configuration to use for the bundle.
+
+.PARAMETER Framework
+    The target framework. Defaults to the first one in the project.
 
 .PARAMETER Context
     The DbContext to use.
@@ -74,9 +83,6 @@ function Add-Migration(
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
 
-.PARAMETER Namespace
-    The namespace to use. Matches the directory by default.
-
 .PARAMETER Args
     Arguments passed to the application.
 
@@ -86,13 +92,15 @@ function Add-Migration(
     about_EntityFrameworkCore
 #>
 function Bundle-Migration(
+    $Output,
+    [switch] $Force,
     [switch] $SelfContained,
     $Runtime,
     $Configuration,
+    $Framework,
     $Context,
     $Project,
     $StartupProject,
-    $Namespace,
     $Args)
 {
     throw $UpdatePowerShell

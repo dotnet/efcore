@@ -1,15 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.DotNet.Cli.CommandLine;
 using Xunit;
-using EFCommand = Microsoft.EntityFrameworkCore.Tools.Commands.RootCommand;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
-    public class CommandsTest
+    public class MigrationsBundleTest
     {
         [Fact]
         public void Short_names_are_unique()
@@ -47,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private static IEnumerable<CommandLineApplication> GetCommands()
         {
-            var app = new CommandLineApplication { Name = "dotnet ef" };
+            var app = new CommandLineApplication { Name = "bundle" };
 
-            new EFCommand().Configure(app);
+            MigrationsBundle.Configure(app);
 
             return GetCommands(app);
         }
