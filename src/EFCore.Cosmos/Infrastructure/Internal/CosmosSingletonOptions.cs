@@ -143,6 +143,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual Func<HttpClient>? HttpClientFactory { get; private set;  }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void Initialize(IDbContextOptions options)
         {
             var cosmosOptions = options.FindExtension<CosmosOptionsExtension>();
@@ -162,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                 GatewayModeMaxConnectionLimit = cosmosOptions.GatewayModeMaxConnectionLimit;
                 MaxTcpConnectionsPerEndpoint = cosmosOptions.MaxTcpConnectionsPerEndpoint;
                 MaxRequestsPerTcpConnection = cosmosOptions.MaxRequestsPerTcpConnection;
+                HttpClientFactory = cosmosOptions.HttpClientFactory;
             }
         }
 
@@ -190,6 +199,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     || MaxTcpConnectionsPerEndpoint != cosmosOptions.MaxTcpConnectionsPerEndpoint
                     || MaxRequestsPerTcpConnection != cosmosOptions.MaxRequestsPerTcpConnection
                     || EnableContentResponseOnWrite != cosmosOptions.EnableContentResponseOnWrite
+                    || HttpClientFactory != cosmosOptions.HttpClientFactory
                     ))
             {
                 throw new InvalidOperationException(

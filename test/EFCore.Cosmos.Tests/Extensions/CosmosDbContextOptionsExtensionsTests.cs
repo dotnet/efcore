@@ -55,6 +55,11 @@ namespace Microsoft.EntityFrameworkCore
             Test(
                 o => o.IdleTcpConnectionTimeout(TimeSpan.FromMinutes(3)),
                 o => Assert.Equal(TimeSpan.FromMinutes(3), o.IdleTcpConnectionTimeout));
+            var httpClient = new HttpClient();
+            Test(
+                o => o.HttpClientFactory(() => httpClient),
+                o => Assert.Same(httpClient, o.HttpClientFactory())
+            );
         }
 
         [ConditionalFact]
