@@ -2379,7 +2379,7 @@ CREATE TABLE DependentTable (
                 {
                     var (level, _, message, _, _) = Assert.Single(
                         Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.DuplicateForeignKeyConstraintIgnored);
-                    Assert.Equal(LogLevel.Debug, level);
+                    Assert.Equal(LogLevel.Warning, level);
                     Assert.Equal(
                         SqlServerResources.DuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
                             .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1"), message);
