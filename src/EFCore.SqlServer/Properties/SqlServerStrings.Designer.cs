@@ -821,7 +821,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                     static logger => new EventDefinition<string, string, string>(
                         logger.Options,
                         SqlServerEventId.DuplicateForeignKeyConstraintIgnored,
-                        LogLevel.Debug,
+                        LogLevel.Warning,
                         "SqlServerEventId.DuplicateForeignKeyConstraintIgnored",
                         level => LoggerMessage.Define<string, string, string>(
                             level,
