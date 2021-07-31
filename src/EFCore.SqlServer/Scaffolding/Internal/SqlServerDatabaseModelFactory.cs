@@ -1214,6 +1214,16 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         }
                         else
                         {
+                            var duplicated = table.ForeignKeys.FirstOrDefault(k => k.Columns.SequenceEqual(foreignKey.Columns));
+                            if (duplicated != null)
+                            {
+                                _logger.DuplicateForeignKeyConstraintIgnored(
+                                    foreignKey.Name!,
+                                    DisplayName(table.Schema, table.Name!),
+                                    duplicated.Name!);
+                                continue;
+                            }
+
                             table.ForeignKeys.Add(foreignKey);
                         }
                     }
