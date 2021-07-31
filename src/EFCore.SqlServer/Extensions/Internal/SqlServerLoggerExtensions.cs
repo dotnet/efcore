@@ -527,7 +527,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, foreignKeyName, duplicateForeignKeyName, tableName);
+                definition.Log(diagnostics, foreignKeyName, tableName, duplicateForeignKeyName);
             }
 
             // No DiagnosticsSource events because these are purely design-time messages

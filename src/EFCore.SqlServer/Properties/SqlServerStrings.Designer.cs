@@ -808,7 +808,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is a duplicate of '{duplicatedForeignKeyName}'.
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is a duplicate of '{duplicateForeignKeyName}'.
         /// </summary>
         public static EventDefinition<string, string, string> DuplicateForeignKeyConstraintIgnored(IDiagnosticsLogger logger)
         {
