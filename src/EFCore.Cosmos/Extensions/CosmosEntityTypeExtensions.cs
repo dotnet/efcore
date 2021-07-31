@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -215,5 +216,148 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag. </returns>
         public static IProperty? GetETagProperty(this IEntityType entityType)
             => (IProperty?)((IReadOnlyEntityType)entityType).GetETagProperty();
+
+        /// <summary>
+        ///     Returns the time to live for analytical store in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The time to live. </returns>
+        public static int? GetAnalyticalStoreTimeToLive(this IReadOnlyEntityType entityType)
+            => entityType.BaseType != null
+                ? entityType.GetRootType().GetAnalyticalStoreTimeToLive()
+                : (int?)entityType[CosmosAnnotationNames.AnalyticalStoreTimeToLive];
+
+        /// <summary>
+        ///     Sets the time to live for analytical store in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="seconds"> The time to live to set. </param>
+        public static void SetAnalyticalStoreTimeToLive(this IMutableEntityType entityType, int? seconds)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.AnalyticalStoreTimeToLive,
+                seconds);
+
+        /// <summary>
+        ///     Sets the time to live for analytical store in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="seconds"> The time to live to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetAnalyticalStoreTimeToLive(
+            this IConventionEntityType entityType,
+            int? seconds,
+            bool fromDataAnnotation = false)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.AnalyticalStoreTimeToLive,
+                seconds,
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the time to live for analytical store in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity typer. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the time to live for analytical store. </returns>
+        public static ConfigurationSource? GetAnalyticalStoreTimeToLiveConfigurationSource(this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CosmosAnnotationNames.AnalyticalStoreTimeToLive)
+                ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the default time to live in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The time to live. </returns>
+        public static int? GetDefaultTimeToLive(this IReadOnlyEntityType entityType)
+            => entityType.BaseType != null
+                ? entityType.GetRootType().GetDefaultTimeToLive()
+                : (int?)entityType[CosmosAnnotationNames.DefaultTimeToLive];
+
+        /// <summary>
+        ///     Sets the default time to live in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="seconds"> The time to live to set. </param>
+        public static void SetDefaultTimeToLive(this IMutableEntityType entityType, int? seconds)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.DefaultTimeToLive,
+                seconds);
+
+        /// <summary>
+        ///     Sets the default time to live in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="seconds"> The time to live to set. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetDefaultTimeToLive(
+            this IConventionEntityType entityType,
+            int? seconds,
+            bool fromDataAnnotation = false)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.DefaultTimeToLive,
+                seconds,
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the default time to live in seconds at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the default time to live. </returns>
+        public static ConfigurationSource? GetDefaultTimeToLiveConfigurationSource(this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CosmosAnnotationNames.DefaultTimeToLive)
+                ?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the provisioned throughput at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <returns> The throughput. </returns>
+        public static ThroughputProperties? GetThroughput(this IReadOnlyEntityType entityType)
+            => entityType.BaseType != null
+                ? entityType.GetRootType().GetThroughput()
+                : (ThroughputProperties?)entityType[CosmosAnnotationNames.Throughput];
+
+        /// <summary>
+        ///     Sets the provisioned throughput at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        public static void SetThroughput(this IMutableEntityType entityType, int? throughput, bool? autoscale)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.Throughput,
+                throughput == null || autoscale == null
+                    ? null
+                    : autoscale.Value
+                        ? ThroughputProperties.CreateAutoscaleThroughput(throughput.Value)
+                        : ThroughputProperties.CreateManualThroughput(throughput.Value));
+
+        /// <summary>
+        ///     Sets the provisioned throughput at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static void SetThroughput(
+            this IConventionEntityType entityType,
+            int? throughput,
+            bool? autoscale,
+            bool fromDataAnnotation = false)
+            => entityType.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.Throughput,
+                throughput == null || autoscale == null
+                    ? null
+                    : autoscale.Value
+                        ? ThroughputProperties.CreateAutoscaleThroughput(throughput.Value)
+                        : ThroughputProperties.CreateManualThroughput(throughput.Value),
+                fromDataAnnotation);
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the provisioned throughput at container scope.
+        /// </summary>
+        /// <param name="entityType"> The entity type to find configuration source for. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the throughput. </returns>
+        public static ConfigurationSource? GetThroughputConfigurationSource(this IConventionEntityType entityType)
+            => entityType.FindAnnotation(CosmosAnnotationNames.Throughput)
+                ?.GetConfigurationSource();
     }
 }

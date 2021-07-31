@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -98,6 +96,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         {
             var discriminatorValues = new Dictionary<object, IEntityType>();
             IProperty? partitionKey = null;
+            int? analyticalTTL = null;
+            int? defaultTTL = null;
+            ThroughputProperties? throughput = null;
             IEntityType? firstEntityType = null;
             foreach (var entityType in mappedTypes)
             {
@@ -162,6 +163,72 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     }
 
                     discriminatorValues[discriminatorValue] = entityType;
+                }
+
+                var currentAnalyticalTTL = entityType.GetAnalyticalStoreTimeToLive();
+                if (currentAnalyticalTTL != null)
+                {
+                    if (analyticalTTL == null)
+                    {
+                        analyticalTTL = currentAnalyticalTTL;
+                    }
+                    else if (analyticalTTL != currentAnalyticalTTL)
+                    {
+                        var conflictingEntityType = mappedTypes.First(et => et.GetAnalyticalStoreTimeToLive() != null);
+                        throw new InvalidOperationException(
+                            CosmosStrings.AnalyticalTTLMismatch(
+                                analyticalTTL, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentAnalyticalTTL, container));
+                    }
+                }
+
+                var currentDefaultTTL = entityType.GetDefaultTimeToLive();
+                if (currentDefaultTTL != null)
+                {
+                    if (defaultTTL == null)
+                    {
+                        defaultTTL = currentDefaultTTL;
+                    }
+                    else if (defaultTTL != currentDefaultTTL)
+                    {
+                        var conflictingEntityType = mappedTypes.First(et => et.GetDefaultTimeToLive() != null);
+                        throw new InvalidOperationException(
+                            CosmosStrings.DefaultTTLMismatch(
+                                defaultTTL, conflictingEntityType.DisplayName(), entityType.DisplayName(), currentDefaultTTL, container));
+                    }
+                }
+
+                var currentThroughput = entityType.GetThroughput();
+                if (currentThroughput != null)
+                {
+                    if (throughput == null)
+                    {
+                        throughput = currentThroughput;
+                    }
+                    else if ((throughput.AutoscaleMaxThroughput ?? throughput.Throughput)
+                        != (currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput))
+                    {
+                        var conflictingEntityType = mappedTypes.First(et => et.GetThroughput() != null);
+                        throw new InvalidOperationException(
+                            CosmosStrings.ThroughputMismatch(
+                                throughput.AutoscaleMaxThroughput ?? throughput.Throughput, conflictingEntityType.DisplayName(),
+                                 entityType.DisplayName(), currentThroughput.AutoscaleMaxThroughput ?? currentThroughput.Throughput,
+                                container));
+                    }
+                    else if ((throughput.AutoscaleMaxThroughput == null)
+                        != (currentThroughput.AutoscaleMaxThroughput == null))
+                    {
+                        var conflictingEntityType = mappedTypes.First(et => et.GetThroughput() != null);
+                        var autoscaleType = throughput.AutoscaleMaxThroughput == null
+                            ? entityType
+                            : conflictingEntityType;
+                        var manualType = throughput.AutoscaleMaxThroughput != null
+                            ? entityType
+                            : conflictingEntityType;
+
+                        throw new InvalidOperationException(
+                            CosmosStrings.ThroughputTypeMismatch(
+                                manualType.DisplayName(), autoscaleType.DisplayName(), container));
+                    }
                 }
             }
         }

@@ -4,8 +4,10 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -287,6 +289,259 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             UseETagConcurrency((EntityTypeBuilder)entityTypeBuilder);
             return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the time to live for analytical store in seconds at container scope.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder HasAnalyticalStoreTimeToLive(
+            this EntityTypeBuilder entityTypeBuilder,
+            int? seconds)
+        {
+            entityTypeBuilder.Metadata.SetAnalyticalStoreTimeToLive(seconds);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the time to live for analytical store in seconds at container scope.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> HasAnalyticalStoreTimeToLive<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            int? seconds)
+            where TEntity : class
+        {
+            entityTypeBuilder.Metadata.SetAnalyticalStoreTimeToLive(seconds);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the time to live for analytical store in seconds at container scope.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder? HasAnalyticalStoreTimeToLive(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            int? seconds,
+            bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.CanSetAnalyticalStoreTimeToLive(seconds, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetAnalyticalStoreTimeToLive(seconds, fromDataAnnotation);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the time to live for analytical store can be set
+        ///     from the current configuration source
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        public static bool CanSetAnalyticalStoreTimeToLive(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            int? seconds,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.AnalyticalStoreTimeToLive, seconds, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Configures the default time to live in seconds at container scope.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder HasDefaultTimeToLive(
+            this EntityTypeBuilder entityTypeBuilder,
+            int? seconds)
+        {
+            entityTypeBuilder.Metadata.SetDefaultTimeToLive(seconds);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the default time to live in seconds at container scope.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> HasDefaultTimeToLive<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            int? seconds)
+            where TEntity : class
+        {
+            entityTypeBuilder.Metadata.SetDefaultTimeToLive(seconds);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the default time to live in seconds at container scope.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder? HasDefaultTimeToLive(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            int? seconds,
+            bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.CanSetDefaultTimeToLive(seconds, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetDefaultTimeToLive(seconds, fromDataAnnotation);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the default time to live can be set
+        ///     from the current configuration source
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="seconds"> The time to live. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        public static bool CanSetDefaultTimeToLive(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            int? seconds,
+            bool fromDataAnnotation = false)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            return entityTypeBuilder.CanSetAnnotation(CosmosAnnotationNames.DefaultTimeToLive, seconds, fromDataAnnotation);
+        }
+
+        /// <summary>
+        ///     Configures the manual provisioned throughput offering.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        public static EntityTypeBuilder HasManualThroughput(this EntityTypeBuilder entityTypeBuilder, int? throughput)
+        {
+            entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: false);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the manual provisioned throughput offering.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        public static EntityTypeBuilder<TEntity> HasManualThroughput<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder, int? throughput)
+            where TEntity : class
+        {
+            entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: false);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the autoscale provisioned throughput offering.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        public static EntityTypeBuilder HasAutoscaleThroughput(this EntityTypeBuilder entityTypeBuilder, int? throughput)
+        {
+            entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: true);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the autoscale provisioned throughput offering.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        public static EntityTypeBuilder<TEntity> HasAutoscaleThroughput<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder, int? throughput)
+            where TEntity : class
+        {
+            entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: true);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the provisioned throughput.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static IConventionEntityTypeBuilder? HasThroughput(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            int? throughput,
+            bool autoscale,
+            bool fromDataAnnotation = false)
+        {
+            if (!entityTypeBuilder.CanSetThroughput(throughput, autoscale, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale, fromDataAnnotation);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given throughput can be set.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the given container name can be set as default. </returns>
+        public static bool CanSetThroughput(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            int? throughput,
+            bool autoscale,
+            bool fromDataAnnotation = false)
+        {
+            var existingAnnotation = entityTypeBuilder.Metadata.FindAnnotation(CosmosAnnotationNames.Throughput);
+            if (existingAnnotation == null)
+            {
+                return true;
+            }
+
+            var configurationSource = fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention;
+            if (configurationSource.Overrides(existingAnnotation.GetConfigurationSource()))
+            {
+                return true;
+            }
+
+            var existingThroughput = (ThroughputProperties?)existingAnnotation.Value;
+            return autoscale
+                ? existingThroughput?.Throughput == throughput
+                : existingThroughput?.AutoscaleMaxThroughput == throughput;
         }
     }
 }

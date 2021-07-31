@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -58,5 +59,61 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for the default container name.</returns>
         public static ConfigurationSource? GetDefaultContainerConfigurationSource(this IConventionModel model)
             => model.FindAnnotation(CosmosAnnotationNames.ContainerName)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Returns the provisioned throughput at database scope.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The throughput. </returns>
+        public static ThroughputProperties? GetThroughput(this IReadOnlyModel model)
+            => (ThroughputProperties?)model[CosmosAnnotationNames.Throughput];
+
+        /// <summary>
+        ///     Sets the provisioned throughput at database scope.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        public static void SetThroughput(this IMutableModel model, int? throughput, bool? autoscale)
+            => model.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.Throughput,
+                throughput == null || autoscale == null
+                    ? null
+                    : autoscale.Value
+                        ? ThroughputProperties.CreateAutoscaleThroughput(throughput.Value)
+                        : ThroughputProperties.CreateManualThroughput(throughput.Value));
+
+        /// <summary>
+        ///     Sets the provisioned throughput at database scope.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="autoscale"> Whether autoscale is enabled. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        public static int? SetThroughput(
+            this IConventionModel model,
+            int? throughput,
+            bool? autoscale,
+            bool fromDataAnnotation = false)
+        {
+            var valueSet = (ThroughputProperties?)model.SetOrRemoveAnnotation(
+                CosmosAnnotationNames.Throughput,
+                throughput == null || autoscale == null
+                    ? null
+                    : autoscale.Value
+                        ? ThroughputProperties.CreateAutoscaleThroughput(throughput.Value)
+                        : ThroughputProperties.CreateManualThroughput(throughput.Value),
+                fromDataAnnotation)?.Value;
+            return valueSet?.AutoscaleMaxThroughput ?? valueSet?.Throughput;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> for the provisioned throughput at database scope.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <returns> The <see cref="ConfigurationSource" /> for the throughput. </returns>
+        public static ConfigurationSource? GetThroughputConfigurationSource(this IConventionModel model)
+            => model.FindAnnotation(CosmosAnnotationNames.Throughput)
+                ?.GetConfigurationSource();
     }
 }

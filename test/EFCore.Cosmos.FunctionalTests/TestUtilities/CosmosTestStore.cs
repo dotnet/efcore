@@ -232,14 +232,14 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         public override async Task CleanAsync(DbContext context)
         {
             var cosmosClientWrapper = context.GetService<ICosmosClientWrapper>();
-            var created = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync();
+            var created = await cosmosClientWrapper.CreateDatabaseIfNotExistsAsync(null);
             try
             {
                 if (!created)
                 {
                     var cosmosClient = context.Database.GetCosmosClient();
                     var database = cosmosClient.GetDatabase(Name);
-                    var containerIterator = database.GetContainerQueryIterator<ContainerProperties>();
+                    var containerIterator = database.GetContainerQueryIterator<Azure.Cosmos.ContainerProperties>();
                     while (containerIterator.HasMoreResults)
                     {
                         foreach (var containerProperties in await containerIterator.ReadNextAsync())

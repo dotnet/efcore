@@ -551,6 +551,9 @@
   <data name="IncludeWithCycle" xml:space="preserve">
     <value>The Include path '{navigationName}-&gt;{inverseNavigationName}' results in a cycle. Cycles are not allowed in no-tracking queries; either use a tracking query or remove the cycle.</value>
   </data>
+  <data name="IncompatibleSourcesForSetOperation" xml:space="preserve">
+    <value>Incompatible sources used for set operation.</value>
+  </data>
   <data name="InconsistentInheritance" xml:space="preserve">
     <value>The entity type '{entityType}' is configured as derived from '{baseEntityType}', however according to the hierarchy of the corresponding CLR types it should derive from '{clrBaseEntityType}'. Configure '{entityType}' having either '{baseEntityType}' or 'null' as the base type.</value>
   </data>
@@ -1410,9 +1413,6 @@
   </data>
   <data name="SetOperationWithDifferentIncludesInOperands" xml:space="preserve">
     <value>Unable to translate set operation since both operands have different 'Include' operations. Consider having same 'Include' applied on both sides.</value>
-  </data>
-  <data name="IncompatibleSourcesForSetOperation" xml:space="preserve">
-    <value>Incompatible sources used for set operation.</value>
   </data>
   <data name="ShadowEntity" xml:space="preserve">
     <value>The entity type '{entityType}' is in shadow state. A valid model requires all entity types to have a corresponding CLR type.</value>
