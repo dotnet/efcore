@@ -1,12 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
@@ -518,7 +516,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 },
                 new[] { 3f, 2 });
 
-
             await Can_add_update_delete_with_collection(
                 new decimal?[] { 1, null },
                 c =>
@@ -552,6 +549,79 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     c.Collection = ImmutableDictionary<string, short?>.Empty.Add("1", 1).Add("2", null);
                 },
                 new Dictionary<string, short?> { { "1", 1 }, { "2", null } });
+        }
+
+        [ConditionalFact]
+        public async Task Can_add_update_delete_with_nested_collections()
+        {
+            await Can_add_update_delete_with_collection(
+                new List<List<short>> { new List<short> { 1, 2 } },
+                c =>
+                {
+                    c.Collection.Clear();
+                    c.Collection.Add(new List<short> { 3 });
+                },
+                new List<List<short>> { new List<short> { 3 } });
+
+            await Can_add_update_delete_with_collection<IList<byte?[]>>(
+                new List<byte?[]>(),
+                c =>
+                {
+                    c.Collection.Add(new byte?[] { 3, null });
+                    c.Collection.Add(null);
+                },
+                new List<byte?[]> { new byte?[] { 3, null }, null });
+
+            await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
+                new Dictionary<string, string>[] { new Dictionary<string, string> { { "1", null } } },
+                c =>
+                {
+                    var dictionary = c.Collection[0]["3"] = "2";
+                },
+                new List<Dictionary<string, string>> { new Dictionary<string, string> { { "1", null }, { "3", "2" } } });
+
+            await Can_add_update_delete_with_collection(
+                new List<float>[] { new List<float> { 1f }, new List<float> { 2 } },
+                c =>
+                {
+                    c.Collection[1][0] = 3f;
+                },
+                new List<float>[] { new List<float> { 1f }, new List<float> { 3f } });
+
+            await Can_add_update_delete_with_collection(
+                new decimal?[][] { new decimal?[] { 1, null } },
+                c =>
+                {
+                    c.Collection[0][1] = 3;
+                },
+                new decimal?[][] { new decimal?[] { 1, 3 } });
+
+            await Can_add_update_delete_with_collection(
+                new Dictionary<string, List<int>> { { "1", new List<int> { 1 } } },
+                c =>
+                {
+                    c.Collection["2"] = new List<int> { 3 };
+                },
+                new Dictionary<string, List<int>> { { "1", new List<int> { 1 } }, { "2", new List<int> { 3 } } });
+
+            await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
+                new SortedDictionary<string, long?[]> { { "2", new long?[] { 2 } }, { "1", new long?[] { 1 } } },
+                c =>
+                {
+                    c.Collection.Clear();
+                    c.Collection["2"] = null;
+                },
+                new SortedDictionary<string, long?[]> { { "2", null } });
+
+            await Can_add_update_delete_with_collection<IReadOnlyDictionary<string, Dictionary<string, short?>>>(
+                 ImmutableDictionary<string, Dictionary<string, short?>>.Empty
+                    .Add("2", new Dictionary<string, short?> { { "value", 2 } }).Add("1", new Dictionary<string, short?> { { "value", 1 } }),
+                c =>
+                {
+                    c.Collection = ImmutableDictionary<string, Dictionary<string, short?>>.Empty
+                        .Add("1", new Dictionary<string, short?> { { "value", 1 } }).Add("2", null);
+                },
+                new Dictionary<string, Dictionary<string, short?>> { { "1", new Dictionary<string, short?> { { "value", 1 } } }, { "2", null } });
         }
 
         private async Task Can_add_update_delete_with_collection<TCollection>(

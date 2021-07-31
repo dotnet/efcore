@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
@@ -50,19 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
                 return false;
             }
 
-            if (aDict == bDict)
+            if (ReferenceEquals(aDict, bDict))
             {
                 return true;
             }
 
             foreach (var aPair in aDict)
             {
-                if (!bDict.TryGetValue(aPair.Key, out var bValue))
-                {
-                    return false;
-                }
-
-                if (!elementComparer.Equals(aPair.Value, bValue))
+                if (!bDict.TryGetValue(aPair.Key, out var bValue)
+                    || !elementComparer.Equals(aPair.Value, bValue))
                 {
                     return false;
                 }
@@ -85,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
 
         private static TCollection? Snapshot(TCollection? source, ValueComparer<TElement> elementComparer, bool readOnly)
         {
-            if (source == null)
+            if (source is null)
             {
                 return null;
             }
