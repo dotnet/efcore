@@ -2359,6 +2359,39 @@ CREATE TABLE PrincipalTable (
 DROP TABLE PrincipalTable;");
         }
 
+        [ConditionalFact]
+        public void Skip_duplicate_foreign_key()
+        {
+            Test(
+                @"CREATE TABLE PrincipalTable (
+    Id int PRIMARY KEY,
+);
+
+CREATE TABLE DependentTable (
+    Id int PRIMARY KEY,
+    ForeignKeyId int,
+    CONSTRAINT MYFK1 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
+    CONSTRAINT MYFK2 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var (level, _, message, _, _) = Assert.Single(
+                        Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.DuplicateForeignKeyConstraintIgnored);
+                    Assert.Equal(LogLevel.Warning, level);
+                    Assert.Equal(
+                        SqlServerResources.DuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
+                            .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1"), message);
+
+                    var table = dbModel.Tables.Single(t => t.Name == "DependentTable");
+                    Assert.Single(table.ForeignKeys);
+                },
+                @"
+DROP TABLE DependentTable;
+DROP TABLE PrincipalTable;");
+        }
+
         #endregion
 
         private void Test(
