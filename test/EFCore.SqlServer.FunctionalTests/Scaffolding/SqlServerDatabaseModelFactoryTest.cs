@@ -2388,7 +2388,7 @@ CREATE TABLE DependentTable (
                     Assert.Single(table.ForeignKeys);
                 },
                 @"
-DROP TABLE PrincipalTableWithDupes;");
+DROP TABLE PrincipalTable;");
         }
 
         #endregion
