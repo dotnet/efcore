@@ -271,64 +271,49 @@
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
   </data>
-  <data name="TransientExceptionDetected" xml:space="preserve">
-    <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
-  </data>
-
-  <data name="TemporalOnlyOnRoot" xml:space="preserve">
-    <value>Only root entity type should be marked as temporal. Entity type: '{entityType}'.</value>
-  </data>
-
-  <data name="TemporalOnlySupportedForTPH" xml:space="preserve">
-    <value>Temporal tables are only supported for entities using Table-Per-Hierarchy inheritance mapping. Entity type: '{entityType}'.</value>
-  </data>
-
-  <data name="TemporalNotSupportedForTableSplitting" xml:space="preserve">
-    <value>Temporal tables are not supported for table splitting scenario. Table: '{table}'.</value>
-  </data>
-
-  <data name="TemporalMustDefinePeriodProperties" xml:space="preserve">
-    <value>Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.</value>
-  </data>
-
   <data name="TemporalExpectedPeriodPropertyNotFound" xml:space="preserve">
     <value>Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.</value>
   </data>
-
-  <data name="TemporalPeriodPropertyMustBeInShadowState" xml:space="preserve">
-    <value>Period property '{entityType}.{propertyName}' must be a shadow property.</value>
+  <data name="TemporalMustDefinePeriodProperties" xml:space="preserve">
+    <value>Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.</value>
   </data>
-
-  <data name="TemporalPeriodPropertyMustBeNonNullableDateTime" xml:space="preserve">
-    <value>Period property '{entityType}.{propertyName}' must be non-nullable and of type '{dateTimeType}'.</value>
-  </data>
-
-  <data name="TemporalPeriodPropertyMustBeMappedToDatetime2" xml:space="preserve">
-    <value>Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.</value>
-  </data>
-
-  <data name="TemporalPeriodPropertyCantHaveDefaultValue" xml:space="preserve">
-    <value>Period property '{entityType}.{propertyName}' can't have a default value specified.</value>
-  </data>
-
-  <data name="TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate" xml:space="preserve">
-    <value>Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.</value>
-  </data>
-
-  <data name="TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue" xml:space="preserve">
-    <value>Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.</value>
-  </data>
-
   <data name="TemporalNavigationExpansionBetweenTemporalAndNonTemporal" xml:space="preserve">
     <value>Temporal query is trying to use navigation to an entity '{entityType}' which itself doesn't map to temporal table. Either map the entity to temporal table or use join manually to access it.</value>
   </data>
-
   <data name="TemporalNavigationExpansionOnlySupportedForAsOf" xml:space="preserve">
     <value>Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.</value>
   </data>
-
+  <data name="TemporalNotSupportedForTableSplitting" xml:space="preserve">
+    <value>Temporal tables are not supported for table splitting scenario. Table: '{table}'.</value>
+  </data>
+  <data name="TemporalOnlyOnRoot" xml:space="preserve">
+    <value>Only root entity type should be marked as temporal. Entity type: '{entityType}'.</value>
+  </data>
+  <data name="TemporalOnlySupportedForTPH" xml:space="preserve">
+    <value>Temporal tables are only supported for entities using Table-Per-Hierarchy inheritance mapping. Entity type: '{entityType}'.</value>
+  </data>
+  <data name="TemporalPeriodPropertyCantHaveDefaultValue" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' can't have a default value specified.</value>
+  </data>
+  <data name="TemporalPeriodPropertyMustBeInShadowState" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' must be a shadow property.</value>
+  </data>
+  <data name="TemporalPeriodPropertyMustBeMappedToDatetime2" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' must be mapped to a column of type '{columnType}'.</value>
+  </data>
+  <data name="TemporalPeriodPropertyMustBeNonNullableDateTime" xml:space="preserve">
+    <value>Period property '{entityType}.{propertyName}' must be non-nullable and of type '{dateTimeType}'.</value>
+  </data>
+  <data name="TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue" xml:space="preserve">
+    <value>Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.</value>
+  </data>
+  <data name="TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate" xml:space="preserve">
+    <value>Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.</value>
+  </data>
   <data name="TemporalSetOperationOnMismatchedSources" xml:space="preserve">
     <value>Set operation can't be applied on entity '{entityType}' because temporal operations on both arguments don't match.</value>
   </data>
-
+  <data name="TransientExceptionDetected" xml:space="preserve">
+    <value>An exception has been raised that is likely due to a transient failure. Consider enabling transient error resiliency by adding 'EnableRetryOnFailure' to the 'UseSqlServer' call.</value>
+  </data>
 </root>
