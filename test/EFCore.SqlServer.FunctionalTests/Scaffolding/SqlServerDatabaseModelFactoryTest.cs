@@ -2388,6 +2388,7 @@ CREATE TABLE DependentTable (
                     Assert.Single(table.ForeignKeys);
                 },
                 @"
+DROP TABLE DependentTable;
 DROP TABLE PrincipalTable;");
         }
 
