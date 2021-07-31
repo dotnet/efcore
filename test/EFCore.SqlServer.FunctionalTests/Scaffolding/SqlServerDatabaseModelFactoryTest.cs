@@ -2384,7 +2384,7 @@ CREATE TABLE DependentTable (
                         SqlServerResources.DuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
                             .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1"), message);
 
-                    var table = Assert.Single(dbModel.Tables);
+                    var table = dbModel.Tables.Single(t => t.Name == "DependentTable");
                     Assert.Single(table.ForeignKeys);
                 },
                 @"
