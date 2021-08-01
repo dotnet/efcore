@@ -2367,11 +2367,16 @@ DROP TABLE PrincipalTable;");
     Id int PRIMARY KEY,
 );
 
+CREATE TABLE OtherPrincipalTable (
+    Id int PRIMARY KEY,
+);
+
 CREATE TABLE DependentTable (
     Id int PRIMARY KEY,
     ForeignKeyId int,
     CONSTRAINT MYFK1 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
     CONSTRAINT MYFK2 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
+	CONSTRAINT MYFK3 FOREIGN KEY (ForeignKeyId) REFERENCES OtherPrincipalTable(Id),
 );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
@@ -2385,11 +2390,12 @@ CREATE TABLE DependentTable (
                             .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1"), message);
 
                     var table = dbModel.Tables.Single(t => t.Name == "DependentTable");
-                    Assert.Single(table.ForeignKeys);
+                    Assert.Equal(2, table.ForeignKeys.Count);
                 },
                 @"
 DROP TABLE DependentTable;
-DROP TABLE PrincipalTable;");
+DROP TABLE PrincipalTable;
+DROP TABLE OtherPrincipalTable;");
         }
 
         #endregion

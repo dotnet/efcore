@@ -1214,7 +1214,9 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         }
                         else
                         {
-                            var duplicated = table.ForeignKeys.FirstOrDefault(k => k.Columns.SequenceEqual(foreignKey.Columns));
+                            var duplicated = table.ForeignKeys
+                                .FirstOrDefault(k => k.Columns.SequenceEqual(foreignKey.Columns)
+                                    && k.PrincipalTable.Equals(foreignKey.PrincipalTable));
                             if (duplicated != null)
                             {
                                 _logger.DuplicateForeignKeyConstraintIgnored(
