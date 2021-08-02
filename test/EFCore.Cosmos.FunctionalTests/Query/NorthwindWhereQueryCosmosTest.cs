@@ -2173,9 +2173,14 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
         }
 
-        public override Task Where_equals_method_string_with_ignore_case(bool async)
+        public override async Task Where_equals_method_string_with_ignore_case(bool async)
         {
-            return AssertTranslationFailed(() => base.Where_equals_method_string_with_ignore_case(async));
+            await base.Where_equals_method_string_with_ignore_case(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""City""], ""London"", true))");
         }
 
         public override async Task Filter_with_EF_Property_using_closure_for_property_name(bool async)

@@ -710,8 +710,19 @@ WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR([o].[UnitPrice]) > 10.0)
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
+WHERE POWER(CAST([o].[Discount] AS float), 3.0E0) > 0.004999999888241291E0");
+        }
+
+        public override async Task Where_math_square(bool async)
+        {
+            await base.Where_math_square(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
 WHERE POWER(CAST([o].[Discount] AS float), 2.0E0) > 0.05000000074505806E0");
         }
+
 
         public override async Task Where_math_round(bool async)
         {
@@ -938,9 +949,19 @@ WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR(CAST([o].[UnitPrice] AS 
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
+WHERE POWER([o].[Discount], CAST(3 AS real)) > CAST(0.005 AS real)");
+        }
+
+        public override async Task Where_mathf_square(bool async)
+        {
+            await base.Where_mathf_square(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
 WHERE POWER([o].[Discount], CAST(2 AS real)) > CAST(0.05 AS real)");
         }
-        
+
         public override async Task Where_mathf_round2(bool async)
         {
             await base.Where_mathf_round2(async);
@@ -1477,12 +1498,33 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
+        [ConditionalTheory(Skip = "issue #25396")]
+        public override async Task Indexof_with_starting_position(bool async)
+        {
+            await base.Indexof_with_starting_position(async);
+
+            AssertSql(
+                @"SELECT [c].[ContactName]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
         public override async Task Replace_with_emptystring(bool async)
         {
             await base.Replace_with_emptystring(async);
 
             AssertSql(
                 @"SELECT REPLACE([c].[ContactName], N'ari', N'')
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
+        public override async Task Replace_using_property_arguments(bool async)
+        {
+            await base.Replace_using_property_arguments(async);
+
+            AssertSql(
+                @"SELECT REPLACE([c].[ContactName], [c].[ContactName], [c].[CustomerID])
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }

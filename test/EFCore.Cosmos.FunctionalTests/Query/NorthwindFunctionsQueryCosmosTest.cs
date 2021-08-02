@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 using Xunit.Abstractions;
@@ -362,10 +363,21 @@ FROM root c
 WHERE (((c[""Discriminator""] = ""OrderDetail"") AND (c[""Quantity""] < 5)) AND (FLOOR(c[""UnitPrice""]) > 10.0))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalTheory(Skip = "Issue #25120")]
         public override async Task Where_math_power(bool async)
         {
             await base.Where_math_power(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""OrderDetail"")");
+        }
+
+        [ConditionalTheory(Skip = "Issue #25120")]
+        public override async Task Where_math_square(bool async)
+        {
+            await base.Where_math_square(async);
 
             AssertSql(
                 @"SELECT c
@@ -621,15 +633,26 @@ FROM [Order Details] AS [o]
 WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (FLOOR(CAST([o].[UnitPrice] AS real)) > CAST(10 AS real))");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
+        [ConditionalTheory]
         public override async Task Where_mathf_power(bool async)
         {
             await base.Where_mathf_power(async);
 
             AssertSql(
-                @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
-FROM [Order Details] AS [o]
-WHERE POWER([o].[Discount], CAST(2 AS real)) > CAST(0.05 AS real)");
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (POWER(c[""Discount""], 3.0) > 0.005))");
+        }
+
+        [ConditionalTheory]
+        public override async Task Where_mathf_square(bool async)
+        {
+            await base.Where_mathf_square(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""OrderDetail"") AND (POWER(c[""Discount""], 2.0) > 0.05))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -932,7 +955,17 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))")
             await base.Indexof_with_emptystring(async);
 
             AssertSql(
-                @"SELECT c[""ContactName""]
+                @"SELECT INDEX_OF(c[""ContactName""], """") AS c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
+        public override async Task Indexof_with_starting_position(bool async)
+        {
+            await base.Indexof_with_starting_position(async);
+
+            AssertSql(
+                @"SELECT INDEX_OF(c[""ContactName""], ""a"", 3) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -942,7 +975,17 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Replace_with_emptystring(async);
 
             AssertSql(
-                @"SELECT c[""ContactName""]
+                @"SELECT REPLACE(c[""ContactName""], ""ari"", """") AS c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
+        }
+
+        public override async Task Replace_using_property_arguments(bool async)
+        {
+            await base.Replace_using_property_arguments(async);
+
+            AssertSql(
+                @"SELECT REPLACE(c[""ContactName""], c[""ContactName""], c[""CustomerID""]) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -984,7 +1027,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (SUBSTRING(c[""CustomerID""], @
             await base.Substring_with_two_args_with_zero_startindex(async);
 
             AssertSql(
-                @"SELECT SUBSTRING(c[""ContactName""], 0, 3) AS c
+                @"SELECT LEFT(c[""ContactName""], 3) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1026,7 +1069,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI"")
             await base.Substring_with_two_args_with_Index_of(async);
 
             AssertSql(
-                @"SELECT c[""ContactName""]
+                @"SELECT SUBSTRING(c[""ContactName""], INDEX_OF(c[""ContactName""], ""a""), 3) AS c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
@@ -1288,6 +1331,36 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""OrderID""] < 10250))");
         public override Task Regex_IsMatch_MethodCall_constant_input(bool async)
         {
             return AssertTranslationFailed(() => base.Regex_IsMatch_MethodCall_constant_input(async));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Case_insensitive_string_comparison_instance(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("alFkI", StringComparison.OrdinalIgnoreCase)),
+                entryCount: 1);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""CustomerID""], ""alFkI"", true))");
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Case_insensitive_string_comparison_static(bool async)
+        {
+            await AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "alFkI", StringComparison.OrdinalIgnoreCase)),
+            entryCount: 1);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""CustomerID""], ""alFkI"", true))");
         }
 
         private void AssertSql(params string[] expected)
