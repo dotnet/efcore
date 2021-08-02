@@ -1901,6 +1901,62 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
         }
 
+        [ConditionalFact]
+        public virtual void Temporal_table_information_is_stored_in_snapshot_minimal_setup()
+        {
+            Test(
+                builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal()),
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<string>(""Name"")
+                        .HasColumnType(""nvarchar(max)"");
+
+                    b.Property<DateTime>(""PeriodEnd"")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType(""datetime2"")
+                        .HasColumnName(""PeriodEnd"");
+
+                    b.Property<DateTime>(""PeriodStart"")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType(""datetime2"")
+                        .HasColumnName(""PeriodStart"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithStringProperty"");
+
+                    b.ToTable(tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb
+                                .HasPeriodStart(""PeriodStart"")
+                                .HasColumnName(""PeriodStart"");
+                            ttb
+                                .HasPeriodEnd(""PeriodEnd"")
+                                .HasColumnName(""PeriodEnd"");
+                        }
+                    ));
+                });", usingSystem: true),
+                o =>
+                {
+                    var temporalEntity = o.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty");
+                    var annotations = temporalEntity.GetAnnotations().ToList();
+
+                    Assert.Equal(5, annotations.Count);
+                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.IsTemporal && a.Value as bool? == true);
+                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName && a.Value as string == "PeriodStart");
+                    Assert.Contains(annotations, a => a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName && a.Value as string == "PeriodEnd");
+                });
+        }
+
         #endregion
 
         #region Owned types

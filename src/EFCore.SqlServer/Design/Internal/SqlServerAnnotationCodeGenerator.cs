@@ -189,7 +189,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             if (annotations.TryGetValue(SqlServerAnnotationNames.IsTemporal, out var isTemporalAnnotation)
                 && isTemporalAnnotation.Value as bool? == true)
             {
-                var historyTableName = annotations[SqlServerAnnotationNames.TemporalHistoryTableName].Value as string;
+                var historyTableName = annotations.ContainsKey(SqlServerAnnotationNames.TemporalHistoryTableName)
+                    ? annotations[SqlServerAnnotationNames.TemporalHistoryTableName].Value as string
+                    : null;
+
                 var historyTableSchema = annotations.ContainsKey(SqlServerAnnotationNames.TemporalHistoryTableSchema)
                     ? annotations[SqlServerAnnotationNames.TemporalHistoryTableSchema].Value as string
                     : null;
