@@ -2376,7 +2376,7 @@ CREATE TABLE DependentTable (
     ForeignKeyId int,
     CONSTRAINT MYFK1 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
     CONSTRAINT MYFK2 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
-	CONSTRAINT MYFK3 FOREIGN KEY (ForeignKeyId) REFERENCES OtherPrincipalTable(Id),
+    CONSTRAINT MYFK3 FOREIGN KEY (ForeignKeyId) REFERENCES OtherPrincipalTable(Id),
 );",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
