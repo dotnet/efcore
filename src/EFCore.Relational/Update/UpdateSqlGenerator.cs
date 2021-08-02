@@ -294,7 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Appends a SQL fragment for starting an <c>DELETE</c>.
+        ///     Appends a SQL fragment for starting a <c>DELETE</c>.
         /// </summary>
         /// <param name="commandStringBuilder"> The builder to which the SQL should be appended. </param>
         /// <param name="name"> The name of the table. </param>
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Appends a SQL fragment for starting an <c>SELECT</c>.
+        ///     Appends a SQL fragment for starting a <c>SELECT</c>.
         /// </summary>
         /// <param name="commandStringBuilder"> The builder to which the SQL should be appended. </param>
         /// <param name="operations"> The operations representing the data to be read. </param>
@@ -371,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Appends a SQL fragment for starting an <c>FROM</c> clause.
+        ///     Appends a SQL fragment for starting a <c>FROM</c> clause.
         /// </summary>
         /// <param name="commandStringBuilder"> The builder to which the SQL should be appended. </param>
         /// <param name="name"> The name of the table. </param>

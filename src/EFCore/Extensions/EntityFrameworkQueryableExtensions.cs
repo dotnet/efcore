@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Asynchronously returns an <see cref="long" /> that represents the total number of elements in a sequence.
+        ///     Asynchronously returns a <see cref="long" /> that represents the total number of elements in a sequence.
         /// </summary>
         /// <remarks>
         ///     Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
@@ -220,7 +220,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Asynchronously returns an <see cref="long" /> that represents the number of elements in a sequence
+        ///     Asynchronously returns a <see cref="long" /> that represents the number of elements in a sequence
         ///     that satisfy a condition.
         /// </summary>
         /// <remarks>

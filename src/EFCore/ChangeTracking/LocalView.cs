@@ -435,7 +435,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item));
 
         /// <summary>
-        ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
+        ///     Returns a <see cref="BindingList{T}" /> implementation that stays in sync with this collection.
         ///     Use this for WinForms data binding.
         /// </summary>
         /// <returns> The binding list. </returns>
