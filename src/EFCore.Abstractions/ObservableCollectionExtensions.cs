@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore
     public static class ObservableCollectionExtensions
     {
         /// <summary>
-        ///     Returns an <see cref="BindingList{T}" /> implementation that stays in sync with the given
+        ///     Returns a <see cref="BindingList{T}" /> implementation that stays in sync with the given
         ///     <see cref="ObservableCollection{T}" />.
         /// </summary>
         /// <typeparam name="T"> The element type. </typeparam>

@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Gets an <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
+        ///         Gets a <see cref="LocalView{TEntity}" /> that represents a local view of all Added, Unchanged,
         ///         and Modified entities in this set.
         ///     </para>
         ///     <para>
