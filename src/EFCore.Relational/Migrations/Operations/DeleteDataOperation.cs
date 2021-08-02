@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
                 ? MigrationsModelDiffer.GetMappedProperties(table, KeyColumns)
                 : null;
 
-            var modificationCommandFactory = new MutableModificationCommandFactory();
+            var modificationCommandFactory = new ModificationCommandFactory();
 
             for (var i = 0; i < KeyValues.GetLength(0); i++)
             {

@@ -147,7 +147,7 @@ Statement3
                     generationHelper,
                     typeMappingSource,
                     new CurrentDbContext(new FakeDbContext()),
-                    new MutableModificationCommandFactory(),
+                    new ModificationCommandFactory(),
                     new LoggingOptions(),
                     logger,
                     migrationsLogger));

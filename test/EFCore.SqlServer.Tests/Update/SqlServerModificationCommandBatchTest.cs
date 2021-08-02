@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         {
         }
 
-        private static IMutableModificationCommand CreateModificationCommand(
+        private static IModificationCommand CreateModificationCommand(
             string name,
             string schema,
             bool sensitiveLoggingEnabled)
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             var modificationCommandParameters = new ModificationCommandParameters(
                 name, schema, sensitiveLoggingEnabled);
 
-            var modificationCommand = new MutableModificationCommandFactory().CreateModificationCommand(
+            var modificationCommand = new ModificationCommandFactory().CreateModificationCommand(
                 modificationCommandParameters);
 
             return modificationCommand;

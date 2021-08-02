@@ -649,8 +649,8 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         protected abstract string RowsAffected { get; }
 
-        protected virtual IMutableModificationCommandFactory CreateMutableModificationCommandFactory()
-            => new MutableModificationCommandFactory();
+        protected virtual IModificationCommandFactory CreateMutableModificationCommandFactory()
+            => new ModificationCommandFactory();
 
         protected virtual string Identity
             => throw new NotImplementedException();
@@ -670,7 +670,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         protected virtual string GetIdentityWhereCondition(string columnName)
             => OpenDelimiter + columnName + CloseDelimiter + " = " + Identity;
 
-        protected IMutableModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
+        protected IModificationCommand CreateInsertCommand(bool identityKey = true, bool isComputed = true, bool defaultsOnly = false)
         {
             var model = GetDuckModel();
             var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -711,7 +711,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             return CreateModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
-        protected IMutableModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
+        protected IModificationCommand CreateUpdateCommand(bool isComputed = true, bool concurrencyToken = true)
         {
             var model = GetDuckModel();
             var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -747,7 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             return CreateModificationCommand("Ducks", Schema, columnModifications, false);
         }
 
-        protected IMutableModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
+        protected IModificationCommand CreateDeleteCommand(bool concurrencyToken = true)
         {
             var model = GetDuckModel();
             var stateManager = TestHelpers.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -789,7 +789,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             public byte[] ConcurrencyToken { get; set; }
         }
 
-        private IMutableModificationCommand CreateModificationCommand(
+        private IModificationCommand CreateModificationCommand(
             string name,
             string schema,
             IReadOnlyList<ColumnModificationParameters> columnModifications,

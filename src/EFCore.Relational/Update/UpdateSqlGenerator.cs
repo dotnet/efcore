@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         public virtual ResultSetMapping AppendInsertOperation(
             StringBuilder commandStringBuilder,
-            IModificationCommand command,
+            IReadOnlyModificationCommand command,
             int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         public virtual ResultSetMapping AppendUpdateOperation(
             StringBuilder commandStringBuilder,
-            IModificationCommand command,
+            IReadOnlyModificationCommand command,
             int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The <see cref="ResultSetMapping" /> for the command. </returns>
         public virtual ResultSetMapping AppendDeleteOperation(
             StringBuilder commandStringBuilder,
-            IModificationCommand command,
+            IReadOnlyModificationCommand command,
             int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));

@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
     ///     <para>
-    ///         A service for creating <see cref="IMutableModificationCommand" /> instances.
+    ///         A service for creating <see cref="IModificationCommand" /> instances.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers; it is generally not used in application code.
@@ -18,14 +18,14 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public interface IMutableModificationCommandFactory
+    public interface IModificationCommandFactory
     {
         /// <summary>
         ///     Creates a new database CUD command.
         /// </summary>
         /// <param name="modificationCommandParameters"> The creation parameters. </param>
-        /// <returns> A new <see cref="IMutableModificationCommand" /> instance. </returns>
-        IMutableModificationCommand CreateModificationCommand(
-            ModificationCommandParameters modificationCommandParameters);
+        /// <returns> A new <see cref="IModificationCommand" /> instance. </returns>
+        IModificationCommand CreateModificationCommand(
+            in ModificationCommandParameters modificationCommandParameters);
     }
 }

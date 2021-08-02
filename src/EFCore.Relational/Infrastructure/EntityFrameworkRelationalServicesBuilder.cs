@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             {
                 { typeof(IKeyValueIndexFactorySource), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IParameterNameGeneratorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IComparer<IModificationCommand>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IComparer<IReadOnlyModificationCommand>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsIdGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ISqlGenerationHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IRelationalAnnotationProvider), new ServiceCharacteristics(ServiceLifetime.Singleton) },
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IRelationalQueryStringFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICommandBatchPreparer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IModificationCommandBatchFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
-                { typeof(IMutableModificationCommandFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(IModificationCommandFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IMigrationsModelDiffer), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrationsSqlGenerator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IMigrator), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
             TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();
-            TryAdd<IComparer<IModificationCommand>, ModificationCommandComparer>();
+            TryAdd<IComparer<IReadOnlyModificationCommand>, ModificationCommandComparer>();
             TryAdd<IMigrationsIdGenerator, MigrationsIdGenerator>();
             TryAdd<IKeyValueIndexFactorySource, KeyValueIndexFactorySource>();
             TryAdd<IModelCustomizer, RelationalModelCustomizer>();
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>();
             TryAdd<IRawSqlCommandBuilder, RawSqlCommandBuilder>();
             TryAdd<ICommandBatchPreparer, CommandBatchPreparer>();
-            TryAdd<IMutableModificationCommandFactory, MutableModificationCommandFactory>();
+            TryAdd<IModificationCommandFactory, ModificationCommandFactory>();
             TryAdd<IMigrationsModelDiffer, MigrationsModelDiffer>();
             TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
             TryAdd<IExecutionStrategyFactory, RelationalExecutionStrategyFactory>();

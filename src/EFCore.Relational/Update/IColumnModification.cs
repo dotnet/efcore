@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
     ///     <para>
-    ///         Represents an update, insert, or delete operation for a single column. <see cref="IModificationCommand" />
+    ///         Represents an update, insert, or delete operation for a single column. <see cref="IReadOnlyModificationCommand" />
     ///         contain lists of <see cref="IColumnModification" />.
     ///     </para>
     ///     <para>

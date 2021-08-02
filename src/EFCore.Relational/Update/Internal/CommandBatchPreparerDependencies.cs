@@ -63,9 +63,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         public CommandBatchPreparerDependencies(
             IModificationCommandBatchFactory modificationCommandBatchFactory,
             IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            IComparer<IModificationCommand> modificationCommandComparer,
+            IComparer<IReadOnlyModificationCommand> modificationCommandComparer,
             IKeyValueIndexFactorySource keyValueIndexFactorySource,
-            IMutableModificationCommandFactory modificationCommandFactory,
+            IModificationCommandFactory modificationCommandFactory,
             ILoggingOptions loggingOptions,
             IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger,
             IDbContextOptions options)
@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
             ModificationCommandComparer = modificationCommandComparer;
             KeyValueIndexFactorySource = keyValueIndexFactorySource;
-            MutableModificationCommandFactory = modificationCommandFactory;
+            ModificationCommandFactory = modificationCommandFactory;
             LoggingOptions = loggingOptions;
             UpdateLogger = updateLogger;
             Options = options;
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IComparer<IModificationCommand> ModificationCommandComparer { get; init; }
+        public IComparer<IReadOnlyModificationCommand> ModificationCommandComparer { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IMutableModificationCommandFactory MutableModificationCommandFactory { get; init; }
+        public IModificationCommandFactory ModificationCommandFactory { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

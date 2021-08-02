@@ -1,21 +1,19 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Update
 {
     /// <summary>
     ///     <para>
-    ///         Parameters for creating a <see cref="IMutableModificationCommand" /> instance.
+    ///         Parameters for creating a <see cref="IModificationCommand" /> instance.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     /// </summary>
-    public sealed record ModificationCommandParameters
+    public readonly record struct ModificationCommandParameters
     {
         /// <summary>
         ///     Creates a new <see cref="ModificationCommandParameters" /> instance.
