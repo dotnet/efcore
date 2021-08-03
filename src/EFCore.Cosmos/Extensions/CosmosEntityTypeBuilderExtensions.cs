@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Azure.Cosmos;
@@ -115,10 +114,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the parent property. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder<TEntity, TDependentEntity> ToJsonProperty<TEntity, TDependentEntity>(
-            this OwnedNavigationBuilder<TEntity, TDependentEntity> entityTypeBuilder,
+        public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJsonProperty<TOwnerEntity, TDependentEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> entityTypeBuilder,
             string? name)
-            where TEntity : class
+            where TOwnerEntity : class
             where TDependentEntity : class
         {
             entityTypeBuilder.OwnedEntityType.SetContainingPropertyName(name);

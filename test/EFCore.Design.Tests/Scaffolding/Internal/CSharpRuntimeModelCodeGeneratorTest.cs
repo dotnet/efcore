@@ -1717,7 +1717,7 @@ namespace TestNamespace
                     eb.OwnsMany(typeof(OwnedType).FullName, "ManyOwned", ob =>
                     {
                         ob.IsMemoryOptimized();
-                        ob.ToTable("ManyOwned", excludedFromMigrations: true);
+                        ob.ToTable("ManyOwned", t => t.ExcludeFromMigrations());
                     });
 
                     eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)

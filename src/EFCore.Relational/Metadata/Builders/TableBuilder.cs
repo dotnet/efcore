@@ -21,15 +21,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, EntityTypeBuilder entityTypeBuilder)
+        public TableBuilder(string? name, string? schema, IMutableEntityType entityType)
         {
-            EntityTypeBuilder = entityTypeBuilder;
+            Metadata = entityType;
         }
 
         /// <summary>
-        ///     The entity type builder for the entity being configured.
+        ///     The entity type being configured.
         /// </summary>
-        public virtual EntityTypeBuilder EntityTypeBuilder { get; }
+        public virtual IMutableEntityType Metadata { get; }
 
         /// <summary>
         ///     Configures the table to be ignored by migrations.
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TableBuilder ExcludeFromMigrations(bool excluded = true)
         {
-            EntityTypeBuilder.Metadata.SetIsTableExcludedFromMigrations(excluded);
+            Metadata.SetIsTableExcludedFromMigrations(excluded);
 
             return this;
         }

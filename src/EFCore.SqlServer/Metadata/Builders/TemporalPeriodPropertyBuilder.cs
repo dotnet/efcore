@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public class TemporalPeriodPropertyBuilder
     {
-        private readonly EntityTypeBuilder _entityTypeBuilder;
+        private readonly IMutableEntityType _entityType;
         private readonly string _periodPropertyName;
 
         /// <summary>
@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TemporalPeriodPropertyBuilder(EntityTypeBuilder entityTypeBuilder, string periodPropertyName)
+        public TemporalPeriodPropertyBuilder(IMutableEntityType entityType, string periodPropertyName)
         {
-            _entityTypeBuilder = entityTypeBuilder;
+            _entityType = entityType;
             _periodPropertyName = periodPropertyName;
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TemporalPeriodPropertyBuilder HasColumnName(string name)
         {
-            _entityTypeBuilder.Metadata.GetProperty(_periodPropertyName).SetColumnName(name);
+            _entityType.GetProperty(_periodPropertyName).SetColumnName(name);
 
             return this;
         }

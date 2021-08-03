@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders
@@ -23,17 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TableBuilder(string? name, string? schema, EntityTypeBuilder<TEntity> entityTypeBuilder)
-            : base(name, schema, entityTypeBuilder)
+        public TableBuilder(string? name, string? schema, IMutableEntityType entityType)
+            : base(name, schema, entityType)
         {
-        }
-
-        /// <summary>
-        ///     The entity type builder for the entity being configured.
-        /// </summary>
-        public new virtual EntityTypeBuilder<TEntity> EntityTypeBuilder
-        {
-            [DebuggerStepThrough] get => (EntityTypeBuilder<TEntity>)base.EntityTypeBuilder;
         }
 
         /// <summary>

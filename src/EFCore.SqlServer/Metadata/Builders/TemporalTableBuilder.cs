@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// </summary>
     public class TemporalTableBuilder
     {
-        private readonly EntityTypeBuilder _entityTypeBuilder;
+        private readonly IMutableEntityType _entityType;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public TemporalTableBuilder(EntityTypeBuilder entityTypeBuilder)
+        public TemporalTableBuilder(IMutableEntityType entityType)
         {
-            _entityTypeBuilder = entityTypeBuilder;
+            _entityType = entityType;
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TemporalTableBuilder WithHistoryTable(string name)
         {
-            _entityTypeBuilder.Metadata.SetTemporalHistoryTableName(name);
+            _entityType.SetTemporalHistoryTableName(name);
 
             return this;
         }
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TemporalTableBuilder WithHistoryTable(string name, string? schema)
         {
-            _entityTypeBuilder.Metadata.SetTemporalHistoryTableName(name);
-            _entityTypeBuilder.Metadata.SetTemporalHistoryTableSchema(schema);
+            _entityType.SetTemporalHistoryTableName(name);
+            _entityType.SetTemporalHistoryTableSchema(schema);
 
             return this;
         }
@@ -61,9 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the period start property. </returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
         {
-            _entityTypeBuilder.Metadata.SetTemporalPeriodStartPropertyName(propertyName);
+            _entityType.SetTemporalPeriodStartPropertyName(propertyName);
 
-            return new TemporalPeriodPropertyBuilder(_entityTypeBuilder, propertyName);
+            return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
         }
 
         /// <summary>
@@ -73,9 +73,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the period end property. </returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
         {
-            _entityTypeBuilder.Metadata.SetTemporalPeriodEndPropertyName(propertyName);
+            _entityType.SetTemporalPeriodEndPropertyName(propertyName);
 
-            return new TemporalPeriodPropertyBuilder(_entityTypeBuilder, propertyName);
+            return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
         }
 
         #region Hidden System.Object members

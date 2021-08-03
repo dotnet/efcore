@@ -197,7 +197,22 @@ namespace Microsoft.EntityFrameworkCore
                     nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations)),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                    new Type[] { typeof(EntityTypeBuilder), typeof(Action<TableBuilder>) })
+                    new Type[] { typeof(EntityTypeBuilder), typeof(Action<TableBuilder>) }),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                    new Type[] { typeof(EntityTypeBuilder), typeof(string), typeof(Action<TableBuilder>) }),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                    new Type[] { typeof(EntityTypeBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) }),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                    new Type[] { typeof(OwnedNavigationBuilder), typeof(Action<TableBuilder>) }),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(Action<TableBuilder>) }),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToTable),
+                    new Type[] { typeof(OwnedNavigationBuilder), typeof(string), typeof(string), typeof(Action<TableBuilder>) })
             };
 
             public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()
