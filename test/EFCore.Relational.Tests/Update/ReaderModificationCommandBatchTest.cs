@@ -581,7 +581,7 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             public bool ShouldAddCommand { get; set; }
 
-            protected override bool CanAddCommand(IModificationCommand modificationCommand)
+            protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
                 => ShouldAddCommand;
 
             public bool ShouldValidateSql { get; set; }
@@ -635,7 +635,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             return optionsBuilder.Options;
         }
 
-        private static IMutableModificationCommand CreateModificationCommand(
+        private static IModificationCommand CreateModificationCommand(
             string table,
             string schema,
             Func<string> generateParameterName,
@@ -652,7 +652,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             return CreateModificationCommandSource().CreateModificationCommand(modificationCommandParameters);
         }
 
-        private static IMutableModificationCommand CreateModificationCommand(
+        private static IModificationCommand CreateModificationCommand(
             string name,
             string schema,
             bool sensitiveLoggingEnabled,
@@ -675,7 +675,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             return modificationCommand;
         }
 
-        private static MutableModificationCommandFactory CreateModificationCommandSource()
-            => new MutableModificationCommandFactory();
+        private static ModificationCommandFactory CreateModificationCommandSource()
+            => new ModificationCommandFactory();
     }
 }

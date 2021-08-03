@@ -943,7 +943,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The data operation to generate commands for. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The commands that correspond to the given operation. </returns>
-        protected virtual IEnumerable<IModificationCommand> GenerateModificationCommands(
+        protected virtual IEnumerable<IReadOnlyModificationCommand> GenerateModificationCommands(
             InsertDataOperation operation,
             IModel? model)
         {
@@ -976,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.Values.GetLength(0); i++)
             {
-                var modificationCommand = Dependencies.MutableModificationCommandFactory.CreateModificationCommand(
+                var modificationCommand = Dependencies.ModificationCommandFactory.CreateModificationCommand(
                     new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
                 for (var j = 0; j < operation.Columns.Length; j++)
                 {
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The data operation to generate commands for. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The commands that correspond to the given operation. </returns>
-        protected virtual IEnumerable<IModificationCommand> GenerateModificationCommands(
+        protected virtual IEnumerable<IReadOnlyModificationCommand> GenerateModificationCommands(
             DeleteDataOperation operation,
             IModel? model)
         {
@@ -1067,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
             {
-                var modificationCommand = Dependencies.MutableModificationCommandFactory.CreateModificationCommand(
+                var modificationCommand = Dependencies.ModificationCommandFactory.CreateModificationCommand(
                     new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {
@@ -1125,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="operation"> The data operation to generate commands for. </param>
         /// <param name="model"> The model. </param>
         /// <returns> The commands that correspond to the given operation. </returns>
-        protected virtual IEnumerable<IModificationCommand> GenerateModificationCommands(
+        protected virtual IEnumerable<IReadOnlyModificationCommand> GenerateModificationCommands(
             UpdateDataOperation operation,
             IModel? model)
         {
@@ -1183,7 +1183,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             for (var i = 0; i < operation.KeyValues.GetLength(0); i++)
             {
-                var modificationCommand = Dependencies.MutableModificationCommandFactory.CreateModificationCommand(
+                var modificationCommand = Dependencies.ModificationCommandFactory.CreateModificationCommand(
                     new ModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
                 for (var j = 0; j < operation.KeyColumns.Length; j++)
                 {

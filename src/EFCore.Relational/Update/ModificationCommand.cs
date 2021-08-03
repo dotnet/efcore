@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -22,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This type is typically used by database providers; it is generally not used in application code.
     ///     </para>
     /// </summary>
-    public class ModificationCommand : IMutableModificationCommand
+    public class ModificationCommand : IModificationCommand
     {
         private readonly Func<string>? _generateParameterName;
         private readonly bool _sensitiveLoggingEnabled;
@@ -37,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Initializes a new <see cref="ModificationCommand" /> instance.
         /// </summary>
         /// <param name="modificationCommandParameters"> Creation parameters. </param>
-        public ModificationCommand(ModificationCommandParameters modificationCommandParameters)
+        public ModificationCommand(in ModificationCommandParameters modificationCommandParameters)
         {
             TableName = modificationCommandParameters.TableName;
             Schema = modificationCommandParameters.Schema;
@@ -216,7 +213,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="columnModificationParameters"> Creation parameters. </param>
         /// <returns> The new <see cref="IColumnModification" /> instance. </returns>
-        public virtual IColumnModification AddColumnModification(ColumnModificationParameters columnModificationParameters)
+        public virtual IColumnModification AddColumnModification(in ColumnModificationParameters columnModificationParameters)
         {
             var modification = CreateColumnModification(columnModificationParameters);
 
@@ -235,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         /// <param name="columnModificationParameters"> Creation parameters. </param>
         /// <returns> The new instance that implements <see cref="IColumnModification" /> interface. </returns>
-        protected virtual IColumnModification CreateColumnModification(ColumnModificationParameters columnModificationParameters)
+        protected virtual IColumnModification CreateColumnModification(in ColumnModificationParameters columnModificationParameters)
             => new ColumnModification(columnModificationParameters);
 
         private List<IColumnModification> GenerateColumnModifications()

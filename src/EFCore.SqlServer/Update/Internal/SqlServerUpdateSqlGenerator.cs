@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         /// </summary>
         public virtual ResultSetMapping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<IModificationCommand> modificationCommands,
+            IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
             int commandPosition)
         {
             var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private ResultSetMapping AppendBulkInsertWithoutServerValues(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<IModificationCommand> modificationCommands,
+            IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
             List<IColumnModification> writeOperations)
         {
             Check.DebugAssert(writeOperations.Count > 0, $"writeOperations.Count is {writeOperations.Count}");
@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private ResultSetMapping AppendBulkInsertWithServerValues(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<IModificationCommand> modificationCommands,
+            IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
             int commandPosition,
             List<IColumnModification> writeOperations,
             List<IColumnModification> keyOperations,
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private ResultSetMapping AppendBulkInsertWithServerValuesOnly(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<IModificationCommand> modificationCommands,
+            IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
             int commandPosition,
             List<IColumnModification> nonIdentityOperations,
             List<IColumnModification> keyOperations,
@@ -235,7 +235,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             string name,
             string? schema,
             string toInsertTableAlias,
-            IReadOnlyList<IModificationCommand> modificationCommands,
+            IReadOnlyList<IReadOnlyModificationCommand> modificationCommands,
             IReadOnlyList<IColumnModification> writeOperations,
             string? additionalColumns = null)
         {
@@ -404,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
 
         private ResultSetMapping AppendInsertOperationWithServerKeys(
             StringBuilder commandStringBuilder,
-            IModificationCommand command,
+            IReadOnlyModificationCommand command,
             IReadOnlyList<IColumnModification> keyOperations,
             IReadOnlyList<IColumnModification> readOperations,
             int commandPosition)

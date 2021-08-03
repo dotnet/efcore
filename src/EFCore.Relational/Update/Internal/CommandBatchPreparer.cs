@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         private ModificationCommandBatch StartNewBatch(
             ParameterNameGenerator parameterNameGenerator,
-            IModificationCommand modificationCommand)
+            IReadOnlyModificationCommand modificationCommand)
         {
             parameterNameGenerator.Reset();
             var batch = Dependencies.ModificationCommandBatchFactory.Create();
@@ -150,13 +150,13 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IEnumerable<IModificationCommand> CreateModificationCommands(
+        protected virtual IEnumerable<IReadOnlyModificationCommand> CreateModificationCommands(
             IList<IUpdateEntry> entries,
             IUpdateAdapter updateAdapter,
             Func<string> generateParameterName)
         {
-            var commands = new List<IMutableModificationCommand>();
-            Dictionary<(string Name, string? Schema), SharedTableEntryMap<IMutableModificationCommand>>? sharedTablesCommandsMap =
+            var commands = new List<IModificationCommand>();
+            Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>? sharedTablesCommandsMap =
                 null;
             foreach (var entry in entries)
             {
@@ -168,36 +168,36 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                 var mappings = (IReadOnlyCollection<ITableMapping>)entry.EntityType.GetTableMappings();
                 var mappingCount = mappings.Count;
-                IMutableModificationCommand? firstCommands = null;
+                IModificationCommand? firstCommands = null;
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
                     var tableKey = (table.Name, table.Schema);
 
-                    IMutableModificationCommand command;
+                    IModificationCommand command;
                     var isMainEntry = true;
                     if (table.IsShared)
                     {
                         if (sharedTablesCommandsMap == null)
                         {
-                            sharedTablesCommandsMap = new Dictionary<(string, string?), SharedTableEntryMap<IMutableModificationCommand>>();
+                            sharedTablesCommandsMap = new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommand>>();
                         }
 
                         if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
                         {
-                            sharedCommandsMap = new SharedTableEntryMap<IMutableModificationCommand>(table, updateAdapter);
+                            sharedCommandsMap = new SharedTableEntryMap<IModificationCommand>(table, updateAdapter);
                             sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
                         }
 
                         command = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, comparer) => Dependencies.MutableModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
+                            (n, s, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
                                 n, s, _sensitiveLoggingEnabled, comparer, generateParameterName, Dependencies.UpdateLogger)));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
-                        command = Dependencies.MutableModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
+                        command = Dependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
                             table.Name, table.Schema, _sensitiveLoggingEnabled, comparer: null, generateParameterName, Dependencies.UpdateLogger));
                     }
 
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private void AddUnchangedSharingEntries(
-            IEnumerable<SharedTableEntryMap<IMutableModificationCommand>> sharedTablesCommands,
+            IEnumerable<SharedTableEntryMap<IModificationCommand>> sharedTablesCommands,
             IList<IUpdateEntry> entries)
         {
             foreach (var sharedCommandsMap in sharedTablesCommands)
@@ -270,9 +270,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IReadOnlyList<List<IModificationCommand>> TopologicalSort(IEnumerable<IModificationCommand> commands)
+        protected virtual IReadOnlyList<List<IReadOnlyModificationCommand>> TopologicalSort(IEnumerable<IReadOnlyModificationCommand> commands)
         {
-            var modificationCommandGraph = new Multigraph<IModificationCommand, IAnnotatable>();
+            var modificationCommandGraph = new Multigraph<IReadOnlyModificationCommand, IAnnotatable>();
             modificationCommandGraph.AddVertices(commands);
 
             // The predecessors map allows to populate the graph in linear time
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return modificationCommandGraph.BatchingTopologicalSort(FormatCycle);
         }
 
-        private string FormatCycle(IReadOnlyList<Tuple<IModificationCommand, IModificationCommand, IEnumerable<IAnnotatable>>> data)
+        private string FormatCycle(IReadOnlyList<Tuple<IReadOnlyModificationCommand, IReadOnlyModificationCommand, IEnumerable<IAnnotatable>>> data)
         {
             var builder = new StringBuilder();
             for (var i = 0; i < data.Count; i++)
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             return builder.ToString();
         }
 
-        private void Format(IModificationCommand command, StringBuilder builder)
+        private void Format(IReadOnlyModificationCommand command, StringBuilder builder)
         {
             var entry = command.Entries.First();
             var entityType = entry.EntityType;
@@ -351,7 +351,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             builder.Append(']');
         }
 
-        private void Format(IForeignKey foreignKey, IModificationCommand source, IModificationCommand target, StringBuilder builder)
+        private void Format(IForeignKey foreignKey, IReadOnlyModificationCommand source, IReadOnlyModificationCommand target, StringBuilder builder)
         {
             var reverseDependency = !source.Entries.Any(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
             if (reverseDependency)
@@ -420,7 +420,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private void Format(IIndex index, IModificationCommand source, IModificationCommand target, StringBuilder builder)
+        private void Format(IIndex index, IReadOnlyModificationCommand source, IReadOnlyModificationCommand target, StringBuilder builder)
         {
             var reverseDependency = source.EntityState != EntityState.Deleted;
             if (reverseDependency)
@@ -465,10 +465,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
         // that may need to precede some other command involving that foreign key value.
-        private Dictionary<IKeyValueIndex, List<IModificationCommand>> CreateKeyValuePredecessorMap(
-            Multigraph<IModificationCommand, IAnnotatable> commandGraph)
+        private Dictionary<IKeyValueIndex, List<IReadOnlyModificationCommand>> CreateKeyValuePredecessorMap(
+            Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph)
         {
-            var predecessorsMap = new Dictionary<IKeyValueIndex, List<IModificationCommand>>();
+            var predecessorsMap = new Dictionary<IKeyValueIndex, List<IReadOnlyModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
                 if (command.EntityState == EntityState.Modified
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             {
                                 if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
                                 {
-                                    predecessorCommands = new List<IModificationCommand>();
+                                    predecessorCommands = new List<IReadOnlyModificationCommand>();
                                     predecessorsMap.Add(principalKeyValue, predecessorCommands);
                                 }
 
@@ -533,7 +533,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             {
                                 if (!predecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
                                 {
-                                    predecessorCommands = new List<IModificationCommand>();
+                                    predecessorCommands = new List<IReadOnlyModificationCommand>();
                                     predecessorsMap.Add(dependentKeyValue, predecessorCommands);
                                 }
 
@@ -548,8 +548,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private void AddForeignKeyEdges(
-            Multigraph<IModificationCommand, IAnnotatable> commandGraph,
-            Dictionary<IKeyValueIndex, List<IModificationCommand>> predecessorsMap)
+            Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
+            Dictionary<IKeyValueIndex, List<IReadOnlyModificationCommand>> predecessorsMap)
         {
             foreach (var command in commandGraph.Vertices)
             {
@@ -616,10 +616,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         }
 
         private static void AddMatchingPredecessorEdge<T>(
-            Dictionary<T, List<IModificationCommand>> predecessorsMap,
+            Dictionary<T, List<IReadOnlyModificationCommand>> predecessorsMap,
             T keyValue,
-            Multigraph<IModificationCommand, IAnnotatable> commandGraph,
-            IModificationCommand command,
+            Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
+            IReadOnlyModificationCommand command,
             IAnnotatable edge)
             where T: notnull
         {
@@ -635,10 +635,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             }
         }
 
-        private void AddUniqueValueEdges(Multigraph<IModificationCommand, IAnnotatable> commandGraph)
+        private void AddUniqueValueEdges(Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph)
         {
-            Dictionary<IIndex, Dictionary<object[], IModificationCommand>>? indexPredecessorsMap = null;
-            var keyPredecessorsMap = new Dictionary<(IKey, IKeyValueIndex), List<IModificationCommand>>();
+            Dictionary<IIndex, Dictionary<object[], IReadOnlyModificationCommand>>? indexPredecessorsMap = null;
+            var keyPredecessorsMap = new Dictionary<(IKey, IKeyValueIndex), List<IReadOnlyModificationCommand>>();
             foreach (var command in commandGraph.Vertices)
             {
                 if (command.EntityState != EntityState.Modified
@@ -661,10 +661,10 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         var valueFactory = index.GetNullableValueFactory<object[]>();
                         if (valueFactory.TryCreateFromOriginalValues(entry, out var indexValue))
                         {
-                            indexPredecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], IModificationCommand>>();
+                            indexPredecessorsMap ??= new Dictionary<IIndex, Dictionary<object[], IReadOnlyModificationCommand>>();
                             if (!indexPredecessorsMap.TryGetValue(index, out var predecessorCommands))
                             {
-                                predecessorCommands = new Dictionary<object[], IModificationCommand>(valueFactory.EqualityComparer);
+                                predecessorCommands = new Dictionary<object[], IReadOnlyModificationCommand>(valueFactory.EqualityComparer);
                                 indexPredecessorsMap.Add(index, predecessorCommands);
                             }
 
@@ -690,7 +690,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         {
                             if (!keyPredecessorsMap.TryGetValue((key, principalKeyValue), out var predecessorCommands))
                             {
-                                predecessorCommands = new List<IModificationCommand>();
+                                predecessorCommands = new List<IReadOnlyModificationCommand>();
                                 keyPredecessorsMap.Add((key, principalKeyValue), predecessorCommands);
                             }
 

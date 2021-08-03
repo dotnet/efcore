@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         Implementation of <see cref="IColumnModification" /> interface.
     ///     </para>
     ///     <para>
-    ///         Represents an update, insert, or delete operation for a single column. <see cref="IModificationCommand" />
+    ///         Represents an update, insert, or delete operation for a single column. <see cref="IReadOnlyModificationCommand" />
     ///         contain lists of <see cref="IColumnModification" />.
     ///     </para>
     ///     <para>
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     Creates a new <see cref="ColumnModification" /> instance.
         /// </summary>
         /// <param name="columnModificationParameters"> Creation parameters. </param>
-        public ColumnModification(ColumnModificationParameters columnModificationParameters)
+        public ColumnModification(in ColumnModificationParameters columnModificationParameters)
         {
             ColumnName = columnModificationParameters.ColumnName;
             _originalValue = columnModificationParameters.OriginalValue;

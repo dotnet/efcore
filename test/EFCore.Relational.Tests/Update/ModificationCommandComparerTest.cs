@@ -212,14 +212,14 @@ namespace Microsoft.EntityFrameworkCore.Update
             Second = 1 << 2
         }
 
-        private static IMutableModificationCommand CreateModificationCommand(
+        private static IModificationCommand CreateModificationCommand(
             string name,
             string schema,
             bool sensitiveLoggingEnabled)
             => CreateModificationCommandSource().CreateModificationCommand(
                 new ModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
 
-        private static MutableModificationCommandFactory CreateModificationCommandSource()
-            => new MutableModificationCommandFactory();
+        private static ModificationCommandFactory CreateModificationCommandSource()
+            => new ModificationCommandFactory();
     }
 }

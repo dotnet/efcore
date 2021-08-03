@@ -493,13 +493,13 @@ namespace Microsoft.EntityFrameworkCore.Update
                     });
         }
 
-        private static IMutableModificationCommand CreateModificationCommand(
+        private static IModificationCommand CreateModificationCommand(
             string tableName,
             string schemaName,
             Func<string> generateParameterName,
             bool sensitiveLoggingEnabled,
             IComparer<IUpdateEntry> comparer)
-            => new MutableModificationCommandFactory().CreateModificationCommand(new ModificationCommandParameters(
+            => new ModificationCommandFactory().CreateModificationCommand(new ModificationCommandParameters(
                 tableName,
                 schemaName,
                 sensitiveLoggingEnabled,
