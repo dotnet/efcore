@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the period start property. </returns>
-        public static string? GetTemporalPeriodStartPropertyName(this IReadOnlyEntityType entityType)
+        public static string? GetPeriodStartPropertyName(this IReadOnlyEntityType entityType)
             => entityType[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] as string;
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="periodStartPropertyName"> The value to set. </param>
-        public static void SetTemporalPeriodStartPropertyName(this IMutableEntityType entityType, string? periodStartPropertyName)
+        public static void SetPeriodStartPropertyName(this IMutableEntityType entityType, string? periodStartPropertyName)
             => entityType.SetAnnotation(SqlServerAnnotationNames.TemporalPeriodStartPropertyName, periodStartPropertyName);
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="periodStartPropertyName"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string? SetTemporalPeriodStartPropertyName(
+        public static string? SetPeriodStartPropertyName(
             this IConventionEntityType entityType,
             string? periodStartPropertyName,
             bool fromDataAnnotation = false)
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for the temporal table period start property name setting. </returns>
-        public static ConfigurationSource? GetTemporalPeriodStartPropertyNameConfigurationSource(this IConventionEntityType entityType)
+        public static ConfigurationSource? GetPeriodStartPropertyNameConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalPeriodStartPropertyName)?.GetConfigurationSource();
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the period start property. </returns>
-        public static string? GetTemporalPeriodEndPropertyName(this IReadOnlyEntityType entityType)
+        public static string? GetPeriodEndPropertyName(this IReadOnlyEntityType entityType)
             => entityType[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] as string;
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="periodEndPropertyName"> The value to set. </param>
-        public static void SetTemporalPeriodEndPropertyName(this IMutableEntityType entityType, string? periodEndPropertyName)
+        public static void SetPeriodEndPropertyName(this IMutableEntityType entityType, string? periodEndPropertyName)
             => entityType.SetAnnotation(SqlServerAnnotationNames.TemporalPeriodEndPropertyName, periodEndPropertyName);
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="periodEndPropertyName"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string? SetTemporalPeriodEndPropertyName(
+        public static string? SetPeriodEndPropertyName(
             this IConventionEntityType entityType,
             string? periodEndPropertyName,
             bool fromDataAnnotation = false)
@@ -181,7 +181,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for the temporal table period end property name setting. </returns>
-        public static ConfigurationSource? GetTemporalPeriodEndPropertyNameConfigurationSource(this IConventionEntityType entityType)
+        public static ConfigurationSource? GetPeriodEndPropertyNameConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalPeriodEndPropertyName)?.GetConfigurationSource();
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the history table. </returns>
-        public static string? GetTemporalHistoryTableName(this IReadOnlyEntityType entityType)
+        public static string? GetHistoryTableName(this IReadOnlyEntityType entityType)
             => entityType[SqlServerAnnotationNames.TemporalHistoryTableName] is string historyTableName
                 ? historyTableName
                 : entityType[SqlServerAnnotationNames.IsTemporal] as bool? == true
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="historyTableName"> The value to set. </param>
-        public static void SetTemporalHistoryTableName(this IMutableEntityType entityType, string? historyTableName)
+        public static void SetHistoryTableName(this IMutableEntityType entityType, string? historyTableName)
             => entityType.SetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName, historyTableName);
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="historyTableName"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string? SetTemporalHistoryTableName(
+        public static string? SetHistoryTableName(
             this IConventionEntityType entityType,
             string? historyTableName,
             bool fromDataAnnotation = false)
@@ -229,7 +229,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for the temporal history table name setting. </returns>
-        public static ConfigurationSource? GetTemporalHistoryTableNameConfigurationSource(this IConventionEntityType entityType)
+        public static ConfigurationSource? GetHistoryTableNameConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableName)?.GetConfigurationSource();
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the history table. </returns>
-        public static string? GetTemporalHistoryTableSchema(this IReadOnlyEntityType entityType)
+        public static string? GetHistoryTableSchema(this IReadOnlyEntityType entityType)
             => entityType[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
                 ?? entityType[RelationalAnnotationNames.Schema] as string;
 
@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="historyTableSchema"> The value to set. </param>
-        public static void SetTemporalHistoryTableSchema(this IMutableEntityType entityType, string? historyTableSchema)
+        public static void SetHistoryTableSchema(this IMutableEntityType entityType, string? historyTableSchema)
             => entityType.SetAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, historyTableSchema);
 
         /// <summary>
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="historyTableSchema"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> The configured value. </returns>
-        public static string? SetTemporalHistoryTableSchema(
+        public static string? SetHistoryTableSchema(
             this IConventionEntityType entityType,
             string? historyTableSchema,
             bool fromDataAnnotation = false)
@@ -274,7 +274,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The configuration source for the temporal history table schema setting. </returns>
-        public static ConfigurationSource? GetTemporalHistoryTableSchemaConfigurationSource(this IConventionEntityType entityType)
+        public static ConfigurationSource? GetHistoryTableSchemaConfigurationSource(this IConventionEntityType entityType)
             => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema)?.GetConfigurationSource();
     }
 }

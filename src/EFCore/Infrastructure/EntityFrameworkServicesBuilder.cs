@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 { typeof(IQueryableMethodTranslatingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IQueryTranslationPostprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IShapedQueryCompilingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IQueryRootCreator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+                { typeof(INavigationExpansionExtensibilityHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IProviderConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
             TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
             TryAdd<IQueryTranslationPostprocessorFactory, QueryTranslationPostprocessorFactory>();
-            TryAdd<IQueryRootCreator, QueryRootCreator>();
+            TryAdd<INavigationExpansionExtensibilityHelper, NavigationExpansionExtensibilityHelper>();
 
             TryAdd(
                 p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger
@@ -301,7 +301,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddDependencySingleton<EvaluatableExpressionFilterDependencies>()
                 .AddDependencySingleton<RuntimeModelDependencies>()
                 .AddDependencySingleton<ModelRuntimeInitializerDependencies>()
-                .AddDependencySingleton<QueryRootCreatorDependencies>()
+                .AddDependencySingleton<NavigationExpansionExtensibilityHelperDependencies>()
                 .AddDependencyScoped<ProviderConventionSetBuilderDependencies>()
                 .AddDependencyScoped<QueryCompilationContextDependencies>()
                 .AddDependencyScoped<StateManagerDependencies>()

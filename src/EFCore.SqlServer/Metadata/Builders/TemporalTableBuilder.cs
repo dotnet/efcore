@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="name"> The name of the history table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TemporalTableBuilder WithHistoryTable(string name)
+        public virtual TemporalTableBuilder UseHistoryTable(string name)
         {
-            _entityType.SetTemporalHistoryTableName(name);
+            _entityType.SetHistoryTableName(name);
 
             return this;
         }
@@ -46,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the history table. </param>
         /// <param name="schema"> The schema of the history table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual TemporalTableBuilder WithHistoryTable(string name, string? schema)
+        public virtual TemporalTableBuilder UseHistoryTable(string name, string? schema)
         {
-            _entityType.SetTemporalHistoryTableName(name);
-            _entityType.SetTemporalHistoryTableSchema(schema);
+            _entityType.SetHistoryTableName(name);
+            _entityType.SetHistoryTableSchema(schema);
 
             return this;
         }
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the period start property. </returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
         {
-            _entityType.SetTemporalPeriodStartPropertyName(propertyName);
+            _entityType.SetPeriodStartPropertyName(propertyName);
 
             return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
         }
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <returns> An object that can be used to configure the period end property. </returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)
         {
-            _entityType.SetTemporalPeriodEndPropertyName(propertyName);
+            _entityType.SetPeriodEndPropertyName(propertyName);
 
             return new TemporalPeriodPropertyBuilder(_entityType, propertyName);
         }

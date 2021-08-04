@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
@@ -14,6 +15,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     {
         private const string PeriodStartDefaultName = "PeriodStart";
         private const string PeriodEndDefaultName = "PeriodEnd";
+
+        /// <summary>
+        ///     Creates a new instance of <see cref="SqlServerTemporalConvention" />.
+        /// </summary>
+        /// <param name="dependencies"> Parameter object containing dependencies for this convention.</param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
+        public SqlServerTemporalConvention(
+            ProviderConventionSetBuilderDependencies dependencies,
+            RelationalConventionSetBuilderDependencies relationalDependencies)
+        {
+            Dependencies = dependencies;
+        }
+
+        /// <summary>
+        ///     Parameter object containing service dependencies.
+        /// </summary>
+        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual void ProcessEntityTypeAnnotationChanged(
@@ -27,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 if (annotation?.Value as bool? == true)
                 {
-                    if (entityTypeBuilder.Metadata.GetTemporalPeriodStartPropertyName() == null)
+                    if (entityTypeBuilder.Metadata.GetPeriodStartPropertyName() == null)
                     {
                         entityTypeBuilder.HasPeriodStart(PeriodStartDefaultName);
                     }
 
-                    if (entityTypeBuilder.Metadata.GetTemporalPeriodEndPropertyName() == null)
+                    if (entityTypeBuilder.Metadata.GetPeriodEndPropertyName() == null)
                     {
                         entityTypeBuilder.HasPeriodEnd(PeriodEndDefaultName);
                     }

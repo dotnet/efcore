@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     Service which can create a new <see cref="QueryRootExpression"/> given the entity type and source expression.
+    ///     Service which helps with various aspects of navigation expansion extensibility. 
     /// </summary>
-    public interface IQueryRootCreator
+    public interface INavigationExpansionExtensibilityHelper
     {
         /// <summary>
         ///     Creates a new <see cref="QueryRootExpression"/>.
@@ -22,6 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// </summary>
         /// <param name="first">The first query root.</param>
         /// <param name="second">The second query root.</param>
-        bool AreCompatible(QueryRootExpression? first, QueryRootExpression? second);
+        bool AreQueryRootsCompatible(QueryRootExpression? first, QueryRootExpression? second);
     }
 }

@@ -2014,7 +2014,7 @@ EXEC(N'CREATE TABLE [Customer] (
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("SystemTimeStart");
                             ttb.HasPeriodEnd("SystemTimeEnd");
                         }));
@@ -2239,7 +2239,7 @@ EXEC(N'CREATE TABLE [Customer] (
 
                             e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                             {
-                                ttb.WithHistoryTable("HistoryTable", "historySchema");
+                                ttb.UseHistoryTable("HistoryTable", "historySchema");
                                 ttb.HasPeriodStart("SystemTimeStart");
                                 ttb.HasPeriodEnd("SystemTimeEnd");
                             }));
@@ -2327,7 +2327,7 @@ EXEC(N'CREATE TABLE [Customer] (
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
                             ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
                         }));
@@ -2361,7 +2361,7 @@ EXEC(N'CREATE TABLE [Customer] (
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable", "historySchema");
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
                             ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
                             ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
                         }));
@@ -2395,7 +2395,7 @@ EXEC(N'CREATE TABLE [Customer] (
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2458,7 +2458,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable", "historySchema");
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2524,7 +2524,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     {
                         e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2534,7 +2534,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     {
                         e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("RenamedHistoryTable");
+                            ttb.UseHistoryTable("RenamedHistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2581,7 +2581,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     {
                         e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable", "historySchema");
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2591,7 +2591,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     {
                         e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable", "modifiedHistorySchema");
+                            ttb.UseHistoryTable("HistoryTable", "modifiedHistorySchema");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2642,7 +2642,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     {
                         e.ToTable("Customers", "schema", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable", "historySchema");
+                            ttb.UseHistoryTable("HistoryTable", "historySchema");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2655,7 +2655,7 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     {
                         e.ToTable("RenamedCustomers", "newSchema", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("RenamedHistoryTable", "newHistorySchema");
+                            ttb.UseHistoryTable("RenamedHistoryTable", "newHistorySchema");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2716,7 +2716,7 @@ ALTER SCHEMA [newHistorySchema] TRANSFER [historySchema].[RenamedHistoryTable];"
 
                         e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2802,7 +2802,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
                         e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -2856,7 +2856,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("PeriodStart");
                             ttb.HasPeriodEnd("PeriodEnd");
                         }));
@@ -2977,7 +2977,7 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("PeriodStart");
                             ttb.HasPeriodEnd("PeriodEnd");
                         }));
@@ -3158,7 +3158,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -3269,7 +3269,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -3320,7 +3320,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -3336,7 +3336,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("ModifiedStart");
                             ttb.HasPeriodEnd("ModifiedEnd");
                         }));
@@ -3385,7 +3385,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     {
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -3395,7 +3395,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     {
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start").HasColumnName("ModifiedStart");
                             ttb.HasPeriodEnd("End").HasColumnName("ModifiedEnd");
                         }));
@@ -3509,7 +3509,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
                         e.ToTable(tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));
@@ -3643,7 +3643,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
                         e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
                         {
-                            ttb.WithHistoryTable("HistoryTable");
+                            ttb.UseHistoryTable("HistoryTable");
                             ttb.HasPeriodStart("Start");
                             ttb.HasPeriodEnd("End");
                         }));

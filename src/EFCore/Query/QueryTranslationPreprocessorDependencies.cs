@@ -53,13 +53,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         [EntityFrameworkInternal]
         public QueryTranslationPreprocessorDependencies(
             IEvaluatableExpressionFilter evaluatableExpressionFilter,
-            IQueryRootCreator queryRootCreator)
+            INavigationExpansionExtensibilityHelper navigationExpansionExtensibilityHelper)
         {
             Check.NotNull(evaluatableExpressionFilter, nameof(evaluatableExpressionFilter));
-            Check.NotNull(queryRootCreator, nameof(queryRootCreator));
+            Check.NotNull(navigationExpansionExtensibilityHelper, nameof(navigationExpansionExtensibilityHelper));
 
             EvaluatableExpressionFilter = evaluatableExpressionFilter;
-            QueryRootCreator = queryRootCreator;
+            NavigationExpansionExtensibilityHelper = navigationExpansionExtensibilityHelper;
         }
 
         /// <summary>
@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         public IEvaluatableExpressionFilter EvaluatableExpressionFilter { get; init; }
 
         /// <summary>
-        ///     Query root creator.
+        ///     Navigation expansion extensibility helper.
         /// </summary>
-        public IQueryRootCreator QueryRootCreator { get; init; }
+        public INavigationExpansionExtensibilityHelper NavigationExpansionExtensibilityHelper { get; init; }
     }
 }

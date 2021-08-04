@@ -100,19 +100,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                     ? annotations[SqlServerAnnotationNames.TemporalHistoryTableSchema].Value as string
                     : null;
 
-                var periodStartProperty = entityType.GetProperty(entityType.GetTemporalPeriodStartPropertyName()!);
-                var periodEndProperty = entityType.GetProperty(entityType.GetTemporalPeriodEndPropertyName()!);
+                var periodStartProperty = entityType.GetProperty(entityType.GetPeriodStartPropertyName()!);
+                var periodEndProperty = entityType.GetProperty(entityType.GetPeriodEndPropertyName()!);
                 var periodStartColumnName = periodStartProperty[RelationalAnnotationNames.ColumnName] as string;
                 var periodEndColumnName = periodEndProperty[RelationalAnnotationNames.ColumnName] as string;
 
-                // ttb => ttb.WithHistoryTable("HistoryTable", "schema")
+                // ttb => ttb.UseHistoryTable("HistoryTable", "schema")
                 var temporalTableBuilderCalls = new List<MethodCallCodeFragment>();
                 if (historyTableName != null)
                 {
                     temporalTableBuilderCalls.Add(
                         historyTableSchema != null
-                            ? new MethodCallCodeFragment(nameof(TemporalTableBuilder.WithHistoryTable), historyTableName, historyTableSchema)
-                            : new MethodCallCodeFragment(nameof(TemporalTableBuilder.WithHistoryTable), historyTableName));
+                            ? new MethodCallCodeFragment(nameof(TemporalTableBuilder.UseHistoryTable), historyTableName, historyTableSchema)
+                            : new MethodCallCodeFragment(nameof(TemporalTableBuilder.UseHistoryTable), historyTableName));
                 }
 
                 // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart")

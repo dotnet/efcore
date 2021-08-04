@@ -873,11 +873,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
                 Assert.True(entity.IsTemporal());
-                Assert.Equal("CustomerHistory", entity.GetTemporalHistoryTableName());
-                Assert.Null(entity.GetTemporalHistoryTableSchema());
+                Assert.Equal("CustomerHistory", entity.GetHistoryTableName());
+                Assert.Null(entity.GetHistoryTableSchema());
 
-                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
-                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+                var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName());
 
                 Assert.Equal("PeriodStart", periodStart.Name);
                 Assert.True(periodStart.IsShadowProperty());
@@ -898,7 +898,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.WithHistoryTable("HistoryTable", "historySchema");
+                    ttb.UseHistoryTable("HistoryTable", "historySchema");
                     ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
                     ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
                 }));
@@ -909,11 +909,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(entity.IsTemporal());
                 Assert.Equal(5, entity.GetProperties().Count());
 
-                Assert.Equal("HistoryTable", entity.GetTemporalHistoryTableName());
-                Assert.Equal("historySchema", entity.GetTemporalHistoryTableSchema());
+                Assert.Equal("HistoryTable", entity.GetHistoryTableName());
+                Assert.Equal("historySchema", entity.GetHistoryTableSchema());
 
-                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
-                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+                var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName());
 
                 Assert.Equal("MyPeriodStart", periodStart.Name);
                 Assert.Equal("PeriodStartColumn", periodStart[RelationalAnnotationNames.ColumnName]);
@@ -936,14 +936,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.WithHistoryTable("HistoryTable", "historySchema");
+                    ttb.UseHistoryTable("HistoryTable", "historySchema");
                     ttb.HasPeriodStart("MyPeriodStart").HasColumnName("PeriodStartColumn");
                     ttb.HasPeriodEnd("MyPeriodEnd").HasColumnName("PeriodEndColumn");
                 }));
 
                 modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.WithHistoryTable("ChangedHistoryTable", "changedHistorySchema");
+                    ttb.UseHistoryTable("ChangedHistoryTable", "changedHistorySchema");
                     ttb.HasPeriodStart("ChangedMyPeriodStart").HasColumnName("ChangedPeriodStartColumn");
                     ttb.HasPeriodEnd("ChangedMyPeriodEnd").HasColumnName("ChangedPeriodEndColumn");
                 }));
@@ -954,11 +954,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(entity.IsTemporal());
                 Assert.Equal(5, entity.GetProperties().Count());
 
-                Assert.Equal("ChangedHistoryTable", entity.GetTemporalHistoryTableName());
-                Assert.Equal("changedHistorySchema", entity.GetTemporalHistoryTableSchema());
+                Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
+                Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
 
-                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
-                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+                var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName());
 
                 Assert.Equal("ChangedMyPeriodStart", periodStart.Name);
                 Assert.Equal("ChangedPeriodStartColumn", periodStart[RelationalAnnotationNames.ColumnName]);
@@ -981,7 +981,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.WithHistoryTable("HistoryTable", schema: null);
+                    ttb.UseHistoryTable("HistoryTable", schema: null);
                     ttb.HasPeriodStart("Start").HasColumnName("PeriodStartColumn");
                     ttb.HasPeriodEnd("End").HasColumnName("PeriodEndColumn");
                 }));
@@ -1002,10 +1002,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(entity.IsTemporal());
                 Assert.Equal(7, entity.GetProperties().Count());
 
-                Assert.Equal("HistoryTable", entity.GetTemporalHistoryTableName());
+                Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
-                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
-                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+                var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName());
 
                 Assert.Equal("Start", periodStart.Name);
                 Assert.Equal("PeriodStartColumn", periodStart[RelationalAnnotationNames.ColumnName]);
@@ -1042,7 +1042,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 modelBuilder.Entity<Customer>().ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.WithHistoryTable("HistoryTable", schema: null);
+                    ttb.UseHistoryTable("HistoryTable", schema: null);
                     ttb.HasPeriodStart("Start");
                     ttb.HasPeriodEnd("End");
                 }));
@@ -1053,10 +1053,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.True(entity.IsTemporal());
                 Assert.Equal(7, entity.GetProperties().Count());
 
-                Assert.Equal("HistoryTable", entity.GetTemporalHistoryTableName());
+                Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
-                var periodStart = entity.GetProperty(entity.GetTemporalPeriodStartPropertyName());
-                var periodEnd = entity.GetProperty(entity.GetTemporalPeriodEndPropertyName());
+                var periodStart = entity.GetProperty(entity.GetPeriodStartPropertyName());
+                var periodEnd = entity.GetProperty(entity.GetPeriodEndPropertyName());
 
                 Assert.Equal("Start", periodStart.Name);
                 Assert.Equal("Start", periodStart[RelationalAnnotationNames.ColumnName]);
@@ -1092,8 +1092,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entity = model.FindEntityType(typeof(Customer));
                 Assert.False(entity.IsTemporal());
-                Assert.Null(entity.GetTemporalPeriodStartPropertyName());
-                Assert.Null(entity.GetTemporalPeriodEndPropertyName());
+                Assert.Null(entity.GetPeriodStartPropertyName());
+                Assert.Null(entity.GetPeriodEndPropertyName());
                 Assert.Equal(3, entity.GetProperties().Count());
             }
 
@@ -1124,7 +1124,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         public abstract class TestTemporalTableBuilder<TEntity>
             where TEntity : class
         {
-            public abstract TestTemporalTableBuilder<TEntity> WithHistoryTable(string name, string schema);
+            public abstract TestTemporalTableBuilder<TEntity> UseHistoryTable(string name, string schema);
 
             public abstract TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName);
             public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
@@ -1145,8 +1145,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder<TEntity> tableBuilder)
                 => new GenericTestTemporalTableBuilder<TEntity>(tableBuilder);
 
-            public override TestTemporalTableBuilder<TEntity> WithHistoryTable(string name, string schema)
-                => Wrap(TemporalTableBuilder.WithHistoryTable(name, schema));
+            public override TestTemporalTableBuilder<TEntity> UseHistoryTable(string name, string schema)
+                => Wrap(TemporalTableBuilder.UseHistoryTable(name, schema));
 
             public override TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
                 => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodStart(propertyName));
@@ -1170,8 +1170,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected virtual TestTemporalTableBuilder<TEntity> Wrap(TemporalTableBuilder temporalTableBuilder)
                 => new NonGenericTestTemporalTableBuilder<TEntity>(temporalTableBuilder);
 
-            public override TestTemporalTableBuilder<TEntity> WithHistoryTable(string name, string schema)
-                => Wrap(TemporalTableBuilder.WithHistoryTable(name, schema));
+            public override TestTemporalTableBuilder<TEntity> UseHistoryTable(string name, string schema)
+                => Wrap(TemporalTableBuilder.UseHistoryTable(name, schema));
 
             public override TestTemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
                 => new TestTemporalPeriodPropertyBuilder(TemporalTableBuilder.HasPeriodStart(propertyName));

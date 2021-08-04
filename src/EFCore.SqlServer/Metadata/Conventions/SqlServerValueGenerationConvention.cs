@@ -138,8 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             var entityType = property.DeclaringEntityType;
             return entityType.IsTemporal()
-                && (entityType.GetTemporalPeriodStartPropertyName() == property.Name
-                    || entityType.GetTemporalPeriodEndPropertyName() == property.Name)
+                && (entityType.GetPeriodStartPropertyName() == property.Name
+                    || entityType.GetPeriodEndPropertyName() == property.Name)
                 ? ValueGenerated.OnAddOrUpdate
                 : null;
         }

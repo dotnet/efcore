@@ -1826,7 +1826,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Test(
                 builder => builder.Entity<EntityWithStringProperty>().ToTable(tb => tb.IsTemporal(ttb =>
                 {
-                    ttb.WithHistoryTable("HistoryTable");
+                    ttb.UseHistoryTable("HistoryTable");
                     ttb.HasPeriodStart("Start").HasColumnName("PeriodStart");
                     ttb.HasPeriodEnd("End").HasColumnName("PeriodEnd");
                 })),
@@ -1860,7 +1860,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b
                         .ToTable(tb => tb.IsTemporal(ttb =>
                             {
-                                ttb.WithHistoryTable(""HistoryTable"");
+                                ttb.UseHistoryTable(""HistoryTable"");
                                 ttb.HasPeriodStart(""Start"").HasColumnName(""PeriodStart"");
                                 ttb.HasPeriodEnd(""End"").HasColumnName(""PeriodEnd"");
                             }

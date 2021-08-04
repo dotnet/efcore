@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         Service dependencies parameter class for <see cref="QueryRootCreator" />
+    ///         Service dependencies parameter class for <see cref="NavigationExpansionExtensibilityHelper" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -28,11 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
-    public sealed record QueryRootCreatorDependencies
+    public sealed record NavigationExpansionExtensibilityHelperDependencies
     {
         /// <summary>
         ///     <para>
-        ///         Creates the service dependencies parameter object for a <see cref="QueryRootCreator" />.
+        ///         Creates the service dependencies parameter object for a <see cref="NavigationExpansionExtensibilityHelper" />.
         ///     </para>
         ///     <para>
         ///         Do not call this constructor directly from either provider or application code as it may change
@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public QueryRootCreatorDependencies()
+        public NavigationExpansionExtensibilityHelperDependencies()
         {
         }
     }

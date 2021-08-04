@@ -120,7 +120,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
                 .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
                 .TryAdd<IRelationalParameterBasedSqlProcessorFactory, SqlServerParameterBasedSqlProcessorFactory>()
-                .TryAdd<IQueryRootCreator, SqlServerQueryRootCreator>()
+                .TryAdd<INavigationExpansionExtensibilityHelper, SqlServerNavigationExpansionExtensibilityHelper>()
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAddProviderSpecificServices(
                     b => b

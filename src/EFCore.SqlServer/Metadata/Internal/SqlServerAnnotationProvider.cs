@@ -113,21 +113,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             if (entityType.IsTemporal() && designTime)
             {
                 yield return new Annotation(SqlServerAnnotationNames.IsTemporal, true);
-                yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, entityType.GetTemporalHistoryTableName());
-                yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, entityType.GetTemporalHistoryTableSchema());
+                yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, entityType.GetHistoryTableName());
+                yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, entityType.GetHistoryTableSchema());
 
                 var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
-                var periodStartPropertyName = entityType.GetTemporalPeriodStartPropertyName();
+                var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
                 if (periodStartPropertyName != null)
                 {
                     var periodStartProperty = entityType.GetProperty(periodStartPropertyName);
                     yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartProperty.GetColumnName(storeObjectIdentifier));
                 }
 
-                var periodEndPropertyName = entityType.GetTemporalPeriodEndPropertyName();
+                var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
                 if (periodEndPropertyName != null)
                 {
-                    var periodEndProperty = entityType.GetProperty(entityType.GetTemporalPeriodEndPropertyName()!);
+                    var periodEndProperty = entityType.GetProperty(entityType.GetPeriodEndPropertyName()!);
                     yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndProperty.GetColumnName(storeObjectIdentifier));
                 }
             }
@@ -242,8 +242,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             var entityType = column.Table.EntityTypeMappings.First().EntityType;
             if (entityType.IsTemporal() && designTime)
             {
-                var periodStartPropertyName = entityType.GetTemporalPeriodStartPropertyName();
-                var periodEndPropertyName = entityType.GetTemporalPeriodEndPropertyName();
+                var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
+                var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
 
                 var periodStartProperty = entityType.GetProperty(periodStartPropertyName!);
                 var periodEndProperty = entityType.GetProperty(periodEndPropertyName!);

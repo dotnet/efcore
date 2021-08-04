@@ -169,14 +169,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder? WithHistoryTableName(
+        public static IConventionEntityTypeBuilder? UseHistoryTableName(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string name,
             bool fromDataAnnotation = false)
         {
             if (entityTypeBuilder.CanSetHistoryTableName(name, fromDataAnnotation))
             {
-                entityTypeBuilder.Metadata.SetTemporalHistoryTableName(name, fromDataAnnotation);
+                entityTypeBuilder.Metadata.SetHistoryTableName(name, fromDataAnnotation);
 
                 return entityTypeBuilder;
             }
@@ -212,14 +212,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
         /// </returns>
-        public static IConventionEntityTypeBuilder? WithHistoryTableSchema(
+        public static IConventionEntityTypeBuilder? UseHistoryTableSchema(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             string? schema,
             bool fromDataAnnotation = false)
         {
             if (entityTypeBuilder.CanSetHistoryTableSchema(schema, fromDataAnnotation))
             {
-                entityTypeBuilder.Metadata.SetTemporalHistoryTableSchema(schema, fromDataAnnotation);
+                entityTypeBuilder.Metadata.SetHistoryTableSchema(schema, fromDataAnnotation);
 
                 return entityTypeBuilder;
             }
@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entityTypeBuilder.CanSetPeriodStart(propertyName, fromDataAnnotation))
             {
-                entityTypeBuilder.Metadata.SetTemporalPeriodStartPropertyName(propertyName, fromDataAnnotation);
+                entityTypeBuilder.Metadata.SetPeriodStartPropertyName(propertyName, fromDataAnnotation);
 
                 return entityTypeBuilder;
             }
@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             if (entityTypeBuilder.CanSetPeriodEnd(propertyName, fromDataAnnotation))
             {
-                entityTypeBuilder.Metadata.SetTemporalPeriodEndPropertyName(propertyName, fromDataAnnotation);
+                entityTypeBuilder.Metadata.SetPeriodEndPropertyName(propertyName, fromDataAnnotation);
 
                 return entityTypeBuilder;
             }

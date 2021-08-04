@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <inheritdoc/>
-    public class QueryRootCreator : IQueryRootCreator
+    public class NavigationExpansionExtensibilityHelper : INavigationExpansionExtensibilityHelper
     {
         /// <summary>
-        ///     Creates a new instance of the <see cref="QueryRootCreator" /> class.
+        ///     Creates a new instance of the <see cref="NavigationExpansionExtensibilityHelper" /> class.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        public QueryRootCreator(QueryRootCreatorDependencies dependencies)
+        public NavigationExpansionExtensibilityHelper(NavigationExpansionExtensibilityHelperDependencies dependencies)
         {
             Dependencies = dependencies;
         }
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Parameter object containing service dependencies.
         /// </summary>
-        protected virtual QueryRootCreatorDependencies Dependencies { get; }
+        protected virtual NavigationExpansionExtensibilityHelperDependencies Dependencies { get; }
 
         /// <inheritdoc/>
         public virtual QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source)
@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 : new QueryRootExpression(entityType);
 
         /// <inheritdoc/>
-        public virtual bool AreCompatible(QueryRootExpression? first, QueryRootExpression? second)
+        public virtual bool AreQueryRootsCompatible(QueryRootExpression? first, QueryRootExpression? second)
         {
             if (first is null && second is null)
             {

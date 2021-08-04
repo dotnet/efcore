@@ -243,8 +243,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
         private void ValidateTemporalPeriodProperty(IEntityType temporalEntityType, bool periodStart)
         {
             var annotationPropertyName = periodStart
-                ? temporalEntityType.GetTemporalPeriodStartPropertyName()
-                : temporalEntityType.GetTemporalPeriodEndPropertyName();
+                ? temporalEntityType.GetPeriodStartPropertyName()
+                : temporalEntityType.GetPeriodEndPropertyName();
 
             if (annotationPropertyName == null)
             {

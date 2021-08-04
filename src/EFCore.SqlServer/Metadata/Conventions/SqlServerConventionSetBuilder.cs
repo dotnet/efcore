@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ReplaceConvention(
                 conventionSet.EntityTypeAnnotationChangedConventions, (RelationalValueGenerationConvention)valueGenerationConvention);
 
-            var sqlServerTemporalConvention = new SqlServerTemporalConvention();
+            var sqlServerTemporalConvention = new SqlServerTemporalConvention(Dependencies, RelationalDependencies);
             ConventionSet.AddBefore(
                 conventionSet.EntityTypeAnnotationChangedConventions,
                 sqlServerTemporalConvention,

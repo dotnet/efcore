@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="name"> The name of the history table. </param>
         /// <param name="schema"> The schema of the history table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public new virtual TemporalTableBuilder<TEntity> WithHistoryTable(string name, string? schema = null)
-            => (TemporalTableBuilder<TEntity>)base.WithHistoryTable(name, schema);
+        public new virtual TemporalTableBuilder<TEntity> UseHistoryTable(string name, string? schema = null)
+            => (TemporalTableBuilder<TEntity>)base.UseHistoryTable(name, schema);
     }
 }
