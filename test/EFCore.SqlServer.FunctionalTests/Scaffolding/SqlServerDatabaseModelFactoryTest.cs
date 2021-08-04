@@ -303,6 +303,17 @@ DROP TABLE [dbo].[Everest];
 DROP TABLE [dbo].[Denali];");
         }
 
+        [ConditionalFact]
+        public void Default_database_collation_is_not_scaffolded()
+        {
+            Test(
+                @"",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel => Assert.Null(dbModel.Collation),
+                @"");
+        }
+
         #endregion
 
         #region FilteringSchemaTable
@@ -2368,7 +2379,10 @@ DROP TABLE PrincipalTable;");
             Action<DatabaseModel> asserter,
             string cleanupSql)
         {
-            Fixture.TestStore.ExecuteNonQuery(createSql);
+            if (!string.IsNullOrEmpty(createSql))
+            {
+                Fixture.TestStore.ExecuteNonQuery(createSql);
+            }
 
             try
             {
