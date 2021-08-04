@@ -39,16 +39,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         private QueryTrackingBehavior _queryTrackingBehavior = QueryTrackingBehavior.TrackAll;
         private Dictionary<(Type, Type?), Type>? _replacedServices;
         private int? _maxPoolSize;
-        private TimeSpan _loggingCacheTime = DefaultLoggingCacheTime;
+        private TimeSpan _loggingCacheTime = _defaultLoggingCacheTime;
         private bool _serviceProviderCachingEnabled = true;
         private DbContextOptionsExtensionInfo? _info;
         private IEnumerable<IInterceptor>? _interceptors;
 
-        /// <summary>
-        ///     The default for how long EF Core will cache logging configuration in certain high-performance paths: one second.
-        ///     See <see cref="DbContextOptionsBuilder.ConfigureLoggingCacheTime" />.
-        /// </summary>
-        public static readonly TimeSpan DefaultLoggingCacheTime = TimeSpan.FromSeconds(1);
+        private static readonly TimeSpan _defaultLoggingCacheTime = TimeSpan.FromSeconds(1);
 
         private WarningsConfiguration _warningsConfiguration
             = new WarningsConfiguration()
