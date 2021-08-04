@@ -22,6 +22,23 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder ToInMemoryQuery(
+            this EntityTypeBuilder entityTypeBuilder,
+            LambdaExpression? query)
+        {
+            Check.NotNull(query, nameof(query));
+
+            entityTypeBuilder.Metadata.SetInMemoryQuery(query);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures a query used to provide data for an entity type.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToInMemoryQuery<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             Expression<Func<IQueryable<TEntity>>> query)

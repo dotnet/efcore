@@ -333,7 +333,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> A builder to further configure the function. </returns>
         public static IConventionDbFunctionBuilder HasDbFunction(
             this IConventionModelBuilder modelBuilder,
-            string? name,
+            string name,
             Type returnType,
             bool fromDataAnnotation = false)
         {

@@ -196,6 +196,12 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ExcludeTableFromMigrations)),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.CanSetFunction),
+                    new Type[] { typeof(IConventionEntityTypeBuilder), typeof(MethodInfo), typeof(bool) }),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
+                    nameof(RelationalEntityTypeBuilderExtensions.ToFunction),
+                    new Type[] { typeof(IConventionEntityTypeBuilder), typeof(string), typeof(bool) }),
+                typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
                     nameof(RelationalEntityTypeBuilderExtensions.ToTable),
                     new Type[] { typeof(EntityTypeBuilder), typeof(Action<TableBuilder>) }),
                 typeof(RelationalEntityTypeBuilderExtensions).GetMethod(
