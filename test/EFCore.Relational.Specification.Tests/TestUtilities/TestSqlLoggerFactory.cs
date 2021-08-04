@@ -21,6 +21,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static readonly string _eol = Environment.NewLine;
 
+        private static object _queryBaselineFileLock = new();
+
         public TestSqlLoggerFactory()
             : this(_ => true)
         {
@@ -85,7 +87,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(
                         0,
-                        currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                        currentDirectory.LastIndexOf(
+                            $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
+                            StringComparison.Ordinal) + 1)
                     + "QueryBaseline.txt";
 
                 var testInfo = testName + " : " + lineNumber + FileNewLine;
@@ -106,7 +110,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
                 var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
-                File.AppendAllText(logFile, contents);
+                lock (_queryBaselineFileLock)
+                {
+                    File.AppendAllText(logFile, contents);
+                }
 
                 throw;
             }
