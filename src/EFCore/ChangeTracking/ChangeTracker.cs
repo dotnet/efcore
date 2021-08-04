@@ -246,7 +246,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking an entity and any entities that are reachable by traversing it's navigation properties.
+        ///         Begins tracking an entity and any entities that are reachable by traversing its navigation properties.
         ///         Traversal is recursive so the navigation properties of any discovered entities will also be scanned.
         ///         The specified <paramref name="callback" /> is called for each discovered entity and must set the
         ///         <see cref="EntityEntry.State" /> that each entity should be tracked in. If no state is set, the entity
@@ -260,7 +260,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         call is complete.
         ///     </para>
         ///     <para>
-        ///         If an entity is discovered that is already tracked by the context, that entity is not processed (and it's
+        ///         If an entity is discovered that is already tracked by the context, that entity is not processed (and its
         ///         navigation properties are not traversed).
         ///     </para>
         /// </summary>
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         Begins tracking an entity and any entities that are reachable by traversing it's navigation properties.
+        ///         Begins tracking an entity and any entities that are reachable by traversing its navigation properties.
         ///         Traversal is recursive so the navigation properties of any discovered entities will also be scanned.
         ///         The specified <paramref name="callback" /> is called for each discovered entity and must set the
         ///         <see cref="EntityEntry.State" /> that each entity should be tracked in. If no state is set, the entity
