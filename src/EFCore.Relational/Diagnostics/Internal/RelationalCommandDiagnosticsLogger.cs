@@ -48,8 +48,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             IInterceptors? interceptors = null)
             : base(loggerFactory, loggingOptions, diagnosticSource, loggingDefinitions, contextLogger, interceptors)
         {
-            _loggingCacheTime = contextOptions.FindExtension<CoreOptionsExtension>()?.LoggingCacheTime ??
-                                      CoreOptionsExtension.DefaultLoggingCacheTime;
+            var coreOptionsExtension =
+                contextOptions.FindExtension<CoreOptionsExtension>()
+                ?? new CoreOptionsExtension();
+
+            _loggingCacheTime = coreOptionsExtension.LoggingCacheTime;
         }
 
         #region CommandCreating
