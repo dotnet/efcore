@@ -150,6 +150,26 @@
   <data name="JsonPropertyCollision" xml:space="preserve">
     <value>Both properties '{property1}' and '{property2}' on entity type '{entityType}' are mapped to '{storeName}'. Map one of the properties to a different JSON property.</value>
   </data>
+  <data name="LogExecutedCreateItem" xml:space="preserve">
+    <value>Executed CreateItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedCreateItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedDeleteItem" xml:space="preserve">
+    <value>Executed DeleteItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedDeleteItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedReadItem" xml:space="preserve">
+    <value>Executed ReadItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedReadItem string string string string string string?</comment>
+  </data>
+  <data name="LogExecutedReadNext" xml:space="preserve">
+    <value>Executed ReadNext ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Partition='{partitionKey}', Parameters=[{parameters}]{newLine}{sql}</value>
+    <comment>Information CosmosEventId.ExecutedReadNext string string string string string? string string string string</comment>
+  </data>
+  <data name="LogExecutedReplaceItem" xml:space="preserve">
+    <value>Executed ReplaceItem ({elapsed} ms, {charge} RU) ActivityId='{activityId}', Container='{container}', Id='{id}', Partition='{partitionKey}'</value>
+    <comment>Information CosmosEventId.ExecutedReplaceItem string string string string string string?</comment>
+  </data>
   <data name="LogExecutingReadItem" xml:space="preserve">
     <value>Reading resource '{resourceId}' item from container '{containerId}' in partition '{partitionKey}'.</value>
     <comment>Information CosmosEventId.ExecutingReadItem string string string?</comment>

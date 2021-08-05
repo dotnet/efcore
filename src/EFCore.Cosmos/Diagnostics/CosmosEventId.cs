@@ -23,27 +23,61 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         // Try to use <Noun><Verb> naming and be consistent with existing names.
         private enum Id
         {
-            // Update events
+            // Database events
 
-            // Query events
-            // These events are actually in Event in `DbLoggerCategory.Database.Command`.
-            // Leaving the ID unchanged to avoid changing it after release.
+            // Command events
             ExecutingSqlQuery = CoreEventId.ProviderBaseId + 100,
-            ExecutingReadItem
+            ExecutingReadItem,
+            ExecutedReadNext,
+            ExecutedReadItem,
+            ExecutedCreateItem,
+            ExecutedReplaceItem,
+            ExecutedDeleteItem
         }
 
         private static readonly string _commandPrefix = DbLoggerCategory.Database.Command.Name + ".";
 
         /// <summary>
         ///     <para>
-        ///         A SQL query was executed.
+        ///         A SQL query is going to be executed.
         ///     </para>
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CosmosQueryEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
         public static readonly EventId ExecutingSqlQuery
             = new((int)Id.ExecutingSqlQuery, _commandPrefix + Id.ExecutingSqlQuery);
+
+        /// <summary>
+        ///     <para>
+        ///         ReadItem is going to be executed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CosmosReadItemEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ExecutingReadItem
+                = new((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
+
+        /// <summary>
+        ///     <para>
+        ///         ReadNext was executed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CosmosQueryExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ExecutedReadNext
+                = new((int)Id.ExecutedReadNext, _commandPrefix + Id.ExecutedReadNext);
 
         /// <summary>
         ///     <para>
@@ -52,8 +86,53 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     <para>
         ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
         ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CosmosItemCommandExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
         /// </summary>
-        public static readonly EventId ExecutingReadItem
-                = new((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
+        public static readonly EventId ExecutedReadItem
+                = new((int)Id.ExecutedReadItem, _commandPrefix + Id.ExecutedReadItem);
+
+        /// <summary>
+        ///     <para>
+        ///         CreateItem was executed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CosmosItemCommandExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ExecutedCreateItem
+                = new((int)Id.ExecutedCreateItem, _commandPrefix + Id.ExecutedCreateItem);
+
+        /// <summary>
+        ///     <para>
+        ///         ReplaceItem was executed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CosmosItemCommandExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ExecutedReplaceItem
+                = new((int)Id.ExecutedReplaceItem, _commandPrefix + Id.ExecutedReplaceItem);
+
+        /// <summary>
+        ///     <para>
+        ///         DeleteItem was executed.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Database.Command" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="CosmosItemCommandExecutedEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ExecutedDeleteItem
+                = new((int)Id.ExecutedDeleteItem, _commandPrefix + Id.ExecutedDeleteItem);
     }
 }
