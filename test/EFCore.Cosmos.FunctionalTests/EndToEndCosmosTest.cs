@@ -8,6 +8,7 @@ using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -43,11 +44,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Add(customer);
 
                 context.SaveChanges();
+
+                var logEntry = TestSqlLoggerFactory.Log.Single();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("CreateItem", logEntry.Message);
             }
 
             using (var context = new CustomerContext(options))
             {
+                TestSqlLoggerFactory.Clear();
                 var customerFromStore = context.Set<Customer>().Single();
+
+                var logEntry = TestSqlLoggerFactory.Log.Last();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReadNext", logEntry.Message);
+                TestSqlLoggerFactory.Clear();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
@@ -55,11 +66,21 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 customerFromStore.Name = "Theon Greyjoy";
 
                 context.SaveChanges();
+
+                logEntry = TestSqlLoggerFactory.Log.Single();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReplaceItem", logEntry.Message);
             }
 
             using (var context = new CustomerContext(options))
             {
-                var customerFromStore = context.Set<Customer>().Single();
+                TestSqlLoggerFactory.Clear();
+                var customerFromStore = context.Find<Customer>(42);
+
+                var logEntry = TestSqlLoggerFactory.Log.Last();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReadItem", logEntry.Message);
+                TestSqlLoggerFactory.Clear();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -67,6 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Remove(customerFromStore);
 
                 context.SaveChanges();
+
+                logEntry = TestSqlLoggerFactory.Log.Single();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("DeleteItem", logEntry.Message);
             }
 
             using (var context = new CustomerContext(options))
@@ -89,11 +114,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Add(customer);
 
                 await context.SaveChangesAsync();
+
+                var logEntry = TestSqlLoggerFactory.Log.Single();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("CreateItem", logEntry.Message);
             }
 
             using (var context = new CustomerContext(options))
             {
                 var customerFromStore = await context.Set<Customer>().SingleAsync();
+
+                var logEntry = TestSqlLoggerFactory.Log.Last();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReadNext", logEntry.Message);
+                TestSqlLoggerFactory.Clear();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon", customerFromStore.Name);
@@ -101,11 +135,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 customerFromStore.Name = "Theon Greyjoy";
 
                 await context.SaveChangesAsync();
+
+                logEntry = TestSqlLoggerFactory.Log.Single();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReplaceItem", logEntry.Message);
             }
 
             using (var context = new CustomerContext(options))
             {
-                var customerFromStore = await context.Set<Customer>().SingleAsync();
+                var customerFromStore = await context.FindAsync<Customer>(42);
+
+                var logEntry = TestSqlLoggerFactory.Log.Last();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReadItem", logEntry.Message);
+                TestSqlLoggerFactory.Clear();
 
                 Assert.Equal(42, customerFromStore.Id);
                 Assert.Equal("Theon Greyjoy", customerFromStore.Name);
@@ -113,6 +156,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 context.Remove(customerFromStore);
 
                 await context.SaveChangesAsync();
+
+                logEntry = TestSqlLoggerFactory.Log.Single();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("DeleteItem", logEntry.Message);
             }
 
             using (var context = new CustomerContext(options))
@@ -1628,6 +1675,17 @@ OFFSET 0 LIMIT 1");
             logger.AssertBaseline(expected);
         }
 
+        protected TestSqlLoggerFactory TestSqlLoggerFactory
+            => (TestSqlLoggerFactory)Fixture.ListLoggerFactory;
+
+        protected void AssertSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected);
+
+        protected void AssertContainsSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
+
+        protected ListLoggerFactory LoggerFactory { get; }
+
         public class CosmosFixture : ServiceProviderFixtureBase, IAsyncLifetime
         {
             public CosmosFixture()
@@ -1646,6 +1704,9 @@ OFFSET 0 LIMIT 1");
                 ListLoggerFactory.Clear();
                 return CreateOptions(TestStore);
             }
+
+            protected override bool ShouldLogCategory(string logCategory)
+                => logCategory == DbLoggerCategory.Database.Command.Name;
 
             public Task InitializeAsync()
                 => Task.CompletedTask;

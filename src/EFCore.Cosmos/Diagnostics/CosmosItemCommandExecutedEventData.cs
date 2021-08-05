@@ -6,36 +6,57 @@ using System.Diagnostics;
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
-    ///     A <see cref="DiagnosticSource" /> event payload class for Cosmos query events.
+    ///     A <see cref="DiagnosticSource" /> event payload class for Cosmos item command executed events.
     /// </summary>
-    public class CosmosQueryEventData : EventData
+    public class CosmosItemCommandExecutedEventData : EventData
     {
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="elapsed"> The time elapsed since the command was sent to the database. </param>
+        /// <param name="requestCharge"> The request charge in RU. </param>
+        /// <param name="activityId"> The activity ID. </param>
+        /// <param name="resourceId"> The ID of the resource being read. </param>
         /// <param name="containerId"> The ID of the Cosmos container being queried. </param>
         /// <param name="partitionKey"> The key of the Cosmos partition that the query is using. </param>
-        /// <param name="parameters"> Name/values for each parameter in the Cosmos Query. </param>
-        /// <param name="querySql"> The SQL representing the query. </param>
         /// <param name="logSensitiveData"> Indicates whether the application allows logging of sensitive data. </param>
-        public CosmosQueryEventData(
+        public CosmosItemCommandExecutedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,
+            TimeSpan elapsed,
+            double requestCharge,
+            string activityId,
             string containerId,
+            string resourceId,
             string? partitionKey,
-            IReadOnlyList<(string Name, object? Value)> parameters,
-            string querySql,
             bool logSensitiveData)
             : base(eventDefinition, messageGenerator)
         {
+            Elapsed = elapsed;
+            RequestCharge = requestCharge;
+            ActivityId = activityId;
             ContainerId = containerId;
+            ResourceId = resourceId;
             PartitionKey = partitionKey;
-            Parameters = parameters;
-            QuerySql = querySql;
             LogSensitiveData = logSensitiveData;
         }
+
+        /// <summary>
+        ///     The time elapsed since the command was sent to the database.
+        /// </summary>
+        public virtual TimeSpan Elapsed { get; }
+
+        /// <summary>
+        ///     The request charge in RU.
+        /// </summary>
+        public virtual double RequestCharge { get; }
+
+        /// <summary>
+        ///     The activity ID.
+        /// </summary>
+        public virtual string ActivityId { get; }
 
         /// <summary>
         ///     The ID of the Cosmos container being queried.
@@ -43,19 +64,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual string ContainerId { get; }
 
         /// <summary>
+        ///     The ID of the resource being read.
+        /// </summary>
+        public virtual string ResourceId { get; }
+
+        /// <summary>
         ///     The key of the Cosmos partition that the query is using.
         /// </summary>
         public virtual string? PartitionKey { get; }
-
-        /// <summary>
-        ///     Name/values for each parameter in the Cosmos Query.
-        /// </summary>
-        public virtual IReadOnlyList<(string Name, object? Value)> Parameters { get; }
-
-        /// <summary>
-        ///     The SQL representing the query.
-        /// </summary>
-        public virtual string QuerySql { get; }
 
         /// <summary>
         ///     Indicates whether the application allows logging of sensitive data.
