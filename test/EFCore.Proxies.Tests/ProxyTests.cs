@@ -174,7 +174,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var withoutProxies = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new NeweyContext(withoutProxies, nameof(Proxy_services_must_be_available), false))
             {
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
                     = new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
                         .AddEntityFrameworkProxies()
-                        .BuildServiceProvider();
+                        .BuildServiceProvider(validateScopes: true);
 
                 _dbName = dbName;
                 _useLazyLoadingProxies = useLazyLoading;
@@ -430,7 +430,7 @@ namespace Microsoft.EntityFrameworkCore
                         new ServiceCollection()
                             .AddEntityFrameworkInMemoryDatabase()
                             .AddEntityFrameworkProxies()
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore
                         new ServiceCollection()
                             .AddEntityFrameworkInMemoryDatabase()
                             .AddEntityFrameworkProxies()
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -484,7 +484,7 @@ namespace Microsoft.EntityFrameworkCore
                         new ServiceCollection()
                             .AddEntityFrameworkInMemoryDatabase()
                             .AddEntityFrameworkProxies()
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -508,7 +508,7 @@ namespace Microsoft.EntityFrameworkCore
                         new ServiceCollection()
                             .AddEntityFrameworkInMemoryDatabase()
                             .AddEntityFrameworkProxies()
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .UseInMemoryDatabase(Guid.NewGuid().ToString())
                     ;
             }

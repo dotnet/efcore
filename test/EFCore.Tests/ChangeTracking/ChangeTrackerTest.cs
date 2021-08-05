@@ -1568,7 +1568,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 .AddDbContextPool<LikeAZooContextPooled>(
                     p => p.UseInMemoryDatabase(nameof(LikeAZooContextPooled))
                         .UseInternalServiceProvider(InMemoryFixture.BuildServiceProvider(_loggerFactory)))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
         private class LikeAZooContextPooled : LikeAZooContext
         {

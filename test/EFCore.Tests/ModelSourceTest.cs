@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore
     public class ModelSourceTest
     {
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
-                        .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
+                        .AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
 
         [ConditionalFact]
         public void OnModelCreating_is_only_called_once()

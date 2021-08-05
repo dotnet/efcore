@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
                     ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
                     throwOnError: true))!)
                 .ConfigureDesignTimeServices(serviceCollection);
-            using var services = serviceCollection.BuildServiceProvider();
+            using var services = serviceCollection.BuildServiceProvider(); // No scope validation; design services only resolved once
 
             var reverseEngineerScaffolder = services.GetService<IReverseEngineerScaffolder>();
 
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore
                     ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
                     throwOnError: true))!)
                 .ConfigureDesignTimeServices(serviceCollection);
-            using var services = serviceCollection.BuildServiceProvider();
+            using var services = serviceCollection.BuildServiceProvider(); // No scope validation; design services only resolved once
 
             var migrationsScaffolder = services.GetService<IMigrationsScaffolder>();
 

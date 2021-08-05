@@ -335,7 +335,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .UseInternalServiceProvider(
                         TestStoreFactory.AddProviderServices(
                                 new ServiceCollection())
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .Options);
 
         public new virtual MigrationsContext CreateContext()

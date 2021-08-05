@@ -1027,7 +1027,7 @@ namespace MyNamespace
             var reporter = new TestOperationReporter();
             return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
                 .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
-                .BuildServiceProvider()
+                .BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<IMigrationsCodeGenerator>();
         }
     }

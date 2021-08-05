@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new Context(serviceProvider, TestStore.Name);
             context.Database.EnsureCreatedResiliently();
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new Context(serviceProvider, TestStore.Name);
             context.Database.EnsureCreatedResiliently();
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new NullableContext(serviceProvider, TestStore.Name);
             context.Database.EnsureCreatedResiliently();

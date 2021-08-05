@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
                 = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddScoped<IValueGeneratorSelector, CustomInMemoryValueGeneratorSelector>()
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
             private static readonly IServiceProvider _serviceProvider
                 = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -132,7 +132,7 @@ namespace Microsoft.EntityFrameworkCore
             private static readonly IServiceProvider _serviceProvider
                 = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder

@@ -36,6 +36,6 @@ namespace Microsoft.EntityFrameworkCore
             => InMemoryTestStoreFactory.Instance.AddProviderServices(
                     providerServices
                     ?? new ServiceCollection())
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
     }
 }

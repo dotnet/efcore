@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static FakeService Can_patch_transient_service(ServiceCollectionMap serviceMap)
         {
-            var serviceProvider = serviceMap.ServiceCollection.BuildServiceProvider();
+            var serviceProvider = serviceMap.ServiceCollection.BuildServiceProvider(validateScopes: true);
 
             FakeService service;
 
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static FakeService Can_patch_scoped_service(ServiceCollectionMap serviceMap)
         {
-            var serviceProvider = serviceMap.ServiceCollection.BuildServiceProvider();
+            var serviceProvider = serviceMap.ServiceCollection.BuildServiceProvider(validateScopes: true);
 
             FakeService service;
 
@@ -249,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static FakeSingletonService Can_patch_singleton_service(ServiceCollectionMap serviceMap)
         {
-            var serviceProvider = serviceMap.ServiceCollection.BuildServiceProvider();
+            var serviceProvider = serviceMap.ServiceCollection.BuildServiceProvider(validateScopes: true);
 
             FakeSingletonService singletonService;
 

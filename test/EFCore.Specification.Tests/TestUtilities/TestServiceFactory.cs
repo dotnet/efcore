@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
             return _factories.GetOrAdd(
                 typeof(TService),
-                t => AddType(new ServiceCollection(), typeof(TService), exceptions).BuildServiceProvider()).GetService<TService>();
+                t => AddType(new ServiceCollection(), typeof(TService), exceptions).BuildServiceProvider(validateScopes: true)).GetService<TService>();
         }
 
         private static ServiceCollection AddType(

@@ -738,7 +738,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkSqlServer()
                 .AddScoped<IExecutionStrategyFactory, TestSqlServerExecutionStrategyFactory>()
                 .AddScoped<IRelationalDatabaseCreator, TestDatabaseCreator>()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
         }
 
         protected class BloggingContext : DbContext

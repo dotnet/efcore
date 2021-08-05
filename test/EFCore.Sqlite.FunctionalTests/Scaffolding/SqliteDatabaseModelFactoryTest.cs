@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -61,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
 
                 var databaseModelFactory = services
-                    .BuildServiceProvider()
+                    .BuildServiceProvider() // No scope validation; design services only resolved once
                     .GetRequiredService<IDatabaseModelFactory>();
 
                 var databaseModel = databaseModelFactory.Create(

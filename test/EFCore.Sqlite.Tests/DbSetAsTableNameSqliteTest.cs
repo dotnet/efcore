@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(
                         new ServiceCollection()
                             .AddEntityFrameworkSqlite()
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .UseSqlite("Database = Dummy");
         }
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(
                         new ServiceCollection()
                             .AddEntityFrameworkSqlite()
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .UseSqlite("Database = Dummy");
         }
     }

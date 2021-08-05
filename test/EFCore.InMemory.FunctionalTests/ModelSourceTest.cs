@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<IModelCustomizer, MyModelCustomizer>()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new JustSomeContext(serviceProvider);
             var model = context.Model;

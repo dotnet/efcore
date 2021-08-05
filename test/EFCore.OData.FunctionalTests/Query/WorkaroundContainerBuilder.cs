@@ -34,7 +34,7 @@ namespace Microsoft.AspNet.OData
             return this;
         }
 
-        public virtual IServiceProvider BuildContainer() => services.BuildServiceProvider();  // workaround is here, don't use reflection to call BuildServiceProvider
+        public virtual IServiceProvider BuildContainer() => services.BuildServiceProvider(validateScopes: true);  // workaround is here, don't use reflection to call BuildServiceProvider
 
         private static Microsoft.Extensions.DependencyInjection.ServiceLifetime TranslateServiceLifetime(Microsoft.OData.ServiceLifetime lifetime) => lifetime switch
         {

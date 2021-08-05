@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
                 .UseInternalServiceProvider(
                     new ServiceCollection()
                         .AddEntityFrameworkInMemoryDatabase()
-                        .BuildServiceProvider())
+                        .BuildServiceProvider(validateScopes: true))
                 .UseInMemoryDatabase(Guid.NewGuid().ToString())
                 .Options;
 
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInMemoryDatabase(Guid.NewGuid().ToString()).UseInternalServiceProvider(p))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()

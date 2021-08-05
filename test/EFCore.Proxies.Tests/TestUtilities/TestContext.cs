@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .AddEntityFrameworkProxies()
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             _dbName = dbName;
             _useLazyLoadingProxies = useLazyLoading;

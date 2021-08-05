@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
             IServiceCollection services,
             Action<RelationalDbContextOptionsBuilder<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>> relationalAction)
             => new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(services.AddEntityFrameworkSqlServer().BuildServiceProvider())
+                .UseInternalServiceProvider(services.AddEntityFrameworkSqlServer().BuildServiceProvider(validateScopes: true))
                 .UseSqlServer("Data Source=LoggingSqlServerTest.db", relationalAction);
 
         protected override string ProviderName

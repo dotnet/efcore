@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             private static readonly IServiceProvider _serviceProvider
                 = FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(
                         new ServiceCollection())
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             public TestContext()
                 : base(RelationalTestHelpers.Instance.CreateOptions(_serviceProvider))

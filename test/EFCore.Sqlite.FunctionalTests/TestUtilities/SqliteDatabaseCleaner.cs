@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
 
             return services
-                .BuildServiceProvider()
+                .BuildServiceProvider() // No scope validation; cleaner violates scopes, but only resolve services once.
                 .GetRequiredService<IDatabaseModelFactory>();
         }
 

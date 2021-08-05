@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -350,7 +349,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new UseModelInOnModelCreatingContext(serviceProvider);
             Assert.Equal(
@@ -386,7 +385,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new UseInOnModelCreatingContext(serviceProvider);
             Assert.Equal(
@@ -420,7 +419,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new UseInOnConfiguringContext(serviceProvider);
             Assert.Equal(
@@ -815,35 +814,13 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Throws<ObjectDisposedException>(() => context.Model);
         }
 
-        [ConditionalFact]
-        public void It_disposes_scope()
-        {
-            var fakeServiceProvider = new FakeServiceProvider();
-            var context = new DbContext(
-                new DbContextOptionsBuilder()
-                    .UseInternalServiceProvider(fakeServiceProvider)
-                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                    .Options);
-
-            var scopeService =
-                Assert.IsType<FakeServiceProvider.FakeServiceScope>(context.GetService<IServiceScopeFactory>().CreateScope());
-
-            Assert.False(scopeService.Disposed);
-
-            context.Dispose();
-
-            Assert.True(scopeService.Disposed);
-
-            Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance);
-        }
-
         public class FakeServiceProvider : IServiceProvider, IDisposable
         {
             private readonly IServiceProvider _realProvider;
 
             public FakeServiceProvider()
             {
-                _realProvider = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
+                _realProvider = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
             }
 
             public bool Disposed { get; set; }

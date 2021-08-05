@@ -184,7 +184,7 @@ namespace Microsoft.EntityFrameworkCore
                                     .AddInterceptors(appInterceptors)
                                     .UseInternalServiceProvider(
                                         InjectInterceptors(new ServiceCollection(), injectedInterceptors)
-                                            .BuildServiceProvider())))
+                                            .BuildServiceProvider(validateScopes: true))))
                     .EnableDetailedErrors()
                     .Options;
 

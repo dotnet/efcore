@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInternalServiceProvider(
                         new ServiceCollection()
                             .AddEntityFrameworkSqlite()
-                            .BuildServiceProvider())
+                            .BuildServiceProvider(validateScopes: true))
                     .UseSqlite("Database=Maltesers").Options);
             Assert.True(context.Database.IsSqlite());
         }

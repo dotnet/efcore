@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
                         b.UseInMemoryDatabase("Jammie")
                             .UseInternalServiceProvider(p)
                             .UseLazyLoadingProxies())
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var scope = serviceProvider.CreateScope())
             {
