@@ -111,6 +111,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                 RelationalAnnotationNames.DefaultSchema, nameof(RelationalModelBuilderExtensions.HasDefaultSchema),
                 methodCallCodeFragments);
 
+            GenerateSimpleFluentApiCall(
+                annotations,
+                RelationalAnnotationNames.Collation, nameof(RelationalModelBuilderExtensions.UseCollation),
+                methodCallCodeFragments);
+
             methodCallCodeFragments.AddRange(GenerateFluentApiCallsHelper(model, annotations, GenerateFluentApi));
             return methodCallCodeFragments;
         }

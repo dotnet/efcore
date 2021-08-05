@@ -131,7 +131,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 
                 databaseModel.DatabaseName = connection.Database;
                 databaseModel.DefaultSchema = GetDefaultSchema(connection);
-                databaseModel.Collation = GetCollation(connection);
+
+                var serverCollation = GetServerCollation(connection);
+                var databaseCollation = GetDatabaseCollation(connection);
+                if (databaseCollation is not null && databaseCollation != serverCollation)
+                {
+                    databaseModel.Collation = databaseCollation;
+                }
 
                 var typeAliases = GetTypeAliases(connection);
 
@@ -145,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
                     GetSequences(connection, databaseModel, schemaFilter, typeAliases);
                 }
 
-                GetTables(connection, databaseModel, tableFilter, typeAliases);
+                GetTables(connection, databaseModel, tableFilter, typeAliases, databaseCollation);
 
                 foreach (var schema in schemaList
                     .Except(
@@ -200,7 +206,17 @@ WHERE name = '{connection.Database}';";
                 return result != null ? Convert.ToByte(result) : (byte)0;
             }
 
-            static string? GetCollation(DbConnection connection)
+            static string? GetServerCollation(DbConnection connection)
+            {
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+SELECT SERVERPROPERTY('Collation');";
+                return command.ExecuteScalar() is string collation
+                    ? collation
+                    : null;
+            }
+
+            static string? GetDatabaseCollation(DbConnection connection)
             {
                 using var command = connection.CreateCommand();
                 command.CommandText = $@"
@@ -471,7 +487,8 @@ WHERE "
             DbConnection connection,
             DatabaseModel databaseModel,
             Func<string, string, string>? tableFilter,
-            IReadOnlyDictionary<string, (string, string)> typeAliases)
+            IReadOnlyDictionary<string, (string, string)> typeAliases,
+            string? databaseCollation)
         {
             using var command = connection.CreateCommand();
             var tables = new List<DatabaseTable>();
@@ -632,7 +649,7 @@ WHERE "
             }
 
             // This is done separately due to MARS property may be turned off
-            GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseModel.Collation);
+            GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseCollation);
             GetIndexes(connection, tables, filter);
             GetForeignKeys(connection, tables, filter);
 
