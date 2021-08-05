@@ -5,6 +5,7 @@ using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -67,31 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         private static ValueGenerator? CreateFromFactory(IProperty property, IEntityType entityType)
-        {
-            var factory = property.GetValueGeneratorFactory();
-
-            if (factory == null)
-            {
-                var mapping = property.GetTypeMapping();
-                factory = mapping.ValueGeneratorFactory;
-
-                if (factory == null)
-                {
-                    var converter = mapping.Converter;
-
-                    if (converter != null)
-                    {
-                        throw new NotSupportedException(
-                            CoreStrings.ValueGenWithConversion(
-                                property.DeclaringEntityType.DisplayName(),
-                                property.Name,
-                                converter.GetType().ShortDisplayName()));
-                    }
-                }
-            }
-
-            return factory?.Invoke(property, entityType);
-        }
+            => (property.GetValueGeneratorFactory() ?? property.GetTypeMapping().ValueGeneratorFactory)?.Invoke(property, entityType);
 
         /// <summary>
         ///     Creates a new value generator for the given property.

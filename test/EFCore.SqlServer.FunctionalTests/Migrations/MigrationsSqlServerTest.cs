@@ -147,6 +147,26 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 );");
         }
 
+        [ConditionalFact]
+        public virtual async Task Create_table_with_identity_column_value_converter()
+        {
+            await Test(
+                _ => { },
+                builder => builder.UseIdentityColumns()
+                    .Entity("People").Property<int>("IdentityColumn").HasConversion<short>().ValueGeneratedOnAdd(),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var column = Assert.Single(table.Columns, c => c.Name == "IdentityColumn");
+                    Assert.Equal(ValueGenerated.OnAdd, column.ValueGenerated);
+                });
+
+            AssertSql(
+                @"CREATE TABLE [People] (
+    [IdentityColumn] smallint NOT NULL IDENTITY
+);");
+        }
+
         public override async Task Drop_table()
         {
             await base.Drop_table();

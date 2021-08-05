@@ -534,13 +534,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> <see langword="true" /> if compatible. </returns>
         public static bool IsCompatibleWithValueGeneration(IReadOnlyProperty property)
         {
-            var type = property.ClrType;
+            var valueConverter = property.GetValueConverter()
+                ?? property.FindTypeMapping()?.Converter;
+
+            var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
 
             return (type.IsInteger()
-                    || type == typeof(decimal))
-                && (property.GetValueConverter()
-                    ?? property.FindTypeMapping()?.Converter)
-                == null;
+                    || type == typeof(decimal));
         }
 
         private static bool IsCompatibleWithValueGeneration(
@@ -548,14 +548,14 @@ namespace Microsoft.EntityFrameworkCore
             in StoreObjectIdentifier storeObject,
             ITypeMappingSource? typeMappingSource)
         {
-            var type = property.ClrType;
+            var valueConverter = property.GetValueConverter()
+                ?? (property.FindRelationalTypeMapping(storeObject)
+                    ?? typeMappingSource?.FindMapping((IProperty)property))?.Converter;
 
+            var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+            
             return (type.IsInteger()
-                    || type == typeof(decimal))
-                && (property.GetValueConverter()
-                    ?? (property.FindRelationalTypeMapping(storeObject)
-                        ?? typeMappingSource?.FindMapping((IProperty)property))?.Converter)
-                == null;
+                    || type == typeof(decimal));
         }
 
         /// <summary>
