@@ -544,7 +544,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     b.Property<string>(""Something"")
                         .HasColumnType(""nvarchar(max)"");
 
-                    b.ToTable(null, (string)null);
+                    b.ToTable((string)null);
                 });"),
                 o =>
                 {
@@ -1859,12 +1859,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b
                         .ToTable(tb => tb.IsTemporal(ttb =>
-{
-    ttb.WithHistoryTable(""HistoryTable"");
-    ttb.HasPeriodStart(""Start"").HasColumnName(""PeriodStart"");
-    ttb.HasPeriodEnd(""End"").HasColumnName(""PeriodEnd"");
-}
-));
+                            {
+                                ttb.WithHistoryTable(""HistoryTable"");
+                                ttb.HasPeriodStart(""Start"").HasColumnName(""PeriodStart"");
+                                ttb.HasPeriodEnd(""End"").HasColumnName(""PeriodEnd"");
+                            }
+                        ));
                 });", usingSystem: true),
                 o =>
                 {
@@ -2142,7 +2142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                   es.HasKey(e => e.Id);
                                   es.HasOne(e => e.EntityWithOneProperty).WithOne();
 
-                                  es.ToTable("EntityWithStringProperty", excludedFromMigrations: true);
+                                  es.ToTable("EntityWithStringProperty", t => t.ExcludeFromMigrations());
                               });
 
                             b.ToTable("EntityWithStringKey", e => e.ExcludeFromMigrations());
@@ -2254,7 +2254,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                             b1.HasIndex(""EntityWithStringKeyId"");
 
-                            b1.ToTable(""EntityWithStringProperty"", null, excludedFromMigrations: true);
+                            b1.ToTable(""EntityWithStringProperty"", null, t => t.ExcludeFromMigrations());
 
                             b1.HasOne(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", ""EntityWithOneProperty"")
                                 .WithOne()

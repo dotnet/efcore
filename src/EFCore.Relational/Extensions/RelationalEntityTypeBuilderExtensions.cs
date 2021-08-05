@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -26,7 +24,14 @@ namespace Microsoft.EntityFrameworkCore
         public static EntityTypeBuilder ToTable(
             this EntityTypeBuilder entityTypeBuilder,
             string? name)
-            => entityTypeBuilder.ToTable(name, (string?)null);
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+
+            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetSchema(null);
+
+            return entityTypeBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -38,7 +43,9 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder entityTypeBuilder,
             Action<TableBuilder> buildAction)
         {
-            buildAction(new TableBuilder(null, null, entityTypeBuilder));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(new TableBuilder(null, null, entityTypeBuilder.Metadata));
 
             return entityTypeBuilder;
         }
@@ -52,9 +59,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             this EntityTypeBuilder entityTypeBuilder,
-            string name,
+            string? name,
             Action<TableBuilder> buildAction)
-            => entityTypeBuilder.ToTable(name, null, buildAction);
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetSchema(null);
+            buildAction(new TableBuilder(name, null, entityTypeBuilder.Metadata));
+
+            return entityTypeBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -67,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             string? name)
             where TEntity : class
-            => entityTypeBuilder.ToTable(name, (string?)null);
+            => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToTable(name);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -81,7 +97,9 @@ namespace Microsoft.EntityFrameworkCore
             Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
         {
-            buildAction(new TableBuilder<TEntity>(null, null, entityTypeBuilder));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(new TableBuilder<TEntity>(null, null, entityTypeBuilder.Metadata));
 
             return entityTypeBuilder;
         }
@@ -96,25 +114,19 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            string name,
-            Action<TableBuilder> buildAction)
-            where TEntity : class
-            => entityTypeBuilder.ToTable(name, null, buildAction);
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="buildAction"> An action that performs configuration of the table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
-            this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            string name,
+            string? name,
             Action<TableBuilder<TEntity>> buildAction)
             where TEntity : class
-            => entityTypeBuilder.ToTable(name, null, buildAction);
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            entityTypeBuilder.Metadata.SetTableName(name);
+            entityTypeBuilder.Metadata.SetSchema(null);
+            buildAction(new TableBuilder<TEntity>(name, null, entityTypeBuilder.Metadata));
+
+            return entityTypeBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -125,9 +137,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder ToTable(
             this EntityTypeBuilder entityTypeBuilder,
-            string? name,
+            string name,
             string? schema)
         {
+            Check.NotNull(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
             return entityTypeBuilder;
@@ -149,10 +164,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(new TableBuilder(name, schema, entityTypeBuilder));
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
+            buildAction(new TableBuilder(name, schema, entityTypeBuilder.Metadata));
 
             return entityTypeBuilder;
         }
@@ -164,34 +180,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
-        /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             string name,
-            string? schema,
-            Action<TableBuilder> buildAction)
-            where TEntity : class
-            => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToTable(name, schema, buildAction);
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static EntityTypeBuilder<TEntity> ToTable<TEntity>(
-            this EntityTypeBuilder<TEntity> entityTypeBuilder,
-            string? name,
             string? schema)
             where TEntity : class
-        {
-            entityTypeBuilder.Metadata.SetTableName(name);
-            entityTypeBuilder.Metadata.SetSchema(schema);
-            return entityTypeBuilder;
-        }
+            => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)entityTypeBuilder).ToTable(name, schema);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -211,10 +206,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(buildAction, nameof(buildAction));
 
-            buildAction(new TableBuilder<TEntity>(name, schema, entityTypeBuilder));
             entityTypeBuilder.Metadata.SetTableName(name);
             entityTypeBuilder.Metadata.SetSchema(schema);
+            buildAction(new TableBuilder<TEntity>(name, schema, entityTypeBuilder.Metadata));
 
             return entityTypeBuilder;
         }
@@ -228,7 +224,50 @@ namespace Microsoft.EntityFrameworkCore
         public static OwnedNavigationBuilder ToTable(
             this OwnedNavigationBuilder referenceOwnershipBuilder,
             string? name)
-            => ToTable(referenceOwnershipBuilder, name, schema: null, excludedFromMigrations: null);
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+
+            referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
+            referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
+
+            return referenceOwnershipBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder ToTable(
+            this OwnedNavigationBuilder referenceOwnershipBuilder,
+            Action<TableBuilder> buildAction)
+        {
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(new TableBuilder(null, null, referenceOwnershipBuilder.OwnedEntityType));
+
+            return referenceOwnershipBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            Action<TableBuilder<TRelatedEntity>> buildAction)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+        {
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            buildAction(new TableBuilder<TRelatedEntity>(null, null, referenceOwnershipBuilder.OwnedEntityType));
+
+            return referenceOwnershipBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -237,6 +276,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="name"> The name of the table. </param>
         /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use the overload with an Action parameter")]
         public static OwnedNavigationBuilder ToTable(
             this OwnedNavigationBuilder referenceOwnershipBuilder,
             string? name,
@@ -246,36 +286,78 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
             string? name)
-            where TEntity : class
+            where TOwnerEntity : class
             where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
-                referenceOwnershipBuilder, name, schema: null, excludedFromMigrations: null);
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)((OwnedNavigationBuilder)referenceOwnershipBuilder).ToTable(name);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder ToTable(
+            this OwnedNavigationBuilder referenceOwnershipBuilder,
+            string? name,
+            Action<TableBuilder> buildAction)
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
+            referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
+            buildAction(new TableBuilder(name, null, referenceOwnershipBuilder.OwnedEntityType));
+
+            return referenceOwnershipBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
+        [Obsolete("Use the overload with an Action parameter")]
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
             string? name,
             bool excludedFromMigrations)
-            where TEntity : class
+            where TOwnerEntity : class
             where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToTable(
                 (OwnedNavigationBuilder)referenceOwnershipBuilder, name, excludedFromMigrations);
+
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            string? name,
+            Action<TableBuilder<TRelatedEntity>> buildAction)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+        {
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
+            referenceOwnershipBuilder.OwnedEntityType.SetSchema(null);
+            buildAction(new TableBuilder<TRelatedEntity>(name, null, referenceOwnershipBuilder.OwnedEntityType));
+
+            return referenceOwnershipBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -286,9 +368,17 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static OwnedNavigationBuilder ToTable(
             this OwnedNavigationBuilder referenceOwnershipBuilder,
-            string? name,
+            string name,
             string? schema)
-            => ToTable(referenceOwnershipBuilder, name, schema, excludedFromMigrations: null);
+        {
+            Check.NotNull(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
+            referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
+
+            return referenceOwnershipBuilder;
+        }
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -298,6 +388,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use the overload with an Action parameter")]
         public static OwnedNavigationBuilder ToTable(
             this OwnedNavigationBuilder referenceOwnershipBuilder,
             string? name,
@@ -311,6 +402,93 @@ namespace Microsoft.EntityFrameworkCore
             return ToTable(referenceOwnershipBuilder, name, schema, (bool?)excludedFromMigrations);
         }
 
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder ToTable(
+            this OwnedNavigationBuilder referenceOwnershipBuilder,
+            string name,
+            string? schema,
+            Action<TableBuilder> buildAction)
+        {
+            Check.NotNull(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
+            referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
+            buildAction(new TableBuilder(name, schema, referenceOwnershipBuilder.OwnedEntityType));
+
+            return referenceOwnershipBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            string name,
+            string? schema)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)((OwnedNavigationBuilder)referenceOwnershipBuilder).ToTable(name, schema);
+
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        [Obsolete("Use the overload with an Action parameter")]
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            string? name,
+            string? schema,
+            bool excludedFromMigrations)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToTable(
+                (OwnedNavigationBuilder)referenceOwnershipBuilder, name, schema, excludedFromMigrations);
+
+        /// <summary>
+        ///     Configures the table that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the table. </param>
+        /// <param name="schema"> The schema of the table. </param>
+        /// <param name="buildAction"> An action that performs configuration of the table. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToTable<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            string name,
+            string? schema,
+            Action<TableBuilder<TRelatedEntity>> buildAction)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+        {
+            Check.NotNull(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            referenceOwnershipBuilder.OwnedEntityType.SetTableName(name);
+            referenceOwnershipBuilder.OwnedEntityType.SetSchema(schema);
+            buildAction(new TableBuilder<TRelatedEntity>(name, schema, referenceOwnershipBuilder.OwnedEntityType));
+
+            return referenceOwnershipBuilder;
+        }
+
+        [Obsolete]
         private static OwnedNavigationBuilder ToTable(
             OwnedNavigationBuilder referenceOwnershipBuilder,
             string? name,
@@ -327,44 +505,6 @@ namespace Microsoft.EntityFrameworkCore
 
             return referenceOwnershipBuilder;
         }
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            string? name,
-            string? schema)
-            where TEntity : class
-            where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
-                referenceOwnershipBuilder, name, schema, excludedFromMigrations: null);
-
-        /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
-        /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
-        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToTable<TEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
-            string? name,
-            string? schema,
-            bool excludedFromMigrations)
-            where TEntity : class
-            where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToTable(
-                (OwnedNavigationBuilder)referenceOwnershipBuilder, name, schema, excludedFromMigrations);
 
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
@@ -866,34 +1006,30 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <returns> The function configuration builder. </returns>
-        public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToFunction<TEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToFunction<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
             string? name)
-            where TEntity : class
+            where TOwnerEntity : class
             where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToFunction((OwnedNavigationBuilder)referenceOwnershipBuilder, name);
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToFunction((OwnedNavigationBuilder)referenceOwnershipBuilder, name);
 
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public static OwnedNavigationBuilder<TEntity, TRelatedEntity> ToFunction<TEntity, TRelatedEntity>(
-            this OwnedNavigationBuilder<TEntity, TRelatedEntity> referenceOwnershipBuilder,
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToFunction<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
             string name,
             Action<TableValuedFunctionBuilder> configureFunction)
-            where TEntity : class
+            where TOwnerEntity : class
             where TRelatedEntity : class
-            => (OwnedNavigationBuilder<TEntity, TRelatedEntity>)ToFunction(
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToFunction(
                 (OwnedNavigationBuilder)referenceOwnershipBuilder, name, configureFunction);
 
         [return: NotNullIfNotNull("name")]
@@ -1037,6 +1173,89 @@ namespace Microsoft.EntityFrameworkCore
             Action<CheckConstraintBuilder> buildAction)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)HasCheckConstraint((EntityTypeBuilder)entityTypeBuilder, name, sql, buildAction);
+
+        /// <summary>
+        ///     Configures a database check constraint when targeting a relational database.
+        /// </summary>
+        /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <returns> A builder to further configure the navigation. </returns>
+        public static OwnedNavigationBuilder HasCheckConstraint(
+            this OwnedNavigationBuilder ownedNavigationBuilder,
+            string name,
+            string? sql)
+        {
+            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
+
+            InternalCheckConstraintBuilder.HasCheckConstraint(
+                  (IConventionEntityType)ownedNavigationBuilder.OwnedEntityType,
+                  name,
+                  sql,
+                  ConfigurationSource.Explicit);
+
+            return ownedNavigationBuilder;
+        }
+
+        /// <summary>
+        ///     Configures a database check constraint when targeting a relational database.
+        /// </summary>
+        /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <returns> A builder to further configure the navigation. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder,
+            string name,
+            string? sql)
+            where TOwnerEntity : class
+            where TDependentEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
+                HasCheckConstraint((OwnedNavigationBuilder)ownedNavigationBuilder, name, sql);
+
+        /// <summary>
+        ///     Configures a database check constraint when targeting a relational database.
+        /// </summary>
+        /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <param name="buildAction"> An action that performs configuration of the check constraint. </param>
+        /// <returns> A builder to further configure the navigation. </returns>
+        public static OwnedNavigationBuilder HasCheckConstraint(
+            this OwnedNavigationBuilder ownedNavigationBuilder,
+            string name,
+            string sql,
+            Action<CheckConstraintBuilder> buildAction)
+        {
+            Check.NotEmpty(sql, nameof(sql));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            ownedNavigationBuilder.HasCheckConstraint(name, sql);
+
+            buildAction(new CheckConstraintBuilder(ownedNavigationBuilder.OwnedEntityType.FindCheckConstraint(name)!));
+
+            return ownedNavigationBuilder;
+        }
+
+        /// <summary>
+        ///     Configures a database check constraint when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TOwnerEntity"> The entity type owning the relationship. </typeparam>
+        /// <typeparam name="TDependentEntity"> The dependent entity type of the relationship. </typeparam>
+        /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
+        /// <param name="name"> The name of the check constraint. </param>
+        /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
+        /// <param name="buildAction"> An action that performs configuration of the check constraint. </param>
+        /// <returns> A builder to further configure the navigation. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint<TOwnerEntity, TDependentEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ownedNavigationBuilder,
+            string name,
+            string sql,
+            Action<CheckConstraintBuilder> buildAction)
+            where TOwnerEntity : class
+            where TDependentEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)
+                HasCheckConstraint((OwnedNavigationBuilder)ownedNavigationBuilder, name, sql, buildAction);
 
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.

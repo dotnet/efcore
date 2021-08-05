@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -835,7 +832,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         .Append(".ToTable(");
 
                     if (tableName == null
-                        && schemaAnnotation == null)
+                        && (schemaAnnotation == null || schemaAnnotation.Value == null))
                     {
                         stringBuilder.Append("(string)");
                     }
@@ -848,7 +845,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
 
                     var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
-                    if (schemaAnnotation != null)
+                    if (schemaAnnotation != null
+                        && (tableName != null || schemaAnnotation.Value != null))
                     {
                         stringBuilder
                             .Append(", ");
@@ -866,17 +864,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         if (((bool?)isExcludedAnnotation.Value) == true)
                         {
-                            if (entityType.IsOwned())
-                            {
-                                // Issue #23173
-                                stringBuilder
-                                    .Append(", excludedFromMigrations: true");
-                            }
-                            else
-                            {
-                                stringBuilder
-                                    .Append(", t => t.ExcludeFromMigrations()");
-                            }
+                            stringBuilder
+                                .Append(", t => t.ExcludeFromMigrations()");
                         }
 
                         annotations.Remove(isExcludedAnnotation.Name);
@@ -1041,7 +1030,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     {
                         stringBuilder
                             .AppendLine()
-                            .Append(Code.Fragment(methodCallCodeFragment));
+                            .AppendLines(Code.Fragment(methodCallCodeFragment), skipFinalNewline: true);
                     }
 
                     GenerateAnnotations(annotations.Values, stringBuilder);

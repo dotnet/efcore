@@ -1,19 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -140,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
 
             Assert.False(
                 nonGenericMethods.Count > 0,
-                "\r\n-- Non-generic fluent returns --\r\n"
+                "\r\n-- Non-generic fluent returns that aren't hidden --\r\n"
                 + string.Join(
                     Environment.NewLine, nonGenericMethods.Select(
                         m =>

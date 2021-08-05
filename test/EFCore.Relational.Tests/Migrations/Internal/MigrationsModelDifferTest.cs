@@ -9822,7 +9822,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                             c.OwnsMany(
                                 y => y.Orders, x =>
                                 {
-                                    x.ToTable("Order", excludedFromMigrations: true);
+                                    x.ToTable("Order", t => t.ExcludeFromMigrations());
                                 });
                             c.ToTable("Customer", t => t.ExcludeFromMigrations());
                         });

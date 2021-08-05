@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 // ReSharper disable once CheckNamespace
@@ -22,9 +21,9 @@ namespace Microsoft.EntityFrameworkCore
             this TableBuilder tableBuilder,
             bool temporal = true)
         {
-            tableBuilder.EntityTypeBuilder.Metadata.SetIsTemporal(temporal);
+            tableBuilder.Metadata.SetIsTemporal(temporal);
 
-            return new TemporalTableBuilder(tableBuilder.EntityTypeBuilder);
+            return new TemporalTableBuilder(tableBuilder.Metadata);
         }
 
         /// <summary>
@@ -37,8 +36,9 @@ namespace Microsoft.EntityFrameworkCore
             this TableBuilder tableBuilder,
             Action<TemporalTableBuilder> buildAction)
         {
-            tableBuilder.EntityTypeBuilder.Metadata.SetIsTemporal(true);
-            buildAction(new TemporalTableBuilder(tableBuilder.EntityTypeBuilder));
+            tableBuilder.Metadata.SetIsTemporal(true);
+
+            buildAction(new TemporalTableBuilder(tableBuilder.Metadata));
 
             return tableBuilder;
         }
@@ -55,9 +55,9 @@ namespace Microsoft.EntityFrameworkCore
             bool temporal = true)
             where TEntity : class
         {
-            tableBuilder.EntityTypeBuilder.Metadata.SetIsTemporal(temporal);
+            tableBuilder.Metadata.SetIsTemporal(temporal);
 
-            return new TemporalTableBuilder<TEntity>(tableBuilder.EntityTypeBuilder);
+            return new TemporalTableBuilder<TEntity>(tableBuilder.Metadata);
         }
 
         /// <summary>
@@ -72,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore
             Action<TemporalTableBuilder<TEntity>> buildAction)
             where TEntity: class
         {
-            tableBuilder.EntityTypeBuilder.Metadata.SetIsTemporal(true);
-            buildAction(new TemporalTableBuilder<TEntity>(tableBuilder.EntityTypeBuilder));
+            tableBuilder.Metadata.SetIsTemporal(true);
+            buildAction(new TemporalTableBuilder<TEntity>(tableBuilder.Metadata));
 
             return tableBuilder;
         }

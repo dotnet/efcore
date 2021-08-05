@@ -609,7 +609,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                                     l => l.AnotherBookLabel, ab =>
                                     {
                                         ab.Ignore(l => l.Book);
-                                        ab.ToTable("AT1", "AS1", excludedFromMigrations: false);
+                                        ab.ToTable("AT1", "AS1", t => t.ExcludeFromMigrations(false));
                                         ab.OwnsOne(s => s.SpecialBookLabel)
                                             .ToTable("ST11", "SS11")
                                             .Ignore(l => l.Book)

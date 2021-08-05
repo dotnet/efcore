@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     by the current indent and followed by a new line, to the string being built.
         /// </summary>
         /// <param name="value"> The string to append. </param>
-        /// <param name="skipFinalNewline"> If true, then the terminating new line is not added after the last line. </param>
+        /// <param name="skipFinalNewline"> If <see langword="true"/>, then the terminating new line is not added after the last line. </param>
         /// <returns> This builder so that additional calls can be chained. </returns>
         public virtual IndentedStringBuilder AppendLines(string value, bool skipFinalNewline = false)
         {
