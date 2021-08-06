@@ -1830,9 +1830,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            var function = modelBuilder.HasDbFunction(TestMethods.MethodAMi).Metadata;
-
-            modelBuilder.Entity<Animal>().HasNoKey().ToFunction(function.ModelName);
+            modelBuilder.Entity<Animal>().HasNoKey().ToFunction(TestMethods.MethodAMi);
             modelBuilder.Entity<TestMethods>().HasNoKey();
 
             VerifyError(
@@ -1849,9 +1847,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             var modelBuilder = CreateConventionalModelBuilder();
 
-            var function = modelBuilder.HasDbFunction(TestMethods.MethodBMi).Metadata;
-
-            modelBuilder.Entity<TestMethods>().HasNoKey().ToFunction(function.ModelName);
+            ((IConventionEntityType)modelBuilder.Entity<TestMethods>().HasNoKey().Metadata)
+                .Builder.ToFunction(TestMethods.MethodBMi);
 
             VerifyError(
                 RelationalStrings.InvalidMappedFunctionWithParameters(

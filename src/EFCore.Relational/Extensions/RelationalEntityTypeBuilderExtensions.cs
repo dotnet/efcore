@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -669,14 +671,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static EntityTypeBuilder<TEntity> ToView<TEntity>(
-            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            this EntityTypeBuilder<TEntity> referenceOwnershipBuilder,
             string? name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)entityTypeBuilder, name);
+            => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)referenceOwnershipBuilder, name);
 
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -715,6 +717,68 @@ namespace Microsoft.EntityFrameworkCore
             string? schema)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToView((EntityTypeBuilder)entityTypeBuilder, name, schema);
+
+        /// <summary>
+        ///     Configures the view that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the view. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder ToView(
+            this OwnedNavigationBuilder referenceOwnershipBuilder,
+            string? name)
+            => referenceOwnershipBuilder.ToView(name, null);
+
+        /// <summary>
+        ///     Configures the view that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the view. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToView<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            string? name)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToView((OwnedNavigationBuilder)referenceOwnershipBuilder, name);
+
+        /// <summary>
+        ///     Configures the view that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the view. </param>
+        /// <param name="schema"> The schema of the view. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder ToView(
+            this OwnedNavigationBuilder referenceOwnershipBuilder,
+            string? name,
+            string? schema)
+        {
+            Check.NotNull(referenceOwnershipBuilder, nameof(referenceOwnershipBuilder));
+            Check.NullButNotEmpty(name, nameof(name));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            referenceOwnershipBuilder.OwnedEntityType.SetViewName(name);
+            referenceOwnershipBuilder.OwnedEntityType.SetViewSchema(schema);
+            referenceOwnershipBuilder.OwnedEntityType.SetAnnotation(RelationalAnnotationNames.ViewDefinitionSql, null);
+
+            return referenceOwnershipBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the view that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="name"> The name of the view. </param>
+        /// <param name="schema"> The schema of the view. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToView<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            string? name,
+            string? schema)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToView((OwnedNavigationBuilder)referenceOwnershipBuilder, name, schema);
 
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
@@ -910,7 +974,24 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            SetFunction(name, entityTypeBuilder.Metadata);
+            ToFunction(name, entityTypeBuilder.Metadata);
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <returns> The function configuration builder. </returns>
+        public static EntityTypeBuilder ToFunction(
+            this EntityTypeBuilder entityTypeBuilder,
+            MethodInfo? function)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            ToFunction(function, entityTypeBuilder.Metadata);
 
             return entityTypeBuilder;
         }
@@ -928,10 +1009,31 @@ namespace Microsoft.EntityFrameworkCore
             Action<TableValuedFunctionBuilder> configureFunction)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
+            Check.NotNull(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
-            configureFunction(new TableValuedFunctionBuilder(SetFunction(name, entityTypeBuilder.Metadata)));
+            configureFunction(new TableValuedFunctionBuilder(ToFunction(name, entityTypeBuilder.Metadata)));
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <param name="configureFunction"> The function configuration action. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder ToFunction(
+            this EntityTypeBuilder entityTypeBuilder,
+            MethodInfo function,
+            Action<TableValuedFunctionBuilder> configureFunction)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(function, nameof(function));
+            Check.NotNull(configureFunction, nameof(configureFunction));
+
+            configureFunction(new TableValuedFunctionBuilder(ToFunction(function, entityTypeBuilder.Metadata)));
 
             return entityTypeBuilder;
         }
@@ -954,6 +1056,19 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <returns> The function configuration builder. </returns>
+        public static EntityTypeBuilder<TEntity> ToFunction<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            MethodInfo? function)
+            where TEntity : class
+            => (EntityTypeBuilder<TEntity>)ToFunction((EntityTypeBuilder)entityTypeBuilder, function);
+
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -963,6 +1078,21 @@ namespace Microsoft.EntityFrameworkCore
             Action<TableValuedFunctionBuilder> configureFunction)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToFunction((EntityTypeBuilder)entityTypeBuilder, name, configureFunction);
+
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <param name="configureFunction"> The function configuration action. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static EntityTypeBuilder<TEntity> ToFunction<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            MethodInfo function,
+            Action<TableValuedFunctionBuilder> configureFunction)
+            where TEntity : class
+            => (EntityTypeBuilder<TEntity>)ToFunction((EntityTypeBuilder)entityTypeBuilder, function, configureFunction);
 
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
@@ -977,7 +1107,24 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            SetFunction(name, ownedNavigationBuilder.OwnedEntityType);
+            ToFunction(name, ownedNavigationBuilder.OwnedEntityType);
+
+            return ownedNavigationBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="ownedNavigationBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <returns> The function configuration builder. </returns>
+        public static OwnedNavigationBuilder ToFunction(
+            this OwnedNavigationBuilder ownedNavigationBuilder,
+            MethodInfo? function)
+        {
+            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
+
+            ToFunction(function, ownedNavigationBuilder.OwnedEntityType);
 
             return ownedNavigationBuilder;
         }
@@ -998,7 +1145,28 @@ namespace Microsoft.EntityFrameworkCore
             Check.NullButNotEmpty(name, nameof(name));
             Check.NotNull(configureFunction, nameof(configureFunction));
 
-            configureFunction(new TableValuedFunctionBuilder(SetFunction(name, ownedNavigationBuilder.OwnedEntityType)));
+            configureFunction(new TableValuedFunctionBuilder(ToFunction(name, ownedNavigationBuilder.OwnedEntityType)));
+
+            return ownedNavigationBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="ownedNavigationBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <param name="configureFunction"> The function configuration action. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder ToFunction(
+            this OwnedNavigationBuilder ownedNavigationBuilder,
+            MethodInfo function,
+            Action<TableValuedFunctionBuilder> configureFunction)
+        {
+            Check.NotNull(ownedNavigationBuilder, nameof(ownedNavigationBuilder));
+            Check.NotNull(function, nameof(function));
+            Check.NotNull(configureFunction, nameof(configureFunction));
+
+            configureFunction(new TableValuedFunctionBuilder(ToFunction(function, ownedNavigationBuilder.OwnedEntityType)));
 
             return ownedNavigationBuilder;
         }
@@ -1020,6 +1188,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <returns> The function configuration builder. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToFunction<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            MethodInfo? function)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToFunction((OwnedNavigationBuilder)referenceOwnershipBuilder, function);
+
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -1032,25 +1213,76 @@ namespace Microsoft.EntityFrameworkCore
             => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToFunction(
                 (OwnedNavigationBuilder)referenceOwnershipBuilder, name, configureFunction);
 
+        /// <summary>
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <param name="configureFunction"> The function configuration action. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> ToFunction<TOwnerEntity, TRelatedEntity>(
+            this OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity> referenceOwnershipBuilder,
+            MethodInfo function,
+            Action<TableValuedFunctionBuilder> configureFunction)
+            where TOwnerEntity : class
+            where TRelatedEntity : class
+            => (OwnedNavigationBuilder<TOwnerEntity, TRelatedEntity>)ToFunction(
+                (OwnedNavigationBuilder)referenceOwnershipBuilder, function, configureFunction);
+
         [return: NotNullIfNotNull("name")]
-        private static IMutableDbFunction? SetFunction(string? name, IMutableEntityType entityType)
+        private static IMutableDbFunction? ToFunction(string? name, IMutableEntityType entityType)
         {
             entityType.SetFunctionName(name);
 
+            if (name is null)
+            {
+                return null;
+            }
+
             var model = entityType.Model;
-            var function = name is not null
-                ? model.FindDbFunction(name) ?? model.AddDbFunction(
-                    name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType))
-                : null;
+            var function = model.FindDbFunction(name);
+            if (function != null)
+            {
+                ((DbFunction)function).UpdateConfigurationSource(ConfigurationSource.Explicit);
+            }
+            else
+            {
+                function = model.AddDbFunction(name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType));
+            }
+
+            return function;
+        }
+
+        [return: NotNullIfNotNull("method")]
+        private static IMutableDbFunction? ToFunction(MethodInfo? method, IMutableEntityType entityType)
+        {
+            var name = method == null ? null : DbFunction.GetFunctionName(method);
+            entityType.SetFunctionName(name);
+
+            if (name is null)
+            {
+                return null;
+            }
+
+            var model = entityType.Model;
+            var function = model.FindDbFunction(name);
+            if (function != null)
+            {
+                ((DbFunction)function).UpdateConfigurationSource(ConfigurationSource.Explicit);
+            }
+            else
+            {
+                function = model.AddDbFunction(method!);
+            }
 
             return function;
         }
 
         /// <summary>
-        ///     Configures the table that the entity type maps to when targeting a relational database.
+        ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the table. </param>
+        /// <param name="name"> The name of the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
@@ -1069,7 +1301,7 @@ namespace Microsoft.EntityFrameworkCore
             var entityType = entityTypeBuilder.Metadata;
             entityType.SetFunctionName(name, fromDataAnnotation);
 
-            if (name is null)
+            if (name is not null)
             {
                 entityType.Model.Builder.HasDbFunction(name, typeof(IQueryable<>).MakeGenericType(entityType.ClrType), fromDataAnnotation);
             }
@@ -1078,11 +1310,43 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns a value indicating whether the view or table name can be set for this entity type
+        ///     Configures the function that the entity type maps to when targeting a relational database.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns>
+        ///     The same builder instance if the configuration was applied,
+        ///     <see langword="null" /> otherwise.
+        /// </returns>
+        public static IConventionEntityTypeBuilder? ToFunction(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            MethodInfo? function,
+            bool fromDataAnnotation = false)
+        {
+            var name = function == null ? null : DbFunction.GetFunctionName(function);
+            if (!entityTypeBuilder.CanSetFunction(name, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            var entityType = entityTypeBuilder.Metadata;
+            entityType.SetFunctionName(name, fromDataAnnotation);
+
+            if (function is not null)
+            {
+                entityType.Model.Builder.HasDbFunction(function, fromDataAnnotation);
+            }
+
+            return entityTypeBuilder;
+        }
+
+        /// <summary>
+        ///     Returns a value indicating whether the function name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="name"> The name of the view or table. </param>
+        /// <param name="name"> The name of the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
         /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
         public static bool CanSetFunction(
@@ -1094,6 +1358,20 @@ namespace Microsoft.EntityFrameworkCore
 
             return entityTypeBuilder.CanSetAnnotation(RelationalAnnotationNames.FunctionName, name, fromDataAnnotation);
         }
+
+        /// <summary>
+        ///     Returns a value indicating whether the function name can be set for this entity type
+        ///     using the specified configuration source.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
+        /// <param name="function"> The method representing the function. </param>
+        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the configuration can be applied. </returns>
+        public static bool CanSetFunction(
+            this IConventionEntityTypeBuilder entityTypeBuilder,
+            MethodInfo? function,
+            bool fromDataAnnotation = false)
+            => entityTypeBuilder.CanSetFunction(function == null ? null : DbFunction.GetFunctionName(function), fromDataAnnotation);
 
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
