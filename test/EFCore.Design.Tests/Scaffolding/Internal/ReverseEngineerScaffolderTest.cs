@@ -7,11 +7,9 @@ using System.Globalization;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -135,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new TestOperationReporter(),
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
-                .BuildServiceProvider()
+                .BuildServiceProvider() // No scope validation; design services only resolved once
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
         [ConditionalFact]
@@ -151,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
                 .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
-                .BuildServiceProvider()
+                .BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             var result = scaffolder.ScaffoldModel(
@@ -181,7 +179,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
                 .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
-                .BuildServiceProvider()
+                .BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             var result = scaffolder.ScaffoldModel(

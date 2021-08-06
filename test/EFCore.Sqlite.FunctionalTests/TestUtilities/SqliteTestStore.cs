@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         public static SqliteTestStore GetOrCreateInitialized(string name)
             => new SqliteTestStore(name).InitializeSqlite(
-                new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider(),
+                new ServiceCollection().AddEntityFrameworkSqlite().BuildServiceProvider(validateScopes: true),
                 (Func<DbContext>)null,
                 null);
 

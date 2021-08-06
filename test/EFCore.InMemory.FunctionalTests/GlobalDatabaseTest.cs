@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore
             var serviceProvider = new ServiceCollection()
                 .AddDbContext<BooFooContext>(
                     b => b.UseInMemoryDatabase(nameof(BooFooContext)))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var scope = serviceProvider.CreateScope();
             {
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore
                     b =>
                         b.UseInMemoryDatabase(nameof(BooFooContext), _databaseRoot)
                             .EnableServiceProviderCaching(false))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var scope = serviceProvider.CreateScope();
             {
@@ -173,7 +173,7 @@ namespace Microsoft.EntityFrameworkCore
             private static readonly IServiceProvider _serviceProvider
                 = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             private readonly bool _on;
 

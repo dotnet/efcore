@@ -178,11 +178,11 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider1 = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             var serviceProvider2 = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             var root = new InMemoryDatabaseRoot();
 

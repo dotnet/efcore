@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore
     public class SqlServerFixture : ServiceProviderFixtureBase
     {
         public static IServiceProvider DefaultServiceProvider { get; }
-            = new ServiceCollection().AddEntityFrameworkSqlServer().BuildServiceProvider();
+            = new ServiceCollection().AddEntityFrameworkSqlServer().BuildServiceProvider(validateScopes: true);
 
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ServiceProvider.GetRequiredService<ILoggerFactory>();

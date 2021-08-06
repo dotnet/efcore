@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         collection.AddSingleton(configuration);
                     }
 
-                    _serviceProvider = collection.BuildServiceProvider();
+                    _serviceProvider = collection.BuildServiceProvider(validateScopes: true);
                 }
             }
 

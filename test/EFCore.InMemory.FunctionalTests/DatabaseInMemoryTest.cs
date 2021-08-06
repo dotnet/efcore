@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(new ListLoggerFactory())
                 .AddSingleton(TestModelSource.GetFactory(OnModelCreating))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             var options = new DbContextOptionsBuilder()
                 .UseInternalServiceProvider(serviceProvider)

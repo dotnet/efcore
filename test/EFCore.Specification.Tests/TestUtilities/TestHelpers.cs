@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 }
             }
 
-            return services.BuildServiceProvider();
+            return services.BuildServiceProvider(); // No scope validation; test doubles violate scopes, but only resolved once.
         }
 
         public abstract IServiceCollection AddProviderServices(IServiceCollection services);

@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Database_per_service_provider_is_default()
         {
-            var provider1 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
-            var provider2 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
+            var provider1 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
+            var provider2 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
 
             using (var context = new PusheenContext(nameof(PusheenContext), provider1))
             {
@@ -108,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Named_databases_shared_per_service_provider()
         {
-            var provider1 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
-            var provider2 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider();
+            var provider1 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
+            var provider2 = new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true);
 
             using (var context = new PusheenContext("Cats", provider1))
             {

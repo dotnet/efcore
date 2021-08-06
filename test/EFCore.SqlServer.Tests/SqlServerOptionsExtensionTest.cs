@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore
             private static readonly IServiceProvider _serviceProvider
                 = new ServiceCollection()
                     .AddEntityFrameworkSqlServer()
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             private readonly bool _setInternalServiceProvider;
 

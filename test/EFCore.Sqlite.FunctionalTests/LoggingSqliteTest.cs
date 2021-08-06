@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore
             IServiceCollection services,
             Action<RelationalDbContextOptionsBuilder<SqliteDbContextOptionsBuilder, SqliteOptionsExtension>> relationalAction)
             => new DbContextOptionsBuilder()
-                .UseInternalServiceProvider(services.AddEntityFrameworkSqlite().BuildServiceProvider())
+                .UseInternalServiceProvider(services.AddEntityFrameworkSqlite().BuildServiceProvider(validateScopes: true))
                 .UseSqlite("Data Source=LoggingSqliteTest.db", relationalAction);
 
         protected override string ProviderName

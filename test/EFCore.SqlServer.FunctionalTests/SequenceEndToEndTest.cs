@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
             // the same server sequence.
             serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             AddEntities(serviceProvider, TestStore.Name);
 
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             var dbOne = TestStore.Name + "1";
             var dbTwo = TestStore.Name + "2";
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
             // the same server sequence.
             serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             AddEntitiesToMultipleContexts(serviceProvider, dbOne, dbTwo);
 
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
             // the same server sequence.
             serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             await AddEntitiesAsync(serviceProvider, TestStore.Name);
 
@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new BronieContext(serviceProvider, TestStore.Name))
             {
@@ -240,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore
             // the same server sequence.
             serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             AddEntitiesWithIds(serviceProvider, 4, TestStore.Name);
 
@@ -315,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, true))
             {
@@ -343,7 +343,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new NullableBronieContext(serviceProvider, TestStore.Name, false))
             {

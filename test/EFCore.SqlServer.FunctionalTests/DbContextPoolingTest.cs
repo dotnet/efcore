@@ -44,21 +44,21 @@ namespace Microsoft.EntityFrameworkCore
             => new ServiceCollection()
                 .AddDbContextPool<TContextService, TContext>(ob => ConfigureOptions(ob))
                 .AddDbContextPool<ISecondContext, SecondContext>(ob => ConfigureOptions(ob))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
         private static IServiceProvider BuildServiceProvider<TContext>()
             where TContext : DbContext
             => new ServiceCollection()
                 .AddDbContextPool<TContext>(ob => ConfigureOptions(ob))
                 .AddDbContextPool<SecondContext>(ob => ConfigureOptions(ob))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
         private static IServiceProvider BuildServiceProviderWithFactory<TContext>()
             where TContext : DbContext
             => new ServiceCollection()
                 .AddPooledDbContextFactory<TContext>(ob => ConfigureOptions(ob))
                 .AddDbContextPool<SecondContext>(ob => ConfigureOptions(ob))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
         private static IServiceProvider BuildServiceProvider<TContextService, TContext>(int poolSize)
             where TContextService : class
@@ -66,21 +66,21 @@ namespace Microsoft.EntityFrameworkCore
             => new ServiceCollection()
                 .AddDbContextPool<TContextService, TContext>(ob => ConfigureOptions(ob), poolSize)
                 .AddDbContextPool<ISecondContext, SecondContext>(ob => ConfigureOptions(ob), poolSize)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
         private static IServiceProvider BuildServiceProvider<TContext>(int poolSize)
             where TContext : DbContext
             => new ServiceCollection()
                 .AddDbContextPool<TContext>(ob => ConfigureOptions(ob), poolSize)
                 .AddDbContextPool<SecondContext>(ob => ConfigureOptions(ob), poolSize)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
         private static IServiceProvider BuildServiceProviderWithFactory<TContext>(int poolSize)
             where TContext : DbContext
             => new ServiceCollection()
                 .AddPooledDbContextFactory<TContext>(ob => ConfigureOptions(ob), poolSize)
                 .AddDbContextPool<SecondContext>(ob => ConfigureOptions(ob), poolSize)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
         private static IDbContextFactory<TContext> BuildFactory<TContext>(bool withDependencyInjection)
             where TContext : DbContext
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_when_pooled_context_constructor_has_more_than_one_parameter()
         {
             var serviceProvider
-                = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { }).BuildServiceProvider();
+                = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { }).BuildServiceProvider(validateScopes: true);
 
             using var scope = serviceProvider.CreateScope();
 
@@ -414,7 +414,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_when_pooled_context_constructor_wrong_parameter()
         {
             var serviceProvider
-                = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { }).BuildServiceProvider();
+                = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { }).BuildServiceProvider(validateScopes: true);
 
             using var scope = serviceProvider.CreateScope();
 
@@ -520,7 +520,7 @@ namespace Microsoft.EntityFrameworkCore
                     ob
                         => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
                             .EnableServiceProviderCaching(false))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             var serviceScope1 = serviceProvider.CreateScope();
             var context1 = serviceScope1.ServiceProvider.GetService<DbContext>();

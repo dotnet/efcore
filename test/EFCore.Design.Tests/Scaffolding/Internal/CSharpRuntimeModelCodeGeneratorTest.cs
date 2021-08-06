@@ -3216,7 +3216,7 @@ namespace TestNamespace
             options.ContextType = context.GetType();
 
             var generator = services
-                .BuildServiceProvider()
+                .BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<ICompiledModelCodeGeneratorSelector>()
                 .Select(options);
 

@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_with_new_when_no_EF_services_use_Database()
         {
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
-                .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider())
+                .UseInternalServiceProvider(new ServiceCollection().BuildServiceProvider(validateScopes: true))
                 .Options;
 
             Assert.Equal(
@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProvider = new ServiceCollection()
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInternalServiceProvider(p))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceCollection = new ServiceCollection();
             new EntityFrameworkServicesBuilder(serviceCollection).TryAddCoreServices();
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
 
             var options = new DbContextOptionsBuilder<ConstructorTestContext1A>()
                 .UseInternalServiceProvider(serviceProvider)
@@ -72,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProvider = serviceCollection
                 .AddDbContext<ConstructorTestContext1A>(
                     (p, b) => b.UseInternalServiceProvider(p))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var appServiceProvider = new ServiceCollection()
                 .AddDbContext<ConstructorTestContextNoConfiguration>()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var serviceScope = appServiceProvider
                 .GetRequiredService<IServiceScopeFactory>()
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInternalServiceProvider(
-                    new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
+                    new ServiceCollection().AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true));
         }
 
         [ConditionalFact]

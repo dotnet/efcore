@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             var guids = new List<Guid>();
             var guidsHash = new HashSet<Guid>();

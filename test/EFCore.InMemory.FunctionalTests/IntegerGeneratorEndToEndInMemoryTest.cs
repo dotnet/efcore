@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             AddEntities(serviceProvider);
             AddEntities(serviceProvider);
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             await AddEntitiesAsync(serviceProvider);
             await AddEntitiesAsync(serviceProvider);
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             const int threadCount = 50;
 

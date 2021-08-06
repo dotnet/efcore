@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             serviceCollection.AddEntityFrameworkInMemoryDatabase();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
 
             FakeConcurrencyDetector service;
 
@@ -182,7 +182,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             serviceCollection.AddEntityFrameworkInMemoryDatabase();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
 
             FakeDbSetInitializer service;
 
@@ -293,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             serviceCollection.AddEntityFrameworkInMemoryDatabase();
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
 
             var services = new List<IResettableService>();
 

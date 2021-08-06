@@ -201,7 +201,7 @@ namespace TestNamespace
         {
             var generator = CreateServices()
                 .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
-                .BuildServiceProvider()
+                .BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<IModelCodeGenerator>();
 
             Assert.StartsWith(
@@ -234,7 +234,7 @@ namespace TestNamespace
         {
             var generator = CreateServices()
                 .AddSingleton<IProviderCodeGeneratorPlugin, TestCodeGeneratorPlugin>()
-                .BuildServiceProvider()
+                .BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<IModelCodeGenerator>();
 
             var scaffoldedModel = generator.GenerateModel(

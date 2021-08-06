@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new WarningAsErrorContext(
                 serviceProvider,
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new WarningAsErrorContext(
                 serviceProvider,
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
                 .AddSingleton<ILoggerFactory>(loggerFactory)
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using (var context = new WarningAsErrorContext(serviceProvider, defaultThrow: false))
             {
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             var serviceProvider = new ServiceCollection()
                 .AddEntityFrameworkInMemoryDatabase()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
 
             using var context = new WarningAsErrorContext(serviceProvider, toThrow: CoreEventId.SensitiveDataLoggingEnabledWarning);
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed

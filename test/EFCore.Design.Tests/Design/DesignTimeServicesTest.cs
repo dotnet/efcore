@@ -239,7 +239,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
                     .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 : servicesBuilder
                     .CreateServiceCollection(context))
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true);
         }
 
         private Assembly Compile(string assemblyCode)

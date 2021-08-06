@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IDbContextLogger), contextLogger));
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(IDbContextOptions), new DbContextOptionsBuilder().Options));
             serviceCollectionBuilder(serviceCollection);
-            using var serviceProvider = serviceCollection.BuildServiceProvider();
+            using var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
             using var serviceScope = serviceProvider.CreateScope();
             var scopeServiceProvider = serviceScope.ServiceProvider;
 

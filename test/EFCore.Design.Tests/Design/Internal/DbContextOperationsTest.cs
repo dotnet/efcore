@@ -130,7 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                                     .UseInMemoryDatabase("In-memory test database")
                                     .EnableServiceProviderCaching(false)
                                     .Options))
-                        .BuildServiceProvider());
+                        .BuildServiceProvider(validateScopes: true));
         }
 
         private static class TestProgramWithContextFactory
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 => new(
                     new ServiceCollection()
                         .AddDbContextFactory<TestContextFromFactory>(b => b.UseInMemoryDatabase("In-memory test database"))
-                        .BuildServiceProvider());
+                        .BuildServiceProvider(validateScopes: true));
         }
 
         private static class TestProgramRelational
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     .AddDbContext<TestContext>(
                         b =>
                             configureProvider(b.EnableServiceProviderCaching(false)))
-                    .BuildServiceProvider());
+                    .BuildServiceProvider(validateScopes: true));
 
         private class TestContext : DbContext
         {

@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore
                     dbContextOption.EnableDetailedErrors(true);
                 });
 
-            var services = serviceCollection.BuildServiceProvider();
+            var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
             using (var serviceScope = services
                 .GetRequiredService<IServiceScopeFactory>()

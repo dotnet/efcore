@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var services = CreateServices();
             AddScaffoldingServices(services);
 
-            var generator = services.BuildServiceProvider()
+            var generator = services.BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<IModelCodeGenerator>();
 
             options.ModelNamespace ??= "TestNamespace";

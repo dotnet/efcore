@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
             _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
-                .BuildServiceProvider()
+                .BuildServiceProvider(validateScopes: true)
                 .GetRequiredService<IScaffoldingModelFactory>();
 
             _reporter.Clear();

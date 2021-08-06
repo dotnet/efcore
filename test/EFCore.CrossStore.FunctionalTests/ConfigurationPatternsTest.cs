@@ -25,11 +25,14 @@ namespace Microsoft.EntityFrameworkCore
         [ConditionalFact]
         public void Can_register_multiple_context_types()
         {
-            var serviceProvider = new ServiceCollection()
+            using var scope = new ServiceCollection()
                 .AddDbContext<MultipleContext1>()
                 .AddDbContext<MultipleContext2>()
-                .BuildServiceProvider();
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope();
 
+            var serviceProvider = scope.ServiceProvider;
+            
             using (var context = serviceProvider.GetRequiredService<MultipleContext1>())
             {
                 Assert.True(context.SimpleEntities.Any());
@@ -102,7 +105,7 @@ namespace Microsoft.EntityFrameworkCore
                 = new ServiceCollection()
                     .AddScoped<SomeService>()
                     .AddDbContext<MultipleProvidersContext>()
-                    .BuildServiceProvider();
+                    .BuildServiceProvider(validateScopes: true);
 
             MultipleProvidersContext context1;
             MultipleProvidersContext context2;

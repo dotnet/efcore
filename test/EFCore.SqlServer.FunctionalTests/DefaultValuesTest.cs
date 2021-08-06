@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         private readonly IServiceProvider _serviceProvider = new ServiceCollection()
             .AddEntityFrameworkSqlServer()
-            .BuildServiceProvider();
+            .BuildServiceProvider(validateScopes: true);
 
         [ConditionalFact]
         public void Can_use_SQL_Server_default_values()
