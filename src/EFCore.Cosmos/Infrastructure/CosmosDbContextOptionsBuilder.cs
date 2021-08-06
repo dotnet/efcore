@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         ///     <code>.HttpClientFactory(static () => new HttpClient())</code>
         /// </summary>
-        /// <param name="httpClientFactory">A functiont that returns a new HttpClient.</param>
+        /// <param name="httpClientFactory">A function that returns an <see cref="HttpClient" />.</param>
         public virtual CosmosDbContextOptionsBuilder HttpClientFactory(Func<HttpClient>? httpClientFactory)
             => WithOption(e => e.WithHttpClientFactory(Check.NotNull(httpClientFactory, nameof(httpClientFactory))));
 
