@@ -607,7 +607,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     && Extension._idleTcpConnectionTimeout == otherInfo.Extension._idleTcpConnectionTimeout
                     && Extension._gatewayModeMaxConnectionLimit == otherInfo.Extension._gatewayModeMaxConnectionLimit
                     && Extension._maxTcpConnectionsPerEndpoint == otherInfo.Extension._maxTcpConnectionsPerEndpoint
-                    && Extension._maxRequestsPerTcpConnection == otherInfo.Extension._maxRequestsPerTcpConnection;
+                    && Extension._maxRequestsPerTcpConnection == otherInfo.Extension._maxRequestsPerTcpConnection
+                    && Extension._httpClientFactory == otherInfo.Extension._httpClientFactory;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
