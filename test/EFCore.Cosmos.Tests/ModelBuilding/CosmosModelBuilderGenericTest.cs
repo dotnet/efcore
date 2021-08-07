@@ -375,7 +375,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 // Many-to-many not configured by convention on Cosmos
             }
 
-            public override void Throws_for_ForeignKeyAttribute_on_navigation()
+            public override void ForeignKeyAttribute_configures_the_properties()
             {
                 // Many-to-many not configured by convention on Cosmos
             }

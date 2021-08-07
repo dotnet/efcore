@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -24,7 +21,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
     ///     </para>
     /// </summary>
-    public class ForeignKeyAttributeConvention : IForeignKeyAddedConvention, INavigationAddedConvention, IModelFinalizingConvention
+    public class ForeignKeyAttributeConvention :
+        IForeignKeyAddedConvention,
+        INavigationAddedConvention,
+        ISkipNavigationForeignKeyChangedConvention,
+        IModelFinalizingConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="ForeignKeyAttributeConvention" />.
@@ -70,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(navigationBuilder, nameof(navigationBuilder));
 
             var onDependent = navigationBuilder.Metadata.IsOnDependent;
-            var newRelationshipBuilder =
-                UpdateRelationshipBuilder(navigationBuilder.Metadata.ForeignKey.Builder, context);
+            var newRelationshipBuilder = UpdateRelationshipBuilder(navigationBuilder.Metadata.ForeignKey.Builder, context);
             if (newRelationshipBuilder != null)
             {
                 var newNavigationBuilder = onDependent
@@ -423,6 +423,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <inheritdoc />
+        public virtual void ProcessSkipNavigationForeignKeyChanged(
+            IConventionSkipNavigationBuilder skipNavigationBuilder,
+            IConventionForeignKey? foreignKey,
+            IConventionForeignKey? oldForeignKey,
+            IConventionContext<IConventionForeignKey> context)
+        {
+            if (foreignKey != null
+                && foreignKey.IsInModel)
+            {
+                var fkPropertiesToSet = FindCandidateDependentPropertiesThroughNavigation(skipNavigationBuilder.Metadata);
+
+                foreignKey.Builder.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
+            }
+        }
+
+        private static IReadOnlyList<string>? FindCandidateDependentPropertiesThroughNavigation(
+            IConventionSkipNavigation skipNavigation)
+        {
+            var navigationFkAttribute = GetForeignKeyAttribute(skipNavigation);
+            if (navigationFkAttribute == null)
+            {
+                return null;
+            }
+
+            var properties = navigationFkAttribute.Name.Split(',').Select(p => p.Trim()).ToList();
+            if (properties.Any(string.IsNullOrWhiteSpace))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.InvalidPropertyListOnNavigation(skipNavigation!.Name, skipNavigation.DeclaringEntityType.DisplayName()));
+            }
+
+            return properties;
+        }
+
+        /// <inheritdoc />
         public virtual void ProcessModelFinalizing(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)
@@ -444,17 +479,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                                     foreignKey.PrincipalEntityType.DisplayName(),
                                     foreignKey.DeclaringEntityType.DisplayName()));
                         }
-                    }
-                }
-
-                foreach (var declaredSkipNavigation in entityType.GetDeclaredSkipNavigations())
-                {
-                    var fkAttribute = GetForeignKeyAttribute(declaredSkipNavigation);
-                    if (fkAttribute != null
-                        && declaredSkipNavigation.ForeignKey?.GetPropertiesConfigurationSource() != ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.FkAttributeOnSkipNavigation(entityType.DisplayName(), declaredSkipNavigation.Name));
                     }
                 }
             }
