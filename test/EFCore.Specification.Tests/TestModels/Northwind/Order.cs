@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
         public string ShipPostalCode { get; set; }
         public string ShipCountry { get; set; }
 
-        public Customer Customer { get; set; }
+        public Customer Customer { get; set; } = new(); // Initialized to test #23851
 
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
 

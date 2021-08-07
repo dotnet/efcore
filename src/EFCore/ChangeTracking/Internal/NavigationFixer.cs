@@ -701,6 +701,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var navigation = foreignKey.DependentToPrincipal;
                     var existingPrincipal = navigation == null ? null : entry[navigation];
                     if (existingPrincipal == null
+                        || fromQuery
                         || existingPrincipal == principalEntry.Entity)
                     {
                         // Set navigation to principal based on FK properties
@@ -724,7 +725,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var dependentEntry = (InternalEntityEntry?)dependents.FirstOrDefault();
                         if (dependentEntry != null)
                         {
-                            if ((!foreignKey.IsOwnership
+                            if (fromQuery
+                                || (!foreignKey.IsOwnership
                                     || (dependentEntry.EntityState != EntityState.Deleted
                                         && dependentEntry.EntityState != EntityState.Detached))
                                 && (foreignKey.PrincipalToDependent == null
@@ -741,12 +743,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         foreach (InternalEntityEntry dependentEntry in dependents)
                         {
-                            if ((!foreignKey.IsOwnership
-                                    || (dependentEntry.EntityState != EntityState.Deleted
-                                        && dependentEntry.EntityState != EntityState.Detached))
-                                && (!fromQuery
-                                    || foreignKey.DependentToPrincipal == null
-                                    || dependentEntry.GetCurrentValue(foreignKey.DependentToPrincipal) == null))
+                            if (!foreignKey.IsOwnership
+                                || (dependentEntry.EntityState != EntityState.Deleted
+                                    && dependentEntry.EntityState != EntityState.Detached))
                             {
                                 // Add to collection on principal indicated by FK and set inverse navigation
                                 AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
