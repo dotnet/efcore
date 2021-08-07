@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -29,6 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private IReadOnlyDictionary<string, object> _parameterValues;
         private List<SqlParameter> _sqlParameters;
         private bool _useValueProjection;
+        private ParameterNameGenerator _parameterNameGenerator;
 
         private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
@@ -77,9 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlBuilder.Clear();
             _parameterValues = parameterValues;
             _sqlParameters = new List<SqlParameter>();
+            _parameterNameGenerator = new ParameterNameGenerator();
 
             Visit(selectExpression);
-
             return new CosmosSqlQuery(_sqlBuilder.ToString(), _sqlParameters);
         }
 
@@ -225,7 +227,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             _sqlBuilder.AppendLine();
 
-            _sqlBuilder.Append("FROM root ");
+            if (selectExpression.FromExpression is FromSqlExpression)
+            {
+                _sqlBuilder.Append("FROM ");
+            }
+            else
+            {
+                _sqlBuilder.Append("FROM root ");
+            }
             Visit(selectExpression.FromExpression);
             _sqlBuilder.AppendLine();
 
@@ -270,6 +279,95 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             return selectExpression;
+        }
+
+        /// <inheritdoc />
+        protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
+        {
+            Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
+
+            string[] substitutions = null;
+            var sql = fromSqlExpression.Sql;
+
+            switch (fromSqlExpression.Arguments)
+            {
+                case ConstantExpression constantExpression:
+                    var existingValues = constantExpression.GetConstantValue<object[]>();
+                    substitutions = new string[existingValues.Length];
+                    for (int i = 0; i < existingValues.Length; i++)
+                    {
+                        var value = existingValues[i];
+
+                        if (value is DbParameter dbParameter)
+                        {
+                            if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                            {
+                                string parameterName = _parameterNameGenerator.GenerateNext();
+                                _sqlParameters.Add(new SqlParameter(parameterName, dbParameter.Value));
+                                substitutions[i] = parameterName;
+                            }
+                            else
+                            {
+                                _sqlParameters.Add(new SqlParameter(dbParameter.ParameterName, dbParameter.Value));
+                            }
+                        }
+                        else
+                        {
+                            string parameterName = _parameterNameGenerator.GenerateNext();
+                            _sqlParameters.Add(new SqlParameter(parameterName, value));
+                            substitutions[i] = parameterName;
+                        }
+                    }
+                    break;
+                case ParameterExpression parameterExpression:
+                    if (_parameterValues.ContainsKey(parameterExpression.Name))
+                    {
+                        var parameterValues = (object[])_parameterValues[parameterExpression.Name];
+                        substitutions = new string[parameterValues.Length];
+                        for (int i = 0; i < parameterValues.Length; i++)
+                        {
+                            var value = parameterValues[i];
+
+                            if (value is DbParameter dbParameter)
+                            {
+                                if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                                {
+                                    string parameterName = _parameterNameGenerator.GenerateNext();
+                                    _sqlParameters.Add(new SqlParameter(parameterName, dbParameter.Value));
+                                    substitutions[i] = parameterName;
+                                }
+                                else
+                                {
+                                    _sqlParameters.Add(new SqlParameter(dbParameter.ParameterName, dbParameter.Value));
+                                }
+                            }
+                            else
+                            {
+                                string parameterName = _parameterNameGenerator.GenerateNext();
+                                _sqlParameters.Add(new SqlParameter(parameterName, value));
+                                substitutions[i] = parameterName;
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            _sqlBuilder.AppendLine("(");
+
+            if (substitutions != null)
+            {
+                sql = string.Format(sql, substitutions);
+            }
+
+            _sqlBuilder.Append(sql);
+
+            _sqlBuilder.Append(")");
+
+            _sqlBuilder.Append($" {fromSqlExpression.Alias}");
+
+            return fromSqlExpression;
         }
 
         /// <summary>

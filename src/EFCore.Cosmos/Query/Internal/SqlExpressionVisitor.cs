@@ -46,6 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 case ObjectArrayProjectionExpression arrayProjectionExpression:
                     return VisitObjectArrayProjection(arrayProjectionExpression);
 
+                case FromSqlExpression fromSqlExpression:
+                    return VisitFromSql(fromSqlExpression);
+
                 case RootReferenceExpression rootReferenceExpression:
                     return VisitRootReference(rootReferenceExpression);
 
@@ -82,6 +85,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             return base.VisitExtension(extensionExpression);
         }
+
+        /// <summary>
+        ///     Visits the children of the from sql expression.
+        /// </summary>
+        /// <param name="fromSqlExpression"> The expression to visit. </param>
+        /// <returns> The modified expression, if it or any subexpression was modified; otherwise, returns the original expression. </returns>
+        protected abstract Expression VisitFromSql(FromSqlExpression fromSqlExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
