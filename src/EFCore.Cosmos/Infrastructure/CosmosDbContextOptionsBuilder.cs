@@ -63,6 +63,19 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             => WithOption(e => e.WithLimitToEndpoint(Check.NotNull(enable, nameof(enable))));
 
         /// <summary>
+        ///     <para>
+        ///         Configures the context to use a specific <see cref="HttpClient" /> factory.
+        ///     </para>
+        ///     <para>
+        ///         To avoid multiple instances being created use <see langword="static" /> lambdas:
+        ///     </para>
+        ///     <code>.HttpClientFactory(static () => new HttpClient())</code>
+        /// </summary>
+        /// <param name="httpClientFactory">A function that returns an <see cref="HttpClient" />.</param>
+        public virtual CosmosDbContextOptionsBuilder HttpClientFactory(Func<HttpClient>? httpClientFactory)
+            => WithOption(e => e.WithHttpClientFactory(Check.NotNull(httpClientFactory, nameof(httpClientFactory))));
+
+        /// <summary>
         ///     Configures the context to use the provided connection mode.
         /// </summary>
         /// <param name="connectionMode"> Azure Cosmos DB connection mode. </param>

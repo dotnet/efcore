@@ -94,6 +94,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                 configuration.MaxRequestsPerTcpConnection = options.MaxRequestsPerTcpConnection.Value;
             }
 
+            if (options.HttpClientFactory != null)
+            {
+                configuration.HttpClientFactory = options.HttpClientFactory;
+            }
+
             _options = configuration;
         }
 

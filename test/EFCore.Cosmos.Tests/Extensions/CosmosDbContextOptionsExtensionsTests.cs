@@ -55,6 +55,11 @@ namespace Microsoft.EntityFrameworkCore
             Test(
                 o => o.IdleTcpConnectionTimeout(TimeSpan.FromMinutes(3)),
                 o => Assert.Equal(TimeSpan.FromMinutes(3), o.IdleTcpConnectionTimeout));
+            Func<HttpClient> httpClientFactory = () => new HttpClient();
+            Test(
+                o => o.HttpClientFactory(httpClientFactory),
+                o => Assert.Same(httpClientFactory, o.HttpClientFactory)
+            );
         }
 
         [ConditionalFact]
@@ -101,4 +106,3 @@ namespace Microsoft.EntityFrameworkCore
         }
     }
 }
-

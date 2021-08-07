@@ -40,6 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         private int? _maxRequestsPerTcpConnection;
         private bool? _enableContentResponseOnWrite;
         private DbContextOptionsExtensionInfo? _info;
+        private Func<HttpClient>? _httpClientFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -74,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
             _gatewayModeMaxConnectionLimit = copyFrom._gatewayModeMaxConnectionLimit;
             _maxTcpConnectionsPerEndpoint = copyFrom._maxTcpConnectionsPerEndpoint;
             _maxRequestsPerTcpConnection = copyFrom._maxRequestsPerTcpConnection;
+            _httpClientFactory = copyFrom._httpClientFactory;
         }
 
         /// <summary>
@@ -494,6 +496,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual Func<HttpClient>? HttpClientFactory => _httpClientFactory;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual CosmosOptionsExtension WithHttpClientFactory(Func<HttpClient>? httpClientFactory)
+        {
+            var clone = Clone();
+
+            clone._httpClientFactory = httpClientFactory;
+
+            return clone;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected virtual CosmosOptionsExtension Clone()
             => new(this);
 
@@ -559,6 +584,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     hashCode.Add(Extension._gatewayModeMaxConnectionLimit);
                     hashCode.Add(Extension._maxTcpConnectionsPerEndpoint);
                     hashCode.Add(Extension._maxRequestsPerTcpConnection);
+                    hashCode.Add(Extension._httpClientFactory);
 
                     _serviceProviderHash = hashCode.ToHashCode();
                 }
@@ -581,7 +607,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
                     && Extension._idleTcpConnectionTimeout == otherInfo.Extension._idleTcpConnectionTimeout
                     && Extension._gatewayModeMaxConnectionLimit == otherInfo.Extension._gatewayModeMaxConnectionLimit
                     && Extension._maxTcpConnectionsPerEndpoint == otherInfo.Extension._maxTcpConnectionsPerEndpoint
-                    && Extension._maxRequestsPerTcpConnection == otherInfo.Extension._maxRequestsPerTcpConnection;
+                    && Extension._maxRequestsPerTcpConnection == otherInfo.Extension._maxRequestsPerTcpConnection
+                    && Extension._httpClientFactory == otherInfo.Extension._httpClientFactory;
 
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
