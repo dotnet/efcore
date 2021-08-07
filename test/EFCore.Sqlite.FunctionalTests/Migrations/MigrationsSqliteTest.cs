@@ -451,6 +451,26 @@ FROM ""People"";",
                 @"PRAGMA foreign_keys = 1;");
         }
 
+        public override async Task Alter_column_make_non_computed()
+        {
+            await base.Alter_column_make_non_computed();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" INTEGER NOT NULL,
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""Sum"", ""X"", ""Y"")
+SELECT ""Id"", ""Sum"", ""X"", ""Y""
+FROM ""People"";",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
         public override async Task Alter_column_add_comment()
         {
             await base.Alter_column_add_comment();
@@ -466,6 +486,31 @@ FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_computed_column_add_comment()
+        {
+            await base.Alter_computed_column_add_comment();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+
+    -- Some comment
+    ""SomeColumn"" AS (42)
+);",
+                //
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM ""People"";",
+                //
+                @"PRAGMA foreign_keys = 0;",
+                //
+                @"DROP TABLE ""People"";",
+                //
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                //
                 @"PRAGMA foreign_keys = 1;");
         }
 
