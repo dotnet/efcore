@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="EntityTypeParameterBinding" /> instance for the given service type.
         /// </summary>
         /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
-        public EntityTypeParameterBinding(IPropertyBase[]? serviceProperties = null)
+        public EntityTypeParameterBinding(params IPropertyBase[]? serviceProperties)
             : base(typeof(IEntityType), typeof(IEntityType), serviceProperties)
         {
         }
