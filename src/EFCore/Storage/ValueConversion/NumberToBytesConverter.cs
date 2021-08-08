@@ -26,11 +26,27 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         and <see cref="char" />.
         ///     </para>
         /// </summary>
+        public NumberToBytesConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a new instance of this converter.
+        ///     </para>
+        ///     <para>
+        ///         This converter supports <see cref="double" />, <see cref="float" />, <see cref="decimal" />,
+        ///         <see cref="int" />, <see cref="long" />, <see cref="short" />, <see cref="byte" />,
+        ///         <see cref="uint" />, <see cref="ulong" />, <see cref="ushort" />, <see cref="sbyte" />,
+        ///         and <see cref="char" />.
+        ///     </para>
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public NumberToBytesConverter(ConverterMappingHints? mappingHints = null)
+        public NumberToBytesConverter(ConverterMappingHints? mappingHints)
             : base(ToBytes(), ToNumber(), _defaultHints.With(mappingHints))
         {
         }

@@ -14,11 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        public DateTimeToStringConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeToStringConverter(ConverterMappingHints? mappingHints = null)
+        public DateTimeToStringConverter(ConverterMappingHints? mappingHints)
             : base(
                 ToString(),
                 ToDateTime(),

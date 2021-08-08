@@ -18,11 +18,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        public DateTimeOffsetToBytesConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeOffsetToBytesConverter(ConverterMappingHints? mappingHints = null)
+        public DateTimeOffsetToBytesConverter(ConverterMappingHints? mappingHints)
             : base(
                 v => ToBytes(v),
                 v => FromBytes(v),

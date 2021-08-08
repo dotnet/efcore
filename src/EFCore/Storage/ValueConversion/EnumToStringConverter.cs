@@ -14,11 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter. This converter does not preserve order.
         /// </summary>
+        public EnumToStringConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter. This converter does not preserve order.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public EnumToStringConverter(ConverterMappingHints? mappingHints = null)
+        public EnumToStringConverter(ConverterMappingHints? mappingHints)
             : base(
                 ToString(),
                 ToEnum(),

@@ -14,11 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        public DateTimeOffsetToBinaryConverter()
+            : this(null)
+        {
+        }
+        
+        /// <summary>
+        ///     Creates a new instance of this converter.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeOffsetToBinaryConverter(ConverterMappingHints? mappingHints = null)
+        public DateTimeOffsetToBinaryConverter(ConverterMappingHints? mappingHints)
             : base(
                 v => ((v.Ticks / 1000) << 11) | ((long)v.Offset.TotalMinutes & 0x7FF),
                 v => new DateTimeOffset(

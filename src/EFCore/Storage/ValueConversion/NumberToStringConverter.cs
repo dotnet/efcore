@@ -14,12 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        public NumberToStringConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public NumberToStringConverter(
-            ConverterMappingHints? mappingHints = null)
+        public NumberToStringConverter(ConverterMappingHints? mappingHints)
             : base(
                 ToString(),
                 ToNumber(),
