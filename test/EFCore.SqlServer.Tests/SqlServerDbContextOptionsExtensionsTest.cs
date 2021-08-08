@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
                 },
                 dbContextOption =>
                 {
-                    dbContextOption.EnableDetailedErrors(true);
+                    dbContextOption.EnableDetailedErrors();
                 });
 
             var services = serviceCollection.BuildServiceProvider(validateScopes: true);
@@ -109,10 +109,14 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var coreOptions = serviceScope.ServiceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
+                var coreOptions = serviceScope.ServiceProvider
+                    .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
+
                 Assert.True(coreOptions.DetailedErrorsEnabled);
 
-                var sqlServerOptions = serviceScope.ServiceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqlServerOptionsExtension>();
+                var sqlServerOptions = serviceScope.ServiceProvider
+                    .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqlServerOptionsExtension>();
+
                 Assert.Equal(123, sqlServerOptions.MaxBatchSize);
                 Assert.Equal(30, sqlServerOptions.CommandTimeout);
                 Assert.Equal("Database=Crunchie", sqlServerOptions.ConnectionString);

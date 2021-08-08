@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -31,8 +32,13 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         /// <summary>
         ///     <para>
-        ///         Registers the given Entity Framework context as a service in the <see cref="IServiceCollection" />
+        ///         Registers the given Entity Framework <see cref="DbContext"/> as a service in the <see cref="IServiceCollection" />
         ///         and configures it to connect to a SQLite database.
+        ///     </para>
+        ///     <para>
+        ///         This method is a shortcut for configuring a <see cref="DbContext"/> to use SQLite. It does not support all options.
+        ///         Use <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext"/> and related methods for full control of
+        ///         this process.
         ///     </para>
         ///     <para>
         ///         Use this method when using dependency injection in your application, such as with ASP.NET Core.
@@ -56,23 +62,32 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="sqliteOptionsAction"> An optional action to allow additional SQLite specific configuration. </param>
         /// <param name="optionsAction"> An optional action to configure the <see cref="DbContextOptions" /> for the context. </param>
         /// <returns> The same service collection so that multiple calls can be chained. </returns>
-        public static IServiceCollection AddSqlite<TContext>(this IServiceCollection serviceCollection, string connectionString, Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null, Action< DbContextOptionsBuilder>? optionsAction = null)
+        public static IServiceCollection AddSqlite<TContext>(
+            this IServiceCollection serviceCollection,
+            string connectionString,
+            Action<SqliteDbContextOptionsBuilder>? sqliteOptionsAction = null,
+            Action<DbContextOptionsBuilder>? optionsAction = null)
             where TContext : DbContext
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            return serviceCollection.AddDbContext<TContext>((serviceProvider, options) =>
-            {
-                optionsAction?.Invoke(options);
-                options.UseSqlite(connectionString, sqliteOptionsAction);
-            });
+            return serviceCollection.AddDbContext<TContext>(
+                (serviceProvider, options) =>
+                {
+                    optionsAction?.Invoke(options);
+                    options.UseSqlite(connectionString, sqliteOptionsAction);
+                });
         }
 
         /// <summary>
         ///     <para>
         ///         Adds the services required by the SQLite database provider for Entity Framework
         ///         to an <see cref="IServiceCollection" />.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not call this method accidentally. It is much more likely you need
+        ///         to call <see cref="AddSqlite{TContext}"/>.
         ///     </para>
         ///     <para>
         ///         Calling this method is no longer necessary when building most applications, including those that
@@ -86,6 +101,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
         /// </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddEntityFrameworkSqlite(this IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
