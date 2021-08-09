@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual DatabaseDependencies Dependencies { get; }
 

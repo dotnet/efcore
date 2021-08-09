@@ -32,7 +32,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         public ValueGeneratorCache(ValueGeneratorCacheDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ValueGeneratorCacheDependencies Dependencies { get; }
 
         private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache = new();
 

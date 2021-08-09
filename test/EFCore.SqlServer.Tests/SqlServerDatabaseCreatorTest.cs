@@ -161,8 +161,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             private readonly IDbContextOptions _options;
 
-            public FakeSqlServerConnection(IDbContextOptions options, RelationalConnectionDependencies dependencies)
-                : base(dependencies)
+            public FakeSqlServerConnection(IDbContextOptions options, RelationalConnectionDependencies relationalDependencies)
+                : base(relationalDependencies)
             {
                 _options = options;
             }
@@ -195,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public override ISqlServerConnection CreateMasterConnection()
-                => new FakeSqlServerConnection(_options, Dependencies);
+                => new FakeSqlServerConnection(_options, RelationalDependencies);
         }
 
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory

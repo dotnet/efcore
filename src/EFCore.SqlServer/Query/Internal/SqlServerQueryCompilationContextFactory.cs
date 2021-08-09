@@ -24,8 +24,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerQueryCompilationContextFactory : IQueryCompilationContextFactory
     {
-        private readonly QueryCompilationContextDependencies _dependencies;
-        private readonly RelationalQueryCompilationContextDependencies _relationalDependencies;
         private readonly ISqlServerConnection _sqlServerConnection;
 
         /// <summary>
@@ -42,10 +40,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
             _sqlServerConnection = sqlServerConnection;
         }
+        
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryCompilationContextDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalQueryCompilationContextDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,6 +63,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public virtual QueryCompilationContext Create(bool async)
             => new SqlServerQueryCompilationContext(
-                _dependencies, _relationalDependencies, async, _sqlServerConnection.IsMultipleActiveResultSetsEnabled);
+                Dependencies, RelationalDependencies, async, _sqlServerConnection.IsMultipleActiveResultSetsEnabled);
     }
 }

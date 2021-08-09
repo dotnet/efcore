@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
@@ -49,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     current database provider.
         /// </summary>
         protected virtual IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
-            => new NonRetryingExecutionStrategy(Dependencies);
+            => new NonRetryingExecutionStrategy(dependencies);
 
         /// <summary>
         ///     Creates an <see cref="IExecutionStrategy" /> for the current database provider.

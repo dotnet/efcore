@@ -40,16 +40,23 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public FromSqlParameterExpandingExpressionVisitor(
-            RelationalParameterBasedSqlProcessorDependencies dependencies)
+            RelationalParameterBasedSqlProcessorDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
-            _typeMappingSource = dependencies.TypeMappingSource;
-            _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
+            RelationalDependencies = relationalDependencies;
+            
+            _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+            _typeMappingSource = relationalDependencies.TypeMappingSource;
+            _parameterNameGeneratorFactory = relationalDependencies.ParameterNameGeneratorFactory;
             _parametersValues = default!;
             _parameterNameGenerator = default!;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalParameterBasedSqlProcessorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

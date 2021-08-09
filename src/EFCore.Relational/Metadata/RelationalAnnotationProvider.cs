@@ -25,12 +25,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        public RelationalAnnotationProvider(RelationalAnnotationProviderDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
+            RelationalDependencies = relationalDependencies;
         }
 
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalAnnotationProviderDependencies RelationalDependencies { get; }
+        
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
             => Enumerable.Empty<IAnnotation>();

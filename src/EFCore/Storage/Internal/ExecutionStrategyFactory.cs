@@ -23,11 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     public class ExecutionStrategyFactory : IExecutionStrategyFactory
     {
         /// <summary>
-        ///     Parameter object containing service dependencies.
-        /// </summary>
-        protected virtual ExecutionStrategyDependencies Dependencies { get; }
-
-        /// <summary>
         ///     Creates a new instance of this class with the given service dependencies.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
@@ -37,6 +32,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
 
             Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new  <see cref="IExecutionStrategy" />.

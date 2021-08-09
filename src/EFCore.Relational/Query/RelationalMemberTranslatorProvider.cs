@@ -33,16 +33,23 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalMemberTranslatorProvider" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        public RelationalMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this class. </param>
+        public RelationalMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
+            RelationalDependencies = relationalDependencies;
+            
+            _plugins.AddRange(relationalDependencies.Plugins.SelectMany(p => p.Translators));
             _translators
                 .AddRange(
-                    new[] { new NullableMemberTranslator(dependencies.SqlExpressionFactory) });
+                    new[] { new NullableMemberTranslator(relationalDependencies.SqlExpressionFactory) });
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual RelationalMemberTranslatorProviderDependencies RelationalDependencies { get; }
 
         /// <inheritdoc />
         public virtual SqlExpression? Translate(

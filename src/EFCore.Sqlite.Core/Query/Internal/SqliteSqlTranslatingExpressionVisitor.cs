@@ -79,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteSqlTranslatingExpressionVisitor(
-            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            RelationalSqlTranslatingExpressionVisitorDependencies relationalDependencies,
             QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-            : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
+            : base(relationalDependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
         }
 
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 && unaryExpression.Operand.Type == typeof(byte[]))
             {
                 return Visit(unaryExpression.Operand) is SqlExpression sqlExpression
-                    ? Dependencies.SqlExpressionFactory.Function(
+                    ? RelationalDependencies.SqlExpressionFactory.Function(
                         "length",
                         new[] { sqlExpression },
                         nullable: true,
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                 var operandType = GetProviderType(sqlUnary.Operand);
                 if (operandType == typeof(decimal))
                 {
-                    return Dependencies.SqlExpressionFactory.Function(
+                    return RelationalDependencies.SqlExpressionFactory.Function(
                         name: "ef_negate",
                         new[] { sqlUnary.Operand },
                         nullable: true,
@@ -193,7 +193,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                     && (_functionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
                         || _functionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
                 {
-                    return Dependencies.SqlExpressionFactory.Function(
+                    return RelationalDependencies.SqlExpressionFactory.Function(
                         "ef_mod",
                         new[] { sqlBinary.Left, sqlBinary.Right },
                         nullable: true,
@@ -336,20 +336,20 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
         private Expression DoDecimalCompare(SqlExpression visitedExpression, ExpressionType op, SqlExpression left, SqlExpression right)
         {
-            var actual = Dependencies.SqlExpressionFactory.Function(
+            var actual = RelationalDependencies.SqlExpressionFactory.Function(
                 name: "ef_compare",
                 new[] { left, right },
                 nullable: true,
                 new[] { true, true },
                 typeof(int));
-            var oracle = Dependencies.SqlExpressionFactory.Constant(value: 0);
+            var oracle = RelationalDependencies.SqlExpressionFactory.Constant(value: 0);
 
             return op switch
             {
-                ExpressionType.GreaterThan => Dependencies.SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
-                ExpressionType.GreaterThanOrEqual => Dependencies.SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
-                ExpressionType.LessThan => Dependencies.SqlExpressionFactory.LessThan(left: actual, right: oracle),
-                ExpressionType.LessThanOrEqual => Dependencies.SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
+                ExpressionType.GreaterThan => RelationalDependencies.SqlExpressionFactory.GreaterThan(left: actual, right: oracle),
+                ExpressionType.GreaterThanOrEqual => RelationalDependencies.SqlExpressionFactory.GreaterThanOrEqual(left: actual, right: oracle),
+                ExpressionType.LessThan => RelationalDependencies.SqlExpressionFactory.LessThan(left: actual, right: oracle),
+                ExpressionType.LessThanOrEqual => RelationalDependencies.SqlExpressionFactory.LessThanOrEqual(left: actual, right: oracle),
                 _ => visitedExpression
             };
         }
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             Expression DecimalArithmeticExpressionFactoryMethod(string name, SqlExpression left, SqlExpression right)
             {
-                return Dependencies.SqlExpressionFactory.Function(
+                return RelationalDependencies.SqlExpressionFactory.Function(
                     name,
                     new[] { left, right },
                     nullable: true,
@@ -394,7 +394,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 
             Expression DecimalSubtractExpressionFactoryMethod(SqlExpression left, SqlExpression right)
             {
-                var subtrahend = Dependencies.SqlExpressionFactory.Function(
+                var subtrahend = RelationalDependencies.SqlExpressionFactory.Function(
                     "ef_negate",
                     new[] { right },
                     nullable: true,

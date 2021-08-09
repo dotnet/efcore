@@ -22,22 +22,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryTranslationPostprocessor" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="useRelationalNulls"> A bool value indicating if relational nulls should be used. </param>
         public RelationalParameterBasedSqlProcessor(
-            RelationalParameterBasedSqlProcessorDependencies dependencies,
+            RelationalParameterBasedSqlProcessorDependencies relationalDependencies,
             bool useRelationalNulls)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
             UseRelationalNulls = useRelationalNulls;
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalParameterBasedSqlProcessorDependencies Dependencies { get; }
+        protected virtual RelationalParameterBasedSqlProcessorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     A bool value indicating if relational nulls should be used.
@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            return new SqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
+            return new SqlNullabilityProcessor(RelationalDependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            return new FromSqlParameterExpandingExpressionVisitor(Dependencies).Expand(selectExpression, parametersValues, out canCache);
+            return new FromSqlParameterExpandingExpressionVisitor(RelationalDependencies).Expand(selectExpression, parametersValues, out canCache);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="ModelCustomizer" />
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ModelCustomizerDependencies Dependencies { get; }
 

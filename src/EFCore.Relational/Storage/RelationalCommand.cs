@@ -36,27 +36,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> Service dependencies. </param>
+        /// <param name="relationalDependencies"> Service dependencies. </param>
         /// <param name="commandText"> The text of the command to be executed. </param>
         /// <param name="parameters"> Parameters for the command. </param>
         public RelationalCommand(
-            RelationalCommandBuilderDependencies dependencies,
+            RelationalCommandBuilderDependencies relationalDependencies,
             string commandText,
             IReadOnlyList<IRelationalParameter> parameters)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
             Check.NotNull(commandText, nameof(commandText));
             Check.NotNull(parameters, nameof(parameters));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
             CommandText = commandText;
             Parameters = parameters;
         }
 
         /// <summary>
-        ///     Command building dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalCommandBuilderDependencies Dependencies { get; }
+        protected virtual RelationalCommandBuilderDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Gets the command text to be executed.

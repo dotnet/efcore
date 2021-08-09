@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosQueryableMethodTranslatingExpressionVisitorFactory : IQueryableMethodTranslatingExpressionVisitorFactory
     {
-        private readonly QueryableMethodTranslatingExpressionVisitorDependencies _dependencies;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IMemberTranslatorProvider _memberTranslatorProvider;
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
@@ -39,11 +38,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             IMemberTranslatorProvider memberTranslatorProvider,
             IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
-            _dependencies = dependencies;
+            Dependencies = dependencies;
             _sqlExpressionFactory = sqlExpressionFactory;
             _memberTranslatorProvider = memberTranslatorProvider;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             return new CosmosQueryableMethodTranslatingExpressionVisitor(
-                _dependencies,
+                Dependencies,
                 queryCompilationContext,
                 _sqlExpressionFactory,
                 _memberTranslatorProvider,

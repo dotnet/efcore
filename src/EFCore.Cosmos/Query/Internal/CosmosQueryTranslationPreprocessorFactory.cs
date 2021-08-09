@@ -22,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosQueryTranslationPreprocessorFactory : IQueryTranslationPreprocessorFactory
     {
-        private readonly QueryTranslationPreprocessorDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,8 +32,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             QueryTranslationPreprocessorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
-            _dependencies = dependencies;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryTranslationPreprocessorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,6 +47,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QueryTranslationPreprocessor Create(QueryCompilationContext queryCompilationContext)
-            => new CosmosQueryTranslationPreprocessor(_dependencies, (CosmosQueryCompilationContext)queryCompilationContext);
+            => new CosmosQueryTranslationPreprocessor(Dependencies, (CosmosQueryCompilationContext)queryCompilationContext);
     }
 }

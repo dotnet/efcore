@@ -24,7 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
         /// <inheritdoc />
         public virtual void ProcessSkipNavigationForeignKeyChanged(

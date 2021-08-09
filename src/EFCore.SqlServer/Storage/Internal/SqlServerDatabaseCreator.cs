@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerDatabaseCreator(
-            RelationalDatabaseCreatorDependencies dependencies,
+            RelationalDatabaseCreatorDependencies relationalDependencies,
             ISqlServerConnection connection,
             IRawSqlCommandBuilder rawSqlCommandBuilder)
-            : base(dependencies)
+            : base(relationalDependencies)
         {
             _connection = connection;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                Dependencies.MigrationCommandExecutor
+                RelationalDependencies.MigrationCommandExecutor
                     .ExecuteNonQuery(CreateCreateOperations(), masterConnection);
 
                 ClearPool();
@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await Dependencies.MigrationCommandExecutor
+                await RelationalDependencies.MigrationCommandExecutor
                     .ExecuteNonQueryAsync(CreateCreateOperations(), masterConnection, cancellationToken)
                     .ConfigureAwait(false);
 
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override bool HasTables()
-            => Dependencies.ExecutionStrategyFactory
+            => RelationalDependencies.ExecutionStrategyFactory
                 .Create()
                 .Execute(
                     _connection,
@@ -126,8 +126,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                     connection,
                                     null,
                                     null,
-                                    Dependencies.CurrentContext.Context,
-                                    Dependencies.CommandLogger, CommandSource.Migrations))!
+                                    RelationalDependencies.CurrentContext.Context,
+                                    RelationalDependencies.CommandLogger, CommandSource.Migrations))!
                         != 0);
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
-            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+            => RelationalDependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 _connection,
                 async (connection, ct) => (int)(await CreateHasTablesCommand()
                         .ExecuteScalarAsync(
@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 connection,
                                 null,
                                 null,
-                                Dependencies.CurrentContext.Context,
-                                Dependencies.CommandLogger, CommandSource.Migrations),
+                                RelationalDependencies.CurrentContext.Context,
+                                RelationalDependencies.CommandLogger, CommandSource.Migrations),
                             cancellationToken: ct)
                         .ConfigureAwait(false))!
                     != 0, cancellationToken);
@@ -173,14 +173,14 @@ SELECT 1 ELSE SELECT 0");
         private IReadOnlyList<MigrationCommand> CreateCreateOperations()
         {
             var builder = new SqlConnectionStringBuilder(_connection.DbConnection.ConnectionString);
-            return Dependencies.MigrationsSqlGenerator.Generate(
+            return RelationalDependencies.MigrationsSqlGenerator.Generate(
                 new[]
                 {
                     new SqlServerCreateDatabaseOperation
                     {
                         Name = builder.InitialCatalog,
                         FileName = builder.AttachDBFilename,
-                        Collation = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>()
+                        Collation = RelationalDependencies.CurrentContext.Context.GetService<IDesignTimeModel>()
                             .Model.GetRelationalModel().Collation
                     }
                 },
@@ -197,7 +197,7 @@ SELECT 1 ELSE SELECT 0");
             => Exists(retryOnNotExists: false);
 
         private bool Exists(bool retryOnNotExists)
-            => Dependencies.ExecutionStrategyFactory.Create().Execute(
+            => RelationalDependencies.ExecutionStrategyFactory.Create().Execute(
                 DateTime.UtcNow + RetryTimeout, giveUp =>
                 {
                     while (true)
@@ -216,8 +216,8 @@ SELECT 1 ELSE SELECT 0");
                                         _connection,
                                         null,
                                         null,
-                                        Dependencies.CurrentContext.Context,
-                                        Dependencies.CommandLogger, CommandSource.Migrations));
+                                        RelationalDependencies.CurrentContext.Context,
+                                        RelationalDependencies.CommandLogger, CommandSource.Migrations));
 
                             return true;
                         }
@@ -257,7 +257,7 @@ SELECT 1 ELSE SELECT 0");
             => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
         private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
-            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+            => RelationalDependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
                 DateTime.UtcNow + RetryTimeout, async (giveUp, ct) =>
                 {
                     while (true)
@@ -277,8 +277,8 @@ SELECT 1 ELSE SELECT 0");
                                         _connection,
                                         null,
                                         null,
-                                        Dependencies.CurrentContext.Context,
-                                        Dependencies.CommandLogger, CommandSource.Migrations),
+                                        RelationalDependencies.CurrentContext.Context,
+                                        RelationalDependencies.CommandLogger, CommandSource.Migrations),
                                     ct)
                                 .ConfigureAwait(false);
 
@@ -361,7 +361,7 @@ SELECT 1 ELSE SELECT 0");
             ClearAllPools();
 
             using var masterConnection = _connection.CreateMasterConnection();
-            Dependencies.MigrationCommandExecutor
+            RelationalDependencies.MigrationCommandExecutor
                 .ExecuteNonQuery(CreateDropCommands(), masterConnection);
         }
 
@@ -376,7 +376,7 @@ SELECT 1 ELSE SELECT 0");
             ClearAllPools();
 
             using var masterConnection = _connection.CreateMasterConnection();
-            await Dependencies.MigrationCommandExecutor
+            await RelationalDependencies.MigrationCommandExecutor
                 .ExecuteNonQueryAsync(CreateDropCommands(), masterConnection, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -391,7 +391,7 @@ SELECT 1 ELSE SELECT 0");
 
             var operations = new MigrationOperation[] { new SqlServerDropDatabaseOperation { Name = databaseName } };
 
-            return Dependencies.MigrationsSqlGenerator.Generate(operations, null);
+            return RelationalDependencies.MigrationsSqlGenerator.Generate(operations, null);
         }
 
         // Clear connection pools in case there are active connections that are pooled

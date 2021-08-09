@@ -35,18 +35,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalDatabaseCreator" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected RelationalDatabaseCreator(RelationalDatabaseCreatorDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        protected RelationalDatabaseCreator(RelationalDatabaseCreatorDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalDatabaseCreatorDependencies Dependencies { get; }
+        protected virtual RelationalDatabaseCreatorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Determines whether the physical database exists. No attempt is made to determine if the database
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     to incrementally update the schema. It is assumed that none of the tables exist in the database.
         /// </summary>
         public virtual void CreateTables()
-            => Dependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), Dependencies.Connection);
+            => RelationalDependencies.MigrationCommandExecutor.ExecuteNonQuery(GetCreateTablesCommands(), RelationalDependencies.Connection);
 
         /// <summary>
         ///     Asynchronously creates all tables for the current model in the database. No attempt is made
@@ -135,8 +135,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default)
-            => Dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
-                GetCreateTablesCommands(), Dependencies.Connection, cancellationToken);
+            => RelationalDependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(
+                GetCreateTablesCommands(), RelationalDependencies.Connection, cancellationToken);
 
         /// <summary>
         ///     Gets the commands that will create all tables from the model.
@@ -146,9 +146,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual IReadOnlyList<MigrationCommand> GetCreateTablesCommands(
             MigrationsSqlGenerationOptions options = MigrationsSqlGenerationOptions.Default)
         {
-            var model = Dependencies.CurrentContext.Context.GetService<IDesignTimeModel>().Model;
-            return Dependencies.MigrationsSqlGenerator.Generate(
-                Dependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel()),
+            var model = RelationalDependencies.CurrentContext.Context.GetService<IDesignTimeModel>().Model;
+            return RelationalDependencies.MigrationsSqlGenerator.Generate(
+                RelationalDependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel()),
                 model,
                 options);
         }
@@ -311,7 +311,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 builder
                     .Append(command.CommandText)
-                    .AppendLine(Dependencies.SqlGenerationHelper.BatchTerminator);
+                    .AppendLine(RelationalDependencies.SqlGenerationHelper.BatchTerminator);
             }
 
             return builder.ToString();

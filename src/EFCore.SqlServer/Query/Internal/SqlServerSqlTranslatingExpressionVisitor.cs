@@ -44,10 +44,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSqlTranslatingExpressionVisitor(
-            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
+            RelationalSqlTranslatingExpressionVisitorDependencies relationalDependencies,
             QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
-            : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
+            : base(relationalDependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
         {
         }
 
@@ -70,16 +70,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 if (left is SqlExpression leftSql
                     && right is SqlExpression rightSql)
                 {
-                    return Dependencies.SqlExpressionFactory.Convert(
-                        Dependencies.SqlExpressionFactory.Function(
+                    return RelationalDependencies.SqlExpressionFactory.Convert(
+                        RelationalDependencies.SqlExpressionFactory.Function(
                             "SUBSTRING",
                             new SqlExpression[]
                             {
                                 leftSql,
-                                Dependencies.SqlExpressionFactory.Add(
-                                    Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
-                                    Dependencies.SqlExpressionFactory.Constant(1)),
-                                Dependencies.SqlExpressionFactory.Constant(1)
+                                RelationalDependencies.SqlExpressionFactory.Add(
+                                    RelationalDependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(rightSql),
+                                    RelationalDependencies.SqlExpressionFactory.Constant(1)),
+                                RelationalDependencies.SqlExpressionFactory.Constant(1)
                             },
                             nullable: true,
                             argumentsPropagateNullability: new[] { true, true, true },
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 }
 
                 var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
-                var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
+                var dataLengthSqlFunction = RelationalDependencies.SqlExpressionFactory.Function(
                     "DATALENGTH",
                     new[] { sqlExpression },
                     nullable: true,
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     isBinaryMaxDataType ? typeof(long) : typeof(int));
 
                 return isBinaryMaxDataType
-                    ? (Expression)Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
+                    ? (Expression)RelationalDependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
                     : dataLengthSqlFunction;
             }
 
@@ -140,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             Check.NotNull(sqlExpression, nameof(sqlExpression));
 
-            return Dependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
-                Dependencies.SqlExpressionFactory.Function(
+            return RelationalDependencies.SqlExpressionFactory.ApplyDefaultTypeMapping(
+                RelationalDependencies.SqlExpressionFactory.Function(
                     "COUNT_BIG",
                     new[] { sqlExpression },
                     nullable: false,

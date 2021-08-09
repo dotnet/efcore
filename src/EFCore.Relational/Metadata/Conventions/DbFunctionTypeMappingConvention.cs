@@ -29,8 +29,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
+
             _relationalTypeMappingSource = (IRelationalTypeMappingSource)dependencies.TypeMappingSource;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
         /// <inheritdoc />
         public virtual void ProcessModelFinalizing(

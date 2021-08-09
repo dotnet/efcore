@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             => null;
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual MigrationsCodeGeneratorDependencies Dependencies { get; }
 

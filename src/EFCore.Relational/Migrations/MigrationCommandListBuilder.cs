@@ -15,22 +15,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class MigrationCommandListBuilder
     {
         private readonly List<MigrationCommand> _commands = new();
-        private readonly MigrationsSqlGeneratorDependencies _dependencies;
 
         private IRelationalCommandBuilder _commandBuilder;
 
         /// <summary>
         ///     Creates a new instance of the builder.
         /// </summary>
-        /// <param name="dependencies"> Dependencies needed for SQL generations. </param>
+        /// <param name="relationalDependencies"> Dependencies needed for SQL generations. </param>
         public MigrationCommandListBuilder(
-            MigrationsSqlGeneratorDependencies dependencies)
+            MigrationsSqlGeneratorDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _dependencies = dependencies;
-            _commandBuilder = dependencies.CommandBuilderFactory.Create();
+            RelationalDependencies = relationalDependencies;
+            _commandBuilder = relationalDependencies.CommandBuilderFactory.Create();
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual MigrationsSqlGeneratorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Gets the list of built commands.
@@ -54,11 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 _commands.Add(
                     new MigrationCommand(
                         _commandBuilder.Build(),
-                        _dependencies.CurrentContext.Context,
-                        _dependencies.Logger,
+                        RelationalDependencies.CurrentContext.Context,
+                        RelationalDependencies.Logger,
                         suppressTransaction));
 
-                _commandBuilder = _dependencies.CommandBuilderFactory.Create();
+                _commandBuilder = RelationalDependencies.CommandBuilderFactory.Create();
             }
 
             return this;

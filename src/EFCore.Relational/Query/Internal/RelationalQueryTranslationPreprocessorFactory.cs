@@ -21,9 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class RelationalQueryTranslationPreprocessorFactory : IQueryTranslationPreprocessorFactory
     {
-        private readonly QueryTranslationPreprocessorDependencies _dependencies;
-        private readonly RelationalQueryTranslationPreprocessorDependencies _relationalDependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,9 +31,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryTranslationPreprocessorDependencies dependencies,
             RelationalQueryTranslationPreprocessorDependencies relationalDependencies)
         {
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+        
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryTranslationPreprocessorDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalQueryTranslationPreprocessorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new RelationalQueryTranslationPreprocessor(_dependencies, _relationalDependencies, queryCompilationContext);
+            return new RelationalQueryTranslationPreprocessor(Dependencies, RelationalDependencies, queryCompilationContext);
         }
     }
 }

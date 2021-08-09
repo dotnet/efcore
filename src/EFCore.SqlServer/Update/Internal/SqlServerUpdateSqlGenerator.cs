@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerUpdateSqlGenerator(
-            UpdateSqlGeneratorDependencies dependencies)
-            : base(dependencies)
+            UpdateSqlGeneratorDependencies relationalDependencies)
+            : base(relationalDependencies)
         {
         }
 

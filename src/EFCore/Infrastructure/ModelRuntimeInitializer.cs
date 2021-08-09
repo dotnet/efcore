@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ModelRuntimeInitializerDependencies Dependencies { get; }
 

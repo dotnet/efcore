@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
-            : base(dependencies)
+        public SqlServerMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies relationalDependencies)
+            : base(relationalDependencies)
         {
-            var sqlExpressionFactory = dependencies.SqlExpressionFactory;
-            var typeMappingSource = dependencies.RelationalTypeMappingSource;
+            var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+            var typeMappingSource = relationalDependencies.RelationalTypeMappingSource;
             AddTranslators(
                 new IMethodCallTranslator[]
                 {

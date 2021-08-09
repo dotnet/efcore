@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     /// </summary>
     public class SqlServerQueryableMethodTranslatingExpressionVisitorFactory : IQueryableMethodTranslatingExpressionVisitorFactory
     {
-        private readonly QueryableMethodTranslatingExpressionVisitorDependencies _dependencies;
-        private readonly RelationalQueryableMethodTranslatingExpressionVisitorDependencies _relationalDependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -30,9 +27,19 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalQueryableMethodTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -44,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new SqlServerQueryableMethodTranslatingExpressionVisitor(_dependencies, _relationalDependencies, queryCompilationContext);
+            return new SqlServerQueryableMethodTranslatingExpressionVisitor(Dependencies, RelationalDependencies, queryCompilationContext);
         }
     }
 }

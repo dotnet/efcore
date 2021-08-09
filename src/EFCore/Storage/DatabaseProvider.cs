@@ -36,7 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public DatabaseProvider(DatabaseProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual DatabaseProviderDependencies Dependencies { get; }
 
         /// <summary>
         ///     The unique name used to identify the database provider. This should be the same as the NuGet package name

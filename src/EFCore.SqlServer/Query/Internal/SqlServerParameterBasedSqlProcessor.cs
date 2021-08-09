@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerParameterBasedSqlProcessor(
-            RelationalParameterBasedSqlProcessorDependencies dependencies,
+            RelationalParameterBasedSqlProcessorDependencies relationalDependencies,
             bool useRelationalNulls)
-            : base(dependencies, useRelationalNulls)
+            : base(relationalDependencies, useRelationalNulls)
         {
         }
 
@@ -45,12 +45,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             var optimizedSelectExpression = base.Optimize(selectExpression, parametersValues, out canCache);
 
-            optimizedSelectExpression = new SkipTakeCollapsingExpressionVisitor(Dependencies.SqlExpressionFactory)
+            optimizedSelectExpression = new SkipTakeCollapsingExpressionVisitor(RelationalDependencies.SqlExpressionFactory)
                 .Process(optimizedSelectExpression, parametersValues, out var canCache2);
 
             canCache &= canCache2;
 
-            return (SelectExpression)new SearchConditionConvertingExpressionVisitor(Dependencies.SqlExpressionFactory)
+            return (SelectExpression)new SearchConditionConvertingExpressionVisitor(RelationalDependencies.SqlExpressionFactory)
                 .Visit(optimizedSelectExpression);
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(parametersValues, nameof(parametersValues));
 
-            return new SqlServerSqlNullabilityProcessor(Dependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
+            return new SqlServerSqlNullabilityProcessor(RelationalDependencies, UseRelationalNulls).Process(selectExpression, parametersValues, out canCache);
         }
     }
 }

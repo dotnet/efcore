@@ -39,20 +39,26 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CommandBatchPreparer(CommandBatchPreparerDependencies dependencies)
+        public CommandBatchPreparer(CommandBatchPreparerDependencies relationalDependencies)
         {
             _minBatchSize =
-                dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
+                relationalDependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
                 ?? 4;
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
 
-            if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
+            if (relationalDependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
             {
                 _sensitiveLoggingEnabled = true;
             }
         }
 
-        private CommandBatchPreparerDependencies Dependencies { get; }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual CommandBatchPreparerDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,15 +70,15 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IList<IUpdateEntry> entries,
             IUpdateAdapter updateAdapter)
         {
-            var parameterNameGenerator = Dependencies.ParameterNameGeneratorFactory.Create();
+            var parameterNameGenerator = RelationalDependencies.ParameterNameGeneratorFactory.Create();
             var commands = CreateModificationCommands(entries, updateAdapter, parameterNameGenerator.GenerateNext);
             var sortedCommandSets = TopologicalSort(commands);
 
             foreach (var independentCommandSet in sortedCommandSets)
             {
-                independentCommandSet.Sort(Dependencies.ModificationCommandComparer);
+                independentCommandSet.Sort(RelationalDependencies.ModificationCommandComparer);
 
-                var batch = Dependencies.ModificationCommandBatchFactory.Create();
+                var batch = RelationalDependencies.ModificationCommandBatchFactory.Create();
                 foreach (var modificationCommand in independentCommandSet)
                 {
                     (modificationCommand as ModificationCommand)?.AssertColumnsNotInitialized();
@@ -89,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         {
                             if (batch.ModificationCommands.Count > 1)
                             {
-                                Dependencies.UpdateLogger.BatchReadyForExecution(
+                                RelationalDependencies.UpdateLogger.BatchReadyForExecution(
                                     batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
                             }
 
@@ -97,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                         }
                         else
                         {
-                            Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
+                            RelationalDependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
                                 batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
 
                             foreach (var command in batch.ModificationCommands)
@@ -115,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 {
                     if (batch.ModificationCommands.Count > 1)
                     {
-                        Dependencies.UpdateLogger.BatchReadyForExecution(
+                        RelationalDependencies.UpdateLogger.BatchReadyForExecution(
                             batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count);
                     }
 
@@ -123,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 }
                 else
                 {
-                    Dependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
+                    RelationalDependencies.UpdateLogger.BatchSmallerThanMinBatchSize(
                         batch.ModificationCommands.SelectMany(c => c.Entries), batch.ModificationCommands.Count, _minBatchSize);
 
                     foreach (var command in batch.ModificationCommands)
@@ -139,7 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             IReadOnlyModificationCommand modificationCommand)
         {
             parameterNameGenerator.Reset();
-            var batch = Dependencies.ModificationCommandBatchFactory.Create();
+            var batch = RelationalDependencies.ModificationCommandBatchFactory.Create();
             batch.AddCommand(modificationCommand);
             return batch;
         }
@@ -191,14 +197,14 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                         command = sharedCommandsMap.GetOrAddValue(
                             entry,
-                            (n, s, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
-                                n, s, _sensitiveLoggingEnabled, comparer, generateParameterName, Dependencies.UpdateLogger)));
+                            (n, s, comparer) => RelationalDependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
+                                n, s, _sensitiveLoggingEnabled, comparer, generateParameterName, RelationalDependencies.UpdateLogger)));
                         isMainEntry = sharedCommandsMap.IsMainEntry(entry);
                     }
                     else
                     {
-                        command = Dependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
-                            table.Name, table.Schema, _sensitiveLoggingEnabled, comparer: null, generateParameterName, Dependencies.UpdateLogger));
+                        command = RelationalDependencies.ModificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
+                            table.Name, table.Schema, _sensitiveLoggingEnabled, comparer: null, generateParameterName, RelationalDependencies.UpdateLogger));
                     }
 
                     command.AddEntry(entry, isMainEntry);
@@ -490,7 +496,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 continue;
                             }
 
-                            var principalKeyValue = Dependencies.KeyValueIndexFactorySource
+                            var principalKeyValue = RelationalDependencies.KeyValueIndexFactorySource
                                 .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
                                 .CreatePrincipalKeyValue(entry, foreignKey);
 
@@ -525,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 continue;
                             }
 
-                            var dependentKeyValue = Dependencies.KeyValueIndexFactorySource
+                            var dependentKeyValue = RelationalDependencies.KeyValueIndexFactorySource
                                 .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
                                 .CreateDependentKeyValueFromOriginalValues(entry, foreignKey);
 
@@ -571,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     continue;
                                 }
 
-                                var dependentKeyValue = Dependencies.KeyValueIndexFactorySource
+                                var dependentKeyValue = RelationalDependencies.KeyValueIndexFactorySource
                                     .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
                                     .CreateDependentKeyValue(entry, foreignKey);
                                 if (dependentKeyValue == null)
@@ -599,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                     continue;
                                 }
 
-                                var principalKeyValue = Dependencies.KeyValueIndexFactorySource
+                                var principalKeyValue = RelationalDependencies.KeyValueIndexFactorySource
                                     .GetKeyValueIndexFactory(foreignKey.PrincipalKey)
                                     .CreatePrincipalKeyValueFromOriginalValues(entry, foreignKey);
                                 if (principalKeyValue != null)
@@ -682,7 +688,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
                     foreach (var key in entry.EntityType.GetKeys().Where(k => k.GetMappedConstraints().Any()))
                     {
-                        var principalKeyValue = Dependencies.KeyValueIndexFactorySource
+                        var principalKeyValue = RelationalDependencies.KeyValueIndexFactorySource
                             .GetKeyValueIndexFactory(key)
                             .CreatePrincipalKeyValue(entry, null);
 
@@ -745,7 +751,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                     {
                         foreach (var key in entry.EntityType.GetKeys().Where(k => k.GetMappedConstraints().Any()))
                         {
-                            var principalKeyValue = Dependencies.KeyValueIndexFactorySource
+                            var principalKeyValue = RelationalDependencies.KeyValueIndexFactorySource
                                 .GetKeyValueIndexFactory(key)
                                 .CreatePrincipalKeyValue(entry, null);
 

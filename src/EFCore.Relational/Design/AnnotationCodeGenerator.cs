@@ -38,18 +38,18 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public AnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        public AnnotationCodeGenerator(AnnotationCodeGeneratorDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual AnnotationCodeGeneratorDependencies Dependencies { get; }
+        protected virtual AnnotationCodeGeneratorDependencies RelationalDependencies { get; }
 
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> FilterIgnoredAnnotations(IEnumerable<IAnnotation> annotations)

@@ -13,8 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteSqlTranslatingExpressionVisitorFactory : IRelationalSqlTranslatingExpressionVisitorFactory
     {
-        private readonly RelationalSqlTranslatingExpressionVisitorDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -22,10 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteSqlTranslatingExpressionVisitorFactory(
-            RelationalSqlTranslatingExpressionVisitorDependencies dependencies)
+            RelationalSqlTranslatingExpressionVisitorDependencies relationalDependencies)
         {
-            _dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalSqlTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             => new SqliteSqlTranslatingExpressionVisitor(
-                _dependencies,
+                RelationalDependencies,
                 queryCompilationContext,
                 queryableMethodTranslatingExpressionVisitor);
     }

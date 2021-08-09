@@ -29,25 +29,25 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
         /// </summary>
-        /// <param name="dependencies"> Service dependencies. </param>
-        protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
+        /// <param name="relationalDependencies"> Service dependencies. </param>
+        protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
             CachedCommandText = new StringBuilder();
         }
 
         /// <summary>
-        ///     Service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        public virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
+        protected virtual ModificationCommandBatchFactoryDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     The update SQL generator.
         /// </summary>
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator
-            => Dependencies.UpdateSqlGenerator;
+            => RelationalDependencies.UpdateSqlGenerator;
 
         /// <summary>
         ///     Gets or sets the cached command text for the commands in the batch.
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The command. </returns>
         protected virtual RawSqlCommand CreateStoreCommand()
         {
-            var commandBuilder = Dependencies.CommandBuilderFactory
+            var commandBuilder = RelationalDependencies.CommandBuilderFactory
                 .Create()
                 .Append(GetCommandText());
 
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     {
                         commandBuilder.AddParameter(
                             columnModification.ParameterName,
-                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
+                            RelationalDependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
                             columnModification.TypeMapping!,
                             columnModification.IsNullable);
 
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     {
                         commandBuilder.AddParameter(
                             columnModification.OriginalParameterName,
-                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
+                            RelationalDependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                             columnModification.TypeMapping!,
                             columnModification.IsNullable);
 
@@ -248,8 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         connection,
                         storeCommand.ParameterValues,
                         null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.Logger, CommandSource.SaveChanges));
+                        RelationalDependencies.CurrentContext.Context,
+                        RelationalDependencies.Logger, CommandSource.SaveChanges));
                 Consume(dataReader);
             }
             catch (DbUpdateException)
@@ -288,8 +288,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         connection,
                         storeCommand.ParameterValues,
                         null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.Logger, CommandSource.SaveChanges),
+                        RelationalDependencies.CurrentContext.Context,
+                        RelationalDependencies.Logger, CommandSource.SaveChanges),
                     cancellationToken).ConfigureAwait(false);
                 await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The factory. </returns>
         protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
             IReadOnlyList<IColumnModification> columnModifications)
-            => Dependencies.ValueBufferFactoryFactory
+            => RelationalDependencies.ValueBufferFactoryFactory
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)

@@ -49,28 +49,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected HistoryRepository(HistoryRepositoryDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        protected HistoryRepository(HistoryRepositoryDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
 
-            var relationalOptions = RelationalOptionsExtension.Extract(dependencies.Options);
+            var relationalOptions = RelationalOptionsExtension.Extract(relationalDependencies.Options);
             TableName = relationalOptions?.MigrationsHistoryTableName ?? DefaultTableName;
             TableSchema = relationalOptions?.MigrationsHistoryTableSchema;
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual HistoryRepositoryDependencies Dependencies { get; }
+        protected virtual HistoryRepositoryDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     A helper class for generation of SQL.
         /// </summary>
         protected virtual ISqlGenerationHelper SqlGenerationHelper
-            => Dependencies.SqlGenerationHelper;
+            => RelationalDependencies.SqlGenerationHelper;
 
         /// <summary>
         ///     THe history table name.
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             if (_model == null)
             {
-                var conventionSet = Dependencies.ConventionSetBuilder.CreateConventionSet();
+                var conventionSet = RelationalDependencies.ConventionSetBuilder.CreateConventionSet();
 
                 // Use public API to remove the convention, issue #214
                 ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         x.ToTable(TableName, TableSchema);
                     });
 
-                _model = Dependencies.ModelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: true, validationLogger: null);
+                _model = RelationalDependencies.ModelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: true, validationLogger: null);
             }
 
             return _model;
@@ -134,15 +134,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </summary>
         /// <returns> <see langword="true" /> if the table already exists, <see langword="false" /> otherwise. </returns>
         public virtual bool Exists()
-            => Dependencies.DatabaseCreator.Exists()
+            => RelationalDependencies.DatabaseCreator.Exists()
                 && InterpretExistsResult(
-                    Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
+                    RelationalDependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(
                         new RelationalCommandParameterObject(
-                            Dependencies.Connection,
+                            RelationalDependencies.Connection,
                             null,
                             null,
-                            Dependencies.CurrentContext.Context,
-                            Dependencies.CommandLogger, CommandSource.Migrations)));
+                            RelationalDependencies.CurrentContext.Context,
+                            RelationalDependencies.CommandLogger, CommandSource.Migrations)));
 
         /// <summary>
         ///     Checks whether or not the history table exists.
@@ -154,15 +154,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default)
-            => await Dependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
+            => await RelationalDependencies.DatabaseCreator.ExistsAsync(cancellationToken).ConfigureAwait(false)
                 && InterpretExistsResult(
-                    await Dependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
+                    await RelationalDependencies.RawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(
                         new RelationalCommandParameterObject(
-                            Dependencies.Connection,
+                            RelationalDependencies.Connection,
                             null,
                             null,
-                            Dependencies.CurrentContext.Context,
-                            Dependencies.CommandLogger, CommandSource.Migrations),
+                            RelationalDependencies.CurrentContext.Context,
+                            RelationalDependencies.CommandLogger, CommandSource.Migrations),
                         cancellationToken).ConfigureAwait(false));
 
         /// <summary>
@@ -186,8 +186,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             var model = EnsureModel();
 
-            var operations = Dependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel());
-            var commandList = Dependencies.MigrationsSqlGenerator.Generate(operations, model);
+            var operations = RelationalDependencies.ModelDiffer.GetDifferences(null, model.GetRelationalModel());
+            var commandList = RelationalDependencies.MigrationsSqlGenerator.Generate(operations, model);
 
             return string.Concat(commandList.Select(c => c.CommandText));
         }
@@ -219,15 +219,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (Exists())
             {
-                var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
+                var command = RelationalDependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
                 using var reader = command.ExecuteReader(
                     new RelationalCommandParameterObject(
-                        Dependencies.Connection,
+                        RelationalDependencies.Connection,
                         null,
                         null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.CommandLogger, CommandSource.Migrations));
+                        RelationalDependencies.CurrentContext.Context,
+                        RelationalDependencies.CommandLogger, CommandSource.Migrations));
                 while (reader.Read())
                 {
                     rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
@@ -253,15 +253,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (await ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
-                var command = Dependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
+                var command = RelationalDependencies.RawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
                 await using var reader = await command.ExecuteReaderAsync(
                     new RelationalCommandParameterObject(
-                        Dependencies.Connection,
+                        RelationalDependencies.Connection,
                         null,
                         null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.CommandLogger, CommandSource.Migrations),
+                        RelationalDependencies.CurrentContext.Context,
+                        RelationalDependencies.CommandLogger, CommandSource.Migrations),
                     cancellationToken).ConfigureAwait(false);
                 while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
@@ -297,7 +297,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotNull(row, nameof(row));
 
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            var stringTypeMapping = RelationalDependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder().Append("INSERT INTO ")
                 .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
@@ -324,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            var stringTypeMapping = RelationalDependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder().Append("DELETE FROM ")
                 .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))

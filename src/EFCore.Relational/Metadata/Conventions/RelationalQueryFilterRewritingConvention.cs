@@ -24,8 +24,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
+            RelationalDependencies = relationalDependencies;
             DbSetAccessRewriter = new RelationalDbSetAccessRewritingExpressionVisitor(Dependencies.ContextType);
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
         /// <inheritdoc />
         public override void ProcessModelFinalizing(

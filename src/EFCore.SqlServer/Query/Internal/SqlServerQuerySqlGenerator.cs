@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
-            : base(dependencies)
+        public SqlServerQuerySqlGenerator(QuerySqlGeneratorDependencies relationalDependencies)
+            : base(relationalDependencies)
         {
         }
 
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (extensionExpression is TemporalTableExpression temporalTableExpression)
             {
                 Sql
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Name, temporalTableExpression.Schema))
+                    .Append(RelationalDependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Name, temporalTableExpression.Schema))
                     .Append(" FOR SYSTEM_TIME ");
 
                 switch (temporalTableExpression.TemporalOperationType)
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 {
                     Sql
                         .Append(AliasSeparator)
-                        .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Alias));
+                        .Append(RelationalDependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Alias));
                 }
 
                 return temporalTableExpression;

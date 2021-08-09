@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteHistoryRepository(HistoryRepositoryDependencies dependencies)
-            : base(dependencies)
+        public SqliteHistoryRepository(HistoryRepositoryDependencies relationalDependencies)
+            : base(relationalDependencies)
         {
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Migrations.Internal
         {
             get
             {
-                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                var stringTypeMapping = RelationalDependencies.TypeMappingSource.GetMapping(typeof(string));
 
                 return "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = "
                     + stringTypeMapping.GenerateSqlLiteral(TableName)

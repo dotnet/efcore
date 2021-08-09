@@ -12,6 +12,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// </summary>
     public sealed class NonRetryingExecutionStrategy : IExecutionStrategy
     {
+        /// <summary>
+        ///     Constructs a new <see cref="NonRetryingExecutionStrategy" /> with the given service dependencies.
+        /// </summary>
+        /// <param name="dependencies"> Dependencies for this execution strategy. </param>
+        public NonRetryingExecutionStrategy(ExecutionStrategyDependencies dependencies)
+            => Dependencies = dependencies;
+
         private ExecutionStrategyDependencies Dependencies { get; }
 
         /// <summary>
@@ -19,13 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public bool RetriesOnFailure
             => false;
-
-        /// <summary>
-        ///     Constructs a new <see cref="NonRetryingExecutionStrategy" /> with the given service dependencies.
-        /// </summary>
-        /// <param name="dependencies"> Dependencies for this execution strategy. </param>
-        public NonRetryingExecutionStrategy(ExecutionStrategyDependencies dependencies)
-            => Dependencies = dependencies;
 
         /// <summary>
         ///     Executes the specified operation and returns the result.

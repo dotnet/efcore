@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual DbContext Context { get; }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual QueryContextDependencies Dependencies { get; }
 

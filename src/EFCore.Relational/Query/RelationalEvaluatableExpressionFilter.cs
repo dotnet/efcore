@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="RelationalEvaluatableExpressionFilter" />
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalEvaluatableExpressionFilterDependencies RelationalDependencies { get; }
 

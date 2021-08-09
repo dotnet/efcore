@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Dependencies used to create this <see cref="TypeMappingSourceBase" />
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual TypeMappingSourceDependencies Dependencies { get; }
 

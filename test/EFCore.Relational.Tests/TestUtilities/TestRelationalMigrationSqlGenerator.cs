@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestRelationalMigrationSqlGenerator : MigrationsSqlGenerator
     {
-        public TestRelationalMigrationSqlGenerator(MigrationsSqlGeneratorDependencies dependencies)
-            : base(dependencies)
+        public TestRelationalMigrationSqlGenerator(MigrationsSqlGeneratorDependencies relationalDependencies)
+            : base(relationalDependencies)
         {
         }
 

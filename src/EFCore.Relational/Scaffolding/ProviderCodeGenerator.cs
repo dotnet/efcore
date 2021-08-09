@@ -14,14 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Initializes a new instance of the <see cref="ProviderCodeGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> The dependencies. </param>
-        protected ProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
-            => Dependencies = Check.NotNull(dependencies, nameof(dependencies));
+        /// <param name="relationalDependencies"> The dependencies. </param>
+        protected ProviderCodeGenerator(ProviderCodeGeneratorDependencies relationalDependencies)
+            => RelationalDependencies = Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual ProviderCodeGeneratorDependencies Dependencies { get; }
+        protected virtual ProviderCodeGeneratorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Generates a method chain used to configure provider-specific options.
@@ -31,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             MethodCallCodeFragment? providerOptions = null;
 
-            foreach (var plugin in Dependencies.Plugins)
+            foreach (var plugin in RelationalDependencies.Plugins)
             {
                 var chainedCall = plugin.GenerateProviderOptions();
                 if (chainedCall == null)
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         {
             MethodCallCodeFragment? contextOptions = null;
 
-            foreach (var plugin in Dependencies.Plugins)
+            foreach (var plugin in RelationalDependencies.Plugins)
             {
                 var chainedCall = plugin.GenerateContextOptions();
                 if (chainedCall == null)

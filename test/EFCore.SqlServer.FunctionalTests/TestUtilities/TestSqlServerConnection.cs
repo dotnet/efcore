@@ -12,8 +12,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestSqlServerConnection : SqlServerConnection
     {
-        public TestSqlServerConnection(RelationalConnectionDependencies dependencies)
-            : base(dependencies)
+        public TestSqlServerConnection(RelationalConnectionDependencies relationalDependencies)
+            : base(relationalDependencies)
         {
         }
 

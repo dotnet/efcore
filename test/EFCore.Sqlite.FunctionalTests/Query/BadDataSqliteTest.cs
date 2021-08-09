@@ -130,41 +130,41 @@ namespace Microsoft.EntityFrameworkCore.Query
         private class BadDataCommandBuilderFactory : RelationalCommandBuilderFactory
         {
             public BadDataCommandBuilderFactory(
-                RelationalCommandBuilderDependencies dependencies)
-                : base(dependencies)
+                RelationalCommandBuilderDependencies relationalDependencies)
+                : base(relationalDependencies)
             {
             }
 
             public object[] Values { private get; set; }
 
             public override IRelationalCommandBuilder Create()
-                => new BadDataRelationalCommandBuilder(Dependencies, Values);
+                => new BadDataRelationalCommandBuilder(RelationalDependencies, Values);
 
             private class BadDataRelationalCommandBuilder : RelationalCommandBuilder
             {
                 private readonly object[] _values;
 
                 public BadDataRelationalCommandBuilder(
-                    RelationalCommandBuilderDependencies dependencies,
+                    RelationalCommandBuilderDependencies relationalDependencies,
                     object[] values)
-                    : base(dependencies)
+                    : base(relationalDependencies)
                 {
                     _values = values;
                 }
 
                 public override IRelationalCommand Build()
-                    => new BadDataRelationalCommand(Dependencies, ToString(), Parameters, _values);
+                    => new BadDataRelationalCommand(RelationalDependencies, ToString(), Parameters, _values);
 
                 private class BadDataRelationalCommand : RelationalCommand
                 {
                     private object[] _values;
 
                     public BadDataRelationalCommand(
-                        RelationalCommandBuilderDependencies dependencies,
+                        RelationalCommandBuilderDependencies relationalDependencies,
                         string commandText,
                         IReadOnlyList<IRelationalParameter> parameters,
                         object[] values)
-                        : base(dependencies, commandText, parameters)
+                        : base(relationalDependencies, commandText, parameters)
                     {
                         _values = values;
                     }

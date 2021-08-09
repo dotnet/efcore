@@ -20,18 +20,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTransactionFactory" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        public SqlServerTransactionFactory(RelationalTransactionFactoryDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        public SqlServerTransactionFactory(RelationalTransactionFactoryDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalTransactionFactoryDependencies Dependencies { get; }
+        protected virtual RelationalTransactionFactoryDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,6 +45,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            => new SqlServerTransaction(connection, transaction, transactionId, logger, transactionOwned, Dependencies.SqlGenerationHelper);
+            => new SqlServerTransaction(connection, transaction, transactionId, logger, transactionOwned, RelationalDependencies.SqlGenerationHelper);
     }
 }

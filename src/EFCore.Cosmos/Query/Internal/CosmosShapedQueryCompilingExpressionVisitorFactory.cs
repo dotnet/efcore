@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosShapedQueryCompilingExpressionVisitorFactory : IShapedQueryCompilingExpressionVisitorFactory
     {
-        private readonly ShapedQueryCompilingExpressionVisitorDependencies _dependencies;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
 
@@ -35,10 +34,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
             Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
 
-            _dependencies = dependencies;
+            Dependencies = dependencies;
             _sqlExpressionFactory = sqlExpressionFactory;
             _querySqlGeneratorFactory = querySqlGeneratorFactory;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ShapedQueryCompilingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             return new CosmosShapedQueryCompilingExpressionVisitor(
-                _dependencies,
+                Dependencies,
                 (CosmosQueryCompilationContext)queryCompilationContext,
                 _sqlExpressionFactory,
                 _querySqlGeneratorFactory);

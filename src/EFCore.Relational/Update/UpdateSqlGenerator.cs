@@ -31,24 +31,24 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Initializes a new instance of the this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
-        protected UpdateSqlGenerator(UpdateSqlGeneratorDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        protected UpdateSqlGenerator(UpdateSqlGeneratorDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual UpdateSqlGeneratorDependencies Dependencies { get; }
+        protected virtual UpdateSqlGeneratorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Helpers for generating update SQL.
         /// </summary>
         protected virtual ISqlGenerationHelper SqlGenerationHelper
-            => Dependencies.SqlGenerationHelper;
+            => RelationalDependencies.SqlGenerationHelper;
 
         /// <summary>
         ///     Appends a SQL command for inserting a row to the commands being built.

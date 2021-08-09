@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual CSharpMigrationsGeneratorDependencies CSharpDependencies { get; }
 

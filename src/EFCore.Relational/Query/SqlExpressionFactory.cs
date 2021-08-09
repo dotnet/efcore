@@ -25,14 +25,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlExpressionFactory" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        public SqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
+        /// <param name="relationalDependencies"> Parameter object containing dependencies for this class. </param>
+        public SqlExpressionFactory(SqlExpressionFactoryDependencies relationalDependencies)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _typeMappingSource = dependencies.TypeMappingSource;
+            RelationalDependencies = relationalDependencies;
+            _typeMappingSource = relationalDependencies.TypeMappingSource;
             _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool))!;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual SqlExpressionFactoryDependencies RelationalDependencies { get; }
 
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]

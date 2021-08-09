@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerHistoryRepository(HistoryRepositoryDependencies dependencies)
-            : base(dependencies)
+        public SqlServerHistoryRepository(HistoryRepositoryDependencies relationalDependencies)
+            : base(relationalDependencies)
         {
         }
 
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         {
             get
             {
-                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                var stringTypeMapping = RelationalDependencies.TypeMappingSource.GetMapping(typeof(string));
 
                 return "SELECT OBJECT_ID("
                     + stringTypeMapping.GenerateSqlLiteral(
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         /// </summary>
         public override string GetCreateIfNotExistsScript()
         {
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            var stringTypeMapping = RelationalDependencies.TypeMappingSource.GetMapping(typeof(string));
 
             var builder = new StringBuilder()
                 .Append("IF OBJECT_ID(")
@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            var stringTypeMapping = RelationalDependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder()
                 .Append("IF NOT EXISTS(SELECT * FROM ")
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Migrations.Internal
         {
             Check.NotEmpty(migrationId, nameof(migrationId));
 
-            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+            var stringTypeMapping = RelationalDependencies.TypeMappingSource.GetMapping(typeof(string));
 
             return new StringBuilder()
                 .Append("IF EXISTS(SELECT * FROM ")

@@ -14,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     /// </summary>
     public class InMemoryShapedQueryCompilingExpressionVisitorFactory : IShapedQueryCompilingExpressionVisitorFactory
     {
-        private readonly ShapedQueryCompilingExpressionVisitorDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -25,8 +23,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public InMemoryShapedQueryCompilingExpressionVisitorFactory(
             ShapedQueryCompilingExpressionVisitorDependencies dependencies)
         {
-            _dependencies = dependencies;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ShapedQueryCompilingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -38,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new InMemoryShapedQueryCompilingExpressionVisitor(_dependencies, queryCompilationContext);
+            return new InMemoryShapedQueryCompilingExpressionVisitor(Dependencies, queryCompilationContext);
         }
     }
 }

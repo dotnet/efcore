@@ -22,13 +22,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerMemberTranslatorProvider(
-            RelationalMemberTranslatorProviderDependencies dependencies,
+            RelationalMemberTranslatorProviderDependencies relationalDependencies,
             IRelationalTypeMappingSource typeMappingSource)
-            : base(dependencies)
+            : base(relationalDependencies)
         {
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
-            var sqlExpressionFactory = dependencies.SqlExpressionFactory;
+            var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
 
             AddTranslators(
                 new IMemberTranslator[]
