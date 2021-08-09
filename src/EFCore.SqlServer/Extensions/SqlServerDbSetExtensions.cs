@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -21,15 +19,18 @@ namespace Microsoft.EntityFrameworkCore
         ///         Applies temporal 'AsOf' operation on the given DbSet, which only returns elements that were present in the database at a given point in time.
         ///     </para>
         ///     <para>
+        ///         Temporal information is stored in UTC format on the database, so any <see cref="DateTime" /> arguments in local time may lead to unexpected results.
+        ///     </para>
+        ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
         /// </summary>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
-        /// <param name="pointInTime"><see cref="DateTime" /> representing a point in time for which the results should be returned.</param>
+        /// <param name="utcPointInTime"><see cref="DateTime" /> representing a point in time for which the results should be returned.</param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the entities at a given point in time.</returns>
         public static IQueryable<TEntity> TemporalAsOf<TEntity>(
             this DbSet<TEntity> source,
-            DateTime pointInTime)
+            DateTime utcPointInTime)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -39,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore
             return queryableSource.Provider.CreateQuery<TEntity>(
                 GenerateTemporalAsOfQueryRoot<TEntity>(
                     queryableSource,
-                    pointInTime)).AsNoTracking();
+                    utcPointInTime)).AsNoTracking();
         }
 
         /// <summary>
@@ -53,17 +54,20 @@ namespace Microsoft.EntityFrameworkCore
         ///         All versions of entities in that were present within the time range are returned, so it is possible to return multiple entities with the same key.
         ///     </para>
         ///     <para>
+        ///         Temporal information is stored in UTC format on the database, so any <see cref="DateTime" /> arguments in local time may lead to unexpected results.
+        ///     </para>
+        ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
         /// </summary>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
-        /// <param name="from">Point in time representing the start of the period for which results should be returned.</param>
-        /// <param name="to">Point in time representing the end of the period for which results should be returned.</param>
+        /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
+        /// <param name="utcTo">Point in time representing the end of the period for which results should be returned.</param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
         public static IQueryable<TEntity> TemporalFromTo<TEntity>(
             this DbSet<TEntity> source,
-            DateTime from,
-            DateTime to)
+            DateTime utcFrom,
+            DateTime utcTo)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -73,8 +77,8 @@ namespace Microsoft.EntityFrameworkCore
             return queryableSource.Provider.CreateQuery<TEntity>(
                 GenerateRangeTemporalQueryRoot<TEntity>(
                     queryableSource,
-                    from,
-                    to,
+                    utcFrom,
+                    utcTo,
                     TemporalOperationType.FromTo)).AsNoTracking();
         }
 
@@ -89,17 +93,20 @@ namespace Microsoft.EntityFrameworkCore
         ///         All versions of entities in that were present within the time range are returned, so it is possible to return multiple entities with the same key.
         ///     </para>
         ///     <para>
+        ///         Temporal information is stored in UTC format on the database, so any <see cref="DateTime" /> arguments in local time may lead to unexpected results.
+        ///     </para>
+        ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
         /// </summary>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
-        /// <param name="from">Point in time representing the start of the period for which results should be returned.</param>
-        /// <param name="to">Point in time representing the end of the period for which results should be returned.</param>
+        /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
+        /// <param name="utcTo">Point in time representing the end of the period for which results should be returned.</param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
         public static IQueryable<TEntity> TemporalBetween<TEntity>(
             this DbSet<TEntity> source,
-            DateTime from,
-            DateTime to)
+            DateTime utcFrom,
+            DateTime utcTo)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -109,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore
             return queryableSource.Provider.CreateQuery<TEntity>(
                 GenerateRangeTemporalQueryRoot<TEntity>(
                     queryableSource,
-                    from,
-                    to,
+                    utcFrom,
+                    utcTo,
                     TemporalOperationType.Between)).AsNoTracking();
         }
 
@@ -125,17 +132,20 @@ namespace Microsoft.EntityFrameworkCore
         ///         All versions of entities in that were present within the time range are returned, so it is possible to return multiple entities with the same key.
         ///     </para>
         ///     <para>
+        ///         Temporal information is stored in UTC format on the database, so any <see cref="DateTime" /> arguments in local time may lead to unexpected results.
+        ///     </para>
+        ///     <para>
         ///         Temporal queries are always set as 'NoTracking'.
         ///     </para>
         /// </summary>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
-        /// <param name="from">Point in time representing the start of the period for which results should be returned.</param>
-        /// <param name="to">Point in time representing the end of the period for which results should be returned.</param>
+        /// <param name="utcFrom">Point in time representing the start of the period for which results should be returned.</param>
+        /// <param name="utcTo">Point in time representing the end of the period for which results should be returned.</param>
         /// <returns> An <see cref="IQueryable{T}" /> representing the entities present in a given time range.</returns>
         public static IQueryable<TEntity> TemporalContainedIn<TEntity>(
             this DbSet<TEntity> source,
-            DateTime from,
-            DateTime to)
+            DateTime utcFrom,
+            DateTime utcTo)
             where TEntity : class
         {
             Check.NotNull(source, nameof(source));
@@ -145,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore
             return queryableSource.Provider.CreateQuery<TEntity>(
                 GenerateRangeTemporalQueryRoot<TEntity>(
                     queryableSource,
-                    from,
-                    to,
+                    utcFrom,
+                    utcTo,
                     TemporalOperationType.ContainedIn)).AsNoTracking();
         }
 
