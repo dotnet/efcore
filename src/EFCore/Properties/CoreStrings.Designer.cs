@@ -2691,6 +2691,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, state);
 
         /// <summary>
+        ///     Too many arguments.
+        /// </summary>
+        public static string TooManyArguments
+            => GetString("TooManyArguments");
+
+        /// <summary>
         ///     The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because the two types are not in the same hierarchy.
         /// </summary>
         public static string TrackingTypeMismatch(object? runtimeEntityType, object? entityType)

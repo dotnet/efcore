@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -28,7 +30,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
-        private IndentedStringBuilder _sb = null!;
+        private readonly IndentedStringBuilder _sb = new();
+        private readonly HashSet<string> _namespaces = new();
         private bool _entityTypeBuilderInitialized;
         private bool _useDataAnnotations;
         private bool _useNullableReferenceTypes;
@@ -75,20 +78,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _useDataAnnotations = useDataAnnotations;
             _useNullableReferenceTypes = useNullableReferenceTypes;
 
-            _sb = new IndentedStringBuilder();
+            _sb.Clear();
+            _namespaces.Clear();
 
-            _sb.AppendLine("using System;"); // Guid default values require new Guid() which requires this using
-            _sb.AppendLine("using Microsoft.EntityFrameworkCore;");
-            _sb.AppendLine("using Microsoft.EntityFrameworkCore.Metadata;");
+            _namespaces.Add("System"); // Guid default values require new Guid() which requires this using
+            _namespaces.Add("Microsoft.EntityFrameworkCore");
+            _namespaces.Add("Microsoft.EntityFrameworkCore.Metadata");
+
+            // The final namespaces list is calculated after code generation, since namespaces may be added during code generation
 
             var finalContextNamespace = contextNamespace ?? modelNamespace;
-
-            if (finalContextNamespace != modelNamespace && !string.IsNullOrEmpty(modelNamespace))
-            {
-                _sb.AppendLine(string.Concat("using ", modelNamespace, ";"));
-            }
-
-            _sb.AppendLine();
 
             if (!string.IsNullOrEmpty(finalContextNamespace))
             {
@@ -110,7 +109,31 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 _sb.AppendLine("}");
             }
 
-            return _sb.ToString();
+            var namespaceStringBuilder = new StringBuilder();
+
+            IEnumerable<string> namespaces = _namespaces.OrderBy(
+                    ns => ns switch
+                    {
+                        "System" => 1,
+                        var s when s.StartsWith("System", StringComparison.CurrentCulture) => 2,
+                        var s when s.StartsWith("Microsoft", StringComparison.CurrentCulture) => 3,
+                        _ => 4
+                    })
+                .ThenBy(ns => ns);
+
+            if (finalContextNamespace != modelNamespace && !string.IsNullOrEmpty(modelNamespace))
+            {
+                namespaces = namespaces.Append(modelNamespace);
+            }
+
+            foreach (var ns in namespaces)
+            {
+                namespaceStringBuilder.Append("using ").Append(ns).AppendLine(";");
+            }
+
+            namespaceStringBuilder.AppendLine();
+
+            return namespaceStringBuilder.ToString() + _sb;
         }
 
         /// <summary>
@@ -241,13 +264,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .IncrementIndent();
                     }
 
-                    _sb.Append("optionsBuilder");
-
                     var useProviderCall = _providerConfigurationCodeGenerator.GenerateUseProvider(
                         connectionString);
 
                     _sb
-                        .Append(_code.Fragment(useProviderCall))
+                        .AppendLines(_code.Fragment(useProviderCall, "optionsBuilder"), skipFinalNewline: true)
                         .AppendLine(";");
                 }
 
@@ -285,9 +306,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var lines = new List<string>();
 
-            lines.AddRange(
-                _annotationCodeGenerator.GenerateFluentApiCalls(model, annotations).Select(m => _code.Fragment(m))
-                    .Concat(GenerateAnnotations(annotations.Values)));
+            GenerateAnnotations(model, annotations, lines);
 
             if (lines.Count > 0)
             {
@@ -379,9 +398,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GenerateTableName(entityType);
             }
 
-            var lines = new List<string>(
-                _annotationCodeGenerator.GenerateFluentApiCalls(entityType, annotations).Select(m => _code.Fragment(m))
-                    .Concat(GenerateAnnotations(annotations.Values)));
+            var lines = new List<string>();
+
+            GenerateAnnotations(entityType, annotations, lines);
 
             AppendMultiLineFluentApi(entityType, lines);
 
@@ -488,9 +507,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     $".{nameof(RelationalKeyBuilderExtensions.HasName)}({_code.Literal(key.GetName()!)})");
             }
 
-            lines.AddRange(
-                _annotationCodeGenerator.GenerateFluentApiCalls(key, annotations).Select(m => _code.Fragment(m))
-                    .Concat(GenerateAnnotations(annotations.Values)));
+            GenerateAnnotations(key, annotations, lines);
 
             AppendMultiLineFluentApi(key.DeclaringEntityType, lines);
         }
@@ -555,9 +572,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add($".{nameof(IndexBuilder.IsUnique)}()");
             }
 
-            lines.AddRange(
-                _annotationCodeGenerator.GenerateFluentApiCalls(index, annotations).Select(m => _code.Fragment(m))
-                    .Concat(GenerateAnnotations(annotations.Values)));
+            GenerateAnnotations(index, annotations, lines);
 
             AppendMultiLineFluentApi(index.DeclaringEntityType, lines);
         }
@@ -669,9 +684,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines.Add($".{nameof(PropertyBuilder.IsConcurrencyToken)}()");
             }
 
-            lines.AddRange(
-                _annotationCodeGenerator.GenerateFluentApiCalls(property, annotations).Select(m => _code.Fragment(m))
-                    .Concat(GenerateAnnotations(annotations.Values)));
+            GenerateAnnotations(property, annotations, lines);
 
             switch (lines.Count)
             {
@@ -734,9 +747,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 canUseDataAnnotations = false;
             }
 
-            lines.AddRange(
-                _annotationCodeGenerator.GenerateFluentApiCalls(foreignKey, annotations).Select(m => _code.Fragment(m))
-                    .Concat(GenerateAnnotations(annotations.Values)));
+            GenerateAnnotations(foreignKey, annotations, lines);
 
             if (!_useDataAnnotations
                 || !canUseDataAnnotations)
@@ -809,8 +820,48 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _sb.AppendLine(";");
         }
 
-        private IList<string> GenerateAnnotations(IEnumerable<IAnnotation> annotations)
-            => annotations.Select(
-                a => $".HasAnnotation({_code.Literal(a.Name)}, {_code.UnknownLiteral(a.Value)})").ToList();
+        private void GenerateAnnotations(IAnnotatable annotatable, Dictionary<string, IAnnotation> annotations, List<string> lines)
+        {
+            foreach (var call in _annotationCodeGenerator.GenerateFluentApiCalls(annotatable, annotations))
+            {
+                var fluentApiCall = call;
+
+                // Remove optional arguments
+                if (fluentApiCall.MethodInfo is { } methodInfo)
+                {
+                    var methodParameters = methodInfo.GetParameters();
+
+                    for (int i = fluentApiCall.Arguments.Count - 1, j = methodInfo.IsStatic ? i + 1 : i; i >= 0; i--, j--)
+                    {
+                        if (!methodParameters[j].HasDefaultValue)
+                        {
+                            break;
+                        }
+
+                        var defaultValue = methodParameters[j].DefaultValue;
+                        var argument = fluentApiCall.Arguments[i];
+
+                        if (argument is null && defaultValue is null || argument is not null && argument.Equals(defaultValue))
+                        {
+                            fluentApiCall = new MethodCallCodeFragment(methodInfo, fluentApiCall.Arguments.Take(i).ToArray());
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                lines.Add(_code.Fragment(fluentApiCall));
+
+                if (fluentApiCall.Namespace is not null)
+                {
+                    _namespaces.Add(fluentApiCall.Namespace);
+                }
+            }
+
+            lines.AddRange(annotations.Values.Select(
+                a => $".HasAnnotation({_code.Literal(a.Name)}, {_code.UnknownLiteral(a.Value)})"));
+        }
     }
 }

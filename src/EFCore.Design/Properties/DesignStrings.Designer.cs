@@ -64,6 +64,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 columnName, dateType);
 
         /// <summary>
+        ///     A type-qualified method call requires an instance identifier, a MethodInfo and no chained calls.
+        /// </summary>
+        public static string CannotGenerateTypeQualifiedMethodCal
+            => GetString("CannotGenerateTypeQualifiedMethodCall");
+
+        /// <summary>
         ///     The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because dynamic proxy types are not supported. If you are not using proxies configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.
         /// </summary>
         public static string CompiledModelConstructorBinding(object? entityType, object? customize, object? className)

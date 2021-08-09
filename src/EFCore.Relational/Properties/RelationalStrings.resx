@@ -771,6 +771,9 @@
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.</value>
   </data>
+  <data name="UnhandledAnnotatableType" xml:space="preserve">
+    <value>Unhandled annotatable type '{annotatableType}'.</value>
+  </data>
   <data name="UnhandledExpressionInVisitor" xml:space="preserve">
     <value>Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.</value>
   </data>

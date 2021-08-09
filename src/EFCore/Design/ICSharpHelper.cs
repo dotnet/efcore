@@ -17,8 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Generates a method call code fragment.
         /// </summary>
         /// <param name="fragment"> The method call. </param>
+        /// <param name="instanceIdentifier"> An identifier on which the method call will be generated. </param>
+        /// <param name="typeQualified">
+        ///     <see langword="true" /> if the method call should be type-qualified, <see langword="false" /> for instance/extension syntax.
+        /// </param>
         /// <returns> The fragment. </returns>
-        string Fragment(MethodCallCodeFragment fragment);
+        string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier = null, bool typeQualified = false);
 
         /// <summary>
         ///     Generates a valid C# identifier from the specified string unique to the scope.
