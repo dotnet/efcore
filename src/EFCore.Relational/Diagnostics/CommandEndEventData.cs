@@ -70,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="async"> Indicates whether or not the command was executed asynchronously. </param>
         /// <param name="logParameterValues"> Indicates whether or not the application allows logging of parameter values. </param>
         /// <param name="startTime"> The start time of this event. </param>
-        /// <param name="commandSource">Source of the command.</param>
         /// <param name="duration"> The duration this event. </param>
+        /// <param name="commandSource"> Source of the command. </param>
         public CommandEndEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,
@@ -84,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             bool async,
             bool logParameterValues,
             DateTimeOffset startTime,
-            CommandSource commandSource,
-            TimeSpan duration)
+            TimeSpan duration,
+            CommandSource commandSource)
             : base(
                 eventDefinition,
                 messageGenerator,

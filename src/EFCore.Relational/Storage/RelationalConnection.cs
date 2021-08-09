@@ -608,13 +608,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> <see langword="true" /> if the underlying connection was actually opened; <see langword="false" /> otherwise. </returns>
         public virtual bool Open(bool errorsExpected = false)
         {
-            if (DbConnectionState == ConnectionState.Broken)
+            if (DbConnection.State == ConnectionState.Broken)
             {
                 CloseDbConnection();
             }
 
             var wasOpened = false;
-            if (DbConnectionState != ConnectionState.Open)
+            if (DbConnection.State != ConnectionState.Open)
             {
                 CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
@@ -641,13 +641,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
         public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
         {
-            if (DbConnectionState == ConnectionState.Broken)
+            if (DbConnection.State == ConnectionState.Broken)
             {
                 await CloseDbConnectionAsync().ConfigureAwait(false);
             }
 
             var wasOpened = false;
-            if (DbConnectionState != ConnectionState.Open)
+            if (DbConnection.State != ConnectionState.Open)
             {
                 if (CurrentTransaction != null)
                 {
@@ -857,7 +857,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 CurrentTransaction?.Dispose();
                 ClearTransactions(clearAmbient: false);
 
-                if (DbConnectionState != ConnectionState.Closed)
+                if (DbConnection.State != ConnectionState.Closed)
                 {
                     var logger = Dependencies.ConnectionLogger;
                     var startTime = DateTimeOffset.UtcNow;
@@ -925,7 +925,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 ClearTransactions(clearAmbient: false);
 
-                if (DbConnectionState != ConnectionState.Closed)
+                if (DbConnection.State != ConnectionState.Closed)
                 {
                     var logger = Dependencies.ConnectionLogger;
                     var startTime = DateTimeOffset.UtcNow;
@@ -980,12 +980,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual Task CloseDbConnectionAsync()
             => DbConnection.CloseAsync();
-
-        /// <summary>
-        ///     Template method that by default calls <see cref="M:System.Data.Common.DbConnection.State" /> but can be overridden
-        ///     by providers to make a different call instead.
-        /// </summary>
-        protected virtual ConnectionState DbConnectionState => DbConnection.State;
 
         private bool ShouldClose()
             => (_openedCount == 0

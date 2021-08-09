@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> objects, or <see langword="null" />. </param>
         public ContextParameterBinding(
             Type contextType,
-            IPropertyBase[]? serviceProperties = null)
+            params IPropertyBase[]? serviceProperties)
             : base(contextType, contextType, serviceProperties)
         {
         }

@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         protected ServiceParameterBinding(
             Type parameterType,
             Type serviceType,
-            IPropertyBase[]? serviceProperties = null)
+            params IPropertyBase[]? serviceProperties)
             : base(parameterType, serviceProperties)
         {
             Check.NotNull(serviceType, nameof(serviceType));
