@@ -196,6 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.SkipNavigationInverseChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(manyToManyJoinEntityTypeConvention);
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(foreignKeyAttributeConvention);
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 

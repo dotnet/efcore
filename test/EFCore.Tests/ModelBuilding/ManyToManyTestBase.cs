@@ -1,10 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -497,17 +494,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Throws_for_ForeignKeyAttribute_on_navigation()
+            public virtual void ForeignKeyAttribute_configures_the_properties()
             {
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<CategoryWithAttribute>();
 
-                Assert.Equal(
-                    CoreStrings.FkAttributeOnSkipNavigation(
-                        nameof(ProductWithAttribute), nameof(Product.Categories)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.FinalizeModel()).Message);
+                var model = modelBuilder.FinalizeModel();
+
+                var category = model.FindEntityType(typeof(CategoryWithAttribute))!;
+                var productsNavigation = category.GetSkipNavigations().Single();
+                var categoryFk = productsNavigation.ForeignKey;
+                Assert.Equal("CategoriesID", categoryFk.Properties.Single().Name);
+
+                var categoryNavigation = productsNavigation.TargetEntityType.GetSkipNavigations().Single();
+                var productFk = categoryNavigation.ForeignKey;
+                Assert.Equal("ProductKey", productFk.Properties.Single().Name);
+
+                var joinEntityType = categoryFk.DeclaringEntityType;
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
             }
 
             [ConditionalFact]
