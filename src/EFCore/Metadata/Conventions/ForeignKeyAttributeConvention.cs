@@ -433,8 +433,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && foreignKey.IsInModel)
             {
                 var fkPropertiesToSet = FindCandidateDependentPropertiesThroughNavigation(skipNavigationBuilder.Metadata);
-
-                foreignKey.Builder.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
+                if (fkPropertiesToSet != null)
+                {
+                    foreignKey.Builder.HasForeignKey(fkPropertiesToSet, fromDataAnnotation: true);
+                }
             }
         }
 
