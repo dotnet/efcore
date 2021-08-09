@@ -1133,7 +1133,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var foreignKey = ordersTable.ForeignKeys.Single();
                     if (AssertConstraintNames)
                         Assert.Equal("FK_Orders_Customers_CustomerId", foreignKey.Name);
-                    Assert.Equal(Normalize(ReferentialAction.Restrict), foreignKey.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, foreignKey.OnDelete);
                     Assert.Same(customersTable, foreignKey.PrincipalTable);
                     Assert.Same(customersTable.Columns.Single(), Assert.Single(foreignKey.PrincipalColumns));
                     Assert.Equal("CustomerId", Assert.Single(foreignKey.Columns).Name);
@@ -1589,9 +1589,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => true;
 
         protected abstract string NonDefaultCollation { get; }
-
-        protected virtual ReferentialAction Normalize(ReferentialAction value)
-            => value;
 
         protected virtual DbContext CreateContext()
             => Fixture.CreateContext();

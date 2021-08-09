@@ -992,6 +992,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     foreignKey.DeleteBehavior = DeleteBehavior.SetNull;
                     break;
 
+                case ReferentialAction.Restrict:
+                    foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+                    break;
+
                 default:
                     foreignKey.DeleteBehavior = DeleteBehavior.ClientSetNull;
                     break;

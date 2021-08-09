@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     CONSTRAINT [PK_People] PRIMARY KEY ([CustomId]),
     CONSTRAINT [AK_People_SSN] UNIQUE ([SSN]),
     CONSTRAINT [CK_People_EmployerId] CHECK ([EmployerId] > 0),
-    CONSTRAINT [FK_People_Employers_EmployerId] FOREIGN KEY ([EmployerId]) REFERENCES [Employers] ([Id]) ON DELETE NO ACTION
+    CONSTRAINT [FK_People_Employers_EmployerId] FOREIGN KEY ([EmployerId]) REFERENCES [Employers] ([Id])
 );
 DECLARE @description AS sql_variant;
 SET @description = N'Table comment';
@@ -1673,7 +1673,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             await base.Add_foreign_key();
 
             AssertSql(
-                @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Orders_Customers_CustomerId] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]) ON DELETE NO ACTION;");
+                @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Orders_Customers_CustomerId] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]);");
         }
 
         public override async Task Add_foreign_key_with_name()
@@ -1681,7 +1681,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;",
             await base.Add_foreign_key_with_name();
 
             AssertSql(
-                @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Foo] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]) ON DELETE NO ACTION;");
+                @"ALTER TABLE [Orders] ADD CONSTRAINT [FK_Foo] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]);");
         }
 
         public override async Task Drop_foreign_key()
@@ -2830,7 +2830,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                         c => Assert.Equal("Start", c.Name),
                         c => Assert.Equal("Name", c.Name),
                         c => Assert.Equal("Number", c.Name));
-            Assert.Same(
+                    Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
                 });
@@ -3714,11 +3714,6 @@ WHERE name = '{connection.Database}';";
                 ? collation
                 : null;
         }
-
-        protected override ReferentialAction Normalize(ReferentialAction value)
-            => value == ReferentialAction.Restrict
-                ? ReferentialAction.NoAction
-                : value;
 
         public class MigrationsSqlServerFixture : MigrationsFixtureBase
         {

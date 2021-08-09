@@ -1127,8 +1127,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 DeleteBehavior.SetNull => ReferentialAction.SetNull,
                 DeleteBehavior.Cascade => ReferentialAction.Cascade,
-                DeleteBehavior.NoAction or DeleteBehavior.ClientNoAction => ReferentialAction.NoAction,
-                DeleteBehavior.Restrict or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade => ReferentialAction.Restrict,
+                DeleteBehavior.NoAction or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade or DeleteBehavior.ClientNoAction => ReferentialAction.NoAction,
+                DeleteBehavior.Restrict => ReferentialAction.Restrict,
                 _ => throw new NotSupportedException(deleteBehavior.ToString()),
             };
 
