@@ -13,12 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        public StringToBoolConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public StringToBoolConverter(
-            ConverterMappingHints? mappingHints = null)
+        public StringToBoolConverter(ConverterMappingHints? mappingHints)
             : base(
                 v => Convert.ToBoolean(v),
                 v => Convert.ToString(v),

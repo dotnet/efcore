@@ -13,11 +13,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter. This converter preserves order.
         /// </summary>
+        public BoolToZeroOneConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter. This converter preserves order.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public BoolToZeroOneConverter(ConverterMappingHints? mappingHints = null)
+        public BoolToZeroOneConverter(ConverterMappingHints? mappingHints)
             : base(Zero(), One(), null, mappingHints)
         {
         }

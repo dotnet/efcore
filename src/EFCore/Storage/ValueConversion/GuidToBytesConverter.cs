@@ -24,11 +24,26 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         in the standard string representation.
         ///     </para>
         /// </summary>
+        public GuidToBytesConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a new instance of this converter.
+        ///     </para>
+        ///     <para>
+        ///         This converter does not preserve order because the ordering of bits in
+        ///         the standard binary representation of a GUID does not match the ordering
+        ///         in the standard string representation.
+        ///     </para>
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public GuidToBytesConverter(ConverterMappingHints? mappingHints = null)
+        public GuidToBytesConverter(ConverterMappingHints? mappingHints)
             : base(
                 v => v.ToByteArray(),
                 v => new Guid(v),
