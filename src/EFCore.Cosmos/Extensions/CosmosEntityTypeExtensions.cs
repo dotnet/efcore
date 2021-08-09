@@ -156,6 +156,58 @@ namespace Microsoft.EntityFrameworkCore
                 ?.GetConfigurationSource();
 
         /// <summary>
+        ///     Returns the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the partition key property for. </param>
+        /// <returns> The name of the partition key property. </returns>
+        public static IReadOnlyProperty? GetPartitionKeyProperty(this IReadOnlyEntityType entityType)
+        {
+            var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+            return partitionKeyPropertyName == null
+                ? null
+                : entityType.FindProperty(partitionKeyPropertyName);
+        }
+
+        /// <summary>
+        ///     Returns the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the partition key property for. </param>
+        /// <returns> The name of the partition key property. </returns>
+        public static IMutableProperty? GetPartitionKeyProperty(this IMutableEntityType entityType)
+        {
+            var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+            return partitionKeyPropertyName == null
+                ? null
+                : entityType.FindProperty(partitionKeyPropertyName);
+        }
+
+        /// <summary>
+        ///     Returns the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the partition key property for. </param>
+        /// <returns> The name of the partition key property. </returns>
+        public static IConventionProperty? GetPartitionKeyProperty(this IConventionEntityType entityType)
+        {
+            var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+            return partitionKeyPropertyName == null
+                ? null
+                : entityType.FindProperty(partitionKeyPropertyName);
+        }
+
+        /// <summary>
+        ///     Returns the property that is used to store the partition key.
+        /// </summary>
+        /// <param name="entityType"> The entity type to get the partition key property for. </param>
+        /// <returns> The name of the partition key property. </returns>
+        public static IProperty? GetPartitionKeyProperty(this IEntityType entityType)
+        {
+            var partitionKeyPropertyName = entityType.GetPartitionKeyPropertyName();
+            return partitionKeyPropertyName == null
+                ? null
+                : entityType.FindProperty(partitionKeyPropertyName);
+        }
+
+        /// <summary>
         ///     Returns the name of the property that is used to store the ETag.
         /// </summary>
         /// <param name="entityType"> The entity type to get the etag property name for. </param>
