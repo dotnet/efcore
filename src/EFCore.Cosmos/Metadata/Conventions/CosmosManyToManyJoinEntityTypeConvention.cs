@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
-    ///     A convention that finds primary key property for the entity type based on the names
-    ///     and adds the partition key to it if present.
+    ///     A convention that creates a join entity type for a many-to-many relationship
+    ///     and adds a partition key to it if the related types share one.
     /// </summary>
     public class CosmosManyToManyJoinEntityTypeConvention :
         ManyToManyJoinEntityTypeConvention,
