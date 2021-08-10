@@ -114,6 +114,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             PossibleIncorrectRequiredNavigationWithQueryFilterInteractionWarning,
             RequiredAttributeOnSkipNavigation,
             AmbiguousEndRequiredWarning,
+            ShadowForeignKeyPropertyCreated,
 
             // ChangeTracking events
             DetectChangesStarting = CoreBaseId + 800,
@@ -472,6 +473,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ShadowPropertyCreated = MakeModelValidationId(Id.ShadowPropertyCreated);
+
+        /// <summary>
+        ///     <para>
+        ///         A foreign key property was created in shadow state because a conflicting property with the simple name for
+        ///         this foreign key exists in the entity type, but is either not mapped, is already used for another relationship,
+        ///         or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information
+        ///         on mapping relationships in EF Core.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="UniquifiedPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ShadowForeignKeyPropertyCreated = MakeModelValidationId(Id.ShadowForeignKeyPropertyCreated);
 
         /// <summary>
         ///     <para>

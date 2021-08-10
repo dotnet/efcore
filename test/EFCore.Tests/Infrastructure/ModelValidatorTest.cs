@@ -239,6 +239,94 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Warns_on_uniquified_shadow_key_due_to_wrong_type()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            var model = modelBuilder.Model;
+
+            var principalType = model.AddEntityType(typeof(PrincipalOne));
+            SetPrimaryKey(principalType);
+
+            var dependentType = model.AddEntityType(typeof(DependentOne));
+            SetPrimaryKey(dependentType);
+            dependentType.AddProperty(DependentOne.PrincipalOneIdProperty);
+
+            modelBuilder
+                .Entity<PrincipalOne>()
+                .HasMany(e => e.DependentsOnes)
+                .WithOne(e => e.PrincipalOne);
+
+            VerifyWarning(
+                CoreResources.LogShadowForeignKeyPropertyCreated(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(DependentOne),
+                    nameof(DependentOne.PrincipalOneId) + "1",
+                    nameof(DependentOne.PrincipalOneId)),
+                modelBuilder);
+        }
+
+        [ConditionalFact]
+        public virtual void Warns_on_uniquified_shadow_key_due_to_unmapped_property()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            var model = modelBuilder.Model;
+
+            var principalType = model.AddEntityType(typeof(PrincipalTwo));
+            SetPrimaryKey(principalType);
+
+            var dependentType = model.AddEntityType(typeof(DependentTwo));
+            SetPrimaryKey(dependentType);
+            dependentType.AddIgnored(nameof(DependentTwo.PrincipalTwoId));
+
+            modelBuilder
+                .Entity<PrincipalTwo>()
+                .HasMany(e => e.DependentsTwos)
+                .WithOne(e => e.PrincipalTwo);
+
+            VerifyWarning(
+                CoreResources.LogShadowForeignKeyPropertyCreated(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(DependentTwo),
+                    nameof(DependentTwo.PrincipalTwoId) + "1",
+                    nameof(DependentTwo.PrincipalTwoId)),
+                modelBuilder);
+        }
+
+
+        [ConditionalFact]
+        public virtual void Warns_on_uniquified_shadow_key_due_to_use_in_another_relationship()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            var model = modelBuilder.Model;
+
+            var principalType = model.AddEntityType(typeof(PrincipalThree));
+            SetPrimaryKey(principalType);
+
+            var dependentType = model.AddEntityType(typeof(DependentThree));
+            SetPrimaryKey(dependentType);
+            dependentType.AddProperty(DependentThree.PrincipalThreeIdProperty);
+
+            modelBuilder
+                .Entity<PrincipalThree>()
+                .HasMany(e => e.DependentsThreesA)
+                .WithOne(e => e.PrincipalThreeA)
+                .HasForeignKey(e => e.PrincipalThreeId);
+
+            modelBuilder
+                .Entity<PrincipalThree>()
+                .HasMany(e => e.DependentsThreesB)
+                .WithOne(e => e.PrincipalThreeB);
+
+            VerifyWarning(
+                CoreResources.LogShadowForeignKeyPropertyCreated(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(DependentThree),
+                    nameof(DependentThree.PrincipalThreeId) + "1",
+                    nameof(DependentThree.PrincipalThreeId)),
+                modelBuilder);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_shadow_key_referenced_by_foreign_key_by_convention()
         {
             var builder = CreateConventionlessModelBuilder();

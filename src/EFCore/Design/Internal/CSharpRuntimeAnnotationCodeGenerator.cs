@@ -83,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 annotations.Remove(CoreAnnotationNames.ValueConverterType);
                 annotations.Remove(CoreAnnotationNames.ValueComparer);
                 annotations.Remove(CoreAnnotationNames.ValueComparerType);
+                annotations.Remove(CoreAnnotationNames.PreUniquificationName);
             }
 
             GenerateSimpleAnnotations(parameters);

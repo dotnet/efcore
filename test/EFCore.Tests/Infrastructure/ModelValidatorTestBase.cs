@@ -249,6 +249,57 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public string Species { get; set; }
         }
 
+        protected class PrincipalOne
+        {
+            public int Id { get; set; }
+
+            public ICollection<DependentOne> DependentsOnes { get; set; }
+        }
+
+        protected class DependentOne
+        {
+            public static readonly PropertyInfo PrincipalOneIdProperty = typeof(DependentOne).GetProperty(nameof(PrincipalOneId));
+
+            public int Id { get; set; }
+
+            public string PrincipalOneId { get; set; }
+            public PrincipalOne PrincipalOne { get; set; }
+        }
+
+        protected class PrincipalTwo
+        {
+            public int Id { get; set; }
+
+            public ICollection<DependentTwo> DependentsTwos { get; set; }
+        }
+
+        protected class DependentTwo
+        {
+            public int Id { get; set; }
+
+            public int? PrincipalTwoId { get; set; }
+            public PrincipalTwo PrincipalTwo { get; set; }
+        }
+
+        protected class PrincipalThree
+        {
+            public int Id { get; set; }
+
+            public ICollection<DependentThree> DependentsThreesA { get; set; }
+            public ICollection<DependentThree> DependentsThreesB { get; set; }
+        }
+
+        protected class DependentThree
+        {
+            public static readonly PropertyInfo PrincipalThreeIdProperty = typeof(DependentThree).GetProperty(nameof(PrincipalThreeId));
+
+            public int Id { get; set; }
+
+            public int? PrincipalThreeId { get; set; }
+            public PrincipalThree PrincipalThreeA { get; set; }
+            public PrincipalThree PrincipalThreeB { get; set; }
+        }
+
         protected ModelValidatorTestBase()
             => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 

@@ -2500,6 +2500,7 @@ namespace Microsoft.EntityFrameworkCore
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
 
+            modelBuilder.Entity<Book>().Ignore(e => e.AlternateLabel);
             modelBuilder.Entity<Book>()
                 .HasOne(b => b.Label).WithOne(l => l.Book)
                 .HasForeignKey<BookLabel>(l => l.BookId);
