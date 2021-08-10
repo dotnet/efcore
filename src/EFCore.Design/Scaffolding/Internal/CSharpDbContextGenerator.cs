@@ -545,8 +545,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var lines = new List<string>
             {
-                $".{nameof(EntityTypeBuilder.HasIndex)}({_code.Lambda(index.Properties, "e")}, "
-                + $"{_code.Literal(index.GetDatabaseName())})"
+                $".{nameof(EntityTypeBuilder.HasIndex)}({_code.Lambda(index.Properties, "e")}, {_code.Literal(index.GetDatabaseName())})"
             };
             annotations.Remove(RelationalAnnotationNames.Name);
 

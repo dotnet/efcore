@@ -254,6 +254,11 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 scale = 0;
             }
 
+            if (storeTypeName?.StartsWith("ansi_string", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                unicode = false;
+            }
+
             return parsedName;
         }
     }

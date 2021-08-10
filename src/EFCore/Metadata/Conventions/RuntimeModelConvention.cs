@@ -150,6 +150,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     convention.ProcessEntityTypeAnnotations(annotations, source, target, runtime));
             }
 
+            foreach (var typeConfiguration in model.GetPropertyTypeConfigurations())
+            {
+                var runtimeTypeConfiguration = Create(typeConfiguration, runtimeModel);
+                CreateAnnotations(typeConfiguration, runtimeTypeConfiguration, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessPropertyTypeConfigurationAnnotations(annotations, source, target, runtime));
+            }
+
             CreateAnnotations(model, runtimeModel, static (convention, annotations, source, target, runtime) =>
                 convention.ProcessModelAnnotations(annotations, source, target, runtime));
 
@@ -185,14 +192,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RuntimeModel runtimeModel,
             bool runtime)
         {
-            if (runtime)
+            if (!runtime)
             {
-                annotations.Remove(CoreAnnotationNames.ModelDependencies);
-                annotations[CoreAnnotationNames.ReadOnlyModel] = runtimeModel;
+                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
             }
             else
             {
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
+                annotations.Remove(CoreAnnotationNames.ModelDependencies);
+                annotations[CoreAnnotationNames.ReadOnlyModel] = runtimeModel;
             }
         }
 
@@ -251,6 +258,41 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
+        private RuntimePropertyTypeConfiguration Create(IPropertyTypeConfiguration typeConfiguration, RuntimeModel model)
+            => model.AddPropertyTypeConfiguration(
+                typeConfiguration.ClrType,
+                typeConfiguration.GetMaxLength(),
+                typeConfiguration.IsUnicode(),
+                typeConfiguration.GetPrecision(),
+                typeConfiguration.GetScale(),
+                typeConfiguration.GetProviderClrType(),
+                (Type?)typeConfiguration[CoreAnnotationNames.ValueConverterType]);
+
+        /// <summary>
+        ///     Updates the property annotations that will be set on the read-only object.
+        /// </summary>
+        /// <param name="annotations"> The annotations to be processed. </param>
+        /// <param name="typeConfiguration"> The source property. </param>
+        /// <param name="runtimeTypeConfiguration"> The target property that will contain the annotations. </param>
+        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        protected virtual void ProcessPropertyTypeConfigurationAnnotations(
+            Dictionary<string, object?> annotations,
+            IPropertyTypeConfiguration typeConfiguration,
+            RuntimePropertyTypeConfiguration runtimeTypeConfiguration,
+            bool runtime)
+        {
+            if (!runtime)
+            {
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
+        }
+
         private RuntimeProperty Create(IProperty property, RuntimeEntityType runtimeEntityType)
             => runtimeEntityType.AddProperty(
                 property.Name,
@@ -289,20 +331,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (!runtime)
             {
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
-                annotations.Remove(CoreAnnotationNames.BeforeSaveBehavior);
-                annotations.Remove(CoreAnnotationNames.AfterSaveBehavior);
-                annotations.Remove(CoreAnnotationNames.MaxLength);
-                annotations.Remove(CoreAnnotationNames.Unicode);
-                annotations.Remove(CoreAnnotationNames.Precision);
-                annotations.Remove(CoreAnnotationNames.Scale);
-                annotations.Remove(CoreAnnotationNames.ProviderClrType);
-                annotations.Remove(CoreAnnotationNames.ValueGeneratorFactory);
-                annotations.Remove(CoreAnnotationNames.ValueGeneratorFactoryType);
-                annotations.Remove(CoreAnnotationNames.ValueConverter);
-                annotations.Remove(CoreAnnotationNames.ValueConverterType);
-                annotations.Remove(CoreAnnotationNames.ValueComparer);
-                annotations.Remove(CoreAnnotationNames.ValueComparerType);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
         }
 
@@ -328,7 +363,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (!runtime)
             {
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
         }
 
@@ -348,6 +389,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RuntimeKey runtimeKey,
             bool runtime)
         {
+            if (!runtime)
+            {
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
         }
 
         private RuntimeIndex Create(IIndex index, RuntimeEntityType runtimeEntityType)
@@ -369,6 +420,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RuntimeIndex runtimeIndex,
             bool runtime)
         {
+            if (!runtime)
+            {
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
         }
 
         private RuntimeForeignKey Create(IForeignKey foreignKey, RuntimeEntityType runtimeEntityType)
@@ -398,6 +459,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RuntimeForeignKey runtimeForeignKey,
             bool runtime)
         {
+            if (!runtime)
+            {
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
         }
 
         private RuntimeNavigation Create(INavigation navigation, RuntimeForeignKey runtimeForeigKey)
@@ -427,8 +498,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (!runtime)
             {
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
-                annotations.Remove(CoreAnnotationNames.EagerLoaded);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
         }
 
@@ -493,8 +569,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (!runtime)
             {
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
-                annotations.Remove(CoreAnnotationNames.EagerLoaded);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
         }
 

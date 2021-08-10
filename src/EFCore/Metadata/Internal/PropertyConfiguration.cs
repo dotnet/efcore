@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -16,8 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class PropertyConfiguration : AnnotatableBase
+    public class PropertyConfiguration : AnnotatableBase, IPropertyTypeConfiguration
     {
+        private ValueConverter? _valueConverter;
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -72,11 +73,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         break;
                     case CoreAnnotationNames.ValueConverterType:
-                        property.SetValueConverter((Type?)annotation.Value);
+                        if (ClrType == property.ClrType)
+                        {
+                            property.SetValueConverter((Type?)annotation.Value);
+                        }
 
                         break;
                     case CoreAnnotationNames.ValueComparerType:
-                        property.SetValueComparer((Type?)annotation.Value);
+                        if (ClrType == property.ClrType)
+                        {
+                            property.SetValueComparer((Type?)annotation.Value);
+                        }
 
                         break;
                     default:
@@ -88,6 +95,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
             }
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int? GetMaxLength()
+            => (int?)this[CoreAnnotationNames.MaxLength];
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,8 +128,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual bool? IsUnicode()
+            => (bool?)this[CoreAnnotationNames.Unicode];
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void SetIsUnicode(bool? unicode)
             => this[CoreAnnotationNames.Unicode] = unicode;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual int? GetPrecision()
+            => (int?)this[CoreAnnotationNames.Precision];
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -137,6 +171,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual int? GetScale()
+            => (int?)this[CoreAnnotationNames.Scale];
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void SetScale(int? scale)
         {
             if (scale != null && scale < 0)
@@ -153,8 +196,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual Type? GetProviderClrType()
+            => (Type?)this[CoreAnnotationNames.ProviderClrType];
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual void SetProviderClrType(Type? providerClrType)
             => this[CoreAnnotationNames.ProviderClrType] = providerClrType;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual ValueConverter? GetValueConverter()
+        {
+            if (_valueConverter != null)
+            {
+                return _valueConverter;
+            }
+
+            var converterType = (Type?)this[CoreAnnotationNames.ValueConverterType];
+            return converterType == null
+                ? null
+                : _valueConverter = (ValueConverter?)Activator.CreateInstance(converterType);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

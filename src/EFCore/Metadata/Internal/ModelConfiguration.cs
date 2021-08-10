@@ -80,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         type.GetGenericTypeDefinition(), configurationType, ref configuredType, getBaseTypes: false);
                 }
 
-                foreach (var @interface in GetDeclaredInterfaces(type))
+                foreach (var @interface in type.GetDeclaredInterfaces())
                 {
                     configurationType = GetConfigurationType(
                         @interface, configurationType, ref configuredType, getBaseTypes: false);
@@ -111,18 +111,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return configurationType ?? previousConfiguration;
         }
 
-        private IEnumerable<Type> GetDeclaredInterfaces(Type type)
-        {
-            var interfaces = type.GetInterfaces();
-            if (type.BaseType == typeof(object)
-                || type.BaseType == null)
-            {
-                return interfaces;
-            }
-
-            return interfaces.Except(type.BaseType.GetInterfaces());
-        }
-
         private static void EnsureCompatible(
             TypeConfigurationType configurationType, Type type,
             TypeConfigurationType? previousConfiguration, Type? previousType)
@@ -136,39 +124,27 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
         }
 
-        private IList<Type> GetBaseTypesAndInterfacesInclusive(Type type)
-        {
-            var baseTypes = new List<Type>();
-            var typesToProcess = new Queue<Type>();
-            typesToProcess.Enqueue(type);
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<IPropertyTypeConfiguration> GetPropertyTypeConfigurations()
+            => _properties.Values;
 
-            while (typesToProcess.Count > 0)
-            {
-                type = typesToProcess.Dequeue();
-                baseTypes.Add(type);
-
-                if (!type.IsGenericTypeDefinition
-                    && !type.IsInterface)
-                {
-                    if (type.BaseType != null)
-                    {
-                        typesToProcess.Enqueue(type.BaseType);
-                    }
-
-                    if (type.IsConstructedGenericType)
-                    {
-                        typesToProcess.Enqueue(type.GetGenericTypeDefinition());
-                    }
-
-                    foreach (var @interface in GetDeclaredInterfaces(type))
-                    {
-                        typesToProcess.Enqueue(@interface);
-                    }
-                }
-            }
-
-            return baseTypes;
-        }
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IEnumerable<IPropertyTypeConfiguration>? FindPropertyTypeConfigurations(Type propertyType)
+            => GetConfigurationType(propertyType) != TypeConfigurationType.Property
+                ? null
+                : propertyType.GetBaseTypesAndInterfacesInclusive()
+                    .Select(type => _properties.GetValueOrDefault(type)!)
+                    .Where(type => type != null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -178,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual void ConfigureProperty(IMutableProperty property)
         {
-            var types = GetBaseTypesAndInterfacesInclusive(property.ClrType);
+            var types = property.ClrType.GetBaseTypesAndInterfacesInclusive();
             for (var i = types.Count - 1; i >= 0; i--)
             {
                 var type = types[i];
@@ -206,7 +182,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var property = FindProperty(type);
-
             if (property == null)
             {
                 RemoveIgnored(type);
