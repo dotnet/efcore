@@ -32,11 +32,11 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         /// <summary>
         ///     <para>
-        ///         Registers the given Entity Framework <see cref="DbContext"/> as a service in the <see cref="IServiceCollection" />
+        ///         Registers the given Entity Framework <see cref="DbContext" /> as a service in the <see cref="IServiceCollection" />
         ///         and configures it to connect to a SQLite database.
         ///     </para>
         ///     <para>
-        ///         This method is a shortcut for configuring a <see cref="DbContext"/> to use SQLite. It does not support all options.
+        ///         This method is a shortcut for configuring a <see cref="DbContext" /> to use SQLite. It does not support all options.
         ///         Use <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContext"/> and related methods for full control of
         ///         this process.
         ///     </para>
