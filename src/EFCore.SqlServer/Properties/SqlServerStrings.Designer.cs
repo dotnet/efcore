@@ -805,6 +805,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
+        ///     Skipping foreign key '{foreignKeyName}' on table '{tableName}' since it is a duplicate of '{duplicateForeignKeyName}'.
+        /// </summary>
+        public static EventDefinition<string, string, string> DuplicateForeignKeyConstraintIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDuplicateForeignKeyConstraintIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogDuplicateForeignKeyConstraintIgnored,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        SqlServerEventId.DuplicateForeignKeyConstraintIgnored,
+                        LogLevel.Warning,
+                        "SqlServerEventId.DuplicateForeignKeyConstraintIgnored",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            SqlServerEventId.DuplicateForeignKeyConstraintIgnored,
+                            _resourceManager.GetString("DuplicateForeignKeyConstraintIgnored")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
         /// </summary>
         public static EventDefinition LogSavepointsDisabledBecauseOfMARS(IDiagnosticsLogger logger)
