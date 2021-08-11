@@ -347,6 +347,40 @@ namespace System
             }
         }
 
+        public static List<Type> GetBaseTypesAndInterfacesInclusive(this Type type)
+        {
+            var baseTypes = new List<Type>();
+            var typesToProcess = new Queue<Type>();
+            typesToProcess.Enqueue(type);
+
+            while (typesToProcess.Count > 0)
+            {
+                type = typesToProcess.Dequeue();
+                baseTypes.Add(type);
+
+                if (!type.IsGenericTypeDefinition
+                    && !type.IsInterface)
+                {
+                    if (type.BaseType != null)
+                    {
+                        typesToProcess.Enqueue(type.BaseType);
+                    }
+
+                    if (type.IsConstructedGenericType)
+                    {
+                        typesToProcess.Enqueue(type.GetGenericTypeDefinition());
+                    }
+
+                    foreach (var @interface in GetDeclaredInterfaces(type))
+                    {
+                        typesToProcess.Enqueue(@interface);
+                    }
+                }
+            }
+
+            return baseTypes;
+        }
+
         public static IEnumerable<Type> GetTypesInHierarchy(this Type type)
         {
             var currentType = type;
@@ -357,6 +391,18 @@ namespace System
 
                 currentType = currentType.BaseType;
             }
+        }
+
+        public static IEnumerable<Type> GetDeclaredInterfaces(this Type type)
+        {
+            var interfaces = type.GetInterfaces();
+            if (type.BaseType == typeof(object)
+                || type.BaseType == null)
+            {
+                return interfaces;
+            }
+
+            return interfaces.Except(type.BaseType.GetInterfaces());
         }
 
         public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[]? types)

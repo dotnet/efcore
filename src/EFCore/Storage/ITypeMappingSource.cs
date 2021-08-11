@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,12 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         The core type mapping interface for EF Core, starting with version 2.1. Type mappings describe how a
-    ///         provider maps CLR types/values to database types/values.
+    ///         The core type mapping source. Type mappings describe how a provider maps CLR types/values to database types/values.
     ///     </para>
     ///     <para>
     ///         Warning: do not implement this interface directly. Instead, derive from <see cref="TypeMappingSourceBase" />
-    ///         for non-relational providers, or 'RelationalTypeMappingSourceBase' for relational providers.
+    ///         for non-relational providers, or 'RelationalTypeMappingSource' for relational providers.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -56,12 +54,26 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         ///     <para>
         ///         Note: Only call this method if there is no <see cref="IProperty" />
-        ///         or <see cref="MemberInfo" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-        ///         or <see cref="FindMapping(MemberInfo)" />
+        ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
+        ///         or <see cref="FindMapping(Type, IModel)" />
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         CoreTypeMapping? FindMapping(Type type);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
+        ///     </para>
+        ///     <para>
+        ///         Note: Only call this method if there is no <see cref="IProperty" />,
+        ///         otherwise call <see cref="FindMapping(IProperty)" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="type"> The CLR type. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        CoreTypeMapping? FindMapping(Type type, IModel model);
     }
 }

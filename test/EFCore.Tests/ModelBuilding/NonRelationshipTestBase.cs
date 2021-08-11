@@ -1,12 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
-using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -934,7 +931,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void IEnumerable_properties_can_have_value_converter_configured_by_type()
             {
                 var modelBuilder = CreateModelBuilder(c =>
-                    c.Properties<ExpandoObject>().HaveConversion(typeof(ExpandoObjectConverter), typeof(ExpandoObjectComparer)));
+                {
+                    c.Properties<IDictionary<string, object>>().HaveMaxLength(20);
+                    c.Properties<ExpandoObject>().HaveConversion(typeof(ExpandoObjectConverter), typeof(ExpandoObjectComparer));
+                });
 
                 modelBuilder.Entity<DynamicProperty>();
 
@@ -942,9 +942,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var entityType = (IReadOnlyEntityType)model.GetEntityTypes().Single();
                 var expandoProperty = entityType.FindProperty(nameof(DynamicProperty.ExpandoObject));
+                Assert.Equal(20, expandoProperty.GetMaxLength());
                 Assert.IsType<ExpandoObjectConverter>(expandoProperty.GetValueConverter());
                 Assert.IsType<ExpandoObjectComparer>(expandoProperty.GetValueComparer());
             }
+
+            [ConditionalFact]
+            public virtual void Value_converter_configured_on_base_type_is_not_applied()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties<IDictionary<string, object>>().HaveConversion(typeof(ExpandoObjectConverter), typeof(ExpandoObjectComparer));
+                });
+
+                modelBuilder.Entity<DynamicProperty>();
+
+                Assert.Equal(CoreStrings.PropertyNotMapped(
+                            nameof(DynamicProperty), nameof(DynamicProperty.ExpandoObject), nameof(ExpandoObject)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
             private class ExpandoObjectConverter : ValueConverter<ExpandoObject, string>
             {
                 public ExpandoObjectConverter()

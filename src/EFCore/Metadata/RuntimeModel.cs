@@ -1,17 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -29,10 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RuntimeModel : AnnotatableBase, IRuntimeModel
     {
         private readonly SortedDictionary<string, RuntimeEntityType> _entityTypes = new(StringComparer.Ordinal);
+        private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
+        private readonly Dictionary<Type, RuntimePropertyTypeConfiguration> _typeConfigurations = new();
+        private bool _skipDetectChanges;
+
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
-        private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
-        private bool _skipDetectChanges;
+        private readonly ConcurrentDictionary<Type, CoreTypeMapping?> _typeMappings = new();
 
         /// <summary>
         ///     Creates a new instance of <see cref="RuntimeModel"/>
@@ -134,6 +136,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return _sharedTypes.TryGetValue(type, out var sharedTypes)
                 ? result.Concat(sharedTypes)
                 : result;
+        }
+
+        /// <summary>
+        ///     Adds configuration for a scalar property type.
+        /// </summary>
+        /// <param name="clrType"> The type of value the property will hold. </param>
+        /// <param name="maxLength"> The maximum length of data that is allowed in this property type. </param>
+        /// <param name="unicode"> A value indicating whether or not the property can persist Unicode characters. </param>
+        /// <param name="precision"> The precision of data that is allowed in this property type. </param>
+        /// <param name="scale"> The scale of data that is allowed in this property type. </param>
+        /// <param name="providerPropertyType">
+        ///     The type that the property value will be converted to before being sent to the database provider.
+        /// </param>
+        /// <param name="valueConverterType"> The type of a custom <see cref="ValueConverter" /> set for this property type. </param>
+        /// <returns> The newly created property. </returns>
+        public virtual RuntimePropertyTypeConfiguration AddPropertyTypeConfiguration(
+            Type clrType,
+            int? maxLength = null,
+            bool? unicode = null,
+            int? precision = null,
+            int? scale = null,
+            Type? providerPropertyType = null,
+            Type? valueConverterType = null)
+        {
+            var typeConfiguration = new RuntimePropertyTypeConfiguration(
+                clrType,
+                maxLength,
+                unicode,
+                precision,
+                scale,
+                providerPropertyType,
+                valueConverterType);
+
+            _typeConfigurations.Add(clrType, typeConfiguration);
+
+            return typeConfiguration;
         }
 
         private string GetDisplayName(Type type)
@@ -254,5 +292,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [DebuggerStepThrough]
         bool IReadOnlyModel.IsShared(Type type)
             => _sharedTypes.ContainsKey(type);
+
+        /// <inheritdoc/>
+        IEnumerable<IPropertyTypeConfiguration> IModel.GetPropertyTypeConfigurations()
+            => _typeConfigurations.Values;
+
+        /// <inheritdoc/>
+        IEnumerable<IPropertyTypeConfiguration>? IModel.FindPropertyTypeConfigurations(Type propertyType)
+            => _typeConfigurations.Count == 0
+                ? null
+                : propertyType.GetBaseTypesAndInterfacesInclusive()
+                    .Select(type => _typeConfigurations.GetValueOrDefault(type)!)
+                    .Where(type => type != null);
+
+        /// <inheritdoc/>
+        CoreTypeMapping? IModel.FindMapping(Type type)
+            => _typeMappings.GetOrAdd(type, (type, model) => ((IModel)model).GetModelDependencies().TypeMappingSource.FindMapping(type, model), this);
     }
 }

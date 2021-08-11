@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         The base class for non-relational type mapping starting with version 2.1. Non-relational providers
+    ///         The base class for non-relational type mapping source. Non-relational providers
     ///         should derive from this class and override <see cref="TypeMappingSourceBase.FindMapping" />
     ///     </para>
     ///     <para>
@@ -98,16 +98,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         ///     <para>
         ///         Note: Only call this method if there is no <see cref="IProperty" />
-        ///         or <see cref="MemberInfo" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-        ///         or <see cref="FindMapping(MemberInfo)" />
-        ///     </para>
-        ///     <para>
-        ///         Note: providers should typically not need to override this method.
+        ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
+        ///         or <see cref="FindMapping(Type, IModel)" />
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public abstract CoreTypeMapping? FindMapping(Type type);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
+        ///     </para>
+        ///     <para>
+        ///         Note: Only call this method if there is no <see cref="IProperty" />,
+        ///         otherwise call <see cref="FindMapping(IProperty)" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="type"> The CLR type. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public abstract CoreTypeMapping? FindMapping(Type type, IModel model);
 
         /// <summary>
         ///     <para>
