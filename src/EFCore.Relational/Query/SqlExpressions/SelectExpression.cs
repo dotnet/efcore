@@ -1213,15 +1213,17 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(orderingExpression, nameof(orderingExpression));
 
+            if (orderingExpression.Equals(_pendingOrdering))
+            {
+                AppendOrderingCore(_pendingOrdering);
+                _pendingOrdering = null;
+                return;
+            }
+
             if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
             {
                 if (_pendingOrdering is not null)
                 {
-                    if (orderingExpression.Equals(_pendingOrdering) && isPending)
-                    {
-                        return;
-                    }
-
                     AppendOrderingCore(_pendingOrdering);
                     _pendingOrdering = null;
                 }
