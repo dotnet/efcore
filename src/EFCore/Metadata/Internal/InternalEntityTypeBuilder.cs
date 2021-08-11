@@ -4466,7 +4466,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     return (false, null);
                                 }
 
-                                if (index > 0)
+                                if (index == 1)
                                 {
                                     propertyBuilder.HasAnnotation(
                                         CoreAnnotationNames.PreUniquificationName,
