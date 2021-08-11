@@ -87,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         Warning: Do not call this method accidentally. It is much more likely you need
-        ///         to call <see cref="AddSqlite{TContext}"/>.
+        ///         to call <see cref="AddSqlite{TContext}" />.
         ///     </para>
         ///     <para>
         ///         Calling this method is no longer necessary when building most applications, including those that
