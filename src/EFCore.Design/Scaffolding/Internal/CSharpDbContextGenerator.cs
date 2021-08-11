@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private readonly ICSharpHelper _code;
         private readonly IProviderConfigurationCodeGenerator _providerConfigurationCodeGenerator;
         private readonly IAnnotationCodeGenerator _annotationCodeGenerator;
-        private readonly IndentedStringBuilder _sb = new();
+        private readonly IndentedStringBuilder _builder = new();
         private readonly HashSet<string> _namespaces = new();
         private bool _entityTypeBuilderInitialized;
         private bool _useDataAnnotations;
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             _useDataAnnotations = useDataAnnotations;
             _useNullableReferenceTypes = useNullableReferenceTypes;
 
-            _sb.Clear();
+            _builder.Clear();
             _namespaces.Clear();
 
             _namespaces.Add("System"); // Guid default values require new Guid() which requires this using
@@ -91,9 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!string.IsNullOrEmpty(finalContextNamespace))
             {
-                _sb.AppendLine($"namespace {finalContextNamespace}");
-                _sb.AppendLine("{");
-                _sb.IncrementIndent();
+                _builder.AppendLine($"namespace {finalContextNamespace}");
+                _builder.AppendLine("{");
+                _builder.IncrementIndent();
             }
 
             GenerateClass(
@@ -105,8 +105,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (!string.IsNullOrEmpty(finalContextNamespace))
             {
-                _sb.DecrementIndent();
-                _sb.AppendLine("}");
+                _builder.DecrementIndent();
+                _builder.AppendLine("}");
             }
 
             var namespaceStringBuilder = new StringBuilder();
@@ -115,8 +115,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     ns => ns switch
                     {
                         "System" => 1,
-                        var s when s.StartsWith("System", StringComparison.CurrentCulture) => 2,
-                        var s when s.StartsWith("Microsoft", StringComparison.CurrentCulture) => 3,
+                        var s when s.StartsWith("System", StringComparison.Ordinal) => 2,
+                        var s when s.StartsWith("Microsoft", StringComparison.Ordinal) => 3,
                         _ => 4
                     })
                 .ThenBy(ns => ns);
@@ -126,14 +126,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 namespaces = namespaces.Append(modelNamespace);
             }
 
-            foreach (var ns in namespaces)
+            foreach (var @namespace in namespaces)
             {
-                namespaceStringBuilder.Append("using ").Append(ns).AppendLine(";");
+                namespaceStringBuilder.Append("using ").Append(@namespace).AppendLine(";");
             }
 
             namespaceStringBuilder.AppendLine();
 
-            return namespaceStringBuilder.ToString() + _sb;
+            return namespaceStringBuilder.ToString() + _builder;
         }
 
         /// <summary>
@@ -153,10 +153,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             Check.NotNull(contextName, nameof(contextName));
             Check.NotNull(connectionString, nameof(connectionString));
 
-            _sb.AppendLine($"public partial class {contextName} : DbContext");
-            _sb.AppendLine("{");
+            _builder.AppendLine($"public partial class {contextName} : DbContext");
+            _builder.AppendLine("{");
 
-            using (_sb.Indent())
+            using (_builder.Indent())
             {
                 GenerateConstructors(contextName);
                 GenerateDbSets(model);
@@ -169,24 +169,24 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 GenerateOnModelCreating(model);
             }
 
-            _sb.AppendLine();
+            _builder.AppendLine();
 
-            using (_sb.Indent())
+            using (_builder.Indent())
             {
-                _sb.AppendLine("partial void OnModelCreatingPartial(ModelBuilder modelBuilder);");
+                _builder.AppendLine("partial void OnModelCreatingPartial(ModelBuilder modelBuilder);");
             }
 
-            _sb.AppendLine("}");
+            _builder.AppendLine("}");
         }
 
         private void GenerateConstructors(string contextName)
         {
-            _sb.AppendLine($"public {contextName}()")
+            _builder.AppendLine($"public {contextName}()")
                 .AppendLine("{")
                 .AppendLine("}")
                 .AppendLine();
 
-            _sb.AppendLine($"public {contextName}(DbContextOptions<{contextName}> options)")
+            _builder.AppendLine($"public {contextName}(DbContextOptions<{contextName}> options)")
                 .IncrementIndent()
                 .AppendLine(": base(options)")
                 .DecrementIndent()
@@ -199,19 +199,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             foreach (var entityType in model.GetEntityTypes())
             {
-                _sb.Append($"public virtual DbSet<{entityType.Name}> {entityType.GetDbSetName()} {{ get; set; }}");
+                _builder.Append($"public virtual DbSet<{entityType.Name}> {entityType.GetDbSetName()} {{ get; set; }}");
 
                 if (_useNullableReferenceTypes)
                 {
-                    _sb.Append(" = null!;");
+                    _builder.Append(" = null!;");
                 }
 
-                _sb.AppendLine();
+                _builder.AppendLine();
             }
 
             if (model.GetEntityTypes().Any())
             {
-                _sb.AppendLine();
+                _builder.AppendLine();
             }
         }
 
@@ -220,12 +220,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var errors = model.GetEntityTypeErrors();
             foreach (var entityTypeError in errors)
             {
-                _sb.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
+                _builder.AppendLine($"// {entityTypeError.Value} Please see the warning messages.");
             }
 
             if (errors.Count > 0)
             {
-                _sb.AppendLine();
+                _builder.AppendLine();
             }
         }
 
@@ -241,19 +241,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(connectionString, nameof(connectionString));
 
-            _sb.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
-            _sb.AppendLine("{");
+            _builder.AppendLine("protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)");
+            _builder.AppendLine("{");
 
-            using (_sb.Indent())
+            using (_builder.Indent())
             {
-                _sb.AppendLine("if (!optionsBuilder.IsConfigured)");
-                _sb.AppendLine("{");
+                _builder.AppendLine("if (!optionsBuilder.IsConfigured)");
+                _builder.AppendLine("{");
 
-                using (_sb.Indent())
+                using (_builder.Indent())
                 {
                     if (!suppressConnectionStringWarning)
                     {
-                        _sb.DecrementIndent()
+                        _builder.DecrementIndent()
                             .DecrementIndent()
                             .DecrementIndent()
                             .DecrementIndent()
@@ -267,17 +267,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var useProviderCall = _providerConfigurationCodeGenerator.GenerateUseProvider(
                         connectionString);
 
-                    _sb
+                    _builder
                         .AppendLines(_code.Fragment(useProviderCall, "optionsBuilder"), skipFinalNewline: true)
                         .AppendLine(";");
                 }
 
-                _sb.AppendLine("}");
+                _builder.AppendLine("}");
             }
 
-            _sb.AppendLine("}");
+            _builder.AppendLine("}");
 
-            _sb.AppendLine();
+            _builder.AppendLine();
         }
 
         /// <summary>
@@ -290,8 +290,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             Check.NotNull(model, nameof(model));
 
-            _sb.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
-            _sb.Append("{");
+            _builder.AppendLine("protected override void OnModelCreating(ModelBuilder modelBuilder)");
+            _builder.Append("{");
 
             var annotations = _annotationCodeGenerator
                 .FilterIgnoredAnnotations(model.GetAnnotations())
@@ -310,25 +310,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (lines.Count > 0)
             {
-                using (_sb.Indent())
+                using (_builder.Indent())
                 {
-                    _sb.AppendLine();
-                    _sb.Append("modelBuilder" + lines[0]);
+                    _builder.AppendLine();
+                    _builder.Append("modelBuilder" + lines[0]);
 
-                    using (_sb.Indent())
+                    using (_builder.Indent())
                     {
                         foreach (var line in lines.Skip(1))
                         {
-                            _sb.AppendLine();
-                            _sb.Append(line);
+                            _builder.AppendLine();
+                            _builder.Append(line);
                         }
                     }
 
-                    _sb.AppendLine(";");
+                    _builder.AppendLine(";");
                 }
             }
 
-            using (_sb.Indent())
+            using (_builder.Indent())
             {
                 foreach (var entityType in model.GetEntityTypes())
                 {
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                     if (_entityTypeBuilderInitialized)
                     {
-                        _sb.AppendLine("});");
+                        _builder.AppendLine("});");
                     }
                 }
 
@@ -348,23 +348,23 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            _sb.AppendLine();
+            _builder.AppendLine();
 
-            using (_sb.Indent())
+            using (_builder.Indent())
             {
-                _sb.AppendLine("OnModelCreatingPartial(modelBuilder);");
+                _builder.AppendLine("OnModelCreatingPartial(modelBuilder);");
             }
 
-            _sb.AppendLine("}");
+            _builder.AppendLine("}");
         }
 
         private void InitializeEntityTypeBuilder(IEntityType entityType)
         {
             if (!_entityTypeBuilderInitialized)
             {
-                _sb.AppendLine();
-                _sb.AppendLine($"modelBuilder.Entity<{entityType.Name}>({EntityLambdaIdentifier} =>");
-                _sb.Append("{");
+                _builder.AppendLine();
+                _builder.AppendLine($"modelBuilder.Entity<{entityType.Name}>({EntityLambdaIdentifier} =>");
+                _builder.Append("{");
             }
 
             _entityTypeBuilderInitialized = true;
@@ -439,22 +439,22 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             InitializeEntityTypeBuilder(entityType);
 
-            using (_sb.Indent())
+            using (_builder.Indent())
             {
-                _sb.AppendLine();
+                _builder.AppendLine();
 
-                _sb.Append(EntityLambdaIdentifier + lines[0]);
+                _builder.Append(EntityLambdaIdentifier + lines[0]);
 
-                using (_sb.Indent())
+                using (_builder.Indent())
                 {
                     foreach (var line in lines.Skip(1))
                     {
-                        _sb.AppendLine();
-                        _sb.Append(line);
+                        _builder.AppendLine();
+                        _builder.Append(line);
                     }
                 }
 
-                _sb.AppendLine(";");
+                _builder.AppendLine(";");
             }
         }
 
@@ -805,19 +805,19 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 lines = new List<string> { lines[0] + lines[1] };
             }
 
-            _sb.AppendLine();
-            _sb.Append(lines[0]);
+            _builder.AppendLine();
+            _builder.Append(lines[0]);
 
-            using (_sb.Indent())
+            using (_builder.Indent())
             {
                 foreach (var line in lines.Skip(1))
                 {
-                    _sb.AppendLine();
-                    _sb.Append(line);
+                    _builder.AppendLine();
+                    _builder.Append(line);
                 }
             }
 
-            _sb.AppendLine(";");
+            _builder.AppendLine(";");
         }
 
         private void GenerateAnnotations(IAnnotatable annotatable, Dictionary<string, IAnnotation> annotations, List<string> lines)
@@ -831,14 +831,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     var methodParameters = methodInfo.GetParameters();
 
-                    for (int i = fluentApiCall.Arguments.Count - 1, j = methodInfo.IsStatic ? i + 1 : i; i >= 0; i--, j--)
+                    var paramOffset = methodInfo.IsStatic ? 1 : 0;
+
+                    for (int i = fluentApiCall.Arguments.Count - 1; i >= 0; i--)
                     {
-                        if (!methodParameters[j].HasDefaultValue)
+                        if (!methodParameters[i + paramOffset].HasDefaultValue)
                         {
                             break;
                         }
 
-                        var defaultValue = methodParameters[j].DefaultValue;
+                        var defaultValue = methodParameters[i + paramOffset].DefaultValue;
                         var argument = fluentApiCall.Arguments[i];
 
                         if (argument is null && defaultValue is null || argument is not null && argument.Equals(defaultValue))

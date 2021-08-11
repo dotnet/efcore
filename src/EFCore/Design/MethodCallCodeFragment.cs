@@ -39,7 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             if (arguments.Length > parameterLength)
             {
-                throw new ArgumentException(CoreStrings.TooManyArguments, nameof(arguments));
+                throw new ArgumentException(
+                    CoreStrings.IncorrectNumberOfArguments(methodInfo.Name, arguments.Length, parameterLength),
+                    nameof(arguments));
             }
 
             MethodInfo = methodInfo;

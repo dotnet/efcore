@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql), typeof(PropertyBuilder), typeof(string), typeof(bool));
 
-        private static readonly MethodInfo _propertySsFixedLengthMethodInfo
+        private static readonly MethodInfo _propertyIsFixedLengthMethodInfo
             = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(RelationalPropertyBuilderExtensions.IsFixedLength), typeof(PropertyBuilder), typeof(bool));
 
@@ -243,8 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 methodCallCodeFragments.Add(
                         isFixedLength
-                        ? new MethodCallCodeFragment(_propertySsFixedLengthMethodInfo)
-                        : new MethodCallCodeFragment(_propertySsFixedLengthMethodInfo, isFixedLength));
+                        ? new MethodCallCodeFragment(_propertyIsFixedLengthMethodInfo)
+                        : new MethodCallCodeFragment(_propertyIsFixedLengthMethodInfo, isFixedLength));
             }
 
             GenerateSimpleFluentApiCall(

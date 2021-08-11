@@ -976,15 +976,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
         private string Fragment(MethodCallCodeFragment fragment, bool typeQualified, string? instanceIdentifier, int indent)
         {
-            IndentedStringBuilder builder = new();
-
+            var builder = new IndentedStringBuilder();
             var current = fragment;
 
             if (typeQualified)
             {
                 if (instanceIdentifier is null || fragment.MethodInfo is null)
                 {
-                    throw new ArgumentException(DesignStrings.CannotGenerateTypeQualifiedMethodCal);
+                    throw new ArgumentException(DesignStrings.CannotGenerateTypeQualifiedMethodCall);
                 }
 
                 builder.Append(fragment.DeclaringType!);
@@ -1005,7 +1004,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 for (var i = 0; i < fragment.Arguments.Count; i++)
                 {
                     builder.Append(", ");
-                    Arg(fragment.Arguments[i]);
+                    Argument(fragment.Arguments[i]);
                 }
 
                 builder.Append(')');
@@ -1047,7 +1046,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         builder.Append(", ");
                     }
 
-                    Arg(current.Arguments[i]);
+                    Argument(current.Arguments[i]);
                 }
 
                 builder.Append(')');
@@ -1063,7 +1062,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             return builder.ToString();
 
-            void Arg(object? argument)
+            void Argument(object? argument)
             {
                 if (argument is NestedClosureCodeFragment nestedFragment)
                 {

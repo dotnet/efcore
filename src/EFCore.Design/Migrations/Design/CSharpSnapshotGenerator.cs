@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 annotations[CoreAnnotationNames.ProductVersion] = new Annotation(CoreAnnotationNames.ProductVersion, productVersion);
             }
 
-            GenerateRemainingAnnotations(modelBuilderName, model, stringBuilder, annotations, inChainedCall: false, leadingNewline: false);
+            GenerateAnnotations(modelBuilderName, model, stringBuilder, annotations, inChainedCall: false, leadingNewline: false);
 
             foreach (var sequence in model.GetSequences())
             {
@@ -479,6 +479,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .AppendLine()
                 .Append(propertyBuilderName);
 
+            // Note that GenerateAnnotations below does the corresponding decrement
             stringBuilder.IncrementIndent();
 
             if (property.IsConcurrencyToken)
@@ -550,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForDefaultValue(property, stringBuilder);
             annotations.Remove(RelationalAnnotationNames.DefaultValue);
 
-            GenerateRemainingAnnotations(propertyBuilderName, property, stringBuilder, annotations, inChainedCall: true);
+            GenerateAnnotations(propertyBuilderName, property, stringBuilder, annotations, inChainedCall: true);
         }
 
         private ValueConverter? FindValueConverter(IProperty property)
@@ -616,6 +617,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
                 .Append(")");
 
+            // Note that GenerateAnnotations below does the corresponding decrement
             stringBuilder.IncrementIndent();
 
             GenerateKeyAnnotations(entityTypeBuilderName, key, stringBuilder);
@@ -637,7 +639,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(key.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            GenerateRemainingAnnotations(entityTypeBuilderName, key, stringBuilder, annotations, inChainedCall: true);
+            GenerateAnnotations(entityTypeBuilderName, key, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
@@ -690,6 +692,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .AppendLine()
                 .Append(indexBuilderName);
 
+            // Note that GenerateAnnotations below does the corresponding decrement
             stringBuilder.IncrementIndent();
 
             if (index.IsUnique)
@@ -721,7 +724,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(index.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            GenerateRemainingAnnotations(indexBuilderName, index, stringBuilder, annotations, inChainedCall: true);
+            GenerateAnnotations(indexBuilderName, index, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
@@ -950,7 +953,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder.AppendLine(";");
             }
 
-            GenerateRemainingAnnotations(entityTypeBuilderName, entityType, stringBuilder, annotations, inChainedCall: false);
+            GenerateAnnotations(entityTypeBuilderName, entityType, stringBuilder, annotations, inChainedCall: false);
         }
 
         /// <summary>
@@ -1078,6 +1081,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(")")
                 .AppendLine();
 
+            // Note that GenerateAnnotations below does the corresponding decrement
             stringBuilder.IncrementIndent();
 
             if (foreignKey.IsUnique
@@ -1184,7 +1188,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(foreignKey.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            GenerateRemainingAnnotations(entityTypeBuilderName, foreignKey, stringBuilder, annotations, inChainedCall: true);
+            GenerateAnnotations(entityTypeBuilderName, foreignKey, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
@@ -1267,6 +1271,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(Code.Literal(navigation.Name))
                 .Append(")");
 
+            // Note that GenerateAnnotations below does the corresponding decrement
             stringBuilder.IncrementIndent();
 
             if (!navigation.IsOnDependent
@@ -1300,46 +1305,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(navigation.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            GenerateRemainingAnnotations(entityTypeBuilderName, navigation, stringBuilder, annotations, inChainedCall: true);
-        }
-
-        /// <summary>
-        ///     Generates code for annotations.
-        /// </summary>
-        /// <param name="annotations"> The annotations. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateAnnotations(
-            IEnumerable<IAnnotation> annotations,
-            IndentedStringBuilder stringBuilder)
-        {
-            Check.NotNull(annotations, nameof(annotations));
-            Check.NotNull(stringBuilder, nameof(stringBuilder));
-
-            foreach (var annotation in annotations.OrderBy(a => a.Name))
-            {
-                stringBuilder.AppendLine();
-                GenerateAnnotation(annotation, stringBuilder);
-            }
-        }
-
-        /// <summary>
-        ///     Generates code for an annotation which does not have a fluent API call.
-        /// </summary>
-        /// <param name="annotation"> The annotation. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateAnnotation(
-            IAnnotation annotation,
-            IndentedStringBuilder stringBuilder)
-        {
-            Check.NotNull(annotation, nameof(annotation));
-            Check.NotNull(stringBuilder, nameof(stringBuilder));
-
-            stringBuilder
-                .Append(".HasAnnotation(")
-                .Append(Code.Literal(annotation.Name))
-                .Append(", ")
-                .Append(Code.UnknownLiteral(annotation.Value))
-                .Append(")");
+            GenerateAnnotations(entityTypeBuilderName, navigation, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
@@ -1515,7 +1481,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(")");
         }
 
-        private void GenerateRemainingAnnotations(
+        private void GenerateAnnotations(
             string builderName,
             IAnnotatable annotatable,
             IndentedStringBuilder stringBuilder,
@@ -1547,7 +1513,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             // Append remaining raw annotations which did not get generated as Fluent API calls
             foreach (var annotation in annotations.Values.OrderBy(a => a.Name))
             {
-                // var call = new MethodCallCodeFragment("HasAnnotation", annotation.Name, annotation.Value);
                 var call = new MethodCallCodeFragment(_hasAnnotationMethodInfo, annotation.Name, annotation.Value);
                 nonQualifiedCalls = nonQualifiedCalls is null ? call : nonQualifiedCalls.Chain(call);
             }
@@ -1593,12 +1558,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder
                     .AppendLines(Code.Fragment(typeQualifiedCalls, builderName, typeQualified: true), skipFinalNewline: true)
                     .AppendLine(";");
-
-                // foreach (var call in typeQualifiedCalls)
-                // {
-                //     stringBuilder.Append(Code.Fragment(call, builderName, typeQualified: true));
-                //     stringBuilder.AppendLine(";");
-                // }
             }
         }
     }

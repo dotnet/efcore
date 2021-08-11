@@ -1167,6 +1167,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 ownedEntityType, nonOwnedEntityType);
 
         /// <summary>
+        ///     '{method}' was invoked with {argumentCount} arguments, but has {parameterCount} parameters.
+        /// </summary>
+        public static string IncorrectNumberOfArguments(object? method, object? argumentCount, object? parameterCount)
+            => string.Format(
+                GetString("IncorrectNumberOfArguments", nameof(method), nameof(argumentCount), nameof(parameterCount)),
+                method, argumentCount, parameterCount);
+
+        /// <summary>
         ///     The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.
         /// </summary>
         public static string IndexPropertiesWrongEntity(object? indexProperties, object? entityType)
@@ -2689,12 +2697,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("TempValuePersists", "0_property", "1_entityType", nameof(state)),
                 property, entityType, state);
-
-        /// <summary>
-        ///     Too many arguments.
-        /// </summary>
-        public static string TooManyArguments
-            => GetString("TooManyArguments");
 
         /// <summary>
         ///     The instance of entity type '{runtimeEntityType}' cannot be tracked as the entity type '{entityType}' because the two types are not in the same hierarchy.
