@@ -149,11 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             EnsureMutable();
 
-            if (_annotations == null)
-            {
-                _annotations = new SortedDictionary<string, Annotation>();
-            }
-
+            _annotations ??= new SortedDictionary<string, Annotation>(StringComparer.Ordinal);
             _annotations[name] = annotation;
 
             return OnAnnotationSet(name, annotation, oldAnnotation);
