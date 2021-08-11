@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         /// <summary>
         ///     A type-qualified method call requires an instance identifier and a MethodInfo.
         /// </summary>
-        public static string CannotGenerateTypeQualifiedMethodCal
+        public static string CannotGenerateTypeQualifiedMethodCall
             => GetString("CannotGenerateTypeQualifiedMethodCall");
 
         /// <summary>
@@ -777,4 +777,3 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
-
