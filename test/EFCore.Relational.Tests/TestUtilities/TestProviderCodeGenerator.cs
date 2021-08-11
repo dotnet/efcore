@@ -8,8 +8,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 {
     public class TestProviderCodeGenerator : ProviderCodeGenerator
     {
-        public TestProviderCodeGenerator(ProviderCodeGeneratorDependencies relationalDependencies)
-            : base(relationalDependencies)
+        public TestProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 

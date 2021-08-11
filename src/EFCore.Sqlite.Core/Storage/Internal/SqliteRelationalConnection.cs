@@ -45,22 +45,22 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteRelationalConnection(
-            RelationalConnectionDependencies relationalDependencies,
+            RelationalConnectionDependencies dependencies,
             IRawSqlCommandBuilder rawSqlCommandBuilder,
             IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
-            : base(relationalDependencies)
+            : base(dependencies)
         {
             Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
             _logger = logger;
 
-            var optionsExtension = relationalDependencies.ContextOptions.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
+            var optionsExtension = dependencies.ContextOptions.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
             if (optionsExtension != null)
             {
                 _loadSpatialite = optionsExtension.LoadSpatialite;
 
-                var relationalOptions = RelationalOptionsExtension.Extract(relationalDependencies.ContextOptions);
+                var relationalOptions = RelationalOptionsExtension.Extract(dependencies.ContextOptions);
                 _commandTimeout = relationalOptions.CommandTimeout;
 
                 if (relationalOptions.Connection != null)
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
 
             var contextOptions = new DbContextOptionsBuilder().UseSqlite(connectionStringBuilder.ToString()).Options;
 
-            return new SqliteRelationalConnection(RelationalDependencies with { ContextOptions = contextOptions }, _rawSqlCommandBuilder, _logger);
+            return new SqliteRelationalConnection(Dependencies with { ContextOptions = contextOptions }, _rawSqlCommandBuilder, _logger);
         }
 
         private void InitializeDbConnection(DbConnection connection)

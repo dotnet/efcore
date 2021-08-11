@@ -35,16 +35,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalMethodCallTranslatorProvider" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this class. </param>
-        public RelationalMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies relationalDependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        public RelationalMethodCallTranslatorProvider(RelationalMethodCallTranslatorProviderDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
             
-            _plugins.AddRange(relationalDependencies.Plugins.SelectMany(p => p.Translators));
+            _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
 
-            var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+            var sqlExpressionFactory = dependencies.SqlExpressionFactory;
 
             _translators.AddRange(
                 new IMethodCallTranslator[]
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Dependencies for this service.
         /// </summary>
-        protected virtual RelationalMethodCallTranslatorProviderDependencies RelationalDependencies { get; }
+        protected virtual RelationalMethodCallTranslatorProviderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual SqlExpression? Translate(

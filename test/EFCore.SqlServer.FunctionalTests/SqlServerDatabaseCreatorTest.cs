@@ -797,10 +797,10 @@ namespace Microsoft.EntityFrameworkCore
         public class TestDatabaseCreator : SqlServerDatabaseCreator
         {
             public TestDatabaseCreator(
-                RelationalDatabaseCreatorDependencies relationalDependencies,
+                RelationalDatabaseCreatorDependencies dependencies,
                 ISqlServerConnection connection,
                 IRawSqlCommandBuilder rawSqlCommandBuilder)
-                : base(relationalDependencies, connection, rawSqlCommandBuilder)
+                : base(dependencies, connection, rawSqlCommandBuilder)
             {
             }
 
@@ -815,7 +815,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public IExecutionStrategyFactory ExecutionStrategyFactory
-                => RelationalDependencies.ExecutionStrategyFactory;
+                => Dependencies.ExecutionStrategyFactory;
         }
     }
 }

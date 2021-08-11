@@ -39,10 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteDatabaseCreator(
-            RelationalDatabaseCreatorDependencies relationalDependencies,
+            RelationalDatabaseCreatorDependencies dependencies,
             ISqliteRelationalConnection connection,
             IRawSqlCommandBuilder rawSqlCommandBuilder)
-            : base(relationalDependencies)
+            : base(dependencies)
         {
             _connection = connection;
             _rawSqlCommandBuilder = rawSqlCommandBuilder;
@@ -56,18 +56,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public override void Create()
         {
-            RelationalDependencies.Connection.Open();
+            Dependencies.Connection.Open();
 
             _rawSqlCommandBuilder.Build("PRAGMA journal_mode = 'wal';")
                 .ExecuteNonQuery(
                     new RelationalCommandParameterObject(
-                        RelationalDependencies.Connection,
+                        Dependencies.Connection,
                         null,
                         null,
                         null,
-                        RelationalDependencies.CommandLogger, CommandSource.Migrations));
+                        Dependencies.CommandLogger, CommandSource.Migrations));
 
-            RelationalDependencies.Connection.Close();
+            Dependencies.Connection.Close();
         }
 
         /// <summary>
@@ -112,11 +112,11 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
                 .Build("SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;")
                 .ExecuteScalar(
                     new RelationalCommandParameterObject(
-                        RelationalDependencies.Connection,
+                        Dependencies.Connection,
                         null,
                         null,
                         null,
-                        RelationalDependencies.CommandLogger, CommandSource.Migrations))!;
+                        Dependencies.CommandLogger, CommandSource.Migrations))!;
 
             return count != 0;
         }
@@ -131,10 +131,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         {
             string? path = null;
 
-            RelationalDependencies.Connection.Open();
+            Dependencies.Connection.Open();
             try
             {
-                path = RelationalDependencies.Connection.DbConnection.DataSource;
+                path = Dependencies.Connection.DbConnection.DataSource;
             }
             catch
             {
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
             }
             finally
             {
-                RelationalDependencies.Connection.Close();
+                Dependencies.Connection.Close();
             }
 
             if (!string.IsNullOrEmpty(path))

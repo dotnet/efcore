@@ -25,18 +25,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="ParameterNameGeneratorFactory" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
-        public ParameterNameGeneratorFactory(ParameterNameGeneratorDependencies relationalDependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public ParameterNameGeneratorFactory(ParameterNameGeneratorDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual ParameterNameGeneratorDependencies RelationalDependencies { get; }
+        protected virtual ParameterNameGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new <see cref="ParameterNameGenerator" />.

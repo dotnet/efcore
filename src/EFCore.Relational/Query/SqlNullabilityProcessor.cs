@@ -33,17 +33,17 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="useRelationalNulls"> A bool value indicating whether relational null semantics are in use. </param>
         public SqlNullabilityProcessor(
-            RelationalParameterBasedSqlProcessorDependencies relationalDependencies,
+            RelationalParameterBasedSqlProcessorDependencies dependencies,
             bool useRelationalNulls)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
             
-            _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             UseRelationalNulls = useRelationalNulls;
             _nonNullableColumns = new List<ColumnExpression>();
             ParameterValues = null!;
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalParameterBasedSqlProcessorDependencies RelationalDependencies { get; }
+        protected virtual RelationalParameterBasedSqlProcessorDependencies Dependencies { get; }
 
         /// <summary>
         ///     A bool value indicating whether relational null semantics are in use.

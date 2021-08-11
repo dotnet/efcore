@@ -29,25 +29,25 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
         /// </summary>
-        /// <param name="relationalDependencies"> Service dependencies. </param>
-        protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies relationalDependencies)
+        /// <param name="dependencies"> Service dependencies. </param>
+        protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
             CachedCommandText = new StringBuilder();
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual ModificationCommandBatchFactoryDependencies RelationalDependencies { get; }
+        protected virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     The update SQL generator.
         /// </summary>
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator
-            => RelationalDependencies.UpdateSqlGenerator;
+            => Dependencies.UpdateSqlGenerator;
 
         /// <summary>
         ///     Gets or sets the cached command text for the commands in the batch.
@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The command. </returns>
         protected virtual RawSqlCommand CreateStoreCommand()
         {
-            var commandBuilder = RelationalDependencies.CommandBuilderFactory
+            var commandBuilder = Dependencies.CommandBuilderFactory
                 .Create()
                 .Append(GetCommandText());
 
@@ -207,7 +207,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     {
                         commandBuilder.AddParameter(
                             columnModification.ParameterName,
-                            RelationalDependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
                             columnModification.TypeMapping!,
                             columnModification.IsNullable);
 
@@ -218,7 +218,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     {
                         commandBuilder.AddParameter(
                             columnModification.OriginalParameterName,
-                            RelationalDependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
+                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                             columnModification.TypeMapping!,
                             columnModification.IsNullable);
 
@@ -248,8 +248,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         connection,
                         storeCommand.ParameterValues,
                         null,
-                        RelationalDependencies.CurrentContext.Context,
-                        RelationalDependencies.Logger, CommandSource.SaveChanges));
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.Logger, CommandSource.SaveChanges));
                 Consume(dataReader);
             }
             catch (DbUpdateException)
@@ -288,8 +288,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                         connection,
                         storeCommand.ParameterValues,
                         null,
-                        RelationalDependencies.CurrentContext.Context,
-                        RelationalDependencies.Logger, CommandSource.SaveChanges),
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.Logger, CommandSource.SaveChanges),
                     cancellationToken).ConfigureAwait(false);
                 await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <returns> The factory. </returns>
         protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
             IReadOnlyList<IColumnModification> columnModifications)
-            => RelationalDependencies.ValueBufferFactoryFactory
+            => Dependencies.ValueBufferFactoryFactory
                 .Create(
                     Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)

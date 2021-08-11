@@ -51,8 +51,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private class DummyQuerySqlGenerator : QuerySqlGenerator
         {
-            public DummyQuerySqlGenerator(QuerySqlGeneratorDependencies relationalDependencies)
-                : base(relationalDependencies)
+            public DummyQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+                : base(dependencies)
             {
             }
 

@@ -21,20 +21,20 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Creates a new instance of the builder.
         /// </summary>
-        /// <param name="relationalDependencies"> Dependencies needed for SQL generations. </param>
+        /// <param name="dependencies"> Dependencies needed for SQL generations. </param>
         public MigrationCommandListBuilder(
-            MigrationsSqlGeneratorDependencies relationalDependencies)
+            MigrationsSqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
-            _commandBuilder = relationalDependencies.CommandBuilderFactory.Create();
+            Dependencies = dependencies;
+            _commandBuilder = dependencies.CommandBuilderFactory.Create();
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual MigrationsSqlGeneratorDependencies RelationalDependencies { get; }
+        protected virtual MigrationsSqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Gets the list of built commands.
@@ -58,11 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 _commands.Add(
                     new MigrationCommand(
                         _commandBuilder.Build(),
-                        RelationalDependencies.CurrentContext.Context,
-                        RelationalDependencies.Logger,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.Logger,
                         suppressTransaction));
 
-                _commandBuilder = RelationalDependencies.CommandBuilderFactory.Create();
+                _commandBuilder = Dependencies.CommandBuilderFactory.Create();
             }
 
             return this;

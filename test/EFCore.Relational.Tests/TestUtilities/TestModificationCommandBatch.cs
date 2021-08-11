@@ -10,9 +10,9 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         private readonly int _maxBatchSize;
 
         public TestModificationCommandBatch(
-            ModificationCommandBatchFactoryDependencies relationalDependencies,
+            ModificationCommandBatchFactoryDependencies dependencies,
             int? maxBatchSize)
-            : base(relationalDependencies)
+            : base(dependencies)
         {
             _maxBatchSize = maxBatchSize ?? 1;
         }

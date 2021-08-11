@@ -50,22 +50,22 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this class. </param>
-        public QuerySqlGenerator(QuerySqlGeneratorDependencies relationalDependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        public QuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
 
-            _relationalCommandBuilderFactory = relationalDependencies.RelationalCommandBuilderFactory;
-            _sqlGenerationHelper = relationalDependencies.SqlGenerationHelper;
+            _relationalCommandBuilderFactory = dependencies.RelationalCommandBuilderFactory;
+            _sqlGenerationHelper = dependencies.SqlGenerationHelper;
             _relationalCommandBuilder = default!;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual QuerySqlGeneratorDependencies RelationalDependencies { get; }
+        protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Gets a relational command for a <see cref="SelectExpression" />.

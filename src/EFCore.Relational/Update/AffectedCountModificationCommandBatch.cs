@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="AffectedCountModificationCommandBatch" /> instance.
         /// </summary>
-        /// <param name="relationalDependencies"> Service dependencies. </param>
-        protected AffectedCountModificationCommandBatch(ModificationCommandBatchFactoryDependencies relationalDependencies)
-            : base(relationalDependencies)
+        /// <param name="dependencies"> Service dependencies. </param>
+        protected AffectedCountModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
+            : base(dependencies)
         {
         }
 

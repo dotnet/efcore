@@ -28,18 +28,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the this class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies relationalDependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
         
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalSqlGenerationHelperDependencies RelationalDependencies { get; }
+        protected virtual RelationalSqlGenerationHelperDependencies Dependencies { get; }
 
         /// <summary>
         ///     The terminator to be used for SQL statements.

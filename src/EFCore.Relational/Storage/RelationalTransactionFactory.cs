@@ -27,18 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTransactionFactory" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
-        public RelationalTransactionFactory(RelationalTransactionFactoryDependencies relationalDependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public RelationalTransactionFactory(RelationalTransactionFactoryDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalTransactionFactoryDependencies RelationalDependencies { get; }
+        protected virtual RelationalTransactionFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a <see cref="RelationalTransaction" /> instance.
@@ -57,6 +57,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Guid transactionId,
             IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> logger,
             bool transactionOwned)
-            => new(connection, transaction, transactionId, logger, transactionOwned, RelationalDependencies.SqlGenerationHelper);
+            => new(connection, transaction, transactionId, logger, transactionOwned, Dependencies.SqlGenerationHelper);
     }
 }

@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public TypedRelationalValueBufferFactory(
-            RelationalValueBufferFactoryDependencies relationalDependencies,
+            RelationalValueBufferFactoryDependencies dependencies,
             Func<DbDataReader, object[]> valueFactory)
         {
             _valueFactory = valueFactory;

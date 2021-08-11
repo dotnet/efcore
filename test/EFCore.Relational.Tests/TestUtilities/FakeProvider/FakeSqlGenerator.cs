@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider
 {
     public class FakeSqlGenerator : UpdateSqlGenerator
     {
-        public FakeSqlGenerator(UpdateSqlGeneratorDependencies relationalDependencies)
-            : base(relationalDependencies)
+        public FakeSqlGenerator(UpdateSqlGeneratorDependencies dependencies)
+            : base(dependencies)
         {
         }
 

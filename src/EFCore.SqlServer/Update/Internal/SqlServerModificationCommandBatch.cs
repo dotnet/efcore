@@ -34,9 +34,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerModificationCommandBatch(
-            ModificationCommandBatchFactoryDependencies relationalDependencies,
+            ModificationCommandBatchFactoryDependencies dependencies,
             int? maxBatchSize)
-            : base(relationalDependencies)
+            : base(dependencies)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)

@@ -58,18 +58,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
-        public TypedRelationalValueBufferFactoryFactory(RelationalValueBufferFactoryDependencies relationalDependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public TypedRelationalValueBufferFactoryFactory(RelationalValueBufferFactoryDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalValueBufferFactoryDependencies RelationalDependencies { get; }
+        protected virtual RelationalValueBufferFactoryDependencies Dependencies { get; }
 
         private readonly struct CacheKey : IEquatable<CacheKey>
         {
@@ -111,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return _cache.GetOrAdd(
                 new CacheKey(types),
                 k => new TypedRelationalValueBufferFactory(
-                    RelationalDependencies,
-                    CreateArrayInitializer(k, RelationalDependencies.CoreOptions.AreDetailedErrorsEnabled)));
+                    Dependencies,
+                    CreateArrayInitializer(k, Dependencies.CoreOptions.AreDetailedErrorsEnabled)));
         }
 
         /// <summary>
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             DataReaderParameter,
                             i,
                             mi,
-                            RelationalDependencies.CoreOptions.AreDetailedErrorsEnabled,
+                            Dependencies.CoreOptions.AreDetailedErrorsEnabled,
                             box: false)).ToArray();
 
         private static Func<DbDataReader, object[]> CreateArrayInitializer(CacheKey cacheKey, bool detailedErrorsEnabled)

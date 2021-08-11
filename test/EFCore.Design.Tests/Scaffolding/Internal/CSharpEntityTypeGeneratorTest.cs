@@ -2033,8 +2033,8 @@ namespace TestNamespace
 
         public class ModelAnnotationProvider : SqlServerAnnotationProvider
         {
-            public ModelAnnotationProvider(RelationalAnnotationProviderDependencies relationalDependencies)
-                : base(relationalDependencies)
+            public ModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+                : base(dependencies)
             {
             }
 
@@ -2074,8 +2074,8 @@ namespace TestNamespace
 
         public class ModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
         {
-            public ModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies relationalDependencies)
-                : base(relationalDependencies)
+            public ModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+                : base(dependencies)
             {
             }
 

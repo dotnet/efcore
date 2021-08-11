@@ -36,8 +36,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerConnection(RelationalConnectionDependencies relationalDependencies)
-            : base(relationalDependencies)
+        public SqlServerConnection(RelationalConnectionDependencies dependencies)
+            : base(dependencies)
         {
         }
 
@@ -87,7 +87,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                     b => b.CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout))
                 .Options;
 
-            return new SqlServerConnection(RelationalDependencies with { ContextOptions = contextOptions });
+            return new SqlServerConnection(Dependencies with { ContextOptions = contextOptions });
         }
 
         /// <summary>

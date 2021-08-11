@@ -31,25 +31,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalCommandBuilderFactory(
-            RelationalCommandBuilderDependencies relationalDependencies)
+            RelationalCommandBuilderDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalCommandBuilderDependencies RelationalDependencies { get; }
+        protected virtual RelationalCommandBuilderDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new <see cref="IRelationalCommandBuilder" />.
         /// </summary>
         /// <returns> The newly created builder. </returns>
         public virtual IRelationalCommandBuilder Create()
-            => new RelationalCommandBuilder(RelationalDependencies);
+            => new RelationalCommandBuilder(Dependencies);
     }
 }

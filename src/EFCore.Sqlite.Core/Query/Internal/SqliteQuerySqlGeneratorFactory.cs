@@ -20,15 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqliteQuerySqlGeneratorFactory(QuerySqlGeneratorDependencies relationalDependencies)
+        public SqliteQuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
         {
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual QuerySqlGeneratorDependencies RelationalDependencies { get; }
+        protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,6 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QuerySqlGenerator Create()
-            => new SqliteQuerySqlGenerator(RelationalDependencies);
+            => new SqliteQuerySqlGenerator(Dependencies);
     }
 }

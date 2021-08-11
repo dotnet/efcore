@@ -35,20 +35,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerModificationCommandBatchFactory(
-            ModificationCommandBatchFactoryDependencies relationalDependencies,
+            ModificationCommandBatchFactoryDependencies dependencies,
             IDbContextOptions options)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(options, nameof(options));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
             _options = options;
         }
         
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual ModificationCommandBatchFactoryDependencies RelationalDependencies { get; }
+        protected virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         {
             var optionsExtension = _options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
-            return new SqlServerModificationCommandBatch(RelationalDependencies, optionsExtension?.MaxBatchSize);
+            return new SqlServerModificationCommandBatch(Dependencies, optionsExtension?.MaxBatchSize);
         }
     }
 }

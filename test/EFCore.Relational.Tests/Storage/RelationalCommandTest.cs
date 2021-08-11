@@ -859,10 +859,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private class ReaderThrowingRelationalCommand : RelationalCommand
         {
             public ReaderThrowingRelationalCommand(
-                RelationalCommandBuilderDependencies relationalDependencies,
+                RelationalCommandBuilderDependencies dependencies,
                 string commandText,
                 IReadOnlyList<IRelationalParameter> parameters)
-                : base(relationalDependencies, commandText, parameters)
+                : base(dependencies, commandText, parameters)
             {
             }
 

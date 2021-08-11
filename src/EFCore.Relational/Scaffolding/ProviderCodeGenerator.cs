@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Initializes a new instance of the <see cref="ProviderCodeGenerator" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> The dependencies. </param>
-        protected ProviderCodeGenerator(ProviderCodeGeneratorDependencies relationalDependencies)
-            => RelationalDependencies = Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+        /// <param name="dependencies"> The dependencies. </param>
+        protected ProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
+            => RelationalDependencies = Check.NotNull(dependencies, nameof(dependencies));
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.

@@ -55,20 +55,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
         /// <param name="queryCompilationContext"> The query compilation context object to use. </param>
         /// <param name="queryableMethodTranslatingExpressionVisitor"> A parent queryable method translating expression visitor to translate subquery. </param>
         public RelationalSqlTranslatingExpressionVisitor(
-            RelationalSqlTranslatingExpressionVisitorDependencies relationalDependencies,
+            RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
             QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
             Check.NotNull(queryableMethodTranslatingExpressionVisitor, nameof(queryableMethodTranslatingExpressionVisitor));
 
-            RelationalDependencies = relationalDependencies;
-            _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+            Dependencies = dependencies;
+            _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             _queryCompilationContext = queryCompilationContext;
             _model = queryCompilationContext.Model;
             _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
@@ -101,7 +101,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalSqlTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
+        protected virtual RelationalSqlTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Translates an expression to an equivalent SQL representation.
@@ -517,7 +517,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member))
                 ?? (TranslationFailed(memberExpression.Expression, Visit(memberExpression.Expression), out var sqlInnerExpression)
                     ? QueryCompilationContext.NotTranslatedExpression
-                    : RelationalDependencies.MemberTranslatorProvider.Translate(
+                    : Dependencies.MemberTranslatorProvider.Translate(
                         sqlInnerExpression, memberExpression.Member, memberExpression.Type, _queryCompilationContext.Logger))
                       ?? QueryCompilationContext.NotTranslatedExpression;
         }
@@ -861,7 +861,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 }
             }
 
-            var translation = RelationalDependencies.MethodCallTranslatorProvider.Translate(
+            var translation = Dependencies.MethodCallTranslatorProvider.Translate(
                 _model, sqlObject, methodCallExpression.Method, arguments, _queryCompilationContext.Logger);
 
             if (translation == null)
@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     // Introduce explicit cast only if the target type is mapped else we need to client eval
                     if (unaryExpression.Type == typeof(object)
-                        || RelationalDependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null)
+                        || Dependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null)
                     {
                         sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 

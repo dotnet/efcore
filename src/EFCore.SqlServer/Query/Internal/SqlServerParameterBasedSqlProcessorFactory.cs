@@ -20,15 +20,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerParameterBasedSqlProcessorFactory(
-            RelationalParameterBasedSqlProcessorDependencies relationalDependencies)
+            RelationalParameterBasedSqlProcessorDependencies dependencies)
         {
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalParameterBasedSqlProcessorDependencies RelationalDependencies { get; }
+        protected virtual RelationalParameterBasedSqlProcessorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,6 +37,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual RelationalParameterBasedSqlProcessor Create(bool useRelationalNulls)
-            => new SqlServerParameterBasedSqlProcessor(RelationalDependencies, useRelationalNulls);
+            => new SqlServerParameterBasedSqlProcessor(Dependencies, useRelationalNulls);
     }
 }

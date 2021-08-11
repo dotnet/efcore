@@ -30,32 +30,32 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
         public RelationalCommandBuilder(
-            RelationalCommandBuilderDependencies relationalDependencies)
+            RelationalCommandBuilderDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalCommandBuilderDependencies RelationalDependencies { get; }
+        protected virtual RelationalCommandBuilderDependencies Dependencies { get; }
 
         /// <summary>
         ///     The source for <see cref="RelationalTypeMapping" />s to use.
         /// </summary>
         public virtual IRelationalTypeMappingSource TypeMappingSource
-            => RelationalDependencies.TypeMappingSource;
+            => Dependencies.TypeMappingSource;
 
         /// <summary>
         ///     Creates the command.
         /// </summary>
         /// <returns> The newly created command. </returns>
         public virtual IRelationalCommand Build()
-            => new RelationalCommand(RelationalDependencies, _commandTextBuilder.ToString(), Parameters);
+            => new RelationalCommand(Dependencies, _commandTextBuilder.ToString(), Parameters);
 
         /// <summary>
         ///     Gets the command text.

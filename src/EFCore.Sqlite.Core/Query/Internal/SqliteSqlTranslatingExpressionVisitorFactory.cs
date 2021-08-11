@@ -20,15 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteSqlTranslatingExpressionVisitorFactory(
-            RelationalSqlTranslatingExpressionVisitorDependencies relationalDependencies)
+            RelationalSqlTranslatingExpressionVisitorDependencies dependencies)
         {
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual RelationalSqlTranslatingExpressionVisitorDependencies RelationalDependencies { get; }
+        protected virtual RelationalSqlTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             QueryCompilationContext queryCompilationContext,
             QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
             => new SqliteSqlTranslatingExpressionVisitor(
-                RelationalDependencies,
+                Dependencies,
                 queryCompilationContext,
                 queryableMethodTranslatingExpressionVisitor);
     }

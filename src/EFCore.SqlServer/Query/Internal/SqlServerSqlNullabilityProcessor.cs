@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerSqlNullabilityProcessor(
-            RelationalParameterBasedSqlProcessorDependencies relationalDependencies, 
+            RelationalParameterBasedSqlProcessorDependencies dependencies, 
             bool useRelationalNulls)
-            : base(relationalDependencies, useRelationalNulls)
+            : base(dependencies, useRelationalNulls)
         {
         }
 

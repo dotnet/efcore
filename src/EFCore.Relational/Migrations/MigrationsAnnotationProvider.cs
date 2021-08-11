@@ -26,18 +26,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="relationalDependencies"> Parameter object containing dependencies for this service. </param>
-        public MigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies relationalDependencies)
+        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        public MigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
         {
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            Check.NotNull(dependencies, nameof(dependencies));
 
-            RelationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
         }
 
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        protected virtual MigrationsAnnotationProviderDependencies RelationalDependencies { get; }
+        protected virtual MigrationsAnnotationProviderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> ForRemove(IRelationalModel model)
