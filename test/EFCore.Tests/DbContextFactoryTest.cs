@@ -41,14 +41,48 @@ namespace Microsoft.EntityFrameworkCore
                 serviceProvider = serviceProvider.CreateScope().ServiceProvider;
             }
 
-            var contextFactory = serviceProvider.GetService<IDbContextFactory<TContext>>();
+            var contextFactory1 = serviceProvider.GetRequiredService<IDbContextFactory<TContext>>();
+            var contextFactory2 = serviceProvider.GetRequiredService<IDbContextFactory<TContext>>();
 
-            using var context1 = contextFactory.CreateDbContext();
-            using var context2 = contextFactory.CreateDbContext();
+            if (lifetime == ServiceLifetime.Transient)
+            {
+                Assert.NotSame(contextFactory1, contextFactory2);
+            }
+            else
+            {
+                Assert.Same(contextFactory1, contextFactory2);
+            }
 
-            Assert.NotSame(context1, context2);
-            Assert.Equal(nameof(TContext), GetStoreName(context1));
-            Assert.Equal(nameof(TContext), GetStoreName(context2));
+            using var factoryContext1 = contextFactory1.CreateDbContext();
+            using var factoryContext2 = contextFactory1.CreateDbContext();
+
+            Assert.NotSame(factoryContext1, factoryContext2);
+            Assert.Equal(nameof(TContext), GetStoreName(factoryContext1));
+            Assert.Equal(nameof(TContext), GetStoreName(factoryContext2));
+
+            TContext context1;
+            TContext context2;
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                context1 = scope.ServiceProvider.GetRequiredService<TContext>();
+                context2 = scope.ServiceProvider.GetRequiredService<TContext>();
+
+                if (lifetime == ServiceLifetime.Transient)
+                {
+                    Assert.NotSame(context1, context2);
+                }
+                else
+                {
+                    Assert.Same(context1, context2);
+                }
+
+                Assert.Equal(nameof(TContext), GetStoreName(context1));
+                Assert.Equal(nameof(TContext), GetStoreName(context2));
+            }
+
+            Assert.Throws<ObjectDisposedException>(() => context1.Model);
+            Assert.Throws<ObjectDisposedException>(() => context2.Model);
         }
 
         [ConditionalFact]
@@ -583,6 +617,429 @@ namespace Microsoft.EntityFrameworkCore
 
             public WoolacombeContext CreateDbContext()
                 => new(_options);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        public void Add_factory_and_then_context_using_scope(
+            bool validateScopes,
+            ServiceLifetime factoryLifetime,
+            ServiceLifetime contextLifetime,
+            ServiceLifetime optionsLifetime)
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContextFactory<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    factoryLifetime)
+                .AddDbContext<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    contextLifetime,
+                    optionsLifetime);
+
+            Assert.Equal(
+                contextLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(WoolacombeContext)).Lifetime);
+
+            Assert.Equal(
+                factoryLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(IDbContextFactory<WoolacombeContext>)).Lifetime);
+
+            // Options are added first by the factory, and always match the factory scope.
+            Assert.Equal(
+                factoryLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes);
+            using var scope = serviceProvider.CreateScope();
+
+            if (validateScopes
+                && factoryLifetime == ServiceLifetime.Scoped
+                && contextLifetime == ServiceLifetime.Singleton)
+            {
+                Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetRequiredService<WoolacombeContext>());
+            }
+            else
+            {
+                scope.ServiceProvider.GetRequiredService<WoolacombeContext>();
+            }
+
+            using var factoryContext = scope.ServiceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>().CreateDbContext();
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        public void Add_factory_and_then_context_using_root_provider(
+            bool validateScopes,
+            ServiceLifetime factoryLifetime,
+            ServiceLifetime contextLifetime,
+            ServiceLifetime optionsLifetime)
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContextFactory<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    factoryLifetime)
+                .AddDbContext<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    contextLifetime,
+                    optionsLifetime);
+
+            Assert.Equal(
+                contextLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(WoolacombeContext)).Lifetime);
+
+            Assert.Equal(
+                factoryLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(IDbContextFactory<WoolacombeContext>)).Lifetime);
+
+            // Options are added first by the factory, and always match the factory scope.
+            Assert.Equal(
+                factoryLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes);
+
+            if (validateScopes
+                && (factoryLifetime == ServiceLifetime.Scoped
+                    || contextLifetime == ServiceLifetime.Scoped))
+            {
+                Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<WoolacombeContext>());
+            }
+            else
+            {
+                serviceProvider.GetRequiredService<WoolacombeContext>();
+            }
+
+            if (validateScopes && factoryLifetime == ServiceLifetime.Scoped)
+            {
+                Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>());
+            }
+            else
+            {
+                using var factoryContext = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>().CreateDbContext();
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        public void Add_context_and_then_factory_using_scope(
+            bool validateScopes,
+            ServiceLifetime factoryLifetime,
+            ServiceLifetime contextLifetime,
+            ServiceLifetime optionsLifetime)
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContext<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    contextLifetime,
+                    optionsLifetime)
+                .AddDbContextFactory<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    factoryLifetime);
+
+            Assert.Equal(
+                contextLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(WoolacombeContext)).Lifetime);
+
+            Assert.Equal(
+                factoryLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(IDbContextFactory<WoolacombeContext>)).Lifetime);
+
+            var effectiveOptionsLifetime
+                = contextLifetime == ServiceLifetime.Singleton
+                    ? ServiceLifetime.Singleton
+                    : optionsLifetime;
+
+            Assert.Equal(
+                effectiveOptionsLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes);
+            using var scope = serviceProvider.CreateScope();
+
+            scope.ServiceProvider.GetRequiredService<WoolacombeContext>();
+
+            if (validateScopes
+                && factoryLifetime == ServiceLifetime.Singleton
+                && effectiveOptionsLifetime == ServiceLifetime.Scoped)
+            {
+                Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>());
+            }
+            else
+            {
+                using var factoryContext
+                    = scope.ServiceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>().CreateDbContext();
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(false, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Singleton, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Scoped, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Singleton, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Scoped, ServiceLifetime.Transient)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Singleton)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Scoped)]
+        [InlineData(true, ServiceLifetime.Transient, ServiceLifetime.Transient, ServiceLifetime.Transient)]
+        public void Add_context_and_then_factory_using_root_provider(
+            bool validateScopes,
+            ServiceLifetime factoryLifetime,
+            ServiceLifetime contextLifetime,
+            ServiceLifetime optionsLifetime)
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddDbContext<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    contextLifetime,
+                    optionsLifetime)
+                .AddDbContextFactory<WoolacombeContext>(
+                    b => b.UseInMemoryDatabase(nameof(WoolacombeContext)),
+                    factoryLifetime);
+
+            Assert.Equal(
+                contextLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(WoolacombeContext)).Lifetime);
+
+            Assert.Equal(
+                factoryLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(IDbContextFactory<WoolacombeContext>)).Lifetime);
+
+            var effectiveOptionsLifetime
+                = contextLifetime == ServiceLifetime.Singleton
+                    ? ServiceLifetime.Singleton
+                    : optionsLifetime;
+
+            Assert.Equal(
+                effectiveOptionsLifetime,
+                serviceCollection.Single(d => d.ServiceType == typeof(DbContextOptions<WoolacombeContext>)).Lifetime);
+
+            var serviceProvider = serviceCollection.BuildServiceProvider(validateScopes);
+
+            if (validateScopes
+                && (contextLifetime == ServiceLifetime.Scoped
+                || effectiveOptionsLifetime == ServiceLifetime.Scoped))
+            {
+                Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<WoolacombeContext>());
+            }
+            else
+            {
+                serviceProvider.GetRequiredService<WoolacombeContext>();
+            }
+
+            if (validateScopes
+                && (factoryLifetime == ServiceLifetime.Scoped
+                    || effectiveOptionsLifetime == ServiceLifetime.Scoped))
+            {
+                Assert.Throws<InvalidOperationException>(() => serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>());
+            }
+            else
+            {
+                using var factoryContext = serviceProvider.GetRequiredService<IDbContextFactory<WoolacombeContext>>().CreateDbContext();
+            }
         }
 
         private static string GetStoreName(DbContext context1)

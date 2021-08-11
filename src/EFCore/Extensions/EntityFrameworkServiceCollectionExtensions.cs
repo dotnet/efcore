@@ -523,7 +523,20 @@ namespace Microsoft.Extensions.DependencyInjection
 
             AddCoreServices<TContextImplementation>(serviceCollection, optionsAction, optionsLifetime);
 
-            serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));
+            if (serviceCollection.Any(d => d.ServiceType == typeof(IDbContextFactorySource<TContextImplementation>)))
+            {
+                // Override registration made by AddDbContextFactory
+                var serviceDescriptor = serviceCollection.FirstOrDefault(d => d.ServiceType == typeof(TContextService));
+                if (serviceDescriptor != null)
+                {
+                    serviceCollection.Remove(serviceDescriptor);
+                    serviceCollection.Add(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));    
+                }
+            }
+            else
+            {
+                serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));
+            }
 
             return serviceCollection;
         }
@@ -544,6 +557,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -596,6 +613,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
         ///     </para>
         ///     <para>
         ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}" /> to be registered
@@ -661,6 +682,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
+        ///     </para>
+        ///     <para>
         ///         This overload has an <paramref name="optionsAction" /> that provides the application's
         ///         <see cref="IServiceProvider" />. This is useful if you want to setup Entity Framework Core to resolve
         ///         its internal services from the primary application service provider.
@@ -721,6 +746,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
+        ///     </para>
+        ///     <para>
         ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}" /> to be registered
         ///         instead of using the default factory shipped with EF Core.
         ///     </para>
@@ -779,6 +808,14 @@ namespace Microsoft.Extensions.DependencyInjection
                     typeof(IDbContextFactory<TContext>),
                     typeof(TFactory),
                     lifetime));
+
+            serviceCollection.TryAdd(
+                new ServiceDescriptor(
+                    typeof(TContext),
+                    typeof(TContext),
+                    lifetime == ServiceLifetime.Transient
+                        ? ServiceLifetime.Transient
+                        : ServiceLifetime.Scoped));
 
             return serviceCollection;
         }
