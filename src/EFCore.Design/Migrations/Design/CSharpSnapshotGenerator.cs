@@ -1525,8 +1525,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         {
             var fluentApiCalls = Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(annotatable, annotations);
 
-            MethodCallCodeFragment? chainedCall = null;
-            var typeQualifiedCalls = new List<MethodCallCodeFragment>();
+            MethodCallCodeFragment? nonQualifiedCalls = null;
+            MethodCallCodeFragment? typeQualifiedCalls = null;
 
             // Chain together all Fluent API calls which we can, and leave the others to be generated as type-qualified
             foreach (var call in fluentApiCalls)
@@ -1536,11 +1536,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     && (call.MethodInfo.DeclaringType is null
                         || call.MethodInfo.DeclaringType.Assembly != typeof(RelationalModelBuilderExtensions).Assembly))
                 {
-                    typeQualifiedCalls.Add(call);
+                    typeQualifiedCalls = typeQualifiedCalls is null ? call : typeQualifiedCalls.Chain(call);
                 }
                 else
                 {
-                    chainedCall = chainedCall is null ? call : chainedCall.Chain(call);
+                    nonQualifiedCalls = nonQualifiedCalls is null ? call : nonQualifiedCalls.Chain(call);
                 }
             }
 
@@ -1549,17 +1549,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 // var call = new MethodCallCodeFragment("HasAnnotation", annotation.Name, annotation.Value);
                 var call = new MethodCallCodeFragment(_hasAnnotationMethodInfo, annotation.Name, annotation.Value);
-                chainedCall = chainedCall is null ? call : chainedCall.Chain(call);
+                nonQualifiedCalls = nonQualifiedCalls is null ? call : nonQualifiedCalls.Chain(call);
             }
 
             // First generate single Fluent API call chain
-            if (chainedCall is not null)
+            if (nonQualifiedCalls is not null)
             {
                 if (inChainedCall)
                 {
                     stringBuilder
                         .AppendLine()
-                        .AppendLines(Code.Fragment(chainedCall), skipFinalNewline: true);
+                        .AppendLines(Code.Fragment(nonQualifiedCalls), skipFinalNewline: true);
                 }
                 else
                 {
@@ -1568,8 +1568,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         stringBuilder.AppendLine();
                     }
 
-                    stringBuilder.AppendLines(Code.Fragment(chainedCall, builderName), skipFinalNewline: true);
-                    stringBuilder.AppendLine(";");
+                    stringBuilder
+                        .AppendLines(Code.Fragment(nonQualifiedCalls, builderName), skipFinalNewline: true)
+                        .AppendLine(";");
                 }
 
                 leadingNewline = true;
@@ -1582,18 +1583,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
 
             // Then generate separate fully-qualified calls
-            if (typeQualifiedCalls.Count > 0)
+            if (typeQualifiedCalls is not null)
             {
                 if (leadingNewline)
                 {
                     stringBuilder.AppendLine();
                 }
 
-                foreach (var call in typeQualifiedCalls)
-                {
-                    stringBuilder.Append(Code.Fragment(call, builderName, typeQualified: true));
-                    stringBuilder.AppendLine(";");
-                }
+                stringBuilder
+                    .AppendLines(Code.Fragment(typeQualifiedCalls, builderName, typeQualified: true), skipFinalNewline: true)
+                    .AppendLine(";");
+
+                // foreach (var call in typeQualifiedCalls)
+                // {
+                //     stringBuilder.Append(Code.Fragment(call, builderName, typeQualified: true));
+                //     stringBuilder.AppendLine(";");
+                // }
             }
         }
     }

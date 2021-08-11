@@ -982,13 +982,21 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (typeQualified)
             {
-                if (instanceIdentifier is null || fragment.MethodInfo is null || fragment.ChainedCall is not null)
+                if (instanceIdentifier is null || fragment.MethodInfo is null)
                 {
                     throw new ArgumentException(DesignStrings.CannotGenerateTypeQualifiedMethodCal);
                 }
 
+                builder.Append(fragment.DeclaringType!);
+
+                if (current.ChainedCall is not null)
+                {
+                    builder
+                        .AppendLine()
+                        .IncrementIndent();
+                }
+
                 builder
-                    .Append(fragment.DeclaringType!)
                     .Append('.')
                     .Append(fragment.Method)
                     .Append('(')
@@ -1001,6 +1009,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 }
 
                 builder.Append(')');
+
+                if (current.ChainedCall is null)
+                {
+                    return builder.ToString();
+                }
+
+                builder.AppendLine();
+                current = current.ChainedCall;
             }
             else
             {
@@ -1015,34 +1031,34 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                             .IncrementIndent();
                     }
                 }
+            }
 
-                while (true)
+            while (true)
+            {
+                builder
+                    .Append('.')
+                    .Append(current.Method)
+                    .Append('(');
+
+                for (var i = 0; i < current.Arguments.Count; i++)
                 {
-                    builder
-                        .Append('.')
-                        .Append(current.Method)
-                        .Append('(');
-
-                    for (var i = 0; i < current.Arguments.Count; i++)
+                    if (i != 0)
                     {
-                        if (i != 0)
-                        {
-                            builder.Append(", ");
-                        }
-
-                        Arg(current.Arguments[i]);
+                        builder.Append(", ");
                     }
 
-                    builder.Append(')');
-
-                    if (current.ChainedCall is null)
-                    {
-                        break;
-                    }
-
-                    builder.AppendLine();
-                    current = current.ChainedCall;
+                    Arg(current.Arguments[i]);
                 }
+
+                builder.Append(')');
+
+                if (current.ChainedCall is null)
+                {
+                    break;
+                }
+
+                builder.AppendLine();
+                current = current.ChainedCall;
             }
 
             return builder.ToString();

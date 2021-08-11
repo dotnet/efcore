@@ -298,10 +298,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-            SqlServerModelBuilderExtensions.HasDatabaseMaxSize(modelBuilder, ""100 MB"");
-            SqlServerModelBuilderExtensions.HasServiceTierSql(modelBuilder, ""'basic'"");
-            SqlServerModelBuilderExtensions.HasPerformanceLevelSql(modelBuilder, ""'S0'"");"),
+            SqlServerModelBuilderExtensions
+                .UseIdentityColumns(modelBuilder, 1L, 1)
+                .HasDatabaseMaxSize(""100 MB"")
+                .HasServiceTierSql(""'basic'"")
+                .HasPerformanceLevelSql(""'S0'"");"),
                 o =>
                 {
                     Assert.Equal(8, o.GetAnnotations().Count());
