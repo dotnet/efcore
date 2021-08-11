@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = CreateContext();
             var orders = context.Set<Order>().Where(o => o.CustomerID == "ALFKI").ToList();
             Assert.Equal(6, context.ChangeTracker.Entries().Count());
-            Assert.True(orders.All(o => o.Customer == null));
+            Assert.True(orders.All(o => o.Customer.CustomerID == null));
 
             var customer
                 = async
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.True(customer.Orders.All(e => ReferenceEquals(e.Customer, customer)));
 
             Assert.Equal(6, context.ChangeTracker.Entries().Count());
-            Assert.True(orders.All(o => o.Customer == null));
+            Assert.True(orders.All(o => o.Customer.CustomerID == null));
         }
 
         public override async Task Include_collection_principal_already_tracked(bool async)
