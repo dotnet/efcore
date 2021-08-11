@@ -629,6 +629,21 @@ ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;");
         }
 
+        public override async Task Alter_column_make_non_computed()
+        {
+            await base.Alter_column_make_non_computed();
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Sum');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] DROP COLUMN [Sum];
+ALTER TABLE [People] ADD [Sum] int NOT NULL;");
+        }
+
         [ConditionalFact]
         public override async Task Alter_column_add_comment()
         {
@@ -643,33 +658,12 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         }
 
         [ConditionalFact]
-        public virtual async Task Alter_computed_column_add_comment()
+        public override async Task Alter_computed_column_add_comment()
         {
-            await Test(
-                builder => builder.Entity("People", x =>
-                {
-                    x.Property<int>("Id");
-                    x.Property<int>("SomeColumn").HasComputedColumnSql("42");
-                }),
-                builder => { },
-                builder => builder.Entity("People").Property<int>("SomeColumn").HasComment("Some comment"),
-                model =>
-                {
-                    var table = Assert.Single(model.Tables);
-                    var column = Assert.Single(table.Columns.Where(c => c.Name == "SomeColumn"));
-                    Assert.Equal("Some comment", column.Comment);
-                });
+            await base.Alter_computed_column_add_comment();
 
             AssertSql(
-                @"DECLARE @var0 sysname;
-SELECT @var0 = [d].[name]
-FROM [sys].[default_constraints] [d]
-INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
-WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'SomeColumn');
-IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
-ALTER TABLE [People] DROP COLUMN [SomeColumn];
-ALTER TABLE [People] ADD [SomeColumn] AS 42;
-DECLARE @defaultSchema AS sysname;
+                @"DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
 SET @description = N'Some comment';

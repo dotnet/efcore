@@ -243,7 +243,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             var column = model?.GetRelationalModel().FindTable(operation.Table, operation.Schema)
                 ?.Columns.FirstOrDefault(c => c.Name == operation.Name);
 
-            if (operation.ComputedColumnSql != null)
+            if (operation.ComputedColumnSql != operation.OldColumn.ComputedColumnSql
+                || operation.IsStored != operation.OldColumn.IsStored)
             {
                 var dropColumnOperation = new DropColumnOperation
                 {
