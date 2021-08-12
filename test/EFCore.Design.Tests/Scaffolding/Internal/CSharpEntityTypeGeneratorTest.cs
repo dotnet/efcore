@@ -2023,22 +2023,21 @@ namespace TestNamespace
 
         protected override void AddModelServices(IServiceCollection services)
         {
-            services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, ModelAnnotationProvider>());
+            services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
         }
 
         protected override void AddScaffoldingServices(IServiceCollection services)
         {
-            services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, ModelAnnotationCodeGenerator>());
+            services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
         }
 
-        public class ModelAnnotationProvider : SqlServerAnnotationProvider
+        private class TestModelAnnotationProvider : SqlServerAnnotationProvider
         {
-            public ModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+            public TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
                 : base(dependencies)
             {
             }
 
-            /// <inheritdoc />
             public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
             {
                 foreach (var annotation in base.For(table, designTime))
@@ -2054,7 +2053,6 @@ namespace TestNamespace
                 }
             }
 
-            /// <inheritdoc />
             public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
             {
                 foreach (var annotation in base.For(column, designTime))
@@ -2072,9 +2070,9 @@ namespace TestNamespace
             }
         }
 
-        public class ModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
+        private class TestModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
         {
-            public ModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+            public TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
                 : base(dependencies)
             {
             }

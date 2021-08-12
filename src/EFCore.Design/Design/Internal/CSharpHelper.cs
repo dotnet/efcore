@@ -1,11 +1,15 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -773,7 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string UnknownLiteral(object? value)
         {
-            if (value == null)
+            if (value is null)
             {
                 return "null";
             }
@@ -967,15 +971,54 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Fragment(MethodCallCodeFragment fragment)
-            => Fragment(fragment, indent: 0);
+        public virtual string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier = null, bool typeQualified = false)
+            => Fragment(fragment, typeQualified, instanceIdentifier, indent: 0);
 
-        private  string Fragment(MethodCallCodeFragment fragment, int indent)
+        private string Fragment(MethodCallCodeFragment fragment, bool typeQualified, string? instanceIdentifier, int indent)
         {
             var builder = new IndentedStringBuilder();
-
             var current = fragment;
-            while (current != null)
+
+            if (typeQualified)
+            {
+                if (instanceIdentifier is null || fragment.MethodInfo is null || fragment.ChainedCall is not null)
+                {
+                    throw new ArgumentException(DesignStrings.CannotGenerateTypeQualifiedMethodCall);
+                }
+
+                builder
+                    .Append(fragment.DeclaringType!)
+                    .Append('.')
+                    .Append(fragment.Method)
+                    .Append('(')
+                    .Append(instanceIdentifier);
+
+                for (var i = 0; i < fragment.Arguments.Count; i++)
+                {
+                    builder.Append(", ");
+                    Argument(fragment.Arguments[i]);
+                }
+
+                builder.Append(')');
+
+                return builder.ToString();
+            }
+
+            // Non-type-qualified fragment
+
+            if (instanceIdentifier is not null)
+            {
+                builder.Append(instanceIdentifier);
+
+                if (current.ChainedCall is not null)
+                {
+                    builder
+                        .AppendLine()
+                        .IncrementIndent();
+                }
+            }
+
+            while (true)
             {
                 builder
                     .Append('.')
@@ -989,30 +1032,40 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                         builder.Append(", ");
                     }
 
-                    var argument = current.Arguments[i];
-                    if (argument is NestedClosureCodeFragment nestedFragment)
-                    {
-                        builder.Append(Fragment(nestedFragment, indent));
-                    }
-                    else
-                    {
-                        builder.Append(UnknownLiteral(argument));
-                    }
+                    Argument(current.Arguments[i]);
                 }
 
                 builder.Append(')');
 
+                if (current.ChainedCall is null)
+                {
+                    break;
+                }
+
+                builder.AppendLine();
                 current = current.ChainedCall;
             }
 
             return builder.ToString();
+
+            void Argument(object? argument)
+            {
+                if (argument is NestedClosureCodeFragment nestedFragment)
+                {
+                    builder.Append(Fragment(nestedFragment, indent));
+                }
+                else
+                {
+                    builder.Append(UnknownLiteral(argument));
+                }
+            }
         }
 
         private string Fragment(NestedClosureCodeFragment fragment, int indent)
         {
             if (fragment.MethodCalls.Count == 1)
             {
-                return fragment.Parameter + " => " + fragment.Parameter + Fragment(fragment.MethodCalls[0], indent);
+                return fragment.Parameter + " => " + Fragment(fragment.MethodCalls[0], typeQualified: false, fragment.Parameter, indent);
             }
 
             var builder = new IndentedStringBuilder();
@@ -1026,7 +1079,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 foreach (var methodCall in fragment.MethodCalls)
                 {
-                    builder.Append(fragment.Parameter + Fragment(methodCall, indent + 1));
+                    builder.AppendLines(Fragment(methodCall, typeQualified: false, fragment.Parameter, indent + 1), skipFinalNewline: true);
                     builder.AppendLine(";");
                 }
             }

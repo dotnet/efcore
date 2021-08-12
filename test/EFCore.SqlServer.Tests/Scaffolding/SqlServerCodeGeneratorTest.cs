@@ -1,8 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 using Xunit;
 
@@ -34,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 new ProviderCodeGeneratorDependencies(
                     Enumerable.Empty<IProviderCodeGeneratorPlugin>()));
 
-            var providerOptions = new MethodCallCodeFragment("SetProviderOption");
+            var providerOptions = new MethodCallCodeFragment(_setProviderOptionMethodInfo);
 
             var result = codeGenerator.GenerateUseProvider("Data Source=Test", providerOptions);
 
@@ -51,5 +54,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 });
             Assert.Null(result.ChainedCall);
         }
+
+        private static readonly MethodInfo _setProviderOptionMethodInfo
+            = typeof(SqlServerCodeGeneratorTest).GetRuntimeMethod(nameof(SetProviderOption), new[] { typeof(DbContextOptionsBuilder) });
+
+        public static SqlServerDbContextOptionsBuilder SetProviderOption(DbContextOptionsBuilder optionsBuilder)
+            => throw new NotSupportedException();
     }
 }

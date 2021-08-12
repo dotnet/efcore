@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
@@ -14,6 +17,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
     /// </summary>
     public class SqlServerCodeGenerator : ProviderCodeGenerator
     {
+        private static readonly MethodInfo _useSqlServerMethodInfo
+            = typeof(SqlServerDbContextOptionsExtensions).GetRequiredRuntimeMethod(
+                nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
+                typeof(DbContextOptionsBuilder),
+                typeof(string),
+                typeof(Action<SqlServerDbContextOptionsBuilder>));
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqlServerCodeGenerator" /> class.
         /// </summary>
@@ -33,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
             string connectionString,
             MethodCallCodeFragment? providerOptions)
             => new(
-                nameof(SqlServerDbContextOptionsExtensions.UseSqlServer),
+                _useSqlServerMethodInfo,
                 providerOptions == null
                     ? new object[] { connectionString }
                     : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });

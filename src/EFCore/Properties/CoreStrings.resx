@@ -561,6 +561,9 @@
     <value>The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. Configure all entity types with defining navigations sharing a CLR type as owned in 'OnModelCreating'.</value>
     <comment>Obsolete</comment>
   </data>
+  <data name="IncorrectNumberOfArguments" xml:space="preserve">
+    <value>'{method}' was invoked with {argumentCount} arguments, but has {parameterCount} parameters.</value>
+  </data>
   <data name="IndexPropertiesWrongEntity" xml:space="preserve">
     <value>The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.</value>
   </data>

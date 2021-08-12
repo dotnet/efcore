@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Numerics;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -292,77 +293,120 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works()
         {
-            var method = new MethodCallCodeFragment("Test", true, 42);
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, true, 42);
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
-            Assert.Equal(".Test(true, 42)", result);
+            Assert.Equal(".TestFunc(true, 42)", result);
         }
 
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_with_arrays()
         {
-            var method = new MethodCallCodeFragment("Test", new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { "foo", "bar" });
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { "foo", "bar" });
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
-            Assert.Equal(".Test(new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { \"foo\", \"bar\" })", result);
+            Assert.Equal(".TestFunc(new byte[] { 1, 2 }, new[] { 3, 4 }, new[] { \"foo\", \"bar\" })", result);
         }
 
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_niladic()
         {
-            var method = new MethodCallCodeFragment("Test");
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo);
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
-            Assert.Equal(".Test()", result);
+            Assert.Equal(".TestFunc()", result);
         }
 
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining()
         {
-            var method = new MethodCallCodeFragment("Test")
-                .Chain("Test");
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo)
+                .Chain(_testFuncMethodInfo);
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
-            Assert.Equal(".Test().Test()", result);
+            Assert.Equal($".TestFunc(){EOL}.TestFunc()", result);
         }
 
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain()
         {
-            var method = new MethodCallCodeFragment("One", Array.Empty<object>(), new MethodCallCodeFragment("Two"))
-                .Chain("Three");
+            var method = new MethodCallCodeFragment(
+                    _testFuncMethodInfo, new[] { "One" }, new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
+                .Chain(_testFuncMethodInfo, "Three");
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
-            Assert.Equal(".One().Two().Three()", result);
+            Assert.Equal(@$".TestFunc(""One""){EOL}.TestFunc(""Two""){EOL}.TestFunc(""Three"")", result);
         }
 
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain_with_call()
         {
-            var method = new MethodCallCodeFragment("One", Array.Empty<object>(), new MethodCallCodeFragment("Two"))
-                .Chain(new MethodCallCodeFragment("Three", Array.Empty<object>(), new MethodCallCodeFragment("Four")));
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, new[] { "One" }, new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
+                .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, new[] { "Three" }, new MethodCallCodeFragment(_testFuncMethodInfo, "Four")));
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
-            Assert.Equal(".One().Two().Three().Four()", result);
+            Assert.Equal(@$".TestFunc(""One""){EOL}.TestFunc(""Two""){EOL}.TestFunc(""Three""){EOL}.TestFunc(""Four"")", result);
         }
 
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_nested_closure()
         {
             var method = new MethodCallCodeFragment(
-                "Test",
-                new NestedClosureCodeFragment("x", new MethodCallCodeFragment("Test")));
+                _testFuncMethodInfo,
+                new NestedClosureCodeFragment("x", new MethodCallCodeFragment(_testFuncMethodInfo)));
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
-            Assert.Equal(".Test(x => x.Test())", result);
+            Assert.Equal(".TestFunc(x => x.TestFunc())", result);
         }
+
+        [ConditionalFact]
+        public void Fragment_MethodCallCodeFragment_works_with_identifier()
+        {
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, true, 42);
+
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method, instanceIdentifier: "builder");
+
+            Assert.Equal("builder.TestFunc(true, 42)", result);
+        }
+
+        [ConditionalFact]
+        public void Fragment_MethodCallCodeFragment_works_with_identifier_chained()
+        {
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, new[] { "One"}, new MethodCallCodeFragment(_testFuncMethodInfo));
+
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method, instanceIdentifier: "builder");
+
+            Assert.Equal($@"builder{EOL}    .TestFunc(""One""){EOL}    .TestFunc()", result);
+        }
+
+        [ConditionalFact]
+        public void Fragment_MethodCallCodeFragment_works_with_type_qualified()
+        {
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, true, 42);
+
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method, instanceIdentifier: "builder");
+
+            Assert.Equal("builder.TestFunc(true, 42)", result);
+        }
+
+#pragma warning disable 618 // Method name constructors on MethodCallCodeFragment have been obsoleted
+        [ConditionalFact]
+        public void Fragment_MethodCallCodeFragment_works_without_MethodInfo()
+        {
+            var method = new MethodCallCodeFragment("TestFunc", true, 42);
+
+            var result = new CSharpHelper(TypeMappingSource).Fragment(method);
+
+            Assert.Equal(".TestFunc(true, 42)", result);
+        }
+#pragma warning restore 618
 
         [ConditionalFact]
         public void Really_unknown_literal_with_no_mapping_support()
@@ -655,6 +699,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
                 => throw new NotSupportedException();
         }
+
+        private static readonly MethodInfo _testFuncMethodInfo
+            = typeof(CSharpHelperTest).GetRuntimeMethod(
+                nameof(TestFunc),
+                new[] { typeof(object), typeof(object), typeof(object), typeof(object) });
+
+        public static void TestFunc(object builder, object o1, object o2, object o3)
+            => throw new NotSupportedException();
     }
 
     internal class SimpleTestType

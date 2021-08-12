@@ -2,19 +2,29 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpDbContextGeneratorTest : ModelCodeGeneratorTestBase
     {
+        private static readonly string _nl = Environment.NewLine;
+
         [ConditionalFact]
         public void Empty_model()
         {
@@ -173,7 +183,7 @@ namespace TestNamespace
                 },
                 code =>
                 {
-                    Assert.Contains("DbSet<Entity> Entity { get; set; }" + Environment.NewLine, code.ContextFile.Code);
+                    Assert.Contains("DbSet<Entity> Entity { get; set; }" + _nl, code.ContextFile.Code);
                 },
                 null);
         }
@@ -248,7 +258,9 @@ namespace TestNamespace
                 });
 
             Assert.Contains(
-                @"optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption()).SetContextOption();",
+                @"optionsBuilder" + _nl +
+                @"                    .UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption())" + _nl +
+                @"                    .SetContextOption();",
                 scaffoldedModel.ContextFile.Code);
         }
 
@@ -425,7 +437,7 @@ namespace TestNamespace
                 code =>
                 {
                     Assert.Contains(
-                        @$"Property(e => e.ValueGeneratedOnAdd){Environment.NewLine}                    .ValueGeneratedOnAdd()",
+                        @$"Property(e => e.ValueGeneratedOnAdd){_nl}                    .ValueGeneratedOnAdd()",
                         code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnAddOrUpdate).ValueGeneratedOnAddOrUpdate()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ConcurrencyToken).IsConcurrencyToken()", code.ContextFile.Code);
@@ -980,13 +992,136 @@ namespace TestNamespace
                 });
         }
 
+        [ConditionalFact]
+        public void Fluent_calls_in_custom_namespaces_work()
+        {
+            Test(
+                modelBuilder => CustomTestNamespace.TestModelBuilderExtensions.TestFluentApiCall(modelBuilder),
+                new ModelCodeGenerationOptions { SuppressOnConfiguring = true },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using CustomTestNamespace;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.TestFluentApiCall();
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+
+                    Assert.Empty(code.AdditionalFiles);
+                },
+                model => Assert.Empty(model.GetEntityTypes()),
+                skipBuild: true);
+        }
+
+        protected override void AddModelServices(IServiceCollection services)
+        {
+            services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
+        }
+
+        protected override void AddScaffoldingServices(IServiceCollection services)
+        {
+            services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
+        }
+
+        private class TestModelAnnotationProvider : SqlServerAnnotationProvider
+        {
+            public TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
+            public override IEnumerable<IAnnotation> For(IRelationalModel database, bool designTime)
+            {
+                foreach (var annotation in base.For(database, designTime))
+                {
+                    yield return annotation;
+                }
+
+                if (database["Test:TestModelAnnotation"] is string annotationValue)
+                {
+                    yield return new Annotation("Test:TestModelAnnotation", annotationValue);
+                }
+            }
+        }
+
+        private class TestModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
+        {
+            private static readonly MethodInfo _testFluentApiCallMethodInfo
+                = typeof(CustomTestNamespace.TestModelBuilderExtensions).GetRuntimeMethod(
+                    nameof(CustomTestNamespace.TestModelBuilderExtensions.TestFluentApiCall), new[] { typeof(ModelBuilder) })!;
+
+            public TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
+            protected override MethodCallCodeFragment GenerateFluentApi(IModel model, IAnnotation annotation)
+                => annotation.Name switch
+                {
+                    "Test:TestModelAnnotation" => new(_testFluentApiCallMethodInfo),
+                    _ => base.GenerateFluentApi(model, annotation)
+                };
+        }
+
         private class TestCodeGeneratorPlugin : ProviderCodeGeneratorPlugin
         {
+            private static readonly MethodInfo _setProviderOptionMethodInfo
+                = typeof(TestCodeGeneratorPlugin).GetRuntimeMethod(
+                    nameof(SetProviderOption), new[] { typeof(SqlServerDbContextOptionsBuilder) });
+
+            private static readonly MethodInfo _setContextOptionMethodInfo
+                = typeof(TestCodeGeneratorPlugin).GetRuntimeMethod(
+                    nameof(SetContextOption), new[] { typeof(DbContextOptionsBuilder) });
+
             public override MethodCallCodeFragment GenerateProviderOptions()
-                => new("SetProviderOption");
+                => new(_setProviderOptionMethodInfo);
 
             public override MethodCallCodeFragment GenerateContextOptions()
-                => new("SetContextOption");
+                => new(_setContextOptionMethodInfo);
+
+            public static SqlServerDbContextOptionsBuilder SetProviderOption(SqlServerDbContextOptionsBuilder optionsBuilder)
+                => throw new NotSupportedException();
+
+            public static SqlServerDbContextOptionsBuilder SetContextOption(DbContextOptionsBuilder optionsBuilder)
+                => throw new NotSupportedException();
+        }
+    }
+}
+
+namespace CustomTestNamespace
+{
+    internal static class TestModelBuilderExtensions
+    {
+        public static ModelBuilder TestFluentApiCall(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Model.SetAnnotation("Test:TestModelAnnotation", "foo");
+
+            return modelBuilder;
         }
     }
 }

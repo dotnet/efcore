@@ -1,7 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Immutable;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -18,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// </summary>
     public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     {
+        private static readonly MethodInfo _hasAnnotationMethodInfo
+            = typeof(ModelBuilder).GetRequiredRuntimeMethod(nameof(ModelBuilder.HasAnnotation), typeof(string), typeof(string));
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator" /> class.
         /// </summary>
@@ -40,12 +46,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for creating an <see cref="IModel" />.
         /// </summary>
-        /// <param name="builderName"> The <see cref="ModelBuilder" /> variable name. </param>
+        /// <param name="modelBuilderName"> The <see cref="ModelBuilder" /> variable name. </param>
         /// <param name="model"> The model. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        public virtual void Generate(string builderName, IModel model, IndentedStringBuilder stringBuilder)
+        public virtual void Generate(string modelBuilderName, IModel model, IndentedStringBuilder stringBuilder)
         {
-            Check.NotEmpty(builderName, nameof(builderName));
+            Check.NotEmpty(modelBuilderName, nameof(modelBuilderName));
             Check.NotNull(model, nameof(model));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -53,65 +59,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(model.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            var productVersion = model.GetProductVersion();
-
-            if (annotations.Count > 0 || productVersion != null)
+            if (model.GetProductVersion() is string productVersion)
             {
-                stringBuilder.Append(builderName);
-
-                using (stringBuilder.Indent())
-                {
-                    // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
-                    // providers, generating them as raw annotations instead.
-                    var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
-                        annotations,
-                        name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
-                            || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
-                            || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
-                            || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
-                            || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
-
-                    foreach (var methodCallCodeFragment in
-                        Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(model, annotations))
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .Append(Code.Fragment(methodCallCodeFragment));
-                    }
-
-                    IEnumerable<IAnnotation> remainingAnnotations = annotations.Values;
-                    if (productVersion != null)
-                    {
-                        remainingAnnotations = remainingAnnotations.Append(
-                            new Annotation(CoreAnnotationNames.ProductVersion, productVersion));
-                    }
-
-                    GenerateAnnotations(remainingAnnotations.Concat(ambiguousAnnotations), stringBuilder);
-                }
-
-                stringBuilder.AppendLine(";");
+                annotations[CoreAnnotationNames.ProductVersion] = new Annotation(CoreAnnotationNames.ProductVersion, productVersion);
             }
+
+            GenerateAnnotations(modelBuilderName, model, stringBuilder, annotations, inChainedCall: false, leadingNewline: false);
 
             foreach (var sequence in model.GetSequences())
             {
-                GenerateSequence(builderName, sequence, stringBuilder);
+                GenerateSequence(modelBuilderName, sequence, stringBuilder);
             }
 
-            GenerateEntityTypes(builderName, model.GetEntityTypesInHierarchicalOrder(), stringBuilder);
+            GenerateEntityTypes(modelBuilderName, model.GetEntityTypesInHierarchicalOrder(), stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for <see cref="IEntityType" /> objects.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="modelBuilderName"> The name of the builder variable. </param>
         /// <param name="entityTypes"> The entity types. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypes(
-            string builderName,
+            string modelBuilderName,
             IReadOnlyList<IEntityType> entityTypes,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotEmpty(builderName, nameof(builderName));
+            Check.NotEmpty(modelBuilderName, nameof(modelBuilderName));
             Check.NotNull(entityTypes, nameof(entityTypes));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -120,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder.AppendLine();
 
-                GenerateEntityType(builderName, entityType, stringBuilder);
+                GenerateEntityType(modelBuilderName, entityType, stringBuilder);
             }
 
             foreach (var entityType in entityTypes.Where(
@@ -130,7 +104,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder.AppendLine();
 
-                GenerateEntityTypeRelationships(builderName, entityType, stringBuilder);
+                GenerateEntityTypeRelationships(modelBuilderName, entityType, stringBuilder);
             }
 
             foreach (var entityType in entityTypes.Where(
@@ -139,22 +113,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder.AppendLine();
 
-                GenerateEntityTypeNavigations(builderName, entityType, stringBuilder);
+                GenerateEntityTypeNavigations(modelBuilderName, entityType, stringBuilder);
             }
         }
 
         /// <summary>
         ///     Generates code for an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="modelBuilderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityType(
-            string builderName,
+            string modelBuilderName,
             IEntityType entityType,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotEmpty(builderName, nameof(builderName));
+            Check.NotEmpty(modelBuilderName, nameof(modelBuilderName));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -169,8 +143,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 entityTypeName = entityType.ClrType.DisplayName();
             }
 
+            var entityTypeBuilderName = GenerateEntityTypeBuilderName();
+
             stringBuilder
-                .Append(builderName)
+                .Append(modelBuilderName)
                 .Append(
                     ownerNavigation != null
                         ? ownership!.IsUnique ? ".OwnsOne(" : ".OwnsMany("
@@ -184,26 +160,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(Code.Literal(ownerNavigation));
             }
 
-            if (builderName.StartsWith("b", StringComparison.Ordinal))
-            {
-                // ReSharper disable once InlineOutVariableDeclaration
-                var counter = 1;
-                if (builderName.Length > 1
-                    && int.TryParse(builderName[1..], out counter))
-                {
-                    counter++;
-                }
-
-                builderName = "b" + (counter == 0 ? "" : counter.ToString());
-            }
-            else
-            {
-                builderName = "b";
-            }
-
             stringBuilder
                 .Append(", ")
-                .Append(builderName)
+                .Append(entityTypeBuilderName)
                 .AppendLine(" =>");
 
             using (stringBuilder.Indent())
@@ -212,51 +171,70 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateBaseType(builderName, entityType.BaseType, stringBuilder);
+                    GenerateBaseType(entityTypeBuilderName, entityType.BaseType, stringBuilder);
 
-                    GenerateProperties(builderName, entityType.GetDeclaredProperties(), stringBuilder);
+                    GenerateProperties(entityTypeBuilderName, entityType.GetDeclaredProperties(), stringBuilder);
 
                     GenerateKeys(
-                        builderName,
+                        entityTypeBuilderName,
                         entityType.GetDeclaredKeys(),
                         entityType.BaseType == null ? entityType.FindPrimaryKey() : null,
                         stringBuilder);
 
-                    GenerateIndexes(builderName, entityType.GetDeclaredIndexes(), stringBuilder);
+                    GenerateIndexes(entityTypeBuilderName, entityType.GetDeclaredIndexes(), stringBuilder);
 
-                    GenerateEntityTypeAnnotations(builderName, entityType, stringBuilder);
+                    GenerateEntityTypeAnnotations(entityTypeBuilderName, entityType, stringBuilder);
 
-                    GenerateCheckConstraints(builderName, entityType, stringBuilder);
+                    GenerateCheckConstraints(entityTypeBuilderName, entityType, stringBuilder);
 
                     if (ownerNavigation != null)
                     {
-                        GenerateRelationships(builderName, entityType, stringBuilder);
+                        GenerateRelationships(entityTypeBuilderName, entityType, stringBuilder);
 
                         GenerateNavigations(
-                            builderName, entityType.GetDeclaredNavigations()
+                            entityTypeBuilderName, entityType.GetDeclaredNavigations()
                                 .Where(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership), stringBuilder);
                     }
 
-                    GenerateData(builderName, entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
+                    GenerateData(
+                        entityTypeBuilderName, entityType.GetProperties(), entityType.GetSeedData(providerValues: true), stringBuilder);
                 }
 
                 stringBuilder
                     .AppendLine("});");
+            }
+
+            string GenerateEntityTypeBuilderName()
+            {
+                if (modelBuilderName.StartsWith("b", StringComparison.Ordinal))
+                {
+                    // ReSharper disable once InlineOutVariableDeclaration
+                    var counter = 1;
+                    if (modelBuilderName.Length > 1
+                        && int.TryParse(modelBuilderName[1..], out counter))
+                    {
+                        counter++;
+                    }
+
+                    return "b" + (counter == 0 ? "" : counter.ToString());
+                }
+
+                return "b";
             }
         }
 
         /// <summary>
         ///     Generates code for owned entity types.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="ownerships"> The foreign keys identifying each entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateOwnedTypes(
-            string builderName,
+            string entityTypeBuilderName,
             IEnumerable<IForeignKey> ownerships,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(ownerships, nameof(ownerships));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -264,45 +242,45 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder.AppendLine();
 
-                GenerateOwnedType(builderName, ownership, stringBuilder);
+                GenerateOwnedType(entityTypeBuilderName, ownership, stringBuilder);
             }
         }
 
         /// <summary>
         ///     Generates code for an owned entity types.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="ownership"> The foreign key identifying the entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateOwnedType(
-            string builderName,
+            string entityTypeBuilderName,
             IForeignKey ownership,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(ownership, nameof(ownership));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            GenerateEntityType(builderName, ownership.DeclaringEntityType, stringBuilder);
+            GenerateEntityType(entityTypeBuilderName, ownership.DeclaringEntityType, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the relationships of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="modelBuilderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypeRelationships(
-            string builderName,
+            string modelBuilderName,
             IEntityType entityType,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotEmpty(builderName, nameof(builderName));
+            Check.NotEmpty(modelBuilderName, nameof(modelBuilderName));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
-                .Append(builderName)
+                .Append(modelBuilderName)
                 .Append(".Entity(")
                 .Append(Code.Literal(entityType.Name))
                 .AppendLine(", b =>");
@@ -323,46 +301,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for the relationships of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateRelationships(
-            string builderName,
+            string entityTypeBuilderName,
             IEntityType entityType,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotEmpty(builderName, nameof(builderName));
+            Check.NotEmpty(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            GenerateForeignKeys(builderName, entityType.GetDeclaredForeignKeys(), stringBuilder);
+            GenerateForeignKeys(entityTypeBuilderName, entityType.GetDeclaredForeignKeys(), stringBuilder);
 
-            GenerateOwnedTypes(builderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
+            GenerateOwnedTypes(entityTypeBuilderName, entityType.GetDeclaredReferencingForeignKeys().Where(fk => fk.IsOwnership), stringBuilder);
 
             GenerateNavigations(
-                builderName, entityType.GetDeclaredNavigations()
+                entityTypeBuilderName, entityType.GetDeclaredNavigations()
                     .Where(n => n.IsOnDependent || (!n.IsOnDependent && n.ForeignKey.IsOwnership)), stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the base type of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="baseType"> The base entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateBaseType(
-            string builderName,
+            string entityTypeBuilderName,
             IEntityType? baseType,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             if (baseType != null)
             {
                 stringBuilder
                     .AppendLine()
-                    .Append(builderName)
+                    .Append(entityTypeBuilderName)
                     .Append(".HasBaseType(")
                     .Append(Code.Literal(baseType.Name))
                     .AppendLine(");");
@@ -372,17 +350,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="ISequence" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="modelBuilderName"> The name of the builder variable. </param>
         /// <param name="sequence"> The sequence. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateSequence(
-            string builderName,
+            string modelBuilderName,
             ISequence sequence,
             IndentedStringBuilder stringBuilder)
         {
             stringBuilder
                 .AppendLine()
-                .Append(builderName)
+                .Append(modelBuilderName)
                 .Append(".HasSequence");
 
             if (sequence.Type != Sequence.DefaultClrType)
@@ -459,94 +437,94 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IProperty" /> objects.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="properties"> The properties. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateProperties(
-            string builderName,
+            string entityTypeBuilderName,
             IEnumerable<IProperty> properties,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(properties, nameof(properties));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var property in properties)
             {
-                GenerateProperty(builderName, property, stringBuilder);
+                GenerateProperty(entityTypeBuilderName, property, stringBuilder);
             }
         }
 
         /// <summary>
         ///     Generates code for an <see cref="IProperty" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="property"> The property. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateProperty(
-            string builderName,
+            string entityTypeBuilderName,
             IProperty property,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var clrType = FindValueConverter(property)?.ProviderClrType.MakeNullable(property.IsNullable)
                 ?? property.ClrType;
 
+            var propertyBuilderName = $"{entityTypeBuilderName}.Property<{Code.Reference(clrType)}>({Code.Literal(property.Name)})";
+
             stringBuilder
                 .AppendLine()
-                .Append(builderName)
-                .Append(".Property<")
-                .Append(Code.Reference(clrType))
-                .Append(">(")
-                .Append(Code.Literal(property.Name))
-                .Append(")");
+                .Append(propertyBuilderName);
 
-            using (stringBuilder.Indent())
+            // Note that GenerateAnnotations below does the corresponding decrement
+            stringBuilder.IncrementIndent();
+
+            if (property.IsConcurrencyToken)
             {
-                if (property.IsConcurrencyToken)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".IsConcurrencyToken()");
-                }
-
-                if (property.IsNullable != (clrType.IsNullableType() && !property.IsPrimaryKey()))
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".IsRequired()");
-                }
-
-                if (property.ValueGenerated != ValueGenerated.Never)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(
-                            property.ValueGenerated == ValueGenerated.OnAdd
-                                ? ".ValueGeneratedOnAdd()"
-                                : property.ValueGenerated == ValueGenerated.OnUpdate
-                                    ? ".ValueGeneratedOnUpdate()"
-                                    : property.ValueGenerated == ValueGenerated.OnUpdateSometimes
-                                        ? ".ValueGeneratedOnUpdateSometimes()"
-                                        : ".ValueGeneratedOnAddOrUpdate()");
-                }
-
-                GeneratePropertyAnnotations(property, stringBuilder);
+                stringBuilder
+                    .AppendLine()
+                    .Append(".IsConcurrencyToken()");
             }
 
-            stringBuilder.AppendLine(";");
+            if (property.IsNullable != (clrType.IsNullableType() && !property.IsPrimaryKey()))
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".IsRequired()");
+            }
+
+            if (property.ValueGenerated != ValueGenerated.Never)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(
+                        property.ValueGenerated == ValueGenerated.OnAdd
+                            ? ".ValueGeneratedOnAdd()"
+                            : property.ValueGenerated == ValueGenerated.OnUpdate
+                                ? ".ValueGeneratedOnUpdate()"
+                                : property.ValueGenerated == ValueGenerated.OnUpdateSometimes
+                                    ? ".ValueGeneratedOnUpdateSometimes()"
+                                    : ".ValueGeneratedOnAddOrUpdate()");
+            }
+
+            GeneratePropertyAnnotations(propertyBuilderName, property, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on an <see cref="IProperty" />.
         /// </summary>
+        /// <param name="propertyBuilderName"> The name of the builder variable. </param>
         /// <param name="property"> The property. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GeneratePropertyAnnotations(IProperty property, IndentedStringBuilder stringBuilder)
+        protected virtual void GeneratePropertyAnnotations(
+            string propertyBuilderName,
+            IProperty property,
+            IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(propertyBuilderName, nameof(propertyBuilderName));
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -573,25 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             GenerateFluentApiForDefaultValue(property, stringBuilder);
             annotations.Remove(RelationalAnnotationNames.DefaultValue);
 
-            // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
-            // providers, generating them as raw annotations instead.
-            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
-                annotations,
-                name => name.EndsWith(":ValueGenerationStrategy", StringComparison.Ordinal)
-                    || name.EndsWith(":IdentityIncrement", StringComparison.Ordinal)
-                    || name.EndsWith(":IdentitySeed", StringComparison.Ordinal)
-                    || name.EndsWith(":HiLoSequenceName", StringComparison.Ordinal)
-                    || name.EndsWith(":HiLoSequenceSchema", StringComparison.Ordinal));
-
-            foreach (var methodCallCodeFragment in
-                Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(property, annotations))
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(Code.Fragment(methodCallCodeFragment));
-            }
-
-            GenerateAnnotations(annotations.Values.Concat(ambiguousAnnotations), stringBuilder);
+            GenerateAnnotations(propertyBuilderName, property, stringBuilder, annotations, inChainedCall: true);
         }
 
         private ValueConverter? FindValueConverter(IProperty property)
@@ -602,23 +562,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IKey" /> objects.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="keys"> The keys. </param>
         /// <param name="primaryKey"> The primary key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateKeys(
-            string builderName,
+            string entityTypeBuilderName,
             IEnumerable<IKey> keys,
             IKey? primaryKey,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(keys, nameof(keys));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             if (primaryKey != null)
             {
-                GenerateKey(builderName, primaryKey, stringBuilder, primary: true);
+                GenerateKey(entityTypeBuilderName, primaryKey, stringBuilder, primary: true);
             }
 
             if (primaryKey?.DeclaringEntityType.IsOwned() != true)
@@ -628,7 +588,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                         && (!key.GetReferencingForeignKeys().Any()
                             || key.GetAnnotations().Any(a => a.Name != RelationalAnnotationNames.UniqueConstraintMappings))))
                 {
-                    GenerateKey(builderName, key, stringBuilder);
+                    GenerateKey(entityTypeBuilderName, key, stringBuilder);
                 }
             }
         }
@@ -636,173 +596,149 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for an <see cref="IKey" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="key"> The key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         /// <param name="primary">A value indicating whether the key is primary. </param>
         protected virtual void GenerateKey(
-            string builderName,
+            string entityTypeBuilderName,
             IKey key,
             IndentedStringBuilder stringBuilder,
             bool primary = false)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(key, nameof(key));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
                 .AppendLine()
-                .Append(builderName)
+                .Append(entityTypeBuilderName)
                 .Append(primary ? ".HasKey(" : ".HasAlternateKey(")
                 .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
                 .Append(")");
 
-            using (stringBuilder.Indent())
-            {
-                GenerateKeyAnnotations(key, stringBuilder);
-            }
+            // Note that GenerateAnnotations below does the corresponding decrement
+            stringBuilder.IncrementIndent();
 
-            stringBuilder.AppendLine(";");
+            GenerateKeyAnnotations(entityTypeBuilderName, key, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on a key.
         /// </summary>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="key"> The key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateKeyAnnotations(IKey key, IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateKeyAnnotations(string entityTypeBuilderName, IKey key, IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
+            Check.NotNull(key, nameof(key));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
             var annotations = Dependencies.AnnotationCodeGenerator
                 .FilterIgnoredAnnotations(key.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            foreach (var methodCallCodeFragment in
-                Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(key, annotations))
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(Code.Fragment(methodCallCodeFragment));
-            }
-
-            GenerateAnnotations(annotations.Values, stringBuilder);
+            GenerateAnnotations(entityTypeBuilderName, key, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
         ///     Generates code for <see cref="IIndex" /> objects.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="indexes"> The indexes. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateIndexes(
-            string builderName,
+            string entityTypeBuilderName,
             IEnumerable<IIndex> indexes,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(indexes, nameof(indexes));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             foreach (var index in indexes)
             {
-                GenerateIndex(builderName, index, stringBuilder);
+                GenerateIndex(entityTypeBuilderName, index, stringBuilder);
             }
         }
 
         /// <summary>
         ///     Generates code an <see cref="IIndex" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="index"> The index. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateIndex(
-            string builderName,
+            string entityTypeBuilderName,
             IIndex index,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(index, nameof(index));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             // Note - method names below are meant to be hard-coded
             // because old snapshot files will fail if they are changed
+
+            var indexProperties = string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name)));
+            var indexBuilderName = $"{entityTypeBuilderName}.HasIndex("
+                + (index.Name is null
+                    ? indexProperties
+                    : $"new[] {{ {indexProperties} }}, {Code.Literal(index.Name)}")
+                + ")";
+
             stringBuilder
                 .AppendLine()
-                .Append(builderName)
-                .Append(".HasIndex(");
+                .Append(indexBuilderName);
 
-            if (index.Name == null)
+            // Note that GenerateAnnotations below does the corresponding decrement
+            stringBuilder.IncrementIndent();
+
+            if (index.IsUnique)
             {
                 stringBuilder
-                    .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))));
-            }
-            else
-            {
-                stringBuilder
-                    .Append("new[] { ")
-                    .Append(string.Join(", ", index.Properties.Select(p => Code.Literal(p.Name))))
-                    .Append(" }, ")
-                    .Append(Code.Literal(index.Name));
+                    .AppendLine()
+                    .Append(".IsUnique()");
             }
 
-            stringBuilder.Append(")");
-
-            using (stringBuilder.Indent())
-            {
-                if (index.IsUnique)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".IsUnique()");
-                }
-
-                GenerateIndexAnnotations(index, stringBuilder);
-            }
-
-            stringBuilder.AppendLine(";");
+            GenerateIndexAnnotations(indexBuilderName, index, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on an index.
         /// </summary>
+        /// <param name="indexBuilderName"> The name of the builder variable. </param>
         /// <param name="index"> The index. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateIndexAnnotations(
+            string indexBuilderName,
             IIndex index,
             IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(indexBuilderName, nameof(indexBuilderName));
+            Check.NotNull(index, nameof(index));
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
+
             var annotations = Dependencies.AnnotationCodeGenerator
                 .FilterIgnoredAnnotations(index.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            // Temporary patch: specifically exclude some annotations which are known to produce identical Fluent API calls across different
-            // providers, generating them as raw annotations instead.
-            var ambiguousAnnotations = RemoveAmbiguousFluentApiAnnotations(
-                annotations,
-                name => name.EndsWith(":Include", StringComparison.Ordinal));
-
-            foreach (var methodCallCodeFragment in
-                Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(index, annotations))
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(Code.Fragment(methodCallCodeFragment));
-            }
-
-            GenerateAnnotations(annotations.Values.Concat(ambiguousAnnotations), stringBuilder);
+            GenerateAnnotations(indexBuilderName, index, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
         ///     Generates code for the annotations on an entity type.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypeAnnotations(
-            string builderName,
+            string entityTypeBuilderName,
             IEntityType entityType,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -828,7 +764,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var schemaAnnotation = annotations.Find(RelationalAnnotationNames.Schema);
                     stringBuilder
                         .AppendLine()
-                        .Append(builderName)
+                        .Append(entityTypeBuilderName)
                         .Append(".ToTable(");
 
                     if (tableName == null
@@ -886,7 +822,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(builderName)
+                        .Append(entityTypeBuilderName)
                         .Append(".ToView(")
                         .Append(Code.UnknownLiteral(viewName));
                     if (viewNameAnnotation != null)
@@ -919,7 +855,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(builderName)
+                        .Append(entityTypeBuilderName)
                         .Append(".ToFunction(")
                         .Append(Code.UnknownLiteral(functionName))
                         .AppendLine(");");
@@ -940,7 +876,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(builderName)
+                        .Append(entityTypeBuilderName)
                         .Append(".ToSqlQuery(")
                         .Append(Code.UnknownLiteral(sqlQuery))
                         .AppendLine(");");
@@ -958,7 +894,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder
                     .AppendLine()
-                    .Append(builderName)
+                    .Append(entityTypeBuilderName)
                     .Append(".")
                     .Append("HasDiscriminator");
 
@@ -1017,42 +953,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 stringBuilder.AppendLine(";");
             }
 
-            var fluentApiCalls = Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(entityType, annotations);
-            if (fluentApiCalls.Count > 0 || annotations.Count > 0)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(builderName);
-
-                using (stringBuilder.Indent())
-                {
-                    foreach (var methodCallCodeFragment in fluentApiCalls)
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .AppendLines(Code.Fragment(methodCallCodeFragment), skipFinalNewline: true);
-                    }
-
-                    GenerateAnnotations(annotations.Values, stringBuilder);
-
-                    stringBuilder
-                        .AppendLine(";");
-                }
-            }
+            GenerateAnnotations(entityTypeBuilderName, entityType, stringBuilder, annotations, inChainedCall: false);
         }
 
         /// <summary>
         ///     Generates code for <see cref="ICheckConstraint" /> objects.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateCheckConstraints(
-            string builderName,
+            string entityTypeBuilderName,
             IEntityType entityType,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -1062,27 +977,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder.AppendLine();
 
-                GenerateCheckConstraint(builderName, checkConstraint, stringBuilder);
+                GenerateCheckConstraint(entityTypeBuilderName, checkConstraint, stringBuilder);
             }
         }
 
         /// <summary>
         ///     Generates code for an <see cref="ICheckConstraint" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="checkConstraint"> The check constraint. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateCheckConstraint(
-            string builderName,
+            string entityTypeBuilderName,
             ICheckConstraint checkConstraint,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(checkConstraint, nameof(checkConstraint));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
-                .Append(builderName)
+                .Append(entityTypeBuilderName)
                 .Append(".HasCheckConstraint(")
                 .Append(Code.Literal(checkConstraint.ModelName))
                 .Append(", ")
@@ -1102,15 +1017,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="IForeignKey" /> objects.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="foreignKeys"> The foreign keys. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateForeignKeys(
-            string builderName,
+            string entityTypeBuilderName,
             IEnumerable<IForeignKey> foreignKeys,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(foreignKeys, nameof(foreignKeys));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -1118,29 +1033,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder.AppendLine();
 
-                GenerateForeignKey(builderName, foreignKey, stringBuilder);
+                GenerateForeignKey(entityTypeBuilderName, foreignKey, stringBuilder);
             }
         }
 
         /// <summary>
         ///     Generates code for an <see cref="IForeignKey" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateForeignKey(
-            string builderName,
+            string entityTypeBuilderName,
             IForeignKey foreignKey,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             if (!foreignKey.IsOwnership)
             {
                 stringBuilder
-                    .Append(builderName)
+                    .Append(entityTypeBuilderName)
                     .Append(".HasOne(")
                     .Append(Code.Literal(foreignKey.PrincipalEntityType.Name))
                     .Append(", ")
@@ -1152,7 +1067,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             else
             {
                 stringBuilder
-                    .Append(builderName)
+                    .Append(entityTypeBuilderName)
                     .Append(".WithOwner(");
 
                 if (foreignKey.DependentToPrincipal != null)
@@ -1166,13 +1081,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(")")
                 .AppendLine();
 
-            using (stringBuilder.Indent())
+            // Note that GenerateAnnotations below does the corresponding decrement
+            stringBuilder.IncrementIndent();
+
+            if (foreignKey.IsUnique
+                && !foreignKey.IsOwnership)
             {
-                if (foreignKey.IsUnique
-                    && !foreignKey.IsOwnership)
+                stringBuilder
+                    .Append(".WithOne(");
+
+                if (foreignKey.PrincipalToDependent != null)
                 {
                     stringBuilder
-                        .Append(".WithOne(");
+                        .Append(Code.Literal(foreignKey.PrincipalToDependent.Name));
+                }
+
+                stringBuilder
+                    .AppendLine(")")
+                    .Append(".HasForeignKey(")
+                    .Append(Code.Literal(foreignKey.DeclaringEntityType.Name))
+                    .Append(", ")
+                    .Append(string.Join(", ", foreignKey.Properties.Select(p => Code.Literal(p.Name))))
+                    .Append(")");
+
+                if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.FindPrimaryKey())
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".HasPrincipalKey(")
+                        .Append(Code.Literal(foreignKey.PrincipalEntityType.Name))
+                        .Append(", ")
+                        .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
+                        .Append(")");
+                }
+            }
+            else
+            {
+                if (!foreignKey.IsOwnership)
+                {
+                    stringBuilder
+                        .Append(".WithMany(");
 
                     if (foreignKey.PrincipalToDependent != null)
                     {
@@ -1181,92 +1129,58 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
 
                     stringBuilder
-                        .AppendLine(")")
-                        .Append(".HasForeignKey(")
-                        .Append(Code.Literal(foreignKey.DeclaringEntityType.Name))
-                        .Append(", ")
-                        .Append(string.Join(", ", foreignKey.Properties.Select(p => Code.Literal(p.Name))))
-                        .Append(")");
-
-                    GenerateForeignKeyAnnotations(foreignKey, stringBuilder);
-
-                    if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.FindPrimaryKey())
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .Append(".HasPrincipalKey(")
-                            .Append(Code.Literal(foreignKey.PrincipalEntityType.Name))
-                            .Append(", ")
-                            .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
-                            .Append(")");
-                    }
+                        .AppendLine(")");
                 }
-                else
+
+                stringBuilder
+                    .Append(".HasForeignKey(")
+                    .Append(string.Join(", ", foreignKey.Properties.Select(p => Code.Literal(p.Name))))
+                    .Append(")");
+
+                if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.FindPrimaryKey())
                 {
-                    if (!foreignKey.IsOwnership)
-                    {
-                        stringBuilder
-                            .Append(".WithMany(");
-
-                        if (foreignKey.PrincipalToDependent != null)
-                        {
-                            stringBuilder
-                                .Append(Code.Literal(foreignKey.PrincipalToDependent.Name));
-                        }
-
-                        stringBuilder
-                            .AppendLine(")");
-                    }
-
                     stringBuilder
-                        .Append(".HasForeignKey(")
-                        .Append(string.Join(", ", foreignKey.Properties.Select(p => Code.Literal(p.Name))))
+                        .AppendLine()
+                        .Append(".HasPrincipalKey(")
+                        .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
                         .Append(")");
-
-                    GenerateForeignKeyAnnotations(foreignKey, stringBuilder);
-
-                    if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.FindPrimaryKey())
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .Append(".HasPrincipalKey(")
-                            .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => Code.Literal(p.Name))))
-                            .Append(")");
-                    }
-                }
-
-                if (!foreignKey.IsOwnership)
-                {
-                    if (foreignKey.DeleteBehavior != DeleteBehavior.ClientSetNull)
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .Append(".OnDelete(")
-                            .Append(Code.Literal(foreignKey.DeleteBehavior))
-                            .Append(")");
-                    }
-
-                    if (foreignKey.IsRequired)
-                    {
-                        stringBuilder
-                            .AppendLine()
-                            .Append(".IsRequired()");
-                    }
                 }
             }
 
-            stringBuilder.AppendLine(";");
+            if (!foreignKey.IsOwnership)
+            {
+                if (foreignKey.DeleteBehavior != DeleteBehavior.ClientSetNull)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".OnDelete(")
+                        .Append(Code.Literal(foreignKey.DeleteBehavior))
+                        .Append(")");
+                }
+
+                if (foreignKey.IsRequired)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".IsRequired()");
+                }
+            }
+
+            GenerateForeignKeyAnnotations(entityTypeBuilderName, foreignKey, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on a foreign key.
         /// </summary>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateForeignKeyAnnotations(
+            string entityTypeBuilderName,
             IForeignKey foreignKey,
             IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -1274,34 +1188,26 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(foreignKey.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            foreach (var methodCallCodeFragment in
-                Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(foreignKey, annotations))
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(Code.Fragment(methodCallCodeFragment));
-            }
-
-            GenerateAnnotations(annotations.Values, stringBuilder);
+            GenerateAnnotations(entityTypeBuilderName, foreignKey, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
         ///     Generates code for the navigations of an <see cref="IEntityType" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="modelBuilderName"> The name of the builder variable. </param>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypeNavigations(
-            string builderName,
+            string modelBuilderName,
             IEntityType entityType,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotEmpty(builderName, nameof(builderName));
+            Check.NotEmpty(modelBuilderName, nameof(modelBuilderName));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
-                .Append(builderName)
+                .Append(modelBuilderName)
                 .Append(".Entity(")
                 .Append(Code.Literal(entityType.Name))
                 .AppendLine(", b =>");
@@ -1324,15 +1230,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates code for <see cref="INavigation" /> objects.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="navigations"> The navigations. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateNavigations(
-            string builderName,
+            string entityTypeBuilderName,
             IEnumerable<INavigation> navigations,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(navigations, nameof(navigations));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -1340,57 +1246,58 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             {
                 stringBuilder.AppendLine();
 
-                GenerateNavigation(builderName, navigation, stringBuilder);
+                GenerateNavigation(entityTypeBuilderName, navigation, stringBuilder);
             }
         }
 
         /// <summary>
         ///     Generates code for an <see cref="INavigation" />.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="navigation"> The navigation. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateNavigation(
-            string builderName,
+            string entityTypeBuilderName,
             INavigation navigation,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(builderName, nameof(builderName));
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
-                .Append(builderName)
+                .Append(entityTypeBuilderName)
                 .Append(".Navigation(")
                 .Append(Code.Literal(navigation.Name))
                 .Append(")");
 
-            using (stringBuilder.Indent())
-            {
-                if (!navigation.IsOnDependent
-                    && !navigation.IsCollection
-                    && navigation.ForeignKey.IsRequiredDependent)
-                {
-                    stringBuilder
-                        .AppendLine()
-                        .Append(".IsRequired()");
-                }
+            // Note that GenerateAnnotations below does the corresponding decrement
+            stringBuilder.IncrementIndent();
 
-                GenerateNavigationAnnotations(navigation, stringBuilder);
+            if (!navigation.IsOnDependent
+                && !navigation.IsCollection
+                && navigation.ForeignKey.IsRequiredDependent)
+            {
+                stringBuilder
+                    .AppendLine()
+                    .Append(".IsRequired()");
             }
 
-            stringBuilder.AppendLine(";");
+            GenerateNavigationAnnotations(entityTypeBuilderName, navigation, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on a navigation.
         /// </summary>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="navigation"> The navigation. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateNavigationAnnotations(
+            string entityTypeBuilderName,
             INavigation navigation,
             IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -1398,65 +1305,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(navigation.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            foreach (var methodCallCodeFragment in
-                Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(navigation, annotations))
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(Code.Fragment(methodCallCodeFragment));
-            }
-
-            GenerateAnnotations(annotations.Values, stringBuilder);
-        }
-
-        /// <summary>
-        ///     Generates code for annotations.
-        /// </summary>
-        /// <param name="annotations"> The annotations. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateAnnotations(
-            IEnumerable<IAnnotation> annotations,
-            IndentedStringBuilder stringBuilder)
-        {
-            Check.NotNull(annotations, nameof(annotations));
-            Check.NotNull(stringBuilder, nameof(stringBuilder));
-
-            foreach (var annotation in annotations)
-            {
-                stringBuilder.AppendLine();
-                GenerateAnnotation(annotation, stringBuilder);
-            }
-        }
-
-        /// <summary>
-        ///     Generates code for an annotation which does not have a fluent API call.
-        /// </summary>
-        /// <param name="annotation"> The annotation. </param>
-        /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateAnnotation(
-            IAnnotation annotation,
-            IndentedStringBuilder stringBuilder)
-        {
-            Check.NotNull(annotation, nameof(annotation));
-            Check.NotNull(stringBuilder, nameof(stringBuilder));
-
-            stringBuilder
-                .Append(".HasAnnotation(")
-                .Append(Code.Literal(annotation.Name))
-                .Append(", ")
-                .Append(Code.UnknownLiteral(annotation.Value))
-                .Append(")");
+            GenerateAnnotations(entityTypeBuilderName, navigation, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
         ///     Generates code for data seeding.
         /// </summary>
-        /// <param name="builderName"> The name of the builder variable. </param>
+        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
         /// <param name="properties"> The properties to generate. </param>
         /// <param name="data"> The data to be seeded. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateData(
-            string builderName,
+            string entityTypeBuilderName,
             IEnumerable<IProperty> properties,
             IEnumerable<IDictionary<string, object?>> data,
             IndentedStringBuilder stringBuilder)
@@ -1475,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .Append(builderName)
+                .Append(entityTypeBuilderName)
                 .Append(".")
                 .Append(nameof(EntityTypeBuilder.HasData))
                 .AppendLine("(");
@@ -1621,23 +1481,85 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .Append(")");
         }
 
-        private static IReadOnlyList<IAnnotation> RemoveAmbiguousFluentApiAnnotations(
+        private void GenerateAnnotations(
+            string builderName,
+            IAnnotatable annotatable,
+            IndentedStringBuilder stringBuilder,
             Dictionary<string, IAnnotation> annotations,
-            Func<string, bool> annotationNameMatcher)
+            bool inChainedCall,
+            bool leadingNewline = true)
         {
-            List<IAnnotation>? ambiguousAnnotations = null;
+            var fluentApiCalls = Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(annotatable, annotations);
 
-            foreach (var (name, annotation) in annotations)
+            MethodCallCodeFragment? chainedCall = null;
+            var typeQualifiedCalls = new List<MethodCallCodeFragment>();
+
+            // Chain together all Fluent API calls which we can, and leave the others to be generated as type-qualified
+            foreach (var call in fluentApiCalls)
             {
-                if (annotationNameMatcher(name))
+                if (call.MethodInfo is not null
+                    && call.MethodInfo.IsStatic
+                    && (call.MethodInfo.DeclaringType is null
+                        || call.MethodInfo.DeclaringType.Assembly != typeof(RelationalModelBuilderExtensions).Assembly))
                 {
-                    annotations.Remove(name);
-                    ambiguousAnnotations ??= new List<IAnnotation>();
-                    ambiguousAnnotations.Add(annotation);
+                    typeQualifiedCalls.Add(call);
+                }
+                else
+                {
+                    chainedCall = chainedCall is null ? call : chainedCall.Chain(call);
                 }
             }
 
-            return (IReadOnlyList<IAnnotation>?)ambiguousAnnotations ?? ImmutableList<IAnnotation>.Empty;
+            // Append remaining raw annotations which did not get generated as Fluent API calls
+            foreach (var annotation in annotations.Values.OrderBy(a => a.Name))
+            {
+                var call = new MethodCallCodeFragment(_hasAnnotationMethodInfo, annotation.Name, annotation.Value);
+                chainedCall = chainedCall is null ? call : chainedCall.Chain(call);
+            }
+
+            // First generate single Fluent API call chain
+            if (chainedCall is not null)
+            {
+                if (inChainedCall)
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .AppendLines(Code.Fragment(chainedCall), skipFinalNewline: true);
+                }
+                else
+                {
+                    if (leadingNewline)
+                    {
+                        stringBuilder.AppendLine();
+                    }
+
+                    stringBuilder.AppendLines(Code.Fragment(chainedCall, builderName), skipFinalNewline: true);
+                    stringBuilder.AppendLine(";");
+                }
+
+                leadingNewline = true;
+            }
+
+            if (inChainedCall)
+            {
+                stringBuilder.AppendLine(";");
+                stringBuilder.DecrementIndent();
+            }
+
+            // Then generate separate fully-qualified calls
+            if (typeQualifiedCalls.Count > 0)
+            {
+                if (leadingNewline)
+                {
+                    stringBuilder.AppendLine();
+                }
+
+                foreach (var call in typeQualifiedCalls)
+                {
+                    stringBuilder.Append(Code.Fragment(call, builderName, typeQualified: true));
+                    stringBuilder.AppendLine(";");
+                }
+            }
         }
     }
 }

@@ -1097,6 +1097,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 memberType, member, entityType);
 
         /// <summary>
+        ///     Unhandled annotatable type '{annotatableType}'.
+        /// </summary>
+        public static string UnhandledAnnotatableType(object? expressionType)
+            => string.Format(
+                GetString("UnhandledAnnotatableType", nameof(expressionType)),
+                expressionType);
+
+        /// <summary>
         ///     Unhandled expression '{expression}' of type '{expressionType}' encountered in '{visitor}'.
         /// </summary>
         public static string UnhandledExpressionInVisitor(object? expression, object? expressionType, object? visitor)
