@@ -5881,7 +5881,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_with_include_with_entity_in_result_selector(bool async)
         {
@@ -5910,7 +5910,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_group_by_and_FirstOrDefault_gets_properly_applied(bool async)
         {

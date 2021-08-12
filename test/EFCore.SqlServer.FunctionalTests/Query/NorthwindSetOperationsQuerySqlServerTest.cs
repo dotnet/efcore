@@ -386,14 +386,14 @@ WHERE [o0].[CustomerID] = N'ALFKI'");
             AssertSql(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], (
     SELECT COUNT(*)
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] = [o0].[CustomerID]) AS [Orders]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]) AS [Orders]
 FROM [Customers] AS [c]
 UNION
 SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], (
     SELECT COUNT(*)
-    FROM [Orders] AS [o]
-    WHERE [c0].[CustomerID] = [o].[CustomerID]) AS [Orders]
+    FROM [Orders] AS [o0]
+    WHERE [c0].[CustomerID] = [o0].[CustomerID]) AS [Orders]
 FROM [Customers] AS [c0]");
         }
 
@@ -425,99 +425,484 @@ SELECT NULL AS [c]
 FROM [Customers] AS [c0]");
         }
 
-        public override async Task Union_over_different_projection_types(bool async, string leftType, string rightType)
+        public override async Task Union_over_column_column(bool async)
         {
-            await base.Union_over_different_projection_types(async, leftType, rightType);
+            await base.Union_over_column_column(async);
 
-            var leftSql = GenerateSql(leftType);
-            var rightSql = GenerateSql(rightType);
-
-            switch (leftType)
-            {
-                case "Column":
-                    leftSql = leftSql.Replace("{Alias}", "");
-                    break;
-
-                case "Binary":
-                case "Constant":
-                case "Function":
-                case "ScalarSubquery":
-                case "Unary":
-                    leftSql = leftSql.Replace("{Alias}", " AS [c]");
-                    break;
-
-                default:
-                    throw new ArgumentException("Unexpected type: " + leftType);
-            }
-
-            switch (rightType)
-            {
-                case "Column":
-                    rightSql = rightSql.Replace("{Alias}", leftType == "Column" ? "" : " AS [c]");
-                    break;
-
-                case "Binary":
-                case "Constant":
-                case "Function":
-                case "ScalarSubquery":
-                case "Unary":
-                    rightSql = rightSql.Replace("{Alias}", leftType == "Column" ? " AS [OrderID]" : " AS [c]");
-                    break;
-                default:
-                    throw new ArgumentException("Unexpected type: " + rightType);
-            }
-
-            // Fix up right-side SQL as table aliases shift
-            if (leftType == "ScalarSubquery")
-            {
-                if (rightType == "ScalarSubquery")
-                {
-                    leftSql = leftSql.Replace("[o0]", "[o2]");
-                    rightSql = rightSql.Replace("[o0]", "[o1]").Replace("[o]", "[o0]");
-                }
-                else
-                {
-                    leftSql = leftSql.Replace("[o0]", "[o1]");
-                    rightSql = rightSql.Replace("[o]", "[o0]");
-                }
-            }
-            else
-            {
-                rightSql = rightSql.Replace("[o0]", "[o1]").Replace("[o]", "[o0]");
-            }
-
-            AssertSql(leftSql + Environment.NewLine + "UNION" + Environment.NewLine + rightSql);
-
-            static string GenerateSql(string expressionType)
-            {
-                switch (expressionType)
-                {
-                    case "Column":
-                        return @"SELECT [o].[OrderID]{Alias}
-FROM [Orders] AS [o]";
-                    case "Function":
-                        return @"SELECT COUNT(*){Alias}
+            AssertSql(
+                @"SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-GROUP BY [o].[OrderID]";
-                    case "Constant":
-                        return @"SELECT 8{Alias}
-FROM [Orders] AS [o]";
-                    case "Unary":
-                        return @"SELECT -[o].[OrderID]{Alias}
-FROM [Orders] AS [o]";
-                    case "Binary":
-                        return @"SELECT [o].[OrderID] + 1{Alias}
-FROM [Orders] AS [o]";
-                    case "ScalarSubquery":
-                        return @"SELECT (
+UNION
+SELECT [o0].[OrderID]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_column_function(bool async)
+        {
+            await base.Union_over_column_function(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT COUNT(*) AS [OrderID]
+FROM [Orders] AS [o0]
+GROUP BY [o0].[OrderID]");
+        }
+
+        public override async Task Union_over_column_constant(bool async)
+        {
+            await base.Union_over_column_constant(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT 8 AS [OrderID]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_column_unary(bool async)
+        {
+            await base.Union_over_column_unary(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT -[o0].[OrderID] AS [OrderID]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_column_binary(bool async)
+        {
+            await base.Union_over_column_binary(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID] + 1 AS [OrderID]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_column_scalarsubquery(bool async)
+        {
+            await base.Union_over_column_scalarsubquery(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o0].[OrderID] = [o1].[OrderID]) AS [OrderID]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_function_column(bool async)
+        {
+            await base.Union_over_function_column(async);
+
+            AssertSql(
+                @"SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+UNION
+SELECT [o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_function_function(bool async)
+        {
+            await base.Union_over_function_function(async);
+
+            AssertSql(
+                @"SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+UNION
+SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o0]
+GROUP BY [o0].[OrderID]");
+        }
+
+        public override async Task Union_over_function_constant(bool async)
+        {
+            await base.Union_over_function_constant(async);
+
+            AssertSql(
+                @"SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+UNION
+SELECT 8 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_function_unary(bool async)
+        {
+            await base.Union_over_function_unary(async);
+
+            AssertSql(
+                @"SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+UNION
+SELECT -[o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_function_binary(bool async)
+        {
+            await base.Union_over_function_binary(async);
+
+            AssertSql(
+                @"SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+UNION
+SELECT [o0].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_function_scalarsubquery(bool async)
+        {
+            await base.Union_over_function_scalarsubquery(async);
+
+            AssertSql(
+                @"SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o]
+GROUP BY [o].[OrderID]
+UNION
+SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o0].[OrderID] = [o1].[OrderID]) AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_constant_column(bool async)
+        {
+            await base.Union_over_constant_column(async);
+
+            AssertSql(
+                @"SELECT 8 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_constant_function(bool async)
+        {
+            await base.Union_over_constant_function(async);
+
+            AssertSql(
+                @"SELECT 8 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o0]
+GROUP BY [o0].[OrderID]");
+        }
+
+        public override async Task Union_over_constant_constant(bool async)
+        {
+            await base.Union_over_constant_constant(async);
+
+            AssertSql(
+                @"SELECT 8 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT 8 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_constant_unary(bool async)
+        {
+            await base.Union_over_constant_unary(async);
+
+            AssertSql(
+                @"SELECT 8 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT -[o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_constant_binary(bool async)
+        {
+            await base.Union_over_constant_binary(async);
+
+            AssertSql(
+                @"SELECT 8 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_constant_scalarsubquery(bool async)
+        {
+            await base.Union_over_constant_scalarsubquery(async);
+
+            AssertSql(
+                @"SELECT 8 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o0].[OrderID] = [o1].[OrderID]) AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_unary_column(bool async)
+        {
+            await base.Union_over_unary_column(async);
+
+            AssertSql(
+                @"SELECT -[o].[OrderID] AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_unary_function(bool async)
+        {
+            await base.Union_over_unary_function(async);
+
+            AssertSql(
+                @"SELECT -[o].[OrderID] AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o0]
+GROUP BY [o0].[OrderID]");
+        }
+
+        public override async Task Union_over_unary_constant(bool async)
+        {
+            await base.Union_over_unary_constant(async);
+
+            AssertSql(
+                @"SELECT -[o].[OrderID] AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT 8 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_unary_unary(bool async)
+        {
+            await base.Union_over_unary_unary(async);
+
+            AssertSql(
+                @"SELECT -[o].[OrderID] AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT -[o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_unary_binary(bool async)
+        {
+            await base.Union_over_unary_binary(async);
+
+            AssertSql(
+                @"SELECT -[o].[OrderID] AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_unary_scalarsubquery(bool async)
+        {
+            await base.Union_over_unary_scalarsubquery(async);
+
+            AssertSql(
+                @"SELECT -[o].[OrderID] AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o0].[OrderID] = [o1].[OrderID]) AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_binary_column(bool async)
+        {
+            await base.Union_over_binary_column(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_binary_function(bool async)
+        {
+            await base.Union_over_binary_function(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o0]
+GROUP BY [o0].[OrderID]");
+        }
+
+        public override async Task Union_over_binary_constant(bool async)
+        {
+            await base.Union_over_binary_constant(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT 8 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_binary_unary(bool async)
+        {
+            await base.Union_over_binary_unary(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT -[o0].[OrderID] AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_binary_binary(bool async)
+        {
+            await base.Union_over_binary_binary(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_binary_scalarsubquery(bool async)
+        {
+            await base.Union_over_binary_scalarsubquery(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o1]
+    WHERE [o0].[OrderID] = [o1].[OrderID]) AS [c]
+FROM [Orders] AS [o0]");
+        }
+
+        public override async Task Union_over_scalarsubquery_column(bool async)
+        {
+            await base.Union_over_scalarsubquery_column(async);
+
+            AssertSql(
+                @"SELECT (
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
-    WHERE [o].[OrderID] = [o0].[OrderID]){Alias}
-FROM [Orders] AS [o]";
-                    default:
-                        throw new ArgumentException("Unexpected type: " + expressionType);
-                }
-            }
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o1].[OrderID] AS [c]
+FROM [Orders] AS [o1]");
+        }
+
+        public override async Task Union_over_scalarsubquery_function(bool async)
+        {
+            await base.Union_over_scalarsubquery_function(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT COUNT(*) AS [c]
+FROM [Orders] AS [o1]
+GROUP BY [o1].[OrderID]");
+        }
+
+        public override async Task Union_over_scalarsubquery_constant(bool async)
+        {
+            await base.Union_over_scalarsubquery_constant(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT 8 AS [c]
+FROM [Orders] AS [o1]");
+        }
+
+        public override async Task Union_over_scalarsubquery_unary(bool async)
+        {
+            await base.Union_over_scalarsubquery_unary(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT -[o1].[OrderID] AS [c]
+FROM [Orders] AS [o1]");
+        }
+
+        public override async Task Union_over_scalarsubquery_binary(bool async)
+        {
+            await base.Union_over_scalarsubquery_binary(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT [o1].[OrderID] + 1 AS [c]
+FROM [Orders] AS [o1]");
+        }
+
+        public override async Task Union_over_scalarsubquery_scalarsubquery(bool async)
+        {
+            await base.Union_over_scalarsubquery_scalarsubquery(async);
+
+            AssertSql(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o0]
+    WHERE [o].[OrderID] = [o0].[OrderID]) AS [c]
+FROM [Orders] AS [o]
+UNION
+SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o2]
+    WHERE [o1].[OrderID] = [o2].[OrderID]) AS [c]
+FROM [Orders] AS [o1]");
         }
 
         public override async Task OrderBy_Take_Union(bool async)
@@ -534,12 +919,12 @@ FROM (
     ORDER BY [c].[ContactName]
 ) AS [t]
 UNION
-SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
     ORDER BY [c0].[ContactName]
-) AS [t0]");
+) AS [t1]");
         }
 
         public override async Task Collection_projection_after_set_operation(bool async)

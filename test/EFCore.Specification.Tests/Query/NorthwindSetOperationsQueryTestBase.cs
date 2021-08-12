@@ -539,49 +539,364 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory]
-#pragma warning disable xUnit1016 // MemberData must reference a public member
-        [MemberData(nameof(GetSetOperandTestCases))]
-#pragma warning restore xUnit1016 // MemberData must reference a public member
-        public virtual Task Union_over_different_projection_types(bool async, string leftType, string rightType)
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_column_column(bool async)
         {
-            var (left, right) = (ExpressionGenerator(leftType), ExpressionGenerator(rightType));
-            return AssertQuery(async, ss => left(ss.Set<Order>()).Union(right(ss.Set<Order>())));
-
-            static Func<IQueryable<Order>, IQueryable<object>> ExpressionGenerator(string expressionType)
-            {
-                switch (expressionType)
-                {
-                    case "Column":
-                        return os => os.Select(o => (object)o.OrderID);
-                    case "Function":
-                        return os => os
-                            .GroupBy(o => o.OrderID)
-                            .Select(g => (object)g.Count());
-                    case "Constant":
-                        return os => os.Select(o => (object)8);
-                    case "Unary":
-                        return os => os.Select(o => (object)-o.OrderID);
-                    case "Binary":
-                        return os => os.Select(o => (object)(o.OrderID + 1));
-                    case "ScalarSubquery":
-                        return os => os.Select(o => (object)o.OrderDetails.Count());
-                    default:
-                        throw new InvalidOperationException();
-                }
-            }
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID)));
         }
 
-        private static IEnumerable<object[]> GetSetOperandTestCases()
-            => from async in new[] { true, false }
-               from leftType in _supportedOperandExpressionType
-               from rightType in _supportedOperandExpressionType
-               select new object[] { async, leftType, rightType };
-
-        // ReSharper disable once StaticMemberInGenericType
-        private static readonly string[] _supportedOperandExpressionType =
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_column_function(bool async)
         {
-            "Column", "Function", "Constant", "Unary", "Binary", "ScalarSubquery"
-        };
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID)
+                    .Union(ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_column_constant(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => 8)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_column_unary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => -o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_column_binary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID + 1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_column_scalarsubquery(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => o.OrderDetails.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_function_column(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())
+                    .Union(ss.Set<Order>().Select(o => o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_function_function(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())
+                    .Union(ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_function_constant(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())
+                    .Union(ss.Set<Order>().Select(o => 8)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_function_unary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())
+                    .Union(ss.Set<Order>().Select(o => -o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_function_binary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())
+                    .Union(ss.Set<Order>().Select(o => o.OrderID + 1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_function_scalarsubquery(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())
+                    .Union(ss.Set<Order>().Select(o => o.OrderDetails.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_constant_column(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => 8)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_constant_function(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => 8)
+                    .Union(ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_constant_constant(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => 8)
+                    .Union(ss.Set<Order>().Select(o => 8)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_constant_unary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => 8)
+                    .Union(ss.Set<Order>().Select(o => -o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_constant_binary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => 8)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID + 1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_constant_scalarsubquery(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => 8)
+                    .Union(ss.Set<Order>().Select(o => o.OrderDetails.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_unary_column(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => -o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_unary_function(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => -o.OrderID)
+                    .Union(ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_unary_constant(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => -o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => 8)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_unary_unary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => -o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => -o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_unary_binary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => -o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID + 1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_unary_scalarsubquery(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => -o.OrderID)
+                    .Union(ss.Set<Order>().Select(o => o.OrderDetails.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_binary_column(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID + 1)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_binary_function(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID + 1)
+                    .Union(ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_binary_constant(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID + 1)
+                    .Union(ss.Set<Order>().Select(o => 8)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_binary_unary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID + 1)
+                    .Union(ss.Set<Order>().Select(o => -o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_binary_binary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID + 1)
+                    .Union(ss.Set<Order>().Select(o => o.OrderID + 1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_binary_scalarsubquery(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderID + 1)
+                    .Union(ss.Set<Order>().Select(o => o.OrderDetails.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_scalarsubquery_column(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderDetails.Count())
+                    .Union(ss.Set<Order>().Select(o => o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_scalarsubquery_function(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderDetails.Count())
+                    .Union(ss.Set<Order>().GroupBy(o => o.OrderID).Select(g => g.Count())));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_scalarsubquery_constant(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderDetails.Count())
+                    .Union(ss.Set<Order>().Select(o => 8)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_scalarsubquery_unary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderDetails.Count())
+                    .Union(ss.Set<Order>().Select(o => -o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_scalarsubquery_binary(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderDetails.Count())
+                    .Union(ss.Set<Order>().Select(o => o.OrderID + 1)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Union_over_scalarsubquery_scalarsubquery(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>().Select(o => o.OrderDetails.Count())
+                    .Union(ss.Set<Order>().Select(o => o.OrderDetails.Count())));
+        }
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]

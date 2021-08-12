@@ -76,6 +76,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is GroupByShaperExpression groupByShaperExpression)
+            {
+                var shapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
+                return ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression)
+                    .Clone(shapedQueryExpression.ShaperExpression);
+            }
+
+            return base.VisitExtension(extensionExpression);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsGenericMethod
@@ -1513,7 +1531,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         inMemoryQueryExpression.CurrentParameter)
                     : TranslateLambdaExpression(source, selector, preserveType: true);
 
-            if (selector == null)
+            if (selector == null
+                || selector.Body is EntityProjectionExpression)
             {
                 return null;
             }

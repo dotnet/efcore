@@ -154,6 +154,27 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual EntityProjectionExpression Clone()
+        {
+            var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>(_readExpressionMap);
+            var entityProjectionExpression = new EntityProjectionExpression(EntityType, readExpressionMap);
+            foreach (var kvp in _navigationExpressionsCache)
+            {
+                entityProjectionExpression._navigationExpressionsCache[kvp.Key] = new EntityShaperExpression(
+                    kvp.Value.EntityType,
+                    ((EntityProjectionExpression)kvp.Value.ValueBufferExpression).Clone(),
+                    kvp.Value.IsNullable);
+            }
+
+            return entityProjectionExpression;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));

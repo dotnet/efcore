@@ -273,10 +273,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         case nameof(Queryable.Any)
                             when genericMethod == QueryableMethods.AnyWithoutPredicate:
-
                         case nameof(Queryable.Count)
                             when genericMethod == QueryableMethods.CountWithoutPredicate:
-
                         case nameof(Queryable.LongCount)
                             when genericMethod == QueryableMethods.LongCountWithoutPredicate:
                             return ProcessAllAnyCountLongCount(
@@ -567,15 +565,143 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     }
                 }
 
+                if (firstArgument is GroupByNavigationExpansionExpression groupBySource)
+                {
+                    switch (method.Name)
+                    {
+                        case nameof(Queryable.AsQueryable)
+                            when genericMethod == QueryableMethods.AsQueryable:
+                            return groupBySource;
+
+                        case nameof(Queryable.Any)
+                            when genericMethod == QueryableMethods.AnyWithoutPredicate:
+                        case nameof(Queryable.Count)
+                            when genericMethod == QueryableMethods.CountWithoutPredicate:
+                        case nameof(Queryable.LongCount)
+                            when genericMethod == QueryableMethods.LongCountWithoutPredicate:
+                            return ProcessAllAnyCountLongCount(
+                                groupBySource,
+                                genericMethod,
+                                predicate: null);
+
+                        case nameof(Queryable.All)
+                            when genericMethod == QueryableMethods.All:
+                        case nameof(Queryable.Any)
+                            when genericMethod == QueryableMethods.AnyWithPredicate:
+                        case nameof(Queryable.Count)
+                            when genericMethod == QueryableMethods.CountWithPredicate:
+                        case nameof(Queryable.LongCount)
+                            when genericMethod == QueryableMethods.LongCountWithPredicate:
+                            return ProcessAllAnyCountLongCount(
+                                groupBySource,
+                                genericMethod,
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+
+                        // case nameof(Queryable.Average)
+                        //     when QueryableMethods.IsAverageWithoutSelector(method):
+                        // case nameof(Queryable.Max)
+                        //     when genericMethod == QueryableMethods.MaxWithoutSelector:
+                        // case nameof(Queryable.Min)
+                        //     when genericMethod == QueryableMethods.MinWithoutSelector:
+                        // case nameof(Queryable.Sum)
+                        //     when QueryableMethods.IsSumWithoutSelector(method):
+                        //     return ProcessAverageMaxMinSum(
+                        //         groupBySource,
+                        //         genericMethod ?? method,
+                        //         selector: null);
+
+                        // case nameof(Queryable.Average)
+                        //     when QueryableMethods.IsAverageWithSelector(method):
+                        // case nameof(Queryable.Sum)
+                        //     when QueryableMethods.IsSumWithSelector(method):
+                        // case nameof(Queryable.Max)
+                        //     when genericMethod == QueryableMethods.MaxWithSelector:
+                        // case nameof(Queryable.Min)
+                        //     when genericMethod == QueryableMethods.MinWithSelector:
+                        //     return ProcessAverageMaxMinSum(
+                        //         groupBySource,
+                        //         genericMethod ?? method,
+                        //         methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+
+                        case nameof(Queryable.OrderBy)
+                            when genericMethod == QueryableMethods.OrderBy:
+                        case nameof(Queryable.OrderByDescending)
+                            when genericMethod == QueryableMethods.OrderByDescending:
+                            return ProcessOrderByThenBy(
+                                groupBySource,
+                                genericMethod,
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                                thenBy: false);
+
+                        case nameof(Queryable.ThenBy)
+                            when genericMethod == QueryableMethods.ThenBy:
+                        case nameof(Queryable.ThenByDescending)
+                            when genericMethod == QueryableMethods.ThenByDescending:
+                            return ProcessOrderByThenBy(
+                                groupBySource,
+                                genericMethod,
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
+                                thenBy: true);
+
+                        case nameof(Queryable.Select)
+                            when genericMethod == QueryableMethods.Select:
+                            return ProcessSelect(
+                                groupBySource,
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+
+                        case nameof(Queryable.Skip)
+                            when genericMethod == QueryableMethods.Skip:
+                        case nameof(Queryable.Take)
+                            when genericMethod == QueryableMethods.Take:
+                            return ProcessSkipTake(
+                                groupBySource,
+                                genericMethod,
+                                methodCallExpression.Arguments[1]);
+
+                        case nameof(Queryable.Where)
+                            when genericMethod == QueryableMethods.Where:
+                            return ProcessWhere(
+                                groupBySource,
+                                methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+
+                        default:
+                            // Average/Max/Min/Sum
+                            // Distinct
+                            // Contains
+                            // First/Single/Last(OrDefault)
+                            // Join, LeftJoin, GroupJoin
+                            // SelectMany
+                            // Concat/Except/Intersect/Union
+                            // Cast/OfType
+                            // Include/ThenInclude/NotQuiteInclude
+                            // GroupBy
+                            // Reverse
+                            // DefaultIfEmpty
+                            throw new InvalidOperationException(
+                                CoreStrings.TranslationFailed(
+                                    _reducingExpressionVisitor.Visit(methodCallExpression).Print()));
+                    }
+                }
+
                 if (genericMethod == QueryableMethods.AsQueryable)
                 {
+                    if (firstArgument is NavigationTreeExpression navigationTreeExpression
+                        && navigationTreeExpression.Type.IsGenericType
+                        && navigationTreeExpression.Type.GetGenericTypeDefinition() == typeof(IGrouping<,>))
+                    {
+                        // This is groupingElement.AsQueryable so we preserve it
+                        return Expression.Call(
+                            QueryableMethods.AsQueryable.MakeGenericMethod(navigationTreeExpression.Type.GetSequenceType()),
+                            navigationTreeExpression);
+                    }
+
                     return UnwrapCollectionMaterialization(firstArgument);
                 }
 
                 if (firstArgument.Type.TryGetElementType(typeof(IQueryable<>)) == null)
                 {
                     // firstArgument was not an queryable
-                    var visitedArguments = new [] { firstArgument }
+                    var visitedArguments = new[] { firstArgument }
                         .Concat(methodCallExpression.Arguments.Skip(1).Select(e => Visit(e)!));
 
                     return ConvertToEnumerable(method, visitedArguments);
@@ -799,13 +925,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return source;
         }
 
-        private NavigationExpansionExpression ProcessGroupBy(
+        // This returns Expression since it can also return a deferred GroupBy operation
+        private Expression ProcessGroupBy(
             NavigationExpansionExpression source,
             LambdaExpression keySelector,
             LambdaExpression? elementSelector,
             LambdaExpression? resultSelector)
         {
             var keySelectorBody = ExpandNavigationsForSource(source, RemapLambdaExpression(source, keySelector));
+
             // Need to generate lambda after processing element/result selector
             Expression result;
             if (elementSelector != null)
@@ -813,26 +941,43 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 source = ProcessSelect(source, elementSelector);
             }
 
-            source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
-            // TODO: Flow include in future
-            //source = (NavigationExpansionExpression)new IncludeApplyingExpressionVisitor(
-            //    this, _queryCompilationContext.IsTracking).Visit(source);
             keySelector = GenerateLambda(keySelectorBody, source.CurrentParameter);
-            elementSelector = GenerateLambda(source.PendingSelector, source.CurrentParameter);
-            result = resultSelector == null
-                ? Expression.Call(
-                    QueryableMethods.GroupByWithKeyElementSelector.MakeGenericMethod(
-                        source.CurrentParameter.Type, keySelector.ReturnType, elementSelector.ReturnType),
+            var innerParameterName = GetParameterName("e");
+
+            if (resultSelector == null)
+            {
+                var groupingParameter = Expression.Parameter(
+                       typeof(IGrouping<,>).MakeGenericType(keySelector.ReturnType, source.SourceElementType),
+                       GetParameterName("g"));
+                var innerSource = Expression.Call(
+                    QueryableMethods.GroupByWithKeySelector.MakeGenericMethod(source.SourceElementType, keySelector.ReturnType),
+                    source.Source,
+                    Expression.Quote(keySelector));
+
+                return new GroupByNavigationExpansionExpression(innerSource, groupingParameter, source.CurrentTree, source.PendingSelector, innerParameterName);
+            }
+
+            var enumerableParameter = Expression.Parameter(
+                typeof(IEnumerable<>).MakeGenericType(source.SourceElementType),
+                GetParameterName("g"));
+            var groupingEnumerable = new NavigationExpansionExpression(
+                Expression.Call(QueryableMethods.AsQueryable.MakeGenericMethod(source.SourceElementType), enumerableParameter),
+                source.CurrentTree,
+                source.PendingSelector,
+                innerParameterName);
+
+            var resultSelectorBody = new GroupingElementReplacingExpressionVisitor(
+                resultSelector.Parameters[1], groupingEnumerable).Visit(resultSelector.Body);
+
+            resultSelectorBody = Visit(resultSelectorBody);
+            resultSelector = Expression.Lambda(resultSelectorBody, resultSelector.Parameters[0], enumerableParameter);
+
+            result = Expression.Call(
+                    QueryableMethods.GroupByWithKeyResultSelector.MakeGenericMethod(
+                        source.CurrentParameter.Type, keySelector.ReturnType, resultSelector.ReturnType),
                     source.Source,
                     Expression.Quote(keySelector),
-                    Expression.Quote(elementSelector))
-                : Expression.Call(
-                    QueryableMethods.GroupByWithKeyElementResultSelector.MakeGenericMethod(
-                        source.CurrentParameter.Type, keySelector.ReturnType, elementSelector.ReturnType, resultSelector.ReturnType),
-                    source.Source,
-                    Expression.Quote(keySelector),
-                    Expression.Quote(elementSelector),
-                    Expression.Quote(Visit(resultSelector)));
+                    Expression.Quote(resultSelector));
 
             var navigationTree = new NavigationTreeExpression(Expression.Default(result.Type.GetSequenceType()));
             var parameterName = GetParameterName("e");
@@ -1116,24 +1261,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private NavigationExpansionExpression ProcessSelect(NavigationExpansionExpression source, LambdaExpression selector)
         {
-            // This is to apply aggregate operator on GroupBy right away rather than deferring
-            if (source.SourceElementType.IsGenericType
-                && source.SourceElementType.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                && !(selector.ReturnType.IsGenericType
-                    && selector.ReturnType.GetGenericTypeDefinition() == typeof(IGrouping<,>)))
-            {
-                var selectorLambda = ProcessLambdaExpression(source, selector);
-                var newSource = Expression.Call(
-                    QueryableMethods.Select.MakeGenericMethod(source.SourceElementType, selectorLambda.ReturnType),
-                    source.Source,
-                    Expression.Quote(selectorLambda));
-
-                var navigationTree = new NavigationTreeExpression(Expression.Default(selectorLambda.ReturnType));
-                var parameterName = GetParameterName("e");
-
-                return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, parameterName);
-            }
-
             var selectorBody = ReplacingExpressionVisitor.Replace(
                 selector.Parameters[0],
                 source.PendingSelector,
@@ -1287,6 +1414,80 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     Expression.Quote(predicate)));
 
             return source;
+        }
+
+        private Expression ProcessAllAnyCountLongCount(
+            GroupByNavigationExpansionExpression groupBySource,
+            MethodInfo genericMethod,
+            LambdaExpression? predicate)
+        {
+            if (predicate != null)
+            {
+                predicate = ProcessLambdaExpression(groupBySource, predicate);
+
+                return Expression.Call(
+                    genericMethod.MakeGenericMethod(groupBySource.SourceElementType), groupBySource.Source, Expression.Quote(predicate));
+            }
+
+            return Expression.Call(genericMethod.MakeGenericMethod(groupBySource.SourceElementType), groupBySource.Source);
+        }
+
+        private GroupByNavigationExpansionExpression ProcessOrderByThenBy(
+            GroupByNavigationExpansionExpression groupBySource,
+            MethodInfo genericMethod,
+            LambdaExpression keySelector,
+            bool thenBy)
+        {
+            keySelector = ProcessLambdaExpression(groupBySource, keySelector);
+
+            groupBySource.UpdateSource(
+                Expression.Call(
+                    genericMethod.MakeGenericMethod(groupBySource.SourceElementType, keySelector.ReturnType),
+                    groupBySource.Source,
+                    Expression.Quote(keySelector)));
+
+            return groupBySource;
+        }
+
+        private NavigationExpansionExpression ProcessSelect(GroupByNavigationExpansionExpression groupBySource, LambdaExpression selector)
+        {
+            var selectorBody = new GroupingElementReplacingExpressionVisitor(selector.Parameters[0], groupBySource).Visit(selector.Body);
+            selectorBody = Visit(selectorBody);
+            selectorBody = new PendingSelectorExpandingExpressionVisitor(this, _extensibilityHelper, applyIncludes: true).Visit(selectorBody);
+            selectorBody = Reduce(selectorBody);
+            selector = Expression.Lambda(selectorBody, groupBySource.CurrentParameter);
+
+            var newSource = Expression.Call(
+                QueryableMethods.Select.MakeGenericMethod(groupBySource.SourceElementType, selector.ReturnType),
+                groupBySource.Source,
+                Expression.Quote(selector));
+
+            var navigationTree = new NavigationTreeExpression(Expression.Default(selector.ReturnType));
+            var parameterName = GetParameterName("e");
+
+            return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, parameterName);
+        }
+
+        private GroupByNavigationExpansionExpression ProcessSkipTake(
+            GroupByNavigationExpansionExpression groupBySource,
+            MethodInfo genericMethod,
+            Expression count)
+        {
+            groupBySource.UpdateSource(Expression.Call(genericMethod.MakeGenericMethod(groupBySource.SourceElementType), groupBySource.Source, count));
+
+            return groupBySource;
+        }
+
+        private GroupByNavigationExpansionExpression ProcessWhere(GroupByNavigationExpansionExpression groupBySource, LambdaExpression predicate)
+        {
+            predicate = ProcessLambdaExpression(groupBySource, predicate);
+            groupBySource.UpdateSource(
+                Expression.Call(
+                    QueryableMethods.Where.MakeGenericMethod(groupBySource.SourceElementType),
+                    groupBySource.Source,
+                    Expression.Quote(predicate)));
+
+            return groupBySource;
         }
 
         private void ApplyPendingOrderings(NavigationExpansionExpression source)
@@ -1663,6 +1864,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private LambdaExpression ProcessLambdaExpression(NavigationExpansionExpression source, LambdaExpression lambdaExpression)
             => GenerateLambda(ExpandNavigationsForSource(source, RemapLambdaExpression(source, lambdaExpression)), source.CurrentParameter);
+
+        private LambdaExpression ProcessLambdaExpression(GroupByNavigationExpansionExpression groupBySource, LambdaExpression lambdaExpression)
+            => Expression.Lambda(
+                Visit(new GroupingElementReplacingExpressionVisitor(lambdaExpression.Parameters[0], groupBySource).Visit(lambdaExpression.Body)),
+                groupBySource.CurrentParameter);
 
         private static IEnumerable<INavigationBase> FindNavigations(IEntityType entityType, string navigationName)
         {

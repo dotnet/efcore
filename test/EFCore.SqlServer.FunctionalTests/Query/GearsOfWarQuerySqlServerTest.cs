@@ -5564,11 +5564,22 @@ ORDER BY [g].[Nickname]");
             await base.Group_by_with_include_with_entity_in_result_selector(async);
 
             AssertSql(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.CityOfBirth].[Name], [g.CityOfBirth].[Location], [g.CityOfBirth].[Nation]
-FROM [Gears] AS [g]
-INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOfBirthName] = [g.CityOfBirth].[Name]
-WHERE [g].[Discriminator] IN (N'Officer', N'Gear')
-ORDER BY [g].[Rank]");
+                @"SELECT [t].[Rank], [t].[c], [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOfBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [t0].[Name], [t0].[Location], [t0].[Nation]
+FROM (
+    SELECT [g].[Rank], COUNT(*) AS [c]
+    FROM [Gears] AS [g]
+    GROUP BY [g].[Rank]
+) AS [t]
+LEFT JOIN (
+    SELECT [t1].[Nickname], [t1].[SquadId], [t1].[AssignedCityName], [t1].[CityOfBirthName], [t1].[Discriminator], [t1].[FullName], [t1].[HasSoulPatch], [t1].[LeaderNickname], [t1].[LeaderSquadId], [t1].[Rank], [t1].[Name], [t1].[Location], [t1].[Nation]
+    FROM (
+        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [c].[Name], [c].[Location], [c].[Nation], ROW_NUMBER() OVER(PARTITION BY [g0].[Rank] ORDER BY [g0].[Nickname]) AS [row]
+        FROM [Gears] AS [g0]
+        INNER JOIN [Cities] AS [c] ON [g0].[CityOfBirthName] = [c].[Name]
+    ) AS [t1]
+    WHERE [t1].[row] <= 1
+) AS [t0] ON [t].[Rank] = [t0].[Rank]
+ORDER BY [t].[Rank]");
         }
 
         public override async Task GroupBy_Property_Include_Select_Max(bool async)
@@ -5586,10 +5597,22 @@ GROUP BY [g].[Rank]");
             await base.Include_with_group_by_and_FirstOrDefault_gets_properly_applied(async);
 
             AssertSql(
-                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [g.CityOfBirth].[Name], [g.CityOfBirth].[Location], [g.CityOfBirth].[Nation]
-FROM [Gears] AS [g]
-INNER JOIN [Cities] AS [g.CityOfBirth] ON [g].[CityOfBirthName] = [g.CityOfBirth].[Name]
-ORDER BY [g].[Rank]");
+                @"SELECT [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOfBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [t0].[Name], [t0].[Location], [t0].[Nation]
+FROM (
+    SELECT [g].[Rank]
+    FROM [Gears] AS [g]
+    GROUP BY [g].[Rank]
+) AS [t]
+LEFT JOIN (
+    SELECT [t1].[Nickname], [t1].[SquadId], [t1].[AssignedCityName], [t1].[CityOfBirthName], [t1].[Discriminator], [t1].[FullName], [t1].[HasSoulPatch], [t1].[LeaderNickname], [t1].[LeaderSquadId], [t1].[Rank], [t1].[Name], [t1].[Location], [t1].[Nation]
+    FROM (
+        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[Discriminator], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], [c].[Name], [c].[Location], [c].[Nation], ROW_NUMBER() OVER(PARTITION BY [g0].[Rank] ORDER BY [g0].[Rank], [c].[Name]) AS [row]
+        FROM [Gears] AS [g0]
+        INNER JOIN [Cities] AS [c] ON [g0].[CityOfBirthName] = [c].[Name]
+        WHERE [g0].[HasSoulPatch] = CAST(1 AS bit)
+    ) AS [t1]
+    WHERE [t1].[row] <= 1
+) AS [t0] ON [t].[Rank] = [t0].[Rank]");
         }
 
         public override async Task Include_collection_with_Cast_to_base(bool async)
@@ -6383,15 +6406,15 @@ ORDER BY [t].[FullName]");
 FROM (
     SELECT [c].[Name], (
         SELECT COUNT(*)
-        FROM [Weapons] AS [w0]
-        WHERE [g].[FullName] = [w0].[OwnerFullName]) AS [Count]
+        FROM [Weapons] AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g]
     LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
     UNION ALL
     SELECT [c0].[Name], (
         SELECT COUNT(*)
-        FROM [Weapons] AS [w]
-        WHERE [g0].[FullName] = [w].[OwnerFullName]) AS [Count]
+        FROM [Weapons] AS [w0]
+        WHERE [g0].[FullName] = [w0].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g0]
     INNER JOIN [Cities] AS [c0] ON [g0].[CityOfBirthName] = [c0].[Name]
 ) AS [t]
@@ -6407,15 +6430,15 @@ GROUP BY [t].[Name], [t].[Count]");
 FROM (
     SELECT [c].[Name], (
         SELECT COUNT(*)
-        FROM [Weapons] AS [w0]
-        WHERE [g].[FullName] = [w0].[OwnerFullName]) AS [Count]
+        FROM [Weapons] AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g]
     LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
     UNION ALL
     SELECT [c0].[Name], (
         SELECT COUNT(*)
-        FROM [Weapons] AS [w]
-        WHERE [g0].[FullName] = [w].[OwnerFullName]) AS [Count]
+        FROM [Weapons] AS [w0]
+        WHERE [g0].[FullName] = [w0].[OwnerFullName]) AS [Count]
     FROM [Gears] AS [g0]
     INNER JOIN [Cities] AS [c0] ON [g0].[CityOfBirthName] = [c0].[Name]
 ) AS [t]
@@ -6470,8 +6493,6 @@ GROUP BY [g].[HasSoulPatch], [s].[Name]");
                 @"SELECT [c].[Name]
 FROM [Gears] AS [g]
 INNER JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
-LEFT JOIN [Cities] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
-INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
 GROUP BY [c].[Name]");
         }
 

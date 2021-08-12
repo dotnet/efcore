@@ -93,5 +93,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Filtered_include_Skip_Take_with_another_Skip_Take_on_top_level(async))).Message);
+
+        public override async Task Skip_Take_Distinct_on_grouping_element(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Skip_Take_Distinct_on_grouping_element(async))).Message);
+
+        public override async Task Skip_Take_on_grouping_element_inside_collection_projection(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Skip_Take_on_grouping_element_inside_collection_projection(async))).Message);
+
+        public override async Task Skip_Take_on_grouping_element_with_collection_include(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Skip_Take_on_grouping_element_with_collection_include(async))).Message);
+
+        public override async Task Skip_Take_on_grouping_element_with_reference_include(bool async)
+            => Assert.Equal(
+                SqliteStrings.ApplyNotSupported,
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Skip_Take_on_grouping_element_with_reference_include(async))).Message);
     }
 }
