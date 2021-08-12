@@ -1599,7 +1599,7 @@ OUTER APPLY (
     GROUP BY [o].[OrderID]
 ) AS [t]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY [c].[CustomerID], [t].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Select_uncorrelated_collection_with_groupby_multiple_collections_work(bool async)
@@ -1620,7 +1620,7 @@ OUTER APPLY (
     GROUP BY [p0].[ProductID]
 ) AS [t0]
 WHERE [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'A%')
-ORDER BY [o].[OrderID], [t].[ProductID], [t0].[ProductID]");
+ORDER BY [o].[OrderID], [t].[ProductID]");
         }
 
         public override async Task Select_GroupBy_All(bool async)
@@ -2630,7 +2630,7 @@ OUTER APPLY (
     FROM [Products] AS [p0]
     GROUP BY [p0].[ProductID]
 ) AS [t1]
-ORDER BY [t].[City], [t0].[ProductID], [t1].[ProductID]");
+ORDER BY [t].[City], [t0].[ProductID]");
         }
 
         public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_does_not_change(bool async)
@@ -2646,7 +2646,7 @@ FROM (
     HAVING [c].[CustomerID] LIKE N'F%'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes(bool async)
@@ -2662,7 +2662,7 @@ FROM (
     HAVING [o].[CustomerID] IS NOT NULL AND ([o].[CustomerID] LIKE N'F%')
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
-ORDER BY [t].[CustomerID], [o0].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)

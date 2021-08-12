@@ -92,7 +92,7 @@ FROM (
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         [ConditionalFact]

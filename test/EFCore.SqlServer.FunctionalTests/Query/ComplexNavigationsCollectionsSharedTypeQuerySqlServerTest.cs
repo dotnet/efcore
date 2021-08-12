@@ -42,7 +42,7 @@ LEFT JOIN (
     ) AS [t1] ON [l2].[Id] = [t1].[Id]
     WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[OneToMany_Optional_Inverse3Id]
-ORDER BY [l].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0], [t0].[Id00]");
+ORDER BY [l].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0]");
         }
 
         public override async Task SelectMany_with_navigation_and_Distinct(bool async)
@@ -65,7 +65,7 @@ LEFT JOIN (
     WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL) AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
 WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL) AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
-ORDER BY [l].[Id], [t].[Id], [t0].[Id], [t0].[Id0]");
+ORDER BY [l].[Id], [t].[Id], [t0].[Id]");
         }
 
         public override async Task SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(bool async)
@@ -87,7 +87,7 @@ LEFT JOIN (
     INNER JOIN [Level1] AS [l3] ON [l2].[Id] = [l3].[Id]
     WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL) AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t].[Id], [t].[Name], [t].[FK], [t0].[Id], [t0].[Id0]");
+ORDER BY [l].[Id], [t].[Id], [t].[Name], [t].[FK], [t0].[Id]");
         }
 
         public override async Task Take_Select_collection_Take(bool async)
@@ -114,7 +114,7 @@ OUTER APPLY (
     ) AS [t1]
     INNER JOIN [Level1] AS [l1] ON [t1].[Level1_Required_Id] = [l1].[Id]
 ) AS [t0]
-ORDER BY [t].[Id], [t0].[Id], [t0].[Id00], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[Id], [t0].[Id00]");
         }
 
         public override async Task Skip_Take_Select_collection_Skip_Take(bool async)
@@ -143,7 +143,7 @@ OUTER APPLY (
     ) AS [t1]
     INNER JOIN [Level1] AS [l1] ON [t1].[Level1_Required_Id] = [l1].[Id]
 ) AS [t0]
-ORDER BY [t].[Id], [t0].[Id], [t0].[Id00], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[Id], [t0].[Id00]");
         }
 
         private void AssertSql(params string[] expected)

@@ -342,7 +342,7 @@ FROM (
     WHERE [c0].[City] = N'London'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Include_Union(bool async)
@@ -361,7 +361,7 @@ FROM (
     WHERE [c0].[City] = N'London'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Select_Except_reference_projection(bool async)
@@ -558,7 +558,7 @@ FROM (
     WHERE [c0].[CustomerID] LIKE N'F%'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Concat_with_one_side_being_GroupBy_aggregate(bool async)
@@ -594,7 +594,7 @@ FROM (
     WHERE [o0].[OrderID] < 10250
 ) AS [t]
 LEFT JOIN [Orders] AS [o1] ON [t].[CustomerID] = [o1].[CustomerID]
-ORDER BY [t].[CustomerID], [o1].[OrderID]");
+ORDER BY [t].[CustomerID]");
         }
 
         public override async Task Union_on_entity_plus_other_column_with_correlated_collection(bool async)
@@ -615,7 +615,7 @@ FROM (
     WHERE [o0].[OrderID] < 10250
 ) AS [t]
 LEFT JOIN [Orders] AS [o1] ON [t].[CustomerID] = [o1].[CustomerID]
-ORDER BY [t].[CustomerID], [t].[OrderDate], [o1].[OrderID]");
+ORDER BY [t].[CustomerID], [t].[OrderDate]");
         }
 
         private void AssertSql(params string[] expected)
