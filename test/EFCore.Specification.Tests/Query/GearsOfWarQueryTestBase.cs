@@ -8975,6 +8975,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Gear>());
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_on_entity_that_is_not_present_in_final_projection_but_uses_TypeIs_instead(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Include(x => x.Weapons)
+                    .Include(x => x.Tag)
+                    .Select(g => new
+                    {
+                        g.Nickname,
+                        IsOfficer = g is Officer
+                    }),
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Nickname, a.Nickname);
+                    AssertEqual(e.IsOfficer, a.IsOfficer);
+                });
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

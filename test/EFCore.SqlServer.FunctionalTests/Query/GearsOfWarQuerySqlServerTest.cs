@@ -8121,6 +8121,18 @@ ORDER BY [t].[Length], [t2].[HasSoulPatch], [t2].[CityOfBirthName], [t2].[Id]");
             AssertSql("");
         }
 
+        public override async Task Include_on_entity_that_is_not_present_in_final_projection_but_uses_TypeIs_instead(bool async)
+        {
+            await base.Include_on_entity_that_is_not_present_in_final_projection_but_uses_TypeIs_instead(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], CASE
+    WHEN [g].[Discriminator] = N'Officer' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsOfficer]
+FROM [Gears] AS [g]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
