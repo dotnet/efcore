@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 columnName, dateType);
 
         /// <summary>
-        ///     A type-qualified method call requires an instance identifier and a MethodInfo.
+        ///     A type-qualified method call requires an instance identifier, a MethodInfo and no chained calls.
         /// </summary>
         public static string CannotGenerateTypeQualifiedMethodCall
             => GetString("CannotGenerateTypeQualifiedMethodCall");

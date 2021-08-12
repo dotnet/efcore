@@ -981,21 +981,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             if (typeQualified)
             {
-                if (instanceIdentifier is null || fragment.MethodInfo is null)
+                if (instanceIdentifier is null || fragment.MethodInfo is null || fragment.ChainedCall is not null)
                 {
                     throw new ArgumentException(DesignStrings.CannotGenerateTypeQualifiedMethodCall);
                 }
 
-                builder.Append(fragment.DeclaringType!);
-
-                if (current.ChainedCall is not null)
-                {
-                    builder
-                        .AppendLine()
-                        .IncrementIndent();
-                }
-
                 builder
+                    .Append(fragment.DeclaringType!)
                     .Append('.')
                     .Append(fragment.Method)
                     .Append('(')
@@ -1009,26 +1001,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
                 builder.Append(')');
 
-                if (current.ChainedCall is null)
-                {
-                    return builder.ToString();
-                }
-
-                builder.AppendLine();
-                current = current.ChainedCall;
+                return builder.ToString();
             }
-            else
-            {
-                if (instanceIdentifier is not null)
-                {
-                    builder.Append(instanceIdentifier);
 
-                    if (current.ChainedCall is not null)
-                    {
-                        builder
-                            .AppendLine()
-                            .IncrementIndent();
-                    }
+            // Non-type-qualified fragment
+
+            if (instanceIdentifier is not null)
+            {
+                builder.Append(instanceIdentifier);
+
+                if (current.ChainedCall is not null)
+                {
+                    builder
+                        .AppendLine()
+                        .IncrementIndent();
                 }
             }
 
