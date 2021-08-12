@@ -737,17 +737,16 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                     // We omit the last ordering as an optimization
                                     var orderingExpression = new OrderingExpression(updatedColumn, ascending: true);
 
-                                    if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
+                                    if (!_orderings.Any(o => o.Expression.Equals(updatedColumn)))
                                     {
                                         if (pendingOrdering is not null)
                                         {
-                                            AppendOrderingInternal(pendingOrdering);
-
                                             if (orderingExpression.Equals(pendingOrdering))
                                             {
-                                                pendingOrdering = null;
                                                 continue;
                                             }
+
+                                            AppendOrderingInternal(pendingOrdering);
                                         }
 
                                         pendingOrdering = orderingExpression;
