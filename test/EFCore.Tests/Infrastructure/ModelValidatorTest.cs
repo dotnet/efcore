@@ -327,6 +327,34 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Warns_on_double_uniquified_shadow_key_due_to_wrong_type()
+        {
+            var modelBuilder = CreateConventionlessModelBuilder();
+            var model = modelBuilder.Model;
+
+            var principalType = model.AddEntityType(typeof(PrincipalFour));
+            SetPrimaryKey(principalType);
+
+            var dependentType = model.AddEntityType(typeof(DependentFour));
+            SetPrimaryKey(dependentType);
+            dependentType.AddProperty(DependentFour.PrincipalFourIdProperty);
+            dependentType.AddProperty(DependentFour.PrincipalFourId1Property);
+
+            modelBuilder
+                .Entity<PrincipalFour>()
+                .HasMany(e => e.DependentsFours)
+                .WithOne(e => e.PrincipalFour);
+
+            VerifyWarning(
+                CoreResources.LogShadowForeignKeyPropertyCreated(
+                    new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(DependentFour),
+                    nameof(DependentFour.PrincipalFourId) + "2",
+                    nameof(DependentFour.PrincipalFourId)),
+                modelBuilder);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_shadow_key_referenced_by_foreign_key_by_convention()
         {
             var builder = CreateConventionlessModelBuilder();

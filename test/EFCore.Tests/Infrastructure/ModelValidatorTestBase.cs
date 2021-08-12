@@ -300,6 +300,25 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public PrincipalThree PrincipalThreeB { get; set; }
         }
 
+        protected class PrincipalFour
+        {
+            public int Id { get; set; }
+
+            public ICollection<DependentFour> DependentsFours { get; set; }
+        }
+
+        protected class DependentFour
+        {
+            public static readonly PropertyInfo PrincipalFourIdProperty = typeof(DependentFour).GetProperty(nameof(PrincipalFourId));
+            public static readonly PropertyInfo PrincipalFourId1Property = typeof(DependentFour).GetProperty(nameof(PrincipalFourId1));
+
+            public int Id { get; set; }
+
+            public string PrincipalFourId1 { get; set; }
+            public string PrincipalFourId { get; set; }
+            public PrincipalFour PrincipalFour { get; set; }
+        }
+
         protected ModelValidatorTestBase()
             => LoggerFactory = new ListLoggerFactory(l => l == DbLoggerCategory.Model.Validation.Name || l == DbLoggerCategory.Model.Name);
 
