@@ -49,7 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private readonly List<TableReferenceExpression> _tableReferences = new();
         private readonly List<SqlExpression> _groupBy = new();
         private readonly List<OrderingExpression> _orderings = new();
-        private OrderingExpression? _pendingOrdering;
         private HashSet<string> _usedAliases = new();
 
         private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = new();
@@ -729,11 +728,30 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                         .Except(innerSelectExpression._childIdentifiers, _identifierComparer)
                                         .Select(e => (e.Column.MakeNullable(), e.Comparer)));
 
-                                foreach (var identifier in innerSelectExpression._identifier)
+                                OrderingExpression? pendingOrdering = null;
+                                foreach (var (identifierColumn, identifierComparer) in innerSelectExpression._identifier)
                                 {
-                                    var updatedColumn = identifier.Column.MakeNullable();
-                                    _childIdentifiers.Add((updatedColumn, identifier.Comparer));
-                                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true), pending: true);
+                                    var updatedColumn = identifierColumn.MakeNullable();
+                                    _childIdentifiers.Add((updatedColumn, identifierComparer));
+
+                                    // We omit the last ordering as an optimization
+                                    var orderingExpression = new OrderingExpression(updatedColumn, ascending: true);
+
+                                    if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
+                                    {
+                                        if (pendingOrdering is not null)
+                                        {
+                                            AppendOrderingInternal(pendingOrdering);
+
+                                            if (orderingExpression.Equals(pendingOrdering))
+                                            {
+                                                pendingOrdering = null;
+                                                continue;
+                                            }
+                                        }
+
+                                        pendingOrdering = orderingExpression;
+                                    }
                                 }
 
                                 var result = new SingleCollectionInfo(
@@ -774,33 +792,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                 }
 
                                 return (NewArrayInit(typeof(object), updatedExpressions), comparers);
-                            }
-
-                            void AppendOrdering(OrderingExpression orderingExpression, bool pending = false)
-                            {
-                                if (orderingExpression.Equals(_pendingOrdering))
-                                {
-                                    AppendOrderingInternal(_pendingOrdering);
-                                    _pendingOrdering = null;
-                                    return;
-                                }
-
-                                if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
-                                {
-                                    if (_pendingOrdering is not null)
-                                    {
-                                        AppendOrderingInternal(_pendingOrdering);
-                                    }
-
-                                    if (pending)
-                                    {
-                                        _pendingOrdering = orderingExpression;
-                                    }
-                                    else
-                                    {
-                                        AppendOrderingInternal(orderingExpression);
-                                    }
-                                }
                             }
 
                             break;
