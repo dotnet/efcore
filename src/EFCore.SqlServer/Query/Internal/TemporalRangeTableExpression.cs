@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -12,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class TemporalRangeQueryRootExpression : TemporalQueryRootExpression
+    public abstract class TemporalRangeTableExpression : TemporalTableExpression
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,11 +19,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TemporalRangeQueryRootExpression(
-            IEntityType entityType,
-            DateTime from,
-            DateTime to)
-            : base(entityType)
+        protected TemporalRangeTableExpression(ITableBase table, DateTime from, DateTime to)
+            : base(table)
         {
             From = from;
             To = to;
@@ -36,12 +32,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TemporalRangeQueryRootExpression(
-            IAsyncQueryProvider queryProvider,
-            IEntityType entityType,
-            DateTime from,
-            DateTime to)
-            : base(queryProvider, entityType)
+        protected TemporalRangeTableExpression(string name, string? schema, string? alias, DateTime from, DateTime to)
+            : base(name, schema, alias)
         {
             From = from;
             To = to;
@@ -63,37 +55,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public virtual DateTime To { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override bool Equals(object? obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is TemporalRangeQueryRootExpression queryRootExpression
-                    && Equals(queryRootExpression));
-
-        private bool Equals(TemporalRangeQueryRootExpression queryRootExpression)
-            => base.Equals(queryRootExpression)
-                && Equals(From, queryRootExpression.From)
-                && Equals(To, queryRootExpression.To);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override int GetHashCode()
-        {
-            var hashCode = new HashCode();
-            hashCode.Add(base.GetHashCode());
-            hashCode.Add(From);
-            hashCode.Add(To);
-
-            return hashCode.ToHashCode();
-        }
+        /// <inheritdoc />
+        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), From, To);
     }
 }

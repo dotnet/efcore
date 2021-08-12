@@ -739,8 +739,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 if (expression is SelectExpression selectExpression)
                 {
-                    // We ignore projection binding related elements as we don't want to copy them over for top level
-                    // Nested level will have _projection populated and no binding elements
                     var newProjections = selectExpression._projection.Select(Visit).ToList<ProjectionExpression>();
 
                     var newTables = selectExpression._tables.Select(Visit).ToList<TableExpressionBase>();
@@ -792,7 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                 }
 
-                return expression is ICloneable cloneable ? (Expression)cloneable.Clone() : base.Visit(expression);
+                return expression is IClonableTableExpressionBase cloneable ? (Expression)cloneable.Clone() : base.Visit(expression);
             }
         }
 

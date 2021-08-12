@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class TemporalAllQueryRootExpression : QueryRootExpression
+    public class TemporalAllQueryRootExpression : TemporalQueryRootExpression
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,8 +21,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TemporalAllQueryRootExpression(
-            IEntityType entityType)
+        public TemporalAllQueryRootExpression(IEntityType entityType)
             : base(entityType)
         {
         }
@@ -33,9 +32,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public TemporalAllQueryRootExpression(
-            IAsyncQueryProvider queryProvider,
-            IEntityType entityType)
+        public TemporalAllQueryRootExpression(IAsyncQueryProvider queryProvider, IEntityType entityType)
             : base(queryProvider, entityType)
         {
         }
@@ -48,15 +45,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public override Expression DetachQueryProvider()
             => new TemporalAllQueryRootExpression(EntityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => this;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
