@@ -4566,6 +4566,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The foreign key property '{entityType}.{property}' was created in shadow state because a conflicting property with the simple name '{baseName}' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogShadowForeignKeyPropertyCreated(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogShadowForeignKeyPropertyCreated;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogShadowForeignKeyPropertyCreated,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        CoreEventId.ShadowForeignKeyPropertyCreated,
+                        LogLevel.Warning,
+                        "CoreEventId.ShadowForeignKeyPropertyCreated",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            CoreEventId.ShadowForeignKeyPropertyCreated,
+                            _resourceManager.GetString("LogShadowForeignKeyPropertyCreated")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.
         /// </summary>
         public static EventDefinition<string, string> LogShadowPropertyCreated(IDiagnosticsLogger logger)

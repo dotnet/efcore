@@ -1114,6 +1114,43 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
+        ///     Logs for the <see cref="CoreEventId.ShadowForeignKeyPropertyCreated" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="property"> The property. </param>
+        /// <param name="basePropertyName"> The property name that was uniquified. </param>
+        public static void ShadowForeignKeyPropertyCreated(
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property,
+            string basePropertyName)
+        {
+            var definition = CoreResources.LogShadowForeignKeyPropertyCreated(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name, basePropertyName);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new UniquifiedPropertyEventData(
+                    definition,
+                    ShadowForeignKeyPropertyCreated,
+                    property,
+                    basePropertyName);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string ShadowForeignKeyPropertyCreated(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string>)definition;
+            var p = (UniquifiedPropertyEventData)payload;
+            return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name, p.BasePropertyName);
+        }
+
+        /// <summary>
         ///     Logs for the <see cref="CoreEventId.ShadowPropertyCreated" /> event.
         /// </summary>
         /// <param name="diagnostics"> The diagnostics logger to use. </param>

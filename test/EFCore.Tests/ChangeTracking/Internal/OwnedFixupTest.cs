@@ -5259,7 +5259,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 modelBuilder.Entity<Thing>().OwnsMany(
                     p => p.OwnedByThings, a =>
                     {
-                        a.WithOwner().HasForeignKey(e => e.ThingId);
+                        a.WithOwner(e => e.Thing).HasForeignKey(e => e.ThingId);
                         a.HasKey(e => e.OwnedByThingId);
                     });
             }
