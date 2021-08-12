@@ -21,8 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// </summary>
     public class RelationalSqlTranslatingExpressionVisitorFactory : IRelationalSqlTranslatingExpressionVisitorFactory
     {
-        private readonly RelationalSqlTranslatingExpressionVisitorDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -32,8 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         public RelationalSqlTranslatingExpressionVisitorFactory(
             RelationalSqlTranslatingExpressionVisitorDependencies dependencies)
         {
-            _dependencies = dependencies;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual RelationalSqlTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(queryableMethodTranslatingExpressionVisitor, nameof(queryableMethodTranslatingExpressionVisitor));
 
             return new RelationalSqlTranslatingExpressionVisitor(
-                _dependencies,
+                Dependencies,
                 queryCompilationContext,
                 queryableMethodTranslatingExpressionVisitor);
         }

@@ -39,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        public virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
+        protected virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     The update SQL generator.

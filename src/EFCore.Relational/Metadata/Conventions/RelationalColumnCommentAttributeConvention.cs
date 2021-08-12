@@ -4,6 +4,7 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -22,7 +23,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Called after a property is added to the entity type with an attribute on the associated CLR property or field.

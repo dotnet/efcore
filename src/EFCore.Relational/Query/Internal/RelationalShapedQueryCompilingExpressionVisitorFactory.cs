@@ -21,9 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class RelationalShapedQueryCompilingExpressionVisitorFactory : IShapedQueryCompilingExpressionVisitorFactory
     {
-        private readonly ShapedQueryCompilingExpressionVisitorDependencies _dependencies;
-        private readonly RelationalShapedQueryCompilingExpressionVisitorDependencies _relationalDependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,9 +31,22 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             ShapedQueryCompilingExpressionVisitorDependencies dependencies,
             RelationalShapedQueryCompilingExpressionVisitorDependencies relationalDependencies)
         {
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Check.NotNull(dependencies, nameof(dependencies));
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ShapedQueryCompilingExpressionVisitorDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalShapedQueryCompilingExpressionVisitorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             return new RelationalShapedQueryCompilingExpressionVisitor(
-                _dependencies,
-                _relationalDependencies,
+                Dependencies,
+                RelationalDependencies,
                 queryCompilationContext);
         }
     }

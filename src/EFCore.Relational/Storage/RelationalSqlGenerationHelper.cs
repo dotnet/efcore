@@ -32,7 +32,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+        
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalSqlGenerationHelperDependencies Dependencies { get; }
 
         /// <summary>
         ///     The terminator to be used for SQL statements.

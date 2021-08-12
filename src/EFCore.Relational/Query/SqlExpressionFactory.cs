@@ -30,9 +30,15 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
             _typeMappingSource = dependencies.TypeMappingSource;
             _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool))!;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual SqlExpressionFactoryDependencies Dependencies { get; }
 
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]

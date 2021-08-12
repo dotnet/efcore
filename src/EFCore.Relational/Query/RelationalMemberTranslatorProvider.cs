@@ -38,11 +38,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
+            
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
             _translators
                 .AddRange(
                     new[] { new NullableMemberTranslator(dependencies.SqlExpressionFactory) });
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual RelationalMemberTranslatorProviderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual SqlExpression? Translate(

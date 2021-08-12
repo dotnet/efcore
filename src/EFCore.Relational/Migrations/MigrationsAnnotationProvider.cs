@@ -30,7 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         public MigrationsAnnotationProvider(MigrationsAnnotationProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual MigrationsAnnotationProviderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> ForRemove(IRelationalModel model)

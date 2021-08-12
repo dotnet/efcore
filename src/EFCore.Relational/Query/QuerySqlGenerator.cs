@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 

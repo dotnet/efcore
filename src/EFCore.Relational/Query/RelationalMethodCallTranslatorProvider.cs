@@ -40,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
+            
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
 
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
@@ -60,6 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
             _sqlExpressionFactory = sqlExpressionFactory;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual RelationalMethodCallTranslatorProviderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual SqlExpression? Translate(

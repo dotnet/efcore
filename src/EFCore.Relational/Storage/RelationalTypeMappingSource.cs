@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Dependencies used to create this <see cref="RelationalTypeMappingSource" />
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 

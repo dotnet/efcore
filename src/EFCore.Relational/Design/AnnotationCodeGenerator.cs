@@ -47,7 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual AnnotationCodeGeneratorDependencies Dependencies { get; }
 

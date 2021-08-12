@@ -36,7 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             : base(typeof(ILazyLoader))
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual LazyLoaderParameterBindingFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     Checks whether or not this factory can bind a parameter with the given type and name.

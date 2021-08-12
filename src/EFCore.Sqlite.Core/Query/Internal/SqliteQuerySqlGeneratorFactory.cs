@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
 {
@@ -13,8 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteQuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     {
-        private readonly QuerySqlGeneratorDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -23,8 +22,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         /// </summary>
         public SqliteQuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
         {
-            _dependencies = dependencies;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,6 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QuerySqlGenerator Create()
-            => new SqliteQuerySqlGenerator(_dependencies);
+            => new SqliteQuerySqlGenerator(Dependencies);
     }
 }

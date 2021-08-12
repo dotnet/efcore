@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosQueryContextFactory : IQueryContextFactory
     {
-        private readonly QueryContextDependencies _dependencies;
         private readonly ICosmosClientWrapper _cosmosClient;
 
         /// <summary>
@@ -31,9 +30,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(cosmosClient, nameof(cosmosClient));
 
-            _dependencies = dependencies;
+            Dependencies = dependencies;
             _cosmosClient = cosmosClient;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryContextDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,6 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QueryContext Create()
-            => new CosmosQueryContext(_dependencies, _cosmosClient);
+            => new CosmosQueryContext(Dependencies, _cosmosClient);
     }
 }

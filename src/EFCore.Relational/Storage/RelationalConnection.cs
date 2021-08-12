@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public virtual DbContext Context { get; }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalConnectionDependencies Dependencies { get; }
 

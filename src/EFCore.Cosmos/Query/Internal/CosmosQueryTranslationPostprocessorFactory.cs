@@ -22,7 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class CosmosQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
     {
-        private readonly QueryTranslationPostprocessorDependencies _dependencies;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
@@ -35,9 +34,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             QueryTranslationPostprocessorDependencies dependencies,
             ISqlExpressionFactory sqlExpressionFactory)
         {
-            _dependencies = dependencies;
+            Dependencies = dependencies;
             _sqlExpressionFactory = sqlExpressionFactory;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             return new CosmosQueryTranslationPostprocessor(
-                _dependencies,
+                Dependencies,
                 _sqlExpressionFactory,
                 queryCompilationContext);
         }

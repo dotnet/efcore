@@ -44,12 +44,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
+            
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             _typeMappingSource = dependencies.TypeMappingSource;
             _parameterNameGeneratorFactory = dependencies.ParameterNameGeneratorFactory;
             _parametersValues = default!;
             _parameterNameGenerator = default!;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalParameterBasedSqlProcessorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

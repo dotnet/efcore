@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual CSharpRuntimeAnnotationCodeGeneratorDependencies Dependencies { get; }
 

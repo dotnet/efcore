@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Parameter object containing relational dependencies for this service.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalDatabaseDependencies RelationalDependencies { get; }
 

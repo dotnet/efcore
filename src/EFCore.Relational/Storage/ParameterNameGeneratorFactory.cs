@@ -29,7 +29,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public ParameterNameGeneratorFactory(ParameterNameGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual ParameterNameGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new <see cref="ParameterNameGenerator" />.

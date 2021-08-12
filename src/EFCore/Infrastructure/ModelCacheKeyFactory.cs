@@ -31,7 +31,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public ModelCacheKeyFactory(ModelCacheKeyFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ModelCacheKeyFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     Gets the model cache key for a given context.

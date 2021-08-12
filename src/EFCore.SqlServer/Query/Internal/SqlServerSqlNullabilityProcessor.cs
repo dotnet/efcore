@@ -21,7 +21,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerSqlNullabilityProcessor(RelationalParameterBasedSqlProcessorDependencies dependencies, bool useRelationalNulls)
+        public SqlServerSqlNullabilityProcessor(
+            RelationalParameterBasedSqlProcessorDependencies dependencies, 
+            bool useRelationalNulls)
             : base(dependencies, useRelationalNulls)
         {
         }

@@ -43,7 +43,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public EntityMaterializerSource(EntityMaterializerSourceDependencies dependencies)
         {
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual EntityMaterializerSourceDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

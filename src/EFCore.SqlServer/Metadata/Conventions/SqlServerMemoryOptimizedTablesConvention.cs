@@ -27,12 +27,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Called after an annotation is changed on an entity type.

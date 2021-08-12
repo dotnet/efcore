@@ -13,9 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     /// </summary>
     public class SqliteQueryTranslationPostprocessorFactory : IQueryTranslationPostprocessorFactory
     {
-        private readonly QueryTranslationPostprocessorDependencies _dependencies;
-        private readonly RelationalQueryTranslationPostprocessorDependencies _relationalDependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -26,9 +23,19 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
             QueryTranslationPostprocessorDependencies dependencies,
             RelationalQueryTranslationPostprocessorDependencies relationalDependencies)
         {
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryTranslationPostprocessorDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalQueryTranslationPostprocessorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
         public virtual QueryTranslationPostprocessor Create(QueryCompilationContext queryCompilationContext)
         {
             return new SqliteQueryTranslationPostprocessor(
-                _dependencies,
-                _relationalDependencies,
+                Dependencies,
+                RelationalDependencies,
                 queryCompilationContext);
         }
     }

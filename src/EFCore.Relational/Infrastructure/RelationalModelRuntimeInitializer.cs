@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The relational dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalModelRuntimeInitializerDependencies RelationalDependencies { get; }
 
