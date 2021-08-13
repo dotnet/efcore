@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,9 +26,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         services using the 'With...' methods. Do not call the constructor at any point in this process.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public sealed record SqlExpressionFactoryDependencies
@@ -52,16 +54,26 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     </para>
         /// </summary>
         [EntityFrameworkInternal]
-        public SqlExpressionFactoryDependencies(IRelationalTypeMappingSource typeMappingSource)
+        public SqlExpressionFactoryDependencies(IModel model, IRelationalTypeMappingSource typeMappingSource)
         {
+            Check.NotNull(model, nameof(model));
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
+            Model = model;
+#pragma warning disable CS0618 // Type or member is obsolete
             TypeMappingSource = typeMappingSource;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
+        [Obsolete("Use Model instead")]
         public IRelationalTypeMappingSource TypeMappingSource { get; init; }
+
+        /// <summary>
+        ///     The type mapping source.
+        /// </summary>
+        public IModel Model { get; init; }
     }
 }

@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -519,5 +521,40 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The configuration source for the collation. </returns>
         public static ConfigurationSource? GetCollationConfigurationSource(this IConventionModel model)
             => model.FindAnnotation(RelationalAnnotationNames.Collation)?.GetConfigurationSource();
+
+        /// <summary>
+        ///     Gets the relational database type for a given object, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="value"> The object to get the mapping for. </param>
+        /// <returns> The type mapping to be used. </returns>
+        public static RelationalTypeMapping GetMappingForValue(
+            this IModel model,
+            object? value)
+            => value == null
+                || value == DBNull.Value
+                    ? RelationalTypeMapping.NullMapping
+                    : model.GetMapping(value.GetType());
+
+        /// <summary>
+        ///     Gets the relational database type for a given .NET type, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="model"> The model. </param>
+        /// <param name="clrType"> The type to get the mapping for. </param>
+        /// <returns> The type mapping to be used. </returns>
+        public static RelationalTypeMapping GetMapping(
+            this IModel model,
+            Type clrType)
+        {
+            Check.NotNull(clrType, nameof(clrType));
+
+            var mapping = model.FindMapping(clrType);
+            if (mapping != null)
+            {
+                return (RelationalTypeMapping)mapping;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType.ShortDisplayName()));
+        }
     }
 }

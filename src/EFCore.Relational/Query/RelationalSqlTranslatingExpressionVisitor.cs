@@ -1050,7 +1050,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     // Introduce explicit cast only if the target type is mapped else we need to client eval
                     if (unaryExpression.Type == typeof(object)
-                        || Dependencies.TypeMappingSource.FindMapping(unaryExpression.Type) != null)
+                        || Dependencies.Model.FindMapping(unaryExpression.Type) != null)
                     {
                         sqlOperand = _sqlExpressionFactory.ApplyDefaultTypeMapping(sqlOperand);
 

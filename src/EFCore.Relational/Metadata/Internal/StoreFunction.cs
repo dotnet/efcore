@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public StoreFunction(IRuntimeDbFunction dbFunction, RelationalModel model)
             : base(dbFunction.Name, dbFunction.Schema, model)
         {
-            DbFunctions = new SortedDictionary<string, IDbFunction> { { dbFunction.ModelName, dbFunction } };
+            DbFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal) { { dbFunction.ModelName, dbFunction } };
             IsBuiltIn = dbFunction.IsBuiltIn;
             ReturnType = dbFunction.StoreType;
 

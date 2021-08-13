@@ -1,12 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -28,6 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var assembly = typeof(ReverseEngineeringConfigurationTests).Assembly;
             var reverseEngineer = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
                 .Build("Microsoft.EntityFrameworkCore.SqlServer")
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             Assert.Equal(

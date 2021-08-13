@@ -50,7 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var constraints = GetConstraintsDictionary(EntityType);
             if (constraints == null)
             {
-                constraints = new SortedDictionary<string, ICheckConstraint>();
+                constraints = new SortedDictionary<string, ICheckConstraint>(StringComparer.Ordinal);
                 ((IMutableEntityType)EntityType).SetOrRemoveAnnotation(RelationalAnnotationNames.CheckConstraints, constraints);
             }
 

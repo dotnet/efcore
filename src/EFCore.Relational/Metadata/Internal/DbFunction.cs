@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         private static SortedDictionary<string, IDbFunction> GetOrCreateFunctions(IMutableModel model)
             => (SortedDictionary<string, IDbFunction>)(
-                model[RelationalAnnotationNames.DbFunctions] ??= new SortedDictionary<string, IDbFunction>());
+                model[RelationalAnnotationNames.DbFunctions] ??= new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
                             return !string.IsNullOrEmpty(dbFunction._storeType)
                                         ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
-                                        : relationalTypeMappingSource.FindMapping(dbFunction.ReturnType)!;
+                                        : relationalTypeMappingSource.FindMapping(dbFunction.ReturnType, (IModel)dbFunction.Model)!;
                         })
                     : _typeMapping;
             set => SetTypeMapping(value, ConfigurationSource.Explicit);

@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IReadOnlyList<ReaderColumn>? readerColumns,
             DbContext? context,
             IRelationalCommandDiagnosticsLogger? logger,
-            bool detailedErrorsEnabled) : this(connection, parameterValues, readerColumns, context,
-                                               logger, detailedErrorsEnabled, CommandSource.Unknown)
+            bool detailedErrorsEnabled)
+            : this(connection, parameterValues, readerColumns, context, logger, detailedErrorsEnabled, CommandSource.Unknown)
         {
         }
 

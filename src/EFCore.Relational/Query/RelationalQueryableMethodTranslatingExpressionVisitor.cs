@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
     {
         private readonly RelationalSqlTranslatingExpressionVisitor _sqlTranslator;
-        private readonly WeakEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
+        private readonly SharedTypeEntityExpandingExpressionVisitor _sharedTypeEntityExpandingExpressionVisitor;
         private readonly RelationalProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
             _queryCompilationContext = queryCompilationContext;
             _sqlTranslator = relationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(queryCompilationContext, this);
-            _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
+            _sharedTypeEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_sqlTranslator, sqlExpressionFactory);
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = sqlExpressionFactory;
             _subquery = false;
@@ -71,8 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             _queryCompilationContext = parentVisitor._queryCompilationContext;
             _sqlTranslator = RelationalDependencies.RelationalSqlTranslatingExpressionVisitorFactory.Create(
                 parentVisitor._queryCompilationContext, parentVisitor);
-            _weakEntityExpandingExpressionVisitor =
-                new WeakEntityExpandingExpressionVisitor(_sqlTranslator, parentVisitor._sqlExpressionFactory);
+            _sharedTypeEntityExpandingExpressionVisitor =
+                new SharedTypeEntityExpandingExpressionVisitor(_sqlTranslator, parentVisitor._sqlExpressionFactory);
             _projectionBindingExpressionVisitor = new RelationalProjectionBindingExpressionVisitor(this, _sqlTranslator);
             _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
             _subquery = true;
@@ -489,7 +489,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         new[] { translatedKey, groupByShaper })
                     .Visit(resultSelector.Body);
 
-                newResultSelectorBody = ExpandWeakEntities(selectExpression, newResultSelectorBody);
+                newResultSelectorBody = ExpandSharedTypeEntities(selectExpression, newResultSelectorBody);
 
                 return source.UpdateShaperExpression(
                     _projectionBindingExpressionVisitor.Translate(selectExpression, newResultSelectorBody));
@@ -1163,13 +1163,13 @@ namespace Microsoft.EntityFrameworkCore.Query
             var lambdaBody = ReplacingExpressionVisitor.Replace(
                 lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
 
-            return ExpandWeakEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
+            return ExpandSharedTypeEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
         }
 
-        internal Expression ExpandWeakEntities(SelectExpression selectExpression, Expression lambdaBody)
-            => _weakEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
+        internal Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
+            => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
 
-        private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _objectEqualsMethodInfo
                 = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
@@ -1179,7 +1179,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private SelectExpression _selectExpression;
 
-            public WeakEntityExpandingExpressionVisitor(
+            public SharedTypeEntityExpandingExpressionVisitor(
                 RelationalSqlTranslatingExpressionVisitor sqlTranslator,
                 ISqlExpressionFactory sqlExpressionFactory)
             {

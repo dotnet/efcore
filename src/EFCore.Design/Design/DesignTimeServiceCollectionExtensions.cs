@@ -64,11 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                     .TryAddSingleton<INamedConnectionStringResolver>(
                         new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
                     .TryAddSingleton<IPluralizer, HumanizerPluralizer>()
-                    .TryAddSingleton<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                     .TryAddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                     .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
                     .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
                     .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
+                    .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
                     .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
                     .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
                     .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());

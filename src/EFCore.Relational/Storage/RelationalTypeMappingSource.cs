@@ -357,6 +357,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 customConverter = firstConfiguration?.ClrType == type
                     ? firstConfiguration.GetValueConverter()
                     : null;
+
+                if (customConverter != null)
+                {
+                    mappingInfo = mappingInfo with { ClrType = customConverter.ProviderClrType };
+                }
             }
 
             return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
@@ -489,7 +494,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <inheritdoc />
         RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(Type type, IModel model)
-            => (RelationalTypeMapping?)FindMapping(type);
+            => (RelationalTypeMapping?)FindMapping(type, model);
 
         /// <inheritdoc />
         RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(MemberInfo member)

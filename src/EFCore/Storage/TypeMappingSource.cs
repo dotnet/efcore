@@ -242,6 +242,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 customConverter = firstConfiguration?.ClrType == type
                     ? firstConfiguration.GetValueConverter()
                     : null;
+
+                if (customConverter != null)
+                {
+                    mappingInfo = mappingInfo with { ClrType = customConverter.ProviderClrType };
+                }
             }
 
             return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
