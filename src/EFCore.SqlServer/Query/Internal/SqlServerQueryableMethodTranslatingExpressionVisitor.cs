@@ -3,8 +3,8 @@
 
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
@@ -60,24 +60,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is TemporalAsOfQueryRootExpression
-                || extensionExpression is TemporalRangeQueryRootExpression
-                || extensionExpression is TemporalAllQueryRootExpression)
+            if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
             {
-                var queryRootExpression = (QueryRootExpression)extensionExpression;
-
                 // sql server model validator will throw if entity is mapped to multiple tables
                 var table = queryRootExpression.EntityType.GetTableMappings().Single().Table;
                 var temporalTableExpression = queryRootExpression switch
                 {
-                    TemporalRangeQueryRootExpression range => new TemporalTableExpression(
-                        table,
-                        range.From,
-                        range.To,
-                        range.TemporalOperationType),
-                    TemporalAsOfQueryRootExpression asOf => new TemporalTableExpression(table, asOf.PointInTime),
-                    // all
-                    _ => new TemporalTableExpression(table),
+                    TemporalAllQueryRootExpression _ => (TemporalTableExpression)new TemporalAllTableExpression(table),
+                    TemporalAsOfQueryRootExpression asOf => new TemporalAsOfTableExpression(table, asOf.PointInTime),
+                    TemporalBetweenQueryRootExpression between => new TemporalBetweenTableExpression(table, between.From, between.To),
+                    TemporalContainedInQueryRootExpression containedIn => new TemporalContainedInTableExpression(table, containedIn.From, containedIn.To),
+                    TemporalFromToQueryRootExpression fromTo => new TemporalFromToTableExpression(table, fromTo.From, fromTo.To),
+                    _ => throw new InvalidOperationException(queryRootExpression.Print())
                 };
 
                 var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(

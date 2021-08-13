@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
     ///         an issue at https://github.com/dotnet/efcore.
     ///     </para>
     /// </summary>
-    public sealed class TableExpression : TableExpressionBase, ICloneable
+    public sealed class TableExpression : TableExpressionBase, IClonableTableExpressionBase
     {
         internal TableExpression(ITableBase table)
             : base(table.Name.Substring(0, 1).ToLowerInvariant())
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         public ITableBase Table { get; }
 
         /// <inheritdoc />
-        public object Clone()
+        public TableExpressionBase Clone()
             => new TableExpression(Table) { Alias = Alias };
 
         /// <inheritdoc />

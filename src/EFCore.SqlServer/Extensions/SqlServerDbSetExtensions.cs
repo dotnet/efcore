@@ -36,10 +36,13 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
 
             var queryableSource = (IQueryable)source;
+            var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
+            var entityType = queryRootExpression.EntityType;
 
             return queryableSource.Provider.CreateQuery<TEntity>(
-                GenerateTemporalAsOfQueryRoot<TEntity>(
-                    queryableSource,
+                new TemporalAsOfQueryRootExpression(
+                    queryRootExpression.QueryProvider!,
+                    entityType,
                     utcPointInTime)).AsNoTracking();
         }
 
@@ -73,13 +76,15 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
 
             var queryableSource = (IQueryable)source;
+            var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
+            var entityType = queryRootExpression.EntityType;
 
             return queryableSource.Provider.CreateQuery<TEntity>(
-                GenerateRangeTemporalQueryRoot<TEntity>(
-                    queryableSource,
+                new TemporalFromToQueryRootExpression(
+                    queryRootExpression.QueryProvider!,
+                    entityType,
                     utcFrom,
-                    utcTo,
-                    TemporalOperationType.FromTo)).AsNoTracking();
+                    utcTo)).AsNoTracking();
         }
 
         /// <summary>
@@ -112,13 +117,15 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
 
             var queryableSource = (IQueryable)source;
+            var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
+            var entityType = queryRootExpression.EntityType;
 
             return queryableSource.Provider.CreateQuery<TEntity>(
-                GenerateRangeTemporalQueryRoot<TEntity>(
-                    queryableSource,
+                new TemporalBetweenQueryRootExpression(
+                    queryRootExpression.QueryProvider!,
+                    entityType,
                     utcFrom,
-                    utcTo,
-                    TemporalOperationType.Between)).AsNoTracking();
+                    utcTo)).AsNoTracking();
         }
 
         /// <summary>
@@ -151,13 +158,15 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
 
             var queryableSource = (IQueryable)source;
+            var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
+            var entityType = queryRootExpression.EntityType;
 
             return queryableSource.Provider.CreateQuery<TEntity>(
-                GenerateRangeTemporalQueryRoot<TEntity>(
-                    queryableSource,
+                new TemporalContainedInQueryRootExpression(
+                    queryRootExpression.QueryProvider!,
+                    entityType,
                     utcFrom,
-                    utcTo,
-                    TemporalOperationType.ContainedIn)).AsNoTracking();
+                    utcTo)).AsNoTracking();
         }
 
         /// <summary>
@@ -180,42 +189,9 @@ namespace Microsoft.EntityFrameworkCore
             var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
             var entityType = queryRootExpression.EntityType;
 
-            var temporalQueryRootExpression = new TemporalAllQueryRootExpression(
-                queryRootExpression.QueryProvider!,
-                entityType);
-
-            return queryableSource.Provider.CreateQuery<TEntity>(temporalQueryRootExpression)
-                .AsNoTracking();
-        }
-
-        private static Expression GenerateTemporalAsOfQueryRoot<TEntity>(
-            IQueryable source,
-            DateTime pointInTime)
-        {
-            var queryRootExpression = (QueryRootExpression)source.Expression;
-            var entityType = queryRootExpression.EntityType;
-
-            return new TemporalAsOfQueryRootExpression(
-                queryRootExpression.QueryProvider!,
-                entityType,
-                pointInTime: pointInTime);
-        }
-
-        private static Expression GenerateRangeTemporalQueryRoot<TEntity>(
-            IQueryable source,
-            DateTime from,
-            DateTime to,
-            TemporalOperationType temporalOperationType)
-        {
-            var queryRootExpression = (QueryRootExpression)source.Expression;
-            var entityType = queryRootExpression.EntityType;
-
-            return new TemporalRangeQueryRootExpression(
-                queryRootExpression.QueryProvider!,
-                entityType,
-                from: from,
-                to: to,
-                temporalOperationType: temporalOperationType);
+            return queryableSource.Provider.CreateQuery<TEntity>(
+                new TemporalAllQueryRootExpression(
+                    queryRootExpression.QueryProvider!, entityType)).AsNoTracking();
         }
     }
 }
