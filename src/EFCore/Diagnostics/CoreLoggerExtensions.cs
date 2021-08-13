@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Logging;
 
@@ -895,6 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     ProductInfo.GetVersion(),
                     context.GetType().ShortDisplayName(),
                     context.Database.ProviderName,
+                    GetProviderVersion(context),
                     contextOptions.BuildOptionsFragment());
             }
 
@@ -912,14 +914,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string ContextInitialized(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string?, string>)definition;
+            var d = (EventDefinition<string, string, string?, string?, string>)definition;
             var p = (ContextInitializedEventData)payload;
             return d.GenerateMessage(
                 ProductInfo.GetVersion(),
                 p.Context.GetType().ShortDisplayName(),
                 p.Context.Database.ProviderName,
+                GetProviderVersion(p.Context),
                 p.ContextOptions.BuildOptionsFragment());
         }
+        
+        private static string? GetProviderVersion(DbContext context)
+            => context.GetService<IEnumerable<IDatabaseProvider>>().FirstOrDefault()?.Version;
 
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ExecutionStrategyRetrying" /> event.

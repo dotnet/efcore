@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         public virtual string Name
             => typeof(TOptionsExtension).Assembly.GetName().Name!;
+
+        /// <summary>
+        ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
+        ///     for the providers runtime.
+        /// </summary>
+        public virtual string? Version
+            => typeof(TOptionsExtension).Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
 
         /// <summary>
         ///     Gets a value indicating whether this database provider has been selected for a given context.

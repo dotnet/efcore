@@ -3217,9 +3217,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}
+        ///     Entity Framework Core {version} initialized '{contextType}' using provider '{provider}:{providerVersion}' with options: {options}
         /// </summary>
-        public static EventDefinition<string, string, string?, string> LogContextInitialized(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string?, string?, string> LogContextInitialized(IDiagnosticsLogger logger)
         {
             var definition = ((LoggingDefinitions)logger.Definitions).LogContextInitialized;
             if (definition == null)
@@ -3227,18 +3227,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((LoggingDefinitions)logger.Definitions).LogContextInitialized,
                     logger,
-                    static logger => new EventDefinition<string, string, string?, string>(
+                    static logger => new EventDefinition<string, string, string?, string?, string>(
                         logger.Options,
                         CoreEventId.ContextInitialized,
                         LogLevel.Information,
                         "CoreEventId.ContextInitialized",
-                        level => LoggerMessage.Define<string, string, string?, string>(
+                        level => LoggerMessage.Define<string, string, string?, string?, string>(
                             level,
                             CoreEventId.ContextInitialized,
                             _resourceManager.GetString("LogContextInitialized")!)));
             }
 
-            return (EventDefinition<string, string, string?, string>)definition;
+            return (EventDefinition<string, string, string?, string?, string>)definition;
         }
 
         /// <summary>
