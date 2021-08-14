@@ -36,6 +36,12 @@ namespace Microsoft.EntityFrameworkCore
     ///         property on a derived <see cref="DbContext" /> or from the <see cref="DbContext.Set{TEntity}()" />
     ///         method.
     ///     </para>
+    ///     <para>
+    ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+    ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+    ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+    ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+    ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
     public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
