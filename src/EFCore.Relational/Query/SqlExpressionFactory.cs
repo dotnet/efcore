@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <inheritdoc />
     public class SqlExpressionFactory : ISqlExpressionFactory
     {
-        private readonly IModel _model;
         private readonly RelationalTypeMapping _boolTypeMapping;
 
         /// <summary>
@@ -28,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
-            _model = dependencies.Model;
-            _boolTypeMapping = (RelationalTypeMapping)_model.FindMapping(typeof(bool))!;
+            _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
         }
 
         /// <summary>
@@ -40,16 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]
         public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
-        {
-            return sqlExpression == null
+            => sqlExpression == null
                 || sqlExpression.TypeMapping != null
                     ? sqlExpression
                     : sqlExpression is SqlUnaryExpression sqlUnaryExpression
                     && sqlUnaryExpression.OperatorType == ExpressionType.Convert
                     && sqlUnaryExpression.Type == typeof(object)
                         ? sqlUnaryExpression.Operand
-                        : ApplyTypeMapping(sqlExpression, (RelationalTypeMapping?)_model.FindMapping(sqlExpression.Type));
-        }
+                        : ApplyTypeMapping(sqlExpression, Dependencies.TypeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
 
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]
@@ -86,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         likeExpression.Match, likeExpression.Pattern)
                     : ExpressionExtensions.InferTypeMapping(
                         likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar))
-                ?? (RelationalTypeMapping?)_model.FindMapping(likeExpression.Match.Type);
+                ?? Dependencies.TypeMappingSource.FindMapping(likeExpression.Match.Type, Dependencies.Model);
 
             return new LikeExpression(
                 ApplyTypeMapping(likeExpression.Match, inferredTypeMapping),
@@ -189,8 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                         // We avoid object here since the result does not get typeMapping from outside.
                         ?? (left.Type != typeof(object)
-                            ? (RelationalTypeMapping?)_model.FindMapping(left.Type)
-                            : (RelationalTypeMapping?)_model.FindMapping(right.Type));
+                            ? Dependencies.TypeMappingSource.FindMapping(left.Type, Dependencies.Model)
+                            : Dependencies.TypeMappingSource.FindMapping(right.Type, Dependencies.Model));
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                     break;
@@ -411,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var resultType = right.Type;
             var inferredTypeMapping = typeMapping
                 ?? ExpressionExtensions.InferTypeMapping(left, right)
-                ?? (RelationalTypeMapping?)_model.FindMapping(resultType);
+                ?? Dependencies.TypeMappingSource.FindMapping(resultType, Dependencies.Model);
 
             var typeMappedArguments = new List<SqlExpression>
             {
@@ -506,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // Since we never look at type of Operand/Test after this place,
                 // we need to find actual typeMapping based on non-object type.
                 ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
-                    .Where(t => t != typeof(object)).Select(t => (RelationalTypeMapping?)_model.FindMapping(t)).FirstOrDefault();
+                    .Where(t => t != typeof(object)).Select(t => Dependencies.TypeMappingSource.FindMapping(t, Dependencies.Model)).FirstOrDefault();
 
             var resultTypeMapping = elseResult?.TypeMapping
                 ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
@@ -748,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(item, nameof(item));
             Check.NotNull(values, nameof(values));
 
-            var typeMapping = item.TypeMapping ?? (RelationalTypeMapping?)_model.FindMapping(item.Type);
+            var typeMapping = item.TypeMapping ?? Dependencies.TypeMappingSource.FindMapping(item.Type, Dependencies.Model);
 
             item = ApplyTypeMapping(item, typeMapping);
             values = ApplyTypeMapping(values, typeMapping);
@@ -978,11 +974,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
         public virtual RelationalTypeMapping GetTypeMappingForValue(object? value)
-            => _model.GetMappingForValue(value);
+            => Dependencies.TypeMappingSource.GetMappingForValue(value, Dependencies.Model);
 
         /// <inheritdoc />
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
         public virtual RelationalTypeMapping? FindMapping(Type type)
-            => (RelationalTypeMapping?)_model.FindMapping(Check.NotNull(type, nameof(type)));
+            => Dependencies.TypeMappingSource.FindMapping(type, Dependencies.Model);
     }
 }

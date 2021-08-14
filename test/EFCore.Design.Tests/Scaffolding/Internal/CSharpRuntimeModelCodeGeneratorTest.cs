@@ -1,10 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -2289,18 +2286,14 @@ namespace TestNamespace
                 => throw new NotImplementedException();
 
             public IQueryable<Data> GetData(int id)
-            {
-                return FromExpression(() => GetData(id));
-            }
+                => FromExpression(() => GetData(id));
 
             public IQueryable<Data> GetData()
-            {
-                return FromExpression(() => GetData());
-            }
+                => FromExpression(() => GetData());
 
             protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
             {
-                configurationBuilder.Properties<string>().HaveMaxLength(256);
+                configurationBuilder.Scalars<string>().HaveMaxLength(256);
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

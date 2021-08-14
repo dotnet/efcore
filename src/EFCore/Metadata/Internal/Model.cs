@@ -653,8 +653,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual CoreTypeMapping? FindMapping(Type type)
-            => ((IModel)this).GetModelDependencies().TypeMappingSource.FindMapping(type, this);
+        public virtual IEnumerable<IScalarTypeConfiguration> GetScalarTypeConfigurations()
+            => Configuration?.GetScalarTypeConfigurations() ?? Enumerable.Empty<IScalarTypeConfiguration>();
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -662,17 +662,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<IPropertyTypeConfiguration> GetPropertyTypeConfigurations()
-            => Configuration?.GetPropertyTypeConfigurations() ?? Enumerable.Empty<IPropertyTypeConfiguration>();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IEnumerable<IPropertyTypeConfiguration>? FindPropertyTypeConfigurations(Type propertyType)
-            => Configuration?.FindPropertyTypeConfigurations(propertyType);
+        public virtual IScalarTypeConfiguration? FindScalarTypeConfiguration(Type propertyType)
+            => Configuration?.FindScalarTypeConfiguration(propertyType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -60,15 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(typeMappingSource, nameof(typeMappingSource));
 
             Model = model;
-#pragma warning disable CS0618 // Type or member is obsolete
             TypeMappingSource = typeMappingSource;
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         /// <summary>
         ///     The type mapping source.
         /// </summary>
-        [Obsolete("Use Model instead")]
         public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 
         /// <summary>

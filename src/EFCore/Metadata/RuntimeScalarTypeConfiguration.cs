@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a scalar property type.
     /// </summary>
-    public sealed class RuntimePropertyTypeConfiguration : AnnotatableBase, IPropertyTypeConfiguration
+    public sealed class RuntimeScalarTypeConfiguration : AnnotatableBase, IScalarTypeConfiguration
     {
         private readonly ValueConverter? _valueConverter;
 
@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public RuntimePropertyTypeConfiguration(
+        public RuntimeScalarTypeConfiguration(
             Type clrType,
             int? maxLength,
             bool? unicode,
@@ -71,28 +71,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
-        int? IPropertyTypeConfiguration.GetMaxLength() => (int?)this[CoreAnnotationNames.MaxLength];
+        int? IScalarTypeConfiguration.GetMaxLength() => (int?)this[CoreAnnotationNames.MaxLength];
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
-        bool? IPropertyTypeConfiguration.IsUnicode() => (bool?)this[CoreAnnotationNames.Unicode];
+        bool? IScalarTypeConfiguration.IsUnicode() => (bool?)this[CoreAnnotationNames.Unicode];
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
-        int? IPropertyTypeConfiguration.GetPrecision() => (int?)this[CoreAnnotationNames.Precision];
+        int? IScalarTypeConfiguration.GetPrecision() => (int?)this[CoreAnnotationNames.Precision];
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
-        int? IPropertyTypeConfiguration.GetScale() => (int?)this[CoreAnnotationNames.Scale];
+        int? IScalarTypeConfiguration.GetScale() => (int?)this[CoreAnnotationNames.Scale];
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
-        ValueConverter? IPropertyTypeConfiguration.GetValueConverter()
+        ValueConverter? IScalarTypeConfiguration.GetValueConverter()
             => _valueConverter;
 
         /// <inheritdoc/>
         [DebuggerStepThrough]
-        Type? IPropertyTypeConfiguration.GetProviderClrType()
+        Type? IScalarTypeConfiguration.GetProviderClrType()
             => (Type?)this[CoreAnnotationNames.ProviderClrType];
     }
 }

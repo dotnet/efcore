@@ -312,17 +312,17 @@ namespace System
                 type = typesToProcess.Dequeue();
                 baseTypes.Add(type);
 
+                if (type.IsConstructedGenericType)
+                {
+                    typesToProcess.Enqueue(type.GetGenericTypeDefinition());
+                }
+
                 if (!type.IsGenericTypeDefinition
                     && !type.IsInterface)
                 {
                     if (type.BaseType != null)
                     {
                         typesToProcess.Enqueue(type.BaseType);
-                    }
-
-                    if (type.IsConstructedGenericType)
-                    {
-                        typesToProcess.Enqueue(type.GetGenericTypeDefinition());
                     }
 
                     foreach (var @interface in GetDeclaredInterfaces(type))

@@ -840,14 +840,6 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected class CustomValueComparer<T> : ValueComparer<T>
-        {
-            public CustomValueComparer()
-                : base(false)
-            {
-            }
-        }
-
         protected enum TheExperience : ushort
         {
             Jimi,

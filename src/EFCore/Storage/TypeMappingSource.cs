@@ -1,10 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Concurrent;
 using System.Reflection;
-using System.Security.Principal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
@@ -184,69 +182,25 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(Type type, IModel model)
         {
-            var typeConfigurations = model.FindPropertyTypeConfigurations(type);
-            var mappingInfo = new TypeMappingInfo(type);
+            type = type.UnwrapNullableType();
+            var typeConfiguration = model.FindScalarTypeConfiguration(type);
+            TypeMappingInfo mappingInfo;
             Type? providerClrType = null;
             ValueConverter? customConverter = null;
-            if (typeConfigurations != null)
+            if (typeConfiguration == null)
             {
-                foreach (var typeConfiguration in typeConfigurations)
-                {
-                    if (providerClrType == null)
-                    {
-                        var providerType = typeConfiguration.GetProviderClrType();
-                        if (providerType != null)
-                        {
-                            providerClrType = providerType.UnwrapNullableType();
-                        }
-                    }
-
-                    if (mappingInfo.IsUnicode == null)
-                    {
-                        var isUnicode = typeConfiguration.IsUnicode();
-                        if (isUnicode != null)
-                        {
-                            mappingInfo = mappingInfo with { IsUnicode = isUnicode };
-                        }
-                    }
-
-                    if (mappingInfo.Scale == null)
-                    {
-                        var scale = typeConfiguration.GetScale();
-                        if (scale != null)
-                        {
-                            mappingInfo = mappingInfo with { Scale = scale };
-                        }
-                    }
-
-                    if (mappingInfo.Precision == null)
-                    {
-                        var precision = typeConfiguration.GetPrecision();
-                        if (precision != null)
-                        {
-                            mappingInfo = mappingInfo with { Precision = precision };
-                        }
-                    }
-
-                    if (mappingInfo.Size == null)
-                    {
-                        var size = typeConfiguration.GetMaxLength();
-                        if (size != null)
-                        {
-                            mappingInfo = mappingInfo with { Size = size };
-                        }
-                    }
-                }
-
-                var firstConfiguration = typeConfigurations.FirstOrDefault();
-                customConverter = firstConfiguration?.ClrType == type
-                    ? firstConfiguration.GetValueConverter()
-                    : null;
-
-                if (customConverter != null)
-                {
-                    mappingInfo = mappingInfo with { ClrType = customConverter.ProviderClrType };
-                }
+                mappingInfo = new TypeMappingInfo(type);
+            }
+            else
+            {
+                providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
+                customConverter = typeConfiguration.GetValueConverter();
+                mappingInfo = new TypeMappingInfo(
+                    customConverter?.ProviderClrType ?? type,
+                    unicode: typeConfiguration.IsUnicode(),
+                    size: typeConfiguration.GetMaxLength(),
+                    precision: typeConfiguration.GetPrecision(),
+                    scale: typeConfiguration.GetScale());
             }
 
             return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);

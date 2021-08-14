@@ -1,13 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
-
-#nullable disable warnings
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 {
@@ -25,7 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        SqlExpression ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping typeMapping);
+        [return: NotNullIfNotNull("sqlExpression")]
+        SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,7 +31,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        SqlExpression ApplyDefaultTypeMapping(SqlExpression? sqlExpression);
+        [return: NotNullIfNotNull("sqlExpression")]
+        SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

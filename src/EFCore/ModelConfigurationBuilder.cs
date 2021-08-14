@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Marks the given and derived types as corresponding to entity type properties.
         /// </summary>
         /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
-        /// <returns> An object that can be used to provide the configuration defaults for the properties. </returns>
+        /// <returns> An object that can be used to configure the properties. </returns>
         public virtual PropertiesConfigurationBuilder<TProperty> Properties<TProperty>()
         {
             var property = _modelConfiguration.GetOrAddProperty(typeof(TProperty));
@@ -135,6 +135,72 @@ namespace Microsoft.EntityFrameworkCore
 
             var propertyBuilder = Properties(propertyType);
             buildAction(propertyBuilder);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Marks the given type as a scalar, even when used outside of entity types.
+        /// </summary>
+        /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
+        /// <returns> An object that can be used to configure the scalars. </returns>
+        public virtual ScalarConfigurationBuilder<TScalar> Scalars<TScalar>()
+        {
+            var scalar = _modelConfiguration.GetOrAddScalar(typeof(TScalar));
+
+            return new ScalarConfigurationBuilder<TScalar>(scalar);
+        }
+
+        /// <summary>
+        ///     Marks the given type as a scalar, even when used outside of entity types.
+        /// </summary>
+        /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
+        /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder Scalars<TScalar>(
+            Action<ScalarConfigurationBuilder<TScalar>> buildAction)
+        {
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            var scalarBuilder = Scalars<TScalar>();
+            buildAction(scalarBuilder);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     Marks the given type as a scalar, even when used outside of entity types.
+        /// </summary>
+        /// <param name="scalarType"> The scalar type to be configured. </param>
+        /// <returns> An object that can be used to configure the scalars. </returns>
+        public virtual ScalarConfigurationBuilder Scalars(Type scalarType)
+        {
+            Check.NotNull(scalarType, nameof(scalarType));
+
+            var scalar = _modelConfiguration.GetOrAddScalar(scalarType);
+
+            return new ScalarConfigurationBuilder(scalar);
+        }
+
+        /// <summary>
+        ///     Marks the given type as a scalar, even when used outside of entity types.
+        /// </summary>
+        /// <param name="scalarType"> The scalar type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder Scalars(
+            Type scalarType,
+            Action<ScalarConfigurationBuilder> buildAction)
+        {
+            Check.NotNull(scalarType, nameof(scalarType));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            var scalarBuilder = Scalars(scalarType);
+            buildAction(scalarBuilder);
 
             return this;
         }

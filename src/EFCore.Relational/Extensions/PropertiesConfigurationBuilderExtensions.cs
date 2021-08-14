@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Relational database specific extension methods for <see cref="PropertyBuilder" />.
+    ///     Relational database specific extension methods for <see cref="PropertiesConfigurationBuilder" />.
     /// </summary>
     public static class PropertiesConfigurationBuilderExtensions
     {
