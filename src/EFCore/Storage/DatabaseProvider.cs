@@ -54,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             => typeof(TOptionsExtension).Assembly.GetName().Name!;
 
         /// <summary>
-        ///     The unique name used to identify the database provider. This should be the same as the NuGet package name
-        ///     for the providers runtime.
+        ///     The value of the <see cref="AssemblyInformationalVersionAttribute.InformationalVersion" />
+        ///     for the database provider assembly.
         /// </summary>
         public virtual string? Version
             => typeof(TOptionsExtension).Assembly
