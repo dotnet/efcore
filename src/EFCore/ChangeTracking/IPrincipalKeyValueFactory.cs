@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TKey"> The key type. </typeparam>
+    /// <seealso href="https://aka.ms/efcore-docs-providers">Documentation for EF Core database providers.</seealso>
     public interface IPrincipalKeyValueFactory<TKey>
     {
         /// <summary>

@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TElement"> The array element type. </typeparam>
+    /// <seealso href="https://aka.ms/efcore-docs-value-comparers">Documentation for EF Core value comparers.</seealso>
     public class ArrayStructuralComparer<TElement> : ValueComparer<TElement[]>
     {
         /// <summary>

@@ -47,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
+    /// <seealso href="https://aka.ms/efcore-docs-local-views">Documentation for local views of tracked entities in EF Core.</seealso>
     public class LocalView<TEntity> :
         ICollection<TEntity>,
         INotifyCollectionChanged,

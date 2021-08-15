@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// </summary>
     /// <typeparam name="TEntity"> The type of the entity the property belongs to. </typeparam>
     /// <typeparam name="TRelatedEntity"> The type of the property. </typeparam>
+    /// <seealso href="https://aka.ms/efcore-docs-entity-entries">Documentation for accessing tracked entities in EF Core.</seealso>
     public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
         where TEntity : class
         where TRelatedEntity : class

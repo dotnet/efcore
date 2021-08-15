@@ -26,6 +26,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="T"> The type. </typeparam>
+    /// <seealso href="https://aka.ms/efcore-docs-value-comparers">Documentation for EF Core value comparers.</seealso>
     public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
     {
         private Func<T?, T?, bool>? _equals;

@@ -19,6 +19,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <typeparam name="TKey"> The generic type of the key. </typeparam>
+    /// <seealso href="https://aka.ms/efcore-docs-providers">Documentation for EF Core database providers.</seealso>
     public interface IDependentKeyValueFactory<TKey>
     {
         /// <summary>

@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     Instances of this class are typically obtained from <see cref="DbContext.ChangeTracker" /> and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
+    /// <seealso href="https://aka.ms/efcore-docs-change-tracking">Documentation for EF Core change tracking.</seealso>
     public class ChangeTracker : IResettableService
     {
         private readonly IRuntimeModel _model;

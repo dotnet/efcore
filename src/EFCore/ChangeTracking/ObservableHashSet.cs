@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     for a collection navigation property.
     /// </summary>
     /// <typeparam name="T"> The type of elements in the hash set. </typeparam>
+    /// <seealso href="https://aka.ms/efcore-docs-local-views">Documentation for local views of tracked entities in EF Core.</seealso>
     public class ObservableHashSet<T>
         : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
     {

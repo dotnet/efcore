@@ -7,6 +7,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     Defines different strategies for when cascading actions will be performed.
     ///     See <see cref="ChangeTracker.CascadeDeleteTiming" /> and <see cref="ChangeTracker.DeleteOrphansTiming" />.
     /// </summary>
+    /// <seealso href="https://aka.ms/efcore-docs-cascading">Documentation for EF Core cascade deletes and deleting orphans.</seealso>
     public enum CascadeTiming
     {
         /// <summary>
