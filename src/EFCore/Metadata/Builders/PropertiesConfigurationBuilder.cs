@@ -115,53 +115,67 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         }
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to the given type before
+        ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
+        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertiesConfigurationBuilder HaveConversion<TProvider>()
-            => HaveConversion(typeof(TProvider));
+        public virtual PropertiesConfigurationBuilder HaveConversion<TConversion>()
+            => HaveConversion(typeof(TConversion));
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to the given type before
+        ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="providerClrType"> The type to convert to and from. </param>
+        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertiesConfigurationBuilder HaveConversion(Type providerClrType)
+        public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType)
         {
-            Check.NotNull(providerClrType, nameof(providerClrType));
+            Check.NotNull(conversionType, nameof(conversionType));
 
-            Property.SetProviderClrType(providerClrType);
+            if (typeof(ValueConverter).IsAssignableFrom(conversionType))
+            {
+                Property.SetValueConverter(conversionType);
+            }
+            else
+            {
+                Property.SetProviderClrType(conversionType);
+            }
 
             return this;
         }
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to and from the database
-        ///     using the given <see cref="ValueConverter" />.
+        ///     Configures the property so that the property value is converted before
+        ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TConverter"> A type that derives from <see cref="ValueConverter"/>. </typeparam>
+        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </typeparam>
         /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer"/>. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertiesConfigurationBuilder HaveConversion<TConverter, TComparer>()
-            where TConverter : ValueConverter
+        public virtual PropertiesConfigurationBuilder HaveConversion<TConversion, TComparer>()
             where TComparer : ValueComparer
-            => HaveConversion(typeof(TConverter), typeof(TComparer));
+            => HaveConversion(typeof(TConversion), typeof(TComparer));
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to and from the database
-        ///     using the given <see cref="ValueConverter" />.
+        ///     Configures the property so that the property value is converted before
+        ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="converterType"> A type that derives from <see cref="ValueConverter"/>. </param>
+        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </param>
         /// <param name="comparerType"> A type that derives from <see cref="ValueComparer"/>. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertiesConfigurationBuilder HaveConversion(Type converterType, Type? comparerType)
+        public virtual PropertiesConfigurationBuilder HaveConversion(Type conversionType, Type? comparerType)
         {
-            Check.NotNull(converterType, nameof(converterType));
+            Check.NotNull(conversionType, nameof(conversionType));
 
-            Property.SetValueConverter(converterType);
+            if (typeof(ValueConverter).IsAssignableFrom(conversionType))
+            {
+                Property.SetValueConverter(conversionType);
+            }
+            else
+            {
+                Property.SetProviderClrType(conversionType);
+            }
+
             Property.SetValueComparer(comparerType);
 
             return this;

@@ -761,7 +761,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         b.Property(e => e.Up);
                         b.Property(e => e.Down).HasConversion<byte[]>();
-                        b.Property<int>("Charm").HasConversion(typeof(long));
+                        b.Property<int>("Charm").HasConversion(typeof(long), typeof(CustomValueComparer<int>));
                         b.Property<string>("Strange").HasConversion<byte[]>();
                         b.Property<string>("Strange").HasConversion((Type)null);
                     });
@@ -769,10 +769,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.FinalizeModel();
                 var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.Null(entityType.FindProperty("Up").GetProviderClrType());
-                Assert.Same(typeof(byte[]), entityType.FindProperty("Down").GetProviderClrType());
-                Assert.Same(typeof(long), entityType.FindProperty("Charm").GetProviderClrType());
-                Assert.Null(entityType.FindProperty("Strange").GetProviderClrType());
+                var up = entityType.FindProperty("Up");
+                Assert.Null(up.GetProviderClrType());
+                Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
+
+                var down = entityType.FindProperty("Down");
+                Assert.Same(typeof(byte[]), down.GetProviderClrType());
+                Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+
+                var charm = entityType.FindProperty("Charm");
+                Assert.Same(typeof(long), charm.GetProviderClrType());
+                Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
+
+                var strange = entityType.FindProperty("Strange");
+                Assert.Null(strange.GetProviderClrType());
+                Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
             }
 
             [ConditionalFact]
@@ -834,7 +845,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     b =>
                     {
                         b.Property(e => e.Up);
-                        b.Property(e => e.Down).HasConversion(typeof(UTF8StringToBytesConverter), typeof(CustomValueComparer<string>));
+                        b.Property(e => e.Down).HasConversion(typeof(UTF8StringToBytesConverter));
                         b.Property<int>("Charm").HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
                         b.Property<string>("Strange").HasConversion(typeof(UTF8StringToBytesConverter), typeof(CustomValueComparer<string>));
                         b.Property<string>("Strange").HasConversion((ValueConverter)null, null);
@@ -847,14 +858,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
                 var down = entityType.FindProperty("Down");
                 Assert.IsType<UTF8StringToBytesConverter>(down.GetValueConverter());
-                Assert.IsType<CustomValueComparer<string>>(down.GetValueComparer());
+                Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
 
                 var charm = entityType.FindProperty("Charm");
                 Assert.IsType<CastingConverter<int, long>>(charm.GetValueConverter());
                 Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
 
                 Assert.Null(entityType.FindProperty("Strange").GetValueConverter());
-                Assert.IsAssignableFrom<ValueComparer<string>>(entityType.FindProperty("Strange").GetValueComparer());
+                Assert.IsAssignableFrom<ValueComparer.DefaultValueComparer<string>>(entityType.FindProperty("Strange").GetValueComparer());
             }
 
             private class UTF8StringToBytesConverter : StringToBytesConverter
@@ -933,7 +944,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder(c =>
                 {
                     c.Properties<IDictionary<string, object>>().HaveMaxLength(20);
-                    c.Properties<ExpandoObject>().HaveConversion(typeof(ExpandoObjectConverter), typeof(ExpandoObjectComparer));
+                    c.Properties<ExpandoObject>().HaveConversion(typeof(ExpandoObjectConverter));
                 });
 
                 modelBuilder.Entity<DynamicProperty>();
@@ -944,7 +955,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var expandoProperty = entityType.FindProperty(nameof(DynamicProperty.ExpandoObject));
                 Assert.Equal(20, expandoProperty.GetMaxLength());
                 Assert.IsType<ExpandoObjectConverter>(expandoProperty.GetValueConverter());
-                Assert.IsType<ExpandoObjectComparer>(expandoProperty.GetValueComparer());
+                Assert.IsType<ValueComparer<ExpandoObject>>(expandoProperty.GetValueComparer());
             }
 
             [ConditionalFact]
