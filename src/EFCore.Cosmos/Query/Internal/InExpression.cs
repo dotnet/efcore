@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             SqlExpression item,
             bool negated,
             SqlExpression values,
-            CoreTypeMapping? typeMapping)
+            CoreTypeMapping typeMapping)
             : base(typeof(bool), typeMapping)
         {
             Item = item;
