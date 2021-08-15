@@ -2839,7 +2839,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Checks whether this <see cref="SelectExpression" /> representes a <see cref="FromSqlExpression" /> which is not composed upon.
+        ///     Checks whether this <see cref="SelectExpression" /> represents a <see cref="FromSqlExpression" /> which is not composed upon.
         /// </summary>
         /// <returns> A bool value indicating a non-composed <see cref="FromSqlExpression" />. </returns>
         public bool IsNonComposedFromSql()

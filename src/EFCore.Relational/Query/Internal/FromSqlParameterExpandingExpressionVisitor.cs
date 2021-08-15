@@ -92,94 +92,88 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
-            if (expression is FromSqlExpression fromSql)
+            if (expression is not FromSqlExpression fromSql)
             {
-                if (!_visitedFromSqlExpressions.TryGetValue(fromSql, out var updatedFromSql))
-                {
-                    switch (fromSql.Arguments)
-                    {
-                        case ParameterExpression parameterExpression:
-                            // parameter value will never be null. It could be empty object[]
-                            var parameterValues = (object[])_parametersValues[parameterExpression.Name!]!;
-                            _canCache = false;
-
-                            var subParameters = new List<IRelationalParameter>(parameterValues.Length);
-                            // ReSharper disable once ForCanBeConvertedToForeach
-                            for (var i = 0; i < parameterValues.Length; i++)
-                            {
-                                var parameterName = _parameterNameGenerator.GenerateNext();
-                                if (parameterValues[i] is DbParameter dbParameter)
-                                {
-                                    if (string.IsNullOrEmpty(dbParameter.ParameterName))
-                                    {
-                                        dbParameter.ParameterName = parameterName;
-                                    }
-                                    else
-                                    {
-                                        parameterName = dbParameter.ParameterName;
-                                    }
-
-                                    subParameters.Add(new RawRelationalParameter(parameterName, dbParameter));
-                                }
-                                else
-                                {
-                                    subParameters.Add(
-                                        new TypeMappedRelationalParameter(
-                                            parameterName,
-                                            parameterName,
-                                            _typeMappingSource.GetMappingForValue(parameterValues[i]),
-                                            parameterValues[i]?.GetType().IsNullableType()));
-                                }
-                            }
-
-                            updatedFromSql = fromSql.Update(
-                                Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
-
-                            _visitedFromSqlExpressions[fromSql] = updatedFromSql;
-                            break;
-
-                        case ConstantExpression constantExpression:
-                            var existingValues = constantExpression.GetConstantValue<object?[]>();
-                            var constantValues = new object?[existingValues.Length];
-                            for (var i = 0; i < existingValues.Length; i++)
-                            {
-                                var value = existingValues[i];
-                                if (value is DbParameter dbParameter)
-                                {
-                                    var parameterName = _parameterNameGenerator.GenerateNext();
-                                    if (string.IsNullOrEmpty(dbParameter.ParameterName))
-                                    {
-                                        dbParameter.ParameterName = parameterName;
-                                    }
-                                    else
-                                    {
-                                        parameterName = dbParameter.ParameterName;
-                                    }
-
-                                    constantValues[i] = new RawRelationalParameter(parameterName, dbParameter);
-                                }
-                                else
-                                {
-                                    constantValues[i] = _sqlExpressionFactory.Constant(
-                                        value, _typeMappingSource.GetMappingForValue(value));
-                                }
-                            }
-
-                            updatedFromSql = fromSql.Update(Expression.Constant(constantValues, typeof(object?[])));
-
-                            _visitedFromSqlExpressions[fromSql] = updatedFromSql;
-                            break;
-
-                        default:
-                            Check.DebugAssert(false, "FromSql.Arguments must be Constant/ParameterExpression");
-                            break;
-                    }
-                }
-
-                return updatedFromSql;
+                return base.Visit(expression);
             }
 
-            return base.Visit(expression);
+            if (_visitedFromSqlExpressions.TryGetValue(fromSql, out var visitedFromSql))
+            {
+                return visitedFromSql;
+            }
+
+            switch (fromSql.Arguments)
+            {
+                case ParameterExpression parameterExpression:
+                    // parameter value will never be null. It could be empty object[]
+                    var parameterValues = (object[])_parametersValues[parameterExpression.Name!]!;
+                    _canCache = false;
+
+                    var subParameters = new List<IRelationalParameter>(parameterValues.Length);
+                    // ReSharper disable once ForCanBeConvertedToForeach
+                    for (var i = 0; i < parameterValues.Length; i++)
+                    {
+                        var parameterName = _parameterNameGenerator.GenerateNext();
+                        if (parameterValues[i] is DbParameter dbParameter)
+                        {
+                            if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                            {
+                                dbParameter.ParameterName = parameterName;
+                            }
+                            else
+                            {
+                                parameterName = dbParameter.ParameterName;
+                            }
+
+                            subParameters.Add(new RawRelationalParameter(parameterName, dbParameter));
+                        }
+                        else
+                        {
+                            subParameters.Add(
+                                new TypeMappedRelationalParameter(
+                                    parameterName,
+                                    parameterName,
+                                    _typeMappingSource.GetMappingForValue(parameterValues[i]),
+                                    parameterValues[i]?.GetType().IsNullableType()));
+                        }
+                    }
+
+                    return _visitedFromSqlExpressions[fromSql] = fromSql.Update(
+                        Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
+
+                case ConstantExpression constantExpression:
+                    var existingValues = constantExpression.GetConstantValue<object?[]>();
+                    var constantValues = new object?[existingValues.Length];
+                    for (var i = 0; i < existingValues.Length; i++)
+                    {
+                        var value = existingValues[i];
+                        if (value is DbParameter dbParameter)
+                        {
+                            var parameterName = _parameterNameGenerator.GenerateNext();
+                            if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                            {
+                                dbParameter.ParameterName = parameterName;
+                            }
+                            else
+                            {
+                                parameterName = dbParameter.ParameterName;
+                            }
+
+                            constantValues[i] = new RawRelationalParameter(parameterName, dbParameter);
+                        }
+                        else
+                        {
+                            constantValues[i] = _sqlExpressionFactory.Constant(
+                                value, _typeMappingSource.GetMappingForValue(value));
+                        }
+                    }
+
+                    return _visitedFromSqlExpressions[fromSql] = fromSql.Update(Expression.Constant(constantValues, typeof(object?[])));
+
+                default:
+                    Check.DebugAssert(false, "FromSql.Arguments must be Constant/ParameterExpression");
+                    return null;
+            }
         }
     }
 }

@@ -363,8 +363,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             switch (fromSqlExpression.Arguments)
             {
-                case ConstantExpression constantExpression
-                    when constantExpression.Value is CompositeRelationalParameter compositeRelationalParameter:
+                case ConstantExpression { Value: CompositeRelationalParameter compositeRelationalParameter }:
                 {
                     var subParameters = compositeRelationalParameter.RelationalParameters;
                     substitutions = new string[subParameters.Count];
@@ -378,8 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     break;
                 }
 
-                case ConstantExpression constantExpression
-                    when constantExpression.Value is object[] constantValues:
+                case ConstantExpression { Value: object[] constantValues }:
                 {
                     substitutions = new string[constantValues.Length];
                     for (var i = 0; i < constantValues.Length; i++)
@@ -398,14 +396,21 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     break;
                 }
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(fromSqlExpression),
+                        fromSqlExpression.Arguments,
+                        RelationalStrings.InvalidFromSqlArguments(
+                            fromSqlExpression.Arguments.GetType(),
+                            fromSqlExpression.Arguments is ConstantExpression constantExpression
+                                ? constantExpression.Value?.GetType()
+                                : null));
             }
 
-            if (substitutions != null)
-            {
-                // ReSharper disable once CoVariantArrayConversion
-                // InvariantCulture not needed since substitutions are all strings
-                sql = string.Format(sql, substitutions);
-            }
+            // ReSharper disable once CoVariantArrayConversion
+            // InvariantCulture not needed since substitutions are all strings
+            sql = string.Format(sql, substitutions);
 
             _relationalCommandBuilder.AppendLines(sql);
         }

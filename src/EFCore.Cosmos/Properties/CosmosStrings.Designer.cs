@@ -87,6 +87,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 derivedType, entityType);
 
         /// <summary>
+        ///     A FromSqlExpression has an invalid arguments expression type '{expressionType}' or value type '{valueType}'.
+        /// </summary>
+        public static string InvalidFromSqlArguments(object? expressionType, object? valueType)
+            => string.Format(
+                GetString("InvalidFromSqlArguments", nameof(expressionType), nameof(valueType)),
+                expressionType, valueType);
+
+        /// <summary>
         ///     Unable to generate a valid 'id' value to execute a 'ReadItem' query. This usually happens when the value provided for one of the properties is 'null' or an empty string. Please supply a value that's not 'null' or an empty string.
         /// </summary>
         public static string InvalidResourceId

@@ -693,6 +693,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 derivedType, entityType);
 
         /// <summary>
+        ///     A FromSqlExpression has an invalid arguments expression type '{expressionType}' or value type '{valueType}'.
+        /// </summary>
+        public static string InvalidFromSqlArguments(object? expressionType, object? valueType)
+            => string.Format(
+                GetString("InvalidFromSqlArguments", nameof(expressionType), nameof(valueType)),
+                expressionType, valueType);
+
+        /// <summary>
         ///     The grouping key '{keySelector}' is of type '{keyType}' which is not valid key.
         /// </summary>
         public static string InvalidKeySelectorForGroupBy(object? keySelector, object? keyType)

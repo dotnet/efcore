@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Newtonsoft.Json;
@@ -25,10 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     /// </summary>
     public class QuerySqlGenerator : SqlExpressionVisitor
     {
-        private readonly StringBuilder _sqlBuilder = new();
+        private readonly ITypeMappingSource _typeMappingSource;
+        private readonly IndentedStringBuilder _sqlBuilder = new();
         private IReadOnlyDictionary<string, object> _parameterValues;
         private List<SqlParameter> _sqlParameters;
         private bool _useValueProjection;
+        private ParameterNameGenerator _parameterNameGenerator;
 
         private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
         {
@@ -70,6 +72,15 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public QuerySqlGenerator(ITypeMappingSource typeMappingSource)
+            => _typeMappingSource = typeMappingSource;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual CosmosSqlQuery GetSqlQuery(
             SelectExpression selectExpression,
             IReadOnlyDictionary<string, object> parameterValues)
@@ -77,6 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlBuilder.Clear();
             _parameterValues = parameterValues;
             _sqlParameters = new List<SqlParameter>();
+            _parameterNameGenerator = new ParameterNameGenerator();
 
             Visit(selectExpression);
 
@@ -108,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(objectArrayProjectionExpression, nameof(objectArrayProjectionExpression));
 
-            _sqlBuilder.Append(objectArrayProjectionExpression);
+            _sqlBuilder.Append(objectArrayProjectionExpression.ToString());
 
             return objectArrayProjectionExpression;
         }
@@ -123,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(keyAccessExpression, nameof(keyAccessExpression));
 
-            _sqlBuilder.Append(keyAccessExpression);
+            _sqlBuilder.Append(keyAccessExpression.ToString());
 
             return keyAccessExpression;
         }
@@ -138,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(objectAccessExpression, nameof(objectAccessExpression));
 
-            _sqlBuilder.Append(objectAccessExpression);
+            _sqlBuilder.Append(objectAccessExpression.ToString());
 
             return objectAccessExpression;
         }
@@ -180,7 +192,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(rootReferenceExpression, nameof(rootReferenceExpression));
 
-            _sqlBuilder.Append(rootReferenceExpression);
+            _sqlBuilder.Append(rootReferenceExpression.ToString());
 
             return rootReferenceExpression;
         }
@@ -225,7 +237,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             _sqlBuilder.AppendLine();
 
-            _sqlBuilder.Append("FROM root ");
+            if (selectExpression.FromExpression is FromSqlExpression)
+            {
+                _sqlBuilder.Append("FROM ");
+            }
+            else
+            {
+                _sqlBuilder.Append("FROM root ");
+            }
             Visit(selectExpression.FromExpression);
             _sqlBuilder.AppendLine();
 
@@ -270,6 +289,73 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             }
 
             return selectExpression;
+        }
+
+        /// <inheritdoc />
+        protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
+        {
+            Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
+
+            var sql = fromSqlExpression.Sql;
+
+            string[] substitutions;
+
+            switch (fromSqlExpression.Arguments)
+            {
+                case ParameterExpression { Name : not null } parameterExpression
+                    when _parameterValues.TryGetValue(parameterExpression.Name, out var parameterValue)
+                    && parameterValue is object[] parameterValues:
+                {
+                    substitutions = new string[parameterValues.Length];
+                    for (var i = 0; i < parameterValues.Length; i++)
+                    {
+                        var parameterName = _parameterNameGenerator.GenerateNext();
+                        _sqlParameters.Add(new SqlParameter(parameterName, parameterValues[i]));
+                        substitutions[i] = parameterName;
+                    }
+
+                    break;
+                }
+
+                case ConstantExpression { Value : object[] constantValues }:
+                {
+                    substitutions = new string[constantValues.Length];
+                    for (var i = 0; i < constantValues.Length; i++)
+                    {
+                        var value = constantValues[i];
+                        substitutions[i] = GenerateConstant(value, _typeMappingSource.FindMapping(value.GetType()));
+                    }
+
+                    break;
+                }
+
+                default:
+                    throw new ArgumentOutOfRangeException(
+                        nameof(fromSqlExpression),
+                        fromSqlExpression.Arguments,
+                        CosmosStrings.InvalidFromSqlArguments(
+                            fromSqlExpression.Arguments.GetType(),
+                            fromSqlExpression.Arguments is ConstantExpression constantExpression
+                                ? constantExpression.Value?.GetType()
+                                : null));
+            }
+
+            // ReSharper disable once CoVariantArrayConversion
+            // InvariantCulture not needed since substitutions are all strings
+            sql = string.Format(sql, substitutions);
+
+            _sqlBuilder.AppendLine("(");
+
+            using (_sqlBuilder.Indent())
+            {
+                _sqlBuilder.AppendLines(sql);
+            }
+
+            _sqlBuilder
+                .Append(") ")
+                .Append(fromSqlExpression.Alias);
+
+            return fromSqlExpression;
         }
 
         /// <summary>
@@ -350,7 +436,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         private void GenerateList<T>(
             IReadOnlyList<T> items,
             Action<T> generationAction,
-            Action<StringBuilder> joinAction = null)
+            Action<IndentedStringBuilder> joinAction = null)
         {
             joinAction ??= (isb => isb.Append(", "));
 
@@ -375,11 +461,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Check.NotNull(sqlConstantExpression, nameof(sqlConstantExpression));
 
-            var jToken = GenerateJToken(sqlConstantExpression.Value, sqlConstantExpression.TypeMapping);
-
-            _sqlBuilder.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
+            _sqlBuilder.Append(GenerateConstant(sqlConstantExpression.Value, sqlConstantExpression.TypeMapping));
 
             return sqlConstantExpression;
+        }
+
+        private string GenerateConstant(object value, CoreTypeMapping typeMapping)
+        {
+            var jToken = GenerateJToken(value, typeMapping);
+
+            return jToken is null ? "null" : jToken.ToString(Formatting.None);
         }
 
         private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
@@ -487,6 +578,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _sqlBuilder.Append(')');
 
             return sqlFunctionExpression;
+        }
+
+        private sealed class ParameterNameGenerator
+        {
+            private int _count;
+
+            public string GenerateNext()
+                => "@p" + _count++;
         }
     }
 }

@@ -51,6 +51,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public SelectExpression(IEntityType entityType, string sql, Expression argument)
+        {
+            Container = entityType.GetContainer();
+            FromExpression = new FromSqlExpression(entityType, RootAlias, sql, argument);
+            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, new RootReferenceExpression(entityType, RootAlias));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public SelectExpression(
             List<ProjectionExpression> projections,
             RootReferenceExpression fromExpression,
@@ -166,18 +179,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         /// </summary>
         public virtual string GetPartitionKey(IReadOnlyDictionary<string, object> parameterValues)
         {
-            switch (_partitionKeyValue)
+            return _partitionKeyValue switch
             {
-                case ConstantExpression constantExpression:
-                    return GetString(_partitionKeyValueConverter, constantExpression.Value);
-
-                case ParameterExpression parameterExpression
-                    when parameterValues.TryGetValue(parameterExpression.Name, out var value):
-                    return GetString(_partitionKeyValueConverter, value);
-
-                default:
-                    return null;
-            }
+                ConstantExpression constantExpression
+                    => GetString(_partitionKeyValueConverter, constantExpression.Value),
+                ParameterExpression parameterExpression when parameterValues.TryGetValue(parameterExpression.Name, out var value)
+                    => GetString(_partitionKeyValueConverter, value),
+                _ => null
+            };
 
             static string GetString(ValueConverter converter, object value)
                 => converter is null
