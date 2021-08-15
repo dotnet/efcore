@@ -55,12 +55,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             AuthToken = TestEnvironment.AuthToken;
             ConnectionString = TestEnvironment.ConnectionString;
             _configureCosmos = extensionConfiguration == null
-                ? (Action<CosmosDbContextOptionsBuilder>)(b => b.ApplyConfiguration())
-                : (b =>
+                ? b => b.ApplyConfiguration()
+                : b =>
                 {
                     b.ApplyConfiguration();
                     extensionConfiguration(b);
-                });
+                };
 
             _storeContext = new TestStoreContext(this);
 

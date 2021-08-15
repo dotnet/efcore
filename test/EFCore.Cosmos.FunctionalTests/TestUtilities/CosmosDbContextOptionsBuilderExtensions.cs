@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Net.Http;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities
@@ -10,8 +12,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
     {
         public static CosmosDbContextOptionsBuilder ApplyConfiguration(this CosmosDbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.ExecutionStrategy(d => new TestCosmosExecutionStrategy(d));
-            optionsBuilder.RequestTimeout(TimeSpan.FromMinutes(1));
+            optionsBuilder
+                .ExecutionStrategy(d => new TestCosmosExecutionStrategy(d))
+                .RequestTimeout(TimeSpan.FromMinutes(20))
+                .HttpClientFactory(
+                    () => new HttpClient(
+                        new HttpClientHandler
+                        {
+                            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                        }))
+                .ConnectionMode(ConnectionMode.Gateway);
 
             return optionsBuilder;
         }
