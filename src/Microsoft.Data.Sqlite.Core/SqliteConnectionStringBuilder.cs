@@ -54,7 +54,7 @@ namespace Microsoft.Data.Sqlite
         private bool? _foreignKeys;
         private bool _recursiveTriggers;
         private int _defaultTimeout = 30;
-        private bool _pooling;
+        private bool _pooling = true;
 
         static SqliteConnectionStringBuilder()
         {
@@ -462,7 +462,7 @@ namespace Microsoft.Data.Sqlite
                     return;
 
                 case Keywords.Pooling:
-                    _pooling = false;
+                    _pooling = true;
                     return;
 
                 default:

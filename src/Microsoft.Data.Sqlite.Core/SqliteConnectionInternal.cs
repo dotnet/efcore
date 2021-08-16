@@ -26,11 +26,6 @@ namespace Microsoft.Data.Sqlite
             var filename = connectionOptions.DataSource;
             var flags = 0;
 
-            if (sqlite3_threadsafe() != 0)
-            {
-                flags |= SQLITE_OPEN_NOMUTEX;
-            }
-
             if (filename.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
             {
                 flags |= SQLITE_OPEN_URI;
