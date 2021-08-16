@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
@@ -470,15 +471,19 @@ namespace Microsoft.Data.Sqlite
         {
             DisposePreparedStatements(disposing: false);
 
+            var byteCount = Encoding.UTF8.GetByteCount(_commandText);
+            var sql = new byte[byteCount + 1];
+            Encoding.UTF8.GetBytes(_commandText, 0, _commandText.Length, sql, 0);
+
             int rc;
             sqlite3_stmt stmt;
-            var tail = _commandText;
+            var start = 0;
             do
             {
                 timer.Start();
 
-                string nextTail;
-                while (IsBusy(rc = sqlite3_prepare_v2(_connection!.Handle, tail, out stmt, out nextTail)))
+                ReadOnlySpan<byte> tail;
+                while (IsBusy(rc = sqlite3_prepare_v2(_connection!.Handle, sql.AsSpan(start), out stmt, out tail)))
                 {
                     if (CommandTimeout != 0
                         && timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
@@ -490,14 +495,14 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 timer.Stop();
-                tail = nextTail;
+                start = sql.Length - tail.Length;
 
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
 
                 // Statement was empty, white space, or a comment
                 if (stmt.IsInvalid)
                 {
-                    if (tail.Length != 0)
+                    if (start < byteCount)
                     {
                         continue;
                     }
@@ -509,7 +514,7 @@ namespace Microsoft.Data.Sqlite
 
                 yield return stmt;
             }
-            while (tail.Length != 0);
+            while (start < byteCount);
 
             _prepared = true;
         }

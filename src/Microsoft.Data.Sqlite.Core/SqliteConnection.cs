@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
@@ -23,6 +24,8 @@ namespace Microsoft.Data.Sqlite
     {
         internal const string MainDatabaseName = "main";
 
+        private const string DataDirectoryMacro = "|DataDirectory|";
+
         private readonly List<WeakReference<SqliteCommand>> _commands = new();
 
         private Dictionary<string, (object? state, strdelegate_collation? collation)>? _collations;
@@ -36,7 +39,7 @@ namespace Microsoft.Data.Sqlite
 
         private string _connectionString;
         private ConnectionState _state;
-        private SqliteConnectionInternal? _innerConnection;
+        private sqlite3? _db;
         private bool _extensionsEnabled;
         private int? _defaultTimeout;
 
@@ -66,7 +69,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>A handle to underlying database connection.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/interop">Interoperability</seealso>
         public virtual sqlite3? Handle
-            => _innerConnection?.Handle;
+            => _db;
 
         /// <summary>
         ///     Gets or sets a string used to open the connection.
@@ -79,7 +82,7 @@ namespace Microsoft.Data.Sqlite
         {
             get => _connectionString;
 
-            [MemberNotNull(nameof(_connectionString), nameof(PoolGroup))]
+            [MemberNotNull(nameof(_connectionString), nameof(ConnectionOptions))]
             set
             {
                 if (State != ConnectionState.Closed)
@@ -88,15 +91,11 @@ namespace Microsoft.Data.Sqlite
                 }
 
                 _connectionString = value ?? string.Empty;
-
-                PoolGroup = SqliteConnectionFactory.Instance.GetPoolGroup(_connectionString);
+                ConnectionOptions = new SqliteConnectionStringBuilder(_connectionString);
             }
         }
 
-        internal SqliteConnectionPoolGroup PoolGroup { get; set; }
-
-        internal SqliteConnectionStringBuilder ConnectionOptions
-            => PoolGroup.ConnectionOptions;
+        internal SqliteConnectionStringBuilder ConnectionOptions { get; private set; }
 
         /// <summary>
         ///     Gets the name of the current database. Always 'main'.
@@ -164,21 +163,6 @@ namespace Microsoft.Data.Sqlite
         protected internal virtual SqliteTransaction? Transaction { get; set; }
 
         /// <summary>
-        ///     Empties the connection pool.
-        /// </summary>
-        /// <remarks>Any open connections will not be returned the the pool when closed.</remarks>
-        public static void ClearAllPools()
-            => SqliteConnectionFactory.Instance.ClearPools();
-
-        /// <summary>
-        ///     Empties the connection pool associated with the connection.
-        /// </summary>
-        /// <param name="connection">The connection.</param>
-        /// <remarks>Any open connections will not be returned the the pool when closed.</remarks>
-        public static void ClearPool(SqliteConnection connection)
-            => connection.PoolGroup.Clear();
-
-        /// <summary>
         ///     Opens a connection to the database using the value of <see cref="ConnectionString" />. If
         ///     <c>Mode=ReadWriteCreate</c> is used (the default) the file is created, if it doesn't already exist.
         /// </summary>
@@ -190,9 +174,81 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
-            _innerConnection = SqliteConnectionFactory.Instance.GetConnection(this);
+            var filename = ConnectionOptions.DataSource;
+            var flags = 0;
+            
+            if (sqlite3_threadsafe() != 0)
+            {
+                flags |= SQLITE_OPEN_NOMUTEX;
+            }
 
-            int rc;
+            if (filename.StartsWith("file:", StringComparison.OrdinalIgnoreCase))
+            {
+                flags |= SQLITE_OPEN_URI;
+            }
+
+            switch (ConnectionOptions.Mode)
+            {
+                case SqliteOpenMode.ReadOnly:
+                    flags |= SQLITE_OPEN_READONLY;
+                    break;
+
+                case SqliteOpenMode.ReadWrite:
+                    flags |= SQLITE_OPEN_READWRITE;
+                    break;
+
+                case SqliteOpenMode.Memory:
+                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_MEMORY;
+                    if ((flags & SQLITE_OPEN_URI) == 0)
+                    {
+                        flags |= SQLITE_OPEN_URI;
+                        filename = "file:" + filename;
+                    }
+
+                    break;
+
+                default:
+                    Debug.Assert(
+                        ConnectionOptions.Mode == SqliteOpenMode.ReadWriteCreate,
+                        "ConnectionOptions.Mode is not ReadWriteCreate");
+                    flags |= SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE;
+                    break;
+            }
+
+            switch (ConnectionOptions.Cache)
+            {
+                case SqliteCacheMode.Shared:
+                    flags |= SQLITE_OPEN_SHAREDCACHE;
+                    break;
+
+                case SqliteCacheMode.Private:
+                    flags |= SQLITE_OPEN_PRIVATECACHE;
+                    break;
+
+                default:
+                    Debug.Assert(
+                        ConnectionOptions.Cache == SqliteCacheMode.Default,
+                        "ConnectionOptions.Cache is not Default.");
+                    break;
+            }
+
+            var dataDirectory = AppDomain.CurrentDomain.GetData("DataDirectory") as string;
+            if (!string.IsNullOrEmpty(dataDirectory)
+                && (flags & SQLITE_OPEN_URI) == 0
+                && !filename.Equals(":memory:", StringComparison.OrdinalIgnoreCase))
+            {
+                if (filename.StartsWith(DataDirectoryMacro, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    filename = Path.Combine(dataDirectory, filename.Substring(DataDirectoryMacro.Length));
+                }
+                else if (!Path.IsPathRooted(filename))
+                {
+                    filename = Path.Combine(dataDirectory, filename);
+                }
+            }
+
+            var rc = sqlite3_open_v2(filename, out _db, flags, vfs: null);
+            SqliteException.ThrowExceptionForRC(rc, _db);
 
             _state = ConnectionState.Open;
             try
@@ -279,8 +335,8 @@ namespace Microsoft.Data.Sqlite
             }
             catch
             {
-                _innerConnection.Close();
-                _innerConnection = null;
+                _db.Dispose();
+                _db = null;
 
                 _state = ConnectionState.Closed;
 
@@ -318,51 +374,11 @@ namespace Microsoft.Data.Sqlite
 
             Debug.Assert(_commands.Count == 0);
 
-            _innerConnection!.Close();
-            _innerConnection = null;
+            _db!.Dispose();
+            _db = null;
 
             _state = ConnectionState.Closed;
             OnStateChange(new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed));
-        }
-
-        internal void Deactivate()
-        {
-            int rc;
-
-            if (_collations != null)
-            {
-                foreach (var item in _collations.Keys)
-                {
-                    rc = sqlite3_create_collation(Handle, item, null, null);
-                    SqliteException.ThrowExceptionForRC(rc, Handle);
-                }
-            }
-
-            if (_functions != null)
-            {
-                foreach (var (name, arity) in _functions.Keys)
-                {
-                    rc = sqlite3_create_function(Handle, name, arity, null, null);
-                    SqliteException.ThrowExceptionForRC(rc, Handle);
-                }
-            }
-
-            if (_aggregates != null)
-            {
-                foreach (var (name, arity) in _aggregates.Keys)
-                {
-                    rc = sqlite3_create_function(
-                        Handle, name, arity, null, null, null);
-                    SqliteException.ThrowExceptionForRC(rc, Handle);
-                }
-            }
-
-            // TODO: Unload extensions (currently not supported by SQLite)
-            if (_extensionsEnabled)
-            {
-                rc = sqlite3_enable_load_extension(Handle, 0);
-                SqliteException.ThrowExceptionForRC(rc, Handle);
-            }
         }
 
         /// <summary>
