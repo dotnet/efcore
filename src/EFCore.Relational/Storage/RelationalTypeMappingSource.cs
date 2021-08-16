@@ -260,103 +260,65 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(Type type, IModel model)
         {
-            var typeConfigurations = model.FindPropertyTypeConfigurations(type);
-            var mappingInfo = new RelationalTypeMappingInfo(type);
+            type = type.UnwrapNullableType();
+            var typeConfiguration = model.FindScalarTypeConfiguration(type);
+            RelationalTypeMappingInfo mappingInfo;
             Type? providerClrType = null;
             ValueConverter? customConverter = null;
-            if (typeConfigurations != null)
+            if (typeConfiguration == null)
             {
-                foreach (var typeConfiguration in typeConfigurations)
+                mappingInfo = new RelationalTypeMappingInfo(type);
+            }
+            else
+            {
+                providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
+                customConverter = typeConfiguration.GetValueConverter();
+
+                var isUnicode = typeConfiguration.IsUnicode();
+                var scale = typeConfiguration.GetScale();
+                var precision = typeConfiguration.GetPrecision();
+                var size = typeConfiguration.GetMaxLength();
+
+                var storeTypeName = (string?)typeConfiguration[RelationalAnnotationNames.ColumnType];
+                string? storeTypeBaseName = null;
+                if (storeTypeName != null)
                 {
-                    if (providerClrType == null)
+                   storeTypeBaseName = ParseStoreTypeName(
+                        storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
+
+                    if (size == null)
                     {
-                        var providerType = typeConfiguration.GetProviderClrType();
-                        if (providerType != null)
-                        {
-                            providerClrType = providerType.UnwrapNullableType();
-                        }
+                        size = parsedSize;
                     }
 
-                    var isUnicode = typeConfiguration.IsUnicode();
-                    var scale = typeConfiguration.GetScale();
-                    var precision = typeConfiguration.GetPrecision();
-                    var size = typeConfiguration.GetMaxLength();
-
-                    if (mappingInfo.StoreTypeName == null)
+                    if (precision == null)
                     {
-                        var storeTypeName = (string?)typeConfiguration[RelationalAnnotationNames.ColumnType];
-                        if (storeTypeName != null)
-                        {
-                            var storeTypeBaseName = ParseStoreTypeName(
-                                storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
-
-                            mappingInfo = mappingInfo with { StoreTypeName = storeTypeName };
-
-                            if (mappingInfo.StoreTypeNameBase == null)
-                            {
-                                mappingInfo = mappingInfo with { StoreTypeNameBase = storeTypeBaseName };
-                            }
-
-                            if (size == null)
-                            {
-                                size = parsedSize;
-                            }
-
-                            if (precision == null)
-                            {
-                                precision = parsedPrecision;
-                            }
-
-                            if (scale == null)
-                            {
-                                scale = parsedScale;
-                            }
-
-                            if (isUnicode == null)
-                            {
-                                isUnicode = parsedUnicode;
-                            }
-                        }
+                        precision = parsedPrecision;
                     }
 
-                    if (mappingInfo.IsUnicode == null
-                        && isUnicode != null)
+                    if (scale == null)
                     {
-                        mappingInfo = mappingInfo with { IsUnicode = isUnicode };
+                        scale = parsedScale;
                     }
 
-                    if (mappingInfo.Scale == null
-                        && scale != null)
+                    if (isUnicode == null)
                     {
-                        mappingInfo = mappingInfo with { Scale = scale };
-                    }
-
-                    if (mappingInfo.Precision == null
-                        && precision != null)
-                    {
-                        mappingInfo = mappingInfo with { Precision = precision };
-                    }
-
-                    if (mappingInfo.Size == null
-                        && size != null)
-                    {
-                        mappingInfo = mappingInfo with { Size = size };
-                    }
-
-                    if (mappingInfo.IsFixedLength == null)
-                    {
-                        var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
-                        if (isFixedLength != null)
-                        {
-                            mappingInfo = mappingInfo with { IsFixedLength = isFixedLength };
-                        }
+                        isUnicode = parsedUnicode;
                     }
                 }
 
-                var firstConfiguration = typeConfigurations.FirstOrDefault();
-                customConverter = firstConfiguration?.ClrType == type
-                    ? firstConfiguration.GetValueConverter()
-                    : null;
+                var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
+                mappingInfo = new RelationalTypeMappingInfo(
+                    customConverter?.ProviderClrType ?? type,
+                    storeTypeName,
+                    storeTypeBaseName,
+                    keyOrIndex: false,
+                    unicode: isUnicode,
+                    size: size,
+                    rowVersion: false,
+                    fixedLength: isFixedLength,
+                    precision: precision,
+                    scale: scale);
             }
 
             return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
@@ -489,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         /// <inheritdoc />
         RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(Type type, IModel model)
-            => (RelationalTypeMapping?)FindMapping(type);
+            => (RelationalTypeMapping?)FindMapping(type, model);
 
         /// <inheritdoc />
         RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(MemberInfo member)

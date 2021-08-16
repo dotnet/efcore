@@ -65,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
-            var configuration = ((Model)entityType.Model).Configuration;
+            var model = entityType.Model;
             foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
             {
-                if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, configuration))
+                if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, model))
                 {
                     continue;
                 }

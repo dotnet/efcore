@@ -421,6 +421,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Object_cannot_be_ignored()
+            {
+                Assert.Equal(CoreStrings.UnconfigurableType("object", "Ignored"),
+                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<object>())).Message);
+            }
+
+            [ConditionalFact]
             public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -525,13 +532,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var model = modelBuilder.FinalizeModel();
 
                 Assert.Empty(model.GetEntityTypes().Single().GetForeignKeys());
-            }
-
-            [ConditionalFact]
-            public virtual void Object_cannot_be_ignored()
-            {
-                Assert.Equal(CoreStrings.UnconfigurableType("object", "Ignored"),
-                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<object>())).Message);
             }
 
             [ConditionalFact]
@@ -938,41 +938,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 return obj;
             }
 
-            [ConditionalFact]
-            public virtual void IEnumerable_properties_can_have_value_converter_configured_by_type()
-            {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<IDictionary<string, object>>().HaveMaxLength(20);
-                    c.Properties<ExpandoObject>().HaveConversion(typeof(ExpandoObjectConverter));
-                });
-
-                modelBuilder.Entity<DynamicProperty>();
-
-                var model = modelBuilder.FinalizeModel();
-
-                var entityType = (IReadOnlyEntityType)model.GetEntityTypes().Single();
-                var expandoProperty = entityType.FindProperty(nameof(DynamicProperty.ExpandoObject));
-                Assert.Equal(20, expandoProperty.GetMaxLength());
-                Assert.IsType<ExpandoObjectConverter>(expandoProperty.GetValueConverter());
-                Assert.IsType<ValueComparer<ExpandoObject>>(expandoProperty.GetValueComparer());
-            }
-
-            [ConditionalFact]
-            public virtual void Value_converter_configured_on_base_type_is_not_applied()
-            {
-                var modelBuilder = CreateModelBuilder(c =>
-                {
-                    c.Properties<IDictionary<string, object>>().HaveConversion(typeof(ExpandoObjectConverter), typeof(ExpandoObjectComparer));
-                });
-
-                modelBuilder.Entity<DynamicProperty>();
-
-                Assert.Equal(CoreStrings.PropertyNotMapped(
-                            nameof(DynamicProperty), nameof(DynamicProperty.ExpandoObject), nameof(ExpandoObject)),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
-            }
-
             private class ExpandoObjectConverter : ValueConverter<ExpandoObject, string>
             {
                 public ExpandoObjectConverter()
@@ -990,18 +955,84 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Properties_can_have_value_converter_configured_by_type()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties(typeof(IWrapped<>)).AreUnicode(false);
+                    c.Properties<WrappedStringBase>().HaveMaxLength(20);
+                    c.Properties<WrappedString>().HaveConversion(typeof(WrappedStringToStringConverter));
+                });
+
+                modelBuilder.Entity<WrappedStringEntity>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var entityType = (IReadOnlyEntityType)model.GetEntityTypes().Single();
+                var wrappedProperty = entityType.FindProperty(nameof(WrappedStringEntity.WrappedString));
+                Assert.False(wrappedProperty.IsUnicode());
+                Assert.Equal(20, wrappedProperty.GetMaxLength());
+                Assert.IsType<WrappedStringToStringConverter>(wrappedProperty.GetValueConverter());
+                Assert.IsType<ValueComparer<WrappedString>>(wrappedProperty.GetValueComparer());
+            }
+
+            [ConditionalFact]
+            public virtual void Value_converter_configured_on_base_type_is_not_applied()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties<WrappedStringBase>().HaveConversion(typeof(WrappedStringToStringConverter));
+                });
+
+                modelBuilder.Entity<WrappedStringEntity>();
+
+                Assert.Equal(CoreStrings.PropertyNotMapped(
+                            nameof(WrappedStringEntity), nameof(WrappedStringEntity.WrappedString), nameof(WrappedString)),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            private interface IWrapped<T>
+            {
+                T Value { get; init; }
+            }
+
+            private abstract class WrappedStringBase : IWrapped<string>
+            {
+                public abstract string Value { get; init; }
+            }
+
+            private class WrappedString : WrappedStringBase
+            {
+                public override string Value { get; init; }
+            }
+
+            private class WrappedStringEntity
+            {
+                public int Id { get; set; }
+                public WrappedString WrappedString { get; set; }
+            }
+
+            private class WrappedStringToStringConverter : ValueConverter<WrappedString, string>
+            {
+                public WrappedStringToStringConverter()
+                    : base(v => v.Value, v => new WrappedString { Value = v })
+                {
+                }
+            }
+
+            [ConditionalFact]
             public virtual void Throws_for_conflicting_base_configurations_by_type()
             {
                 var modelBuilder = CreateModelBuilder(c =>
                     {
-                        c.Properties<IEnumerable>();
-                        c.IgnoreAny<INotifyPropertyChanged>();
+                        c.Properties<WrappedString>();
+                        c.IgnoreAny<IWrapped<string>>();
                     });
 
                 Assert.Equal(CoreStrings.TypeConfigurationConflict(
-                    nameof(INotifyPropertyChanged), "Ignored",
-                    nameof(IEnumerable), "Property"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<DynamicProperty>()).Message);
+                    nameof(WrappedString), "Property",
+                    "IWrapped<string>", "Ignored"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<WrappedStringEntity>()).Message);
             }
 
             [ConditionalFact]
@@ -1371,6 +1402,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             protected class StringCollectionEntity
             {
                 public ICollection<string> Property { get; set; }
+            }
+
+            [ConditionalFact]
+            public virtual void Object_cannot_be_configured_as_property()
+            {
+                Assert.Equal(CoreStrings.UnconfigurableType("object", "Property"),
+                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<object>())).Message);
+            }
+
+            [ConditionalFact]
+            public virtual void Property_bag_cannot_be_configured_as_property()
+            {
+                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property"),
+                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<Dictionary<string, object>>())).Message);
+
+                Assert.Equal(CoreStrings.UnconfigurableType("IDictionary<string, object>", "Property"),
+                    Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<IDictionary<string, object>>())).Message);
             }
 
             [ConditionalFact]

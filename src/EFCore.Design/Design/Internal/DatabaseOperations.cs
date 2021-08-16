@@ -1,9 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -93,8 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 : outputDir;
 
             var services = _servicesBuilder.Build(provider);
+            using var scope = services.CreateScope();
 
-            var scaffolder = services.GetRequiredService<IReverseEngineerScaffolder>();
+            var scaffolder = scope.ServiceProvider.GetRequiredService<IReverseEngineerScaffolder>();
 
             var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir);
             var finalContextNamespace =

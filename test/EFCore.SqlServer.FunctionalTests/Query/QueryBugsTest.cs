@@ -9003,7 +9003,7 @@ LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]");
         {
             var contextFactory = await InitializeAsync<MyContext23410>(seed: c => c.Seed(),
                 addServices: c => c.TryAddEnumerable(new ServiceDescriptor(
-                typeof(IMethodCallTranslatorPlugin), typeof(MyContext23410.JsonMethodCallTranslatorPlugin), ServiceLifetime.Singleton)));
+                typeof(IMethodCallTranslatorPlugin), typeof(MyContext23410.JsonMethodCallTranslatorPlugin), ServiceLifetime.Scoped)));
 
             using (var context = contextFactory.CreateContext())
             {

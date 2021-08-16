@@ -44,47 +44,47 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 var model = CreateModelBuilder(c =>
                 {
-                    var properties = c.Properties(propertyType);
+                    var scalarBuilder = c.Scalars(propertyType);
 
                     if (maxLength.HasValue)
                     {
-                        properties.HaveMaxLength(maxLength.Value);
+                        scalarBuilder.HaveMaxLength(maxLength.Value);
                     }
 
                     if (precision.HasValue)
                     {
                         if (scale.HasValue)
                         {
-                            properties.HavePrecision(precision.Value, scale.Value);
+                            scalarBuilder.HavePrecision(precision.Value, scale.Value);
                         }
                         else
                         {
-                            properties.HavePrecision(precision.Value);
+                            scalarBuilder.HavePrecision(precision.Value);
                         }
                     }
 
                     if (providerType != null)
                     {
-                        properties.HaveConversion(providerType);
+                        scalarBuilder.HaveConversion(providerType);
                     }
 
                     if (unicode.HasValue)
                     {
-                        properties.AreUnicode(unicode.Value);
+                        scalarBuilder.AreUnicode(unicode.Value);
                     }
 
                     if (fixedLength.HasValue)
                     {
-                        properties.AreFixedLength(fixedLength.Value);
+                        scalarBuilder.AreFixedLength(fixedLength.Value);
                     }
 
                     if (storeTypeName != null)
                     {
-                        properties.HaveColumnType(storeTypeName);
+                        scalarBuilder.HaveColumnType(storeTypeName);
                     }
                 }).FinalizeModel();
 
-                return (RelationalTypeMapping)model.FindMapping(propertyType);
+                return CreateRelationalTypeMappingSource().GetMapping(propertyType, model);
             }
             else
             {

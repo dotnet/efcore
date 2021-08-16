@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -21,13 +20,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value"> The object to get the mapping for. </param>
         /// <returns> The type mapping to be used. </returns>
         public static RelationalTypeMapping GetMappingForValue(
-            this IRelationalTypeMappingSource? typeMappingSource,
+            this IRelationalTypeMappingSource typeMappingSource,
             object? value)
             => value == null
                 || value == DBNull.Value
-                || typeMappingSource == null
                     ? RelationalTypeMapping.NullMapping
                     : typeMappingSource.GetMapping(value.GetType());
+
+        /// <summary>
+        ///     Gets the relational database type for a given object, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="typeMappingSource"> The type mapping source. </param>
+        /// <param name="value"> The object to get the mapping for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The type mapping to be used. </returns>
+        public static RelationalTypeMapping GetMappingForValue(
+            this IRelationalTypeMappingSource typeMappingSource,
+            object? value,
+            IModel model)
+            => value == null
+                || value == DBNull.Value
+                    ? RelationalTypeMapping.NullMapping
+                    : typeMappingSource.GetMapping(value.GetType(), model);
 
         /// <summary>
         ///     Gets the relational database type for a given property, throwing if no mapping is found.
@@ -70,6 +84,29 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Check.NotNull(clrType, nameof(clrType));
 
             var mapping = typeMappingSource.FindMapping(clrType);
+            if (mapping != null)
+            {
+                return mapping;
+            }
+
+            throw new InvalidOperationException(RelationalStrings.UnsupportedType(clrType.ShortDisplayName()));
+        }
+
+        /// <summary>
+        ///     Gets the relational database type for a given .NET type, throwing if no mapping is found.
+        /// </summary>
+        /// <param name="typeMappingSource"> The type mapping source. </param>
+        /// <param name="clrType"> The type to get the mapping for. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The type mapping to be used. </returns>
+        public static RelationalTypeMapping GetMapping(
+            this IRelationalTypeMappingSource typeMappingSource,
+            Type clrType,
+            IModel model)
+        {
+            Check.NotNull(clrType, nameof(clrType));
+
+            var mapping = typeMappingSource.FindMapping(clrType, model);
             if (mapping != null)
             {
                 return mapping;

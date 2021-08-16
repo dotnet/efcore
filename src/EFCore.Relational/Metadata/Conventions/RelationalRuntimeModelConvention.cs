@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (annotations.TryGetValue(RelationalAnnotationNames.DbFunctions, out var functions))
                 {
-                    var runtimeFunctions = new SortedDictionary<string, IDbFunction>();
+                    var runtimeFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal);
                     foreach (var functionPair in (SortedDictionary<string, IDbFunction>)functions!)
                     {
                         var runtimeFunction = Create(functionPair.Value, runtimeModel);

@@ -7,9 +7,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents the configuration for a scalar property type.
+    ///     Represents the configuration for a scalar type.
     /// </summary>
-    public interface IPropertyTypeConfiguration : IAnnotatable
+    public interface IScalarTypeConfiguration : IAnnotatable
     {
         /// <summary>
         ///     Gets the type configured by this object.

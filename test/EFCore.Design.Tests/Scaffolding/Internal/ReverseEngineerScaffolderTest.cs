@@ -1,10 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Data.Common;
 using System.Globalization;
-using System.IO;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -133,7 +131,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new TestOperationReporter(),
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
-                .BuildServiceProvider() // No scope validation; design services only resolved once
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
         [ConditionalFact]
@@ -148,8 +148,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
-                .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
+                .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
                 .BuildServiceProvider(validateScopes: true)
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             var result = scaffolder.ScaffoldModel(
@@ -178,8 +180,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
-                .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
+                .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
                 .BuildServiceProvider(validateScopes: true)
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             var result = scaffolder.ScaffoldModel(

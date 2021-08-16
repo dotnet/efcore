@@ -1,10 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -19,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <inheritdoc />
     public class SqlExpressionFactory : ISqlExpressionFactory
     {
-        private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly RelationalTypeMapping _boolTypeMapping;
 
         /// <summary>
@@ -31,8 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
-            _typeMappingSource = dependencies.TypeMappingSource;
-            _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool))!;
+            _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
         }
 
         /// <summary>
@@ -43,16 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]
         public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
-        {
-            return sqlExpression == null
+            => sqlExpression == null
                 || sqlExpression.TypeMapping != null
                     ? sqlExpression
                     : sqlExpression is SqlUnaryExpression sqlUnaryExpression
                     && sqlUnaryExpression.OperatorType == ExpressionType.Convert
                     && sqlUnaryExpression.Type == typeof(object)
                         ? sqlUnaryExpression.Operand
-                        : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type));
-        }
+                        : ApplyTypeMapping(sqlExpression, Dependencies.TypeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
 
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]
@@ -89,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         likeExpression.Match, likeExpression.Pattern)
                     : ExpressionExtensions.InferTypeMapping(
                         likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar))
-                ?? _typeMappingSource.FindMapping(likeExpression.Match.Type);
+                ?? Dependencies.TypeMappingSource.FindMapping(likeExpression.Match.Type, Dependencies.Model);
 
             return new LikeExpression(
                 ApplyTypeMapping(likeExpression.Match, inferredTypeMapping),
@@ -192,8 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                     inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                         // We avoid object here since the result does not get typeMapping from outside.
                         ?? (left.Type != typeof(object)
-                            ? _typeMappingSource.FindMapping(left.Type)
-                            : _typeMappingSource.FindMapping(right.Type));
+                            ? Dependencies.TypeMappingSource.FindMapping(left.Type, Dependencies.Model)
+                            : Dependencies.TypeMappingSource.FindMapping(right.Type, Dependencies.Model));
                     resultType = typeof(bool);
                     resultTypeMapping = _boolTypeMapping;
                     break;
@@ -414,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var resultType = right.Type;
             var inferredTypeMapping = typeMapping
                 ?? ExpressionExtensions.InferTypeMapping(left, right)
-                ?? _typeMappingSource.FindMapping(resultType);
+                ?? Dependencies.TypeMappingSource.FindMapping(resultType, Dependencies.Model);
 
             var typeMappedArguments = new List<SqlExpression>
             {
@@ -509,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // Since we never look at type of Operand/Test after this place,
                 // we need to find actual typeMapping based on non-object type.
                 ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
-                    .Where(t => t != typeof(object)).Select(t => _typeMappingSource.FindMapping(t)).FirstOrDefault();
+                    .Where(t => t != typeof(object)).Select(t => Dependencies.TypeMappingSource.FindMapping(t, Dependencies.Model)).FirstOrDefault();
 
             var resultTypeMapping = elseResult?.TypeMapping
                 ?? whenClauses.Select(wc => wc.Result.TypeMapping).FirstOrDefault(t => t != null);
@@ -751,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(item, nameof(item));
             Check.NotNull(values, nameof(values));
 
-            var typeMapping = item.TypeMapping ?? _typeMappingSource.FindMapping(item.Type);
+            var typeMapping = item.TypeMapping ?? Dependencies.TypeMappingSource.FindMapping(item.Type, Dependencies.Model);
 
             item = ApplyTypeMapping(item, typeMapping);
             values = ApplyTypeMapping(values, typeMapping);
@@ -981,11 +974,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <inheritdoc />
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
         public virtual RelationalTypeMapping GetTypeMappingForValue(object? value)
-            => _typeMappingSource.GetMappingForValue(value);
+            => Dependencies.TypeMappingSource.GetMappingForValue(value, Dependencies.Model);
 
         /// <inheritdoc />
         [Obsolete("Use IRelationalTypeMappingSource directly.")]
         public virtual RelationalTypeMapping? FindMapping(Type type)
-            => _typeMappingSource.FindMapping(Check.NotNull(type, nameof(type)));
+            => Dependencies.TypeMappingSource.FindMapping(type, Dependencies.Model);
     }
 }

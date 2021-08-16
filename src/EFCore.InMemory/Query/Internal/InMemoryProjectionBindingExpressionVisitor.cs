@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             _projectionMembers.Push(new ProjectionMember());
 
-            var expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_queryExpression, expression);
+            var expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandSharedTypeEntities(_queryExpression, expression);
             var result = Visit(expandedExpression);
 
             if (result == QueryCompilationContext.NotTranslatedExpression)
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _entityProjectionCache = new();
                 _clientProjections = new();
 
-                expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandWeakEntities(_queryExpression, expression);
+                expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandSharedTypeEntities(_queryExpression, expression);
                 result = Visit(expandedExpression);
 
                 _queryExpression.ReplaceProjection(_clientProjections);

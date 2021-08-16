@@ -1,9 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
@@ -150,11 +147,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     convention.ProcessEntityTypeAnnotations(annotations, source, target, runtime));
             }
 
-            foreach (var typeConfiguration in model.GetPropertyTypeConfigurations())
+            foreach (var typeConfiguration in model.GetScalarTypeConfigurations())
             {
                 var runtimeTypeConfiguration = Create(typeConfiguration, runtimeModel);
                 CreateAnnotations(typeConfiguration, runtimeTypeConfiguration, static (convention, annotations, source, target, runtime) =>
-                    convention.ProcessPropertyTypeConfigurationAnnotations(annotations, source, target, runtime));
+                    convention.ProcessScalarTypeConfigurationAnnotations(annotations, source, target, runtime));
             }
 
             CreateAnnotations(model, runtimeModel, static (convention, annotations, source, target, runtime) =>
@@ -258,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private RuntimePropertyTypeConfiguration Create(IPropertyTypeConfiguration typeConfiguration, RuntimeModel model)
-            => model.AddPropertyTypeConfiguration(
+        private RuntimeScalarTypeConfiguration Create(IScalarTypeConfiguration typeConfiguration, RuntimeModel model)
+            => model.AddScalarTypeConfiguration(
                 typeConfiguration.ClrType,
                 typeConfiguration.GetMaxLength(),
                 typeConfiguration.IsUnicode(),
@@ -275,10 +272,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="typeConfiguration"> The source property. </param>
         /// <param name="runtimeTypeConfiguration"> The target property that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
-        protected virtual void ProcessPropertyTypeConfigurationAnnotations(
+        protected virtual void ProcessScalarTypeConfigurationAnnotations(
             Dictionary<string, object?> annotations,
-            IPropertyTypeConfiguration typeConfiguration,
-            RuntimePropertyTypeConfiguration runtimeTypeConfiguration,
+            IScalarTypeConfiguration typeConfiguration,
+            RuntimeScalarTypeConfiguration runtimeTypeConfiguration,
             bool runtime)
         {
             if (!runtime)

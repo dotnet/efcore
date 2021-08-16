@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             {
                 { typeof(IAnnotationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IProviderConfigurationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) },
-                { typeof(IDatabaseModelFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) }
+                { typeof(IDatabaseModelFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) }
             };
 
         /// <summary>

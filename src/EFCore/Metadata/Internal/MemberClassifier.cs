@@ -65,10 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, (Type Type, bool? shouldBeOwned)>(
                 MemberInfoNameComparer.Instance);
 
-            var configuration = ((Model)entityType.Model).Configuration;
             foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
             {
-                var targetType = FindCandidateNavigationPropertyType(propertyInfo, configuration, out var shouldBeOwned);
+                var targetType = FindCandidateNavigationPropertyType(propertyInfo, entityType.Model, out var shouldBeOwned);
                 if (targetType != null)
                 {
                     dictionaryBuilder[propertyInfo] = (targetType, shouldBeOwned);
@@ -94,11 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Type? FindCandidateNavigationPropertyType(
             MemberInfo memberInfo, IConventionModel model, out bool? shouldBeOwned)
-            => FindCandidateNavigationPropertyType(memberInfo, ((Model)model).Configuration, out shouldBeOwned);
-
-        private Type? FindCandidateNavigationPropertyType(
-            MemberInfo memberInfo, ModelConfiguration? configuration, out bool? shouldBeOwned)
-        {
+        { 
             shouldBeOwned = null;
             var propertyInfo = memberInfo as PropertyInfo;
             var targetType = memberInfo.GetMemberType();
@@ -106,19 +101,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return targetSequenceType != null
                 && (propertyInfo == null
                     || propertyInfo.IsCandidateProperty(needsWrite: false))
-                && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, configuration, out shouldBeOwned)
+                && IsCandidateNavigationPropertyType(targetSequenceType, memberInfo, (Model)model, out shouldBeOwned)
                 ? targetSequenceType
                 : (propertyInfo == null
                     || propertyInfo.IsCandidateProperty(needsWrite: true))
-                    && IsCandidateNavigationPropertyType(targetType, memberInfo, configuration, out shouldBeOwned)
+                    && IsCandidateNavigationPropertyType(targetType, memberInfo, (Model)model, out shouldBeOwned)
                     ? targetType
                     : null;
         }
 
         private bool IsCandidateNavigationPropertyType(
-           Type targetType, MemberInfo memberInfo, ModelConfiguration? configuration, out bool? shouldBeOwned)
+           Type targetType, MemberInfo memberInfo, Model model, out bool? shouldBeOwned)
         {
             shouldBeOwned = null;
+            var configuration = model.Configuration;
             var configurationType = configuration?.GetConfigurationType(targetType);
             var isConfiguredAsEntityType = configurationType.IsEntityType();
             if (isConfiguredAsEntityType == false
@@ -135,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return isConfiguredAsEntityType == true
                 || (targetType != typeof(object)
                     && _parameterBindingFactories.FindFactory(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()) == null
-                    && _typeMappingSource.FindMapping(targetType) == null);
+                    && _typeMappingSource.FindMapping(targetType, model) == null);
         }
 
         /// <summary>
@@ -144,14 +140,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual bool IsCandidatePrimitiveProperty(PropertyInfo propertyInfo, ModelConfiguration? configuration)
+        public virtual bool IsCandidatePrimitiveProperty(PropertyInfo propertyInfo, IConventionModel model)
         {
             if (!propertyInfo.IsCandidateProperty())
             {
                 return false;
             }
 
-            var configurationType = configuration?.GetConfigurationType(propertyInfo.PropertyType);
+            var configurationType = ((Model)model).Configuration?.GetConfigurationType(propertyInfo.PropertyType);
             return configurationType == TypeConfigurationType.Property
                     || (configurationType == null && _typeMappingSource.FindMapping(propertyInfo) != null);
         }
@@ -163,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(
-            PropertyInfo propertyInfo, ModelConfiguration? configuration)
+            PropertyInfo propertyInfo, IConventionModel model)
         {
             if (!propertyInfo.IsCandidateProperty(publicOnly: false))
             {
@@ -171,7 +167,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var type = propertyInfo.PropertyType;
-            var configurationType = configuration?.GetConfigurationType(type);
+            var configurationType = ((Model)model).Configuration?.GetConfigurationType(type);
             if (configurationType != TypeConfigurationType.ServiceProperty)
             {
                 if (configurationType != null)
@@ -180,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 if (propertyInfo.IsCandidateProperty()
-                    && _typeMappingSource.FindMapping(propertyInfo) != null)
+                    && _typeMappingSource.FindMapping(propertyInfo.GetMemberType(), (IModel)model) != null)
                 {
                     return null;
                 }

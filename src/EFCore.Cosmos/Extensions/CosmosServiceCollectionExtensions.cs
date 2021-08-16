@@ -116,8 +116,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .TryAdd<IDatabaseCreator, CosmosDatabaseCreator>()
                 .TryAdd<IQueryContextFactory, CosmosQueryContextFactory>()
                 .TryAdd<ITypeMappingSource, CosmosTypeMappingSource>()
-
-                // New Query pipeline
                 .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, CosmosQueryableMethodTranslatingExpressionVisitorFactory>()
                 .TryAdd<IShapedQueryCompilingExpressionVisitorFactory, CosmosShapedQueryCompilingExpressionVisitorFactory>()
                 .TryAdd<ISingletonOptions, ICosmosSingletonOptions>(p => p.GetRequiredService<ICosmosSingletonOptions>())
@@ -128,10 +126,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     b => b
                         .TryAddSingleton<ICosmosSingletonOptions, CosmosSingletonOptions>()
                         .TryAddSingleton<ISingletonCosmosClientWrapper, SingletonCosmosClientWrapper>()
-                        .TryAddSingleton<ISqlExpressionFactory, SqlExpressionFactory>()
                         .TryAddSingleton<IQuerySqlGeneratorFactory, QuerySqlGeneratorFactory>()
-                        .TryAddSingleton<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
-                        .TryAddSingleton<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
+                        .TryAddScoped<ISqlExpressionFactory, SqlExpressionFactory>()
+                        .TryAddScoped<IMemberTranslatorProvider, CosmosMemberTranslatorProvider>()
+                        .TryAddScoped<IMethodCallTranslatorProvider, CosmosMethodCallTranslatorProvider>()
                         .TryAddScoped<ICosmosClientWrapper, CosmosClientWrapper>()
                 );
 

@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -29,12 +28,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         private readonly SortedDictionary<string, RuntimeEntityType> _entityTypes = new(StringComparer.Ordinal);
         private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
-        private readonly Dictionary<Type, RuntimePropertyTypeConfiguration> _typeConfigurations = new();
+        private readonly Dictionary<Type, RuntimeScalarTypeConfiguration> _typeConfigurations = new();
         private bool _skipDetectChanges;
 
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
-        private readonly ConcurrentDictionary<Type, CoreTypeMapping?> _typeMappings = new();
 
         /// <summary>
         ///     Creates a new instance of <see cref="RuntimeModel"/>
@@ -139,7 +137,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Adds configuration for a scalar property type.
+        ///     Adds configuration for a scalar type.
         /// </summary>
         /// <param name="clrType"> The type of value the property will hold. </param>
         /// <param name="maxLength"> The maximum length of data that is allowed in this property type. </param>
@@ -151,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="valueConverterType"> The type of a custom <see cref="ValueConverter" /> set for this property type. </param>
         /// <returns> The newly created property. </returns>
-        public virtual RuntimePropertyTypeConfiguration AddPropertyTypeConfiguration(
+        public virtual RuntimeScalarTypeConfiguration AddScalarTypeConfiguration(
             Type clrType,
             int? maxLength = null,
             bool? unicode = null,
@@ -160,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Type? providerPropertyType = null,
             Type? valueConverterType = null)
         {
-            var typeConfiguration = new RuntimePropertyTypeConfiguration(
+            var typeConfiguration = new RuntimeScalarTypeConfiguration(
                 clrType,
                 maxLength,
                 unicode,
@@ -294,19 +292,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => _sharedTypes.ContainsKey(type);
 
         /// <inheritdoc/>
-        IEnumerable<IPropertyTypeConfiguration> IModel.GetPropertyTypeConfigurations()
+        IEnumerable<IScalarTypeConfiguration> IModel.GetScalarTypeConfigurations()
             => _typeConfigurations.Values;
 
         /// <inheritdoc/>
-        IEnumerable<IPropertyTypeConfiguration>? IModel.FindPropertyTypeConfigurations(Type propertyType)
+        IScalarTypeConfiguration? IModel.FindScalarTypeConfiguration(Type propertyType)
             => _typeConfigurations.Count == 0
                 ? null
-                : propertyType.GetBaseTypesAndInterfacesInclusive()
-                    .Select(type => _typeConfigurations.GetValueOrDefault(type)!)
-                    .Where(type => type != null);
-
-        /// <inheritdoc/>
-        CoreTypeMapping? IModel.FindMapping(Type type)
-            => _typeMappings.GetOrAdd(type, (type, model) => ((IModel)model).GetModelDependencies().TypeMappingSource.FindMapping(type, model), this);
+                : _typeConfigurations.GetValueOrDefault(propertyType);
     }
 }

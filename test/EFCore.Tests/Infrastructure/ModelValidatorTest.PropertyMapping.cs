@@ -241,7 +241,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual void Does_not_throw_when_interface_base_type_property_type_is_ignored()
         {
             var modelBuilder = CreateConventionlessModelBuilder(
-                configurationBuilder => configurationBuilder.IgnoreAny<IEnumerable>());
+                configurationBuilder => configurationBuilder.IgnoreAny<IEnumerable<INavigationEntity>>());
             modelBuilder.Entity(typeof(InterfaceNavigationEntity)).HasNoKey();
 
             Validate(modelBuilder);

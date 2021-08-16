@@ -74,6 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var assembly = typeof(SnapshotModelProcessorTest).Assembly;
             var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
                 .Build(SqlServerTestHelpers.Instance.CreateContext())
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<ISnapshotModelProcessor>();
 
             Assert.NotNull(snapshotModelProcessor);

@@ -149,24 +149,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsIndexerMethod(MethodInfo methodInfo);
 
         /// <summary>
-        ///     <para>
-        ///         Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
-        ///     </para>
-        /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        CoreTypeMapping? FindMapping(Type type);
-
-        /// <summary>
         ///     Gets all the pre-convention configurations.
         /// </summary>
         /// <returns> The pre-convention configurations. </returns>
-        IEnumerable<IPropertyTypeConfiguration> GetPropertyTypeConfigurations();
+        IEnumerable<IScalarTypeConfiguration> GetScalarTypeConfigurations();
 
         /// <summary>
         ///     Finds the pre-convention configurations for a given scalar <see cref="Type" />.
         /// </summary>
         /// <param name="propertyType"> The CLR type. </param>
-        /// <returns> The pre-convention configurations in order of most to least specific, or <see langword="null" /> if none is found. </returns>
-        IEnumerable<IPropertyTypeConfiguration>? FindPropertyTypeConfigurations(Type propertyType);
+        /// <returns> The pre-convention configuration or <see langword="null" /> if none is found. </returns>
+        IScalarTypeConfiguration? FindScalarTypeConfiguration(Type propertyType);
     }
 }

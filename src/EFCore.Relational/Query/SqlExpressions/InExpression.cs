@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression item,
             SelectExpression subquery,
             bool negated,
-            RelationalTypeMapping? typeMapping)
+            RelationalTypeMapping typeMapping)
             : this(Check.NotNull(item, nameof(item)), null, Check.NotNull(subquery, nameof(subquery)), negated, typeMapping)
         {
         }
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             SqlExpression item,
             SqlExpression values,
             bool negated,
-            RelationalTypeMapping? typeMapping)
+            RelationalTypeMapping typeMapping)
             : this(Check.NotNull(item, nameof(item)), Check.NotNull(values, nameof(values)), null, negated, typeMapping)
         {
         }
