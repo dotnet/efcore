@@ -36,14 +36,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <inheritdoc />
         public virtual void Generate(IModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
-            if (parameters.IsRuntime)
+            if (!parameters.IsRuntime)
             {
-                parameters.Annotations.Remove(CoreAnnotationNames.ModelDependencies);
-                parameters.Annotations.Remove(CoreAnnotationNames.ReadOnlyModel);
+                parameters.Annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
             }
             else
             {
-                parameters.Annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
+                parameters.Annotations.Remove(CoreAnnotationNames.ModelDependencies);
+                parameters.Annotations.Remove(CoreAnnotationNames.ReadOnlyModel);
             }
 
             GenerateSimpleAnnotations(parameters);
@@ -69,21 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (!parameters.IsRuntime)
             {
                 var annotations = parameters.Annotations;
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
-                annotations.Remove(CoreAnnotationNames.BeforeSaveBehavior);
-                annotations.Remove(CoreAnnotationNames.AfterSaveBehavior);
-                annotations.Remove(CoreAnnotationNames.MaxLength);
-                annotations.Remove(CoreAnnotationNames.Unicode);
-                annotations.Remove(CoreAnnotationNames.Precision);
-                annotations.Remove(CoreAnnotationNames.Scale);
-                annotations.Remove(CoreAnnotationNames.ProviderClrType);
-                annotations.Remove(CoreAnnotationNames.ValueGeneratorFactory);
-                annotations.Remove(CoreAnnotationNames.ValueGeneratorFactoryType);
-                annotations.Remove(CoreAnnotationNames.ValueConverter);
-                annotations.Remove(CoreAnnotationNames.ValueConverterType);
-                annotations.Remove(CoreAnnotationNames.ValueComparer);
-                annotations.Remove(CoreAnnotationNames.ValueComparerType);
-                annotations.Remove(CoreAnnotationNames.PreUniquificationName);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
 
             GenerateSimpleAnnotations(parameters);
@@ -95,7 +87,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (!parameters.IsRuntime)
             {
                 var annotations = parameters.Annotations;
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
 
             GenerateSimpleAnnotations(parameters);
@@ -104,12 +102,36 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <inheritdoc />
         public virtual void Generate(IKey key, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
+            if (!parameters.IsRuntime)
+            {
+                var annotations = parameters.Annotations;
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
+
             GenerateSimpleAnnotations(parameters);
         }
 
         /// <inheritdoc />
         public virtual void Generate(IForeignKey foreignKey, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
+            if (!parameters.IsRuntime)
+            {
+                var annotations = parameters.Annotations;
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
+
             GenerateSimpleAnnotations(parameters);
         }
 
@@ -119,8 +141,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (!parameters.IsRuntime)
             {
                 var annotations = parameters.Annotations;
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
-                annotations.Remove(CoreAnnotationNames.EagerLoaded);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
 
             GenerateSimpleAnnotations(parameters);
@@ -132,8 +159,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             if (!parameters.IsRuntime)
             {
                 var annotations = parameters.Annotations;
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
-                annotations.Remove(CoreAnnotationNames.EagerLoaded);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
 
             GenerateSimpleAnnotations(parameters);
@@ -142,6 +174,36 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <inheritdoc />
         public virtual void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
+            if (!parameters.IsRuntime)
+            {
+                var annotations = parameters.Annotations;
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
+
+            GenerateSimpleAnnotations(parameters);
+        }
+
+        /// <inheritdoc />
+        public virtual void Generate(IScalarTypeConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        {
+            if (!parameters.IsRuntime)
+            {
+                var annotations = parameters.Annotations;
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key))
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
+            }
+
             GenerateSimpleAnnotations(parameters);
         }
 
