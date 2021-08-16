@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -148,6 +150,8 @@ namespace Microsoft.EntityFrameworkCore
         [InlineData(nameof(ConvertingEntity.NullableUriToNullableString), "nvarchar(max)", true)]
         [InlineData(nameof(ConvertingEntity.NullStringToNonNullString), "nvarchar(max)", false)]
         [InlineData(nameof(ConvertingEntity.NonNullStringToNullString), "nvarchar(max)", true)]
+        [InlineData(nameof(ConvertingEntity.NullableListOfInt), "nvarchar(max)", true)]
+        [InlineData(nameof(ConvertingEntity.ListOfInt), "nvarchar(max)", false)]
         public virtual void Properties_with_conversions_map_to_appropriately_null_columns(
             string propertyName,
             string databaseType,
@@ -203,6 +207,20 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1", Fixture.TestSqlL
 
             public TestSqlLoggerFactory TestSqlLoggerFactory
                 => (TestSqlLoggerFactory)ListLoggerFactory;
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Entity<ConvertingEntity>(
+                    b =>
+                    {
+                        b.Property(e => e.NullableListOfInt).HasDefaultValue(new List<int>());
+                        b.Property(e => e.ListOfInt).HasDefaultValue(new List<int>());
+                        b.Property(e => e.NullableEnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
+                        b.Property(e => e.EnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
+                    });
+            }
         }
     }
 }
