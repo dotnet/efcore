@@ -1047,15 +1047,28 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_datetime_utcnow(bool async)
         {
             await base.Where_datetime_utcnow(async);
 
             AssertSql(
-                @"SELECT c
+                @"@__myDatetime_0='2015-04-10T00:00:00'
+
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (GetCurrentDateTime() != @__myDatetime_0))");
+        }
+
+        public override async Task Where_datetimeoffset_utcnow(bool async)
+        {
+            await base.Where_datetimeoffset_utcnow(async);
+
+            AssertSql(
+                @"@__myDatetimeOffset_0='2015-04-10T00:00:00-08:00'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (GetCurrentDateTime() != @__myDatetimeOffset_0))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]

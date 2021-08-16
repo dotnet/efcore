@@ -730,6 +730,18 @@ FROM [Customers] AS [c]
 WHERE GETUTCDATE() <> @__myDatetime_0");
         }
 
+        public override async Task Where_datetimeoffset_utcnow(bool async)
+        {
+            await base.Where_datetimeoffset_utcnow(async);
+
+            AssertSql(
+                @"@__myDatetimeOffset_0='2015-04-10T00:00:00.0000000-08:00'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) <> @__myDatetimeOffset_0");
+        }
+
         public override async Task Where_datetime_today(bool async)
         {
             await base.Where_datetime_today(async);

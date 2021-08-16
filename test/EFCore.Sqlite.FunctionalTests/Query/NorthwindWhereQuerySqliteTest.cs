@@ -68,6 +68,9 @@ FROM ""Customers"" AS ""c""
 WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now'), '0'), '.') <> @__myDatetime_0");
         }
 
+        public override Task Where_datetimeoffset_utcnow(bool async)
+            => Task.CompletedTask;
+
         public override async Task Where_datetime_today(bool async)
         {
             await base.Where_datetime_today(async);

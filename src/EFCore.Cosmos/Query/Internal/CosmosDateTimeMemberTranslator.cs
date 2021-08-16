@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Reflection;
@@ -13,10 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CosmosMemberTranslatorProvider : IMemberTranslatorProvider
+    public class CosmosDateTimeMemberTranslator : IMemberTranslator
     {
-        private readonly List<IMemberTranslator> _plugins = new();
-        private readonly List<IMemberTranslator> _translators = new();
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,18 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public CosmosMemberTranslatorProvider(
-            ISqlExpressionFactory sqlExpressionFactory,
-            IEnumerable<IMemberTranslatorPlugin> plugins)
+        public CosmosDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
         {
-            _plugins.AddRange(plugins.SelectMany(p => p.Translators));
-            _translators
-                .AddRange(
-                new IMemberTranslator[]
-                {
-                    new CosmosStringMemberTranslator(sqlExpressionFactory),
-                    new CosmosDateTimeMemberTranslator(sqlExpressionFactory),
-                });
+            _sqlExpressionFactory = sqlExpressionFactory;
         }
 
         /// <summary>
@@ -54,17 +44,18 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             Check.NotNull(returnType, nameof(returnType));
             Check.NotNull(logger, nameof(logger));
 
-            return _plugins.Concat(_translators)
-                .Select(t => t.Translate(instance, member, returnType, logger)).FirstOrDefault(t => t != null);
-        }
+            var declaringType = member.DeclaringType;
+            if ((declaringType == typeof(DateTime)
+                || declaringType == typeof(DateTimeOffset))
+                && member.Name == nameof(DateTime.UtcNow))
+            {
+                return _sqlExpressionFactory.Function(
+                    "GetCurrentDateTime",
+                    Array.Empty<SqlExpression>(),
+                    returnType);
+            }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual void AddTranslators(IEnumerable<IMemberTranslator> translators)
-            => _translators.InsertRange(0, translators);
+            return null;
+        }
     }
 }
