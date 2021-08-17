@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                                     var readItemExpression = new ReadItemExpression(entityType, propertyParameterList);
 
-                                    return CreateShapedQueryExpression(readItemExpression, entityType)
+                                    return CreateShapedQueryExpression(entityType, readItemExpression)
                                         .UpdateResultCardinality(ResultCardinality.Single);
                                 }
                             }
@@ -184,6 +184,24 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                 partitionKeyProperty = entityType.FindProperty(partitionKeyPropertyName);
                 return true;
+            }
+        }
+
+        /// <inheritdoc />
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            switch (extensionExpression)
+            {
+                case FromSqlQueryRootExpression fromSqlQueryRootExpression:
+                    return CreateShapedQueryExpression(
+                        fromSqlQueryRootExpression.EntityType,
+                        _sqlExpressionFactory.Select(
+                            fromSqlQueryRootExpression.EntityType,
+                            fromSqlQueryRootExpression.Sql,
+                            fromSqlQueryRootExpression.Argument));
+
+                default:
+                    return base.VisitExtension(extensionExpression);
             }
         }
 
@@ -246,10 +264,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             var selectExpression = _sqlExpressionFactory.Select(entityType);
 
-            return CreateShapedQueryExpression(selectExpression, entityType);
+            return CreateShapedQueryExpression(entityType, selectExpression);
         }
 
-        private ShapedQueryExpression CreateShapedQueryExpression(Expression queryExpression, IEntityType entityType)
+        private ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
             => new(
                 queryExpression,
                 new EntityShaperExpression(

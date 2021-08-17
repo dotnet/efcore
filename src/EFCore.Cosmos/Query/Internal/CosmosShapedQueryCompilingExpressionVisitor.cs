@@ -65,7 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             switch (shapedQueryExpression.QueryExpression)
             {
                 case SelectExpression selectExpression:
-
                     shaperBody = new CosmosProjectionBindingRemovingExpressionVisitor(
                             selectExpression, jObjectParameter,
                             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
@@ -92,7 +91,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         Expression.Constant(_threadSafetyChecksEnabled));
 
                 case ReadItemExpression readItemExpression:
-
                     shaperBody = new CosmosProjectionBindingRemovingReadItemExpressionVisitor(
                             readItemExpression, jObjectParameter,
                             QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)

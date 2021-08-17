@@ -102,14 +102,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            if (!entityType.IsDocumentRoot())
-            {
-                entityTypeBuilder.HasNoDiscriminator();
-            }
-            else
+            if (entityType.IsDocumentRoot())
             {
                 entityTypeBuilder.HasDiscriminator(typeof(string))
                     ?.HasValue(entityType, entityType.ShortName());
+            }
+            else
+            {
+                entityTypeBuilder.HasNoDiscriminator();
             }
         }
 

@@ -44,8 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             query = base.Process(query);
 
-            if (query is ShapedQueryExpression shapedQueryExpression
-                && shapedQueryExpression.QueryExpression is SelectExpression selectExpression)
+            if (query is ShapedQueryExpression { QueryExpression: SelectExpression selectExpression })
             {
                 // Cosmos does not have nested select expression so this should be safe.
                 selectExpression.ApplyProjection();
