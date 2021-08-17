@@ -18,6 +18,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
@@ -10154,6 +10155,76 @@ CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]" });
             {
                 public string Value { get; set; }
             }
+        }
+
+        #endregion
+
+        #region Issue24569
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task NoTracking_split_query_creates_only_required_instances(bool async)
+        {
+            var contextFactory = await InitializeAsync<MyContext25400>(seed: c => c.Seed(),
+                onConfiguring: o => new SqlServerDbContextOptionsBuilder(o).UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+
+            using (var context = contextFactory.CreateContext())
+            {
+                Test24569.ConstructorCallCount = 0;
+
+                var query = context.Set<Test24569>().AsNoTracking().OrderBy(e => e.Id);
+                var test = async
+                    ? await query.FirstOrDefaultAsync()
+                    : query.FirstOrDefault();
+
+                Assert.Equal(1, Test24569.ConstructorCallCount);
+
+            AssertSql(
+                @"SELECT TOP(1) [t].[Id], [t].[Value]
+FROM [Tests] AS [t]
+ORDER BY [t].[Id]");
+            }
+        }
+
+        protected class MyContext25400 : DbContext
+        {
+            public DbSet<Test24569> Tests { get; set; }
+
+            public MyContext25400(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Test24569>().HasKey(e => e.Id);
+            }
+
+            public void Seed()
+            {
+                Tests.Add(new Test24569(15));
+
+                SaveChanges();
+            }
+        }
+
+        protected class Test24569
+        {
+            public static int ConstructorCallCount = 0;
+
+            public Test24569()
+            {
+                ++ConstructorCallCount;
+            }
+
+            public Test24569(int value)
+            {
+                Value = value;
+            }
+
+            public int Id { get; set; }
+            public int Value { get; set; }
         }
 
         #endregion
