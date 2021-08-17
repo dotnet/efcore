@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
 
         private static readonly string _eol = Environment.NewLine;
 
-        private static object _queryBaselineFileLock = new();
+        private static readonly object _queryBaselineFileLock = new();
 
         public TestSqlLoggerFactory()
             : this(_ => true)
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             public List<string> SqlStatements { get; } = new();
             public List<string> Parameters { get; } = new();
 
-            private StringBuilder _stringBuilder = new();
+            private readonly StringBuilder _stringBuilder = new();
 
             protected override void UnsafeClear()
             {

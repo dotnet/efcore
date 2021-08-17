@@ -24,8 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             public IEntityType EntityType { get; }
 
-            public IDictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } =
-                new Dictionary<(IForeignKey, bool), Expression>();
+            public Dictionary<(IForeignKey, bool), Expression> ForeignKeyExpansionMap { get; } = new();
 
             public bool IsOptional { get; private set; }
             public IncludeTreeNode IncludePaths { get; private set; }
@@ -310,6 +309,68 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         expressionPrinter.AppendLine("CardinalityReducingMethod: " + CardinalityReducingGenericMethodInfo.Name);
                     }
+                }
+            }
+        }
+
+        private sealed class GroupByNavigationExpansionExpression : Expression, IPrintableExpression
+        {
+            public GroupByNavigationExpansionExpression(
+                Expression source,
+                ParameterExpression groupingParameter,
+                NavigationTreeNode currentTree,
+                Expression pendingSelector,
+                string innerParameterName)
+            {
+                Source = source;
+                CurrentParameter = groupingParameter;
+                Type = source.Type;
+                GroupingEnumerable = new NavigationExpansionExpression(
+                    Call(QueryableMethods.AsQueryable.MakeGenericMethod(CurrentParameter.Type.GetGenericArguments()[1]), CurrentParameter),
+                    currentTree,
+                    pendingSelector,
+                    innerParameterName);
+            }
+
+            public Expression Source { get; private set; }
+
+            public ParameterExpression CurrentParameter { get; }
+
+            public Expression GroupingEnumerable { get; private set; }
+
+            public Type SourceElementType
+                => CurrentParameter.Type;
+
+            public void UpdateSource(Expression source)
+            {
+                Source = source;
+            }
+
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
+
+            public override Type Type { get; }
+
+            protected override Expression VisitChildren(ExpressionVisitor visitor)
+            {
+                Check.NotNull(visitor, nameof(visitor));
+
+                return this;
+            }
+
+            void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+            {
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter));
+
+                expressionPrinter.AppendLine(nameof(GroupByNavigationExpansionExpression));
+                using (expressionPrinter.Indent())
+                {
+                   expressionPrinter.Append("Source: ");
+                   expressionPrinter.Visit(Source);
+                   expressionPrinter.AppendLine();
+                   expressionPrinter.Append("GroupingEnumerable: ");
+                   expressionPrinter.Visit(GroupingEnumerable);
+                   expressionPrinter.AppendLine();
                 }
             }
         }

@@ -1273,7 +1273,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ss => ss.Set<Customer>().Select(c => new Tuple<Customer, int>(c, 5)).Include(t => t.Item1.Orders)))).Message);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_GroupBy_Select(bool async)
         {
@@ -1283,10 +1283,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(o => o.OrderID == 10248)
                     .Include(o => o.OrderDetails)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 4);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_reference_GroupBy_Select(bool async)
         {
@@ -1296,10 +1297,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(o => o.OrderID == 10248)
                     .Include(o => o.Customer)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_Join_GroupBy_Select(bool async)
         {
@@ -1314,10 +1316,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         od => od.OrderID,
                         (o, od) => o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 4);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_reference_Join_GroupBy_Select(bool async)
         {
@@ -1332,10 +1335,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         od => od.OrderID,
                         (o, od) => o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_Include_collection_GroupBy_Select(bool async)
         {
@@ -1349,10 +1353,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o => o.OrderID,
                         (od, o) => o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 4);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_Include_reference_GroupBy_Select(bool async)
         {
@@ -1365,10 +1370,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                         o => o.OrderID,
                         (od, o) => o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 919);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_SelectMany_GroupBy_Select(bool async)
         {
@@ -1378,10 +1384,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from od in ss.Set<OrderDetail>()
                        select o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 4);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_reference_SelectMany_GroupBy_Select(bool async)
         {
@@ -1391,10 +1398,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from od in ss.Set<OrderDetail>()
                        select o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 2);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_Include_collection_GroupBy_Select(bool async)
         {
@@ -1404,10 +1412,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from o in ss.Set<Order>().Include(o => o.OrderDetails)
                        select o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 2985);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task SelectMany_Include_reference_GroupBy_Select(bool async)
         {
@@ -1417,7 +1426,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                        from o in ss.Set<Order>().Include(o => o.Customer)
                        select o)
                     .GroupBy(e => e.OrderID)
-                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
+                    .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
+                entryCount: 919);
         }
 
         [ConditionalTheory]

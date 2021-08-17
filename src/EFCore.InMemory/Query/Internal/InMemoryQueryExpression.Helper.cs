@@ -173,5 +173,64 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     : base.VisitExtension(extensionExpression);
             }
         }
+
+        private sealed class QueryExpressionReplacingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly Expression _oldQuery;
+            private readonly Expression _newQuery;
+
+            public QueryExpressionReplacingExpressionVisitor(Expression oldQuery, Expression newQuery)
+            {
+                _oldQuery = oldQuery;
+                _newQuery = newQuery;
+            }
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                return expression is ProjectionBindingExpression projectionBindingExpression
+                    && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldQuery)
+                    ? projectionBindingExpression.ProjectionMember != null
+                        ? new ProjectionBindingExpression(
+                            _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
+                        : new ProjectionBindingExpression(
+                            _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
+                    : base.Visit(expression);
+            }
+        }
+
+        private sealed class CloningExpressionVisitor : ExpressionVisitor
+        {
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (expression is InMemoryQueryExpression inMemoryQueryExpression)
+                {
+                    var clonedInMemoryQueryExpression = new InMemoryQueryExpression(
+                        inMemoryQueryExpression.ServerQueryExpression, inMemoryQueryExpression._valueBufferParameter)
+                    {
+                        _groupingParameter = inMemoryQueryExpression._groupingParameter,
+                        _singleResultMethodInfo = inMemoryQueryExpression._singleResultMethodInfo,
+                        _scalarServerQuery = inMemoryQueryExpression._scalarServerQuery
+                    };
+
+                    clonedInMemoryQueryExpression._clientProjections.AddRange(inMemoryQueryExpression._clientProjections.Select(e => Visit(e)));
+                    clonedInMemoryQueryExpression._projectionMappingExpressions.AddRange(inMemoryQueryExpression._projectionMappingExpressions);
+                    foreach (var item in inMemoryQueryExpression._projectionMapping)
+                    {
+                        clonedInMemoryQueryExpression._projectionMapping[item.Key] = Visit(item.Value);
+                    }
+
+                    return clonedInMemoryQueryExpression;
+                }
+
+                if (expression is EntityProjectionExpression entityProjectionExpression)
+                {
+                    return entityProjectionExpression.Clone();
+                }
+
+                return base.Visit(expression);
+            }
+        }
     }
 }

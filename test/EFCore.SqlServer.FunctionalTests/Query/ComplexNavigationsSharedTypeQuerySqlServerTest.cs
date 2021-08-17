@@ -118,8 +118,14 @@ LEFT JOIN (
     ) AS [t1] ON [l2].[Id] = [t1].[Id]
     WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Id]
+LEFT JOIN (
+    SELECT [l5].[Id]
+    FROM [Level1] AS [l5]
+    INNER JOIN [Level1] AS [l6] ON [l5].[Id] = [l6].[Id]
+    WHERE ([l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id] IS NOT NULL) AND [l5].[OneToMany_Required_Inverse2Id] IS NOT NULL
+) AS [t2] ON [l].[Id] = [t2].[Id]
 GROUP BY [t0].[Level3_Name]
-HAVING MIN(COALESCE([t].[Id], 0)) > 0");
+HAVING MIN(COALESCE([t2].[Id], 0)) > 0");
         }
 
         public override async Task Simple_level1_level2_level3_include(bool async)

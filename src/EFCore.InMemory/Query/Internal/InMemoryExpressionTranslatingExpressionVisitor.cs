@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     /// </summary>
     public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     {
-        private const string _runtimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
+        private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
         private static readonly MemberInfo _valueBufferIsEmpty = typeof(ValueBuffer).GetMember(nameof(ValueBuffer.IsEmpty))[0];
 
@@ -280,12 +280,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     when projectionBindingExpression.ProjectionMember != null:
                     return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression);
 
-                case InMemoryGroupByShaperExpression inMemoryGroupByShaperExpression:
-                    return new GroupingElementExpression(
-                        inMemoryGroupByShaperExpression.GroupingParameter,
-                        inMemoryGroupByShaperExpression.ElementSelector,
-                        inMemoryGroupByShaperExpression.ValueBufferParameter);
-
                 default:
                     return QueryCompilationContext.NotTranslatedExpression;
             }
@@ -459,246 +453,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 return TryBindMember(Visit(source), MemberIdentity.Create(propertyName), methodCallExpression.Type)
                     ?? QueryCompilationContext.NotTranslatedExpression;
-            }
-
-            // GroupBy Aggregate case
-            if (methodCallExpression.Object == null
-                && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                && methodCallExpression.Arguments.Count > 0)
-            {
-                if (methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) == null
-                    && Visit(methodCallExpression.Arguments[0]) is GroupingElementExpression groupingElementExpression)
-                {
-                    Expression? result = null;
-                    switch (methodCallExpression.Method.Name)
-                    {
-                        case nameof(Enumerable.Average):
-                        {
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            var expression = ApplySelect(groupingElementExpression);
-
-                            result = expression == null
-                                ? null
-                                : Expression.Call(
-                                    EnumerableMethods.GetAverageWithoutSelector(expression.Type.GetSequenceType()), expression);
-                            break;
-                        }
-
-                        case nameof(Enumerable.Count):
-                        {
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                var temporaryGroupingElementExpression = ApplyPredicate(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-
-                                if (temporaryGroupingElementExpression == null)
-                                {
-                                    result = null;
-                                    break;
-                                }
-
-                                groupingElementExpression = temporaryGroupingElementExpression;
-                            }
-
-                            var expression = ApplySelect(groupingElementExpression);
-
-                            result = expression == null
-                                ? null
-                                : Expression.Call(
-                                    EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(expression.Type.GetSequenceType()),
-                                    expression);
-                            break;
-                        }
-
-                        case nameof(Enumerable.Distinct):
-                            result = groupingElementExpression.Selector is EntityShaperExpression
-                                ? groupingElementExpression
-                                : groupingElementExpression.IsDistinct
-                                    ? null
-                                    : groupingElementExpression.ApplyDistinct();
-                            break;
-
-                        case nameof(Enumerable.LongCount):
-                        {
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                var temporaryGroupingElementExpression = ApplyPredicate(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-
-                                if (temporaryGroupingElementExpression == null)
-                                {
-                                    result = null;
-                                    break;
-                                }
-
-                                groupingElementExpression = temporaryGroupingElementExpression;
-                            }
-
-                            var expression = ApplySelect(groupingElementExpression);
-
-                            result = expression == null
-                                ? null
-                                : Expression.Call(
-                                    EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(expression.Type.GetSequenceType()),
-                                    expression);
-                            break;
-                        }
-
-                        case nameof(Enumerable.Max):
-                        {
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            var expression = ApplySelect(groupingElementExpression);
-                            if (expression == null
-                                || expression is ParameterExpression)
-                            {
-                                result = null;
-                            }
-                            else
-                            {
-                                var type = expression.Type.GetSequenceType();
-                                var aggregateMethod = EnumerableMethods.GetMaxWithoutSelector(type);
-                                if (aggregateMethod.IsGenericMethod)
-                                {
-                                    aggregateMethod = aggregateMethod.MakeGenericMethod(type);
-                                }
-
-                                result = Expression.Call(aggregateMethod, expression);
-                            }
-
-                            break;
-                        }
-
-                        case nameof(Enumerable.Min):
-                        {
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            var expression = ApplySelect(groupingElementExpression);
-                            if (expression == null
-                                || expression is ParameterExpression)
-                            {
-                                result = null;
-                            }
-                            else
-                            {
-                                var type = expression.Type.GetSequenceType();
-                                var aggregateMethod = EnumerableMethods.GetMinWithoutSelector(type);
-                                if (aggregateMethod.IsGenericMethod)
-                                {
-                                    aggregateMethod = aggregateMethod.MakeGenericMethod(type);
-                                }
-
-                                result = Expression.Call(aggregateMethod, expression);
-                            }
-
-                            break;
-                        }
-
-                        case nameof(Enumerable.Select):
-                            result = ApplySelector(groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            break;
-
-                        case nameof(Enumerable.Sum):
-                        {
-                            if (methodCallExpression.Arguments.Count == 2)
-                            {
-                                groupingElementExpression = ApplySelector(
-                                    groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            }
-
-                            var expression = ApplySelect(groupingElementExpression);
-
-                            result = expression == null
-                                ? null
-                                : Expression.Call(
-                                    EnumerableMethods.GetSumWithoutSelector(expression.Type.GetSequenceType()), expression);
-                            break;
-                        }
-
-                        case nameof(Enumerable.Where):
-                            result = ApplyPredicate(groupingElementExpression, methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
-                            break;
-
-                        default:
-                            result = null;
-                            break;
-                    }
-
-                    return result ?? throw new InvalidOperationException(CoreStrings.TranslationFailed(methodCallExpression.Print()));
-
-                    GroupingElementExpression? ApplyPredicate(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
-                    {
-                        var predicate = TranslateInternal(RemapLambda(groupingElement, lambdaExpression));
-
-                        if (predicate == null)
-                        {
-                            return null;
-                        }
-
-                        if (predicate.Type != typeof(bool))
-                        {
-                            predicate = Expression.Equal(predicate, Expression.Constant(true, typeof(bool?)));
-                        }
-
-                        return groupingElement.UpdateSource(
-                            Expression.Call(
-                                EnumerableMethods.Where.MakeGenericMethod(typeof(ValueBuffer)),
-                                groupingElement.Source,
-                                Expression.Lambda(predicate, groupingElement.ValueBufferParameter)));
-                    }
-
-                    Expression? ApplySelect(GroupingElementExpression groupingElement)
-                    {
-                        var selector = TranslateInternal(groupingElement.Selector);
-
-                        if (selector == null)
-                        {
-                            return groupingElement.Selector is EntityShaperExpression
-                                ? groupingElement.Source
-                                : null;
-                        }
-
-                        var result = Expression.Call(
-                            EnumerableMethods.Select.MakeGenericMethod(typeof(ValueBuffer), selector.Type),
-                            groupingElement.Source,
-                            Expression.Lambda(selector, groupingElement.ValueBufferParameter));
-
-                        if (groupingElement.IsDistinct)
-                        {
-                            result = Expression.Call(
-                                EnumerableMethods.Distinct.MakeGenericMethod(selector.Type),
-                                result);
-                        }
-
-                        return result;
-                    }
-
-                    static GroupingElementExpression ApplySelector(
-                        GroupingElementExpression groupingElement,
-                        LambdaExpression lambdaExpression)
-                    {
-                        var selector = RemapLambda(groupingElement, lambdaExpression);
-
-                        return groupingElement.ApplySelector(selector);
-                    }
-
-                    static Expression RemapLambda(GroupingElementExpression groupingElement, LambdaExpression lambdaExpression)
-                        => ReplacingExpressionVisitor.Replace(
-                            lambdaExpression.Parameters[0], groupingElement.Selector, lambdaExpression.Body);
-                }
             }
 
             // Subquery case
@@ -1346,7 +1100,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     );
 
                     var newParameterName =
-                        $"{_runtimeParameterPrefix}"
+                        $"{RuntimeParameterPrefix}"
                         + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
@@ -1477,7 +1231,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         QueryCompilationContext.QueryContextParameter);
 
                     var newParameterName =
-                        $"{_runtimeParameterPrefix}"
+                        $"{RuntimeParameterPrefix}"
                         + $"{parameterName[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
@@ -1746,48 +1500,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     ? QueryCompilationContext.NotTranslatedExpression
                     : new EntityReferenceExpression(this, derivedEntityType);
             }
-        }
-
-        private sealed class GroupingElementExpression : Expression
-        {
-            public GroupingElementExpression(Expression source, Expression selector, ParameterExpression valueBufferParameter)
-            {
-                Source = source;
-                ValueBufferParameter = valueBufferParameter;
-                Selector = selector;
-            }
-
-            public Expression Source { get; private set; }
-            public bool IsDistinct { get; private set; }
-            public Expression Selector { get; private set; }
-            public ParameterExpression ValueBufferParameter { get; }
-
-            public GroupingElementExpression ApplyDistinct()
-            {
-                IsDistinct = true;
-
-                return this;
-            }
-
-            public GroupingElementExpression ApplySelector(Expression expression)
-            {
-                Selector = expression;
-
-                return this;
-            }
-
-            public GroupingElementExpression UpdateSource(Expression source)
-            {
-                Source = source;
-
-                return this;
-            }
-
-            public override Type Type
-                => typeof(IEnumerable<>).MakeGenericType(Selector.Type);
-
-            public override ExpressionType NodeType
-                => ExpressionType.Extension;
         }
     }
 }
