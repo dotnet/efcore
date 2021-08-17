@@ -369,6 +369,31 @@ DROP TABLE [dbo].[K2];");
         }
 
         [ConditionalFact]
+        public void Filter_tables_with_quote_in_name()
+        {
+            Test(
+                @"
+CREATE TABLE [dbo].[K2'] ( Id int, A varchar, UNIQUE (A ) );
+
+CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B) REFERENCES [K2'] (A) );",
+                new[] { "K2'" },
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("K2'", table.Name);
+                    Assert.Equal(2, table.Columns.Count);
+                    Assert.Equal(1, table.UniqueConstraints.Count);
+                    Assert.Empty(table.ForeignKeys);
+                },
+                @"
+DROP TABLE [dbo].[Kilimanjaro];
+
+DROP TABLE [dbo].[K2'];");
+        }
+
+        [ConditionalFact]
         public void Filter_tables_with_qualified_name()
         {
             Test(

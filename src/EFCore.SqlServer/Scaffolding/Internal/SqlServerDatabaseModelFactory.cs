@@ -347,7 +347,7 @@ WHERE name = '{connection.Database}';";
                     : (Func<string, string, string>?)null;
 
         private static string EscapeLiteral(string s)
-            => $"N'{s}'";
+            => $"N'{s.Replace("'", "''")}'";
 
         private IReadOnlyDictionary<string, (string, string)> GetTypeAliases(DbConnection connection)
         {
