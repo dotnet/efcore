@@ -720,9 +720,57 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             // Note: must completely assign all foreign keys before assigning
             // navigation properties otherwise naming of navigation properties
             // when there are multiple foreign keys does not work.
-            foreach (var foreignKey in modelBuilder.Model.GetEntityTypes().SelectMany(et => et.GetForeignKeys()))
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                AddNavigationProperties(foreignKey);
+                if (CSharpDbContextGenerator.IsManyToManyJoinEntityType((IEntityType)entityType))
+                {
+                    var fks = entityType.GetForeignKeys().ToArray();
+                    var leftEntityType = fks[0].PrincipalEntityType;
+                    var rightEntityType = fks[1].PrincipalEntityType;
+
+                    var leftExistingIdentifiers = ExistingIdentifiers(leftEntityType);
+                    var leftNavigationPropertyCandidateName =
+                        _candidateNamingService.GetDependentEndCandidateNavigationPropertyName(fks[1]);
+                    if (!_options.NoPluralize)
+                    {
+                        leftNavigationPropertyCandidateName = _pluralizer.Pluralize(leftNavigationPropertyCandidateName);
+                    }
+                    var leftNavigationPropertyName =
+                        _cSharpUtilities.GenerateCSharpIdentifier(
+                            leftNavigationPropertyCandidateName,
+                            leftExistingIdentifiers,
+                            singularizePluralizer: null,
+                            uniquifier: NavigationUniquifier);
+
+                    var rightExistingIdentifiers = ExistingIdentifiers(rightEntityType);
+                    var rightNavigationPropertyCandidateName =
+                        _candidateNamingService.GetDependentEndCandidateNavigationPropertyName(fks[0]);
+                    if (!_options.NoPluralize)
+                    {
+                        rightNavigationPropertyCandidateName = _pluralizer.Pluralize(rightNavigationPropertyCandidateName);
+                    }
+                    var rightNavigationPropertyName =
+                        _cSharpUtilities.GenerateCSharpIdentifier(
+                            rightNavigationPropertyCandidateName,
+                            rightExistingIdentifiers,
+                            singularizePluralizer: null,
+                            uniquifier: NavigationUniquifier);
+
+                    var leftSkipNavigation = leftEntityType.AddSkipNavigation(
+                        leftNavigationPropertyName, null, rightEntityType, collection: true, onDependent: false);
+                    leftSkipNavigation.SetForeignKey(fks[0]);
+                    var rightSkipNavigation = rightEntityType.AddSkipNavigation(
+                        rightNavigationPropertyName, null, leftEntityType, collection: true, onDependent: false);
+                    rightSkipNavigation.SetForeignKey(fks[1]);
+                    leftSkipNavigation.SetInverse(rightSkipNavigation);
+                    rightSkipNavigation.SetInverse(leftSkipNavigation);
+                    continue;
+                }
+
+                foreach (var foreignKey in entityType.GetForeignKeys())
+                {
+                    AddNavigationProperties(foreignKey);
+                }
             }
 
             return modelBuilder;

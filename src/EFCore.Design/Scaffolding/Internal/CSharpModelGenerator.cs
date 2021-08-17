@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
@@ -114,6 +115,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var entityType in model.GetEntityTypes())
             {
+                if (Internal.CSharpDbContextGenerator.IsManyToManyJoinEntityType(entityType))
+                {
+                    continue;
+                }
+
                 generatedCode = CSharpEntityTypeGenerator.WriteCode(
                     entityType,
                     options.ModelNamespace,

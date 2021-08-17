@@ -35,6 +35,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -88,6 +89,7 @@ namespace TestNamespace
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -138,6 +140,7 @@ namespace TestNamespace
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -613,6 +616,7 @@ namespace TestNamespace
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -694,6 +698,7 @@ namespace TestNamespace
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -777,6 +782,7 @@ namespace TestNamespace
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -858,6 +864,7 @@ namespace TestNamespace
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -1002,6 +1009,7 @@ namespace TestNamespace
                 {
                     AssertFileContents(
                         @"using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using CustomTestNamespace;
