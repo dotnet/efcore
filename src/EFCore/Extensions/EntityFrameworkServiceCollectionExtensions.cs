@@ -343,10 +343,15 @@ namespace Microsoft.Extensions.DependencyInjection
             AddPoolingOptions<TContextImplementation>(serviceCollection, optionsAction, poolSize);
 
             serviceCollection.TryAddSingleton<IDbContextPool<TContextImplementation>, DbContextPool<TContextImplementation>>();
-            serviceCollection.AddScoped<IScopedDbContextLease<TContextImplementation>, ScopedDbContextLease<TContextImplementation>>();
+            serviceCollection.TryAddScoped<IScopedDbContextLease<TContextImplementation>, ScopedDbContextLease<TContextImplementation>>();
 
-            serviceCollection.AddScoped<TContextService>(
+            serviceCollection.TryAddScoped<TContextService>(
                 sp => sp.GetRequiredService<IScopedDbContextLease<TContextImplementation>>().Context);
+
+            if (typeof(TContextService) != typeof(TContextImplementation))
+            {
+                serviceCollection.TryAddScoped(p => (TContextImplementation)p.GetService<TContextService>()!);
+            }
 
             return serviceCollection;
         }
@@ -592,16 +597,21 @@ namespace Microsoft.Extensions.DependencyInjection
             if (serviceCollection.Any(d => d.ServiceType == typeof(IDbContextFactorySource<TContextImplementation>)))
             {
                 // Override registration made by AddDbContextFactory
-                var serviceDescriptor = serviceCollection.FirstOrDefault(d => d.ServiceType == typeof(TContextService));
+                var serviceDescriptor = serviceCollection.FirstOrDefault(d => d.ServiceType == typeof(TContextImplementation));
                 if (serviceDescriptor != null)
                 {
                     serviceCollection.Remove(serviceDescriptor);
-                    serviceCollection.Add(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));    
                 }
             }
-            else
+            
+            serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));
+
+            if (typeof(TContextService) != typeof(TContextImplementation))
             {
-                serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));
+                serviceCollection.TryAdd(
+                    new ServiceDescriptor(typeof(TContextImplementation), 
+                        p => (TContextImplementation)p.GetService<TContextService>()!,
+                        contextLifetime));
             }
 
             return serviceCollection;

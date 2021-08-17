@@ -304,6 +304,18 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Pool_can_get_context_by_concrete_type_even_when_service_interface_is_used()
+        {
+            var serviceProvider = BuildServiceProvider<IPooledContext, PooledContext>();
+
+            using var scope = serviceProvider.CreateScope();
+
+            Assert.Same(
+                scope.ServiceProvider.GetRequiredService<IPooledContext>(),
+                scope.ServiceProvider.GetRequiredService<PooledContext>());
+        }
+
+        [ConditionalFact]
         public void Validate_pool_size_with_factory_default()
         {
             var serviceProvider = BuildServiceProviderWithFactory<PooledContext>();
