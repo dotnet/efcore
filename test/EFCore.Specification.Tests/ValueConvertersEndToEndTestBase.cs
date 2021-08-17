@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -56,6 +57,20 @@ namespace Microsoft.EntityFrameworkCore
             { typeof(PhysicalAddress), new object?[] { _physicalAddress1, _physicalAddress2, _physicalAddress1, _physicalAddress2 } },
             { typeof(TimeSpan), new object?[] { _timeSpan1, _timeSpan2, _timeSpan1, _timeSpan2 } },
             { typeof(Uri), new object?[] { _uri1, _uri2, _uri1, _uri2 } },
+            { typeof(List<int>), new object?[]
+            {
+                new List<int> { 47, 48, 47, 46 },
+                new List<int> { 57, 58, 57, 56 },
+                new List<int> { 67, 68, 67, 66 },
+                new List<int> { 77, 78, 77, 76 },
+            } },
+            { typeof(IEnumerable<int>), new object?[]
+            {
+                new List<int> { 47, 48, 47, 46 },
+                new List<int> { 57, 58, 57, 56 },
+                new List<int> { 67, 68, 67, 66 },
+                new List<int> { 77, 78, 77, 76 },
+            } },
         };
 
         protected static Dictionary<Type, object?[]> StringTestValues = new()
@@ -161,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore
 
                 var propertyEntry = entry.Property(property.Name);
 
-                if (previousValueIndex >= 0)
+                if (previousValueIndex >= 0
+                    && property.FindAnnotation("Relational:DefaultValue") == null)
                 {
                     Assert.Equal(testValues[previousValueIndex], propertyEntry.CurrentValue);
                 }
@@ -593,6 +609,12 @@ namespace Microsoft.EntityFrameworkCore
             public int NonNullIntToNonNullString { get; set; }
             public int? NullIntToNullString { get; set; }
             public int? NullIntToNonNullString { get; set; }
+
+            public List<int>? NullableListOfInt { get; set; }
+            public List<int> ListOfInt { get; set; } = null!;
+
+            public IEnumerable<int>? NullableEnumerableOfInt { get; set; }
+            public IEnumerable<int> EnumerableOfInt { get; set; } = null!;
         }
 
         protected DbContext CreateContext()
@@ -788,6 +810,18 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property(e => e.NullStringToNonNullString).HasConversion(new NullStringToNonNullStringConverter()).IsRequired();
                         b.Property(e => e.NonNullStringToNullString).HasConversion(new NonNullStringToNullStringConverter())
                             .IsRequired(false);
+
+                        b.Property(e => e.NullableListOfInt).HasConversion(
+                            (ValueConverter?)new ListOfIntToJsonConverter(), new ListOfIntComparer());
+
+                        b.Property(e => e.ListOfInt).HasConversion(
+                            new ListOfIntToJsonConverter(), new ListOfIntComparer());
+
+                        b.Property(e => e.NullableEnumerableOfInt).HasConversion(
+                            (ValueConverter?)new EnumerableOfIntToJsonConverter(), new EnumerableOfIntComparer());
+
+                        b.Property(e => e.EnumerableOfInt).HasConversion(
+                            new EnumerableOfIntToJsonConverter(), new EnumerableOfIntComparer());
                     });
             }
         }
@@ -845,6 +879,48 @@ namespace Microsoft.EntityFrameworkCore
             Jimi,
             Noel,
             Mitch
+        }
+
+        protected class ListOfIntToJsonConverter : ValueConverter<List<int>, string>
+        {
+            public ListOfIntToJsonConverter()
+                : base(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null)!)
+            {
+            }
+        }
+
+        protected class ListOfIntComparer : ValueComparer<List<int>?>
+        {
+            public ListOfIntComparer()
+                : base(
+                    (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                    c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c == null ? null : c.ToList())
+            {
+            }
+        }
+
+        protected class EnumerableOfIntToJsonConverter : ValueConverter<IEnumerable<int>, string>
+        {
+            public EnumerableOfIntToJsonConverter()
+                : base(
+                    v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
+                    v => JsonSerializer.Deserialize<List<int>>(v, (JsonSerializerOptions?)null)!)
+            {
+            }
+        }
+
+        protected class EnumerableOfIntComparer : ValueComparer<IEnumerable<int>?>
+        {
+            public EnumerableOfIntComparer()
+                : base(
+                    (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+                    c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c == null ? null : (IEnumerable<int>)c.ToList())
+            {
+            }
         }
     }
 }
