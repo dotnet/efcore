@@ -540,7 +540,8 @@ namespace Microsoft.EntityFrameworkCore
             var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
 
             return (type.IsInteger()
-                    || type == typeof(decimal));
+                || type.IsEnum
+                || type == typeof(decimal));
         }
 
         private static bool IsCompatibleWithValueGeneration(
@@ -555,7 +556,8 @@ namespace Microsoft.EntityFrameworkCore
             var type = (valueConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
             
             return (type.IsInteger()
-                    || type == typeof(decimal));
+                || type.IsEnum
+                || type == typeof(decimal));
         }
 
         /// <summary>

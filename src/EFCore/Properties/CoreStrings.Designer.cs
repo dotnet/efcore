@@ -2841,6 +2841,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, propertyType);
 
         /// <summary>
+        ///     Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.
+        /// </summary>
+        public static string ValueGenWithConversion(object? entityType, object? property, object? converter)
+            => string.Format(
+                GetString("ValueGenWithConversion", nameof(entityType), nameof(property), nameof(converter)),
+                entityType, property, converter);
+        
+        /// <summary>
         ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.
         /// </summary>
         public static string VisitIsNotAllowed(object? visitMethodName)
