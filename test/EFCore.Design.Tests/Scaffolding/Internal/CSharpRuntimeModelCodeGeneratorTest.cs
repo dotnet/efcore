@@ -55,21 +55,16 @@ namespace TestNamespace
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.EmptyContext))]
     partial class EmptyContextModel : RuntimeModel
     {
-        private static EmptyContextModel _instance;
-        public static IModel Instance
+        static EmptyContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new EmptyContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new EmptyContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static EmptyContextModel _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 
@@ -476,21 +471,16 @@ namespace TestNamespace
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.BigContext))]
     partial class BigContextModel : RuntimeModel
     {
-        private static BigContextModel? _instance;
-        public static IModel Instance
+        static BigContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new BigContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new BigContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static BigContextModel? _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 
@@ -1853,21 +1843,16 @@ namespace TestNamespace
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.DbFunctionContext))]
     partial class DbFunctionContextModel : RuntimeModel
     {
-        private static DbFunctionContextModel _instance;
-        public static IModel Instance
+        static DbFunctionContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new DbFunctionContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new DbFunctionContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static DbFunctionContextModel _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 
@@ -2343,21 +2328,16 @@ namespace TestNamespace
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.SequencesContext))]
     partial class SequencesContextModel : RuntimeModel
     {
-        private static SequencesContextModel _instance;
-        public static IModel Instance
+        static SequencesContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new SequencesContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new SequencesContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static SequencesContextModel _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 
@@ -2551,21 +2531,16 @@ namespace TestNamespace
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.ConstraintsContext))]
     partial class ConstraintsContextModel : RuntimeModel
     {
-        private static ConstraintsContextModel _instance;
-        public static IModel Instance
+        static ConstraintsContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new ConstraintsContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new ConstraintsContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static ConstraintsContextModel _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 
@@ -2707,21 +2682,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.SqliteContext))]
     partial class SqliteContextModel : RuntimeModel
     {
-        private static SqliteContextModel _instance;
-        public static IModel Instance
+        static SqliteContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new SqliteContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new SqliteContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static SqliteContextModel _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 
@@ -2887,21 +2857,16 @@ namespace TestNamespace
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.CosmosContext))]
     partial class CosmosContextModel : RuntimeModel
     {
-        private static CosmosContextModel _instance;
-        public static IModel Instance
+        static CosmosContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new CosmosContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new CosmosContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static CosmosContextModel _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 

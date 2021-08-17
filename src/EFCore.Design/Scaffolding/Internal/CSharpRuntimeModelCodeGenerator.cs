@@ -164,24 +164,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             using (mainBuilder.Indent())
             {
                 mainBuilder
-                    .Append("private static ").Append(className).AppendLine(nullable ? "? _instance;" : " _instance;")
-                    .Append("public static IModel Instance")
-                    .AppendLines(@"
+                    .Append("static ").Append(className).Append("()")
+                    .AppendLines(
+                @"
 {
-    get
-    {
-        if (_instance == null)
-        {
-            _instance = new " + className + @"();
-            _instance.Initialize();
-            _instance.Customize();
-        }
-
-        return _instance;
-    }
-}");
-
-                mainBuilder
+    var model = new " + className + @"();
+    model.Initialize();
+    model.Customize();
+    _instance = model;
+}")
+                    .AppendLine()
+                    .Append("private static ").Append(className).AppendLine(nullable ? "? _instance;" : " _instance;")
+                    .AppendLine("public static IModel Instance => _instance;")
                     .AppendLine()
                     .AppendLine("partial void Initialize();")
                     .AppendLine()
