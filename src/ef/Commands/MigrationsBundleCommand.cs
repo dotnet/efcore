@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.Generators;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -85,27 +84,17 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 var publishArgs = new List<string> { "publish" };
 
-                string? exe;
-                if (_runtime!.HasValue())
-                {
-                    var runtime = _runtime!.Value()!;
-                    publishArgs.Add("--runtime");
-                    publishArgs.Add(runtime);
+                var runtime = _runtime!.HasValue()
+                    ? _runtime!.Value()!
+                    : (string)AppContext.GetData("RUNTIME_IDENTIFIER");
+                publishArgs.Add("--runtime");
+                publishArgs.Add(runtime);
 
-                    var baseLength = runtime.IndexOfAny(new[] { '-', '.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' });
-                    var baseRID = runtime.Substring(0, baseLength);
-                    exe = string.Equals(baseRID, "win", StringComparison.OrdinalIgnoreCase)
-                        ? ".exe"
-                        : null;
-                }
-                else
-                {
-                    publishArgs.Add("--use-current-runtime");
-
-                    exe = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                        ? ".exe"
-                        : null;
-                }
+                var baseLength = runtime.IndexOfAny(new[] { '-', '.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' });
+                var baseRID = runtime.Substring(0, baseLength);
+                var exe = string.Equals(baseRID, "win", StringComparison.OrdinalIgnoreCase)
+                    ? ".exe"
+                    : null;
 
                 var outputPath = _output!.HasValue()
                     ? _output!.Value()!

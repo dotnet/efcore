@@ -165,7 +165,7 @@ function Bundle-Migration
 
     if (!$Framework)
     {
-        $Framework = GetProperty $startupProject.Properties 'FriendlyTargetFramework'
+        $Framework = GetProperty $dteStartupProject.Properties 'FriendlyTargetFramework'
     }
 
     $params = 'migrations', 'bundle', '--framework', $Framework
