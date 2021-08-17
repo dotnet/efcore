@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,5 +21,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override string ProviderName
             => "Microsoft.EntityFrameworkCore.SqlServer";
+
+        protected override string ProviderVersion
+            => typeof(SqlServerOptionsExtension).Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
     }
 }

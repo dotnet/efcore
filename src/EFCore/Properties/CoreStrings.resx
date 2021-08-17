@@ -755,8 +755,8 @@
     <comment>Debug CoreEventId.ContextDisposed string</comment>
   </data>
   <data name="LogContextInitialized" xml:space="preserve">
-    <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}</value>
-    <comment>Information CoreEventId.ContextInitialized string string string? string</comment>
+    <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}:{providerVersion}' with options: {options}</value>
+    <comment>Information CoreEventId.ContextInitialized string string string? string? string</comment>
   </data>
   <data name="LogDetachedLazyLoading" xml:space="preserve">
     <value>An attempt was made to lazy-load navigation '{navigation}' on a detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking'.</value>

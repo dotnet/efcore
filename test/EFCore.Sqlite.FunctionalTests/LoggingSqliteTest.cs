@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,5 +21,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected override string ProviderName
             => "Microsoft.EntityFrameworkCore.Sqlite";
+
+        protected override string ProviderVersion
+            => typeof(SqliteOptionsExtension).Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
     }
 }

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,6 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     for the providers runtime.
         /// </summary>
         string Name { get; }
+
+        /// <summary>
+        ///     The value of the <see cref="AssemblyInformationalVersionAttribute.InformationalVersion" />
+        ///     for the database provider assembly.
+        /// </summary>
+        string? Version
+            => null;
 
         /// <summary>
         ///     Gets a value indicating whether this database provider has been configured for a given context.

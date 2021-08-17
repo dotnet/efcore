@@ -43,11 +43,14 @@ namespace Microsoft.EntityFrameworkCore
                 ProductInfo.GetVersion(),
                 nameof(LoggingContext),
                 ProviderName,
+                ProviderVersion,
                 optionsFragment ?? "None").Trim();
 
         protected abstract DbContextOptionsBuilder CreateOptionsBuilder(IServiceCollection services);
 
         protected abstract string ProviderName { get; }
+
+        protected abstract string ProviderVersion { get; }
 
         protected virtual string DefaultOptions
             => null;
