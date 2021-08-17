@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
@@ -256,14 +257,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         private RuntimeScalarTypeConfiguration Create(IScalarTypeConfiguration typeConfiguration, RuntimeModel model)
-            => model.AddScalarTypeConfiguration(
-                typeConfiguration.ClrType,
-                typeConfiguration.GetMaxLength(),
-                typeConfiguration.IsUnicode(),
-                typeConfiguration.GetPrecision(),
-                typeConfiguration.GetScale(),
-                typeConfiguration.GetProviderClrType(),
-                (Type?)typeConfiguration[CoreAnnotationNames.ValueConverterType]);
+        {
+            var valueConverterType = (Type?)typeConfiguration[CoreAnnotationNames.ValueConverterType];
+            var valueConverter = valueConverterType == null
+                ? null
+                : (ValueConverter?)Activator.CreateInstance(valueConverterType);
+
+            return model.AddScalarTypeConfiguration(
+                           typeConfiguration.ClrType,
+                           typeConfiguration.GetMaxLength(),
+                           typeConfiguration.IsUnicode(),
+                           typeConfiguration.GetPrecision(),
+                           typeConfiguration.GetScale(),
+                           typeConfiguration.GetProviderClrType(),
+                           valueConverter);
+        }
 
         /// <summary>
         ///     Updates the property annotations that will be set on the read-only object.

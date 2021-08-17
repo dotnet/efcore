@@ -147,7 +147,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="providerPropertyType">
         ///     The type that the property value will be converted to before being sent to the database provider.
         /// </param>
-        /// <param name="valueConverterType"> The type of a custom <see cref="ValueConverter" /> set for this property type. </param>
+        /// <param name="valueConverter"> The custom <see cref="ValueConverter" /> for this type. </param>
         /// <returns> The newly created property. </returns>
         public virtual RuntimeScalarTypeConfiguration AddScalarTypeConfiguration(
             Type clrType,
@@ -156,7 +156,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             int? precision = null,
             int? scale = null,
             Type? providerPropertyType = null,
-            Type? valueConverterType = null)
+            ValueConverter? valueConverter = null)
         {
             var typeConfiguration = new RuntimeScalarTypeConfiguration(
                 clrType,
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 precision,
                 scale,
                 providerPropertyType,
-                valueConverterType);
+                valueConverter);
 
             _typeConfigurations.Add(clrType, typeConfiguration);
 

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             int? precision,
             int? scale,
             Type? providerClrType,
-            Type? valueConverterType)
+            ValueConverter? valueConverter)
         {
             ClrType = clrType;
 
@@ -58,10 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 SetAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType);
             }
 
-            if (valueConverterType != null)
-            {
-                _valueConverter = (ValueConverter?)Activator.CreateInstance(valueConverterType);
-            }
+            _valueConverter = valueConverter;
         }
 
         /// <summary>
