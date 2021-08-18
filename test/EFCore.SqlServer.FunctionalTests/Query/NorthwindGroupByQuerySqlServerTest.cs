@@ -2173,6 +2173,19 @@ GROUP BY [c].[CustomerID], [o].[OrderDate]
 ORDER BY [o].[OrderDate]");
         }
 
+        public override async Task Odata_groupby_empty_key(bool async)
+        {
+            await base.Odata_groupby_empty_key(async);
+
+            AssertSql(
+                @"SELECT N'TotalAmount' AS [Name], COALESCE(SUM(CAST([t].[OrderID] AS decimal(18,2))), 0.0) AS [Value]
+FROM (
+    SELECT [o].[OrderID], 1 AS [Key]
+    FROM [Orders] AS [o]
+) AS [t]
+GROUP BY [t].[Key]");
+        }
+
         public override async Task GroupBy_with_group_key_access_thru_navigation(bool async)
         {
             await base.GroupBy_with_group_key_access_thru_navigation(async);
