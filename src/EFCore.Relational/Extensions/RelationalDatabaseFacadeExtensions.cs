@@ -131,7 +131,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <code>
         ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRaw("UPDATE [dbo].[SearchBlogs] SET [Rank] = 50 WHERE [Name] = {0}", userSuppliedSearchTerm);
+        ///         context.Database.ExecuteSqlRaw("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
         ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <code>
         ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlInterpolated($"UPDATE [dbo].[SearchBlogs] SET [Rank] = 50 WHERE [Name] = {userSuppliedSearchTerm})");
+        ///         context.Database.ExecuteSqlInterpolated($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
         ///     </code>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -202,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <code>
         ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRaw("UPDATE [dbo].[SearchBlogs] SET [Rank] = 50 WHERE [Name] = {0}", userSuppliedSearchTerm);
+        ///         context.Database.ExecuteSqlRaw("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
         ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <code>
         ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlInterpolatedAsync($"UPDATE [dbo].[SearchBlogs] SET [Rank] = 50 WHERE [Name] = {userSuppliedSearchTerm})");
+        ///         context.Database.ExecuteSqlInterpolatedAsync($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
         ///     </code>
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <code>
         ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRawAsync("UPDATE [dbo].[SearchBlogs] SET [Rank] = 50 WHERE [Name] = {0}", userSuppliedSearchTerm);
+        ///         context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
         ///     </code>
         ///     <para>
         ///         <b>Never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <code>
         ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRawAsync("UPDATE [dbo].[SearchBlogs] SET [Rank] = 50 WHERE [Name] = {0}", userSuppliedSearchTerm);
+        ///         context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
         ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
@@ -387,7 +387,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         ///     <code>
         ///         var userSuppliedSearchTerm = ".NET";
-        ///         context.Database.ExecuteSqlRawAsync("UPDATE [dbo].[SearchBlogs] SET [Rank] = 50 WHERE [Name] = {0}", userSuppliedSearchTerm);
+        ///         context.Database.ExecuteSqlRawAsync("UPDATE Blogs SET Rank = 50 WHERE Name = {0}", userSuppliedSearchTerm);
         ///     </code>
         ///     <para>
         ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
