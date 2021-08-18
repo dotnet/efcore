@@ -17,8 +17,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">EF Core database providers</see>.
+    /// </remarks>
     /// <typeparam name="TKey"> The key type. </typeparam>
-    /// <seealso href="https://aka.ms/efcore-docs-providers">Documentation for EF Core database providers.</seealso>
     public interface IPrincipalKeyValueFactory<TKey>
     {
         /// <summary>

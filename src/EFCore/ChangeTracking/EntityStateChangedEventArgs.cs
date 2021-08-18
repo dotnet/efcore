@@ -9,7 +9,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <summary>
     ///     Event arguments for the <see cref="ChangeTracker.StateChanged" /> event.
     /// </summary>
-    /// <seealso href="https://aka.ms/efcore-docs-state-changes">Documentation for state changes of entities in EF Core.</seealso>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-state-changes">State changes of entities in EF Core</see>.
+    /// </remarks>
     public class EntityStateChangedEventArgs : EntityEntryEventArgs
     {
         /// <summary>

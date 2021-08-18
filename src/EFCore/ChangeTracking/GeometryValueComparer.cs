@@ -9,7 +9,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <summary>
     ///     Value snapshotting and comparison logic for NetTopologySuite.Geometries.Geometry instances.
     /// </summary>
-    /// <seealso href="https://aka.ms/efcore-docs-value-comparers">Documentation for EF Core value comparers.</seealso>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see>.
+    /// </remarks>
     public class GeometryValueComparer<TGeometry> : ValueComparer<TGeometry>
     {
         /// <summary>

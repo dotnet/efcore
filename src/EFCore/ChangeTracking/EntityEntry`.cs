@@ -22,8 +22,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+    /// </remarks>
     /// <typeparam name="TEntity"> The type of entity being tracked by this entry. </typeparam>
-    /// <seealso href="https://aka.ms/efcore-docs-entity-entries">Documentation for accessing tracked entities in EF Core.</seealso>
     public class EntityEntry<TEntity> : EntityEntry
         where TEntity : class
     {

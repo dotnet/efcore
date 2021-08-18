@@ -8,8 +8,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <summary>
     ///     Debug string customization options for tracked entities.
     /// </summary>
-    /// <seealso href="https://aka.ms/efcore-docs-debug-views">Documentation for EF Core debug views.</seealso>
-    /// <seealso href="https://aka.ms/efcore-docs-change-tracking">Documentation for EF Core change tracking.</seealso>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> and
+    ///     <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see>.
+    /// </remarks>
     [Flags]
     public enum ChangeTrackerDebugStringOptions
     {

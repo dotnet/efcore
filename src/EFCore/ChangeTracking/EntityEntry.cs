@@ -28,7 +28,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    /// <seealso href="https://aka.ms/efcore-docs-entity-entries">Documentation for accessing tracked entities in EF Core.</seealso>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+    /// </remarks>
     [DebuggerDisplay("{" + nameof(InternalEntry) + ",nq}")]
     public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {

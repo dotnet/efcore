@@ -19,7 +19,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         See <see cref="M:ChangeTracker.TrackGraph" /> for information on how graph nodes are used.
     ///     </para>
     /// </summary>
-    /// <seealso href="https://aka.ms/efcore-docs-track-graph">Documentation for tracking entities in EF Core.</seealso>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-track-graph">Tracking entities in EF Core</see>.
+    /// </remarks>
     public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     {
         private readonly InternalEntityEntry _entry;

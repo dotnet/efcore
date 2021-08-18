@@ -46,8 +46,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         for WPF binding, or <see cref="ToBindingList" /> for WinForms.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see>.
+    /// </remarks>
     /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
-    /// <seealso href="https://aka.ms/efcore-docs-local-views">Documentation for local views of tracked entities in EF Core.</seealso>
     public class LocalView<TEntity> :
         ICollection<TEntity>,
         INotifyCollectionChanged,
