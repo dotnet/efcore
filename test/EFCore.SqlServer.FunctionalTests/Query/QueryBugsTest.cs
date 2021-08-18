@@ -10159,7 +10159,7 @@ CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]" });
 
         #endregion
 
-        #region Issue24569
+        #region Issue25400
 
         [ConditionalTheory]
         [InlineData(true)]
@@ -10171,14 +10171,14 @@ CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]" });
 
             using (var context = contextFactory.CreateContext())
             {
-                Test24569.ConstructorCallCount = 0;
+                Test25400.ConstructorCallCount = 0;
 
-                var query = context.Set<Test24569>().AsNoTracking().OrderBy(e => e.Id);
+                var query = context.Set<Test25400>().AsNoTracking().OrderBy(e => e.Id);
                 var test = async
                     ? await query.FirstOrDefaultAsync()
                     : query.FirstOrDefault();
 
-                Assert.Equal(1, Test24569.ConstructorCallCount);
+                Assert.Equal(1, Test25400.ConstructorCallCount);
 
             AssertSql(
                 @"SELECT TOP(1) [t].[Id], [t].[Value]
@@ -10189,7 +10189,7 @@ ORDER BY [t].[Id]");
 
         protected class MyContext25400 : DbContext
         {
-            public DbSet<Test24569> Tests { get; set; }
+            public DbSet<Test25400> Tests { get; set; }
 
             public MyContext25400(DbContextOptions options)
                 : base(options)
@@ -10198,27 +10198,27 @@ ORDER BY [t].[Id]");
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Test24569>().HasKey(e => e.Id);
+                modelBuilder.Entity<Test25400>().HasKey(e => e.Id);
             }
 
             public void Seed()
             {
-                Tests.Add(new Test24569(15));
+                Tests.Add(new Test25400(15));
 
                 SaveChanges();
             }
         }
 
-        protected class Test24569
+        protected class Test25400
         {
             public static int ConstructorCallCount = 0;
 
-            public Test24569()
+            public Test25400()
             {
                 ++ConstructorCallCount;
             }
 
-            public Test24569(int value)
+            public Test25400(int value)
             {
                 Value = value;
             }

@@ -613,7 +613,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             /// <inheritdoc />
             protected override Expression VisitExtension(Expression extensionExpression)
                 => extensionExpression is QueryRootExpression queryRootExpression
-                    ? new QueryRootExpression(_model.FindEntityType(queryRootExpression.EntityType.Name)!)
+                    ? queryRootExpression.UpdateEntityType(_model.FindEntityType(queryRootExpression.EntityType.Name)!)
                     : base.VisitExtension(extensionExpression);
         }
     }
