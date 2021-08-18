@@ -2222,7 +2222,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
-                    .Select(c => c.Orders.ToList())
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).ToList())
                     .Where(e => e.Contains(order)),
                 entryCount: 5);
         }
@@ -2251,7 +2251,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
-                    .Select(c => c.Orders.AsEnumerable().ToArray())
+                    .Select(c => c.Orders.AsEnumerable().OrderBy(o => o.OrderID).ToArray())
                     .Where(e => e.Contains(order)),
                 entryCount: 5);
         }
@@ -2280,7 +2280,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>()
-                    .Select(c => c.Orders.AsEnumerable())
+                    .Select(c => c.Orders.OrderBy(o => o.OrderID).AsEnumerable())
                     .Where(e => e.Contains(order)),
                 entryCount: 5);
         }
