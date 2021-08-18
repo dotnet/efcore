@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     {
         private readonly SortedDictionary<string, RuntimeEntityType> _entityTypes = new(StringComparer.Ordinal);
         private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
-        private readonly Dictionary<Type, RuntimeScalarTypeConfiguration> _typeConfigurations = new();
+        private readonly Dictionary<Type, RuntimeTypeMappingConfiguration> _typeConfigurations = new();
         private bool _skipDetectChanges;
 
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
@@ -149,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </param>
         /// <param name="valueConverter"> The custom <see cref="ValueConverter" /> for this type. </param>
         /// <returns> The newly created property. </returns>
-        public virtual RuntimeScalarTypeConfiguration AddScalarTypeConfiguration(
+        public virtual RuntimeTypeMappingConfiguration AddTypeMappingConfiguration(
             Type clrType,
             int? maxLength = null,
             bool? unicode = null,
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Type? providerPropertyType = null,
             ValueConverter? valueConverter = null)
         {
-            var typeConfiguration = new RuntimeScalarTypeConfiguration(
+            var typeConfiguration = new RuntimeTypeMappingConfiguration(
                 clrType,
                 maxLength,
                 unicode,
@@ -292,11 +292,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => _sharedTypes.ContainsKey(type);
 
         /// <inheritdoc/>
-        IEnumerable<IScalarTypeConfiguration> IModel.GetScalarTypeConfigurations()
+        IEnumerable<ITypeMappingConfiguration> IModel.GetTypeMappingConfigurations()
             => _typeConfigurations.Values;
 
         /// <inheritdoc/>
-        IScalarTypeConfiguration? IModel.FindScalarTypeConfiguration(Type propertyType)
+        ITypeMappingConfiguration? IModel.FindTypeMappingConfiguration(Type propertyType)
             => _typeConfigurations.Count == 0
                 ? null
                 : _typeConfigurations.GetValueOrDefault(propertyType);
