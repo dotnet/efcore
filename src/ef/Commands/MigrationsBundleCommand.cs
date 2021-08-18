@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 
                 var outputPath = _output!.HasValue()
                     ? _output!.Value()!
-                    : "bundle" + exe;
+                    : "efbundle" + exe;
                 var bundleName = Path.GetFileNameWithoutExtension(outputPath);
 
                 File.WriteAllText(

@@ -119,7 +119,7 @@ Register-TabExpansion Bundle-Migration @{
 .PARAMETER SelfContained
     Also bundle the .NET runtime so it doesn't need to be installed on the machine.
 
-.PARAMETER Runtime
+.PARAMETER TargetRuntime
     The target runtime to bundle for.
 
 .PARAMETER Configuration
@@ -152,7 +152,7 @@ function Bundle-Migration
         [string] $Output,
         [switch] $Force,
         [switch] $SelfContained,
-        [string] $Runtime,
+        [string] $TargetRuntime,
         [string] $Configuration,
         [string] $Framework,
         [string] $Context,
@@ -185,14 +185,14 @@ function Bundle-Migration
         $params += '--self-contained'
     }
 
-    if ($Runtime)
+    if ($TargetRuntime)
     {
-        $params += '--bundle-runtime', $Runtime
+        $params += '--target-runtime', $TargetRuntime
     }
 
     if ($Configuration)
     {
-        $params += '--bundle-configuration', $Configuration
+        $params += '--target-configuration', $Configuration
     }
 
     $params += GetParams $Context
