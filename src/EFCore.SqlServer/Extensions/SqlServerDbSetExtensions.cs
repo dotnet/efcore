@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -27,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="source">Source DbSet on which the temporal operation is applied.</param>
         /// <param name="utcPointInTime"><see cref="DateTime" /> representing a point in time for which the results should be returned.</param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the entities at a given point in time.</returns>
+        /// <returns> An <see cref="IQueryable" /> representing the entities at a given point in time.</returns>
         public static IQueryable<TEntity> TemporalAsOf<TEntity>(
             this DbSet<TEntity> source,
             DateTime utcPointInTime)

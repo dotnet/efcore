@@ -1,7 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -2140,7 +2144,7 @@ namespace TestNamespace
                     Assert.True(getCountParameter1.PropagatesNullability);
                     Assert.Equal(typeof(Guid?), getCountParameter1.ClrType);
                     Assert.Equal("uniqueidentifier", getCountParameter1.TypeMapping.StoreType);
-                    Assert.Single(getCountParameter1.GetAnnotations());
+                    Assert.Single((IEnumerable)getCountParameter1.GetAnnotations());
                     Assert.Equal(new[] { 1L }, getCountParameter1["MyAnnotation"]);
                     Assert.Equal("id", getCountParameter1.StoreFunctionParameter.Name);
                     Assert.Equal("uniqueidentifier", getCountParameter1.StoreFunctionParameter.Type);
@@ -2168,12 +2172,12 @@ namespace TestNamespace
                     Assert.Null(isDate.Translation);
                     Assert.Equal(typeof(bool), isDate.ReturnType);
                     Assert.Equal("IsDateStatic", isDate.MethodInfo.Name);
-                    Assert.Single(isDate.GetAnnotations());
+                    Assert.Single((IEnumerable)isDate.GetAnnotations());
                     Assert.Equal(new Guid(), isDate["MyGuid"]);
                     Assert.Empty(isDate.GetRuntimeAnnotations());
                     Assert.Equal("bit", isDate.StoreFunction.ReturnType);
                     Assert.Empty(isDate.StoreFunction.EntityTypeMappings);
-                    Assert.Single(isDate.Parameters);
+                    Assert.Single((IEnumerable)isDate.Parameters);
 
                     var isDateParameter = isDate.Parameters[0];
                     Assert.Same(isDate, isDateParameter.Function);
@@ -2202,7 +2206,7 @@ namespace TestNamespace
                     Assert.Null(getData.TypeMapping?.StoreType);
                     Assert.Null(getData.StoreFunction.ReturnType);
                     Assert.Equal(typeof(Data), getData.StoreFunction.EntityTypeMappings.Single().EntityType.ClrType);
-                    Assert.Single(getData.Parameters);
+                    Assert.Single((IEnumerable)getData.Parameters);
 
                     var getDataParameter = getData.Parameters[0];
                     Assert.Same(getData, getDataParameter.Function);
@@ -2503,7 +2507,7 @@ namespace TestNamespace
                     Assert.Equal(10, hiLo.IncrementBy);
                     Assert.NotNull(hiLo.ToString());
 
-                    Assert.Single(model.GetEntityTypes());
+                    Assert.Single((IEnumerable)model.GetEntityTypes());
                     var dataEntity = model.FindEntityType(typeof(Data));
                     Assert.Same(hiLo, dataEntity.FindPrimaryKey().Properties.Single().FindHiLoSequence());
                 });
@@ -2817,7 +2821,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     c)),
                 model =>
                 {
-                    Assert.Single(model.GetEntityTypes());
+                    Assert.Single((IEnumerable)model.GetEntityTypes());
                     var dataEntity = model.FindEntityType(typeof(Data));
 
                     Assert.Equal(typeof(Data).FullName, dataEntity.Name);
@@ -3028,7 +3032,7 @@ namespace TestNamespace
                     c)),
                 model =>
                 {
-                    Assert.Single(model.GetEntityTypes());
+                    Assert.Single((IEnumerable)model.GetEntityTypes());
                     var dataEntity = model.FindEntityType(typeof(Data));
                     Assert.Equal(typeof(Data).FullName, dataEntity.Name);
                     Assert.False(dataEntity.HasSharedClrType);
