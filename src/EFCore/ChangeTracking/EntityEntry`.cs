@@ -74,7 +74,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     given navigation property.
         /// </returns>
         public virtual ReferenceEntry<TEntity, TProperty> Reference<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression)
+            Expression<Func<TEntity, TProperty?>> propertyExpression)
             where TProperty : class
         {
             Check.NotNull(propertyExpression, nameof(propertyExpression));
