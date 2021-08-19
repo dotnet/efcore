@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Design;
@@ -27,6 +28,20 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json.Linq;
 using Xunit;
+
+public class GlobalNamespaceContext : Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest.ContextBase
+{
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity("1", e =>
+        {
+            e.Property<int>("Id");
+            e.HasKey("Id");
+        });
+    }
+}
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -120,20 +135,6 @@ namespace TestNamespace
                 {
                     Assert.NotNull(model.FindEntityType("1"));
                 });
-        }
-
-        public class GlobalNamespaceContext : ContextBase
-        {
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.Entity("1", e =>
-                {
-                    e.Property<int>("Id");
-                    e.HasKey("Id");
-                });
-            }
         }
 
         [ConditionalFact]
