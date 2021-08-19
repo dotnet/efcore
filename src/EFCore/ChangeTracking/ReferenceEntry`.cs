@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
-        public new virtual TProperty CurrentValue
+        public new virtual TProperty? CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata);
             set => base.CurrentValue = value;
