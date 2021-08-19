@@ -190,7 +190,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         /// <inheritdoc />
-        public virtual void Generate(IScalarTypeConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        public virtual void Generate(ITypeMappingConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             if (!parameters.IsRuntime)
             {

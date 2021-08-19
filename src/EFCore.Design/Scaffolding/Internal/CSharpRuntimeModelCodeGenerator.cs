@@ -164,24 +164,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             using (mainBuilder.Indent())
             {
                 mainBuilder
-                    .Append("private static ").Append(className).AppendLine(nullable ? "? _instance;" : " _instance;")
-                    .Append("public static IModel Instance")
-                    .AppendLines(@"
+                    .Append("static ").Append(className).Append("()")
+                    .AppendLines(
+                @"
 {
-    get
-    {
-        if (_instance == null)
-        {
-            _instance = new " + className + @"();
-            _instance.Initialize();
-            _instance.Customize();
-        }
-
-        return _instance;
-    }
-}");
-
-                mainBuilder
+    var model = new " + className + @"();
+    model.Initialize();
+    model.Customize();
+    _instance = model;
+}")
+                    .AppendLine()
+                    .Append("private static ").Append(className).AppendLine(nullable ? "? _instance;" : " _instance;")
+                    .AppendLine("public static IModel Instance => _instance;")
                     .AppendLine()
                     .AppendLine("partial void Initialize();")
                     .AppendLine()
@@ -352,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         namespaces,
                         variables);
 
-                    foreach (var typeConfiguration in model.GetScalarTypeConfigurations())
+                    foreach (var typeConfiguration in model.GetTypeMappingConfigurations())
                     {
                         Create(typeConfiguration, parameters);
                     }
@@ -383,14 +377,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         }
 
         private void Create(
-            IScalarTypeConfiguration typeConfiguration,
+            ITypeMappingConfiguration typeConfiguration,
             CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var variableName = _code.Identifier("type", parameters.ScopeVariables, capitalize: false);
 
             var mainBuilder = parameters.MainBuilder;
             mainBuilder
-                .Append("var ").Append(variableName).Append(" = ").Append(parameters.TargetName).AppendLine(".AddScalarTypeConfiguration(")
+                .Append("var ").Append(variableName).Append(" = ").Append(parameters.TargetName).AppendLine(".AddTypeMappingConfiguration(")
                 .IncrementIndent()
                 .Append(_code.Literal(typeConfiguration.ClrType));
 
