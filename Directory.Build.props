@@ -37,7 +37,7 @@
   
   <!-- Arcade removes implicit usings -->
   <PropertyGroup>
-    <DisableImplicitNamespaceImports>false<DisableImplicitNamespaceImports/>
+    <DisableImplicitNamespaceImports>false</DisableImplicitNamespaceImports>
   </PropertyGroup>
 
   <ItemGroup>
