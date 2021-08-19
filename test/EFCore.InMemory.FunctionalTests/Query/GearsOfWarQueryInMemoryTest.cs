@@ -55,6 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Correlated_collection_with_distinct_3_levels(bool async)
             => base.Correlated_collection_with_distinct_3_levels(async);
 
+        [ConditionalTheory(Skip = "Issue #25615")]
+        public override Task Comparison_with_value_converted_subclass(bool async)
+            => base.Comparison_with_value_converted_subclass(async);
+
         public override async Task Projecting_correlated_collection_followed_by_Distinct(bool async)
         {
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
