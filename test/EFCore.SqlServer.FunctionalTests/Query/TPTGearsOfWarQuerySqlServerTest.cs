@@ -6487,23 +6487,6 @@ GROUP BY [g].[Nickname]
 ORDER BY [g].[Nickname]");
         }
 
-        public override async Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector(bool async)
-        {
-            await base.Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector(async);
-
-            AssertSql(
-                "");
-        }
-
-        public override async Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property(
-            bool async)
-        {
-            await base.Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property(async);
-
-            AssertSql(
-                "");
-        }
-
         public override async Task Group_by_with_include_with_entity_in_result_selector(bool async)
         {
             await base.Group_by_with_include_with_entity_in_result_selector(async);

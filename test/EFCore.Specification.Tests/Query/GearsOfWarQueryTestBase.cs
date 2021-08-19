@@ -5842,46 +5842,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "issue #16752")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Gear>()
-                    .GroupBy(g => g.CityOfBirth)
-                    .OrderBy(g => g.Key.Name)
-                    .Select(g => g.Key)
-                    .Include(c => c.BornGears).ThenInclude(g => g.Weapons),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Name, a.Name);
-                    Assert.Equal(e.BornGears == null, a.BornGears == null);
-                    Assert.Equal(e.BornGears.Count(), a.BornGears.Count());
-                });
-        }
-
-        [ConditionalTheory(Skip = "issue #16752")]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual Task Group_by_entity_key_with_include_on_that_entity_with_key_in_result_selector_using_EF_Property(bool async)
-        {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Gear>()
-                    .GroupBy(g => g.CityOfBirth)
-                    .OrderBy(g => g.Key.Name)
-                    .Select(g => EF.Property<City>(g, "Key"))
-                    .Include(c => c.BornGears).ThenInclude(g => g.Weapons),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    Assert.Equal(e.Name, a.Name);
-                    Assert.Equal(e.BornGears == null, a.BornGears == null);
-                    Assert.Equal(e.BornGears.Count(), a.BornGears.Count());
-                });
-        }
-
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_with_include_with_entity_in_result_selector(bool async)
