@@ -65,7 +65,7 @@ function Add-Migration(
 .PARAMETER SelfContained
     Also bundle the .NET runtime so it doesn't need to be installed on the machine.
 
-.PARAMETER Runtime
+.PARAMETER TargetRuntime
     The target runtime to bundle for.
 
 .PARAMETER Configuration
@@ -95,7 +95,7 @@ function Bundle-Migration(
     $Output,
     [switch] $Force,
     [switch] $SelfContained,
-    $Runtime,
+    $TargetRuntime,
     $Configuration,
     $Framework,
     $Context,
