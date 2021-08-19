@@ -3,6 +3,7 @@
 
 using System;
 using System.Net;
+using System.Net.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;

@@ -34,7 +34,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn.Replace(';1591', ''))</NoWarn>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" PrivateAssets="All" />
   </ItemGroup>
