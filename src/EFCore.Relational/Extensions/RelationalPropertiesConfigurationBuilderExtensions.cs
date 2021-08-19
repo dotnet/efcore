@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Relational database specific extension methods for <see cref="PropertiesConfigurationBuilder" />.
     /// </summary>
-    public static class PropertiesConfigurationBuilderExtensions
+    public static class RelationalPropertiesConfigurationBuilderExtensions
     {
         /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.

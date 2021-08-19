@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     public partial class ModelConfiguration
     {
         private readonly Dictionary<Type, PropertyConfiguration> _properties = new();
-        private readonly Dictionary<Type, PropertyConfiguration> _scalars = new();
+        private readonly Dictionary<Type, PropertyConfiguration> _typeMappings = new();
         private readonly HashSet<Type> _ignoredTypes = new();
         private readonly Dictionary<Type, TypeConfigurationType?> _configurationTypes = new();
 
@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool IsEmpty()
-            => _properties.Count == 0 && _ignoredTypes.Count == 0 && _scalars.Count == 0;
+            => _properties.Count == 0 && _ignoredTypes.Count == 0 && _typeMappings.Count == 0;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -131,8 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IEnumerable<IScalarTypeConfiguration> GetScalarTypeConfigurations()
-            => _scalars.Values;
+        public virtual IEnumerable<ITypeMappingConfiguration> GetTypeMappingConfigurations()
+            => _typeMappings.Values;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -140,10 +140,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual IScalarTypeConfiguration? FindScalarTypeConfiguration(Type scalarType)
-            => _scalars.Count == 0
+        public virtual ITypeMappingConfiguration? FindTypeMappingConfiguration(Type scalarType)
+            => _typeMappings.Count == 0
                 ? null
-                : _scalars.GetValueOrDefault(scalarType);
+                : _typeMappings.GetValueOrDefault(scalarType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -228,9 +228,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual PropertyConfiguration GetOrAddScalar(Type type)
+        public virtual PropertyConfiguration GetOrAddTypeMapping(Type type)
         {
-            var scalar = FindScalar(type);
+            var scalar = FindTypeMapping(type);
             if (scalar == null)
             {
                 if (type == typeof(object)
@@ -241,11 +241,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     || !type.IsInstantiable())
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.UnconfigurableType(type.DisplayName(fullName: false), "Scalar"));
+                        CoreStrings.UnconfigurableType(type.DisplayName(fullName: false), "DefaultTypeMapping"));
                 }
 
                 scalar = new PropertyConfiguration(type);
-                _scalars.Add(type, scalar);
+                _typeMappings.Add(type, scalar);
             }
 
             return scalar;
@@ -257,8 +257,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual PropertyConfiguration? FindScalar(Type type)
-            => _scalars.TryGetValue(type, out var property)
+        public virtual PropertyConfiguration? FindTypeMapping(Type type)
+            => _typeMappings.TryGetValue(type, out var property)
             ? property
             : null;
 

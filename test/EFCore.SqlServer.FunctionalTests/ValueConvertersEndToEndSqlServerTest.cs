@@ -199,7 +199,7 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1", Fixture.TestSqlL
             {
                 base.ConfigureConventions(configurationBuilder);
 
-                configurationBuilder.Scalars<WrappedString>().HaveConversion<WrappedStringToStringConverter>();
+                configurationBuilder.DefaultTypeMapping<WrappedString>().HasConversion<WrappedStringToStringConverter>();
             }
 
             protected override ITestStoreFactory TestStoreFactory

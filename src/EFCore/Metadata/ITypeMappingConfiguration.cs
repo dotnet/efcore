@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents the configuration for a scalar type.
     /// </summary>
-    public interface IScalarTypeConfiguration : IAnnotatable
+    public interface ITypeMappingConfiguration : IAnnotatable
     {
         /// <summary>
         ///     Gets the type configured by this object.
