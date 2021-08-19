@@ -1103,6 +1103,54 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { grouping.Key.CustomerID, grouping.Key.OrderDate });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Odata_groupby_empty_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(e => new NoGroupByWrapper())
+                    .Select(e => new NoGroupByAggregationWrapper
+                    {
+                        Container = new LastInChain
+                        {
+                            Name = "TotalAmount",
+                            Value = (object)((IEnumerable<Order>)e).Sum(e => (decimal)e.OrderID)
+                        }
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Container.Value, a.Container.Value);
+                });
+        }
+
+        private class NoGroupByWrapper
+        {
+            public override bool Equals(object obj)
+            {
+                return obj != null
+                    && (ReferenceEquals(this, obj)
+                    || obj is NoGroupByWrapper);
+            }
+
+            public override int GetHashCode()
+            {
+                return 0;
+            }
+        }
+
+        private class NoGroupByAggregationWrapper
+        {
+            public LastInChain Container { get; set; }
+        }
+
+        protected class LastInChain
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
+        }
+
         #endregion
 
         #region GroupByWithElementSelectorAggregate

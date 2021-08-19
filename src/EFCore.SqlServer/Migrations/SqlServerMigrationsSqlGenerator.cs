@@ -548,12 +548,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (operation[SqlServerAnnotationNames.IsTemporal] as bool? == true)
             {
                 var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? model?.GetDefaultSchema();
-
-                if (historyTableSchema != operation.Schema && historyTableSchema != null)
-                {
-                    Generate(new EnsureSchemaOperation { Name = historyTableSchema }, model, builder);
-                }
-
                 var needsExec = historyTableSchema == null;
                 var subBuilder = needsExec
                     ? new MigrationCommandListBuilder(Dependencies)
@@ -2332,9 +2326,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             var versioningMap = new Dictionary<(string?, string?), (string, string?)>();
             var periodMap = new Dictionary<(string?, string?), (string, string)>();
+            var availbleSchemas = new List<string>();
 
             foreach (var operation in migrationOperations)
             {
+                if (operation is EnsureSchemaOperation ensureSchemaOperation)
+                {
+                    availbleSchemas.Add(ensureSchemaOperation.Name);
+                }
+
                 var isTemporal = operation[SqlServerAnnotationNames.IsTemporal] as bool? == true;
                 if (isTemporal)
                 {
@@ -2355,6 +2355,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     switch (operation)
                     {
+                        case CreateTableOperation createTableOperation:
+                            if (historyTableSchema != createTableOperation.Schema
+                                && historyTableSchema != null
+                                && !availbleSchemas.Contains(historyTableSchema))
+                            {
+                                operations.Add(new EnsureSchemaOperation { Name = historyTableSchema });
+                                availbleSchemas.Add(historyTableSchema);
+                            }
+
+                            operations.Add(operation);
+                            break;
+
                         case DropTableOperation dropTableOperation:
                             DisableVersioning(table!, schema, historyTableName!, historyTableSchema);
                             operations.Add(operation);
@@ -2398,9 +2410,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 if (oldHistoryTableName != historyTableName
                                     || oldHistoryTableSchema != historyTableSchema)
                                 {
-                                    if (historyTableSchema != null)
+                                    if (historyTableSchema != null
+                                        && !availbleSchemas.Contains(historyTableSchema))
                                     {
                                         operations.Add(new EnsureSchemaOperation { Name = historyTableSchema });
+                                        availbleSchemas.Add(historyTableSchema);
                                     }
 
                                     operations.Add(new RenameTableOperation

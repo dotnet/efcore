@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (prevalidation)
             {
-                model.AddRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies, RelationalDependencies.RelationalModelDependencies);
+                model.SetRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies, RelationalDependencies.RelationalModelDependencies);
             }
             else
             {

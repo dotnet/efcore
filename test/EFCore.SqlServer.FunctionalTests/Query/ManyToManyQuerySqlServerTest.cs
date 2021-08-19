@@ -1580,6 +1580,22 @@ LEFT JOIN (
 ) AS [t] ON ([e].[Id] = [t].[OneId]) AND ([e].[Id] <> [t].[Id])");
         }
 
+        public override async Task Contains_on_skip_collection_navigation(bool async)
+        {
+            await base.Contains_on_skip_collection_navigation(async);
+
+            AssertSql(
+                @"@__entity_equality_two_0_Id='1' (Nullable = true)
+
+SELECT [e].[Id], [e].[Name]
+FROM [EntityOnes] AS [e]
+WHERE EXISTS (
+    SELECT 1
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+    WHERE ([e].[Id] = [j].[OneId]) AND ([e0].[Id] = @__entity_equality_two_0_Id))");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

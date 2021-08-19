@@ -25,6 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// </summary>
     public class ModelRuntimeInitializer : IModelRuntimeInitializer
     {
+        private static readonly object _syncObject = new();
+
         /// <summary>
         ///     Creates a new <see cref="ModelRuntimeInitializer" /> instance.
         /// </summary>
@@ -56,59 +58,55 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             if (model is Model mutableModel
                 && !mutableModel.IsReadOnly)
             {
-                model = mutableModel.FinalizeModel();
+                lock (_syncObject)
+                {
+                    if (!mutableModel.IsReadOnly)
+                    {
+                        model = mutableModel.FinalizeModel();
+                    }
+                }
             }
 
             if (model.ModelDependencies == null)
             {
-                model = model.GetOrAddRuntimeAnnotationValue(
-                    CoreAnnotationNames.ReadOnlyModel,
-                    static args =>
+                // Make sure InitializeModel really only gets called once, since it may not be thread safe or idempotent.
+                lock (_syncObject)
+                {
+                    if (model.ModelDependencies == null)
                     {
-                        var (initializer, model, designTime, validationLogger) = args;
+                        model.ModelDependencies = Dependencies.ModelDependencies;
 
-                        model.ModelDependencies = initializer.Dependencies.ModelDependencies;
-
-                        initializer.InitializeModel(model, designTime, prevalidation: true);
+                        InitializeModel(model, designTime, prevalidation: true);
 
                         if (validationLogger != null
                             && model is IConventionModel)
                         {
-                            initializer.Dependencies.ModelValidator.Validate(model, validationLogger);
+                            Dependencies.ModelValidator.Validate(model, validationLogger);
                         }
 
-                        initializer.InitializeModel(model, designTime, prevalidation: false);
-
-                        if (!designTime
-                            && model is Model mutableModel)
-                        {
-                            model = mutableModel.OnModelFinalized();
-                        }
-
-                        return model;
-                    },
-                    (this, model, designTime, validationLogger));
-
-                if (designTime)
-                {
-                    model.RemoveRuntimeAnnotation(CoreAnnotationNames.ReadOnlyModel);
+                        InitializeModel(model, designTime, prevalidation: false);
+                    }
                 }
             }
-            else if (!designTime)
-            {
-                model = model.GetOrAddRuntimeAnnotationValue(
-                    CoreAnnotationNames.ReadOnlyModel,
-                    static model =>
-                    {
-                        if (model is Model mutableModel)
-                        {
-                            model = mutableModel.OnModelFinalized();
-                        }
 
-                        return model!;
-                    },
-                    model);
+            if (designTime)
+            {
+                return model;
             }
+
+            model = model.GetOrAddRuntimeAnnotationValue(
+                CoreAnnotationNames.ReadOnlyModel,
+                static model =>
+                {
+                    if (model is Model mutableModel)
+                    {
+                        // This assumes OnModelFinalized is thread-safe
+                        model = mutableModel.OnModelFinalized();
+                    }
+
+                    return model!;
+                },
+                model);
 
             return model;
         }
