@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class ScalarConfigurationBuilder
+    public class TypeMappingConfigurationBuilder
     {
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,11 +27,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        public ScalarConfigurationBuilder(PropertyConfiguration scalar)
+        public TypeMappingConfigurationBuilder(PropertyConfiguration scalar)
         {
             Check.NotNull(scalar, nameof(scalar));
 
-            Scalar = scalar;
+            Configuration = scalar;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         [EntityFrameworkInternal]
-        protected virtual PropertyConfiguration Scalar { get; }
+        protected virtual PropertyConfiguration Configuration { get; }
 
         /// <summary>
         ///     Adds or updates an annotation on the property.
@@ -49,11 +49,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ScalarConfigurationBuilder HaveAnnotation(string annotation, object value)
+        public virtual TypeMappingConfigurationBuilder HasAnnotation(string annotation, object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
 
-            Scalar[annotation] = value;
+            Configuration[annotation] = value;
 
             return this;
         }
@@ -64,9 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="maxLength"> The maximum length of data allowed in the property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ScalarConfigurationBuilder HaveMaxLength(int maxLength)
+        public virtual TypeMappingConfigurationBuilder HasMaxLength(int maxLength)
         {
-            Scalar.SetMaxLength(maxLength);
+            Configuration.SetMaxLength(maxLength);
 
             return this;
         }
@@ -77,10 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="precision"> The precision of the property. </param>
         /// <param name="scale"> The scale of the property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ScalarConfigurationBuilder HavePrecision(int precision, int scale)
+        public virtual TypeMappingConfigurationBuilder HasPrecision(int precision, int scale)
         {
-            Scalar.SetPrecision(precision);
-            Scalar.SetScale(scale);
+            Configuration.SetPrecision(precision);
+            Configuration.SetScale(scale);
 
             return this;
         }
@@ -92,9 +92,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="precision"> The precision of the property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ScalarConfigurationBuilder HavePrecision(int precision)
+        public virtual TypeMappingConfigurationBuilder HasPrecision(int precision)
         {
-            Scalar.SetPrecision(precision);
+            Configuration.SetPrecision(precision);
 
             return this;
         }
@@ -105,9 +105,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="unicode"> A value indicating whether the property can contain unicode characters. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ScalarConfigurationBuilder AreUnicode(bool unicode = true)
+        public virtual TypeMappingConfigurationBuilder IsUnicode(bool unicode = true)
         {
-            Scalar.SetIsUnicode(unicode);
+            Configuration.SetIsUnicode(unicode);
 
             return this;
         }
@@ -118,8 +118,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ScalarConfigurationBuilder HaveConversion<TConversion>()
-            => HaveConversion(typeof(TConversion));
+        public virtual TypeMappingConfigurationBuilder HasConversion<TConversion>()
+            => HasConversion(typeof(TConversion));
 
         /// <summary>
         ///     Configures the property so that the property value is converted before
@@ -127,17 +127,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ScalarConfigurationBuilder HaveConversion(Type conversionType)
+        public virtual TypeMappingConfigurationBuilder HasConversion(Type conversionType)
         {
             Check.NotNull(conversionType, nameof(conversionType));
 
             if (typeof(ValueConverter).IsAssignableFrom(conversionType))
             {
-                Scalar.SetValueConverter(conversionType);
+                Configuration.SetValueConverter(conversionType);
             }
             else
             {
-                Scalar.SetProviderClrType(conversionType);
+                Configuration.SetProviderClrType(conversionType);
             }
 
             return this;

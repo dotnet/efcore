@@ -1886,7 +1886,7 @@ namespace TestNamespace
             DataEntityType.CreateAnnotations(data);
             ObjectEntityType.CreateAnnotations(@object);
 
-            var type = this.AddScalarTypeConfiguration(
+            var type = this.AddTypeMappingConfiguration(
                 typeof(string),
                 maxLength: 256);
             type.AddAnnotation(""Relational:IsFixedLength"", true);
@@ -2283,7 +2283,7 @@ namespace TestNamespace
 
             protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
             {
-                configurationBuilder.Scalars<string>().HaveMaxLength(256).AreFixedLength();
+                configurationBuilder.DefaultTypeMapping<string>().HasMaxLength(256).IsFixedLength();
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

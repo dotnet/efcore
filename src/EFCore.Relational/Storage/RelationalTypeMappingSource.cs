@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public override CoreTypeMapping? FindMapping(Type type, IModel model)
         {
             type = type.UnwrapNullableType();
-            var typeConfiguration = model.FindScalarTypeConfiguration(type);
+            var typeConfiguration = model.FindTypeMappingConfiguration(type);
             RelationalTypeMappingInfo mappingInfo;
             Type? providerClrType = null;
             ValueConverter? customConverter = null;

@@ -78,6 +78,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         /// <param name="typeConfiguration"> The scalar type configuration to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
-        void Generate(IScalarTypeConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+        void Generate(ITypeMappingConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
     }
 }

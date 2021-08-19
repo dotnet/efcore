@@ -177,11 +177,11 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
         /// <returns> An object that can be used to configure the scalars. </returns>
-        public virtual ScalarConfigurationBuilder<TScalar> Scalars<TScalar>()
+        public virtual TypeMappingConfigurationBuilder<TScalar> DefaultTypeMapping<TScalar>()
         {
-            var scalar = _modelConfiguration.GetOrAddScalar(typeof(TScalar));
+            var scalar = _modelConfiguration.GetOrAddTypeMapping(typeof(TScalar));
 
-            return new ScalarConfigurationBuilder<TScalar>(scalar);
+            return new TypeMappingConfigurationBuilder<TScalar>(scalar);
         }
 
         /// <summary>
@@ -203,12 +203,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelConfigurationBuilder Scalars<TScalar>(
-            Action<ScalarConfigurationBuilder<TScalar>> buildAction)
+        public virtual ModelConfigurationBuilder DefaultTypeMapping<TScalar>(
+            Action<TypeMappingConfigurationBuilder<TScalar>> buildAction)
         {
             Check.NotNull(buildAction, nameof(buildAction));
 
-            var scalarBuilder = Scalars<TScalar>();
+            var scalarBuilder = DefaultTypeMapping<TScalar>();
             buildAction(scalarBuilder);
 
             return this;
@@ -230,13 +230,13 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="scalarType"> The scalar type to be configured. </param>
         /// <returns> An object that can be used to configure the scalars. </returns>
-        public virtual ScalarConfigurationBuilder Scalars(Type scalarType)
+        public virtual TypeMappingConfigurationBuilder DefaultTypeMapping(Type scalarType)
         {
             Check.NotNull(scalarType, nameof(scalarType));
 
-            var scalar = _modelConfiguration.GetOrAddScalar(scalarType);
+            var scalar = _modelConfiguration.GetOrAddTypeMapping(scalarType);
 
-            return new ScalarConfigurationBuilder(scalar);
+            return new TypeMappingConfigurationBuilder(scalar);
         }
 
         /// <summary>
@@ -258,14 +258,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
         /// </returns>
-        public virtual ModelConfigurationBuilder Scalars(
+        public virtual ModelConfigurationBuilder DefaultTypeMapping(
             Type scalarType,
-            Action<ScalarConfigurationBuilder> buildAction)
+            Action<TypeMappingConfigurationBuilder> buildAction)
         {
             Check.NotNull(scalarType, nameof(scalarType));
             Check.NotNull(buildAction, nameof(buildAction));
 
-            var scalarBuilder = Scalars(scalarType);
+            var scalarBuilder = DefaultTypeMapping(scalarType);
             buildAction(scalarBuilder);
 
             return this;

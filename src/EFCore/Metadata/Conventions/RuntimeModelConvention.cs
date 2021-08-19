@@ -148,11 +148,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     convention.ProcessEntityTypeAnnotations(annotations, source, target, runtime));
             }
 
-            foreach (var typeConfiguration in model.GetScalarTypeConfigurations())
+            foreach (var typeConfiguration in model.GetTypeMappingConfigurations())
             {
                 var runtimeTypeConfiguration = Create(typeConfiguration, runtimeModel);
                 CreateAnnotations(typeConfiguration, runtimeTypeConfiguration, static (convention, annotations, source, target, runtime) =>
-                    convention.ProcessScalarTypeConfigurationAnnotations(annotations, source, target, runtime));
+                    convention.ProcessTypeMappingConfigurationAnnotations(annotations, source, target, runtime));
             }
 
             CreateAnnotations(model, runtimeModel, static (convention, annotations, source, target, runtime) =>
@@ -256,14 +256,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
         }
 
-        private RuntimeScalarTypeConfiguration Create(IScalarTypeConfiguration typeConfiguration, RuntimeModel model)
+        private RuntimeTypeMappingConfiguration Create(ITypeMappingConfiguration typeConfiguration, RuntimeModel model)
         {
             var valueConverterType = (Type?)typeConfiguration[CoreAnnotationNames.ValueConverterType];
             var valueConverter = valueConverterType == null
                 ? null
                 : (ValueConverter?)Activator.CreateInstance(valueConverterType);
 
-            return model.AddScalarTypeConfiguration(
+            return model.AddTypeMappingConfiguration(
                            typeConfiguration.ClrType,
                            typeConfiguration.GetMaxLength(),
                            typeConfiguration.IsUnicode(),
@@ -280,10 +280,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="typeConfiguration"> The source property. </param>
         /// <param name="runtimeTypeConfiguration"> The target property that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
-        protected virtual void ProcessScalarTypeConfigurationAnnotations(
+        protected virtual void ProcessTypeMappingConfigurationAnnotations(
             Dictionary<string, object?> annotations,
-            IScalarTypeConfiguration typeConfiguration,
-            RuntimeScalarTypeConfiguration runtimeTypeConfiguration,
+            ITypeMappingConfiguration typeConfiguration,
+            RuntimeTypeMappingConfiguration runtimeTypeConfiguration,
             bool runtime)
         {
             if (!runtime)

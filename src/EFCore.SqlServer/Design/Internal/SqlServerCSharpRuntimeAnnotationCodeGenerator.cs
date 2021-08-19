@@ -90,5 +90,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 
             base.Generate(key, parameters);
         }
+
+        /// <inheritdoc />
+        public override void Generate(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        {
+            if (!parameters.IsRuntime)
+            {
+                var annotations = parameters.Annotations;
+                annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
+            }
+
+            base.Generate(entityType, parameters);
+        }
     }
 }
