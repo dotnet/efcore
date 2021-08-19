@@ -67,5 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 SqliteStrings.ApplyNotSupported,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.Select_nested_collection_with_groupby(async))).Message);
+
+        public override async Task Odata_groupby_empty_key(bool async)
+            => await Assert.ThrowsAsync<NotSupportedException>(() => base.Odata_groupby_empty_key(async));
     }
 }
