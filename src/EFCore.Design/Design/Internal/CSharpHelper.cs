@@ -191,15 +191,32 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Reference(Type type)
-            => Reference(type, useFullName: false);
-
-        private string Reference(Type type, bool useFullName)
+        public virtual string Reference(Type type, bool? fullName = null)
         {
             Check.NotNull(type, nameof(type));
 
-            return type.DisplayName(fullName: useFullName, compilable: true);
+            fullName ??= type.IsNested ? ShouldUseFullName(type.DeclaringType!) : ShouldUseFullName(type);
+
+            return type.DisplayName(fullName.Value, compilable: true);
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool ShouldUseFullName(Type type)
+            => ShouldUseFullName(type.Name);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual bool ShouldUseFullName(string shortTypeName)
+            => false;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -536,8 +553,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual string Literal(Type value)
-            => $"typeof({Reference(value)})";
+        public virtual string Literal(Type value, bool? useFullName = null)
+            => $"typeof({Reference(value, useFullName)})";
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -845,14 +862,14 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 case ExpressionType.Convert:
                     builder
                         .Append('(')
-                        .Append(Reference(expression.Type, useFullName: true))
+                        .Append(Reference(expression.Type, fullName: true))
                         .Append(')');
 
                     return HandleExpression(((UnaryExpression)expression).Operand, builder);
                 case ExpressionType.New:
                     builder
                         .Append("new ")
-                        .Append(Reference(expression.Type, useFullName: true));
+                        .Append(Reference(expression.Type, fullName: true));
 
                     return HandleArguments(((NewExpression)expression).Arguments, builder);
                 case ExpressionType.Call:
@@ -861,7 +878,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (callExpression.Method.IsStatic)
                     {
                         builder
-                            .Append(Reference(callExpression.Method.DeclaringType!, useFullName: true));
+                            .Append(Reference(callExpression.Method.DeclaringType!, fullName: true));
                     }
                     else
                     {
@@ -895,7 +912,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     if (memberExpression.Expression == null)
                     {
                         builder
-                            .Append(Reference(memberExpression.Member.DeclaringType!, useFullName: true));
+                            .Append(Reference(memberExpression.Member.DeclaringType!, fullName: true));
                     }
                     else
                     {

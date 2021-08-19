@@ -40,10 +40,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public static IReadOnlyList<IEntityType> GetEntityTypesInHierarchicalOrder(this IModel model)
+        public static IEnumerable<IEntityType> GetEntityTypesInHierarchicalOrder(this IModel model)
             => Sort(model.GetEntityTypes());
 
-        private static IReadOnlyList<IEntityType> Sort(IEnumerable<IEntityType> entityTypes)
+        private static IEnumerable<IEntityType> Sort(IEnumerable<IEntityType> entityTypes)
         {
             var entityTypeGraph = new Multigraph<IEntityType, int>();
             entityTypeGraph.AddVertices(entityTypes);
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 entityTypeGraph.AddEdge(entityType.BaseType!, entityType, 0);
             }
 
-            return entityTypeGraph.TopologicalSort();
+            return entityTypeGraph.BatchingTopologicalSort().SelectMany(b => b.OrderBy(et => et.Name));
         }
 
         /// <summary>
