@@ -987,5 +987,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }),
                 asserter: (e, a) => AssertCollection(e.Orders, a.Orders, ordered: true));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Condition_on_entity_with_include(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                      join o in ss.Set<Order>().Include(o => o.OrderDetails)
+                        on c.CustomerID equals o.CustomerID into g
+                      from o in g.DefaultIfEmpty()
+                      select new
+                      {
+                          a = o != null ? o.OrderID : -1
+                      });
+        }
     }
 }
