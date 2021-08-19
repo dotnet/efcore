@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 right);
         }
 
-        private static Expression<Func<TGeometry?, TGeometry?>> GetSnapshotExpression()
+        private static Expression<Func<TGeometry, TGeometry>> GetSnapshotExpression()
         {
             var instance = Expression.Parameter(typeof(TGeometry), "instance");
 
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                 body = Expression.Convert(body, typeof(TGeometry));
             }
 
-            return Expression.Lambda<Func<TGeometry?, TGeometry?>>(body, instance);
+            return Expression.Lambda<Func<TGeometry, TGeometry>>(body, instance);
         }
     }
 }

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
@@ -87,13 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             return hash.ToHashCode();
         }
 
-        private static TCollection? Snapshot(TCollection? source, ValueComparer<TElement> elementComparer, bool readOnly)
+        private static TCollection Snapshot(TCollection source, ValueComparer<TElement> elementComparer, bool readOnly)
         {
-            if (source is null)
-            {
-                return null;
-            }
-
             if (readOnly)
             {
                 return source;

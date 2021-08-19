@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     {
         private Func<T?, T?, bool>? _equals;
         private Func<T, int>? _hashCode;
-        private Func<T?, T?>? _snapshot;
+        private Func<T, T>? _snapshot;
 
         /// <summary>
         ///     Creates a new <see cref="ValueComparer{T}" /> with a default comparison
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public ValueComparer(
             Expression<Func<T?, T?, bool>> equalsExpression,
             Expression<Func<T, int>> hashCodeExpression,
-            Expression<Func<T?, T?>> snapshotExpression)
+            Expression<Func<T, T>> snapshotExpression)
             : base(equalsExpression, hashCodeExpression, snapshotExpression)
         {
         }
@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Creates an expression for creating a snapshot of a value.
         /// </summary>
         /// <returns> The snapshot expression. </returns>
-        protected static Expression<Func<T?, T?>> CreateDefaultSnapshotExpression(bool favorStructuralComparisons)
+        protected static Expression<Func<T, T>> CreateDefaultSnapshotExpression(bool favorStructuralComparisons)
         {
             if (!favorStructuralComparisons
                 || !typeof(T).IsArray)
@@ -175,7 +175,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             // var destination = new T[length];
             // Array.Copy(source, destination, length);
             // return destination;
-            return Expression.Lambda<Func<T?, T?>>(
+            return Expression.Lambda<Func<T, T>>(
                 Expression.Block(
                     new[] { lengthVariable, destinationVariable },
                     Expression.Assign(
@@ -254,8 +254,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="instance"> The instance. </param>
         /// <returns> The hash code. </returns>
-        public override int GetHashCode(object? instance)
-            => instance == null ? 0 : GetHashCode((T)instance);
+        public override int GetHashCode(object instance)
+            => GetHashCode((T)instance);
 
         /// <summary>
         ///     Compares the two instances to determine if they are equal.
@@ -290,7 +290,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
         public override object? Snapshot(object? instance)
-            => instance == null ? null : Snapshot((T?)instance);
+            => instance == null ? null : Snapshot((T)instance);
 
         /// <summary>
         ///     <para>
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
-        public virtual T? Snapshot(T? instance)
+        public virtual T Snapshot(T instance)
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _snapshot, this, static c => c.SnapshotExpression.Compile())(instance);
 
@@ -338,7 +338,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         reference.
         ///     </para>
         /// </summary>
-        public new virtual Expression<Func<T?, T?>> SnapshotExpression
-            => (Expression<Func<T?, T?>>)base.SnapshotExpression;
+        public new virtual Expression<Func<T, T>> SnapshotExpression
+            => (Expression<Func<T, T>>)base.SnapshotExpression;
     }
 }
