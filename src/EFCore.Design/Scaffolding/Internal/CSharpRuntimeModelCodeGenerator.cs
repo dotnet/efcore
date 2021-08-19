@@ -141,11 +141,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool nullable)
         {
             var mainBuilder = new IndentedStringBuilder();
-            var namespaces = new SortedSet<string>(new NamespaceComparer()) {
-                contextType.Namespace!,
+            var namespaces = new SortedSet<string>(new NamespaceComparer())
+            {
                 typeof(RuntimeModel).Namespace!,
                 typeof(DbContextAttribute).Namespace!
             };
+
+            AddNamespace(contextType, namespaces);
 
             if (!string.IsNullOrEmpty(@namespace))
             {
@@ -1371,14 +1373,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static void AddNamespace(Type type, ISet<string> namespaces)
         {
-            if (type.Namespace != null)
+            if (!string.IsNullOrEmpty(type.Namespace))
             {
                 namespaces.Add(type.Namespace);
             }
 
             if (type.IsGenericType)
             {
-                foreach(var argument in type.GenericTypeArguments)
+                foreach (var argument in type.GenericTypeArguments)
                 {
                     AddNamespace(argument, namespaces);
                 }
