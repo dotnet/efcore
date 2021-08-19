@@ -799,26 +799,35 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .OrderBy(c => c.CustomerID)
                     .Select(
                         c => new CustomerViewModel(
-                            c.CustomerID, c.City,
+                            c.CustomerID,
+                            c.City,
                             c.Orders.SelectMany(
                                     o => o.OrderDetails
                                         .Where(od => od.OrderID < 11000)
                                         .Select(od => new OrderDetailViewModel(od.OrderID, od.ProductID)))
                                 .ToArray())),
-                assertOrder: true);
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.CustomerID, a.CustomerID);
+                    Assert.Equal(e.City, a.City);
+                    Assert.Equal(
+                        e.Views.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID),
+                        a.Views.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID));
+                });
         }
 
         private class CustomerViewModel
         {
-            private readonly string _customerID;
-            private readonly string _city;
-            private readonly OrderDetailViewModel[] _views;
+            public string CustomerID { get; }
+            public string City { get; }
+            public OrderDetailViewModel[] Views { get; }
 
             public CustomerViewModel(string customerID, string city, OrderDetailViewModel[] views)
             {
-                _customerID = customerID;
-                _city = city;
-                _views = views;
+                CustomerID = customerID;
+                City = city;
+                Views = views;
             }
 
             public override bool Equals(object obj)
@@ -834,23 +843,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private bool Equals(CustomerViewModel customerViewModel)
-                => _customerID == customerViewModel._customerID
-                    && _city == customerViewModel._city
-                    && _views.SequenceEqual(customerViewModel._views);
+                => CustomerID == customerViewModel.CustomerID
+                    && City == customerViewModel.City
+                    && Views.SequenceEqual(customerViewModel.Views);
 
             public override int GetHashCode()
-                => HashCode.Combine(_customerID, _city);
+                => HashCode.Combine(CustomerID, City);
         }
 
         private class OrderDetailViewModel
         {
-            private readonly int _orderID;
-            private readonly int _productID;
+            public int OrderID { get; }
+            public int ProductID { get; }
 
             public OrderDetailViewModel(int orderID, int productID)
             {
-                _orderID = orderID;
-                _productID = productID;
+                OrderID = orderID;
+                ProductID = productID;
             }
 
             public override bool Equals(object obj)
@@ -866,11 +875,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             private bool Equals(OrderDetailViewModel orderDetailViewModel)
-                => _orderID == orderDetailViewModel._orderID
-                    && _productID == orderDetailViewModel._productID;
+                => OrderID == orderDetailViewModel.OrderID
+                    && ProductID == orderDetailViewModel.ProductID;
 
             public override int GetHashCode()
-                => HashCode.Combine(_orderID, _productID);
+                => HashCode.Combine(OrderID, ProductID);
         }
 
         [ConditionalTheory]

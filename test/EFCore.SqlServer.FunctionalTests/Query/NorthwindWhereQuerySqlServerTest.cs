@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             ClearLog();
-            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected override bool CanExecuteQueryString
@@ -1996,14 +1996,17 @@ ORDER BY [o].[OrderID], [o1].[OrderID]");
             AssertSql(
                 @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
 
-SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] = @__entity_equality_order_0_OrderID))
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToArray_Count(bool async)
@@ -2028,14 +2031,17 @@ ORDER BY [o].[OrderID], [o1].[OrderID]");
             AssertSql(
                 @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
 
-SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] = @__entity_equality_order_0_OrderID))
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
@@ -2060,14 +2066,17 @@ ORDER BY [o].[OrderID], [o1].[OrderID]");
             AssertSql(
                 @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
 
-SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] = @__entity_equality_order_0_OrderID))
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToList_Count_member(bool async)
