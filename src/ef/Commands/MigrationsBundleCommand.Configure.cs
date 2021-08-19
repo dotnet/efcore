@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _output = command.Option("-o|--output <FILE>", Resources.MigrationsBundleOutputDescription);
             _force = command.Option("-f|--force", Resources.DbContextScaffoldForceDescription);
             _selfContained = command.Option("--self-contained", Resources.SelfContainedDescription);
-            _runtime = command.Option("-r|--bundle-runtime <RUNTIME_IDENTIFIER>", Resources.MigrationsBundleRuntimeDescription);
-            _configuration = command.Option("--bundle-configuration <CONFIGURATION>", Resources.MigrationsBundleConfigurationDescription);
+            _runtime = command.Option("-r|--target-runtime <RUNTIME_IDENTIFIER>", Resources.MigrationsBundleRuntimeDescription);
+            _configuration = command.Option("--target-configuration <CONFIGURATION>", Resources.MigrationsBundleConfigurationDescription);
 
             base.Configure(command);
         }
