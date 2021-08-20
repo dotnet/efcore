@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
-        ///     Creates an id for the store object that the given entity type is mapped to />.
+        ///     Creates an id for the store object that the given entity type is mapped to.
         /// </summary>
         /// <param name="entityType"> The entity type. </param>
         /// <param name="type"> The store object type. </param>
