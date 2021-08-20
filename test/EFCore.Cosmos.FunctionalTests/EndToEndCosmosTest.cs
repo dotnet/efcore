@@ -1,8 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -602,14 +606,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         public async Task Can_add_update_delete_with_nested_collections()
         {
             await Can_add_update_delete_with_collection(
-                new List<List<short>> { new List<short> { 1, 2 } },
+                new List<List<short>> { new() { 1, 2 } },
                 c =>
                 {
                     c.Collection.Clear();
                     c.Collection.Add(new List<short> { 3 });
                 },
-                new List<List<short>> { new List<short> { 3 } });
-
+                new List<List<short>> { new() { 3 } });
             await Can_add_update_delete_with_collection<IList<byte?[]>>(
                 new List<byte?[]>(),
                 c =>
@@ -618,30 +621,29 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                     c.Collection.Add(null);
                 },
                 new List<byte?[]> { new byte?[] { 3, null }, null });
-
             await Can_add_update_delete_with_collection<IReadOnlyList<Dictionary<string, string>>>(
-                new Dictionary<string, string>[] { new Dictionary<string, string> { { "1", null } } },
+                new Dictionary<string, string>[] { new() { { "1", null } } },
                 c =>
                 {
                     var dictionary = c.Collection[0]["3"] = "2";
                 },
-                new List<Dictionary<string, string>> { new Dictionary<string, string> { { "1", null }, { "3", "2" } } });
+                new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } });
 
             await Can_add_update_delete_with_collection(
-                new List<float>[] { new List<float> { 1f }, new List<float> { 2 } },
+                new List<float>[] { new() { 1f }, new() { 2 } },
                 c =>
                 {
                     c.Collection[1][0] = 3f;
                 },
-                new List<float>[] { new List<float> { 1f }, new List<float> { 3f } });
+                new List<float>[] { new() { 1f }, new() { 3f } });
 
             await Can_add_update_delete_with_collection(
-                new decimal?[][] { new decimal?[] { 1, null } },
+                new[] { new decimal?[] { 1, null } },
                 c =>
                 {
                     c.Collection[0][1] = 3;
                 },
-                new decimal?[][] { new decimal?[] { 1, 3 } });
+                new[] { new decimal?[] { 1, 3 } });
 
             await Can_add_update_delete_with_collection(
                 new Dictionary<string, List<int>> { { "1", new List<int> { 1 } } },

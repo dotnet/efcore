@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             var snapshot = new Dictionary<string, TElement>(((IReadOnlyDictionary<string, TElement>)source).Count);
             foreach (var e in source)
             {
-                snapshot.Add(e.Key, elementComparer.Snapshot(e.Value)!);
+                snapshot.Add(e.Key, e.Value is null ? default! : elementComparer.Snapshot(e.Value));
             }
 
             return (TCollection)(object)snapshot;
