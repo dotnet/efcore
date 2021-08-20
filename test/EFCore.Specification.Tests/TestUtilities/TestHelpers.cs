@@ -378,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
                 => new(Conventions,
                     modelDependencies,
-                    ModelConfiguration.IsEmpty() ? null : ModelConfiguration,
+                    ModelConfiguration.IsEmpty() ? null : ModelConfiguration.Validate(),
                     modelRuntimeInitializer,
                     validationLogger);
 
