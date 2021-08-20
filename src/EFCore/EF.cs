@@ -12,6 +12,10 @@ namespace Microsoft.EntityFrameworkCore
     ///     Static methods that are useful in application code where there is not an EF type for the method to be accessed from. For example,
     ///     referencing a shadow state property in a LINQ query.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> and
+    ///     see <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see>. 
+    /// </remarks>
     // ReSharper disable once InconsistentNaming
     public static partial class EF
     {
@@ -28,6 +32,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Note that this is a static method accessed through the top-level <see cref="EF" /> static type.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see>. 
+        /// </remarks>
         /// <example>
         ///     <para>
         ///         The following code performs a filter using the a LastUpdated shadow state property.
@@ -55,6 +62,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Note that this is a static property accessed through the top-level <see cref="EF" /> static type.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>.
+        /// </remarks>
         public static DbFunctions Functions
             => DbFunctions.Instance;
     }

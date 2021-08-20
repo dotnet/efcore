@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore
     ///         externally and passing it to the context constructor.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>.
+    /// </remarks>
     /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
     public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
         where TContext : DbContext

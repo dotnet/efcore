@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore
     ///         the default behavior was <see cref="PreferFieldDuringConstruction" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-property-acess">Property versus field access in EF Core</see>.
+    /// </remarks>
     public enum PropertyAccessMode
     {
         /// <summary>

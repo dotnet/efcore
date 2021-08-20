@@ -15,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore
     ///         that it is easy to identify that multiple events are using the same or different context instances.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-dbcontext">
+    ///     DbContext lifetime, configuration, and initialization</see>.
+    /// </remarks>
     public readonly struct DbContextId
     {
         /// <summary>
