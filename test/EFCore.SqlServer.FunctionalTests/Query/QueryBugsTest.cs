@@ -10229,6 +10229,162 @@ ORDER BY [t].[Id]");
 
         #endregion
 
+        #region Issue25225
+
+        [ConditionalFact]
+        public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_async()
+        {
+            var contextFactory = await CreateContext25225Async();
+            var task1 = QueryAsync(MyContext25225.Parent1Id, MyContext25225.Collection1Id);
+            var task2 = QueryAsync(MyContext25225.Parent2Id, MyContext25225.Collection2Id);
+            await Task.WhenAll(task1, task2);
+
+            async Task QueryAsync(Guid parentId, Guid collectionId)
+            {
+                using (var context = contextFactory.CreateContext())
+                {
+                    ClearLog();
+                    for (int i = 0; i < 100; i++)
+                    {
+                        var parent = await SelectParent25225(context, parentId).SingleAsync();
+                        AssertParent25225(parentId, collectionId, parent);
+                    }
+                }
+            }
+        }
+
+        [ConditionalFact]
+        public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync()
+        {
+            var contextFactory = await CreateContext25225Async();
+            var task1 = Task.Factory.StartNew(() => Query(MyContext25225.Parent1Id, MyContext25225.Collection1Id));
+            var task2 = Task.Factory.StartNew(() => Query(MyContext25225.Parent2Id, MyContext25225.Collection2Id));
+            await Task.WhenAll(task1, task2);
+
+            void Query(Guid parentId, Guid collectionId)
+            {
+                using (var context = contextFactory.CreateContext())
+                {
+                    ClearLog();
+                    for (int i = 0; i < 10; i++)
+                    {
+                        var parent = SelectParent25225(context, parentId).Single();
+                        AssertParent25225(parentId, collectionId, parent);
+                    }
+                }
+            }
+        }
+
+        private Task<ContextFactory<MyContext25225>> CreateContext25225Async()
+        {
+            return InitializeAsync<MyContext25225>(
+                seed: c => c.Seed(),
+                onConfiguring: o => new SqlServerDbContextOptionsBuilder(o).UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+            );
+        }
+
+        private static IQueryable<ParentViewModel25225> SelectParent25225(MyContext25225 context, Guid parentId)
+        {
+            return context
+                .Parents
+                .Where(x => x.Id == parentId)
+                .Select(
+                    p => new ParentViewModel25225
+                    {
+                        Id = p.Id,
+                        Collection = p
+                            .Collection
+                            .Select(
+                                c => new CollectionViewModel25225
+                                {
+                                    Id = c.Id,
+                                    ParentId = c.ParentId,
+                                })
+                            .ToArray()
+                    });
+        }
+
+        private static void AssertParent25225(Guid expectedParentId, Guid expectedCollectionId, ParentViewModel25225 actualParent)
+        {
+            Assert.Equal(expectedParentId, actualParent.Id);
+            Assert.Collection(
+                actualParent.Collection,
+                c => Assert.Equal(expectedCollectionId, c.Id)
+            );
+        }
+
+        protected class MyContext25225 : DbContext
+        {
+            public static readonly Guid Parent1Id = new("d6457b52-690a-419e-8982-a1a8551b4572");
+            public static readonly Guid Parent2Id = new("e79c82f4-3ae7-4c65-85db-04e08cba6fa7");
+            public static readonly Guid Collection1Id = new("7ce625fb-863d-41b3-b42e-e4e4367f7548");
+            public static readonly Guid Collection2Id = new("d347bbd5-003a-441f-a148-df8ab8ac4a29");
+            public DbSet<Parent25225> Parents { get; set; }
+
+            public MyContext25225(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public void Seed()
+            {
+                var parent1 = new Parent25225
+                {
+                    Id = Parent1Id,
+                    Collection = new List<Collection25225>
+                    {
+                        new Collection25225
+                        {
+                            Id = Collection1Id,
+                        }
+                    }
+                };
+
+                var parent2 = new Parent25225
+                {
+                    Id = Parent2Id,
+                    Collection = new List<Collection25225>
+                    {
+                        new Collection25225
+                        {
+                            Id = Collection2Id,
+                        }
+                    }
+                };
+
+                AddRange(parent1, parent2);
+
+                SaveChanges();
+            }
+
+            public class Parent25225
+            {
+                public Guid Id { get; set; }
+                public ICollection<Collection25225> Collection { get; set; }
+            }
+
+            public class Collection25225
+            {
+                public Guid Id { get; set; }
+                public Guid ParentId { get; set; }
+                public Parent25225 Parent { get; set; }
+            }
+        }
+
+        public class ParentViewModel25225
+        {
+            public Guid Id { get; set; }
+            public ICollection<CollectionViewModel25225> Collection { get; set; }
+        }
+
+        public class CollectionViewModel25225
+        {
+            public Guid Id { get; set; }
+            public Guid ParentId { get; set; }
+        }
+
+        #endregion
+
         protected override string StoreName => "QueryBugsTest";
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
