@@ -783,10 +783,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         var filterExpression = entityReference.IncludePaths[navigationBase].FilterExpression;
                         if (_queryStateManager
-                            && navigationBase is ISkipNavigation
+                            && navigationBase is ISkipNavigation skipNavigation
                             && subquery is MethodCallExpression joinMethodCallExpression
                             && joinMethodCallExpression.Method.IsGenericMethod
-                            && joinMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
+                            && joinMethodCallExpression.Method.GetGenericMethodDefinition()
+                                == (skipNavigation.Inverse.ForeignKey.IsRequired ? QueryableMethods.Join : QueryableExtensions.LeftJoinMethodInfo)
                             && joinMethodCallExpression.Arguments[4] is UnaryExpression unaryExpression
                             && unaryExpression.NodeType == ExpressionType.Quote
                             && unaryExpression.Operand is LambdaExpression resultSelectorLambda
