@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <param name="instance"> The instance. </param>
         /// <returns> The hash code. </returns>
         public override int GetHashCode(object instance)
-            => GetHashCode((T)instance);
+            => instance is null ? 0 : GetHashCode((T)instance);
 
         /// <summary>
         ///     Compares the two instances to determine if they are equal.
