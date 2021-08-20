@@ -84,6 +84,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(";");
             }
 
+            builder
+                .AppendLine()
+                .AppendLine("#nullable disable");
+
             if (!string.IsNullOrEmpty(migrationNamespace))
             {
                 builder
@@ -184,6 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(";");
             }
 
+            builder
+                .AppendLine()
+                .AppendLine("#nullable disable");
+
             if (!string.IsNullOrEmpty(migrationNamespace))
             {
                 builder
@@ -275,6 +283,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(n)
                     .AppendLine(";");
             }
+
+            builder
+                .AppendLine()
+                .AppendLine("#nullable disable");
 
             if (!string.IsNullOrEmpty(modelSnapshotNamespace))
             {
