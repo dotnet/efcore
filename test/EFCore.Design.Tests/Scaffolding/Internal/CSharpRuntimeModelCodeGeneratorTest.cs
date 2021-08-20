@@ -483,21 +483,16 @@ namespace Internal
     [DbContext(typeof(DbContext))]
     partial class DbContextModel : RuntimeModel
     {
-        private static DbContextModel _instance;
-        public static IModel Instance
+        static DbContextModel()
         {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new DbContextModel();
-                    _instance.Initialize();
-                    _instance.Customize();
-                }
-
-                return _instance;
-            }
+            var model = new DbContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
         }
+
+        private static DbContextModel _instance;
+        public static IModel Instance => _instance;
 
         partial void Initialize();
 
