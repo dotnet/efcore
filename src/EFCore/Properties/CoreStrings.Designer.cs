@@ -2291,6 +2291,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 projection, queryableType);
 
         /// <summary>
+        ///     The replacement entity type: {entityType} does not have same name and CLR type as entity type this query root represents.
+        /// </summary>
+        public static string QueryRootDifferentEntityType(object? entityType)
+            => string.Format(
+                GetString("QueryRootDifferentEntityType", nameof(entityType)),
+                entityType);
+
+        /// <summary>
         ///     Translation of '{expression}' failed. Either the query source is not an entity type, or the specified property does not exist on the entity type.
         /// </summary>
         public static string QueryUnableToTranslateEFProperty(object? expression)
@@ -2848,7 +2856,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ValueGenWithConversion", nameof(entityType), nameof(property), nameof(converter)),
                 entityType, property, converter);
-        
+
         /// <summary>
         ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.
         /// </summary>
