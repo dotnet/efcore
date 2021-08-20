@@ -76,17 +76,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
         }
 
         [return: NotNullIfNotNull("source")]
-        private static TElement[]? Snapshot(TElement[]? source, ValueComparer<TElement> elementComparer)
+        private static TElement[] Snapshot(TElement[] source, ValueComparer<TElement> elementComparer)
         {
-            if (source is null)
-            {
-                return null;
-            }
-
             var snapshot = new TElement[source.Length];
             for (var i = 0; i < source.Length; i++)
             {
-                snapshot[i] = elementComparer.Snapshot(source[i])!;
+                var element = source[i];
+                snapshot[i] = element is null ? default! : elementComparer.Snapshot(source[i]);
             }
             return snapshot;
         }

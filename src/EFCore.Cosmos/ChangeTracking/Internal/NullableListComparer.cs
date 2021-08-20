@@ -89,13 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             return hash.ToHashCode();
         }
 
-        private static TCollection? Snapshot(TCollection? source, ValueComparer<TElement> elementComparer, bool readOnly)
+        private static TCollection Snapshot(TCollection source, ValueComparer<TElement> elementComparer, bool readOnly)
         {
-            if (source is null)
-            {
-                return null;
-            }
-
             if (readOnly)
             {
                 return source;
