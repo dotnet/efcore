@@ -78,14 +78,21 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is GroupByShaperExpression groupByShaperExpression)
+            switch(extensionExpression)
             {
-                var shapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
-                return ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression)
-                    .Clone(shapedQueryExpression.ShaperExpression);
-            }
+                case GroupByShaperExpression groupByShaperExpression:
+                    var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
 
-            return base.VisitExtension(extensionExpression);
+                    return ((InMemoryQueryExpression)groupShapedQueryExpression.QueryExpression)
+                        .Clone(groupShapedQueryExpression.ShaperExpression);
+
+                case ShapedQueryExpression shapedQueryExpression:
+                    return ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression)
+                        .Clone(shapedQueryExpression.ShaperExpression);
+
+                default:
+                    return base.VisitExtension(extensionExpression);
+            }
         }
 
         /// <summary>
@@ -964,11 +971,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 return source;
             }
 
-            var newSelectorBody = ReplacingExpressionVisitor.Replace(
-                selector.Parameters.Single(), source.ShaperExpression, selector.Body);
-
+            var newSelectorBody = RemapLambdaBody(source, selector);
             var queryExpression = (InMemoryQueryExpression)source.QueryExpression;
-
             var newShaper = _projectionBindingExpressionVisitor.Translate(queryExpression, newSelectorBody);
 
             return source.UpdateShaperExpression(newShaper);
@@ -1286,7 +1290,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             return ExpandSharedTypeEntities((InMemoryQueryExpression)shapedQueryExpression.QueryExpression, lambdaBody);
         }
 
-        internal Expression ExpandSharedTypeEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
+        private Expression ExpandSharedTypeEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
             => _weakEntityExpandingExpressionVisitor.Expand(queryExpression, lambdaBody);
 
         private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
