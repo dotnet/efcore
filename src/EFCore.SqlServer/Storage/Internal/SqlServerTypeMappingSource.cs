@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 comparer: new ValueComparer<byte[]>(
                     (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
                     v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
-                    v => v == null ? null : v.ToArray()),
+                    v => v.ToArray()),
                 storeTypePostfix: StoreTypePostfix.None);
 
         private readonly IntTypeMapping _int
