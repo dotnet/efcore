@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             ((IModel)runtimeModel).ModelDependencies = model.ModelDependencies!;
 
             var entityTypes = model.GetEntityTypesInHierarchicalOrder();
-            var entityTypePairs = new List<(IEntityType Source, RuntimeEntityType Target)>(entityTypes.Count);
+            var entityTypePairs = new List<(IEntityType Source, RuntimeEntityType Target)>();
 
             foreach (var entityType in entityTypes)
             {

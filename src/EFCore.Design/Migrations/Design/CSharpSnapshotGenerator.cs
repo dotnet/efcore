@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateEntityTypes(
             string modelBuilderName,
-            IReadOnlyList<IEntityType> entityTypes,
+            IEnumerable<IEntityType> entityTypes,
             IndentedStringBuilder stringBuilder)
         {
             Check.NotEmpty(modelBuilderName, nameof(modelBuilderName));
