@@ -252,11 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         Dependencies.Logger, CommandSource.SaveChanges));
                 Consume(dataReader);
             }
-            catch (DbUpdateException)
-            {
-                throw;
-            }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
                 throw new DbUpdateException(
                     RelationalStrings.UpdateStoreException,
@@ -293,11 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     cancellationToken).ConfigureAwait(false);
                 await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }
-            catch (DbUpdateException)
-            {
-                throw;
-            }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
                 throw new DbUpdateException(
                     RelationalStrings.UpdateStoreException,

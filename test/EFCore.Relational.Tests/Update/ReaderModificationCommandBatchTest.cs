@@ -261,8 +261,10 @@ namespace Microsoft.EntityFrameworkCore.Update
             Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
         }
 
-        [ConditionalFact]
-        public async Task Exception_thrown_if_rows_returned_for_command_without_store_generated_values_is_not_1()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Exception_thrown_if_rows_returned_for_command_without_store_generated_values_is_not_1(bool async)
         {
             var entry = CreateEntry(EntityState.Added);
 
@@ -276,14 +278,17 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
 
-            Assert.Equal(
-                RelationalStrings.UpdateConcurrencyException(1, 42),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(connection))).Message);
+            var exception = async
+                ? await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => batch.ExecuteAsync(connection))
+                : Assert.Throws<DbUpdateConcurrencyException>(() => batch.Execute(connection));
+
+            Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42), exception.Message);
         }
 
-        [ConditionalFact]
-        public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values(bool async)
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
             entry.SetTemporaryValue(entry.EntityType.FindPrimaryKey().Properties[0], -1);
@@ -297,10 +302,65 @@ namespace Microsoft.EntityFrameworkCore.Update
             var batch = new ModificationCommandBatchFake();
             batch.AddCommand(command);
 
-            Assert.Equal(
-                RelationalStrings.UpdateConcurrencyException(1, 0),
-                (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => await batch.ExecuteAsync(connection))).Message);
+            var exception = async
+                ? await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => batch.ExecuteAsync(connection))
+                : Assert.Throws<DbUpdateConcurrencyException>(() => batch.Execute(connection));
+
+            Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0), exception.Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task DbException_is_wrapped_with_DbUpdateException(bool async)
+        {
+            var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
+
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+            command.AddEntry(entry, true);
+
+            var originalException = new FakeDbException();
+
+            var connection = CreateConnection(
+                new FakeCommandExecutor(
+                    executeReaderAsync: (c, b, ct) => throw originalException,
+                    executeReader: (c, b) => throw originalException));
+
+            var batch = new ModificationCommandBatchFake();
+            batch.AddCommand(command);
+
+            var actualException = async
+                ? await Assert.ThrowsAsync<DbUpdateException>(() => batch.ExecuteAsync(connection))
+                : Assert.Throws<DbUpdateException>(() => batch.Execute(connection));
+
+            Assert.Same(originalException, actualException.InnerException);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task OperationCanceledException_is_not_wrapped_with_DbUpdateException(bool async)
+        {
+            var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
+
+            var command = CreateModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, true, null);
+            command.AddEntry(entry, true);
+
+            var originalException = new OperationCanceledException();
+
+            var connection = CreateConnection(
+                new FakeCommandExecutor(
+                    executeReaderAsync: (c, b, ct) => throw originalException,
+                    executeReader: (c, b) => throw originalException));
+
+            var batch = new ModificationCommandBatchFake();
+            batch.AddCommand(command);
+
+            var actualException = async
+                ? await Assert.ThrowsAsync<OperationCanceledException>(() => batch.ExecuteAsync(connection))
+                : Assert.Throws<OperationCanceledException>(() => batch.Execute(connection));
+
+            Assert.Same(originalException, actualException);
         }
 
         [ConditionalFact]
@@ -605,20 +665,17 @@ namespace Microsoft.EntityFrameworkCore.Update
 
         private const string ConnectionString = "Fake Connection String";
 
+        private static FakeRelationalConnection CreateConnection(FakeCommandExecutor executor)
+            => CreateConnection(
+                CreateOptions(
+                    new FakeRelationalOptionsExtension().WithConnection(
+                        new FakeDbConnection(ConnectionString, executor))));
+
         private static FakeRelationalConnection CreateConnection(DbDataReader dbDataReader)
-        {
-            var fakeDbConnection = new FakeDbConnection(
-                ConnectionString,
+            => CreateConnection(
                 new FakeCommandExecutor(
                     executeReaderAsync: (c, b, ct) => Task.FromResult(dbDataReader),
                     executeReader: (c, b) => dbDataReader));
-
-            var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
-
-            var options = CreateOptions(optionsExtension);
-
-            return CreateConnection(options);
-        }
 
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
             => new(options ?? CreateOptions());
