@@ -3,13 +3,15 @@
 
 using System;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking
 {
     /// <summary>
     ///     Value snapshotting and comparison logic for NetTopologySuite.Geometries.Geometry instances.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see>.
+    /// </remarks>
     public class GeometryValueComparer<TGeometry> : ValueComparer<TGeometry>
     {
         /// <summary>

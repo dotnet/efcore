@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         concurrency exceptions signaled by the throwing of a <see cref="DbUpdateConcurrencyException" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+    /// </remarks>
     public abstract class PropertyValues
     {
         /// <summary>
