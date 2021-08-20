@@ -79,13 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             return hash.ToHashCode();
         }
 
-        private static TCollection? Snapshot(TCollection? source, ValueComparer<TElement> elementComparer, bool readOnly)
+        private static TCollection Snapshot(TCollection source, ValueComparer<TElement> elementComparer, bool readOnly)
         {
-            if (source is null)
-            {
-                return null;
-            }
-
             if (readOnly)
             {
                 return source;
@@ -94,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             var snapshot = new Dictionary<string, TElement>(((IReadOnlyDictionary<string, TElement>)source).Count);
             foreach (var e in source)
             {
-                snapshot.Add(e.Key, elementComparer.Snapshot(e.Value)!);
+                snapshot.Add(e.Key, e.Value is null ? default! : elementComparer.Snapshot(e.Value));
             }
 
             return (TCollection)(object)snapshot;
