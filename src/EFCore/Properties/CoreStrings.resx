@@ -972,7 +972,7 @@
   </data>
   <data name="LogShadowForeignKeyPropertyCreated" xml:space="preserve">
     <value>The foreign key property '{entityType}.{property}' was created in shadow state because a conflicting property with the simple name '{baseName}' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.</value>
-    <comment>Warning CoreEventId.ShadowForeignKeyPropertyCreated string string</comment>
+    <comment>Warning CoreEventId.ShadowForeignKeyPropertyCreated string string string</comment>
   </data>
   <data name="LogShadowPropertyCreated" xml:space="preserve">
     <value>The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
@@ -1309,6 +1309,9 @@
   </data>
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
+  </data>
+  <data name="QueryRootDifferentEntityType" xml:space="preserve">
+    <value>The replacement entity type: {entityType} does not have same name and CLR type as entity type this query root represents.</value>
   </data>
   <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
     <value>Translation of '{expression}' failed. Either the query source is not an entity type, or the specified property does not exist on the entity type.</value>

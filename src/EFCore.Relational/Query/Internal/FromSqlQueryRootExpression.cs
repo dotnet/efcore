@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -79,6 +80,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public override Expression DetachQueryProvider()
             => new FromSqlQueryRootExpression(EntityType, Sql, Argument);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public override QueryRootExpression UpdateEntityType(IEntityType entityType)
+            => entityType.ClrType != EntityType.ClrType
+                || entityType.Name != EntityType.Name
+                ? throw new InvalidOperationException(CoreStrings.QueryRootDifferentEntityType(entityType.DisplayName()))
+                : new FromSqlQueryRootExpression(entityType, Sql, Argument);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
