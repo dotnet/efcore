@@ -170,6 +170,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             // Set the FK properties to reflect the change to the navigation.
                             SetForeignKeyProperties(entry, newTargetEntry, foreignKey, setModified: true, fromQuery: false);
+                            UndeleteDependent(entry, newTargetEntry);
                             entry.SetRelationshipSnapshotValue(navigation, newValue);
                         }
                     }
@@ -231,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
 
                         SetForeignKeyProperties(newTargetEntry, entry, foreignKey, setModified: true, fromQuery: false);
-
+                        UndeleteDependent(entry, newTargetEntry);
                         SetNavigation(newTargetEntry, inverse, entry, fromQuery: false);
                     }
                 }
@@ -363,6 +364,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                             // Set the FK properties on added dependents to match this principal
                             SetForeignKeyProperties(newTargetEntry, entry, foreignKey, setModified: true, fromQuery: false);
+                            UndeleteDependent(newTargetEntry, entry);
 
                             // Set the inverse navigation to point to this principal
                             SetNavigation(newTargetEntry, inverse, entry, fromQuery: false);
@@ -507,6 +509,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                             .GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                         {
                             SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true, fromQuery: false);
+                            UndeleteDependent(dependentEntry, entry);
                         }
 
                         if (foreignKey.IsOwnership)
@@ -1217,6 +1220,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     dependentEntry.StateManager.UpdateDependentMap(dependentEntry, foreignKey);
                     dependentEntry.SetRelationshipSnapshotValue(dependentProperty, principalValue);
                 }
+            }
+        }
+
+        private static void UndeleteDependent(
+            InternalEntityEntry dependentEntry,
+            InternalEntityEntry principalEntry)
+        {
+            if (dependentEntry.EntityState == EntityState.Deleted
+                && (principalEntry.EntityState == EntityState.Unchanged
+                    || principalEntry.EntityState == EntityState.Modified))
+            {
+                dependentEntry.SetEntityState(EntityState.Modified);
             }
         }
 
