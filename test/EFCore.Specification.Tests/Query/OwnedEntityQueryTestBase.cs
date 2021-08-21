@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = contextFactory.CreateContext())
             {
-                await context.Entities.AsNoTracking().Select(e => new
+                var query = context.Entities.AsNoTracking().Select(e => new
                 {
                     Id = e.Id,
                     FirstChild = e.Children
@@ -38,7 +38,11 @@ namespace Microsoft.EntityFrameworkCore
                     .AsQueryable()
                     .Select(_project)
                     .FirstOrDefault(),
-                }).ToListAsync();
+                });
+
+                var result = async
+                    ? await query.ToListAsync()
+                    : query.ToList();
             }
         }
 
