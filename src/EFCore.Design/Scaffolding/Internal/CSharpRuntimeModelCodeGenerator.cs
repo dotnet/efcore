@@ -232,8 +232,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var entityTypes = model.GetEntityTypesInHierarchicalOrder();
                     var variables = new HashSet<string>();
 
+                    var anyEntityTypes = false;
                     foreach (var entityType in entityTypes)
                     {
+                        anyEntityTypes = true;
                         var variableName = _code.Identifier(entityType.ShortName(), variables, capitalize: false);
 
                         var firstChar = variableName[0] == '@' ? variableName[1] : variableName[0];
@@ -261,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .AppendLine(");");
                     }
 
-                    if (entityTypes.Count > 0)
+                    if (anyEntityTypes)
                     {
                         mainBuilder.AppendLine();
                     }
@@ -335,7 +337,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .AppendLine(");");
                     }
 
-                    if (entityTypes.Count > 0)
+                    if (anyEntityTypes)
                     {
                         mainBuilder.AppendLine();
                     }

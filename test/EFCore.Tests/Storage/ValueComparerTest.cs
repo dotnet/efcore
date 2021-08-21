@@ -85,7 +85,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(comparer.Equals(null, value2));
             Assert.True(comparer.Equals(null, null));
 
-            Assert.Equal(0, comparer.GetHashCode(null));
             Assert.Equal(hashCode ?? value1.GetHashCode(), comparer.GetHashCode(value1));
 
             var keyComparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), new object[] { true });
@@ -102,7 +101,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(keyComparer.Equals(null, value2));
             Assert.True(keyComparer.Equals(null, null));
 
-            Assert.Equal(0, keyComparer.GetHashCode(null));
             Assert.Equal(hashCode ?? value1.GetHashCode(), keyComparer.GetHashCode(value1));
 
             return comparer;
