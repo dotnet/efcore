@@ -159,21 +159,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
-        public override ShapedQueryExpression? TranslateSubquery(Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            var subqueryVisitor = (RelationalQueryableMethodTranslatingExpressionVisitor)CreateSubqueryVisitor();
-            var translation = subqueryVisitor.Visit(expression) as ShapedQueryExpression;
-            if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
-            {
-                AddTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);
-            }
-
-            return translation;
-        }
-
-        /// <inheritdoc />
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new RelationalQueryableMethodTranslatingExpressionVisitor(this);
 
