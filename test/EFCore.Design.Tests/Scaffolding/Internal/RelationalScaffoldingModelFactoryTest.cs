@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Internal
 {
-    public class RelationalDatabaseModelFactoryTest
+    public class RelationalScaffoldingModelFactoryTest
     {
         private readonly IScaffoldingModelFactory _factory;
         private readonly TestOperationReporter _reporter;
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
         private static readonly DatabaseColumn IdColumn;
         private static readonly DatabasePrimaryKey IdPrimaryKey;
 
-        static RelationalDatabaseModelFactoryTest()
+        static RelationalScaffoldingModelFactoryTest()
         {
             Database = new DatabaseModel();
             Table = new DatabaseTable { Database = Database, Name = "Foo" };
@@ -44,11 +44,11 @@ namespace Microsoft.EntityFrameworkCore.Internal
             };
         }
 
-        public RelationalDatabaseModelFactoryTest()
+        public RelationalScaffoldingModelFactoryTest()
         {
             _reporter = new TestOperationReporter();
 
-            var assembly = typeof(RelationalDatabaseModelFactoryTest).Assembly;
+            var assembly = typeof(RelationalScaffoldingModelFactoryTest).Assembly;
             _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
@@ -2157,6 +2157,104 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 Assert.Equal("AuthorId", Assert.Single(foreignKey.Properties).Name);
                 Assert.Equal("Author", foreignKey.DependentToPrincipal.Name);
             }
+        }
+
+        [ConditionalFact]
+        public void Scaffold_skip_navigation_for_many_to_many_join_table_basic()
+        {
+            var database = new DatabaseModel
+            {
+                Tables =
+                {
+                    new DatabaseTable
+                    {
+                        Name = "Blogs",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "Posts",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "Id",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
+                    },
+                    new DatabaseTable
+                    {
+                        Name = "BlogPosts",
+                        Columns =
+                        {
+                            new DatabaseColumn
+                            {
+                                Name = "BlogId",
+                                StoreType = "int"
+                            },
+                            new DatabaseColumn
+                            {
+                                Name = "PostId",
+                                StoreType = "int"
+                            }
+                        },
+                        PrimaryKey = new DatabasePrimaryKey
+                        {
+                            Columns = { new DatabaseColumnRef("BlogId"), new DatabaseColumnRef("PostId") }
+                        },
+                        ForeignKeys =
+                        {
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("BlogId") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Blogs"),
+                            },
+                            new DatabaseForeignKey
+                            {
+                                Columns = { new DatabaseColumnRef("PostId") },
+                                PrincipalColumns = { new DatabaseColumnRef("Id") },
+                                PrincipalTable = new DatabaseTableRef("Posts"),
+                            }
+                        }
+                    }
+                }
+            };
+
+            var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+            Assert.Collection(
+                model.GetEntityTypes().OrderBy(e => e.Name),
+                t1 =>
+                {
+                    Assert.Empty(t1.GetNavigations());
+                    var skipNavigation = Assert.Single(t1.GetSkipNavigations());
+                    Assert.Equal("Posts", skipNavigation.Name);
+                    Assert.Equal("Blogs", skipNavigation.Inverse.Name);
+                },
+                t2 =>
+                {
+                    Assert.Empty(t2.GetNavigations());
+                    Assert.Equal(2, t2.GetForeignKeys().Count());
+                },
+                t3 =>
+                {
+                    Assert.Empty(t3.GetNavigations());
+                    var skipNavigation = Assert.Single(t3.GetSkipNavigations());
+                    Assert.Equal("Blogs", skipNavigation.Name);
+                    Assert.Equal("Posts", skipNavigation.Inverse.Name);
+                });
+
         }
     }
 }

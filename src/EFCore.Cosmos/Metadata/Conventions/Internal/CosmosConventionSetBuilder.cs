@@ -100,9 +100,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.NavigationRemovedConventions, relationshipDiscoveryConvention);
 
+            ManyToManyJoinEntityTypeConvention manyToManyJoinEntityTypeConvention = new CosmosManyToManyJoinEntityTypeConvention(Dependencies);
+            ReplaceConvention(conventionSet.SkipNavigationAddedConventions, manyToManyJoinEntityTypeConvention);
+
+            ReplaceConvention(conventionSet.SkipNavigationRemovedConventions, manyToManyJoinEntityTypeConvention);
+
+            ReplaceConvention(conventionSet.SkipNavigationInverseChangedConventions, manyToManyJoinEntityTypeConvention);
+
+            ReplaceConvention(conventionSet.SkipNavigationForeignKeyChangedConventions, manyToManyJoinEntityTypeConvention);
+
             conventionSet.EntityTypeAnnotationChangedConventions.Add(discriminatorConvention);
             conventionSet.EntityTypeAnnotationChangedConventions.Add(storeKeyConvention);
             conventionSet.EntityTypeAnnotationChangedConventions.Add((CosmosKeyDiscoveryConvention)keyDiscoveryConvention);
+            conventionSet.EntityTypeAnnotationChangedConventions.Add((CosmosManyToManyJoinEntityTypeConvention)manyToManyJoinEntityTypeConvention);
 
             ReplaceConvention(conventionSet.PropertyAddedConventions, keyDiscoveryConvention);
 

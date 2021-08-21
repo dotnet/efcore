@@ -633,7 +633,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         {
                             var table = selectExpression._tables[i];
                             var tableReference = selectExpression._tableReferences[i];
-                            switch(table)
+                            switch (table)
                             {
                                 case PredicateJoinExpressionBase predicateJoinExpressionBase:
                                     Verify(predicateJoinExpressionBase.Table, _tableReferencesInScope);
@@ -739,8 +739,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 if (expression is SelectExpression selectExpression)
                 {
-                    // We ignore projection binding related elements as we don't want to copy them over for top level
-                    // Nested level will have _projection populated and no binding elements
+                    var newProjectionMappings = new Dictionary<ProjectionMember, Expression>(selectExpression._projectionMapping.Count);
+                    foreach (var keyValuePair in selectExpression._projectionMapping)
+                    {
+                        newProjectionMappings[keyValuePair.Key] = Visit(keyValuePair.Value);
+                    }
+
                     var newProjections = selectExpression._projection.Select(Visit).ToList<ProjectionExpression>();
 
                     var newTables = selectExpression._tables.Select(Visit).ToList<TableExpressionBase>();
@@ -770,7 +774,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         Limit = limit,
                         IsDistinct = selectExpression.IsDistinct,
                         Tags = selectExpression.Tags,
-                        _usedAliases = selectExpression._usedAliases.ToHashSet()
+                        _usedAliases = selectExpression._usedAliases.ToHashSet(),
+                        _projectionMapping = newProjectionMappings
                     };
 
                     newSelectExpression._tptLeftJoinTables.AddRange(selectExpression._tptLeftJoinTables);
@@ -789,10 +794,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         .Visit(newSelectExpression);
 
                     return newSelectExpression;
-
                 }
 
-                return expression is ICloneable cloneable ? (Expression)cloneable.Clone() : base.Visit(expression);
+                return expression is IClonableTableExpressionBase cloneable ? (Expression)cloneable.Clone() : base.Visit(expression);
             }
         }
 
@@ -812,6 +816,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 return expression is ConcreteColumnExpression concreteColumnExpression
                     && _oldSelectExpression.ContainsTableReference(concreteColumnExpression)
+                    && _newTableReferences.ContainsKey(concreteColumnExpression.TableAlias)
                     ? new ConcreteColumnExpression(
                         concreteColumnExpression.Name,
                         _newTableReferences[concreteColumnExpression.TableAlias],
@@ -819,6 +824,126 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         concreteColumnExpression.TypeMapping!,
                         concreteColumnExpression.IsNullable)
                     : base.Visit(expression);
+            }
+        }
+
+        private sealed class GroupByAggregateLiftingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly SelectExpression _selectExpression;
+
+            public GroupByAggregateLiftingExpressionVisitor(SelectExpression selectExpression)
+            {
+                _selectExpression = selectExpression;
+            }
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (expression is ScalarSubqueryExpression scalarSubqueryExpression)
+                {
+                    // A scalar subquery on a GROUP BY may represent aggregation which can be lifted.
+                    var subquery = scalarSubqueryExpression.Subquery;
+                    if (subquery.Limit == null
+                        && subquery.Offset == null
+                        && subquery._groupBy.Count == 0
+                        && subquery.Predicate != null)
+                    {
+                        var initialTableCounts = 0;
+                        var potentialTableCount = Math.Min(_selectExpression._tables.Count, subquery._tables.Count);
+                        for (var i = 0; i < potentialTableCount; i++)
+                        {
+                            if (!string.Equals(_selectExpression._tableReferences[i].Alias,
+                                subquery._tableReferences[i].Alias, StringComparison.OrdinalIgnoreCase))
+                            {
+                                break;
+                            }
+
+                            if (_selectExpression._tables[i] is SelectExpression originalNestedSelectExpression
+                                && subquery._tables[i] is SelectExpression subqueryNestedSelectExpression)
+                            {
+                                CopyOverOwnedJoinInSameTable(originalNestedSelectExpression, subqueryNestedSelectExpression);
+                            }
+
+                            initialTableCounts++;
+                        }
+
+                        if (initialTableCounts > 0)
+                        {
+                            // If there are no initial table then this is not correlated grouping subquery
+                            var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(subquery, _selectExpression);
+                            if (subquery._tables.Count != initialTableCounts)
+                            {
+                                // If subquery has more tables then we expanded join on it.
+                                for (var i = initialTableCounts; i < subquery._tables.Count; i++)
+                                {
+                                    // We re-use the same table reference with updated selectExpression
+                                    // So we don't need to remap those columns, they will transfer automatically.
+                                    var table = subquery._tables[i];
+                                    var tableReference = subquery._tableReferences[i];
+                                    table = (TableExpressionBase)columnExpressionReplacingExpressionVisitor.Visit(table);
+                                    tableReference.UpdateTableReference(subquery, _selectExpression);
+                                    _selectExpression.AddTable(table, tableReference);
+                                }
+                            }
+
+                            var updatedProjection = columnExpressionReplacingExpressionVisitor.Visit(subquery._projection[0].Expression);
+
+                            return updatedProjection;
+                        }
+                    }
+                }
+
+                if (expression is SelectExpression innerSelectExpression
+                    && innerSelectExpression.GroupBy.Count > 0)
+                {
+                    expression = new GroupByAggregateLiftingExpressionVisitor(innerSelectExpression).Visit(innerSelectExpression);
+                }
+
+                return base.Visit(expression);
+            }
+
+            private void CopyOverOwnedJoinInSameTable(SelectExpression target, SelectExpression source)
+            {
+                if (target._projection.Count != source._projection.Count)
+                {
+                    var columnExpressionReplacingExpressionVisitor = new ColumnExpressionReplacingExpressionVisitor(source, target);
+                    var minProjectionCount = Math.Min(target._projection.Count, source._projection.Count);
+                    var initialProjectionCount = 0;
+                    for (var i = 0; i < minProjectionCount; i++)
+                    {
+                        var projectionToCopy = source._projection[i];
+                        var transformedProjection = (ProjectionExpression)columnExpressionReplacingExpressionVisitor.Visit(projectionToCopy);
+                        if (!transformedProjection.Equals(target._projection[i]))
+                        {
+                            break;
+                        }
+
+                        initialProjectionCount++;
+                    }
+
+                    if (initialProjectionCount < source._projection.Count)
+                    {
+                        for (var i = initialProjectionCount; i < source._projection.Count; i++)
+                        {
+                            var projectionToCopy = source._projection[i].Expression;
+                            if (projectionToCopy is not ConcreteColumnExpression columnToCopy)
+                            {
+                                continue;
+                            }
+
+                            var transformedProjection = (ConcreteColumnExpression)columnExpressionReplacingExpressionVisitor.Visit(projectionToCopy);
+                            if (target._projection.FindIndex(e => e.Expression.Equals(transformedProjection)) == -1)
+                            {
+                                target._projection.Add(new ProjectionExpression(transformedProjection, transformedProjection.Name));
+                                if (UnwrapJoinExpression(columnToCopy.Table) is SelectExpression innerSelectExpression)
+                                {
+                                    var tableIndex = source._tableReferences.FindIndex(e => e.Alias == columnToCopy.TableAlias);
+                                    CopyOverOwnedJoinInSameTable((SelectExpression)UnwrapJoinExpression(target._tables[tableIndex]), innerSelectExpression);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

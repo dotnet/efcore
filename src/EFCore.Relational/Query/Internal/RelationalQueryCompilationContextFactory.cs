@@ -22,9 +22,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class RelationalQueryCompilationContextFactory : IQueryCompilationContextFactory
     {
-        private readonly QueryCompilationContextDependencies _dependencies;
-        private readonly RelationalQueryCompilationContextDependencies _relationalDependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -38,9 +35,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
 
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryCompilationContextDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalQueryCompilationContextDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,6 +56,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QueryCompilationContext Create(bool async)
-            => new RelationalQueryCompilationContext(_dependencies, _relationalDependencies, async);
+            => new RelationalQueryCompilationContext(Dependencies, RelationalDependencies, async);
     }
 }

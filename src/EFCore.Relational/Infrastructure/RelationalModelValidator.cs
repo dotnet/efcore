@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="ModelValidator" />
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalModelValidatorDependencies RelationalDependencies { get; }
 

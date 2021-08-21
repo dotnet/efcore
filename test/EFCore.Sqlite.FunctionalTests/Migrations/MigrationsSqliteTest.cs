@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ""SSN"" TEXT COLLATE NOCASE NOT NULL,
     CONSTRAINT ""AK_People_SSN"" UNIQUE (""SSN""),
     CONSTRAINT ""CK_People_EmployerId"" CHECK (""EmployerId"" > 0),
-    CONSTRAINT ""FK_People_Employers_EmployerId"" FOREIGN KEY (""EmployerId"") REFERENCES ""Employers"" (""Id"") ON DELETE RESTRICT
+    CONSTRAINT ""FK_People_Employers_EmployerId"" FOREIGN KEY (""EmployerId"") REFERENCES ""Employers"" (""Id"")
 );");
         }
 
@@ -451,6 +451,26 @@ FROM ""People"";",
                 @"PRAGMA foreign_keys = 1;");
         }
 
+        public override async Task Alter_column_make_non_computed()
+        {
+            await base.Alter_column_make_non_computed();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+    ""Sum"" INTEGER NOT NULL,
+    ""X"" INTEGER NOT NULL,
+    ""Y"" INTEGER NOT NULL
+);",
+                @"INSERT INTO ""ef_temp_People"" (""Id"", ""Sum"", ""X"", ""Y"")
+SELECT ""Id"", ""Sum"", ""X"", ""Y""
+FROM ""People"";",
+                @"PRAGMA foreign_keys = 0;",
+                @"DROP TABLE ""People"";",
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
         public override async Task Alter_column_add_comment()
         {
             await base.Alter_column_add_comment();
@@ -466,6 +486,31 @@ FROM ""People"";",
                 @"PRAGMA foreign_keys = 0;",
                 @"DROP TABLE ""People"";",
                 @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                @"PRAGMA foreign_keys = 1;");
+        }
+
+        public override async Task Alter_computed_column_add_comment()
+        {
+            await base.Alter_computed_column_add_comment();
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_People"" (
+    ""Id"" INTEGER NOT NULL,
+
+    -- Some comment
+    ""SomeColumn"" AS (42)
+);",
+                //
+                @"INSERT INTO ""ef_temp_People"" (""Id"")
+SELECT ""Id""
+FROM ""People"";",
+                //
+                @"PRAGMA foreign_keys = 0;",
+                //
+                @"DROP TABLE ""People"";",
+                //
+                @"ALTER TABLE ""ef_temp_People"" RENAME TO ""People"";",
+                //
                 @"PRAGMA foreign_keys = 1;");
         }
 
@@ -684,7 +729,7 @@ FROM ""People"";",
                 @"CREATE TABLE ""ef_temp_Orders"" (
     ""CustomerId"" INTEGER NOT NULL,
     ""Id"" INTEGER NOT NULL,
-    CONSTRAINT ""FK_Orders_Customers_CustomerId"" FOREIGN KEY (""CustomerId"") REFERENCES ""Customers"" (""Id"") ON DELETE RESTRICT
+    CONSTRAINT ""FK_Orders_Customers_CustomerId"" FOREIGN KEY (""CustomerId"") REFERENCES ""Customers"" (""Id"")
 );",
                 @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
 SELECT ""CustomerId"", ""Id""
@@ -703,7 +748,7 @@ FROM ""Orders"";",
                 @"CREATE TABLE ""ef_temp_Orders"" (
     ""CustomerId"" INTEGER NOT NULL,
     ""Id"" INTEGER NOT NULL,
-    CONSTRAINT ""FK_Foo"" FOREIGN KEY (""CustomerId"") REFERENCES ""Customers"" (""Id"") ON DELETE RESTRICT
+    CONSTRAINT ""FK_Foo"" FOREIGN KEY (""CustomerId"") REFERENCES ""Customers"" (""Id"")
 );",
                 @"INSERT INTO ""ef_temp_Orders"" (""CustomerId"", ""Id"")
 SELECT ""CustomerId"", ""Id""

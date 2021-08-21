@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="ValueConverterSelector" />
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ValueConverterSelectorDependencies Dependencies { get; }
 

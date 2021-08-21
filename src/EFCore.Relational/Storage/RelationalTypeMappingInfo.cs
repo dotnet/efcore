@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     Describes metadata needed to decide on a relational type mapping for
     ///     a property, type, or provider-specific relational type name.
     /// </summary>
-    public readonly struct RelationalTypeMappingInfo : IEquatable<RelationalTypeMappingInfo>
+    public readonly record struct RelationalTypeMappingInfo : IEquatable<RelationalTypeMappingInfo>
     {
         private readonly TypeMappingInfo _coreTypeMappingInfo;
 
@@ -181,59 +181,80 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The provider-specific relational type name for which mapping is needed.
         /// </summary>
-        public string? StoreTypeName { get; }
+        public string? StoreTypeName { get; init; }
 
         /// <summary>
         ///     The provider-specific relational type name, with any facets removed.
         /// </summary>
-        public string? StoreTypeNameBase { get; }
+        public string? StoreTypeNameBase { get; init; }
 
         /// <summary>
         ///     Indicates the store-size to use for the mapping, or null if none.
         /// </summary>
         public int? Size
-            => _coreTypeMappingInfo.Size;
+        {
+            get => _coreTypeMappingInfo.Size;
+            init => _coreTypeMappingInfo = _coreTypeMappingInfo with { Size = value };
+        }
 
         /// <summary>
         ///     The suggested precision of the mapped data type.
         /// </summary>
         public int? Precision
-            => _coreTypeMappingInfo.Precision;
+        {
+            get => _coreTypeMappingInfo.Precision;
+            init => _coreTypeMappingInfo = _coreTypeMappingInfo with { Precision = value };
+        }
 
         /// <summary>
         ///     The suggested scale of the mapped data type.
         /// </summary>
         public int? Scale
-            => _coreTypeMappingInfo.Scale;
+        {
+            get => _coreTypeMappingInfo.Scale;
+            init => _coreTypeMappingInfo = _coreTypeMappingInfo with { Scale = value };
+        }
 
         /// <summary>
         ///     Whether or not the mapped data type is fixed length.
         /// </summary>
-        public bool? IsFixedLength { get; }
+        public bool? IsFixedLength { get; init; }
 
         /// <summary>
         ///     Indicates whether or not the mapping is part of a key or index.
         /// </summary>
         public bool IsKeyOrIndex
-            => _coreTypeMappingInfo.IsKeyOrIndex;
+        {
+            get => _coreTypeMappingInfo.IsKeyOrIndex;
+            init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsKeyOrIndex = value };
+        }
 
         /// <summary>
         ///     Indicates whether or not the mapping supports Unicode, or null if not defined.
         /// </summary>
         public bool? IsUnicode
-            => _coreTypeMappingInfo.IsUnicode;
+        {
+            get => _coreTypeMappingInfo.IsUnicode;
+            init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsUnicode = value };
+        }
 
         /// <summary>
         ///     Indicates whether or not the mapping will be used for a row version, or null if not defined.
         /// </summary>
         public bool? IsRowVersion
-            => _coreTypeMappingInfo.IsRowVersion;
+        {
+            get => _coreTypeMappingInfo.IsRowVersion;
+            init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsRowVersion = value };
+        }
 
         /// <summary>
         ///     The CLR type in the model.
         /// </summary>
         public Type? ClrType
-            => _coreTypeMappingInfo.ClrType;
+        {
+            get => _coreTypeMappingInfo.ClrType;
+            init => _coreTypeMappingInfo = _coreTypeMappingInfo with { ClrType = value };
+        }
 
         /// <summary>
         ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
@@ -242,32 +263,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The new mapping info. </returns>
         public RelationalTypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
             => new(this, converterInfo);
-
-        /// <summary>
-        ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.
-        /// </summary>
-        /// <param name="other"> The other object. </param>
-        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
-        public bool Equals(RelationalTypeMappingInfo other)
-            => _coreTypeMappingInfo.Equals(other._coreTypeMappingInfo)
-                && IsFixedLength == other.IsFixedLength
-                && StoreTypeName == other.StoreTypeName;
-
-        /// <summary>
-        ///     Compares this <see cref="RelationalTypeMappingInfo" /> to another to check if they represent the same mapping.
-        /// </summary>
-        /// <param name="obj"> The other object. </param>
-        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
-        public override bool Equals(object? obj)
-            => obj != null
-                && obj.GetType() == GetType()
-                && Equals((RelationalTypeMappingInfo)obj);
-
-        /// <summary>
-        ///     Returns a hash code for this object.
-        /// </summary>
-        /// <returns> The hash code. </returns>
-        public override int GetHashCode()
-            => HashCode.Combine(_coreTypeMappingInfo, StoreTypeName, IsFixedLength);
     }
 }

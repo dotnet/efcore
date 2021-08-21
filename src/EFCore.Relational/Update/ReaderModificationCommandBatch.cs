@@ -39,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        public virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
+        protected virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     The update SQL generator.
@@ -252,11 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         Dependencies.Logger, CommandSource.SaveChanges));
                 Consume(dataReader);
             }
-            catch (DbUpdateException)
-            {
-                throw;
-            }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
                 throw new DbUpdateException(
                     RelationalStrings.UpdateStoreException,
@@ -293,11 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     cancellationToken).ConfigureAwait(false);
                 await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
             }
-            catch (DbUpdateException)
-            {
-                throw;
-            }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
                 throw new DbUpdateException(
                     RelationalStrings.UpdateStoreException,

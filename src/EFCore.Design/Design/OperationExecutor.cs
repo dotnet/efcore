@@ -488,10 +488,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Represents an operation to generate a compiled model from the DbContext.
         /// </summary>
-        public class Optimize : OperationBase
+        public class OptimizeContext : OperationBase
         {
             /// <summary>
-            ///     <para>Initializes a new instance of the <see cref="Optimize" /> class.</para>
+            ///     <para>Initializes a new instance of the <see cref="OptimizeContext" /> class.</para>
             ///     <para>The arguments supported by <paramref name="args" /> are:</para>
             ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
             ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated model.</para>
@@ -500,7 +500,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             /// <param name="executor"> The operation executor. </param>
             /// <param name="resultHandler"> The <see cref="IOperationResultHandler" />. </param>
             /// <param name="args"> The operation arguments. </param>
-            public Optimize(
+            public OptimizeContext(
                 OperationExecutor executor,
                 IOperationResultHandler resultHandler,
                 IDictionary args)
@@ -513,11 +513,11 @@ namespace Microsoft.EntityFrameworkCore.Design
                 var modelNamespace = (string?)args["modelNamespace"];
                 var contextType = (string?)args["contextType"];
 
-                Execute(() => executor.OptimizeImpl(outputDir, modelNamespace, contextType));
+                Execute(() => executor.OptimizeContextImpl(outputDir, modelNamespace, contextType));
             }
         }
 
-        private void OptimizeImpl(string? outputDir, string? modelNamespace, string? contextType)
+        private void OptimizeContextImpl(string? outputDir, string? modelNamespace, string? contextType)
             => ContextOperations.Optimize(outputDir, modelNamespace, contextType);
 
         /// <summary>

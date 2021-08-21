@@ -288,6 +288,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                     r => r.HasOne<EntityTwo>().WithMany().HasForeignKey(e => e.TwoId),
                     l => l.HasOne<EntityOne>().WithMany().HasForeignKey(e => e.OneId));
 
+            modelBuilder.Entity<JoinOneToThreePayloadFull>(
+                b =>
+                {
+                    b.Property(e => e.OneId);
+                    b.Property(e => e.ThreeId);
+                });
+
             // Nav:6 Payload:Yes Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.ThreeSkipPayloadFull)
@@ -373,7 +380,12 @@ namespace Microsoft.EntityFrameworkCore.Query
                             e.CompositeId2,
                             e.CompositeId3
                         }).IsRequired(),
-                    r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired());
+                    r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired(),
+                    b =>
+                    {
+                        b.Property(e => e.Id);
+                        b.Property(e => e.ThreeId);
+                    });
 
             // Nav:2 Payload:No Join:Shared Extra:Inheritance
             // TODO: Remove UsingEntity

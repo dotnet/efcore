@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
 
@@ -164,6 +166,20 @@ namespace Microsoft.EntityFrameworkCore
         {
             protected override ITestStoreFactory TestStoreFactory
                 => SqliteTestStoreFactory.Instance;
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            {
+                base.OnModelCreating(modelBuilder, context);
+
+                modelBuilder.Entity<ConvertingEntity>(
+                    b =>
+                    {
+                        b.Property(e => e.NullableListOfInt).HasDefaultValue(new List<int>());
+                        b.Property(e => e.ListOfInt).HasDefaultValue(new List<int>());
+                        b.Property(e => e.NullableEnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
+                        b.Property(e => e.EnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
+                    });
+            }
         }
     }
 }

@@ -196,6 +196,25 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         }
 
         [ConditionalFact]
+        public void GenerateFluentApi_IProperty_works_with_identity_default_seed_increment()
+        {
+            var generator = CreateGenerator();
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+            modelBuilder.Entity("Post", x => x.Property<int>("Id").UseIdentityColumn());
+            var property = modelBuilder.Model.FindEntityType("Post").FindProperty("Id");
+
+            var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
+            var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
+
+            Assert.Equal("UseIdentityColumn", result.Method);
+
+            Assert.Collection(
+                result.Arguments,
+                seed => Assert.Equal(1L, seed),
+                increment => Assert.Equal(1, increment));
+        }
+
+        [ConditionalFact]
         public void GenerateFluentApi_IModel_works_with_HiLo()
         {
             var generator = CreateGenerator();
@@ -260,6 +279,48 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
                 return generator.GenerateFluentApiCalls((IProperty)property, annotations).SingleOrDefault();
             }
+        }
+
+        [ConditionalFact]
+        public void GenerateFluentApi_IModel_works_with_DatabaseMaxSize()
+        {
+            var generator = CreateGenerator();
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+            modelBuilder.HasDatabaseMaxSize("100");
+
+            var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+            var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations)
+                .Single(c => c.Method == nameof(SqlServerModelBuilderExtensions.HasDatabaseMaxSize));
+
+            Assert.Equal("100", Assert.Single(result.Arguments));
+        }
+
+        [ConditionalFact]
+        public void GenerateFluentApi_IModel_works_with_ServiceTier()
+        {
+            var generator = CreateGenerator();
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+            modelBuilder.HasServiceTier("foo");
+
+            var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+            var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations)
+                .Single(c => c.Method == nameof(SqlServerModelBuilderExtensions.HasServiceTierSql));
+
+            Assert.Equal("'foo'", Assert.Single(result.Arguments));
+        }
+
+        [ConditionalFact]
+        public void GenerateFluentApi_IModel_works_with_PerformanceLevel()
+        {
+            var generator = CreateGenerator();
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+            modelBuilder.HasPerformanceLevel("foo");
+
+            var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+            var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations)
+                .Single(c => c.Method == nameof(SqlServerModelBuilderExtensions.HasPerformanceLevelSql));
+
+            Assert.Equal("'foo'", Assert.Single(result.Arguments));
         }
 
         private SqlServerAnnotationCodeGenerator CreateGenerator()

@@ -105,14 +105,14 @@ namespace Microsoft.EntityFrameworkCore
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddSqlite<ApplicationDbContext>(
                 "Database=Crunchie",
-                sqlServerOption =>
+                sqliteOptions =>
                 {
-                    sqlServerOption.MaxBatchSize(123);
-                    sqlServerOption.CommandTimeout(30);
+                    sqliteOptions.MaxBatchSize(123);
+                    sqliteOptions.CommandTimeout(30);
                 },
                 dbContextOption =>
                 {
-                    dbContextOption.EnableDetailedErrors(true);
+                    dbContextOption.EnableDetailedErrors();
                 });
 
             var services = serviceCollection.BuildServiceProvider(validateScopes: true);
@@ -121,19 +121,23 @@ namespace Microsoft.EntityFrameworkCore
                 .GetRequiredService<IServiceScopeFactory>()
                 .CreateScope())
             {
-                var coreOptions = serviceScope.ServiceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
+                var coreOptions = serviceScope.ServiceProvider
+                    .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
+
                 Assert.True(coreOptions.DetailedErrorsEnabled);
 
-                var sqlServerOptions = serviceScope.ServiceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqliteOptionsExtension>();
-                Assert.Equal(123, sqlServerOptions.MaxBatchSize);
-                Assert.Equal(30, sqlServerOptions.CommandTimeout);
-                Assert.Equal("Database=Crunchie", sqlServerOptions.ConnectionString);
+                var sqliteOptions = serviceScope.ServiceProvider
+                    .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<SqliteOptionsExtension>();
+
+                Assert.Equal(123, sqliteOptions.MaxBatchSize);
+                Assert.Equal(30, sqliteOptions.CommandTimeout);
+                Assert.Equal("Database=Crunchie", sqliteOptions.ConnectionString);
             }
         }
 
         private class ApplicationDbContext : DbContext
         {
-            public ApplicationDbContext(DbContextOptions options)
+            public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
                    : base(options)
             {
             }

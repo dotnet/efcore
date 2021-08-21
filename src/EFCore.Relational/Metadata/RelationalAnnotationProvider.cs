@@ -29,8 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public RelationalAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
+
+            Dependencies = dependencies;
         }
 
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalAnnotationProviderDependencies Dependencies { get; }
+        
         /// <inheritdoc />
         public virtual IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
             => Enumerable.Empty<IAnnotation>();

@@ -369,6 +369,31 @@ DROP TABLE [dbo].[K2];");
         }
 
         [ConditionalFact]
+        public void Filter_tables_with_quote_in_name()
+        {
+            Test(
+                @"
+CREATE TABLE [dbo].[K2'] ( Id int, A varchar, UNIQUE (A ) );
+
+CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B) REFERENCES [K2'] (A) );",
+                new[] { "K2'" },
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = Assert.Single(dbModel.Tables);
+                    // ReSharper disable once PossibleNullReferenceException
+                    Assert.Equal("K2'", table.Name);
+                    Assert.Equal(2, table.Columns.Count);
+                    Assert.Equal(1, table.UniqueConstraints.Count);
+                    Assert.Empty(table.ForeignKeys);
+                },
+                @"
+DROP TABLE [dbo].[Kilimanjaro];
+
+DROP TABLE [dbo].[K2'];");
+        }
+
+        [ConditionalFact]
         public void Filter_tables_with_qualified_name()
         {
             Test(
@@ -2368,6 +2393,45 @@ CREATE TABLE PrincipalTable (
                 },
                 @"
 DROP TABLE PrincipalTable;");
+        }
+
+        [ConditionalFact]
+        public void Skip_duplicate_foreign_key()
+        {
+            Test(
+                @"CREATE TABLE PrincipalTable (
+    Id int PRIMARY KEY,
+);
+
+CREATE TABLE OtherPrincipalTable (
+    Id int PRIMARY KEY,
+);
+
+CREATE TABLE DependentTable (
+    Id int PRIMARY KEY,
+    ForeignKeyId int,
+    CONSTRAINT MYFK1 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
+    CONSTRAINT MYFK2 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
+    CONSTRAINT MYFK3 FOREIGN KEY (ForeignKeyId) REFERENCES OtherPrincipalTable(Id),
+);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var (level, _, message, _, _) = Assert.Single(
+                        Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.DuplicateForeignKeyConstraintIgnored);
+                    Assert.Equal(LogLevel.Warning, level);
+                    Assert.Equal(
+                        SqlServerResources.DuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
+                            .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1"), message);
+
+                    var table = dbModel.Tables.Single(t => t.Name == "DependentTable");
+                    Assert.Equal(2, table.ForeignKeys.Count);
+                },
+                @"
+DROP TABLE DependentTable;
+DROP TABLE PrincipalTable;
+DROP TABLE OtherPrincipalTable;");
         }
 
         #endregion

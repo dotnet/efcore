@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         IEntityTypeAnnotationChangedConvention
     {
         /// <summary>
-        ///     Creates a new instance of <see cref="KeyDiscoveryConvention" />.
+        ///     Creates a new instance of <see cref="CosmosKeyDiscoveryConvention" />.
         /// </summary>
         /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
         public CosmosKeyDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)

@@ -10,6 +10,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -149,5 +150,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="methodInfo"> The <see cref="MethodInfo"/> to check. </param>
         bool IsIndexerMethod(MethodInfo methodInfo);
+
+        /// <summary>
+        ///     Gets all the pre-convention configurations.
+        /// </summary>
+        /// <returns> The pre-convention configurations. </returns>
+        IEnumerable<ITypeMappingConfiguration> GetTypeMappingConfigurations();
+
+        /// <summary>
+        ///     Finds the pre-convention configuration for a given scalar <see cref="Type" />.
+        /// </summary>
+        /// <param name="scalarType"> The CLR type. </param>
+        /// <returns> The pre-convention configuration or <see langword="null" /> if none is found. </returns>
+        ITypeMappingConfiguration? FindTypeMappingConfiguration(Type scalarType);
     }
 }

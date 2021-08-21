@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Logging;
 
@@ -895,6 +896,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     ProductInfo.GetVersion(),
                     context.GetType().ShortDisplayName(),
                     context.Database.ProviderName,
+                    GetProviderVersion(context),
                     contextOptions.BuildOptionsFragment());
             }
 
@@ -912,14 +914,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         private static string ContextInitialized(EventDefinitionBase definition, EventData payload)
         {
-            var d = (EventDefinition<string, string, string?, string>)definition;
+            var d = (EventDefinition<string, string, string?, string?, string>)definition;
             var p = (ContextInitializedEventData)payload;
             return d.GenerateMessage(
                 ProductInfo.GetVersion(),
                 p.Context.GetType().ShortDisplayName(),
                 p.Context.Database.ProviderName,
+                GetProviderVersion(p.Context),
                 p.ContextOptions.BuildOptionsFragment());
         }
+        
+        private static string? GetProviderVersion(DbContext context)
+            => context.GetService<IEnumerable<IDatabaseProvider>>().FirstOrDefault()?.Version;
 
         /// <summary>
         ///     Logs for the <see cref="CoreEventId.ExecutionStrategyRetrying" /> event.
@@ -1111,6 +1117,43 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
+        }
+
+        /// <summary>
+        ///     Logs for the <see cref="CoreEventId.ShadowForeignKeyPropertyCreated" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="property"> The property. </param>
+        /// <param name="basePropertyName"> The property name that was uniquified. </param>
+        public static void ShadowForeignKeyPropertyCreated(
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            IProperty property,
+            string basePropertyName)
+        {
+            var definition = CoreResources.LogShadowForeignKeyPropertyCreated(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name, basePropertyName);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new UniquifiedPropertyEventData(
+                    definition,
+                    ShadowForeignKeyPropertyCreated,
+                    property,
+                    basePropertyName);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string ShadowForeignKeyPropertyCreated(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string, string>)definition;
+            var p = (UniquifiedPropertyEventData)payload;
+            return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name, p.BasePropertyName);
         }
 
         /// <summary>

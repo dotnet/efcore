@@ -832,6 +832,16 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
+                ss => ss.Set<OrderDetail>().Where(od => Math.Pow(od.Discount, 3) > 0.005f),
+                entryCount: 315);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_math_square(bool async)
+        {
+            return AssertQuery(
+                async,
                 ss => ss.Set<OrderDetail>().Where(od => Math.Pow(od.Discount, 2) > 0.05f),
                 entryCount: 154);
         }
@@ -1067,7 +1077,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(od => MathF.Ceiling(od.Discount) > 0),
                 entryCount: 51);
         }
-        
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_mathf_floor(bool async)
@@ -1086,10 +1096,20 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
+                ss => ss.Set<OrderDetail>().Where(od => MathF.Pow(od.Discount, 3) > 0.005f),
+                entryCount: 315);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_mathf_square(bool async)
+        {
+            return AssertQuery(
+                async,
                 ss => ss.Set<OrderDetail>().Where(od => MathF.Pow(od.Discount, 2) > 0.05f),
                 entryCount: 154);
         }
-        
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_mathf_round2(bool async)
@@ -1241,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => MathF.Sign(od.Discount) > 0),
                 entryCount: 13);
         }
-        
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_guid_newguid(bool async)
@@ -1510,11 +1530,29 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Indexof_with_starting_position(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("a", 3)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Replace_with_emptystring(bool async)
         {
             return AssertQuery(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Replace("ari", string.Empty)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Replace_using_property_arguments(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.Replace(c.ContactName, c.CustomerID)));
         }
 
         [ConditionalTheory]

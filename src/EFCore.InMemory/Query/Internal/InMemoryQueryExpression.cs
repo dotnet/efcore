@@ -41,9 +41,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         private MethodInfo? _singleResultMethodInfo;
         private bool _scalarServerQuery;
 
+        private CloningExpressionVisitor? _cloningExpressionVisitor;
+
         private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
         private readonly List<Expression> _clientProjections = new();
         private readonly List<Expression> _projectionMappingExpressions = new();
+
+        private InMemoryQueryExpression(
+            Expression serverQueryExpression,
+            ParameterExpression valueBufferParameter)
+        {
+            ServerQueryExpression = serverQueryExpression;
+            _valueBufferParameter = valueBufferParameter;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -333,15 +343,17 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 ServerQueryExpression,
                 selectorLambda);
 
+            _groupingParameter = null;
+
             if (_singleResultMethodInfo != null)
             {
                 ServerQueryExpression = Call(
                     _singleResultMethodInfo.MakeGenericMethod(CurrentParameter.Type),
                     ServerQueryExpression);
 
-                _singleResultMethodInfo = null;
-
                 ConvertToEnumerable();
+
+                _singleResultMethodInfo = null;
             }
         }
 
@@ -540,7 +552,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual InMemoryGroupByShaperExpression ApplyGrouping(
+        public virtual GroupByShaperExpression ApplyGrouping(
             Expression groupingKey,
             Expression shaperExpression,
             bool defaultElementSelector)
@@ -583,11 +595,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 keySelector,
                 selector);
 
-            return new InMemoryGroupByShaperExpression(
+            var clonedInMemoryQueryExpression = Clone();
+            clonedInMemoryQueryExpression.UpdateServerQueryExpression(_groupingParameter);
+            clonedInMemoryQueryExpression._groupingParameter = null;
+
+            return new GroupByShaperExpression(
                 groupingKey,
-                shaperExpression,
-                _groupingParameter,
-                _valueBufferParameter);
+                new ShapedQueryExpression(
+                    clonedInMemoryQueryExpression,
+                    new QueryExpressionReplacingExpressionVisitor(this, clonedInMemoryQueryExpression).Visit(shaperExpression)));
         }
 
         /// <summary>
@@ -717,6 +733,22 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual ShapedQueryExpression Clone(Expression shaperExpression)
+        {
+            var clonedInMemoryQueryExpression = Clone();
+
+            return new ShapedQueryExpression(
+                clonedInMemoryQueryExpression,
+                new QueryExpressionReplacingExpressionVisitor(this, clonedInMemoryQueryExpression).Visit(shaperExpression));
+
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual Expression GetSingleScalarProjection()
         {
             var expression = CreateReadValueExpression(ServerQueryExpression.Type, 0, null);
@@ -809,6 +841,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                 expressionPrinter.AppendLine();
             }
+        }
+
+        private InMemoryQueryExpression Clone()
+        {
+            if (_cloningExpressionVisitor == null)
+            {
+                _cloningExpressionVisitor = new();
+            }
+
+            return (InMemoryQueryExpression)_cloningExpressionVisitor.Visit(this);
         }
 
         private Expression GetGroupingKey(Expression key, List<Expression> groupingExpressions, Expression groupingKeyAccessExpression)
@@ -1061,7 +1103,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
         private void ConvertToEnumerable()
         {
-            if (ServerQueryExpression.Type.TryGetSequenceType() == null)
+            if (_scalarServerQuery || _singleResultMethodInfo != null)
             {
                 if (ServerQueryExpression.Type != typeof(ValueBuffer))
                 {

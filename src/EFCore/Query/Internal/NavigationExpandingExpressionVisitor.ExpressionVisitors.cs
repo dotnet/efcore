@@ -625,6 +625,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return newExpression.Update(arguments);
             }
 
+            protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
+                => typeBinaryExpression;
+
             private bool ReconstructAnonymousType(
                 Expression currentRoot,
                 NewExpression newExpression,
@@ -780,10 +783,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         var filterExpression = entityReference.IncludePaths[navigationBase].FilterExpression;
                         if (_queryStateManager
-                            && navigationBase is ISkipNavigation
+                            && navigationBase is ISkipNavigation skipNavigation
                             && subquery is MethodCallExpression joinMethodCallExpression
                             && joinMethodCallExpression.Method.IsGenericMethod
-                            && joinMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Join
+                            && joinMethodCallExpression.Method.GetGenericMethodDefinition()
+                                == (skipNavigation.Inverse.ForeignKey.IsRequired ? QueryableMethods.Join : QueryableExtensions.LeftJoinMethodInfo)
                             && joinMethodCallExpression.Arguments[4] is UnaryExpression unaryExpression
                             && unaryExpression.NodeType == ExpressionType.Quote
                             && unaryExpression.Operand is LambdaExpression resultSelectorLambda
@@ -1061,6 +1065,111 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     && queryRootExpression.EntityType == _entityType
                         ? _navigationExpandingExpressionVisitor.CreateNavigationExpansionExpression(queryRootExpression, _entityType)
                         : base.VisitExtension(extensionExpression);
+            }
+        }
+
+        private sealed class CloningExpressionVisitor : ExpressionVisitor
+        {
+            private readonly Dictionary<NavigationTreeNode, NavigationTreeNode> _clonedMap = new(ReferenceEqualityComparer.Instance);
+
+            public NavigationTreeNode Clone(NavigationTreeNode navigationTreeNode)
+            {
+                _clonedMap.Clear();
+
+                return (NavigationTreeNode)Visit(navigationTreeNode);
+            }
+
+            public IReadOnlyDictionary<NavigationTreeNode, NavigationTreeNode> ClonedNodesMap => _clonedMap;
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                switch (expression)
+                {
+                    case EntityReference entityReference:
+                        return entityReference.Snapshot();
+
+                    case NavigationTreeExpression navigationTreeExpression:
+                        if (!_clonedMap.TryGetValue(navigationTreeExpression, out var clonedNavigationTreeExpression))
+                        {
+                            clonedNavigationTreeExpression = new NavigationTreeExpression(Visit(navigationTreeExpression.Value));
+                            _clonedMap[navigationTreeExpression] = clonedNavigationTreeExpression;
+                        }
+
+                        return clonedNavigationTreeExpression;
+
+                    case NavigationTreeNode navigationTreeNode:
+                        if (!_clonedMap.TryGetValue(navigationTreeNode, out var clonedNavigationTreeNode))
+                        {
+                            clonedNavigationTreeNode = new NavigationTreeNode(
+                                (NavigationTreeNode)Visit(navigationTreeNode.Left!),
+                                (NavigationTreeNode)Visit(navigationTreeNode.Right!));
+                            _clonedMap[navigationTreeNode] = clonedNavigationTreeNode;
+                        }
+
+                        return clonedNavigationTreeNode;
+
+                    default:
+                        return base.Visit(expression);
+                }
+            }
+        }
+
+        private sealed class GroupingElementReplacingExpressionVisitor : ExpressionVisitor
+        {
+            private readonly CloningExpressionVisitor _cloningExpressionVisitor;
+            private readonly ParameterExpression _parameterExpression;
+            private readonly NavigationExpansionExpression _navigationExpansionExpression;
+            private readonly Expression? _keyAccessExpression;
+            private readonly MemberInfo? _keyMemberInfo;
+
+            public GroupingElementReplacingExpressionVisitor(
+                ParameterExpression parameterExpression,
+                GroupByNavigationExpansionExpression groupByNavigationExpansionExpression)
+            {
+                _parameterExpression = parameterExpression;
+                _navigationExpansionExpression = (NavigationExpansionExpression)groupByNavigationExpansionExpression.GroupingEnumerable;
+                _keyAccessExpression = Expression.MakeMemberAccess(groupByNavigationExpansionExpression.CurrentParameter,
+                    groupByNavigationExpansionExpression.CurrentParameter.Type.GetRequiredDeclaredProperty(nameof(IGrouping<int, int>.Key)));
+                _keyMemberInfo = parameterExpression.Type.GetRequiredDeclaredProperty(nameof(IGrouping<int, int>.Key));
+                _cloningExpressionVisitor = new CloningExpressionVisitor();
+            }
+
+            public GroupingElementReplacingExpressionVisitor(
+                ParameterExpression parameterExpression,
+                NavigationExpansionExpression navigationExpansionExpression)
+            {
+                _parameterExpression = parameterExpression;
+                _navigationExpansionExpression = navigationExpansionExpression;
+                _cloningExpressionVisitor = new CloningExpressionVisitor();
+            }
+
+            [return: NotNullIfNotNull("expression")]
+            public override Expression? Visit(Expression? expression)
+            {
+                if (expression == _parameterExpression)
+                {
+                    var currentTree = _cloningExpressionVisitor.Clone(_navigationExpansionExpression.CurrentTree);
+
+                    return new NavigationExpansionExpression(
+                        _navigationExpansionExpression.Source,
+                        currentTree,
+                        new ReplacingExpressionVisitor(
+                            _cloningExpressionVisitor.ClonedNodesMap.Keys.ToList(),
+                            _cloningExpressionVisitor.ClonedNodesMap.Values.ToList())
+                            .Visit(_navigationExpansionExpression.PendingSelector),
+                        _navigationExpansionExpression.CurrentParameter.Name!);
+                }
+
+                return base.Visit(expression);
+            }
+
+            protected override Expression VisitMember(MemberExpression memberExpression)
+            {
+                return memberExpression.Member == _keyMemberInfo
+                    && memberExpression.Expression == _parameterExpression
+                    ? _keyAccessExpression!
+                    : base.VisitMember(memberExpression);
             }
         }
 

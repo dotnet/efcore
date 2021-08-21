@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 {
@@ -21,7 +20,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public SqlServerSqlNullabilityProcessor(RelationalParameterBasedSqlProcessorDependencies dependencies, bool useRelationalNulls)
+        public SqlServerSqlNullabilityProcessor(
+            RelationalParameterBasedSqlProcessorDependencies dependencies, 
+            bool useRelationalNulls)
             : base(dependencies, useRelationalNulls)
         {
         }
@@ -34,12 +35,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         protected override TableExpressionBase Visit(TableExpressionBase tableExpressionBase)
         {
-            if (tableExpressionBase is TemporalTableExpression temporalTableExpression)
-            {
-                return temporalTableExpression;
-            }
-
-            return base.Visit(tableExpressionBase);
+            return tableExpressionBase is TemporalTableExpression temporalTableExpression
+                ? temporalTableExpression
+                : base.Visit(tableExpressionBase);
         }
     }
 }

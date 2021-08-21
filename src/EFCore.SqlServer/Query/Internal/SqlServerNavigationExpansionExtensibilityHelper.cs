@@ -35,9 +35,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         /// </summary>
         public override QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source)
         {
-            if (source is TemporalAsOfQueryRootExpression
-                || source is TemporalRangeQueryRootExpression
-                || source is TemporalAllQueryRootExpression)
+            if (source is TemporalQueryRootExpression)
             {
                 if (!entityType.GetRootType().IsTemporal())
                 {
@@ -51,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         : new TemporalAsOfQueryRootExpression(entityType, asOf.PointInTime);
                 }
 
-                throw new InvalidOperationException(SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf(nameof(TemporalOperationType.AsOf)));
+                throw new InvalidOperationException(SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"));
             }
 
             return base.CreateQueryRoot(entityType, source);
@@ -70,13 +68,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return false;
             }
 
-            var firstTemporal = first is TemporalAsOfQueryRootExpression
-                || first is TemporalRangeQueryRootExpression
-                || first is TemporalAllQueryRootExpression;
-
-            var secondTemporal = second is TemporalAsOfQueryRootExpression
-                || second is TemporalRangeQueryRootExpression
-                || second is TemporalAllQueryRootExpression;
+            var firstTemporal = first is TemporalQueryRootExpression;
+            var secondTemporal = second is TemporalQueryRootExpression;
 
             if (firstTemporal && secondTemporal)
             {

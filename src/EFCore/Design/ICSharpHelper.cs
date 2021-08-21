@@ -17,8 +17,12 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Generates a method call code fragment.
         /// </summary>
         /// <param name="fragment"> The method call. </param>
+        /// <param name="instanceIdentifier"> An identifier on which the method call will be generated. </param>
+        /// <param name="typeQualified">
+        ///     <see langword="true" /> if the method call should be type-qualified, <see langword="false" /> for instance/extension syntax.
+        /// </param>
         /// <returns> The fragment. </returns>
-        string Fragment(MethodCallCodeFragment fragment);
+        string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier = null, bool typeQualified = false);
 
         /// <summary>
         ///     Generates a valid C# identifier from the specified string unique to the scope.
@@ -202,8 +206,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Generates a <see cref="Type"/> literal.
         /// </summary>
         /// <param name="value"> The value. </param>
+        /// <param name="fullName"> Whether the type should be namespace-qualified. </param>
         /// <returns> The literal. </returns>
-        string Literal(Type value);
+        string Literal(Type value, bool? fullName = null);
 
         /// <summary>
         ///     Generates an object array literal.
@@ -224,8 +229,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Generates a C# type reference.
         /// </summary>
         /// <param name="type"> The type to reference. </param>
+        /// <param name="fullName"> Whether the type should be namespace-qualified. </param>
         /// <returns> The reference. </returns>
-        string Reference(Type type);
+        string Reference(Type type, bool? fullName = null);
 
         /// <summary>
         ///     Generates a literal for a type not known at compile time.

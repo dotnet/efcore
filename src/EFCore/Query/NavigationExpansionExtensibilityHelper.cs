@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual NavigationExpansionExtensibilityHelperDependencies Dependencies { get; }
 

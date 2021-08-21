@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual CSharpMigrationsGeneratorDependencies CSharpDependencies { get; }
 
@@ -83,6 +83,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(n)
                     .AppendLine(";");
             }
+
+            builder
+                .AppendLine()
+                .AppendLine("#nullable disable");
 
             if (!string.IsNullOrEmpty(migrationNamespace))
             {
@@ -184,6 +188,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine(";");
             }
 
+            builder
+                .AppendLine()
+                .AppendLine("#nullable disable");
+
             if (!string.IsNullOrEmpty(migrationNamespace))
             {
                 builder
@@ -275,6 +283,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(n)
                     .AppendLine(";");
             }
+
+            builder
+                .AppendLine()
+                .AppendLine("#nullable disable");
 
             if (!string.IsNullOrEmpty(modelSnapshotNamespace))
             {

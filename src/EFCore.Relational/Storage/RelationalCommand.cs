@@ -54,7 +54,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Command building dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalCommandBuilderDependencies Dependencies { get; }
 
@@ -117,8 +117,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             nonQueryResult,
                             startTime,
-                            parameterObject.CommandSource,
-                            _stopwatch.Elapsed)
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource)
                         ?? nonQueryResult;
                 }
                 else
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
-                    parameterObject.CommandSource,
-                    _stopwatch.Elapsed);
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
 
                 throw;
             }
@@ -208,8 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                                 connection.ConnectionId,
                                 result,
                                 startTime,
-                                parameterObject.CommandSource,
                                 _stopwatch.Elapsed,
+                                parameterObject.CommandSource,
                                 cancellationToken)
                             .ConfigureAwait(false);
                     }
@@ -234,8 +234,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
-                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -297,8 +297,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             result,
                             startTime,
-                            parameterObject.CommandSource,
-                            _stopwatch.Elapsed)
+                            _stopwatch.Elapsed,
+                            parameterObject.CommandSource)
                         ?? result;
                 }
                 else
@@ -317,8 +317,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
-                    parameterObject.CommandSource,
-                    _stopwatch.Elapsed);
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
 
                 throw;
             }
@@ -388,8 +388,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             result,
                             startTime,
-                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
                             cancellationToken).ConfigureAwait(false);
                     }
 
@@ -413,8 +413,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
-                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -482,8 +482,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                         connection.ConnectionId,
                         reader,
                         startTime,
-                        parameterObject.CommandSource,
-                        _stopwatch.Elapsed);
+                        _stopwatch.Elapsed,
+                        parameterObject.CommandSource);
                 }
                 else
                 {
@@ -501,8 +501,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     connection.ConnectionId,
                     exception,
                     startTime,
-                    parameterObject.CommandSource,
-                    _stopwatch.Elapsed);
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
 
                 CleanupCommand(command, connection);
 
@@ -599,8 +599,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             reader,
                             startTime,
-                            parameterObject.CommandSource,
                             _stopwatch.Elapsed,
+                            parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -622,8 +622,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             connection.ConnectionId,
                             exception,
                             startTime,
-                            parameterObject.CommandSource,
                             DateTimeOffset.UtcNow - startTime,
+                            parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
                 }
@@ -701,7 +701,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     : connection.DbConnection.CreateCommand();
 
                 command = logger.CommandCreated(
-                    connection, command, commandMethod, context, commandId, connectionId, startTime, parameterObject.CommandSource, _stopwatch.Elapsed);
+                    connection, 
+                    command, 
+                    commandMethod, 
+                    context, 
+                    commandId, 
+                    connectionId, 
+                    startTime, 
+                    _stopwatch.Elapsed,
+                    parameterObject.CommandSource);
             }
             else
             {

@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="readerColumns"> The expected columns if the reader needs to be buffered, or null otherwise. </param>
         /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
         /// <param name="logger"> A logger, or null if no logger is available. </param>
-        /// <param name="commandSource">Source of the command.</param>
+        /// <param name="commandSource"> Source of the command. </param>
         public RelationalCommandParameterObject(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object?>? parameterValues,
@@ -89,8 +89,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IReadOnlyList<ReaderColumn>? readerColumns,
             DbContext? context,
             IRelationalCommandDiagnosticsLogger? logger,
-            bool detailedErrorsEnabled) : this(connection, parameterValues, readerColumns, context,
-                                               logger, detailedErrorsEnabled, CommandSource.Unknown)
+            bool detailedErrorsEnabled)
+            : this(connection, parameterValues, readerColumns, context, logger, detailedErrorsEnabled, CommandSource.Unknown)
         {
         }
 
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="context"> The current <see cref="DbContext" /> instance, or null if it is not known. </param>
         /// <param name="logger"> A logger, or null if no logger is available. </param>
         /// <param name="detailedErrorsEnabled"> A value indicating if detailed errors are enabled. </param>
-        /// <param name="commandSource">Source of the command.</param>
+        /// <param name="commandSource"> Source of the command. </param>
         public RelationalCommandParameterObject(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object?>? parameterValues,

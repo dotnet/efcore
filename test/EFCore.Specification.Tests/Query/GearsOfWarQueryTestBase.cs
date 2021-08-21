@@ -5881,7 +5881,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_by_with_include_with_entity_in_result_selector(bool async)
         {
@@ -5910,7 +5910,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_with_group_by_and_FirstOrDefault_gets_properly_applied(bool async)
         {
@@ -6568,7 +6568,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
-        public virtual Task Acessing_reference_navigation_collection_composition_generates_single_query(bool async)
+        public virtual Task Accessing_reference_navigation_collection_composition_generates_single_query(bool async)
         {
             return AssertQuery(
                 async,
@@ -8973,6 +8973,28 @@ namespace Microsoft.EntityFrameworkCore.Query
             return AssertQuery(
                 async,
                 ss => ss.Set<Gear>());
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_on_entity_that_is_not_present_in_final_projection_but_uses_TypeIs_instead(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Gear>()
+                    .Include(x => x.Weapons)
+                    .Include(x => x.Tag)
+                    .Select(g => new
+                    {
+                        g.Nickname,
+                        IsOfficer = g is Officer
+                    }),
+                elementSorter: e => e.Nickname,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Nickname, a.Nickname);
+                    AssertEqual(e.IsOfficer, a.IsOfficer);
+                });
         }
 
         protected GearsOfWarContext CreateContext()

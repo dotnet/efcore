@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             => Dependencies = Check.NotNull(dependencies, nameof(dependencies));
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual ProviderCodeGeneratorDependencies Dependencies { get; }
 

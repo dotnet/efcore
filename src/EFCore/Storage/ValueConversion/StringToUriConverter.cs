@@ -14,11 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter. This converter preserves order.
         /// </summary>
+        public StringToUriConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter. This converter preserves order.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public StringToUriConverter(ConverterMappingHints? mappingHints = null)
+        public StringToUriConverter(ConverterMappingHints? mappingHints)
             : base(
                 ToUri(),
                 ToString(),

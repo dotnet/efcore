@@ -1,8 +1,13 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -736,13 +741,15 @@ namespace Microsoft.EntityFrameworkCore
                        && !it.Name.EndsWith("Dependencies", StringComparison.Ordinal)
                        && (it.GetConstructors().Length != 1
                            || it.GetConstructors()[0].GetParameters().Length == 0
-                           || it.GetConstructors()[0].GetParameters()[0].Name != "dependencies"
+                           || (it.GetConstructors()[0].GetParameters()[0].Name != "dependencies"
+                               && it.GetConstructors()[0].GetParameters()[0].Name != "relationalDependencies")
                            // Check that the parameter has a non-public copy constructor, identifying C# 9 records
                            || !it.GetConstructors()[0].GetParameters()[0].ParameterType
                                .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-                               .Any(c => c.GetParameters() is var parameters
-                                   && parameters.Length == 1
-                                   && parameters[0].Name == "original"))
+                               .Any(
+                                   c => c.GetParameters() is var parameters
+                                       && parameters.Length == 1
+                                       && parameters[0].Name == "original"))
                    select it)
                 .ToList();
 

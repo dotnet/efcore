@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             public bool Equals(TKey? x, TKey? y)
                 => _equals(x, y);
 
-            public int GetHashCode(TKey obj)
+            public int GetHashCode([DisallowNull] TKey obj)
                 => _hashCode(obj);
         }
     }

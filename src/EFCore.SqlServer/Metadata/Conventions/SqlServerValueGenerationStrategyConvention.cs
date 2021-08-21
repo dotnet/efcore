@@ -24,9 +24,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
         {
             Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
 
-        private ProviderConventionSetBuilderDependencies Dependencies { get; }
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     Called after a model is initialized.

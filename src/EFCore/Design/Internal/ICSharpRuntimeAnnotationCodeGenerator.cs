@@ -72,5 +72,12 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <param name="index"> The index to which the annotations are applied. </param>
         /// <param name="parameters"> Additional parameters used during code generation. </param>
         void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+        /// <summary>
+        ///     Generates code to create the given annotations.
+        /// </summary>
+        /// <param name="typeConfiguration"> The scalar type configuration to which the annotations are applied. </param>
+        /// <param name="parameters"> Additional parameters used during code generation. </param>
+        void Generate(ITypeMappingConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
     }
 }

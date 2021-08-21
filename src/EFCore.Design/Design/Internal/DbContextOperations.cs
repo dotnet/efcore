@@ -138,16 +138,27 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual void Optimize(string? outputDir, string? modelNamespace, string? contextType)
+        public virtual void Optimize(string? outputDir, string? modelNamespace, string? contextTypeName)
         {
-            using var context = CreateContext(contextType);
+            using var context = CreateContext(contextTypeName);
+            var contextType = context.GetType();
 
             var services = _servicesBuilder.Build(context);
             var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
 
-            outputDir = outputDir != null
-                ? Path.GetFullPath(Path.Combine(_projectDir, outputDir))
-                : _projectDir;
+            if (outputDir == null)
+            {
+                var contextSubNamespace = contextType.Namespace ?? "";
+                if (!string.IsNullOrEmpty(_rootNamespace)
+                    && contextSubNamespace.StartsWith(_rootNamespace, StringComparison.Ordinal))
+                {
+                    contextSubNamespace = contextSubNamespace[_rootNamespace.Length..];
+                }
+
+                outputDir = Path.Combine(contextSubNamespace.Replace('.', Path.DirectorySeparatorChar), "CompiledModels");
+            }
+
+            outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
 
             var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
 
@@ -156,13 +167,13 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 outputDir,
                 new CompiledModelCodeGenerationOptions
                 {
-                    ContextType = context.GetType(),
+                    ContextType = contextType,
                     ModelNamespace = finalModelNamespace,
                     Language = _language,
                     UseNullableReferenceTypes = _nullable
                 });
 
-            var fullName = context.GetType().ShortDisplayName() + "Model";
+            var fullName = contextType.ShortDisplayName() + "Model";
             if (!string.IsNullOrEmpty(modelNamespace))
             {
                 fullName = modelNamespace + "." + fullName;

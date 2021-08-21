@@ -31,6 +31,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+        ///     </para>
+        ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
         ///         For more information on using dependency injection, see https://go.microsoft.com/fwlink/?LinkId=526890.
         ///     </para>
@@ -73,6 +79,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -132,6 +144,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+        ///     </para>
+        ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
         ///         For more information on using dependency injection, see https://go.microsoft.com/fwlink/?LinkId=526890.
         ///     </para>
@@ -171,6 +189,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -218,6 +242,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -269,6 +299,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+        ///     </para>
+        ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
         ///         For more information on using dependency injection, see https://go.microsoft.com/fwlink/?LinkId=526890.
         ///     </para>
@@ -307,10 +343,15 @@ namespace Microsoft.Extensions.DependencyInjection
             AddPoolingOptions<TContextImplementation>(serviceCollection, optionsAction, poolSize);
 
             serviceCollection.TryAddSingleton<IDbContextPool<TContextImplementation>, DbContextPool<TContextImplementation>>();
-            serviceCollection.AddScoped<IScopedDbContextLease<TContextImplementation>, ScopedDbContextLease<TContextImplementation>>();
+            serviceCollection.TryAddScoped<IScopedDbContextLease<TContextImplementation>, ScopedDbContextLease<TContextImplementation>>();
 
-            serviceCollection.AddScoped<TContextService>(
+            serviceCollection.TryAddScoped<TContextService>(
                 sp => sp.GetRequiredService<IScopedDbContextLease<TContextImplementation>>().Context);
+
+            if (typeof(TContextService) != typeof(TContextImplementation))
+            {
+                serviceCollection.TryAddScoped(p => (TContextImplementation)p.GetService<TContextService>()!);
+            }
 
             return serviceCollection;
         }
@@ -353,6 +394,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+        ///     </para>
+        ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
         ///         For more information on using dependency injection, see https://go.microsoft.com/fwlink/?LinkId=526890.
         ///     </para>
@@ -378,6 +425,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -411,6 +464,18 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -464,6 +529,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -523,7 +594,25 @@ namespace Microsoft.Extensions.DependencyInjection
 
             AddCoreServices<TContextImplementation>(serviceCollection, optionsAction, optionsLifetime);
 
+            if (serviceCollection.Any(d => d.ServiceType == typeof(IDbContextFactorySource<TContextImplementation>)))
+            {
+                // Override registration made by AddDbContextFactory
+                var serviceDescriptor = serviceCollection.FirstOrDefault(d => d.ServiceType == typeof(TContextImplementation));
+                if (serviceDescriptor != null)
+                {
+                    serviceCollection.Remove(serviceDescriptor);
+                }
+            }
+            
             serviceCollection.TryAdd(new ServiceDescriptor(typeof(TContextService), typeof(TContextImplementation), contextLifetime));
+
+            if (typeof(TContextService) != typeof(TContextImplementation))
+            {
+                serviceCollection.TryAdd(
+                    new ServiceDescriptor(typeof(TContextImplementation), 
+                        p => (TContextImplementation)p.GetService<TContextService>()!,
+                        contextLifetime));
+            }
 
             return serviceCollection;
         }
@@ -544,6 +633,16 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -598,8 +697,18 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
+        ///     </para>
+        ///     <para>
         ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}" /> to be registered
         ///         instead of using the default factory shipped with EF Core.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -661,12 +770,22 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
+        ///     </para>
+        ///     <para>
         ///         This overload has an <paramref name="optionsAction" /> that provides the application's
         ///         <see cref="IServiceProvider" />. This is useful if you want to setup Entity Framework Core to resolve
         ///         its internal services from the primary application service provider.
         ///         By default, we recommend using
         ///         <see cref="AddDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},ServiceLifetime)" /> which allows
         ///         Entity Framework to create and maintain its own <see cref="IServiceProvider" /> for internal Entity Framework services.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -721,6 +840,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         overridden to configure a connection string and other options.
         ///     </para>
         ///     <para>
+        ///         For convenience, this method also registers the context type itself as a scoped service. This allows a context
+        ///         instance to be resolved from a dependency injection scope directly or created by the factory, as appropriate.
+        ///     </para>
+        ///     <para>
         ///         This overload allows a specific implementation of <see cref="IDbContextFactory{TContext}" /> to be registered
         ///         instead of using the default factory shipped with EF Core.
         ///     </para>
@@ -731,6 +854,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         By default, we recommend using
         ///         <see cref="AddDbContextFactory{TContext}(IServiceCollection,Action{DbContextOptionsBuilder},ServiceLifetime)" /> which allows
         ///         Entity Framework to create and maintain its own <see cref="IServiceProvider" /> for internal Entity Framework services.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -780,6 +909,14 @@ namespace Microsoft.Extensions.DependencyInjection
                     typeof(TFactory),
                     lifetime));
 
+            serviceCollection.TryAdd(
+                new ServiceDescriptor(
+                    typeof(TContext),
+                    typeof(TContext),
+                    lifetime == ServiceLifetime.Transient
+                        ? ServiceLifetime.Transient
+                        : ServiceLifetime.Scoped));
+
             return serviceCollection;
         }
 
@@ -799,6 +936,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
@@ -843,6 +986,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         For applications that don't use dependency injection, consider creating <see cref="DbContext" />
         ///         instances directly with its constructor. The <see cref="DbContext.OnConfiguring" /> method can then be
         ///         overridden to configure a connection string and other options.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
+        ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         ///     <para>
         ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.

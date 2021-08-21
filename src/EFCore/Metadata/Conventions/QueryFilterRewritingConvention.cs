@@ -3,8 +3,11 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -28,7 +31,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
@@ -93,7 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && memberExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                     && _model != null)
                 {
-                    return new QueryRootExpression(FindEntityType(memberExpression.Type)!);
+                    var entityClrType = memberExpression.Type.GetGenericArguments()[0];
+                    return new QueryRootExpression(FindEntityType(entityClrType)!);
                 }
 
                 return base.VisitMember(memberExpression);
@@ -111,14 +115,62 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     && methodCallExpression.Type.GetGenericTypeDefinition() == typeof(DbSet<>)
                     && _model != null)
                 {
-                    return new QueryRootExpression(FindEntityType(methodCallExpression.Type)!);
+                    IEntityType? entityType;
+                    var entityClrType = methodCallExpression.Type.GetGenericArguments()[0];
+                    if (methodCallExpression.Arguments.Count == 1)
+                    {
+                        // STET Set method
+                        var entityTypeName = methodCallExpression.Arguments[0].GetConstantValue<string>();
+                        entityType = (IEntityType?)_model.FindEntityType(entityTypeName);
+                    }
+                    else
+                    {
+                        entityType = FindEntityType(entityClrType);
+                    }
+
+                    if (entityType == null)
+                    {
+                        if (_model.IsShared(entityClrType))
+                        {
+                            throw new InvalidOperationException(CoreStrings.InvalidSetSharedType(entityClrType.ShortDisplayName()));
+                        }
+
+                        var findSameTypeName = ((IModel)_model).FindSameTypeNameWithDifferentNamespace(entityClrType);
+                        //if the same name exists in your entity types we will show you the full namespace of the type
+                        if (!string.IsNullOrEmpty(findSameTypeName))
+                        {
+                            throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(entityClrType.DisplayName(), findSameTypeName));
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(CoreStrings.InvalidSetType(entityClrType.ShortDisplayName()));
+                        }
+                    }
+
+                    if (entityType.IsOwned())
+                    {
+                        var message = CoreStrings.InvalidSetTypeOwned(
+                            entityType.DisplayName(), entityType.FindOwnership()!.PrincipalEntityType.DisplayName());
+
+                        throw new InvalidOperationException(message);
+                    }
+
+                    if (entityType.ClrType != entityClrType)
+                    {
+                        var message = CoreStrings.DbSetIncorrectGenericType(
+                            entityType.ShortName(), entityType.ClrType.ShortDisplayName(), entityClrType.ShortDisplayName());
+
+                        throw new InvalidOperationException(message);
+                    }
+
+                    return new QueryRootExpression(entityType);
                 }
 
                 return base.VisitMethodCall(methodCallExpression);
             }
 
-            private IEntityType? FindEntityType(Type dbSetType)
-                => ((IModel)_model!).FindRuntimeEntityType(dbSetType.GetGenericArguments()[0]);
+            private IEntityType? FindEntityType(Type entityClrType)
+                => ((IModel)_model!).FindRuntimeEntityType(entityClrType);
         }
     }
 }

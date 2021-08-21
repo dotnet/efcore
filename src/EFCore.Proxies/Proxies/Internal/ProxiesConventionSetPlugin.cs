@@ -28,8 +28,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
     {
         private readonly IDbContextOptions _options;
         private readonly IProxyFactory _proxyFactory;
-        private readonly ProviderConventionSetBuilderDependencies _conventionSetBuilderDependencies;
-        private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,9 +43,25 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         {
             _proxyFactory = proxyFactory;
             _options = options;
-            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
-            _conventionSetBuilderDependencies = conventionSetBuilderDependencies;
+            LazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
+            ConventionSetBuilderDependencies = conventionSetBuilderDependencies;
         }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual ProviderConventionSetBuilderDependencies ConventionSetBuilderDependencies { get; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected virtual LazyLoaderParameterBindingFactoryDependencies LazyLoaderParameterBindingFactoryDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                 new ProxyBindingRewriter(
                     _proxyFactory,
                     extension,
-                    _lazyLoaderParameterBindingFactoryDependencies,
-                    _conventionSetBuilderDependencies));
+                    LazyLoaderParameterBindingFactoryDependencies,
+                    ConventionSetBuilderDependencies));
 
             return conventionSet;
         }

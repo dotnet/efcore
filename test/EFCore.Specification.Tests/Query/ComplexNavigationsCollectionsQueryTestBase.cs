@@ -1197,7 +1197,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        [ConditionalTheory(Skip = "Issue#12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_with_groupby_in_subquery(bool async)
         {
@@ -1210,7 +1210,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(e => e.OneToMany_Optional1)));
         }
 
-        [ConditionalTheory(Skip = "Issue#12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_with_groupby_in_subquery_and_filter_before_groupby(bool async)
         {
@@ -1224,7 +1224,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(e => e.OneToMany_Optional1)));
         }
 
-        [ConditionalTheory(Skip = "Issue#12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_collection_with_groupby_in_subquery_and_filter_after_groupby(bool async)
         {
@@ -2044,6 +2044,211 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     Assert.Equal(e.Id, a.Id);
                     AssertCollection(e.Level2s, a.Level2s);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_on_grouping_element(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderBy(e => e.Name).Skip(1)
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_grouping_element(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderByDescending(e => e.Name).Take(10)
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_on_grouping_element(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderBy(e => e.Name).Skip(1).Take(5)
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_Distinct_on_grouping_element(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderBy(e => e.Name).Skip(1).Take(5).Distinct()
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_ToList_on_grouping_element(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderBy(e => e.Name).Skip(1).Take(5).ToList()
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_on_grouping_element_into_non_entity(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderBy(e => e.Name).Skip(1).Take(5).Select(l1 => new { l1.Name })
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s, ordered: true);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_on_grouping_element_with_collection_include(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToMany_Optional1)
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderBy(e => e.Name).Skip(1).Take(5)
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s,
+                        elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Level1>(l => l.OneToMany_Optional1)));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_on_grouping_element_with_reference_include(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToOne_Optional_FK1)
+                    .GroupBy(l => l.Date)
+                    .Select(g => new
+                    {
+                        g.Key,
+                        Level1s = g.OrderBy(e => e.Name).Skip(1).Take(5)
+                    }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertCollection(e.Level1s, a.Level1s,
+                        elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Level1>(l => l.OneToOne_Optional_FK1)));
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Skip_Take_on_grouping_element_inside_collection_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Select(l1 => new
+                    {
+                        l1.Id,
+                        group = ss.Set<Level1>()
+                            .Where(l => l.Name == l1.Name)
+                            .GroupBy(l => l.Date)
+                            .Select(g => new
+                            {
+                                g.Key,
+                                Level1s = g.OrderBy(e => e.Name).Skip(1).Take(5)
+                            }).ToList()
+                    }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.group, a.group,
+                        elementSorter: i => i.Key,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            AssertEqual(ee.Key, aa.Key);
+                            AssertCollection(ee.Level1s, aa.Level1s);
+                        });
                 });
         }
     }

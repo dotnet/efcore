@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected virtual TimeSpan MaxRetryDelay { get; }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ExecutionStrategyDependencies Dependencies { get; }
 

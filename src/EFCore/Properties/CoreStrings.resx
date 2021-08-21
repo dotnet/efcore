@@ -561,6 +561,9 @@
     <value>The entity type '{ownedEntityType}' is configured as owned, but the entity type '{nonOwnedEntityType}' is not. Configure all entity types with defining navigations sharing a CLR type as owned in 'OnModelCreating'.</value>
     <comment>Obsolete</comment>
   </data>
+  <data name="IncorrectNumberOfArguments" xml:space="preserve">
+    <value>'{method}' was invoked with {argumentCount} arguments, but has {parameterCount} parameters.</value>
+  </data>
   <data name="IndexPropertiesWrongEntity" xml:space="preserve">
     <value>The specified index properties {indexProperties} are not declared on the entity type '{entityType}'. Ensure that index properties are declared on the target entity type.</value>
   </data>
@@ -752,8 +755,8 @@
     <comment>Debug CoreEventId.ContextDisposed string</comment>
   </data>
   <data name="LogContextInitialized" xml:space="preserve">
-    <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}' with options: {options}</value>
-    <comment>Information CoreEventId.ContextInitialized string string string? string</comment>
+    <value>Entity Framework Core {version} initialized '{contextType}' using provider '{provider}:{providerVersion}' with options: {options}</value>
+    <comment>Information CoreEventId.ContextInitialized string string string? string? string</comment>
   </data>
   <data name="LogDetachedLazyLoading" xml:space="preserve">
     <value>An attempt was made to lazy-load navigation '{navigation}' on a detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking'.</value>
@@ -966,6 +969,10 @@
   <data name="LogServiceProviderDebugInfo" xml:space="preserve">
     <value>An additional 'IServiceProvider' was created for internal use by Entity Framework. An existing service provider was not used due to the following configuration changes: {debugInfo}.</value>
     <comment>Debug CoreEventId.ServiceProviderDebugInfo string</comment>
+  </data>
+  <data name="LogShadowForeignKeyPropertyCreated" xml:space="preserve">
+    <value>The foreign key property '{entityType}.{property}' was created in shadow state because a conflicting property with the simple name '{baseName}' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.</value>
+    <comment>Warning CoreEventId.ShadowForeignKeyPropertyCreated string string string</comment>
   </data>
   <data name="LogShadowPropertyCreated" xml:space="preserve">
     <value>The property '{entityType}.{property}' was created in shadow state because there are no eligible CLR members with a matching name.</value>
@@ -1303,6 +1310,9 @@
   <data name="QueryInvalidMaterializationType" xml:space="preserve">
     <value>The query contains a projection '{projection}' of type '{queryableType}'. Collections in the final projection must be an 'IEnumerable&lt;T&gt;' type such as 'List&lt;T&gt;'. Consider using 'ToList' or some other mechanism to convert the 'IQueryable&lt;T&gt;' or 'IOrderedEnumerable&lt;T&gt;' into an 'IEnumerable&lt;T&gt;'.</value>
   </data>
+  <data name="QueryRootDifferentEntityType" xml:space="preserve">
+    <value>The replacement entity type: {entityType} does not have same name and CLR type as entity type this query root represents.</value>
+  </data>
   <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
     <value>Translation of '{expression}' failed. Either the query source is not an entity type, or the specified property does not exist on the entity type.</value>
   </data>
@@ -1519,6 +1529,9 @@
   </data>
   <data name="ValueCannotBeNull" xml:space="preserve">
     <value>The value for property '{1_entityType}.{0_property}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.</value>
+  </data>
+  <data name="ValueGenWithConversion" xml:space="preserve">
+    <value>Value generation is not supported for property '{entityType}.{property}' because it has a '{converter}' converter configured. Configure the property to not use value generation using 'ValueGenerated.Never' or 'DatabaseGeneratedOption.None' and specify explicit values instead.</value>
   </data>
   <data name="VisitIsNotAllowed" xml:space="preserve">
     <value>Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.</value>

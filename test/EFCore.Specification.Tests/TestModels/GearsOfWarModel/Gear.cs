@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
 
         public MilitaryRank Rank { get; set; }
 
-        public virtual CogTag Tag { get; set; }
+        public virtual CogTag Tag { get; set; } = new(); // Initialized to test #23851
 
         public virtual Squad Squad { get; set; }
 

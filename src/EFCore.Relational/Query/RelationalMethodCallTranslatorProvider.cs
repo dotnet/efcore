@@ -21,9 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     ///         method call translators.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvider
@@ -40,6 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
+            
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
 
             var sqlExpressionFactory = dependencies.SqlExpressionFactory;
@@ -60,6 +63,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
             _sqlExpressionFactory = sqlExpressionFactory;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual RelationalMethodCallTranslatorProviderDependencies Dependencies { get; }
 
         /// <inheritdoc />
         public virtual SqlExpression? Translate(

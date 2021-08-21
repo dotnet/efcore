@@ -30,6 +30,7 @@ namespace Microsoft.Data.Sqlite
         private const string RecursiveTriggersKeyword = "Recursive Triggers";
         private const string DefaultTimeoutKeyword = "Default Timeout";
         private const string CommandTimeoutKeyword = "Command Timeout";
+        private const string PoolingKeyword = "Pooling";
 
         private enum Keywords
         {
@@ -39,7 +40,8 @@ namespace Microsoft.Data.Sqlite
             Password,
             ForeignKeys,
             RecursiveTriggers,
-            DefaultTimeout
+            DefaultTimeout,
+            Pooling
         }
 
         private static readonly IReadOnlyList<string> _validKeywords;
@@ -52,10 +54,11 @@ namespace Microsoft.Data.Sqlite
         private bool? _foreignKeys;
         private bool _recursiveTriggers;
         private int _defaultTimeout = 30;
+        private bool _pooling = true;
 
         static SqliteConnectionStringBuilder()
         {
-            var validKeywords = new string[7];
+            var validKeywords = new string[8];
             validKeywords[(int)Keywords.DataSource] = DataSourceKeyword;
             validKeywords[(int)Keywords.Mode] = ModeKeyword;
             validKeywords[(int)Keywords.Cache] = CacheKeyword;
@@ -63,9 +66,10 @@ namespace Microsoft.Data.Sqlite
             validKeywords[(int)Keywords.ForeignKeys] = ForeignKeysKeyword;
             validKeywords[(int)Keywords.RecursiveTriggers] = RecursiveTriggersKeyword;
             validKeywords[(int)Keywords.DefaultTimeout] = DefaultTimeoutKeyword;
+            validKeywords[(int)Keywords.Pooling] = PoolingKeyword;
             _validKeywords = validKeywords;
 
-            _keywords = new Dictionary<string, Keywords>(10, StringComparer.OrdinalIgnoreCase)
+            _keywords = new Dictionary<string, Keywords>(11, StringComparer.OrdinalIgnoreCase)
             {
                 [DataSourceKeyword] = Keywords.DataSource,
                 [ModeKeyword] = Keywords.Mode,
@@ -74,6 +78,7 @@ namespace Microsoft.Data.Sqlite
                 [ForeignKeysKeyword] = Keywords.ForeignKeys,
                 [RecursiveTriggersKeyword] = Keywords.RecursiveTriggers,
                 [DefaultTimeoutKeyword] = Keywords.DefaultTimeout,
+                [PoolingKeyword] = Keywords.Pooling,
 
                 // aliases
                 [FilenameKeyword] = Keywords.DataSource,
@@ -203,6 +208,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether the connection will be pooled.
+        /// </summary>
+        /// <value>A value indicating whether the connection will be pooled.</value>
+        public bool Pooling
+        {
+            get => _pooling;
+            set => base[PoolingKeyword] = _pooling = value;
+        }
+
+        /// <summary>
         ///     Gets or sets the value associated with the specified key.
         /// </summary>
         /// <param name="keyword">The key.</param>
@@ -249,6 +264,10 @@ namespace Microsoft.Data.Sqlite
 
                     case Keywords.DefaultTimeout:
                         DefaultTimeout = Convert.ToInt32(value);
+                        return;
+
+                    case Keywords.Pooling:
+                        Pooling = Convert.ToBoolean(value, CultureInfo.InvariantCulture);
                         return;
 
                     default:
@@ -396,6 +415,9 @@ namespace Microsoft.Data.Sqlite
                 case Keywords.DefaultTimeout:
                     return DefaultTimeout;
 
+                case Keywords.Pooling:
+                    return Pooling;
+
                 default:
                     Debug.Fail("Unexpected keyword: " + index);
                     return null;
@@ -437,6 +459,10 @@ namespace Microsoft.Data.Sqlite
 
                 case Keywords.DefaultTimeout:
                     _defaultTimeout = 30;
+                    return;
+
+                case Keywords.Pooling:
+                    _pooling = true;
                     return;
 
                 default:

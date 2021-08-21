@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
@@ -196,6 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.SkipNavigationInverseChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(manyToManyJoinEntityTypeConvention);
+            conventionSet.SkipNavigationForeignKeyChangedConventions.Add(foreignKeyAttributeConvention);
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(keyDiscoveryConvention);
             conventionSet.SkipNavigationForeignKeyChangedConventions.Add(foreignKeyPropertyDiscoveryConvention);
 

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="ModelValidator" />
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ModelValidatorDependencies Dependencies { get; }
 
@@ -1122,7 +1122,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 {
                     if (property.IsImplicitlyCreated())
                     {
-                        logger.ShadowPropertyCreated((IProperty)property);
+                        var uniquifiedAnnotation = property.FindAnnotation(CoreAnnotationNames.PreUniquificationName);
+                        if (uniquifiedAnnotation != null
+                            && property.IsForeignKey())
+                        {
+                            logger.ShadowForeignKeyPropertyCreated((IProperty)property, (string)uniquifiedAnnotation.Value!);
+                        }
+                        else
+                        {
+                            logger.ShadowPropertyCreated((IProperty)property);
+                        }
                     }
                 }
             }

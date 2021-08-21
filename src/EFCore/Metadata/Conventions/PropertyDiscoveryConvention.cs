@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
@@ -65,10 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         private void Process(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             var entityType = entityTypeBuilder.Metadata;
-            var configuration = ((Model)entityType.Model).Configuration;
+            var model = entityType.Model;
             foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
             {
-                if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, configuration))
+                if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, model))
                 {
                     continue;
                 }

@@ -33,8 +33,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid commandId,
             Guid connectionId,
             DateTimeOffset startTime,
-            CommandSource commandSource,
-            TimeSpan duration)
+            TimeSpan duration,
+            CommandSource commandSource)
             => command;
 
         public InterceptionResult<DbDataReader> CommandReaderExecuting(
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         /// <param name="commandId"> The correlation ID associated with the given <see cref="System.Data.Common.DbCommand" />. </param>
         /// <param name="connectionId"> The correlation ID associated with the <see cref="System.Data.Common.DbConnection" /> being used. </param>
         /// <param name="startTime"> The time that execution began. </param>
-        /// <param name="commandSource">Source of the command.</param>
+        /// <param name="commandSource"> Source of the command. </param>
         /// <returns> An intercepted result. </returns>
         public InterceptionResult<int> CommandNonQueryExecuting(
             IRelationalConnection connection,
@@ -119,8 +119,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             DbDataReader methodResult,
             DateTimeOffset startTime,
-            CommandSource commandSource,
-            TimeSpan duration)
+            TimeSpan duration,
+            CommandSource commandSource)
             => methodResult;
 
         public object? CommandScalarExecuted(
@@ -131,8 +131,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             object? methodResult,
             DateTimeOffset startTime,
-            CommandSource commandSource,
-            TimeSpan duration)
+            TimeSpan duration,
+            CommandSource commandSource)
             => methodResult;
 
         public int CommandNonQueryExecuted(
@@ -143,8 +143,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             int methodResult,
             DateTimeOffset startTime,
-            CommandSource commandSource,
-            TimeSpan duration)
+            TimeSpan duration,
+            CommandSource commandSource)
             => methodResult;
 
         public ValueTask<DbDataReader> CommandReaderExecutedAsync(
@@ -155,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             DbDataReader methodResult,
             DateTimeOffset startTime,
-            CommandSource commandSource,
             TimeSpan duration,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
             => new(methodResult);
 
@@ -168,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             object? methodResult,
             DateTimeOffset startTime,
-            CommandSource commandSource,
             TimeSpan duration,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
             => new(methodResult);
 
@@ -181,8 +181,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             int methodResult,
             DateTimeOffset startTime,
-            CommandSource commandSource,
             TimeSpan duration,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
             => new(methodResult);
 
@@ -195,8 +195,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             Exception exception,
             DateTimeOffset startTime,
-            CommandSource commandSource,
-            TimeSpan duration)
+            TimeSpan duration,
+            CommandSource commandSource)
         {
         }
 
@@ -209,8 +209,8 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             Guid connectionId,
             Exception exception,
             DateTimeOffset startTime,
-            CommandSource commandSource,
             TimeSpan duration,
+            CommandSource commandSource,
             CancellationToken cancellationToken = default)
             => Task.CompletedTask;
 

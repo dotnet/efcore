@@ -14,16 +14,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     ///         doing so can result in application failures when updating to a new Entity Framework Core release.
     ///     </para>
     ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
-    ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
     public class RelationalQueryTranslationPreprocessorFactory : IQueryTranslationPreprocessorFactory
     {
-        private readonly QueryTranslationPreprocessorDependencies _dependencies;
-        private readonly RelationalQueryTranslationPreprocessorDependencies _relationalDependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,9 +32,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryTranslationPreprocessorDependencies dependencies,
             RelationalQueryTranslationPreprocessorDependencies relationalDependencies)
         {
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+        
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryTranslationPreprocessorDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalQueryTranslationPreprocessorDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new RelationalQueryTranslationPreprocessor(_dependencies, _relationalDependencies, queryCompilationContext);
+            return new RelationalQueryTranslationPreprocessor(Dependencies, RelationalDependencies, queryCompilationContext);
         }
     }
 }

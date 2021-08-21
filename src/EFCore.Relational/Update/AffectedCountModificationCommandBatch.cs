@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
             }
-            catch (Exception ex) when (!(ex is DbUpdateException))
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
                 throw new DbUpdateException(
                     RelationalStrings.UpdateStoreException,
@@ -150,7 +150,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
 #endif
             }
-            catch (Exception ex) when (!(ex is DbUpdateException))
+            catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
             {
                 throw new DbUpdateException(
                     RelationalStrings.UpdateStoreException,

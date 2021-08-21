@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
     /// </summary>
     public class SqlServerModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
-        private readonly ModificationCommandBatchFactoryDependencies _dependencies;
         private readonly IDbContextOptions _options;
 
         /// <summary>
@@ -42,9 +41,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(options, nameof(options));
 
-            _dependencies = dependencies;
+            Dependencies = dependencies;
             _options = options;
         }
+        
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -56,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
         {
             var optionsExtension = _options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
 
-            return new SqlServerModificationCommandBatch(_dependencies, optionsExtension?.MaxBatchSize);
+            return new SqlServerModificationCommandBatch(Dependencies, optionsExtension?.MaxBatchSize);
         }
     }
 }

@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+    /// </remarks>
     /// <typeparam name="TEntity"> The type of the entity the property belongs to. </typeparam>
     /// <typeparam name="TProperty"> The type of the property. </typeparam>
     public class ReferenceEntry<TEntity, TProperty> : ReferenceEntry
@@ -73,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
-        public new virtual TProperty CurrentValue
+        public new virtual TProperty? CurrentValue
         {
             get => this.GetInfrastructure().GetCurrentValue<TProperty>(Metadata);
             set => base.CurrentValue = value;

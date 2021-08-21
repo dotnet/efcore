@@ -340,19 +340,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.UsePropertyAccessMode(propertyAccessMode);
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to the given type before
+        ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
+        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion<TProvider>()
-            => (PropertyBuilder<TProperty>)base.HasConversion<TProvider>();
+        public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>()
+            => (PropertyBuilder<TProperty>)base.HasConversion<TConversion>();
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to the given type before
+        ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="providerClrType"> The type to convert to and from. </param>
+        /// <param name="providerClrType"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasConversion(Type? providerClrType)
             => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType);
@@ -393,26 +393,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.HasConversion(converter);
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to the given type before
+        ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TProvider"> The type to convert to and from. </typeparam>
+        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </typeparam>
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer)
-            => (PropertyBuilder<TProperty>)base.HasConversion<TProvider>(valueComparer);
+        public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer)
+            => (PropertyBuilder<TProperty>)base.HasConversion<TConversion>(valueComparer);
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to the given type before
+        ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="providerClrType"> The type to convert to and from. </param>
+        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </param>
         /// <param name="valueComparer"> The comparer to use for values before conversion. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual PropertyBuilder<TProperty> HasConversion(
-            Type providerClrType,
+            Type conversionType,
             ValueComparer? valueComparer)
-            => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType, valueComparer);
+            => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, valueComparer);
 
         /// <summary>
         ///     Configures the property so that the property value is converted to and from the database
@@ -459,25 +459,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             => (PropertyBuilder<TProperty>)base.HasConversion(converter, valueComparer);
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to and from the database
-        ///     using the given <see cref="ValueConverter" />.
+        ///     Configures the property so that the property value is converted before
+        ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TConverter"> A type that derives from <see cref="ValueConverter"/>. </typeparam>
+        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </typeparam>
         /// <typeparam name="TComparer"> A type that derives from <see cref="ValueComparer"/>. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
-            where TConverter : ValueConverter
+        public new virtual PropertyBuilder<TProperty> HasConversion<TConversion, TComparer>()
             where TComparer : ValueComparer
-            => (PropertyBuilder<TProperty>)base.HasConversion<TConverter, TComparer>();
+            => (PropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer>();
 
         /// <summary>
-        ///     Configures the property so that the property value is converted to and from the database
-        ///     using the given <see cref="ValueConverter" />.
+        ///     Configures the property so that the property value is converted before
+        ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="converterType"> A type that derives from <see cref="ValueConverter"/>. </param>
+        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </param>
         /// <param name="comparerType"> A type that derives from <see cref="ValueComparer"/>. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> HasConversion(Type converterType, Type? comparerType)
-            => (PropertyBuilder<TProperty>)base.HasConversion(converterType, comparerType);
+        public new virtual PropertyBuilder<TProperty> HasConversion(Type conversionType, Type? comparerType)
+            => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, comparerType);
     }
 }

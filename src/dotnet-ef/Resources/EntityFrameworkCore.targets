@@ -18,6 +18,7 @@
       <EFProjectMetadata Include="TargetFileName: $(TargetFileName)" />
       <EFProjectMetadata Include="TargetFrameworkMoniker: $(TargetFrameworkMoniker)" />
       <EFProjectMetadata Include="Nullable: $(Nullable)" />
+      <EFProjectMetadata Include="TargetFramework: $(TargetFramework)" />
     </ItemGroup>
     <WriteLinesToFile Condition=" '$(TargetFramework)' != '' "
                       File="$(EFProjectMetadataFile)"

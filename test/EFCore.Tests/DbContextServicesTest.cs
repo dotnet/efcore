@@ -1104,6 +1104,11 @@ namespace Microsoft.EntityFrameworkCore
                     ? (ConstructorTestContextWithOC1A)serviceScope.ServiceProvider.GetService<IConstructorTestContextWithOC1A>()
                     : serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>();
 
+                if (useInterface)
+                {
+                    Assert.Same(context1, serviceScope.ServiceProvider.GetService<ConstructorTestContextWithOC1A>());
+                }
+
                 Assert.NotNull(singleton[0] = context1.GetService<IInMemoryStoreCache>());
                 Assert.NotNull(singleton[1] = context1.GetService<ILoggerFactory>());
                 Assert.NotNull(singleton[2] = context1.GetService<IMemoryCache>());

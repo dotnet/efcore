@@ -17,22 +17,32 @@ namespace Microsoft.EntityFrameworkCore
             => Fixture = fixture;
 
         [ConditionalFact]
-        public virtual void Fixup_does_not_ignore_eagerly_initialized_reference_navs()
+        public virtual void Fixup_ignores_eagerly_initialized_reference_navs()
         {
             using var context = CreateContext();
 
             var albums = context.Set<Album>()
                 .Include(e => e.Tracks)
                 .Include(e => e.Artist)
-                .OrderBy(e => e.Artist)
+                .OrderBy(e => e.Id)
                 .ToList();
 
+            var i = 0;
             foreach (var album in albums)
             {
-                Assert.Equal(0, album.Artist.Id);
-                Assert.Null(album.Artist.Name);
+                var artist = _artists[i++ % 3];
+
+                Assert.Equal(artist.Id, album.Artist.Id);
+                Assert.Equal(artist.Name, album.Artist.Name);
             }
         }
+
+        private static readonly Artist[] _artists = new[]
+        {
+            new Artist { Id = 1, Name = "Freddie" },
+            new Artist { Id = 2, Name = "Kendrick" },
+            new Artist { Id = 3, Name = "Jarvis" }
+        };
 
         protected class Album
         {
@@ -96,20 +106,13 @@ namespace Microsoft.EntityFrameworkCore
 
             protected override void Seed(AlbumViewerContext context)
             {
-                var artists = new[]
-                {
-                    new Artist { Id = 1, Name = "Freddie" },
-                    new Artist { Id = 2, Name = "Kendrick" },
-                    new Artist { Id = 3, Name = "Jarvis" }
-                };
-
                 for (var i = 1; i <= 10; i++)
                 {
                     context.Add(
                         new Album
                         {
                             Id = i,
-                            Artist = artists[i % 3],
+                            Artist = _artists[(i - 1) % 3],
                             Tracks = new List<Track> { new() { Id = i * 2 }, new() { Id = i * 2 + 1 } }
                         });
                 }

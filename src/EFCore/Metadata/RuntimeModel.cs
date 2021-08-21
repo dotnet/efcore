@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -29,10 +30,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     public class RuntimeModel : AnnotatableBase, IRuntimeModel
     {
         private readonly SortedDictionary<string, RuntimeEntityType> _entityTypes = new(StringComparer.Ordinal);
+        private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
+        private readonly Dictionary<Type, RuntimeTypeMappingConfiguration> _typeConfigurations = new();
+        private bool _skipDetectChanges;
+
         private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
         private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
-        private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
-        private bool _skipDetectChanges;
 
         /// <summary>
         ///     Creates a new instance of <see cref="RuntimeModel"/>
@@ -134,6 +137,42 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             return _sharedTypes.TryGetValue(type, out var sharedTypes)
                 ? result.Concat(sharedTypes)
                 : result;
+        }
+
+        /// <summary>
+        ///     Adds configuration for a scalar type.
+        /// </summary>
+        /// <param name="clrType"> The type of value the property will hold. </param>
+        /// <param name="maxLength"> The maximum length of data that is allowed in this property type. </param>
+        /// <param name="unicode"> A value indicating whether or not the property can persist Unicode characters. </param>
+        /// <param name="precision"> The precision of data that is allowed in this property type. </param>
+        /// <param name="scale"> The scale of data that is allowed in this property type. </param>
+        /// <param name="providerPropertyType">
+        ///     The type that the property value will be converted to before being sent to the database provider.
+        /// </param>
+        /// <param name="valueConverter"> The custom <see cref="ValueConverter" /> for this type. </param>
+        /// <returns> The newly created property. </returns>
+        public virtual RuntimeTypeMappingConfiguration AddTypeMappingConfiguration(
+            Type clrType,
+            int? maxLength = null,
+            bool? unicode = null,
+            int? precision = null,
+            int? scale = null,
+            Type? providerPropertyType = null,
+            ValueConverter? valueConverter = null)
+        {
+            var typeConfiguration = new RuntimeTypeMappingConfiguration(
+                clrType,
+                maxLength,
+                unicode,
+                precision,
+                scale,
+                providerPropertyType,
+                valueConverter);
+
+            _typeConfigurations.Add(clrType, typeConfiguration);
+
+            return typeConfiguration;
         }
 
         private string GetDisplayName(Type type)
@@ -254,5 +293,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [DebuggerStepThrough]
         bool IReadOnlyModel.IsShared(Type type)
             => _sharedTypes.ContainsKey(type);
+
+        /// <inheritdoc/>
+        IEnumerable<ITypeMappingConfiguration> IModel.GetTypeMappingConfigurations()
+            => _typeConfigurations.Values;
+
+        /// <inheritdoc/>
+        ITypeMappingConfiguration? IModel.FindTypeMappingConfiguration(Type propertyType)
+            => _typeConfigurations.Count == 0
+                ? null
+                : _typeConfigurations.GetValueOrDefault(propertyType);
     }
 }

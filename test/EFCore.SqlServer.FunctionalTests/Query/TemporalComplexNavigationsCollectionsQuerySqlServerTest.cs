@@ -50,7 +50,7 @@ LEFT JOIN (
     FROM [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     LEFT JOIN [LevelThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1] ON [l0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
-ORDER BY [l].[Id], [t].[Id], [t].[Id0]");
+ORDER BY [l].[Id], [t].[Id]");
         }
 
         private void AssertSql(params string[] expected)

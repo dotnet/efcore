@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 #nullable enable
 
@@ -28,11 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             RelationalConventionSetBuilderDependencies relationalDependencies)
             : base(dependencies)
         {
+            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
+            
             RelationalDependencies = relationalDependencies;
         }
 
         /// <summary>
-        ///     The service dependencies for <see cref="RelationalConventionSetBuilder" />
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
@@ -59,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
                 if (annotations.TryGetValue(RelationalAnnotationNames.DbFunctions, out var functions))
                 {
-                    var runtimeFunctions = new SortedDictionary<string, IDbFunction>();
+                    var runtimeFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal);
                     foreach (var functionPair in (SortedDictionary<string, IDbFunction>)functions!)
                     {
                         var runtimeFunction = Create(functionPair.Value, runtimeModel);

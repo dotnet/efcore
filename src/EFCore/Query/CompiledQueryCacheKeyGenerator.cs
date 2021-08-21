@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="CompiledQueryCacheKeyGenerator" />
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual CompiledQueryCacheKeyGeneratorDependencies Dependencies { get; }
 

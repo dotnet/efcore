@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Type parameterType,
             Type serviceType,
             MethodInfo method,
-            IPropertyBase[]? serviceProperties = null)
+            params IPropertyBase[]? serviceProperties)
             : base(parameterType, serviceType, serviceProperties)
         {
             Check.NotNull(method, nameof(method));

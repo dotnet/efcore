@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact(Skip = "Issue #17246")]
-        public override void Fixup_does_not_ignore_eagerly_initialized_reference_navs()
+        public override void Fixup_ignores_eagerly_initialized_reference_navs()
         {
         }
 

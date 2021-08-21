@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -26,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         reference.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see>.
+    /// </remarks>
     public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<object>
     {
         private static readonly MethodInfo _doubleEqualsMethodInfo
@@ -103,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <param name="instance"> The instance. </param>
         /// <returns> The snapshot. </returns>
+        [return: NotNullIfNotNull("instance")]
         public abstract object? Snapshot(object? instance);
 
         /// <summary>
@@ -193,31 +198,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <returns> The <see cref="ValueComparer{T}" />. </returns>
         public static ValueComparer CreateDefault(Type type, bool favorStructuralComparisons)
         {
-            var nonNullabletype = type.UnwrapNullableType();
+            var nonNullableType = type.UnwrapNullableType();
 
             // The equality operator returns false for NaNs, but the Equals methods returns true
-            if (nonNullabletype == typeof(double))
+            if (nonNullableType == typeof(double))
             {
                 return new DefaultDoubleValueComparer(favorStructuralComparisons);
             }
 
-            if (nonNullabletype == typeof(float))
+            if (nonNullableType == typeof(float))
             {
                 return new DefaultFloatValueComparer(favorStructuralComparisons);
             }
 
-            if (nonNullabletype == typeof(DateTimeOffset))
+            if (nonNullableType == typeof(DateTimeOffset))
             {
                 return new DefaultDateTimeOffsetValueComparer(favorStructuralComparisons);
             }
 
-            var comparerType = nonNullabletype.IsInteger()
-                || nonNullabletype == typeof(decimal)
-                || nonNullabletype == typeof(bool)
-                || nonNullabletype == typeof(string)
-                || nonNullabletype == typeof(DateTime)
-                || nonNullabletype == typeof(Guid)
-                || nonNullabletype == typeof(TimeSpan)
+            var comparerType = nonNullableType.IsInteger()
+                || nonNullableType == typeof(decimal)
+                || nonNullableType == typeof(bool)
+                || nonNullableType == typeof(string)
+                || nonNullableType == typeof(DateTime)
+                || nonNullableType == typeof(Guid)
+                || nonNullableType == typeof(TimeSpan)
                     ? typeof(DefaultValueComparer<>)
                     : typeof(ValueComparer<>);
 
@@ -250,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             public override object? Snapshot(object? instance)
                 => instance;
 
-            public override T? Snapshot(T? instance)
+            public override T Snapshot(T instance)
                 => instance;
         }
 

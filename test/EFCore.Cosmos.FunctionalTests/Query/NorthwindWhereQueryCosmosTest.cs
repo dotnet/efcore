@@ -875,6 +875,16 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
         }
 
+        public override async Task Where_equals_method_string_with_ignore_case(bool async)
+        {
+            await base.Where_equals_method_string_with_ignore_case(async);
+
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND STRINGEQUALS(c[""City""], ""London"", true))");
+        }
+
         public override async Task Where_equals_method_int(bool async)
         {
             await base.Where_equals_method_int(async);
@@ -1037,15 +1047,28 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task Where_datetime_utcnow(bool async)
         {
             await base.Where_datetime_utcnow(async);
 
             AssertSql(
-                @"SELECT c
+                @"@__myDatetime_0='2015-04-10T00:00:00'
+
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE ((c[""Discriminator""] = ""Customer"") AND (GetCurrentDateTime() != @__myDatetime_0))");
+        }
+
+        public override async Task Where_datetimeoffset_utcnow(bool async)
+        {
+            await base.Where_datetimeoffset_utcnow(async);
+
+            AssertSql(
+                @"@__myDatetimeOffset_0='2015-04-10T00:00:00-08:00'
+
+SELECT c
+FROM root c
+WHERE ((c[""Discriminator""] = ""Customer"") AND (GetCurrentDateTime() != @__myDatetimeOffset_0))");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
@@ -2171,11 +2194,6 @@ WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))"
                 @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Order"") AND c[""OrderID""] IN (10248, 10249))");
-        }
-
-        public override Task Where_equals_method_string_with_ignore_case(bool async)
-        {
-            return AssertTranslationFailed(() => base.Where_equals_method_string_with_ignore_case(async));
         }
 
         public override async Task Filter_with_EF_Property_using_closure_for_property_name(bool async)

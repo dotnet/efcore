@@ -8,6 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
 {
     internal partial class MigrationsBundleCommand : ContextCommandBase
     {
+        private CommandOption? _output;
+        private CommandOption? _force;
         private CommandOption? _selfContained;
         private CommandOption? _runtime;
         private CommandOption? _configuration;
@@ -16,10 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             command.Description = Resources.MigrationsBundleDescription;
 
-            // TODO: --no-self-contained (after matching the startup project)
+            _output = command.Option("-o|--output <FILE>", Resources.MigrationsBundleOutputDescription);
+            _force = command.Option("-f|--force", Resources.DbContextScaffoldForceDescription);
             _selfContained = command.Option("--self-contained", Resources.SelfContainedDescription);
-            _runtime = command.Option("-r|--runtime <RUNTIME_IDENTIFIER>", Resources.RuntimeDescription);
-            _configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
+            _runtime = command.Option("-r|--target-runtime <RUNTIME_IDENTIFIER>", Resources.MigrationsBundleRuntimeDescription);
+            _configuration = command.Option("--target-configuration <CONFIGURATION>", Resources.MigrationsBundleConfigurationDescription);
 
             base.Configure(command);
         }

@@ -585,6 +585,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                             .WithOne(e => e.FuelTank)
                             .HasForeignKey<FuelTank>(e => e.VehicleName)
                             .OnDelete(DeleteBehavior.Restrict);
+                        eb.HasOne(e => e.Vehicle)
+                            .WithOne()
+                            .HasForeignKey<FuelTank>("VehicleName1");
                     });
 
                 modelBuilder.Entity<ContinuousCombustionEngine>();

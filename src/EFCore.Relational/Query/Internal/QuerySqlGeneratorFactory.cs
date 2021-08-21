@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal
@@ -20,8 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class QuerySqlGeneratorFactory : IQuerySqlGeneratorFactory
     {
-        private readonly QuerySqlGeneratorDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -30,8 +29,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         /// </summary>
         public QuerySqlGeneratorFactory(QuerySqlGeneratorDependencies dependencies)
         {
-            _dependencies = dependencies;
+            Check.NotNull(dependencies, nameof(dependencies));
+            
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual QuerySqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -40,6 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QuerySqlGenerator Create()
-            => new(_dependencies);
+            => new(Dependencies);
     }
 }

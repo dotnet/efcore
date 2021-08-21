@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public OwnedQuerySqlServerTest(OwnedQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
-            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected override bool CanExecuteQueryString
@@ -36,7 +36,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o2] ON ([o1].[ClientId] = [o2].[OrderClientId]) AND ([o1].[Id] = [o2].[OrderId])
 ) AS [t0] ON [o].[Id] = [t0].[ClientId]
 WHERE 0 = 1
-ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Query_for_base_type_loads_all_owned_navs(bool async)
@@ -52,7 +52,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task No_ignored_include_warning_when_implicit_load(bool async)
@@ -77,7 +77,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Query_for_branch_type_loads_all_owned_navs_tracking(bool async)
@@ -93,7 +93,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Query_for_leaf_type_loads_all_owned_navs(bool async)
@@ -109,7 +109,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Query_when_subquery(bool async)
@@ -133,7 +133,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t1] ON [t0].[Id] = [t1].[ClientId]
-ORDER BY [t0].[Id], [t1].[ClientId], [t1].[Id], [t1].[OrderClientId], [t1].[OrderId], [t1].[Id0]");
+ORDER BY [t0].[Id], [t1].[ClientId], [t1].[Id], [t1].[OrderClientId], [t1].[OrderId]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
@@ -159,7 +159,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[PersonAddress_Country_Name] = N'USA'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Navigation_rewrite_on_owned_collection(bool async)
@@ -178,7 +178,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Order] AS [o0]
     WHERE [o].[Id] = [o0].[ClientId]) > 0
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Navigation_rewrite_on_owned_collection_with_composition(bool async)
@@ -221,7 +221,7 @@ FROM [OwnedPerson] AS [o]");
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id]");
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[OrderId]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity(bool async)
@@ -248,7 +248,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE ([p].[Id] <> 42) OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Project_multiple_owned_navigations(bool async)
@@ -264,7 +264,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Project_multiple_owned_navigations_with_expansion_on_owned_collections(bool async)
@@ -298,7 +298,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE ([p].[Id] <> 7) OR [p].[Id] IS NULL
-ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(bool async)
@@ -320,7 +320,7 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]");
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
-ORDER BY [o].[Id], [p].[Id], [m].[Id]");
+ORDER BY [o].[Id], [p].[Id]");
         }
 
         public override async Task SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(bool async)
@@ -356,7 +356,7 @@ FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
-ORDER BY [o].[Id], [p].[Id], [s].[Id], [e].[Id]");
+ORDER BY [o].[Id], [p].[Id], [s].[Id]");
         }
 
         public override async Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(
@@ -384,7 +384,7 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
 WHERE [s].[Name] = N'Sol'
-ORDER BY [o].[Id], [p].[Id], [s].[Id], [e].[Id]");
+ORDER BY [o].[Id], [p].[Id], [s].[Id]");
         }
 
         public override async Task Query_with_OfType_eagerly_loads_correct_owned_navigations(bool async)
@@ -400,7 +400,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Preserve_includes_when_applying_skip_take_after_anonymous_type_select(bool async)
@@ -426,7 +426,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Unmapped_property_projection_loads_owned_navigations(bool async)
@@ -442,7 +442,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Client_method_skip_loads_owned_navigations(bool async)
@@ -464,7 +464,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Client_method_take_loads_owned_navigations(bool async)
@@ -485,7 +485,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Client_method_skip_take_loads_owned_navigations(bool async)
@@ -508,7 +508,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Client_method_skip_loads_owned_navigations_variation_2(bool async)
@@ -530,7 +530,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Client_method_take_loads_owned_navigations_variation_2(bool async)
@@ -551,7 +551,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Client_method_skip_take_loads_owned_navigations_variation_2(bool async)
@@ -574,7 +574,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t0] ON [t].[Id] = [t0].[ClientId]
-ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0]");
+ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
         }
 
         public override async Task Where_owned_collection_navigation_ToList_Count(bool async)
@@ -590,7 +590,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]");
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
         public override async Task Where_collection_navigation_ToArray_Count(bool async)
@@ -606,7 +606,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]");
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
         public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
@@ -622,7 +622,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]");
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
         public override async Task Where_collection_navigation_ToList_Count_member(bool async)
@@ -638,7 +638,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]");
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
         public override async Task Where_collection_navigation_ToArray_Length_member(bool async)
@@ -654,7 +654,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
     WHERE ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])) = 0
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id]");
+ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId]");
         }
 
         public override async Task Can_query_on_indexer_properties(bool async)
@@ -670,7 +670,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Can_query_on_owned_indexer_properties(bool async)
@@ -741,7 +741,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[Name], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Name], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Can_OrderBy_indexer_properties_converted(bool async)
@@ -1075,13 +1075,13 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]");
             await base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
 
             AssertSql(
-                @"SELECT AVG(CAST([t].[Id] AS float)) AS [p1], COALESCE(SUM([t].[Id]), 0) AS [p2], MAX(CAST(LEN([t].[Name]) AS int)) AS [p3]
+                @"SELECT AVG(CAST([s].[Id] AS float)) AS [p1], COALESCE(SUM([s].[Id]), 0) AS [p2], MAX(CAST(LEN([s].[Name]) AS int)) AS [p3]
 FROM (
-    SELECT [s].[Id], [s].[Name], 1 AS [Key]
+    SELECT 1 AS [Key], [o].[PersonAddress_Country_PlanetId]
     FROM [OwnedPerson] AS [o]
-    LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-    LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 ) AS [t]
+LEFT JOIN [Planet] AS [p] ON [t].[PersonAddress_Country_PlanetId] = [p].[Id]
+LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
 GROUP BY [t].[Key]");
         }
 
@@ -1097,7 +1097,7 @@ LEFT JOIN (
     FROM [Order] AS [o0]
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
-ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Using_from_sql_on_owner_generates_join_with_table_for_owned_shared_dependents(bool async)
@@ -1150,7 +1150,7 @@ LEFT JOIN (
     FROM [Order] AS [o8]
     LEFT JOIN [OrderDetail] AS [o9] ON ([o8].[ClientId] = [o9].[OrderClientId]) AND ([o8].[Id] = [o9].[OrderId])
 ) AS [t6] ON [o].[Id] = [t6].[ClientId]
-ORDER BY [o].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0], [t2].[Id], [t2].[Id0], [t4].[Id], [t4].[Id0], [t6].[ClientId], [t6].[Id], [t6].[OrderClientId], [t6].[OrderId], [t6].[Id0]");
+ORDER BY [o].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0], [t2].[Id], [t2].[Id0], [t4].[Id], [t4].[Id0], [t6].[ClientId], [t6].[Id], [t6].[OrderClientId], [t6].[OrderId]");
         }
 
         public override async Task Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(bool async)
@@ -1162,7 +1162,7 @@ ORDER BY [o].[Id], [t].[Id], [t].[Id0], [t0].[Id], [t0].[Id0], [t2].[Id], [t2].[
 FROM [Fink] AS [f]
 LEFT JOIN [Barton] AS [b] ON [f].[BartonId] = [b].[Id]
 LEFT JOIN [Planet] AS [p] ON ([b].[Throned_Value] <> [p].[Id]) OR [b].[Throned_Value] IS NULL
-ORDER BY [f].[Id], [b].[Id], [p].[Id]");
+ORDER BY [f].[Id], [b].[Id]");
         }
 
         public override async Task Filter_on_indexer_using_closure(bool async)
@@ -1178,7 +1178,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[PersonAddress_ZipCode] = 38654
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         public override async Task Filter_on_indexer_using_function_argument(bool async)
@@ -1194,7 +1194,7 @@ LEFT JOIN (
     LEFT JOIN [OrderDetail] AS [o1] ON ([o0].[ClientId] = [o1].[OrderClientId]) AND ([o0].[Id] = [o1].[OrderId])
 ) AS [t] ON [o].[Id] = [t].[ClientId]
 WHERE [o].[PersonAddress_ZipCode] = 38654
-ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId], [t].[Id0]");
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]");
         }
 
         private void AssertSql(params string[] expected)

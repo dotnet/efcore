@@ -100,6 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Where_math_power(bool async)
             => AssertTranslationFailed(() => base.Where_math_power(async));
 
+        public override Task Where_math_square(bool async)
+            => AssertTranslationFailed(() => base.Where_math_square(async));
+
         public override Task Where_math_round(bool async)
             => AssertTranslationFailed(() => base.Where_math_round(async));
 
@@ -156,7 +159,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Where_mathf_power(bool async)
             => AssertTranslationFailed(() => base.Where_mathf_power(async));
-        
+
+        public override Task Where_mathf_square(bool async)
+            => AssertTranslationFailed(() => base.Where_mathf_square(async));
         public override Task Where_mathf_sign(bool async)
             => AssertTranslationFailed(() => base.Where_mathf_sign(async));
 

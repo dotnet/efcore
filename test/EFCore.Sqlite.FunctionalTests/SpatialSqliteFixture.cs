@@ -33,13 +33,5 @@ namespace Microsoft.EntityFrameworkCore
             modelBuilder.Entity<PointEntity>().Property(e => e.PointM).HasColumnType("POINTM");
             modelBuilder.Entity<PointEntity>().Property(e => e.PointZM).HasColumnType("POINTZM");
         }
-
-        protected override void Clean(DbContext context)
-        {
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers");
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_auth");
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_statistics");
-            context.Database.ExecuteSqlRaw("DROP VIEW IF EXISTS vector_layers_field_infos");
-        }
     }
 }

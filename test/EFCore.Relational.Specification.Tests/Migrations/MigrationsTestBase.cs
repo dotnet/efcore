@@ -803,6 +803,27 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 });
 
         [ConditionalFact]
+        public virtual Task Alter_column_make_non_computed()
+            => Test(
+                builder => builder.Entity(
+                    "People", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<int>("X");
+                        e.Property<int>("Y");
+                    }),
+                builder => builder.Entity("People").Property<int>("Sum")
+                    .HasComputedColumnSql($"{DelimitIdentifier("X")} + {DelimitIdentifier("Y")}"),
+                builder => builder.Entity("People").Property<int>("Sum"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var sumColumn = Assert.Single(table.Columns, c => c.Name == "Sum");
+                    Assert.Null(sumColumn.ComputedColumnSql);
+                    Assert.NotEqual(true, sumColumn.IsStored);
+                });
+
+        [ConditionalFact]
         public virtual Task Alter_column_add_comment()
             => Test(
                 builder => builder.Entity("People").Property<int>("Id"),
@@ -811,6 +832,24 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     var table = Assert.Single(model.Tables);
                     var column = Assert.Single(table.Columns);
+                    if (AssertComments)
+                        Assert.Equal("Some comment", column.Comment);
+                });
+
+        [ConditionalFact]
+        public virtual Task Alter_computed_column_add_comment()
+            => Test(
+                builder => builder.Entity("People", x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<int>("SomeColumn").HasComputedColumnSql("42");
+                }),
+                builder => { },
+                builder => builder.Entity("People").Property<int>("SomeColumn").HasComment("Some comment"),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var column = Assert.Single(table.Columns.Where(c => c.Name == "SomeColumn"));
                     if (AssertComments)
                         Assert.Equal("Some comment", column.Comment);
                 });
@@ -1133,7 +1172,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     var foreignKey = ordersTable.ForeignKeys.Single();
                     if (AssertConstraintNames)
                         Assert.Equal("FK_Orders_Customers_CustomerId", foreignKey.Name);
-                    Assert.Equal(Normalize(ReferentialAction.Restrict), foreignKey.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, foreignKey.OnDelete);
                     Assert.Same(customersTable, foreignKey.PrincipalTable);
                     Assert.Same(customersTable.Columns.Single(), Assert.Single(foreignKey.PrincipalColumns));
                     Assert.Equal("CustomerId", Assert.Single(foreignKey.Columns).Name);
@@ -1589,9 +1628,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             => true;
 
         protected abstract string NonDefaultCollation { get; }
-
-        protected virtual ReferentialAction Normalize(ReferentialAction value)
-            => value;
 
         protected virtual DbContext CreateContext()
             => Fixture.CreateContext();

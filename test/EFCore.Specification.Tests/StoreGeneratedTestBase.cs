@@ -26,6 +26,25 @@ namespace Microsoft.EntityFrameworkCore
         protected TFixture Fixture { get; }
 
         [ConditionalFact]
+        public virtual void Value_generation_throws_for_common_cases()
+        {
+            ValueGenerationNegative<int, IntToString, NumberToStringConverter<int>>();
+            ValueGenerationNegative<short, ShortToBytes, NumberToBytesConverter<short>>();
+        }
+
+        private void ValueGenerationNegative<TKey, TEntity, TConverter>()
+            where TEntity : WithConverter<TKey>, new()
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.ValueGenWithConversion(
+                    typeof(TEntity).ShortDisplayName(),
+                    nameof(WithConverter<int>.Id),
+                    typeof(TConverter).ShortDisplayName()),
+                Assert.Throws<NotSupportedException>(() => context.Add(new TEntity())).Message);
+        }
+
+        [ConditionalFact]
         public virtual void Value_generation_works_for_common_GUID_conversions()
         {
             ValueGenerationPositive<Guid, GuidToString>();

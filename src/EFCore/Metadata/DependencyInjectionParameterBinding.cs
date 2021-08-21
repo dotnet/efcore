@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public DependencyInjectionParameterBinding(
             Type parameterType,
             Type serviceType,
-            IPropertyBase[]? serviceProperties = null)
+            params IPropertyBase[]? serviceProperties)
             : base(parameterType, serviceType, serviceProperties)
         {
         }

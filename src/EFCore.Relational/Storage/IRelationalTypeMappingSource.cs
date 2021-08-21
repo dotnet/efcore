@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         The relational type mapping interface for EF Core, starting with version 2.1. Type mappings describe how a
+    ///         The relational type mapping source. Type mappings describe how a
     ///         provider maps CLR types/values to database types/values.
     ///     </para>
     ///     <para>
@@ -55,13 +55,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         ///     <para>
         ///         Note: Only call this method if there is no <see cref="IProperty" />
-        ///         or <see cref="MemberInfo" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-        ///         or <see cref="FindMapping(MemberInfo)" />
+        ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
+        ///         or <see cref="FindMapping(Type, IModel)" />
         ///     </para>
         /// </summary>
         /// <param name="type"> The CLR type. </param>
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         new RelationalTypeMapping? FindMapping(Type type);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
+        ///     </para>
+        ///     <para>
+        ///         Note: Only call this method if there is no <see cref="IProperty" />,
+        ///         otherwise call <see cref="FindMapping(IProperty)" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="type"> The CLR type. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        new RelationalTypeMapping? FindMapping(Type type, IModel model);
 
         /// <summary>
         ///     <para>

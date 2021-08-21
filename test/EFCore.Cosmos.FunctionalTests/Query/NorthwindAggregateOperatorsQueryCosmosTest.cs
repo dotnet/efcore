@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -772,41 +771,41 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Employee"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory]
         public override async Task Distinct(bool async)
         {
             await base.Distinct(async);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT DISTINCT c
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory]
         public override async Task Distinct_Scalar(bool async)
         {
             await base.Distinct_Scalar(async);
 
             AssertSql(
-                @"SELECT c
+                @"SELECT DISTINCT c[""City""]
 FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory]
         public override async Task OrderBy_Distinct(bool async)
         {
             await base.OrderBy_Distinct(async);
 
-            // Ordering not preserved by distinct when ordering columns not projected.
             AssertSql(
-                @"SELECT c
+                @"SELECT DISTINCT c[""City""]
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c[""Discriminator""] = ""Customer"")
+ORDER BY c[""CustomerID""]");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory(Skip = "Issue#16156")]
         public override async Task Distinct_OrderBy(bool async)
         {
             await base.Distinct_OrderBy(async);
@@ -817,7 +816,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory(Skip = "Issue#16156")]
         public override async Task Distinct_OrderBy2(bool async)
         {
             await base.Distinct_OrderBy2(async);
@@ -828,7 +827,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory(Skip = "Issue#16156")]
         public override async Task Distinct_OrderBy3(bool async)
         {
             await base.Distinct_OrderBy3(async);
@@ -839,7 +838,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory(Skip = "Issue#16156")]
         public override async Task Distinct_Count(bool async)
         {
             await base.Distinct_Count(async);
@@ -850,7 +849,7 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        [ConditionalTheory(Skip = "Issue#16144")]
+        [ConditionalTheory(Skip = "Issue#16156")]
         public override async Task Select_Select_Distinct_Count(bool async)
         {
             await base.Select_Select_Distinct_Count(async);

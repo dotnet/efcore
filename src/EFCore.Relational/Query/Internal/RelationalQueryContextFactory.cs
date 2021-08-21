@@ -21,9 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class RelationalQueryContextFactory : IQueryContextFactory
     {
-        private readonly QueryContextDependencies _dependencies;
-        private readonly RelationalQueryContextDependencies _relationalDependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,9 +31,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             QueryContextDependencies dependencies,
             RelationalQueryContextDependencies relationalDependencies)
         {
-            _dependencies = dependencies;
-            _relationalDependencies = relationalDependencies;
+            Dependencies = dependencies;
+            RelationalDependencies = relationalDependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryContextDependencies Dependencies { get; }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalQueryContextDependencies RelationalDependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,6 +52,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual QueryContext Create()
-            => new RelationalQueryContext(_dependencies, _relationalDependencies);
+            => new RelationalQueryContext(Dependencies, RelationalDependencies);
     }
 }

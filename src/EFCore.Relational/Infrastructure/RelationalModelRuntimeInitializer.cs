@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     The relational dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalModelRuntimeInitializerDependencies RelationalDependencies { get; }
 
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             if (prevalidation)
             {
-                model.AddRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies, RelationalDependencies.RelationalModelDependencies);
+                model.SetRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies, RelationalDependencies.RelationalModelDependencies);
             }
             else
             {

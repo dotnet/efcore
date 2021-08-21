@@ -140,9 +140,9 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public IEnumerable<IDictionary> GetContextTypes()
             => InvokeOperation<IEnumerable<IDictionary>>("GetContextTypes");
 
-        public void Optimize(string? outputDir, string? modelNamespace, string? contextType)
+        public void OptimizeContext(string? outputDir, string? modelNamespace, string? contextType)
             => InvokeOperation(
-                "Optimize",
+                "OptimizeContext",
                 new Dictionary<string, object?>
                 {
                     ["outputDir"] = outputDir,

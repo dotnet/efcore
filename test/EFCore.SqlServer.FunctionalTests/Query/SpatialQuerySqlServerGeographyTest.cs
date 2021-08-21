@@ -713,7 +713,7 @@ FROM (
     ORDER BY [p].[Id]
 ) AS [t]
 LEFT JOIN [PointEntity] AS [p0] ON [t].[Id] = [p0].[Id]
-ORDER BY [t].[Id], [p0].[Id]");
+ORDER BY [t].[Id]");
         }
 
         public override async Task IsEmpty_equal_to_null(bool async)

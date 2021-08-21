@@ -41,11 +41,18 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
+            Dependencies = dependencies;
+            
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             UseRelationalNulls = useRelationalNulls;
             _nonNullableColumns = new List<ColumnExpression>();
             ParameterValues = null!;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual RelationalParameterBasedSqlProcessorDependencies Dependencies { get; }
 
         /// <summary>
         ///     A bool value indicating whether relational null semantics are in use.

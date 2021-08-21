@@ -802,7 +802,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var valueType = value.GetType();
-            if (property.ClrType.UnwrapNullableType() != valueType)
+            if (!property.ClrType.UnwrapNullableType().IsAssignableFrom(valueType))
             {
                 try
                 {
@@ -833,7 +833,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
-        /// <returns> The maximum length, or <see langword="null" /> if none if defined. </returns>
+        /// <returns> The maximum length, or <see langword="null" /> if none is defined. </returns>
         public static int? GetMaxLength(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             Check.NotNull(property, nameof(property));

@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     Describes metadata needed to decide on a type mapping for a property or type.
     /// </summary>
-    public readonly struct TypeMappingInfo : IEquatable<TypeMappingInfo>
+    public readonly record struct TypeMappingInfo : IEquatable<TypeMappingInfo>
     {
         /// <summary>
         ///     Creates a new instance of <see cref="TypeMappingInfo" />.
@@ -213,68 +213,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Indicates whether or not the mapping is part of a key or index.
         /// </summary>
-        public bool IsKeyOrIndex { get; }
+        public bool IsKeyOrIndex { get; init; }
 
         /// <summary>
         ///     Indicates the store-size to use for the mapping, or null if none.
         /// </summary>
-        public int? Size { get; }
+        public int? Size { get; init; }
 
         /// <summary>
         ///     Indicates whether or not the mapping supports Unicode, or null if not defined.
         /// </summary>
-        public bool? IsUnicode { get; }
+        public bool? IsUnicode { get; init; }
 
         /// <summary>
         ///     Indicates whether or not the mapping will be used for a row version, or null if not defined.
         /// </summary>
-        public bool? IsRowVersion { get; }
+        public bool? IsRowVersion { get; init; }
 
         /// <summary>
         ///     The suggested precision of the mapped data type.
         /// </summary>
-        public int? Precision { get; }
+        public int? Precision { get; init; }
 
         /// <summary>
         ///     The suggested scale of the mapped data type.
         /// </summary>
-        public int? Scale { get; }
+        public int? Scale { get; init; }
 
         /// <summary>
         ///     The CLR type in the model. May be null if type information is conveyed via other means
         ///     (e.g. the store name in a relational type mapping info)
         /// </summary>
-        public Type? ClrType { get; }
-
-        /// <summary>
-        ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
-        /// </summary>
-        /// <param name="other"> The other object. </param>
-        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
-        public bool Equals(TypeMappingInfo other)
-            => ClrType == other.ClrType
-                && IsKeyOrIndex == other.IsKeyOrIndex
-                && Size == other.Size
-                && IsUnicode == other.IsUnicode
-                && IsRowVersion == other.IsRowVersion
-                && Precision == other.Precision
-                && Scale == other.Scale;
-
-        /// <summary>
-        ///     Compares this <see cref="TypeMappingInfo" /> to another to check if they represent the same mapping.
-        /// </summary>
-        /// <param name="obj"> The other object. </param>
-        /// <returns> <see langword="true" /> if they represent the same mapping; <see langword="false" /> otherwise. </returns>
-        public override bool Equals(object? obj)
-            => obj != null
-                && obj.GetType() == GetType()
-                && Equals((TypeMappingInfo)obj);
-
-        /// <summary>
-        ///     Returns a hash code for this object.
-        /// </summary>
-        /// <returns> The hash code. </returns>
-        public override int GetHashCode()
-            => HashCode.Combine(ClrType, IsKeyOrIndex, Size, IsUnicode, IsRowVersion, Scale, Precision);
+        public Type? ClrType { get; init; }
     }
 }

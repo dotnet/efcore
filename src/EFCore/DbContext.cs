@@ -24,8 +24,16 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     A DbContext instance represents a session with the database and can be used to query and save
-    ///     instances of your entities. DbContext is a combination of the Unit Of Work and Repository patterns.
+    ///     <para>
+    ///         A DbContext instance represents a session with the database and can be used to query and save
+    ///         instances of your entities. DbContext is a combination of the Unit Of Work and Repository patterns.
+    ///     </para>
+    ///     <para>
+    ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+    ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+    ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+    ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+    ///     </para>
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -284,7 +292,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
+        ///     <para>
+        ///         Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>
@@ -478,6 +494,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+        ///     </para>
         /// </summary>
         /// <returns>
         ///     The number of state entries written to the database.
@@ -501,6 +523,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         This method will automatically call <see cref="ChangeTracker.DetectChanges" /> to discover any
         ///         changes to entity instances before saving to the underlying database. This can be disabled via
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
@@ -586,8 +614,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
-        ///         that any asynchronous operations have completed before calling another method on this context.
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
@@ -617,8 +647,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
-        ///         that any asynchronous operations have completed before calling another method on this context.
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
         ///     </para>
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">

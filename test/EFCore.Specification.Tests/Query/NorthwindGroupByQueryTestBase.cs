@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
@@ -1103,6 +1104,54 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { grouping.Key.CustomerID, grouping.Key.OrderDate });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Odata_groupby_empty_key(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().GroupBy(e => new NoGroupByWrapper())
+                    .Select(e => new NoGroupByAggregationWrapper
+                    {
+                        Container = new LastInChain
+                        {
+                            Name = "TotalAmount",
+                            Value = (object)((IEnumerable<Order>)e).Sum(e => (decimal)e.OrderID)
+                        }
+                    }),
+                assertOrder: true,
+                elementAsserter: (e, a) =>
+                {
+                    Assert.Equal(e.Container.Value, a.Container.Value);
+                });
+        }
+
+        private class NoGroupByWrapper
+        {
+            public override bool Equals(object obj)
+            {
+                return obj != null
+                    && (ReferenceEquals(this, obj)
+                    || obj is NoGroupByWrapper);
+            }
+
+            public override int GetHashCode()
+            {
+                return 0;
+            }
+        }
+
+        private class NoGroupByAggregationWrapper
+        {
+            public LastInChain Container { get; set; }
+        }
+
+        protected class LastInChain
+        {
+            public string Name { get; set; }
+            public object Value { get; set; }
+        }
+
         #endregion
 
         #region GroupByWithElementSelectorAggregate
@@ -1803,6 +1852,18 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_count_filter(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Select(e => new { e.OrderID, Name = "Order" })
+                    .GroupBy(o => o.Name)
+                    .Select(g => new { Name = g.Key, Count = g.Count() })
+                    .Where(o => o.Count > 0));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_filter_count_OrderBy_count_Select_sum(bool async)
         {
             return AssertQuery(
@@ -2017,17 +2078,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "Issue #21965")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Select_nested_collection_with_groupby(bool async)
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                    .OrderBy(c => c.CustomerID)
                     .Select(
                         c => c.Orders.Any()
                             ? c.Orders.GroupBy(o => o.OrderID).Select(g => g.Key).ToArray()
-                            : Array.Empty<int>()));
+                            : Array.Empty<int>()),
+                assertOrder: true,
+                elementAsserter: (e, a) => Assert.True(e.SequenceEqual(a)));
         }
 
         [ConditionalTheory]
@@ -2263,7 +2327,13 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Order>()
                     .GroupBy(o => o.CustomerID)
-                    .Select(g => new { g.Key, Count = (from c in ss.Set<Customer>() where c.CustomerID == g.Key select c).Count() }));
+                    .Select(g => new { g.Key, Count = (from c in ss.Set<Customer>() where c.CustomerID == g.Key select c).Count() }),
+                elementSorter: e => e.Key,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Key, a.Key);
+                    AssertEqual(e.Count, a.Count);
+                });
         }
 
         [ConditionalTheory]
@@ -2613,61 +2683,62 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupByWithoutAggregate
 
-        [ConditionalTheory(Skip = "Issue #18923")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_SelectMany(bool async)
         {
-            return AssertQuery(
+            return AssertTranslationFailed(() => AssertQuery(
                 async,
                 ss => ss.Set<Customer>().GroupBy(c => c.City).SelectMany(g => g),
-                entryCount: 91);
+                entryCount: 91));
         }
 
-        [ConditionalTheory(Skip = "Issue #18923")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany(bool async)
         {
-            return AssertQuery(
+            return AssertTranslationFailed(() => AssertQuery(
                 async,
                 ss => ss.Set<Order>().OrderBy(o => o.OrderID)
                     .GroupBy(o => o.CustomerID)
                     .SelectMany(g => g),
-                entryCount: 830);
+                entryCount: 830));
         }
 
-        [ConditionalTheory(Skip = "Issue #18923")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task OrderBy_GroupBy_SelectMany_shadow(bool async)
         {
-            return AssertQuery(
+            return AssertTranslationFailed(() => AssertQuery(
                 async,
                 ss => ss.Set<Employee>().OrderBy(e => e.EmployeeID)
                     .GroupBy(e => e.EmployeeID)
                     .SelectMany(g => g)
-                    .Select(g => EF.Property<string>(g, "Title")));
+                    .Select(g => EF.Property<string>(g, "Title"))));
         }
 
-        [ConditionalTheory(Skip = "Issue#17761")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_orderby_take_skip_distinct_followed_by_group_key_projection(bool async)
         {
-            return AssertQuery(
+            return AssertTranslationFailed(() => AssertQuery(
                 async,
                 ss => ss.Set<Order>().GroupBy(o => o.CustomerID).OrderBy(g => g.Key).Take(5).Skip(3).Distinct().Select(g => g.Key),
                 assertOrder: true,
-                entryCount: 31);
+                entryCount: 31));
         }
 
-        [ConditionalTheory(Skip = "Issue #17761")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Distinct(bool async)
         {
-            return AssertQuery(
-                async,
-                ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key));
+            return AssertTranslationFailed(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Order>().GroupBy(o => o.CustomerID).Distinct().Select(g => g.Key)));
         }
 
-        [ConditionalTheory(Skip = "Issue #18923")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_with_aggregate_through_navigation_property(bool async)
         {
@@ -2682,7 +2753,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         #region GroupBySelectFirst
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow(bool async)
         {
@@ -2693,7 +2764,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Select(g => EF.Property<string>(g.First(), "Title")));
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow2(bool async)
         {
@@ -2701,10 +2772,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => ss.Set<Employee>().Where(e => EF.Property<string>(e, "Title") == "Sales Representative" && e.EmployeeID == 1)
                     .GroupBy(e => EF.Property<string>(e, "Title"))
-                    .Select(g => g.First()));
+                    .Select(g => g.First()),
+                entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue #12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Shadow3(bool async)
         {
@@ -2943,7 +3015,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         # region GroupByInSubquery
 
-        [ConditionalTheory(Skip = "issue #15279")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Complex_query_with_groupBy_in_subquery1(bool async)
         {
@@ -2967,7 +3039,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "issue #15279")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Complex_query_with_groupBy_in_subquery2(bool async)
         {
@@ -2991,7 +3063,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
-        [ConditionalTheory(Skip = "issue #15279")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Complex_query_with_groupBy_in_subquery3(bool async)
         {
@@ -3011,7 +3083,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) =>
                 {
                     Assert.Equal(e.Key, a.Key);
-                    AssertCollection(e.Subquery, a.Subquery);
+                    AssertCollection(e.Subquery, a.Subquery, elementSorter: i => i.Sum);
                 });
         }
 
@@ -3076,27 +3148,27 @@ namespace Microsoft.EntityFrameworkCore.Query
         [MemberData(nameof(IsAsyncData))]
         public virtual Task AsEnumerable_in_subquery_for_GroupBy(bool async)
         {
-            return AssertTranslationFailed(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>()
-                        .Where(c => c.CustomerID.StartsWith("F"))
-                        .Select(c => new
-                        {
-                            Customer = c,
-                            Orders = ss.Set<Order>()
-                                .Where(o => o.CustomerID == c.CustomerID)
-                                .AsEnumerable()
-                                .GroupBy(o => o.CustomerID)
-                                .Select(g => g.OrderByDescending(e => e.OrderDate).FirstOrDefault())
-                                .ToList()
-                        }),
-                    elementSorter: e => e.Customer.CustomerID,
-                    elementAsserter: (e, a) =>
+            return AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Select(c => new
                     {
-                        AssertEqual(e.Customer, a.Customer);
-                        AssertCollection(e.Orders, a.Orders);
-                    }));
+                        Customer = c,
+                        Orders = ss.Set<Order>()
+                            .Where(o => o.CustomerID == c.CustomerID)
+                            .AsEnumerable()
+                            .GroupBy(o => o.CustomerID)
+                            .Select(g => g.OrderByDescending(e => e.OrderDate).FirstOrDefault())
+                            .ToList()
+                    }),
+                elementSorter: e => e.Customer.CustomerID,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Customer, a.Customer);
+                    AssertCollection(e.Orders, a.Orders);
+                },
+                entryCount: 15);
         }
 
         #endregion

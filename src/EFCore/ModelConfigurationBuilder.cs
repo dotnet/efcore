@@ -74,10 +74,15 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Marks the given and derived types as corresponding to entity type properties.
+        ///     <para>
+        ///         Marks the given and derived types as corresponding to entity type properties.
+        ///     </para>
+        ///     <para>
+        ///         This can also be called on an interface to apply the configuration to all properties of implementing types.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
-        /// <returns> An object that can be used to provide the configuration defaults for the properties. </returns>
+        /// <returns> An object that can be used to configure the properties. </returns>
         public virtual PropertiesConfigurationBuilder<TProperty> Properties<TProperty>()
         {
             var property = _modelConfiguration.GetOrAddProperty(typeof(TProperty));
@@ -86,7 +91,12 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Marks the given and derived types as corresponding to entity type properties.
+        ///     <para>
+        ///         Marks the given and derived types as corresponding to entity type properties.
+        ///     </para>
+        ///     <para>
+        ///         This can also be called on an interface to apply the configuration to all properties of implementing types.
+        ///     </para>
         /// </summary>
         /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
         /// <param name="buildAction"> An action that performs configuration of the property. </param>
@@ -105,7 +115,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Marks the given and derived types as corresponding to entity type properties.
+        ///     <para>
+        ///         Marks the given and derived types as corresponding to entity type properties.
+        ///     </para>
+        ///     <para>
+        ///         This can also be called on an interface or an unbound generic type to apply the configuration to all
+        ///         properties of implementing and constructed types.
+        ///     </para>
         /// </summary>
         /// <param name="propertyType"> The property type to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
@@ -119,7 +135,13 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Marks the given and derived types as corresponding to entity type properties.
+        ///     <para>
+        ///         Marks the given and derived types as corresponding to entity type properties.
+        ///     </para>
+        ///     <para>
+        ///         This can also be called on an interface or an unbound generic type to apply the configuration to all
+        ///         properties of implementing and constructed types.
+        ///     </para>
         /// </summary>
         /// <param name="propertyType"> The property type to be configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the property. </param>
@@ -135,6 +157,116 @@ namespace Microsoft.EntityFrameworkCore
 
             var propertyBuilder = Properties(propertyType);
             buildAction(propertyBuilder);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///         to be used in queries that are not referencing property of this type.
+        ///     </para>
+        ///     <para>
+        ///         Unlike <see cref="Properties{TProperty}()"/> this method should only be called on a non-nullable concrete type.
+        ///         Calling it on a base type will not apply the configuration to the derived types.
+        ///     </para>
+        ///     <para>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()"/>
+        ///         should be enough in most cases.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
+        /// <returns> An object that can be used to configure the scalars. </returns>
+        public virtual TypeMappingConfigurationBuilder<TScalar> DefaultTypeMapping<TScalar>()
+        {
+            var scalar = _modelConfiguration.GetOrAddTypeMapping(typeof(TScalar));
+
+            return new TypeMappingConfigurationBuilder<TScalar>(scalar);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///         to be used in queries that are not referencing property of this type.
+        ///     </para>
+        ///     <para>
+        ///         Unlike <see cref="Properties{TProperty}()"/> this method should only be called on a non-nullable concrete type.
+        ///         Calling it on a base type will not apply the configuration to the derived types.
+        ///     </para>
+        ///     <para>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties{TProperty}()"/>
+        ///         should be enough in most cases.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
+        /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder DefaultTypeMapping<TScalar>(
+            Action<TypeMappingConfigurationBuilder<TScalar>> buildAction)
+        {
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            var scalarBuilder = DefaultTypeMapping<TScalar>();
+            buildAction(scalarBuilder);
+
+            return this;
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///         to be used in queries that are not referencing property of this type.
+        ///     </para>
+        ///     <para>
+        ///         Unlike <see cref="Properties(Type)"/> this method should only be called on a non-nullable concrete type.
+        ///         Calling it on a base type will not apply the configuration to the derived types.
+        ///     </para>
+        ///     <para>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)"/>
+        ///         should be enough in most cases.
+        ///     </para>
+        /// </summary>
+        /// <param name="scalarType"> The scalar type to be configured. </param>
+        /// <returns> An object that can be used to configure the scalars. </returns>
+        public virtual TypeMappingConfigurationBuilder DefaultTypeMapping(Type scalarType)
+        {
+            Check.NotNull(scalarType, nameof(scalarType));
+
+            var scalar = _modelConfiguration.GetOrAddTypeMapping(scalarType);
+
+            return new TypeMappingConfigurationBuilder(scalar);
+        }
+
+        /// <summary>
+        ///     <para>
+        ///         Marks the given type as a scalar, even when used outside of entity types. This allows values of this type
+        ///         to be used in queries that are not referencing property of this type.
+        ///     </para>
+        ///     <para>
+        ///         Unlike <see cref="Properties(Type)"/> this method should only be called on a non-nullable concrete type.
+        ///         Calling it on a base type will not apply the configuration to the derived types.
+        ///     </para>
+        ///     <para>
+        ///         Calling this is rarely needed. If there are properties of the given type calling <see cref="Properties(Type)"/>
+        ///         should be enough in most cases.
+        ///     </para>
+        /// </summary>
+        /// <param name="scalarType"> The scalar type to be configured. </param>
+        /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
+        /// <returns>
+        ///     The same <see cref="ModelConfigurationBuilder" /> instance so that additional configuration calls can be chained.
+        /// </returns>
+        public virtual ModelConfigurationBuilder DefaultTypeMapping(
+            Type scalarType,
+            Action<TypeMappingConfigurationBuilder> buildAction)
+        {
+            Check.NotNull(scalarType, nameof(scalarType));
+            Check.NotNull(buildAction, nameof(buildAction));
+
+            var scalarBuilder = DefaultTypeMapping(scalarType);
+            buildAction(scalarBuilder);
 
             return this;
         }

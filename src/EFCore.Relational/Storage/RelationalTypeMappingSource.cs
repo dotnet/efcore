@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         The base class for relational type mapping starting with version 2.1. Relational providers
+    ///         The base class for relational type mapping source. Relational providers
     ///         should derive from this class and override <see cref="RelationalTypeMappingSource.FindMapping" />
     ///     </para>
     ///     <para>
@@ -78,7 +78,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Dependencies used to create this <see cref="RelationalTypeMappingSource" />
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
@@ -122,7 +122,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 }
             }
 
-            var resolvedMapping = _explicitMappings.GetOrAdd(
+            var resolvedMapping = FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
+
+            ValidateMapping(resolvedMapping, principals?[0]);
+
+            return resolvedMapping;
+        }
+
+        private RelationalTypeMapping? FindMappingWithConversion(RelationalTypeMappingInfo mappingInfo, Type? providerClrType, ValueConverter? customConverter)
+            => _explicitMappings.GetOrAdd(
                 (mappingInfo, providerClrType, customConverter),
                 k =>
                 {
@@ -180,11 +188,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     return mapping;
                 });
 
-            ValidateMapping(resolvedMapping, principals?[0]);
-
-            return resolvedMapping;
-        }
-
         /// <summary>
         ///     <para>
         ///         Finds the type mapping for a given <see cref="IProperty" />.
@@ -233,8 +236,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     </para>
         ///     <para>
         ///         Note: Only call this method if there is no <see cref="IProperty" />
-        ///         or <see cref="MemberInfo" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-        ///         or <see cref="FindMapping(MemberInfo)" />
+        ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
+        ///         or <see cref="FindMapping(Type, IModel)" />
         ///     </para>
         ///     <para>
         ///         Note: providers should typically not need to override this method.
@@ -244,6 +247,84 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(Type type)
             => FindMappingWithConversion(new RelationalTypeMappingInfo(type), null);
+
+        /// <summary>
+        ///     <para>
+        ///         Finds the type mapping for a given <see cref="Type" />, taking pre-convention configuration into the account.
+        ///     </para>
+        ///     <para>
+        ///         Note: Only call this method if there is no <see cref="IProperty" />,
+        ///         otherwise call <see cref="FindMapping(IProperty)" />.
+        ///     </para>
+        /// </summary>
+        /// <param name="type"> The CLR type. </param>
+        /// <param name="model"> The model. </param>
+        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        public override CoreTypeMapping? FindMapping(Type type, IModel model)
+        {
+            type = type.UnwrapNullableType();
+            var typeConfiguration = model.FindTypeMappingConfiguration(type);
+            RelationalTypeMappingInfo mappingInfo;
+            Type? providerClrType = null;
+            ValueConverter? customConverter = null;
+            if (typeConfiguration == null)
+            {
+                mappingInfo = new RelationalTypeMappingInfo(type);
+            }
+            else
+            {
+                providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
+                customConverter = typeConfiguration.GetValueConverter();
+
+                var isUnicode = typeConfiguration.IsUnicode();
+                var scale = typeConfiguration.GetScale();
+                var precision = typeConfiguration.GetPrecision();
+                var size = typeConfiguration.GetMaxLength();
+
+                var storeTypeName = (string?)typeConfiguration[RelationalAnnotationNames.ColumnType];
+                string? storeTypeBaseName = null;
+                if (storeTypeName != null)
+                {
+                   storeTypeBaseName = ParseStoreTypeName(
+                        storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
+
+                    if (size == null)
+                    {
+                        size = parsedSize;
+                    }
+
+                    if (precision == null)
+                    {
+                        precision = parsedPrecision;
+                    }
+
+                    if (scale == null)
+                    {
+                        scale = parsedScale;
+                    }
+
+                    if (isUnicode == null)
+                    {
+                        isUnicode = parsedUnicode;
+                    }
+                }
+
+                var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
+                mappingInfo = new RelationalTypeMappingInfo(
+                    customConverter?.ProviderClrType ?? type,
+                    storeTypeName,
+                    storeTypeBaseName,
+                    keyOrIndex: false,
+                    unicode: isUnicode,
+                    size: size,
+                    rowVersion: false,
+                    fixedLength: isFixedLength,
+                    precision: precision,
+                    scale: scale);
+            }
+
+            return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
+        }
 
         /// <summary>
         ///     <para>
@@ -369,6 +450,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <inheritdoc />
         RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(Type type)
             => (RelationalTypeMapping?)FindMapping(type);
+
+        /// <inheritdoc />
+        RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(Type type, IModel model)
+            => (RelationalTypeMapping?)FindMapping(type, model);
 
         /// <inheritdoc />
         RelationalTypeMapping? IRelationalTypeMappingSource.FindMapping(MemberInfo member)

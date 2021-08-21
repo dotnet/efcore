@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ValueGeneratorSelectorDependencies Dependencies { get; }
 
@@ -68,7 +68,37 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         }
 
         private static ValueGenerator? CreateFromFactory(IProperty property, IEntityType entityType)
-            => (property.GetValueGeneratorFactory() ?? property.GetTypeMapping().ValueGeneratorFactory)?.Invoke(property, entityType);
+        {
+            var factory = property.GetValueGeneratorFactory();
+
+            if (factory == null)
+            {
+                var mapping = property.GetTypeMapping();
+                factory = mapping.ValueGeneratorFactory;
+
+                if (factory == null)
+                {
+                    var converter = mapping.Converter;
+
+                    if (converter != null)
+                    {
+                        var type = converter.ProviderClrType.UnwrapNullableType();
+                        if (!type.IsInteger()
+                            && !type.IsEnum
+                            && type != typeof(decimal))
+                        {
+                            throw new NotSupportedException(
+                                CoreStrings.ValueGenWithConversion(
+                                    property.DeclaringEntityType.DisplayName(),
+                                    property.Name,
+                                    converter.GetType().ShortDisplayName()));
+                        }
+                    }
+                }
+            }
+
+            return factory?.Invoke(property, entityType);
+        }
 
         /// <summary>
         ///     Creates a new value generator for the given property.

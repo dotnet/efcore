@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         public abstract string Language { get; }
 
         /// <summary>
-        ///     Parameter object containing dependencies for this service.
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ModelCodeGeneratorDependencies Dependencies { get; }
 

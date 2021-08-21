@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     public class MigrationCommandListBuilder
     {
         private readonly List<MigrationCommand> _commands = new();
-        private readonly MigrationsSqlGeneratorDependencies _dependencies;
 
         private IRelationalCommandBuilder _commandBuilder;
 
@@ -28,9 +27,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
-            _dependencies = dependencies;
+            Dependencies = dependencies;
             _commandBuilder = dependencies.CommandBuilderFactory.Create();
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual MigrationsSqlGeneratorDependencies Dependencies { get; }
 
         /// <summary>
         ///     Gets the list of built commands.
@@ -54,11 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 _commands.Add(
                     new MigrationCommand(
                         _commandBuilder.Build(),
-                        _dependencies.CurrentContext.Context,
-                        _dependencies.Logger,
+                        Dependencies.CurrentContext.Context,
+                        Dependencies.Logger,
                         suppressTransaction));
 
-                _commandBuilder = _dependencies.CommandBuilderFactory.Create();
+                _commandBuilder = Dependencies.CommandBuilderFactory.Create();
             }
 
             return this;

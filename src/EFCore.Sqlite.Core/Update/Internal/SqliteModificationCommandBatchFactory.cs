@@ -23,8 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
     /// </summary>
     public class SqliteModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
-        private readonly ModificationCommandBatchFactoryDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -36,8 +34,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         {
             Check.NotNull(dependencies, nameof(dependencies));
 
-            _dependencies = dependencies;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Relational provider-specific dependencies for this service.
+        /// </summary>
+        protected virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,6 +49,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual ModificationCommandBatch Create()
-            => new SingularModificationCommandBatch(_dependencies);
+            => new SingularModificationCommandBatch(Dependencies);
     }
 }

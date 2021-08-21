@@ -62,7 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IndexFound,
             ForeignKeyFound,
             ForeignKeyPrincipalColumnMissingWarning,
-            ReflexiveConstraintIgnored
+            ReflexiveConstraintIgnored,
+            DuplicateForeignKeyConstraintIgnored,
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -230,5 +231,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
         /// </summary>
         public static readonly EventId ReflexiveConstraintIgnored = MakeScaffoldingId(Id.ReflexiveConstraintIgnored);
+
+        /// <summary>
+        ///     A duplicate foreign key constraint was skipped.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId DuplicateForeignKeyConstraintIgnored = MakeScaffoldingId(Id.DuplicateForeignKeyConstraintIgnored);
     }
 }

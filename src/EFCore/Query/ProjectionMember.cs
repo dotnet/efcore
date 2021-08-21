@@ -81,6 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => _memberChain.LastOrDefault();
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         public override int GetHashCode()
         {
             var hash = new HashCode();
@@ -94,6 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         /// <inheritdoc />
+        [DebuggerStepThrough]
         public override bool Equals(object? obj)
             => obj != null
                 && (obj is ProjectionMember projectionMember

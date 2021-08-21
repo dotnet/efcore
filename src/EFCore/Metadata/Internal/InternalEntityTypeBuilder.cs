@@ -4466,6 +4466,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                     return (false, null);
                                 }
 
+                                if (index > 0)
+                                {
+                                    propertyBuilder.HasAnnotation(
+                                        CoreAnnotationNames.PreUniquificationName,
+                                        keyModifiedBaseName,
+                                        ConfigurationSource.Convention);
+                                }
+
                                 if (clrType.IsNullableType())
                                 {
                                     propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);

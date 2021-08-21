@@ -117,5 +117,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 annotations.Remove(SqlServerAnnotationNames.Clustered);
             }
         }
+
+        /// <summary>
+        ///     Updates the entity type annotations that will be set on the read-only object.
+        /// </summary>
+        /// <param name="annotations"> The annotations to be processed. </param>
+        /// <param name="entityType"> The source entity type. </param>
+        /// <param name="runtimeEntityType"> The target entity type that will contain the annotations. </param>
+        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        protected override void ProcessEntityTypeAnnotations(
+            IDictionary<string, object?> annotations,
+            IEntityType entityType,
+            RuntimeEntityType runtimeEntityType,
+            bool runtime)
+        {
+            base.ProcessEntityTypeAnnotations(annotations, entityType, runtimeEntityType, runtime);
+
+            if (!runtime)
+            {
+                annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+                annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
+            }
+        }
     }
 }

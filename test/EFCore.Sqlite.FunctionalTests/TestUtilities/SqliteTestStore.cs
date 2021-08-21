@@ -41,7 +41,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             }.ToString();
 
             var connection = new SqliteConnection(ConnectionString);
-            SpatialiteLoader.TryLoad(connection);
             Connection = connection;
         }
 

@@ -3,7 +3,7 @@
 <#@ parameter name="Assembly" type="System.String" #>
 <#@ parameter name="StartupAssembly" type="System.String" #>
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 
 return MigrationsBundle.Execute(
     "<#= ContextType #>",

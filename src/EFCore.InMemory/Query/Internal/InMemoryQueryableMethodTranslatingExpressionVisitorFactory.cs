@@ -22,8 +22,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     /// </summary>
     public class InMemoryQueryableMethodTranslatingExpressionVisitorFactory : IQueryableMethodTranslatingExpressionVisitorFactory
     {
-        private readonly QueryableMethodTranslatingExpressionVisitorDependencies _dependencies;
-
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,8 +31,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         public InMemoryQueryableMethodTranslatingExpressionVisitorFactory(
             QueryableMethodTranslatingExpressionVisitorDependencies dependencies)
         {
-            _dependencies = dependencies;
+            Dependencies = dependencies;
         }
+
+        /// <summary>
+        ///     Dependencies for this service.
+        /// </summary>
+        protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -46,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            return new InMemoryQueryableMethodTranslatingExpressionVisitor(_dependencies, queryCompilationContext);
+            return new InMemoryQueryableMethodTranslatingExpressionVisitor(Dependencies, queryCompilationContext);
         }
     }
 }

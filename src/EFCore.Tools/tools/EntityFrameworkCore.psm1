@@ -110,14 +110,23 @@ Register-TabExpansion Bundle-Migration @{
 .DESCRIPTION
     Creates an executable to update the database.
 
+.PARAMETER Output
+    The path of executable file to create.
+
+.PARAMETER Force
+    Overwrite existing files.
+
 .PARAMETER SelfContained
     Also bundle the .NET runtime so it doesn't need to be installed on the machine.
 
-.PARAMETER Runtime
+.PARAMETER TargetRuntime
     The target runtime to bundle for.
 
 .PARAMETER Configuration
-    The configuration to use.
+    The configuration to use for the bundle.
+
+.PARAMETER Framework
+    The target framework. Defaults to the first one in the project.
 
 .PARAMETER Context
     The DbContext to use.
@@ -127,9 +136,6 @@ Register-TabExpansion Bundle-Migration @{
 
 .PARAMETER StartupProject
     The startup project to use. Defaults to the solution's startup project.
-
-.PARAMETER Namespace
-    The namespace to use. Matches the directory by default.
 
 .PARAMETER Args
     Arguments passed to the application.
@@ -143,34 +149,50 @@ function Bundle-Migration
 {
     [CmdletBinding(PositionalBinding = $false)]
     param(
+        [string] $Output,
+        [switch] $Force,
         [switch] $SelfContained,
-        [string] $Runtime,
+        [string] $TargetRuntime,
         [string] $Configuration,
-        [string] $OutputDir,
+        [string] $Framework,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
-        [string] $Namespace,
         [string] $Args)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
 
-    $params = 'migrations', 'bundle'
+    if (!$Framework)
+    {
+        $Framework = GetProperty $dteStartupProject.Properties 'FriendlyTargetFramework'
+    }
+
+    $params = 'migrations', 'bundle', '--framework', $Framework
+
+    if ($Output)
+    {
+        $params += '--output', $Output
+    }
+
+    if ($Force)
+    {
+        $params += '--force'
+    }
 
     if ($SelfContained)
     {
         $params += '--self-contained'
     }
 
-    if ($Runtime)
+    if ($TargetRuntime)
     {
-        $params += '--runtime', $Runtime
+        $params += '--target-runtime', $TargetRuntime
     }
 
     if ($Configuration)
     {
-        $params += '--configuration', $Configuration
+        $params += '--target-configuration', $Configuration
     }
 
     $params += GetParams $Context

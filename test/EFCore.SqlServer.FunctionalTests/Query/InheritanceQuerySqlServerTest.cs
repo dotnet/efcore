@@ -286,7 +286,7 @@ FROM (
     WHERE [a].[Discriminator] = N'Eagle'
 ) AS [t]
 LEFT JOIN [Animals] AS [a0] ON [t].[Species] = [a0].[EagleId]
-ORDER BY [t].[Species], [a0].[Species]");
+ORDER BY [t].[Species]");
         }
 
         public override async Task Can_include_animals(bool async)
@@ -297,7 +297,7 @@ ORDER BY [t].[Species], [a0].[Species]");
                 @"SELECT [c].[Id], [c].[Name], [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Countries] AS [c]
 LEFT JOIN [Animals] AS [a] ON [c].[Id] = [a].[CountryId]
-ORDER BY [c].[Name], [c].[Id], [a].[Species]");
+ORDER BY [c].[Name], [c].[Id]");
         }
 
         public override async Task Can_use_of_type_kiwi_where_north_on_derived_property(bool async)

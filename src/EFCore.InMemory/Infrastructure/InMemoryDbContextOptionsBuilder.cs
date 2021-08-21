@@ -46,14 +46,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Enables nullability check for all properties across all entities within the in-memory database.
         ///     </para>
         /// </summary>
-        /// <param name="nullabilityCheckEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
+        /// <param name="nullChecksEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
-        public virtual InMemoryDbContextOptionsBuilder EnableNullabilityCheck(bool nullabilityCheckEnabled = true)
+        public virtual InMemoryDbContextOptionsBuilder EnableNullChecks(bool nullChecksEnabled = true)
         {
             var extension = OptionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
                 ?? new InMemoryOptionsExtension();
 
-            extension = extension.WithNullabilityCheckEnabled(nullabilityCheckEnabled);
+            extension = extension.WithNullabilityCheckEnabled(nullChecksEnabled);
 
             ((IDbContextOptionsBuilderInfrastructure)OptionsBuilder).AddOrUpdateExtension(extension);
 

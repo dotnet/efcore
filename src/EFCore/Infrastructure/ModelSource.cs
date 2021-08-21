@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Dependencies used to create a <see cref="ModelSource" />
+        ///     Dependencies for this service.
         /// </summary>
         protected virtual ModelSourceDependencies Dependencies { get; }
 

@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Dependencies for this service.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
-        public virtual RelationalCommandBuilderDependencies Dependencies { get; }
+        protected virtual RelationalCommandBuilderDependencies Dependencies { get; }
 
         /// <summary>
         ///     Creates a new <see cref="IRelationalCommandBuilder" />.

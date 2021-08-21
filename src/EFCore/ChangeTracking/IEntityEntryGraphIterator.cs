@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-track-graph">Tracking entities in EF Core</see>.
+    /// </remarks>
     public interface IEntityEntryGraphIterator
     {
         /// <summary>

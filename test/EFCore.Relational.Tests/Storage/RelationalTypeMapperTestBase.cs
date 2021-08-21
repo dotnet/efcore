@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Storage
@@ -28,7 +29,118 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
         protected IModel CreateModel() => CreateEntityType<MyType>().Model.FinalizeModel();
 
-        protected abstract ModelBuilder CreateModelBuilder();
+        protected RelationalTypeMapping GetTypeMapping(
+            Type propertyType,
+            bool? nullable = null,
+            int? maxLength = null,
+            int? precision = null,
+            int? scale = null,
+            Type providerType = null,
+            bool? unicode = null,
+            bool? fixedLength = null,
+            string storeTypeName = null,
+            bool useConfiguration = false)
+        {
+            if (useConfiguration)
+            {
+                var model = CreateModelBuilder(c =>
+                {
+                    var scalarBuilder = c.DefaultTypeMapping(propertyType);
+
+                    if (maxLength.HasValue)
+                    {
+                        scalarBuilder.HasMaxLength(maxLength.Value);
+                    }
+
+                    if (precision.HasValue)
+                    {
+                        if (scale.HasValue)
+                        {
+                            scalarBuilder.HasPrecision(precision.Value, scale.Value);
+                        }
+                        else
+                        {
+                            scalarBuilder.HasPrecision(precision.Value);
+                        }
+                    }
+
+                    if (providerType != null)
+                    {
+                        scalarBuilder.HasConversion(providerType);
+                    }
+
+                    if (unicode.HasValue)
+                    {
+                        scalarBuilder.IsUnicode(unicode.Value);
+                    }
+
+                    if (fixedLength.HasValue)
+                    {
+                        scalarBuilder.IsFixedLength(fixedLength.Value);
+                    }
+
+                    if (storeTypeName != null)
+                    {
+                        scalarBuilder.HasColumnType(storeTypeName);
+                    }
+                }).FinalizeModel();
+
+                return CreateRelationalTypeMappingSource().GetMapping(propertyType, model);
+            }
+            else
+            {
+                var modelBuilder = CreateModelBuilder();
+                var entityType = modelBuilder.Entity<MyType>();
+                entityType.Property(e => e.Id);
+                var property = entityType.Property(propertyType, "MyProp").Metadata;
+
+                if (nullable.HasValue)
+                {
+                    property.IsNullable = nullable.Value;
+                }
+
+                if (maxLength.HasValue)
+                {
+                    property.SetMaxLength(maxLength);
+                }
+
+                if (precision.HasValue)
+                {
+                    property.SetPrecision(precision);
+                }
+
+                if (scale.HasValue)
+                {
+                    property.SetScale(scale);
+                }
+
+                if (providerType != null)
+                {
+                    property.SetProviderClrType(providerType);
+                }
+
+                if (unicode.HasValue)
+                {
+                    property.SetIsUnicode(unicode);
+                }
+
+                if (fixedLength.HasValue)
+                {
+                    property.SetIsFixedLength(fixedLength);
+                }
+
+                if (storeTypeName != null)
+                {
+                    property.SetColumnType(storeTypeName);
+                }
+
+                var model = modelBuilder.Model.FinalizeModel();
+                return CreateRelationalTypeMappingSource().GetMapping(model.FindEntityType(typeof(MyType)).FindProperty(property.Name));
+            }
+        }
+
+        protected abstract ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null);
+        protected abstract IRelationalTypeMappingSource CreateRelationalTypeMappingSource();
 
         protected class MyType
         {

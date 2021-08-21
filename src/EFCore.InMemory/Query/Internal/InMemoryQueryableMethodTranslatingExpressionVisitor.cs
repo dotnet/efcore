@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
     public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMethodTranslatingExpressionVisitor
     {
         private readonly InMemoryExpressionTranslatingExpressionVisitor _expressionTranslator;
-        private readonly WeakEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
+        private readonly SharedTypeEntityExpandingExpressionVisitor _weakEntityExpandingExpressionVisitor;
         private readonly InMemoryProjectionBindingExpressionVisitor _projectionBindingExpressionVisitor;
         private readonly IModel _model;
 
@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             : base(dependencies, queryCompilationContext, subquery: false)
         {
             _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(queryCompilationContext, this);
-            _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_expressionTranslator);
+            _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
             _model = queryCompilationContext.Model;
         }
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             : base(parentVisitor.Dependencies, parentVisitor.QueryCompilationContext, subquery: true)
         {
             _expressionTranslator = new InMemoryExpressionTranslatingExpressionVisitor(QueryCompilationContext, parentVisitor);
-            _weakEntityExpandingExpressionVisitor = new WeakEntityExpandingExpressionVisitor(_expressionTranslator);
+            _weakEntityExpandingExpressionVisitor = new SharedTypeEntityExpandingExpressionVisitor(_expressionTranslator);
             _projectionBindingExpressionVisitor = new InMemoryProjectionBindingExpressionVisitor(this, _expressionTranslator);
             _model = parentVisitor._model;
         }
@@ -69,6 +69,24 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         /// </summary>
         protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
             => new InMemoryQueryableMethodTranslatingExpressionVisitor(this);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitExtension(Expression extensionExpression)
+        {
+            if (extensionExpression is GroupByShaperExpression groupByShaperExpression)
+            {
+                var shapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
+                return ((InMemoryQueryExpression)shapedQueryExpression.QueryExpression)
+                    .Clone(shapedQueryExpression.ShaperExpression);
+            }
+
+            return base.VisitExtension(extensionExpression);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -441,7 +459,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                     new Expression[] { original1, original2 },
                     new[] { groupByShaper.KeySelector, groupByShaper }).Visit(resultSelector.Body);
 
-                newResultSelectorBody = ExpandWeakEntities(inMemoryQueryExpression, newResultSelectorBody);
+                newResultSelectorBody = ExpandSharedTypeEntities(inMemoryQueryExpression, newResultSelectorBody);
                 var newShaper = _projectionBindingExpressionVisitor.Translate(inMemoryQueryExpression, newResultSelectorBody);
 
                 return source.UpdateShaperExpression(newShaper);
@@ -1265,13 +1283,13 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             var lambdaBody = ReplacingExpressionVisitor.Replace(
                 lambdaExpression.Parameters.Single(), shapedQueryExpression.ShaperExpression, lambdaExpression.Body);
 
-            return ExpandWeakEntities((InMemoryQueryExpression)shapedQueryExpression.QueryExpression, lambdaBody);
+            return ExpandSharedTypeEntities((InMemoryQueryExpression)shapedQueryExpression.QueryExpression, lambdaBody);
         }
 
-        internal Expression ExpandWeakEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
+        internal Expression ExpandSharedTypeEntities(InMemoryQueryExpression queryExpression, Expression lambdaBody)
             => _weakEntityExpandingExpressionVisitor.Expand(queryExpression, lambdaBody);
 
-        private sealed class WeakEntityExpandingExpressionVisitor : ExpressionVisitor
+        private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _objectEqualsMethodInfo
                 = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
@@ -1280,7 +1298,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
             private InMemoryQueryExpression _queryExpression;
 
-            public WeakEntityExpandingExpressionVisitor(InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
+            public SharedTypeEntityExpandingExpressionVisitor(InMemoryExpressionTranslatingExpressionVisitor expressionTranslator)
             {
                 _expressionTranslator = expressionTranslator;
                 _queryExpression = null!;
@@ -1513,7 +1531,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         inMemoryQueryExpression.CurrentParameter)
                     : TranslateLambdaExpression(source, selector, preserveType: true);
 
-            if (selector == null)
+            if (selector == null
+                || selector.Body is EntityProjectionExpression)
             {
                 return null;
             }

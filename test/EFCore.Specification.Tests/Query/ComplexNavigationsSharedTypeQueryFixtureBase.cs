@@ -67,9 +67,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<InheritanceLeaf2>().Property(e => e.Id).ValueGeneratedNever();
 
             // FK name needs to be explicitly provided because issue #9310
-            modelBuilder.Entity<InheritanceBase2>().HasOne(e => e.Reference).WithOne().HasForeignKey<InheritanceBase1>("InheritanceBase2Id")
+            modelBuilder.Entity<InheritanceBase2>().HasOne(e => e.Reference).WithOne()
+                .HasForeignKey<InheritanceBase1>("InheritanceBase2Id1")
                 .IsRequired(false);
-            modelBuilder.Entity<InheritanceBase2>().HasMany(e => e.Collection).WithOne();
+            modelBuilder.Entity<InheritanceBase2>().HasMany(e => e.Collection).WithOne()
+                .HasForeignKey("InheritanceBase2Id");
 
             modelBuilder.Entity<InheritanceDerived1>().HasBaseType<InheritanceBase1>();
             modelBuilder.Entity<InheritanceDerived1>().HasOne(e => e.ReferenceSameType).WithOne()

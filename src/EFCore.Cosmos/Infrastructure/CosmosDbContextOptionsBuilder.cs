@@ -4,6 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Net;
+using System.Net.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Storage;

@@ -3,11 +3,14 @@
 
 using System;
 using System.Net;
+using System.Net.Http;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -15,6 +18,44 @@ namespace Microsoft.EntityFrameworkCore
 {
     public class CosmosDbContextOptionsExtensionsTests
     {
+        [ConditionalFact]
+        public void Service_collection_extension_method_can_configure_Cosmos_options()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddCosmos<ApplicationDbContext>(
+                "Database=Crunchie",
+                "Crunchie",
+                cosmosOptions =>
+                {
+                    cosmosOptions.IdleTcpConnectionTimeout(new TimeSpan(0, 5, 50));
+                    cosmosOptions.OpenTcpConnectionTimeout(new TimeSpan(0, 2, 45));
+                },
+                dbContextOption =>
+                {
+                    dbContextOption.EnableDetailedErrors();
+                });
+
+            var services = serviceCollection.BuildServiceProvider(validateScopes: true);
+
+            using (var serviceScope = services
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                var coreOptions = serviceScope.ServiceProvider
+                    .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CoreOptionsExtension>();
+
+                Assert.True(coreOptions.DetailedErrorsEnabled);
+
+                var cosmosOptions = serviceScope.ServiceProvider
+                    .GetRequiredService<DbContextOptions<ApplicationDbContext>>().GetExtension<CosmosOptionsExtension>();
+
+                Assert.Equal(new TimeSpan(0, 5, 50), cosmosOptions.IdleTcpConnectionTimeout);
+                Assert.Equal(new TimeSpan(0, 2, 45), cosmosOptions.OpenTcpConnectionTimeout);
+                Assert.Equal("Database=Crunchie", cosmosOptions.ConnectionString);
+                Assert.Equal("Crunchie", cosmosOptions.DatabaseName);
+            }
+        }
+
         [ConditionalFact]
         public void Throws_with_multiple_providers_new_when_no_provider()
         {

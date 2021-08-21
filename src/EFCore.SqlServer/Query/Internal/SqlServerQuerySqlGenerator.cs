@@ -3,9 +3,9 @@
 
 using System;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
@@ -112,52 +112,49 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             if (extensionExpression is TemporalTableExpression temporalTableExpression)
             {
-                Sql
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Name, temporalTableExpression.Schema))
+                Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Name, temporalTableExpression.Schema))
                     .Append(" FOR SYSTEM_TIME ");
 
-                switch (temporalTableExpression.TemporalOperationType)
+                switch (temporalTableExpression)
                 {
-                    case TemporalOperationType.AsOf:
-                        Sql
-                            .Append("AS OF ")
-                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.PointInTime));
+                    case TemporalAsOfTableExpression asOf:
+                        Sql.Append("AS OF ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(asOf.PointInTime));
                         break;
 
-                    case TemporalOperationType.FromTo:
-                        Sql
-                            .Append("FROM ")
-                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.From))
+                    case TemporalFromToTableExpression fromTo:
+                        Sql.Append("FROM ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(fromTo.From))
                             .Append(" TO ")
-                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.To));
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(fromTo.To));
                         break;
 
-                    case TemporalOperationType.Between:
-                        Sql
-                            .Append("BETWEEN ")
-                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.From))
+                    case TemporalBetweenTableExpression between:
+                        Sql.Append("BETWEEN ")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(between.From))
                             .Append(" AND ")
-                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.To));
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(between.To));
                         break;
 
-                    case TemporalOperationType.ContainedIn:
-                        Sql
-                            .Append("CONTAINED IN (")
-                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.From))
+                    case TemporalContainedInTableExpression containedIn:
+                        Sql.Append("CONTAINED IN (")
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(containedIn.From))
                             .Append(", ")
-                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(temporalTableExpression.To))
+                            .Append(Sql.TypeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(containedIn.To))
                             .Append(")");
                         break;
 
-                    default:
+                    case TemporalAllTableExpression _:
                         Sql.Append("ALL");
                         break;
+
+                    default:
+                        throw new InvalidOperationException(temporalTableExpression.Print());
                 }
 
                 if (temporalTableExpression.Alias != null)
                 {
-                    Sql
-                        .Append(AliasSeparator)
+                    Sql.Append(AliasSeparator)
                         .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(temporalTableExpression.Alias));
                 }
 

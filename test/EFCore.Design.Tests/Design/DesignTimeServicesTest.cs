@@ -113,7 +113,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
         {
             public virtual void ConfigureDesignTimeServices(IServiceCollection serviceCollection)
             {
-                serviceCollection.TryAddSingleton<IDatabaseModelFactory, ExtensionDatabaseModelFactory>();
+                serviceCollection.TryAddScoped<IDatabaseModelFactory, ExtensionDatabaseModelFactory>();
                 serviceCollection.TryAddSingleton<IMigrationsIdGenerator, ExtensionMigrationsIdGenerator>();
                 serviceCollection.TryAddSingleton<IHistoryRepository, ExtensionHistoryRepository>();
                 serviceCollection.TryAddSingleton<IProviderConfigurationCodeGenerator, ExtensionProviderConfigurationCodeGenerator>();

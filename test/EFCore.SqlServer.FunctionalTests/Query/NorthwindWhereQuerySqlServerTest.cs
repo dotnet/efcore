@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             : base(fixture)
         {
             ClearLog();
-            Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         }
 
         protected override bool CanExecuteQueryString
@@ -728,6 +728,18 @@ WHERE GETDATE() <> @__myDatetime_0");
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE GETUTCDATE() <> @__myDatetime_0");
+        }
+
+        public override async Task Where_datetimeoffset_utcnow(bool async)
+        {
+            await base.Where_datetimeoffset_utcnow(async);
+
+            AssertSql(
+                @"@__myDatetimeOffset_0='2015-04-10T00:00:00.0000000-08:00'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE CAST(SYSUTCDATETIME() AS datetimeoffset) <> @__myDatetimeOffset_0");
         }
 
         public override async Task Where_datetime_today(bool async)
@@ -1589,7 +1601,7 @@ FROM (
     WHERE [c].[CustomerID] = N'ALFKI'
 ) AS [t]
 LEFT JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]",
+ORDER BY [t].[CustomerID]",
                 //
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
@@ -1839,7 +1851,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]) = 0
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_ToList_Contains(bool async)
@@ -1854,7 +1866,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = [c].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI'))
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_ToArray_Count(bool async)
@@ -1869,7 +1881,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]) = 0
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_ToArray_Contains(bool async)
@@ -1884,7 +1896,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = [c].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI'))
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_AsEnumerable_Count(bool async)
@@ -1899,7 +1911,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]) = 0
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_AsEnumerable_Contains(bool async)
@@ -1914,7 +1926,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = [c].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI'))
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_AsEnumerable_Contains_negated(bool async)
@@ -1929,7 +1941,7 @@ WHERE NOT (EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([o].[CustomerID] = [c].[CustomerID]) AND ([o].[CustomerID] = N'ALFKI')))
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_ToList_Count_member(bool async)
@@ -1944,7 +1956,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]) = 0
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_Queryable_ToArray_Length_member(bool async)
@@ -1959,7 +1971,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [o].[CustomerID] = [c].[CustomerID]) = 0
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID]");
         }
 
         public override async Task Where_collection_navigation_ToList_Count(bool async)
@@ -1974,7 +1986,7 @@ WHERE ([o].[OrderID] < 10300) AND ((
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 0)
-ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
+ORDER BY [o].[OrderID], [o1].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToList_Contains(bool async)
@@ -1984,14 +1996,17 @@ ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
             AssertSql(
                 @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
 
-SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] = @__entity_equality_order_0_OrderID))
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToArray_Count(bool async)
@@ -2006,7 +2021,7 @@ WHERE ([o].[OrderID] < 10300) AND ((
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 0)
-ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
+ORDER BY [o].[OrderID], [o1].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToArray_Contains(bool async)
@@ -2016,14 +2031,17 @@ ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
             AssertSql(
                 @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
 
-SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] = @__entity_equality_order_0_OrderID))
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_AsEnumerable_Count(bool async)
@@ -2038,7 +2056,7 @@ WHERE ([o].[OrderID] < 10300) AND ((
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 0)
-ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
+ORDER BY [o].[OrderID], [o1].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_AsEnumerable_Contains(bool async)
@@ -2048,14 +2066,17 @@ ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
             AssertSql(
                 @"@__entity_equality_order_0_OrderID='10248' (Nullable = true)
 
-SELECT [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+SELECT [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
+LEFT JOIN (
+    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    FROM [Orders] AS [o0]
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] = @__entity_equality_order_0_OrderID))
-ORDER BY [c].[CustomerID], [o0].[OrderID]");
+ORDER BY [c].[CustomerID], [t].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToList_Count_member(bool async)
@@ -2070,7 +2091,7 @@ WHERE ([o].[OrderID] < 10300) AND ((
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 0)
-ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
+ORDER BY [o].[OrderID], [o1].[OrderID]");
         }
 
         public override async Task Where_collection_navigation_ToArray_Length_member(bool async)
@@ -2085,7 +2106,7 @@ WHERE ([o].[OrderID] < 10300) AND ((
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
     WHERE [o].[OrderID] = [o0].[OrderID]) = 0)
-ORDER BY [o].[OrderID], [o1].[OrderID], [o1].[ProductID]");
+ORDER BY [o].[OrderID], [o1].[OrderID]");
         }
 
         public override async Task Where_list_object_contains_over_value_type(bool async)

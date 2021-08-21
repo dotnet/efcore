@@ -163,77 +163,31 @@ namespace System
         }
 
         public static PropertyInfo GetRequiredProperty(this Type type, string name)
-        {
-            var property = type.GetTypeInfo().GetProperty(name);
-            if (property == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return property;
-        }
+            => type.GetTypeInfo().GetProperty(name)
+                ?? throw new InvalidOperationException($"Could not find property '{name}' on type '{type}'");
 
         public static FieldInfo GetRequiredDeclaredField(this Type type, string name)
-        {
-            var field = type.GetTypeInfo().GetDeclaredField(name);
-            if (field == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return field;
-        }
+            => type.GetTypeInfo().GetDeclaredField(name)
+                ?? throw new InvalidOperationException($"Could not find field '{name}' on type '{type}'");
 
         public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name)
-        {
-            var method = type.GetTypeInfo().GetDeclaredMethod(name);
-            if (method == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return method;
-        }
+            => type.GetTypeInfo().GetDeclaredMethod(name) 
+                ?? throw new InvalidOperationException($"Could not find method '{name}' on type '{type}'");
 
         public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name, Func<MethodInfo, bool> methodSelector)
-        {
-            var method = type.GetTypeInfo().GetDeclaredMethods(name).Single(methodSelector);
-
-            return method;
-        }
+            => type.GetTypeInfo().GetDeclaredMethods(name).Single(methodSelector);
 
         public static PropertyInfo GetRequiredDeclaredProperty(this Type type, string name)
-        {
-            var property = type.GetTypeInfo().GetDeclaredProperty(name);
-            if (property == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return property;
-        }
+            => type.GetTypeInfo().GetDeclaredProperty(name)
+                ?? throw new InvalidOperationException($"Could not find property '{name}' on type '{type}'");
 
         public static MethodInfo GetRequiredRuntimeMethod(this Type type, string name, params Type[] parameters)
-        {
-            var method = type.GetTypeInfo().GetRuntimeMethod(name, parameters);
-            if (method == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return method;
-        }
+            => type.GetTypeInfo().GetRuntimeMethod(name, parameters)
+                ?? throw new InvalidOperationException($"Could not find method '{name}' on type '{type}'");
 
         public static PropertyInfo GetRequiredRuntimeProperty(this Type type, string name)
-        {
-            var property = type.GetTypeInfo().GetRuntimeProperty(name);
-            if (property == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return property;
-        }
+            => type.GetTypeInfo().GetRuntimeProperty(name)
+                ?? throw new InvalidOperationException($"Could not find property '{name}' on type '{type}'");
 
         public static bool IsInstantiable(this Type type)
             => !type.IsAbstract
@@ -347,6 +301,40 @@ namespace System
             }
         }
 
+        public static List<Type> GetBaseTypesAndInterfacesInclusive(this Type type)
+        {
+            var baseTypes = new List<Type>();
+            var typesToProcess = new Queue<Type>();
+            typesToProcess.Enqueue(type);
+
+            while (typesToProcess.Count > 0)
+            {
+                type = typesToProcess.Dequeue();
+                baseTypes.Add(type);
+
+                if (type.IsConstructedGenericType)
+                {
+                    typesToProcess.Enqueue(type.GetGenericTypeDefinition());
+                }
+
+                if (!type.IsGenericTypeDefinition
+                    && !type.IsInterface)
+                {
+                    if (type.BaseType != null)
+                    {
+                        typesToProcess.Enqueue(type.BaseType);
+                    }
+
+                    foreach (var @interface in GetDeclaredInterfaces(type))
+                    {
+                        typesToProcess.Enqueue(@interface);
+                    }
+                }
+            }
+
+            return baseTypes;
+        }
+
         public static IEnumerable<Type> GetTypesInHierarchy(this Type type)
         {
             var currentType = type;
@@ -357,6 +345,18 @@ namespace System
 
                 currentType = currentType.BaseType;
             }
+        }
+
+        public static IEnumerable<Type> GetDeclaredInterfaces(this Type type)
+        {
+            var interfaces = type.GetInterfaces();
+            if (type.BaseType == typeof(object)
+                || type.BaseType == null)
+            {
+                return interfaces;
+            }
+
+            return interfaces.Except(type.BaseType.GetInterfaces());
         }
 
         public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[]? types)
@@ -420,8 +420,10 @@ namespace System
 #pragma warning disable IDE0034 // Simplify 'default' expression - default causes default(object)
             { typeof(int), default(int) },
             { typeof(Guid), default(Guid) },
+            { typeof(DateOnly), default(DateOnly) },
             { typeof(DateTime), default(DateTime) },
             { typeof(DateTimeOffset), default(DateTimeOffset) },
+            { typeof(TimeOnly), default(TimeOnly) },
             { typeof(long), default(long) },
             { typeof(bool), default(bool) },
             { typeof(double), default(double) },

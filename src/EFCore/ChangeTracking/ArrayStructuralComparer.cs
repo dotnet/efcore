@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///         A new array is constructed when snapshotting.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see>.
+    /// </remarks>
     /// <typeparam name="TElement"> The array element type. </typeparam>
     public class ArrayStructuralComparer<TElement> : ValueComparer<TElement[]>
     {
@@ -21,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             : base(
                 CreateDefaultEqualsExpression(),
                 CreateDefaultHashCodeExpression(favorStructuralComparisons: true),
-                v => v == null ? null : v.ToArray())
+                v => v.ToArray())
         {
         }
     }

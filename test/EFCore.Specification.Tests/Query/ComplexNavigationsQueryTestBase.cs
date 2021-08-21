@@ -2817,7 +2817,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
-        [ConditionalTheory(Skip = "Issue#12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Include_reference_with_groupby_in_subquery(bool async)
         {
@@ -2830,7 +2830,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Level1>(e => e.OneToOne_Optional_FK1)));
         }
 
-        [ConditionalTheory(Skip = "Issue#12088")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Multi_include_with_groupby_in_subquery(bool async)
         {

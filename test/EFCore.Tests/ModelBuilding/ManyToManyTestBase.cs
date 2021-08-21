@@ -497,17 +497,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Throws_for_ForeignKeyAttribute_on_navigation()
+            public virtual void ForeignKeyAttribute_configures_the_properties()
             {
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<CategoryWithAttribute>();
 
-                Assert.Equal(
-                    CoreStrings.FkAttributeOnSkipNavigation(
-                        nameof(ProductWithAttribute), nameof(Product.Categories)),
-                    Assert.Throws<InvalidOperationException>(
-                        () => modelBuilder.FinalizeModel()).Message);
+                var model = modelBuilder.FinalizeModel();
+
+                var category = model.FindEntityType(typeof(CategoryWithAttribute))!;
+                var productsNavigation = category.GetSkipNavigations().Single();
+                var categoryFk = productsNavigation.ForeignKey;
+                Assert.Equal("CategoriesID", categoryFk.Properties.Single().Name);
+
+                var categoryNavigation = productsNavigation.TargetEntityType.GetSkipNavigations().Single();
+                var productFk = categoryNavigation.ForeignKey;
+                Assert.Equal("ProductKey", productFk.Properties.Single().Name);
+
+                var joinEntityType = categoryFk.DeclaringEntityType;
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
             }
 
             [ConditionalFact]

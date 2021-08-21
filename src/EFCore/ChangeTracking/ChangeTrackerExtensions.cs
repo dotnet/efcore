@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="ChangeTracker" />.
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>.
+    /// </remarks>
     public static class ChangeTrackerExtensions
     {
         /// <summary>

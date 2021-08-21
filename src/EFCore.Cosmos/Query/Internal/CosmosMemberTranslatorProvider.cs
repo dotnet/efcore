@@ -34,9 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             _plugins.AddRange(plugins.SelectMany(p => p.Translators));
             _translators
                 .AddRange(
-                new[]
+                new IMemberTranslator[]
                 {
                     new CosmosStringMemberTranslator(sqlExpressionFactory),
+                    new CosmosDateTimeMemberTranslator(sqlExpressionFactory),
                 });
         }
 

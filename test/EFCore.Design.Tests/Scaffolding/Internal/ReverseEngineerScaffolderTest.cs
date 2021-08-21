@@ -133,7 +133,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new TestOperationReporter(),
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
-                .BuildServiceProvider() // No scope validation; design services only resolved once
+                .BuildServiceProvider(validateScopes: true)
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
         [ConditionalFact]
@@ -148,8 +150,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
-                .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
+                .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
                 .BuildServiceProvider(validateScopes: true)
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             var result = scaffolder.ScaffoldModel(
@@ -178,8 +182,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     new string[0])
                 .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
                 .AddSingleton<INamedConnectionStringResolver>(resolver)
-                .AddSingleton<IDatabaseModelFactory>(databaseModelFactory)
+                .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
                 .BuildServiceProvider(validateScopes: true)
+                .CreateScope()
+                .ServiceProvider
                 .GetRequiredService<IReverseEngineerScaffolder>();
 
             var result = scaffolder.ScaffoldModel(

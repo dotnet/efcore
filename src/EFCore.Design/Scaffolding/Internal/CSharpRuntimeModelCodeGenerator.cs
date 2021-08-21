@@ -141,11 +141,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             bool nullable)
         {
             var mainBuilder = new IndentedStringBuilder();
-            var namespaces = new SortedSet<string>(new NamespaceComparer()) {
-                contextType.Namespace!,
+            var namespaces = new SortedSet<string>(new NamespaceComparer())
+            {
                 typeof(RuntimeModel).Namespace!,
                 typeof(DbContextAttribute).Namespace!
             };
+
+            AddNamespace(contextType, namespaces);
 
             if (!string.IsNullOrEmpty(@namespace))
             {
@@ -164,24 +166,18 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             using (mainBuilder.Indent())
             {
                 mainBuilder
-                    .Append("private static ").Append(className).AppendLine(nullable ? "? _instance;" : " _instance;")
-                    .Append("public static IModel Instance")
-                    .AppendLines(@"
+                    .Append("static ").Append(className).Append("()")
+                    .AppendLines(
+                @"
 {
-    get
-    {
-        if (_instance == null)
-        {
-            _instance = new " + className + @"();
-            _instance.Initialize();
-            _instance.Customize();
-        }
-
-        return _instance;
-    }
-}");
-
-                mainBuilder
+    var model = new " + className + @"();
+    model.Initialize();
+    model.Customize();
+    _instance = model;
+}")
+                    .AppendLine()
+                    .Append("private static ").Append(className).AppendLine(nullable ? "? _instance;" : " _instance;")
+                    .AppendLine("public static IModel Instance => _instance;")
                     .AppendLine()
                     .AppendLine("partial void Initialize();")
                     .AppendLine()
@@ -236,8 +232,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     var entityTypes = model.GetEntityTypesInHierarchicalOrder();
                     var variables = new HashSet<string>();
 
+                    var anyEntityTypes = false;
                     foreach (var entityType in entityTypes)
                     {
+                        anyEntityTypes = true;
                         var variableName = _code.Identifier(entityType.ShortName(), variables, capitalize: false);
 
                         var firstChar = variableName[0] == '@' ? variableName[1] : variableName[0];
@@ -265,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .AppendLine(");");
                     }
 
-                    if (entityTypes.Count > 0)
+                    if (anyEntityTypes)
                     {
                         mainBuilder.AppendLine();
                     }
@@ -339,21 +337,25 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             .AppendLine(");");
                     }
 
-                    if (entityTypes.Count > 0)
+                    if (anyEntityTypes)
                     {
                         mainBuilder.AppendLine();
                     }
 
-                    CreateAnnotations(
-                        model,
-                        _annotationCodeGenerator.Generate,
-                        new CSharpRuntimeAnnotationCodeGeneratorParameters(
-                            "this",
-                            className,
-                            mainBuilder,
-                            methodBuilder,
-                            namespaces,
-                            variables));
+                    var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
+                        "this",
+                        className,
+                        mainBuilder,
+                        methodBuilder,
+                        namespaces,
+                        variables);
+
+                    foreach (var typeConfiguration in model.GetTypeMappingConfigurations())
+                    {
+                        Create(typeConfiguration, parameters);
+                    }
+
+                    CreateAnnotations(model, _annotationCodeGenerator.Generate, parameters);
                 }
 
                 mainBuilder
@@ -376,6 +378,81 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
+        }
+
+        private void Create(
+            ITypeMappingConfiguration typeConfiguration,
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        {
+            var variableName = _code.Identifier("type", parameters.ScopeVariables, capitalize: false);
+
+            var mainBuilder = parameters.MainBuilder;
+            mainBuilder
+                .Append("var ").Append(variableName).Append(" = ").Append(parameters.TargetName).AppendLine(".AddTypeMappingConfiguration(")
+                .IncrementIndent()
+                .Append(_code.Literal(typeConfiguration.ClrType));
+
+            AddNamespace(typeConfiguration.ClrType, parameters.Namespaces);
+
+            if (typeConfiguration.GetMaxLength() != null)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("maxLength: ")
+                    .Append(_code.Literal(typeConfiguration.GetMaxLength()));
+            }
+
+            if (typeConfiguration.IsUnicode() != null)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("unicode: ")
+                    .Append(_code.Literal(typeConfiguration.IsUnicode()));
+            }
+
+            if (typeConfiguration.GetPrecision() != null)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("precision: ")
+                    .Append(_code.Literal(typeConfiguration.GetPrecision()));
+            }
+
+            if (typeConfiguration.GetScale() != null)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("scale: ")
+                    .Append(_code.Literal(typeConfiguration.GetScale()));
+            }
+
+            var providerClrType = typeConfiguration.GetProviderClrType();
+            if (providerClrType != null)
+            {
+                AddNamespace(providerClrType, parameters.Namespaces);
+
+                mainBuilder.AppendLine(",")
+                    .Append("providerPropertyType: ")
+                    .Append(_code.Literal(providerClrType));
+            }
+
+            var valueConverterType = (Type?)typeConfiguration[CoreAnnotationNames.ValueConverterType];
+            if (valueConverterType != null)
+            {
+                AddNamespace(valueConverterType, parameters.Namespaces);
+
+                mainBuilder.AppendLine(",")
+                    .Append("valueConverter: new ")
+                    .Append(_code.Reference(valueConverterType))
+                    .Append("()");
+            }
+
+            mainBuilder
+                .AppendLine(");")
+                .DecrementIndent();
+
+            CreateAnnotations(
+                typeConfiguration,
+                _annotationCodeGenerator.Generate,
+                parameters with { TargetName = variableName });
+
+            mainBuilder.AppendLine();
         }
 
         private string GenerateEntityType(IEntityType entityType, string @namespace, string className, bool nullable)
@@ -468,12 +545,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     namespaces,
                     variables);
 
-                Create(entityType, parameters, className);
+                Create(entityType, parameters);
 
                 var propertyVariables = new Dictionary<IProperty, string>();
                 foreach (var property in entityType.GetDeclaredProperties())
                 {
-                    Create(property, propertyVariables, parameters, className);
+                    Create(property, propertyVariables, parameters);
                 }
 
                 foreach (var property in entityType.GetDeclaredServiceProperties())
@@ -501,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .AppendLine("}");
         }
 
-        private void Create(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters, string className)
+        private void Create(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var runtimeEntityType = entityType as IRuntimeEntityType;
             if ((entityType.ConstructorBinding is not null
@@ -512,7 +589,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         || runtimeEntityType.ServiceOnlyConstructorBinding is FactoryMethodBinding)))
             {
                 throw new InvalidOperationException(DesignStrings.CompiledModelConstructorBinding(
-                    entityType.ShortName(), "Customize()", className));
+                    entityType.ShortName(), "Customize()", parameters.ClassName));
             }
 
             if (entityType.GetQueryFilter() != null)
@@ -590,8 +667,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         private void Create(
             IProperty property,
             Dictionary<IProperty, string> propertyVariables,
-            CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
-            string className)
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
             var valueGeneratorFactoryType = (Type?)property[CoreAnnotationNames.ValueGeneratorFactoryType];
             if (valueGeneratorFactoryType == null
@@ -625,16 +701,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 throw new InvalidOperationException(
                     DesignStrings.CompiledModelTypeMapping(
-                        property.DeclaringEntityType.ShortName(), property.Name, "Customize()", className));
+                        property.DeclaringEntityType.ShortName(), property.Name, "Customize()", parameters.ClassName));
             }
 
             var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
             propertyVariables[property] = variableName;
-
-            if (property.ClrType.Namespace != null)
-            {
-                parameters.Namespaces.Add(property.ClrType.Namespace);
-            }
 
             var mainBuilder = parameters.MainBuilder;
             mainBuilder
@@ -710,10 +781,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var providerClrType = property.GetProviderClrType();
             if (providerClrType != null)
             {
-                if (providerClrType.Namespace != null)
-                {
-                    parameters.Namespaces.Add(providerClrType.Namespace);
-                }
+                AddNamespace(providerClrType, parameters.Namespaces);
 
                 mainBuilder.AppendLine(",")
                     .Append("providerPropertyType: ")
@@ -722,10 +790,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (valueGeneratorFactoryType != null)
             {
-                if (valueGeneratorFactoryType.Namespace != null)
-                {
-                    parameters.Namespaces.Add(valueGeneratorFactoryType.Namespace);
-                }
+                AddNamespace(valueGeneratorFactoryType, parameters.Namespaces);
 
                 mainBuilder.AppendLine(",")
                     .Append("valueGeneratorFactory: new ")
@@ -735,10 +800,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (valueConverterType != null)
             {
-                if (valueConverterType.Namespace != null)
-                {
-                    parameters.Namespaces.Add(valueConverterType.Namespace);
-                }
+                AddNamespace(valueConverterType, parameters.Namespaces);
 
                 mainBuilder.AppendLine(",")
                     .Append("valueConverter: new ")
@@ -748,10 +810,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             if (valueComparerType != null)
             {
-                if (valueComparerType.Namespace != null)
-                {
-                    parameters.Namespaces.Add(valueComparerType.Namespace);
-                }
+                AddNamespace(valueComparerType, parameters.Namespaces);
 
                 mainBuilder.AppendLine(",")
                     .Append("valueComparer: new ")
@@ -788,10 +847,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var propertyInfo = property.PropertyInfo;
             if (propertyInfo != null)
             {
-                if (propertyInfo.DeclaringType?.Namespace != null)
-                {
-                    parameters.Namespaces.Add(propertyInfo.DeclaringType.Namespace);
-                }
+                AddNamespace(propertyInfo.DeclaringType!, parameters.Namespaces);
 
                 mainBuilder.AppendLine(",")
                     .Append("propertyInfo: ");
@@ -818,10 +874,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var fieldInfo = property.FieldInfo;
             if (fieldInfo != null)
             {
-                if (fieldInfo.DeclaringType?.Namespace != null)
-                {
-                    parameters.Namespaces.Add(fieldInfo.DeclaringType.Namespace);
-                }
+                AddNamespace(fieldInfo.DeclaringType!, parameters.Namespaces);
 
                 mainBuilder.AppendLine(",")
                     .Append("fieldInfo: ")
@@ -1322,14 +1375,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
         private static void AddNamespace(Type type, ISet<string> namespaces)
         {
-            if (type.Namespace != null)
+            if (!string.IsNullOrEmpty(type.Namespace))
             {
                 namespaces.Add(type.Namespace);
             }
 
             if (type.IsGenericType)
             {
-                foreach(var argument in type.GenericTypeArguments)
+                foreach (var argument in type.GenericTypeArguments)
                 {
                     AddNamespace(argument, namespaces);
                 }

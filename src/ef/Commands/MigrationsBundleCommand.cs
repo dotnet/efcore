@@ -1,10 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Tools.Generators;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
@@ -24,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             if (!StartupProject!.HasValue())
             {
                 throw new CommandException(Resources.MissingOption(StartupProject.LongName));
+            }
+            if (!Framework!.HasValue())
+            {
+                throw new CommandException(Resources.MissingOption(Framework.LongName));
             }
         }
 
@@ -50,6 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             {
                 Session = new Dictionary<string, object>
                 {
+                    ["TargetFramework"] = Framework!.Value()!,
                     ["EFCoreVersion"] = EFCoreVersion!,
                     ["Project"] = Project!.Value()!,
                     ["StartupProject"] = StartupProject!.Value()!
@@ -78,29 +82,42 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             Directory.CreateDirectory(directory);
             try
             {
+                var publishArgs = new List<string> { "publish" };
+
+                var runtime = _runtime!.HasValue()
+                    ? _runtime!.Value()!
+                    : (string)AppContext.GetData("RUNTIME_IDENTIFIER");
+                publishArgs.Add("--runtime");
+                publishArgs.Add(runtime);
+
+                var baseLength = runtime.IndexOfAny(new[] { '-', '.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' });
+                var baseRID = runtime.Substring(0, baseLength);
+                var exe = string.Equals(baseRID, "win", StringComparison.OrdinalIgnoreCase)
+                    ? ".exe"
+                    : null;
+
+                var outputPath = _output!.HasValue()
+                    ? _output!.Value()!
+                    : "efbundle" + exe;
+                var bundleName = Path.GetFileNameWithoutExtension(outputPath);
+
                 File.WriteAllText(
-                    Path.Combine(directory, "bundle.csproj"),
+                    Path.Combine(directory, bundleName + ".csproj"),
                     projectGenerator.TransformText());
 
                 File.WriteAllText(
                     Path.Combine(directory, "Program.cs"),
                     programGenerator.TransformText());
 
-                var outputPath = Path.Combine(directory, "publish");
-                Directory.CreateDirectory(outputPath);
+                var publishPath = Path.Combine(directory, "publish");
+                publishArgs.Add("--output");
+                publishArgs.Add(publishPath);
+                Directory.CreateDirectory(publishPath);
 
-                var publishArgs = new List<string> { "publish", "--output", outputPath };
-
-                if (_selfContained!.HasValue())
-                {
-                    publishArgs.Add("--self-contained");
-                }
-
-                if (_runtime!.HasValue())
-                {
-                    publishArgs.Add("--runtime");
-                    publishArgs.Add(_runtime!.Value()!);
-                }
+                publishArgs.Add(
+                    _selfContained!.HasValue()
+                        ? "--self-contained"
+                        : "--no-self-contained");
 
                 if (_configuration!.HasValue())
                 {
@@ -114,15 +131,22 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                     throw new CommandException(Resources.BuildBundleFailed);
                 }
 
-                var exe = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? ".exe"
-                    : string.Empty;
+                var destination = Path.GetFullPath(Path.Combine(WorkingDir!.Value()!, outputPath));
+                if (File.Exists(destination))
+                {
+                    if (!_force!.HasValue())
+                    {
+                        throw new CommandException(Resources.FileExists(destination));
+                    }
+
+                    File.Delete(destination);
+                }
 
                 File.Move(
-                    Path.Combine(outputPath, "bundle" + exe),
-                    Path.Combine(WorkingDir!.Value()!, "bundle" + exe));
+                    Path.Combine(publishPath, bundleName + exe),
+                    destination);
 
-                Reporter.WriteInformation(Resources.BuildBundleSucceeded);
+                Reporter.WriteInformation(Resources.BuildBundleSucceeded(destination));
 
                 var startupProjectDir = Path.GetDirectoryName(StartupProject.Value())!;
                 if (File.Exists(Path.Combine(startupProjectDir, "appsettings.json")))

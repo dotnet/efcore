@@ -59,6 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         private List<Expression> _clientProjections = new();
         private readonly List<string?> _aliasForClientProjections = new();
 
+        private CloningExpressionVisitor? _cloningExpressionVisitor;
+
         private SelectExpression(
             string? alias,
             List<ProjectionExpression> projections,
@@ -728,11 +730,29 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                         .Except(innerSelectExpression._childIdentifiers, _identifierComparer)
                                         .Select(e => (e.Column.MakeNullable(), e.Comparer)));
 
-                                foreach (var identifier in innerSelectExpression._identifier)
+                                OrderingExpression? pendingOrdering = null;
+                                foreach (var (identifierColumn, identifierComparer) in innerSelectExpression._identifier)
                                 {
-                                    var updatedColumn = identifier.Column.MakeNullable();
-                                    _childIdentifiers.Add((updatedColumn, identifier.Comparer));
-                                    AppendOrdering(new OrderingExpression(updatedColumn, ascending: true));
+                                    var updatedColumn = identifierColumn.MakeNullable();
+                                    _childIdentifiers.Add((updatedColumn, identifierComparer));
+
+                                    // We omit the last ordering as an optimization
+                                    var orderingExpression = new OrderingExpression(updatedColumn, ascending: true);
+
+                                    if (!_orderings.Any(o => o.Expression.Equals(updatedColumn)))
+                                    {
+                                        if (pendingOrdering is not null)
+                                        {
+                                            if (orderingExpression.Equals(pendingOrdering))
+                                            {
+                                                continue;
+                                            }
+
+                                            AppendOrderingInternal(pendingOrdering);
+                                        }
+
+                                        pendingOrdering = orderingExpression;
+                                    }
                                 }
 
                                 var result = new SingleCollectionInfo(
@@ -1020,6 +1040,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
         private int AddToProjection(SqlExpression sqlExpression, string? alias, bool assignUniqueTableAlias = true)
         {
+            sqlExpression = TryLiftGroupByAggregate(sqlExpression);
+
             var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(sqlExpression));
             if (existingIndex != -1)
             {
@@ -1055,12 +1077,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Applies filter predicate to the <see cref="SelectExpression" />.
         /// </summary>
-        /// <param name="expression"> An expression to use for filtering. </param>
-        public void ApplyPredicate(SqlExpression expression)
+        /// <param name="sqlExpression"> An expression to use for filtering. </param>
+        public void ApplyPredicate(SqlExpression sqlExpression)
         {
-            Check.NotNull(expression, nameof(expression));
+            Check.NotNull(sqlExpression, nameof(sqlExpression));
 
-            if (expression is SqlConstantExpression sqlConstant
+            if (sqlExpression is SqlConstantExpression sqlConstant
                 && sqlConstant.Value is bool boolValue
                 && boolValue)
             {
@@ -1070,32 +1092,33 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             if (Limit != null
                 || Offset != null)
             {
-                expression = PushdownIntoSubqueryInternal().Remap(expression);
+                sqlExpression = PushdownIntoSubqueryInternal().Remap(sqlExpression);
             }
 
-            expression = AssignUniqueAliases(expression);
+            sqlExpression = TryLiftGroupByAggregate(sqlExpression);
+            sqlExpression = AssignUniqueAliases(sqlExpression);
 
             if (_groupBy.Count > 0)
             {
                 Having = Having == null
-                    ? expression
+                    ? sqlExpression
                     : new SqlBinaryExpression(
                         ExpressionType.AndAlso,
                         Having,
-                        expression,
+                        sqlExpression,
                         typeof(bool),
-                        expression.TypeMapping);
+                        sqlExpression.TypeMapping);
             }
             else
             {
                 Predicate = Predicate == null
-                    ? expression
+                    ? sqlExpression
                     : new SqlBinaryExpression(
                         ExpressionType.AndAlso,
                         Predicate,
-                        expression,
+                        sqlExpression,
                         typeof(bool),
-                        expression.TypeMapping);
+                        sqlExpression.TypeMapping);
             }
         }
 
@@ -1142,6 +1165,14 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             return keySelector;
+        }
+
+        /// <summary>
+        ///     Clears existing group by terms.
+        /// </summary>
+        public void ClearGroupBy()
+        {
+            _groupBy.Clear();
         }
 
         private void AppendGroupBy(Expression keySelector, List<SqlExpression> groupByTerms, List<string?> groupByAliases, string? name)
@@ -1198,7 +1229,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             }
 
             _orderings.Clear();
-            _orderings.Add(orderingExpression.Update(AssignUniqueAliases(orderingExpression.Expression)));
+            AppendOrdering(orderingExpression);
         }
 
         /// <summary>
@@ -1209,11 +1240,20 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         {
             Check.NotNull(orderingExpression, nameof(orderingExpression));
 
-            if (_orderings.FirstOrDefault(o => o.Expression.Equals(orderingExpression.Expression)) == null)
+            if (_groupBy.Count > 0)
             {
-                _orderings.Add(orderingExpression.Update(AssignUniqueAliases(orderingExpression.Expression)));
+                orderingExpression = orderingExpression.Update(
+                    (SqlExpression)new GroupByAggregateLiftingExpressionVisitor(this).Visit(orderingExpression.Expression));
+            }
+
+            if (!_orderings.Any(o => o.Expression.Equals(orderingExpression.Expression)))
+            {
+                AppendOrderingInternal(orderingExpression);
             }
         }
+
+        private void AppendOrderingInternal(OrderingExpression orderingExpression)
+            => _orderings.Add(orderingExpression.Update(AssignUniqueAliases(orderingExpression.Expression)));
 
         /// <summary>
         ///     Reverses the existing orderings on the <see cref="SelectExpression" />.
@@ -1385,20 +1425,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 select2.PushdownIntoSubquery();
                 select2.ClearOrdering();
             }
-            // select1 already has unique aliases. We unique-fy select2 and set operation alias.
-            select2 = (SelectExpression)new AliasUniquefier(_usedAliases).Visit(select2);
-            var setOperationAlias = GenerateUniqueAlias(_usedAliases, "t");
-
-            var setExpression = setOperationType switch
-            {
-                SetOperationType.Except => (SetOperationBase)new ExceptExpression(setOperationAlias, select1, select2, distinct),
-                SetOperationType.Intersect => new IntersectExpression(setOperationAlias, select1, select2, distinct),
-                SetOperationType.Union => new UnionExpression(setOperationAlias, select1, select2, distinct),
-                _ => throw new InvalidOperationException(CoreStrings.InvalidSwitch(nameof(setOperationType), setOperationType))
-            };
-            var tableReferenceExpression = new TableReferenceExpression(this, setExpression.Alias);
-            _tables.Add(setExpression);
-            _tableReferences.Add(tableReferenceExpression);
 
             if (_clientProjections.Count > 0
                 || select2._clientProjections.Count > 0)
@@ -1412,6 +1438,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 // We need to project null for missing columns.
                 throw new InvalidOperationException(RelationalStrings.ProjectionMappingCountMismatch);
             }
+
+            var setOperationAlias = GenerateUniqueAlias(_usedAliases, "t");
+            var tableReferenceExpression = new TableReferenceExpression(this, setOperationAlias);
 
             var aliasUniquefier = new AliasUniquefier(_usedAliases);
             foreach (var joinedMapping in select1._projectionMapping.Join(
@@ -1427,9 +1456,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     continue;
                 }
 
-                // We have to unique-fy left side since those projections were never uniquefied
-                // Right side is unique already when we did it when running select2 through it.
-                var innerColumn1 = (SqlExpression)aliasUniquefier.Visit(joinedMapping.Value1);
+                var innerColumn1 = (SqlExpression)joinedMapping.Value1;
                 var innerColumn2 = (SqlExpression)joinedMapping.Value2;
                 // For now, make sure that both sides output the same store type, otherwise the query may fail.
                 // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
@@ -1437,6 +1464,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 {
                     throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
                 }
+
+                innerColumn1 = select1.TryLiftGroupByAggregate(innerColumn1);
+                innerColumn2 = select2.TryLiftGroupByAggregate(innerColumn2);
+
+                // We have to unique-fy left side since those projections were never uniquefied
+                // Right side is unique already when we did it when running select2 through it.
+                innerColumn1 = (SqlExpression)aliasUniquefier.Visit(innerColumn1);
 
                 var alias = GenerateUniqueColumnAlias(
                     joinedMapping.Key.Last?.Name
@@ -1478,6 +1512,19 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     otherExpressions.Add(outerProjection);
                 }
             }
+
+            // We generate actual set operation after applying projection to lift group by aggregate
+            // select1 already has unique aliases. We unique-fy select2 and set operation alias.
+            select2 = (SelectExpression)aliasUniquefier.Visit(select2);
+            var setExpression = setOperationType switch
+            {
+                SetOperationType.Except => (SetOperationBase)new ExceptExpression(setOperationAlias, select1, select2, distinct),
+                SetOperationType.Intersect => new IntersectExpression(setOperationAlias, select1, select2, distinct),
+                SetOperationType.Union => new UnionExpression(setOperationAlias, select1, select2, distinct),
+                _ => throw new InvalidOperationException(CoreStrings.InvalidSwitch(nameof(setOperationType), setOperationType))
+            };
+            _tables.Add(setExpression);
+            _tableReferences.Add(tableReferenceExpression);
 
             // We should apply _identifiers only when it is distinct and actual select expression had identifiers.
             if (distinct
@@ -1784,7 +1831,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 return propertyExpressions;
             }
         }
-
 
         private enum JoinType
         {
@@ -2818,7 +2864,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <summary>
-        ///     Checks whether this <see cref="SelectExpression" /> representes a <see cref="FromSqlExpression" /> which is not composed upon.
+        ///     Checks whether this <see cref="SelectExpression" /> represents a <see cref="FromSqlExpression" /> which is not composed upon.
         /// </summary>
         /// <returns> A bool value indicating a non-composed <see cref="FromSqlExpression" />. </returns>
         public bool IsNonComposedFromSql()
@@ -2848,6 +2894,23 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
             {
                 PushdownIntoSubquery();
             }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public SelectExpression Clone()
+        {
+            if (_cloningExpressionVisitor == null)
+            {
+                _cloningExpressionVisitor = new();
+            }
+
+            return (SelectExpression)_cloningExpressionVisitor.Visit(this);
         }
 
         /// <summary>
@@ -3003,6 +3066,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         // At that point aliases are not unique-fied across so we need to match tables
             => Tables.Any(e => ReferenceEquals(e, column.Table));
 
+        private SqlExpression TryLiftGroupByAggregate(SqlExpression sqlExpression)
+            => _groupBy.Count > 0
+            ? (SqlExpression)new GroupByAggregateLiftingExpressionVisitor(this).Visit(sqlExpression)
+            : sqlExpression;
 
         private void AddTable(TableExpressionBase tableExpressionBase, TableReferenceExpression tableReferenceExpression)
         {

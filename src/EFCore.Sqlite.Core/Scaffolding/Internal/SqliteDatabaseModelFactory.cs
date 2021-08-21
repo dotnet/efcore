@@ -88,7 +88,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             {
                 connection.Open();
 
-                SpatialiteLoader.TryLoad(connection);
+                if (HasGeometryColumns(connection))
+                {
+                    SpatialiteLoader.TryLoad(connection);
+                }
             }
 
             try
@@ -124,6 +127,18 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
             return databaseModel;
         }
 
+        private static bool HasGeometryColumns(DbConnection connection)
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = new StringBuilder()
+                .AppendLine("SELECT COUNT(*)")
+                .AppendLine("FROM \"sqlite_master\"")
+                .AppendLine("WHERE \"name\" = 'geometry_columns' AND \"type\" = 'table';")
+                .ToString();
+
+            return (long)command.ExecuteScalar()! != 0L;
+        }
+
         private static string GetDatabaseName(DbConnection connection)
         {
             var name = Path.GetFileNameWithoutExtension(connection.DataSource);
@@ -150,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
                     .Append("', 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth', ")
                     .Append("'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time', ")
                     .Append("'spatial_ref_sys', 'spatial_ref_sys_aux', 'SpatialIndex', 'spatialite_history', ")
-                    .Append("'sql_statements_log', 'views_geometry_columns', 'views_geometry_columns_auth', ")
+                    .Append("'sql_statements_log', 'vector_layers', 'vector_layers_auth', 'vector_layers_statistics', ")
+                    .Append("'vector_layers_field_infos', 'views_geometry_columns', 'views_geometry_columns_auth', ")
                     .Append("'views_geometry_columns_field_infos', 'views_geometry_columns_statistics', ")
                     .Append("'virts_geometry_columns', 'virts_geometry_columns_auth', ")
                     .Append("'geom_cols_ref_sys', 'spatial_ref_sys_all', ")

@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore
                     ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
                     throwOnError: true))!)
                 .ConfigureDesignTimeServices(serviceCollection);
-            using var services = serviceCollection.BuildServiceProvider(); // No scope validation; design services only resolved once
+            using var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
-            var reverseEngineerScaffolder = services.GetService<IReverseEngineerScaffolder>();
+            var reverseEngineerScaffolder = services.CreateScope().ServiceProvider.GetService<IReverseEngineerScaffolder>();
 
             Assert.NotNull(reverseEngineerScaffolder);
         }
@@ -52,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore
                     ProviderAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>().TypeName,
                     throwOnError: true))!)
                 .ConfigureDesignTimeServices(serviceCollection);
-            using var services = serviceCollection.BuildServiceProvider(); // No scope validation; design services only resolved once
+            using var services = serviceCollection.BuildServiceProvider(validateScopes: true);
 
-            var migrationsScaffolder = services.GetService<IMigrationsScaffolder>();
+            var migrationsScaffolder = services.CreateScope().ServiceProvider.GetService<IMigrationsScaffolder>();
 
             Assert.NotNull(migrationsScaffolder);
         }

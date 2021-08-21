@@ -14,11 +14,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        public DateTimeToBinaryConverter()
+            : this(null)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new instance of this converter.
+        /// </summary>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
         /// </param>
-        public DateTimeToBinaryConverter(ConverterMappingHints? mappingHints = null)
+        public DateTimeToBinaryConverter(ConverterMappingHints? mappingHints)
             : base(
                 v => v.ToBinary(),
                 v => DateTime.FromBinary(v),

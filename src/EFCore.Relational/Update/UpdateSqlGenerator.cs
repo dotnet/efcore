@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         }
 
         /// <summary>
-        ///     Parameter object containing service dependencies.
+        ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual UpdateSqlGeneratorDependencies Dependencies { get; }
 
