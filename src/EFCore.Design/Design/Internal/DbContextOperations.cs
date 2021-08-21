@@ -347,15 +347,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     var connection = context.Database.GetDbConnection();
                     info.DataSource = connection.DataSource;
                     info.DatabaseName = connection.Database;
+                    info.ConnectionString = connection.ConnectionString;
                 }
                 catch (Exception exception)
                 {
-                    info.DataSource = info.DatabaseName = DesignStrings.BadConnection(exception.Message);
+                    info.DataSource = info.DatabaseName = info.ConnectionString = DesignStrings.BadConnection(exception.Message);
                 }
             }
             else
             {
-                info.DataSource = info.DatabaseName = DesignStrings.NoRelationalConnection;
+                info.DataSource = info.DatabaseName = info.ConnectionString = DesignStrings.NoRelationalConnection;
             }
 
             var options = context.GetService<IDbContextOptions>();

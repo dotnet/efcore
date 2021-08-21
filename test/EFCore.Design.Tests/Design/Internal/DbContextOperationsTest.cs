@@ -79,6 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
             Assert.Equal("None", info.Options);
             Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
+            Assert.Equal(@"Server=(localdb)\mssqllocaldb;Database=Test;ConnectRetryCount=0", info.ConnectionString);
         }
 
         [ConditionalFact]
@@ -98,6 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DatabaseName);
             Assert.Equal(DesignStrings.BadConnection(expected.Message), info.DataSource);
+            Assert.Equal(DesignStrings.BadConnection(expected.Message), info.ConnectionString);
             Assert.Equal("None", info.Options);
             Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
         }
@@ -109,6 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
 
             Assert.Equal(DesignStrings.NoRelationalConnection, info.DatabaseName);
             Assert.Equal(DesignStrings.NoRelationalConnection, info.DataSource);
+            Assert.Equal(DesignStrings.NoRelationalConnection, info.ConnectionString);
             Assert.Equal("StoreName=In-memory test database", info.Options);
             Assert.Equal("Microsoft.EntityFrameworkCore.InMemory", info.ProviderName);
         }
