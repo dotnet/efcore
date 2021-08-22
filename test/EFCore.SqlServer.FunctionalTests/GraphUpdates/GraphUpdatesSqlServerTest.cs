@@ -626,6 +626,36 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                     modelBuilder.Entity<SharedFkDependant>();
+
+                    modelBuilder.Entity<Owner>();
+
+                    modelBuilder.Entity<OwnerWithKeyedCollection>(
+                        b =>
+                        {
+                            b.Navigation(e => e.Owned).IsRequired();
+                            b.Navigation(e => e.OwnedWithKey).IsRequired();
+
+                            b.OwnsMany(
+                                e => e.OwnedCollectionPrivateKey,
+                                b => b.HasKey("OwnerWithKeyedCollectionId", "PrivateKey"));
+                        });
+
+                    modelBuilder.Entity<OwnerNoKeyGeneration>(
+                        b =>
+                        {
+                            b.Property(e => e.Id).ValueGeneratedNever();
+
+                            b.OwnsOne(
+                                e => e.Owned,
+                                b => b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever());
+                            b.OwnsMany(
+                                e => e.OwnedCollection,
+                                b =>
+                                {
+                                    b.Property<int>("OwnedNoKeyGenerationId").ValueGeneratedNever();
+                                    b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever();
+                                });
+                        });
                 }
             }
         }

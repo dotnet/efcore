@@ -17,6 +17,280 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class GraphUpdatesTestBase<TFixture>
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
+        [ConditionalFact] // Issue #19856
+        public virtual void Update_principal_with_shadow_key_owned_collection_throws()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var owner = new Owner
+                    {
+                        Owned = new(),
+                        OwnedCollection = { new(), new() }
+                    };
+
+                    context.Add(owner);
+                    context.SaveChanges();
+                    context.ChangeTracker.Clear();
+
+                    context.Update(owner);
+
+                    Assert.Equal(
+                        CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
+        }
+
+        [ConditionalFact] // Issue #19856
+        public virtual void Delete_principal_with_shadow_key_owned_collection_throws()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var owner = new Owner
+                    {
+                        Owned = new(),
+                        OwnedCollection = { new(), new() }
+                    };
+
+                    context.Add(owner);
+                    context.SaveChanges();
+                    context.ChangeTracker.Clear();
+
+                    context.Attach(owner);
+                    context.Remove(owner);
+
+                    if (Fixture.ForceClientNoAction)
+                    {
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        Assert.Equal(
+                            CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
+                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    }
+                });
+        }
+
+        [ConditionalTheory] // Issue #19856
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public virtual void Clearing_shadow_key_owned_collection_throws(bool useUpdate, bool addNew)
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var owner = new Owner
+                    {
+                        Owned = new(),
+                        OwnedCollection = { new(), new() }
+                    };
+
+                    context.Add(owner);
+                    context.SaveChanges();
+                    context.ChangeTracker.Clear();
+
+                    if (useUpdate)
+                    {
+                        context.Update(owner);
+                    }
+                    else
+                    {
+                        context.Attach(owner);
+                    }
+
+                    owner.OwnedCollection = addNew
+                        ? new List<Owned> { new(), new() }
+                        : new List<Owned>();
+
+                    Assert.Equal(
+                        CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
+        }
+
+        [ConditionalFact] // Issue #19856
+        public virtual void Update_principal_with_CLR_key_owned_collection()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var owner = new OwnerWithKeyedCollection
+                    {
+                        Owned = new(),
+                        OwnedWithKey = new(),
+                        OwnedCollection = { new(), new() },
+                        OwnedCollectionPrivateKey = { new(), new() }
+                    };
+
+                    context.Add(owner);
+                    context.SaveChanges();
+                    context.ChangeTracker.Clear();
+
+                    context.Update(owner);
+                    owner.Owned.Bar = "OfChocolate";
+                    owner.OwnedWithKey.Bar = "OfLead";
+                    owner.OwnedCollection.First().Bar = "OfSoap";
+                    owner.OwnedCollectionPrivateKey.Skip(1).First().Bar = "OfGold";
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var owner = context.Set<OwnerWithKeyedCollection>().Single();
+
+                    Assert.Equal("OfChocolate", owner.Owned.Bar);
+                    Assert.Equal("OfLead", owner.OwnedWithKey.Bar);
+                    Assert.Equal(2, owner.OwnedCollection.Count);
+                    Assert.Equal(1, owner.OwnedCollection.Count(e => e.Bar == "OfSoap"));
+                    Assert.Equal(2, owner.OwnedCollectionPrivateKey.Count);
+                    Assert.Equal(1, owner.OwnedCollectionPrivateKey.Count(e => e.Bar == "OfGold"));
+                });
+        }
+
+        [ConditionalFact] // Issue #19856
+        public virtual void Delete_principal_with_CLR_key_owned_collection()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var owner = new OwnerWithKeyedCollection
+                    {
+                        Owned = new(),
+                        OwnedWithKey = new(),
+                        OwnedCollection = { new(), new() },
+                        OwnedCollectionPrivateKey = { new(), new() }
+                    };
+
+                    context.Add(owner);
+                    context.SaveChanges();
+                    context.ChangeTracker.Clear();
+
+                    context.Attach(owner);
+                    context.Remove(owner);
+
+                    if (Fixture.ForceClientNoAction)
+                    {
+                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+                },
+                context =>
+                {
+                    if (!Fixture.ForceClientNoAction)
+                    {
+                        Assert.False(context.Set<OwnerWithKeyedCollection>().Any());
+                    }
+                });
+        }
+
+        [ConditionalTheory] // Issue #19856
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public virtual void Clearing_CLR_key_owned_collection(bool useUpdate, bool addNew)
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var owner = new OwnerWithKeyedCollection
+                    {
+                        Owned = new(),
+                        OwnedWithKey = new(),
+                        OwnedCollection = { new(), new() }
+                    };
+
+                    context.Add(owner);
+                    context.SaveChanges();
+                    context.ChangeTracker.Clear();
+
+                    if (useUpdate)
+                    {
+                        context.Update(owner);
+                    }
+                    else
+                    {
+                        context.Attach(owner);
+                    }
+
+                    owner.OwnedCollection = addNew
+                        ? new List<OwnedWithKey> { new() { Bar = "OfGold" }, new() { Bar = "OfSoap" } }
+                        : new List<OwnedWithKey>();
+
+                    owner.OwnedCollectionPrivateKey = addNew
+                        ? new List<OwnedWithPrivateKey> { new() { Bar = "OfChocolate" }, new() { Bar = "OfLead" } }
+                        : new List<OwnedWithPrivateKey>();
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var owner = context.Set<OwnerWithKeyedCollection>().Single();
+
+                    if (addNew)
+                    {
+                        Assert.Equal(2, owner.OwnedCollection.Count);
+                        Assert.Equal(1, owner.OwnedCollection.Count(e => e.Bar == "OfGold"));
+                        Assert.Equal(1, owner.OwnedCollection.Count(e => e.Bar == "OfSoap"));
+                        Assert.Equal(2, owner.OwnedCollectionPrivateKey.Count);
+                        Assert.Equal(1, owner.OwnedCollectionPrivateKey.Count(e => e.Bar == "OfChocolate"));
+                        Assert.Equal(1, owner.OwnedCollectionPrivateKey.Count(e => e.Bar == "OfLead"));
+                    }
+                    else
+                    {
+                        Assert.False(owner.OwnedCollection.Any());
+                        Assert.False(owner.OwnedCollectionPrivateKey.Any());
+                    }
+                });
+        }
+
+        [ConditionalTheory] // Issue #19856
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual void Update_principal_with_non_generated_shadow_key_owned_collection_throws(bool delete)
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    var owner = new OwnerNoKeyGeneration
+                    {
+                        Id = 77,
+                        Owned = new()
+                    };
+
+                    context.Add(owner);
+                    context.Entry(owner.Owned).Property("OwnerNoKeyGenerationId").CurrentValue = 77;
+
+                    var owned1 = new OwnedNoKeyGeneration();
+                    owner.OwnedCollection.Add(owned1);
+                    context.ChangeTracker.DetectChanges();
+                    context.Entry(owned1).Property("OwnerNoKeyGenerationId").CurrentValue = 77;
+                    context.Entry(owned1).Property("OwnedNoKeyGenerationId").CurrentValue = 100;
+
+                    context.SaveChanges();
+                    context.ChangeTracker.Clear();
+
+                    context.Update(owner);
+
+                    if (delete)
+                    {
+                        context.Remove(owner);
+                    }
+
+                    Assert.Equal(
+                        CoreStrings.UnknownShadowKeyValue(
+                        "OwnerNoKeyGeneration.OwnedCollection#OwnedNoKeyGeneration", "OwnedNoKeyGenerationId"),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                });
+        }
+
         [ConditionalFact]
         public virtual void Avoid_nulling_shared_FK_property_when_deleting()
         {

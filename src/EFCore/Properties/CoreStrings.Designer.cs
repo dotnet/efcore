@@ -2818,6 +2818,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     The value of shadow key property '{entityType}.{property}' is unknown when attempting to save changes. This is because shadow property values cannot be preserved when the entity is not being tracked. Consider adding the property to the entity's .NET type. See https://aka.ms/efcore-docs-owned-collections for more information.
+        /// </summary>
+        public static string UnknownShadowKeyValue(object? entityType, object? property)
+            => string.Format(
+                GetString("UnknownShadowKeyValue", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     The unnamed index specified via [Index] attribute on the entity type '{entityType}' with properties {indexProperties} is invalid. The property '{propertyName}' was marked as unmapped by [NotMapped] attribute or 'Ignore()' in 'OnModelCreating'. An index cannot use unmapped properties.
         /// </summary>
         public static string UnnamedIndexDefinedOnIgnoredProperty(object? entityType, object? indexProperties, object? propertyName)

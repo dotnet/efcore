@@ -419,6 +419,36 @@ namespace Microsoft.EntityFrameworkCore
                 });
 
                 modelBuilder.Entity<SharedFkDependant>();
+
+                modelBuilder.Entity<Owner>();
+
+                modelBuilder.Entity<OwnerWithKeyedCollection>(
+                    b =>
+                    {
+                        b.Navigation(e => e.Owned).IsRequired();
+                        b.Navigation(e => e.OwnedWithKey).IsRequired();
+
+                        b.OwnsMany(
+                            e => e.OwnedCollectionPrivateKey,
+                            b => b.HasKey("OwnerWithKeyedCollectionId", "PrivateKey"));
+                    });
+
+                modelBuilder.Entity<OwnerNoKeyGeneration>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+
+                        b.OwnsOne(
+                            e => e.Owned,
+                            b => b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever());
+                        b.OwnsMany(
+                            e => e.OwnedCollection,
+                            b =>
+                            {
+                                b.Property<int>("OwnedNoKeyGenerationId").ValueGeneratedNever();
+                                b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever();
+                            });
+                    });
             }
 
             protected virtual object CreateFullGraph()
@@ -3089,6 +3119,185 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _parent;
                 set => SetWithNotify(value, ref _parent);
+            }
+        }
+
+        protected class Owner : NotifyingEntity
+        {
+            private int _id;
+            private Owned _owned;
+            private ICollection<Owned> _ownedCollection = new ObservableHashSet<Owned>();
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public Owned Owned
+            {
+                get => _owned;
+                set => SetWithNotify(value, ref _owned);
+            }
+
+            public ICollection<Owned> OwnedCollection
+            {
+                get => _ownedCollection;
+                set => SetWithNotify(value, ref _ownedCollection);
+            }
+        }
+
+        [Owned]
+        protected class Owned : NotifyingEntity
+        {
+            private int _foo;
+            private string _bar;
+
+            public int Foo
+            {
+                get => _foo;
+                set => SetWithNotify(value, ref _foo);
+            }
+
+            public string Bar
+            {
+                get => _bar;
+                set => SetWithNotify(value, ref _bar);
+            }
+        }
+
+        protected class OwnerWithKeyedCollection : NotifyingEntity
+        {
+            private int _id;
+            private Owned _owned;
+            private OwnedWithKey _ownedWithKey;
+            private ICollection<OwnedWithKey> _ownedCollection = new ObservableHashSet<OwnedWithKey>();
+            private ICollection<OwnedWithPrivateKey> _ownedCollectionPrivateKey = new ObservableHashSet<OwnedWithPrivateKey>();
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public Owned Owned
+            {
+                get => _owned;
+                set => SetWithNotify(value, ref _owned);
+            }
+
+            public OwnedWithKey OwnedWithKey
+            {
+                get => _ownedWithKey;
+                set => SetWithNotify(value, ref _ownedWithKey);
+            }
+
+            public ICollection<OwnedWithKey> OwnedCollection
+            {
+                get => _ownedCollection;
+                set => SetWithNotify(value, ref _ownedCollection);
+            }
+
+            public ICollection<OwnedWithPrivateKey> OwnedCollectionPrivateKey
+            {
+                get => _ownedCollectionPrivateKey;
+                set => SetWithNotify(value, ref _ownedCollectionPrivateKey);
+            }
+        }
+
+        [Owned]
+        protected class OwnedWithKey : NotifyingEntity
+        {
+            private int _foo;
+            private string _bar;
+            private int _ownedWithKeyId;
+
+            public int OwnedWithKeyId
+            {
+                get => _ownedWithKeyId;
+                set => SetWithNotify(value, ref _ownedWithKeyId);
+            }
+
+            public int Foo
+            {
+                get => _foo;
+                set => SetWithNotify(value, ref _foo);
+            }
+
+            public string Bar
+            {
+                get => _bar;
+                set => SetWithNotify(value, ref _bar);
+            }
+        }
+
+        [Owned]
+        protected class OwnedWithPrivateKey : NotifyingEntity
+        {
+            private int _foo;
+            private string _bar;
+            private int _privateKey;
+
+            private int PrivateKey
+            {
+                get => _privateKey;
+                set => SetWithNotify(value, ref _privateKey);
+            }
+
+            public int Foo
+            {
+                get => _foo;
+                set => SetWithNotify(value, ref _foo);
+            }
+
+            public string Bar
+            {
+                get => _bar;
+                set => SetWithNotify(value, ref _bar);
+            }
+        }
+
+        protected class OwnerNoKeyGeneration : NotifyingEntity
+        {
+            private int _id;
+            private OwnedNoKeyGeneration _owned;
+            private ICollection<OwnedNoKeyGeneration> _ownedCollection = new ObservableHashSet<OwnedNoKeyGeneration>();
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public OwnedNoKeyGeneration Owned
+            {
+                get => _owned;
+                set => SetWithNotify(value, ref _owned);
+            }
+
+            public ICollection<OwnedNoKeyGeneration> OwnedCollection
+            {
+                get => _ownedCollection;
+                set => SetWithNotify(value, ref _ownedCollection);
+            }
+        }
+
+        [Owned]
+        protected class OwnedNoKeyGeneration : NotifyingEntity
+        {
+            private int _foo;
+            private string _bar;
+
+            public int Foo
+            {
+                get => _foo;
+                set => SetWithNotify(value, ref _foo);
+            }
+
+            public string Bar
+            {
+                get => _bar;
+                set => SetWithNotify(value, ref _bar);
             }
         }
 

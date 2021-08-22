@@ -4853,6 +4853,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private class Role : IEquatable<Role>
         {
+            private Guid RoleAssignmentId { get; set; }
             public string Value { get; set; }
 
             public bool Equals(Role other)
