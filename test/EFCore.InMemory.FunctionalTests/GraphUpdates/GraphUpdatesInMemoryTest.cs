@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -158,6 +159,18 @@ namespace Microsoft.EntityFrameworkCore
             Action<DbContext> nestedTestOperation3 = null)
         {
             base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+            Fixture.Reseed();
+        }
+
+        protected override async Task ExecuteWithStrategyInTransactionAsync(
+            Func<DbContext, Task> testOperation,
+            Func<DbContext, Task> nestedTestOperation1 = null,
+            Func<DbContext, Task> nestedTestOperation2 = null,
+            Func<DbContext, Task> nestedTestOperation3 = null)
+        {
+            await base.ExecuteWithStrategyInTransactionAsync(
+                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+
             Fixture.Reseed();
         }
 

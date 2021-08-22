@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.TestUtilities;
@@ -118,35 +119,29 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
-            [ConditionalFact(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
-            public override void Update_principal_with_shadow_key_owned_collection_throws()
-            {
-            }
-
-            [ConditionalFact(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
-            public override void Delete_principal_with_shadow_key_owned_collection_throws()
-            {
-            }
+            [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+            public override Task Update_principal_with_shadow_key_owned_collection_throws(bool async)
+                => Task.CompletedTask;
 
             [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
-            public override void Clearing_shadow_key_owned_collection_throws(bool useUpdate, bool addNew)
-            {
-            }
-
-            [ConditionalFact(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
-            public override void Update_principal_with_CLR_key_owned_collection()
-            {
-            }
-
-            [ConditionalFact(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
-            public override void Delete_principal_with_CLR_key_owned_collection()
-            {
-            }
+            public override Task Delete_principal_with_shadow_key_owned_collection_throws(bool async)
+                => Task.CompletedTask;
 
             [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
-            public override void Clearing_CLR_key_owned_collection(bool useUpdate, bool addNew)
-            {
-            }
+            public override Task Clearing_shadow_key_owned_collection_throws(bool async, bool useUpdate, bool addNew)
+                => Task.CompletedTask;
+
+            [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+            public override Task Update_principal_with_CLR_key_owned_collection(bool async)
+                => Task.CompletedTask;
+
+            [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+            public override Task Delete_principal_with_CLR_key_owned_collection(bool async)
+                => Task.CompletedTask;
+
+            [ConditionalTheory(Skip = "Default owned collection pattern does not work with SQLite due to composite key.")]
+            public override Task Clearing_CLR_key_owned_collection(bool async, bool useUpdate, bool addNew)
+                => Task.CompletedTask;
 
             protected override IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query)
                 => query.AsSplitQuery();

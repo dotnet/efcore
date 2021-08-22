@@ -656,6 +656,26 @@ namespace Microsoft.EntityFrameworkCore
                                     b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever();
                                 });
                         });
+
+                    modelBuilder.Entity<Provider>().HasData(
+                        new Provider { Id = "prov1" },
+                        new Provider { Id = "prov2" });
+
+                    modelBuilder.Entity<Partner>().HasData(
+                        new Partner { Id = "partner1" });
+
+                    modelBuilder.Entity<ProviderContract>(
+                        b =>
+                        {
+                            b.HasOne(p => p.Partner).WithMany().IsRequired().HasForeignKey("PartnerId");
+                            b.HasOne<Provider>().WithMany().IsRequired().HasForeignKey("ProviderId");
+
+                            b.HasDiscriminator<string>("ProviderId")
+                                .HasValue<ProviderContract1>("prov1")
+                                .HasValue<ProviderContract2>("prov2");
+
+                            b.HasKey("PartnerId", "ProviderId");
+                        });
                 }
             }
         }

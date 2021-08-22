@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
@@ -17,35 +19,46 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class GraphUpdatesTestBase<TFixture>
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
-        [ConditionalFact] // Issue #19856
-        public virtual void Update_principal_with_shadow_key_owned_collection_throws()
+        [ConditionalTheory] // Issue #19856
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Update_principal_with_shadow_key_owned_collection_throws(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
-                    var owner = new Owner
-                    {
-                        Owned = new(),
-                        OwnedCollection = { new(), new() }
-                    };
+                    var owner = new Owner { Owned = new(), OwnedCollection = { new(), new() } };
 
-                    context.Add(owner);
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.AddAsync(owner);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(owner);
+                        context.SaveChanges();
+                    }
+
                     context.ChangeTracker.Clear();
 
                     context.Update(owner);
 
                     Assert.Equal(
                         CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                        (async
+                            ? await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())
+                            : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
                 });
         }
 
-        [ConditionalFact] // Issue #19856
-        public virtual void Delete_principal_with_shadow_key_owned_collection_throws()
+        [ConditionalTheory] // Issue #19856
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Delete_principal_with_shadow_key_owned_collection_throws(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var owner = new Owner
                     {
@@ -53,8 +66,17 @@ namespace Microsoft.EntityFrameworkCore
                         OwnedCollection = { new(), new() }
                     };
 
-                    context.Add(owner);
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.AddAsync(owner);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(owner);
+                        context.SaveChanges();
+                    }
+
                     context.ChangeTracker.Clear();
 
                     context.Attach(owner);
@@ -62,26 +84,39 @@ namespace Microsoft.EntityFrameworkCore
 
                     if (Fixture.ForceClientNoAction)
                     {
-                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        if (async)
+                        {
+                            await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
+                        }
+                        else
+                        {
+                            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        }
                     }
                     else
                     {
                         Assert.Equal(
                             CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
-                            Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                            (async
+                                ? await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())
+                                : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
                     }
                 });
         }
 
         [ConditionalTheory] // Issue #19856
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public virtual void Clearing_shadow_key_owned_collection_throws(bool useUpdate, bool addNew)
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public virtual async Task Clearing_shadow_key_owned_collection_throws(bool async, bool useUpdate, bool addNew)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var owner = new Owner
                     {
@@ -89,8 +124,17 @@ namespace Microsoft.EntityFrameworkCore
                         OwnedCollection = { new(), new() }
                     };
 
-                    context.Add(owner);
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.AddAsync(owner);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(owner);
+                        context.SaveChanges();
+                    }
+
                     context.ChangeTracker.Clear();
 
                     if (useUpdate)
@@ -108,15 +152,19 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(
                         CoreStrings.UnknownShadowKeyValue("Owner.OwnedCollection#Owned", "Id"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                        (async
+                            ? await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())
+                            : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
                 });
         }
 
-        [ConditionalFact] // Issue #19856
-        public virtual void Update_principal_with_CLR_key_owned_collection()
+        [ConditionalTheory] // Issue #19856
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Update_principal_with_CLR_key_owned_collection(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var owner = new OwnerWithKeyedCollection
                     {
@@ -126,8 +174,17 @@ namespace Microsoft.EntityFrameworkCore
                         OwnedCollectionPrivateKey = { new(), new() }
                     };
 
-                    context.Add(owner);
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.AddAsync(owner);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(owner);
+                        context.SaveChanges();
+                    }
+
                     context.ChangeTracker.Clear();
 
                     context.Update(owner);
@@ -136,11 +193,20 @@ namespace Microsoft.EntityFrameworkCore
                     owner.OwnedCollection.First().Bar = "OfSoap";
                     owner.OwnedCollectionPrivateKey.Skip(1).First().Bar = "OfGold";
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
                 },
-                context =>
+                async context =>
                 {
-                    var owner = context.Set<OwnerWithKeyedCollection>().Single();
+                    var owner = async
+                        ? await context.Set<OwnerWithKeyedCollection>().SingleAsync()
+                        : context.Set<OwnerWithKeyedCollection>().Single();
 
                     Assert.Equal("OfChocolate", owner.Owned.Bar);
                     Assert.Equal("OfLead", owner.OwnedWithKey.Bar);
@@ -151,11 +217,13 @@ namespace Microsoft.EntityFrameworkCore
                 });
         }
 
-        [ConditionalFact] // Issue #19856
-        public virtual void Delete_principal_with_CLR_key_owned_collection()
+        [ConditionalTheory] // Issue #19856
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Delete_principal_with_CLR_key_owned_collection(bool async)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var owner = new OwnerWithKeyedCollection
                     {
@@ -165,8 +233,17 @@ namespace Microsoft.EntityFrameworkCore
                         OwnedCollectionPrivateKey = { new(), new() }
                     };
 
-                    context.Add(owner);
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.AddAsync(owner);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(owner);
+                        context.SaveChanges();
+                    }
+
                     context.ChangeTracker.Clear();
 
                     context.Attach(owner);
@@ -174,31 +251,52 @@ namespace Microsoft.EntityFrameworkCore
 
                     if (Fixture.ForceClientNoAction)
                     {
-                        Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        if (async)
+                        {
+                            await Assert.ThrowsAsync<DbUpdateException>(async () => await context.SaveChangesAsync());
+                        }
+                        else
+                        {
+                            Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                        }
                     }
                     else
                     {
-                        context.SaveChanges();
+                        if (async)
+                        {
+                            await context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            context.SaveChanges();
+                        }
                     }
                 },
-                context =>
+                async context =>
                 {
                     if (!Fixture.ForceClientNoAction)
                     {
-                        Assert.False(context.Set<OwnerWithKeyedCollection>().Any());
+                        Assert.False(
+                            async
+                                ? await context.Set<OwnerWithKeyedCollection>().AnyAsync()
+                                : context.Set<OwnerWithKeyedCollection>().Any());
                     }
                 });
         }
 
         [ConditionalTheory] // Issue #19856
-        [InlineData(false, false)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(true, true)]
-        public virtual void Clearing_CLR_key_owned_collection(bool useUpdate, bool addNew)
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public virtual async Task Clearing_CLR_key_owned_collection(bool async, bool useUpdate, bool addNew)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
                     var owner = new OwnerWithKeyedCollection
                     {
@@ -207,8 +305,17 @@ namespace Microsoft.EntityFrameworkCore
                         OwnedCollection = { new(), new() }
                     };
 
-                    context.Add(owner);
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.AddAsync(owner);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(owner);
+                        context.SaveChanges();
+                    }
+
                     context.ChangeTracker.Clear();
 
                     if (useUpdate)
@@ -228,11 +335,20 @@ namespace Microsoft.EntityFrameworkCore
                         ? new List<OwnedWithPrivateKey> { new() { Bar = "OfChocolate" }, new() { Bar = "OfLead" } }
                         : new List<OwnedWithPrivateKey>();
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
                 },
-                context =>
+                async context =>
                 {
-                    var owner = context.Set<OwnerWithKeyedCollection>().Single();
+                    var owner = async
+                        ? await context.Set<OwnerWithKeyedCollection>().SingleAsync()
+                        : context.Set<OwnerWithKeyedCollection>().Single();
 
                     if (addNew)
                     {
@@ -252,20 +368,26 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory] // Issue #19856
-        [InlineData(false)]
-        [InlineData(true)]
-        public virtual void Update_principal_with_non_generated_shadow_key_owned_collection_throws(bool delete)
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        public virtual async Task Update_principal_with_non_generated_shadow_key_owned_collection_throws(bool async, bool delete)
         {
-            ExecuteWithStrategyInTransaction(
-                context =>
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
                 {
-                    var owner = new OwnerNoKeyGeneration
-                    {
-                        Id = 77,
-                        Owned = new()
-                    };
+                    var owner = new OwnerNoKeyGeneration { Id = 77, Owned = new() };
 
-                    context.Add(owner);
+                    if (async)
+                    {
+                        await context.AddAsync(owner);
+                    }
+                    else
+                    {
+                        context.Add(owner);
+                    }
+
                     context.Entry(owner.Owned).Property("OwnerNoKeyGenerationId").CurrentValue = 77;
 
                     var owned1 = new OwnedNoKeyGeneration();
@@ -274,7 +396,15 @@ namespace Microsoft.EntityFrameworkCore
                     context.Entry(owned1).Property("OwnerNoKeyGenerationId").CurrentValue = 77;
                     context.Entry(owned1).Property("OwnedNoKeyGenerationId").CurrentValue = 100;
 
-                    context.SaveChanges();
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+
                     context.ChangeTracker.Clear();
 
                     context.Update(owner);
@@ -286,8 +416,60 @@ namespace Microsoft.EntityFrameworkCore
 
                     Assert.Equal(
                         CoreStrings.UnknownShadowKeyValue(
-                        "OwnerNoKeyGeneration.OwnedCollection#OwnedNoKeyGeneration", "OwnedNoKeyGenerationId"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                            "OwnerNoKeyGeneration.OwnedCollection#OwnedNoKeyGeneration", "OwnedNoKeyGenerationId"),
+                        (async
+                            ? await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())
+                            : Assert.Throws<InvalidOperationException>(() => context.SaveChanges())).Message);
+                });
+        }
+
+        [ConditionalTheory] // Issue #21206
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Discriminator_values_are_not_marked_as_unknown(bool async)
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var partner =
+                        async
+                            ? await context.Set<Partner>().SingleAsync()
+                            : context.Set<Partner>().Single();
+
+                    var contract1 = new ProviderContract1 { Partner = partner, Details = "Provider 1 Contract Details" };
+                    var contract2 = new ProviderContract2 { Partner = partner, Details = "Provider 2 Contract Details" };
+
+                    if (async)
+                    {
+                        await context.AddRangeAsync(contract1, contract2);
+                    }
+                    else
+                    {
+                        context.AddRange(contract1, contract2);
+                    }
+
+                    Assert.Equal("prov1", context.Entry(contract1).Property("ProviderId").CurrentValue);
+                    Assert.Equal("prov2", context.Entry(contract2).Property("ProviderId").CurrentValue);
+
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+                },
+                async context =>
+                {
+                    var contracts =
+                        async
+                            ? await context.Set<ProviderContract>().ToListAsync()
+                            : context.Set<ProviderContract>().ToList();
+
+                    Assert.Equal(2, contracts.Count);
+                    Assert.Equal(1, contracts.Count(e => e is ProviderContract1));
+                    Assert.Equal(1, contracts.Count(e => e is ProviderContract2));
                 });
         }
 

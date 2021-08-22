@@ -102,19 +102,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 Log(entry, property, generatedValue, temporary);
 
-                SetGeneratedValue(
-                    entry,
-                    property,
-                    generatedValue,
-                    temporary);
+                SetGeneratedValue(entry, property, generatedValue, temporary);
 
-                if (includePrimaryKey
-                    && property.IsPrimaryKey()
-                    && property.IsShadowProperty()
-                    && !property.IsForeignKey())
-                {
-                    entry.MarkUnknown(property);
-                }
+                MarkKeyUnknown(entry, includePrimaryKey, property, valueGenerator);
             }
         }
 
@@ -164,6 +154,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     property,
                     generatedValue,
                     temporary);
+
+                MarkKeyUnknown(entry, includePrimaryKey, property, valueGenerator);
             }
         }
 
@@ -195,6 +187,22 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     entry[property] = generatedValue;
                 }
+            }
+        }
+
+        private static void MarkKeyUnknown(
+            InternalEntityEntry entry, 
+            bool includePrimaryKey, 
+            IProperty property, 
+            ValueGenerator valueGenerator)
+        {
+            if (includePrimaryKey
+                && property.IsKey()
+                && property.IsShadowProperty()
+                && !property.IsForeignKey()
+                && !valueGenerator.GeneratesStableValues)
+            {
+                entry.MarkUnknown(property);
             }
         }
     }

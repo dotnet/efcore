@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -448,6 +449,26 @@ namespace Microsoft.EntityFrameworkCore
                                 b.Property<int>("OwnedNoKeyGenerationId").ValueGeneratedNever();
                                 b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever();
                             });
+                    });
+
+                modelBuilder.Entity<Provider>().HasData(
+                    new Provider { Id = "prov1" },
+                    new Provider { Id = "prov2" });
+
+                modelBuilder.Entity<Partner>().HasData(
+                    new Partner { Id = "partner1" });
+
+                modelBuilder.Entity<ProviderContract>(
+                    b =>
+                    {
+                        b.HasOne(p => p.Partner).WithMany().IsRequired().HasForeignKey("PartnerId");
+                        b.HasOne<Provider>().WithMany().IsRequired().HasForeignKey("ProviderId");
+
+                        b.HasDiscriminator<string>("ProviderId")
+                            .HasValue<ProviderContract1>("prov1")
+                            .HasValue<ProviderContract2>("prov2");
+
+                        b.HasKey("PartnerId", "ProviderId");
                     });
             }
 
@@ -3301,6 +3322,61 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected abstract class ProviderContract : NotifyingEntity
+        {
+            private Partner _partner;
+
+            public Partner Partner
+            {
+                get => _partner;
+                set => SetWithNotify(value, ref _partner);
+            }
+        }
+
+        protected class ProviderContract1 : ProviderContract
+        {
+            private string _details;
+
+            public string Details
+            {
+                get => _details;
+                set => SetWithNotify(value, ref _details);
+            }
+        }
+
+        protected class ProviderContract2 : ProviderContract
+        {
+            private string _details;
+
+            public string Details
+            {
+                get => _details;
+                set => SetWithNotify(value, ref _details);
+            }
+        }
+
+        protected class Partner : NotifyingEntity
+        {
+            private string _id;
+
+            public string Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+        }
+
+        protected class Provider : NotifyingEntity
+        {
+            private string _id;
+
+            public string Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+        }
+
         protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
             protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")
@@ -3329,6 +3405,15 @@ namespace Microsoft.EntityFrameworkCore
             Action<DbContext> nestedTestOperation2 = null,
             Action<DbContext> nestedTestOperation3 = null)
             => TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext, UseTransaction,
+                testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
+
+        protected virtual Task ExecuteWithStrategyInTransactionAsync(
+            Func<DbContext, Task> testOperation,
+            Func<DbContext, Task> nestedTestOperation1 = null,
+            Func<DbContext, Task> nestedTestOperation2 = null,
+            Func<DbContext, Task> nestedTestOperation3 = null)
+            => TestHelpers.ExecuteWithStrategyInTransactionAsync(
                 CreateContext, UseTransaction,
                 testOperation, nestedTestOperation1, nestedTestOperation2, nestedTestOperation3);
 
