@@ -111,9 +111,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         rowsAffected++;
                     }
                 }
-                catch (CosmosException ex)
+                catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
                 {
-                    throw ThrowUpdateException(ex, entry);
+                    throw WrapUpdateException(ex, entry);
                 }
             }
 
@@ -175,9 +175,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                         rowsAffected++;
                     }
                 }
-                catch (CosmosException ex)
+                catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
                 {
-                    throw ThrowUpdateException(ex, entry);
+                    throw WrapUpdateException(ex, entry);
                 }
             }
 
@@ -378,25 +378,19 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-        private Exception ThrowUpdateException(CosmosException exception, IUpdateEntry entry)
+        private Exception WrapUpdateException(Exception exception, IUpdateEntry entry)
         {
             var documentSource = GetDocumentSource(entry.EntityType);
             var id = documentSource.GetId(entry.SharedIdentityEntry ?? entry);
-            throw exception.StatusCode switch
-            {
-                HttpStatusCode.PreconditionFailed =>
-                    new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-                HttpStatusCode.Conflict =>
-                    new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
-                _ => Rethrow(exception),
-            };
-        }
 
-        private static Exception Rethrow(Exception ex)
-        {
-            // Re-throw an exception, preserving the original stack and details, without being in the original "catch" block.
-            ExceptionDispatchInfo.Capture(ex).Throw();
-            return ex;
+            return exception switch
+            {
+                CosmosException { StatusCode : HttpStatusCode.PreconditionFailed }
+                    => new DbUpdateConcurrencyException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                CosmosException { StatusCode : HttpStatusCode.Conflict }
+                    => new DbUpdateException(CosmosStrings.UpdateConflict(id), exception, new[] { entry }),
+                _ => new DbUpdateException(CosmosStrings.UpdateStoreException(id), exception, new[] { entry })
+            };
         }
     }
 }
