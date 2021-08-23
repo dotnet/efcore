@@ -2,11 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
@@ -19,18 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public interface IRelationalCommand
+    public interface IRelationalCommand : IRelationalCommandTemplate
     {
-        /// <summary>
-        ///     Gets the command text to be executed.
-        /// </summary>
-        string CommandText { get; }
-
-        /// <summary>
-        ///     Gets the parameters for the command.
-        /// </summary>
-        IReadOnlyList<IRelationalParameter> Parameters { get; }
-
         /// <summary>
         ///     Executes the command with no results.
         /// </summary>
@@ -92,28 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     <para>
-        ///         Called by the execute methods to create a <see cref="DbCommand" /> for the given <see cref="DbConnection" />
-        ///         and configure timeouts and transactions.
-        ///     </para>
-        ///     <para>
-        ///         This method is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
+        ///     Populates this command from the provided <paramref name="commandTemplate"/>.
         /// </summary>
-        /// <param name="parameterObject"> Parameters for this method. </param>
-        /// <param name="commandId"> The command correlation ID. </param>
-        /// <param name="commandMethod"> The method that will be called on the created command. </param>
-        /// <returns> The created command. </returns>
-        DbCommand CreateDbCommand(
-            RelationalCommandParameterObject parameterObject,
-            Guid commandId,
-            DbCommandMethod commandMethod);
-
-        /// <summary>
-        ///     Populates this command from the provided <paramref name="command"/>.
-        /// </summary>
-        /// <param name="command"> A template command from which the command text and parameters will be copied. </param>
-        void PopulateFrom(IRelationalCommand command);
+        /// <param name="commandTemplate"> A template command from which the command text and parameters will be copied. </param>
+        void PopulateFrom(IRelationalCommandTemplate commandTemplate);
     }
 }

@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
                     DbCommandMethod commandMethod)
                     => throw new NotImplementedException();
 
-                public void PopulateFrom(IRelationalCommand command)
+                public void PopulateFrom(IRelationalCommandTemplate commandTemplate)
                     => throw new NotImplementedException();
             }
         }

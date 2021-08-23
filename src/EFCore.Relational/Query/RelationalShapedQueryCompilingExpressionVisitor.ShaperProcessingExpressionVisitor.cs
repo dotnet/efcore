@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -1403,9 +1404,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         RelationalCommandCache relationalCommandCache,
                         bool detailedErrorsEnabled)
                     {
-                        var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
-                        var relationalCommand = queryContext.Connection.RentCommand();
-                        relationalCommand.PopulateFrom(relationalCommandTemplate);
+                        var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                         return relationalCommand.ExecuteReader(
                             new RelationalCommandParameterObject(
@@ -1492,9 +1491,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         bool detailedErrorsEnabled,
                         CancellationToken cancellationToken)
                     {
-                        var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
-                        var relationalCommand = queryContext.Connection.RentCommand();
-                        relationalCommand.PopulateFrom(relationalCommandTemplate);
+                        var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                         return await relationalCommand.ExecuteReaderAsync(
                                 new RelationalCommandParameterObject(
@@ -1734,9 +1731,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         RelationalCommandCache relationalCommandCache,
                         bool detailedErrorsEnabled)
                     {
-                        var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
-                        var relationalCommand = queryContext.Connection.RentCommand();
-                        relationalCommand.PopulateFrom(relationalCommandTemplate);
+                        var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                         return relationalCommand.ExecuteReader(
                             new RelationalCommandParameterObject(
@@ -1815,9 +1810,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         bool detailedErrorsEnabled,
                         CancellationToken cancellationToken)
                     {
-                        var relationalCommandTemplate = relationalCommandCache.GetRelationalCommand(queryContext.ParameterValues);
-                        var relationalCommand = queryContext.Connection.RentCommand();
-                        relationalCommand.PopulateFrom(relationalCommandTemplate);
+                        var relationalCommand = relationalCommandCache.RentAndPopulateRelationalCommand(queryContext);
 
                         return await relationalCommand.ExecuteReaderAsync(
                             new RelationalCommandParameterObject(
