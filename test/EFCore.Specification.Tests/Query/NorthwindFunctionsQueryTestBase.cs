@@ -1530,6 +1530,15 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Indexof_with_one_arg(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Select(c => c.ContactName.IndexOf("a")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Indexof_with_starting_position(bool async)
         {
             return AssertQueryScalar(
