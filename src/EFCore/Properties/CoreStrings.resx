@@ -1501,7 +1501,10 @@
     <value>Unable to set 'IsUnique' to '{isUnique}' on the relationship associated with the navigation '{2_entityType}.{1_navigationName}' because the navigation has the opposite multiplicity.</value>
   </data>
   <data name="UnconfigurableType" xml:space="preserve">
-    <value>The type '{type}' cannot be configured as '{configuration}'. The current model building logic is unable to honor this configuration.</value>
+    <value>The type '{type}' cannot be configured as '{configuration}' since model building assumes that it is configured as '{expectedConfiguration}'. Remove the unsupported configuration for '{configurationType}'.</value>
+  </data>
+  <data name="UnconfigurableTypeMapping" xml:space="preserve">
+    <value>Default type mapping cannot be configured for the type '{type}' since it's not a valid scalar type. Remove the unsupported configuration.</value>
   </data>
   <data name="UnhandledExpressionNode" xml:space="preserve">
     <value>Unhandled expression node type '{nodeType}'.</value>

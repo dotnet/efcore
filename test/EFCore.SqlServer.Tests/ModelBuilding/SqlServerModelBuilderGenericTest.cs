@@ -84,6 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 {
                     c.Properties<int>().HaveColumnType("smallint");
                     c.Properties<string>().HaveColumnType("nchar(max)");
+                    c.Properties(typeof(Nullable<>)).HavePrecision(2);
                 });
 
                 modelBuilder.Entity<Quarks>(
@@ -91,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     {
                         b.Property<int>("Charm");
                         b.Property<string>("Strange");
-                        b.Property<int>("Top");
+                        b.Property<int?>("Top");
                         b.Property<string>("Bottom");
                     });
 
@@ -101,9 +102,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.Equal("smallint", entityType.FindProperty(Customer.IdProperty.Name).GetColumnType());
                 Assert.Equal("smallint", entityType.FindProperty("Up").GetColumnType());
                 Assert.Equal("nchar(max)", entityType.FindProperty("Down").GetColumnType());
-                Assert.Equal("smallint", entityType.FindProperty("Charm").GetColumnType());
+                var charm = entityType.FindProperty("Charm");
+                Assert.Equal("smallint", charm.GetColumnType());
+                Assert.Null(charm.GetPrecision());
                 Assert.Equal("nchar(max)", entityType.FindProperty("Strange").GetColumnType());
-                Assert.Equal("smallint", entityType.FindProperty("Top").GetColumnType());
+                var top = entityType.FindProperty("Top");
+                Assert.Equal("smallint", top.GetColumnType());
+                Assert.Equal(2, top.GetPrecision());
                 Assert.Equal("nchar(max)", entityType.FindProperty("Bottom").GetColumnType());
             }
 

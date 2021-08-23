@@ -41,7 +41,7 @@ namespace System
             => Nullable.GetUnderlyingType(type) ?? type;
 
         public static bool IsNullableValueType(this Type type)
-            => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            => type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
 
         public static bool IsNullableType(this Type type)
             => !type.IsValueType || type.IsNullableValueType();
@@ -311,6 +311,11 @@ namespace System
             {
                 type = typesToProcess.Dequeue();
                 baseTypes.Add(type);
+
+                if (type.IsNullableValueType())
+                {
+                    typesToProcess.Enqueue(Nullable.GetUnderlyingType(type)!);
+                }
 
                 if (type.IsConstructedGenericType)
                 {
