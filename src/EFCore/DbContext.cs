@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         For more information, see
-    ///         <see href="https://aka.ms/efcore-docs-dbcontext"> DbContext lifetime, configuration, and initialization</see>,
+    ///         <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>,
     ///         <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, 
     ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>, and
     ///         <see href="https://aka.ms/efcore-docs-saving">Saving data with EF Core</see>.
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information,
-        ///     <see href="https://aka.ms/efcore-docs-dbcontext"> DbContext lifetime, configuration, and initialization</see>.
+        ///     <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>.
         /// </remarks>
         protected DbContext()
             : this(new DbContextOptions<DbContext>())
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information,
-        ///     <see href="https://aka.ms/efcore-docs-dbcontext"> DbContext lifetime, configuration, and initialization</see> and
+        ///     <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see> and
         ///     <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>.
         /// </remarks>
         /// <param name="options">The options for this context.</param>
@@ -954,7 +954,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information,
-        ///     <see href="https://aka.ms/efcore-docs-dbcontext"> DbContext lifetime, configuration, and initialization</see>.
+        ///     <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>.
         /// </remarks>
         public virtual void Dispose()
         {
@@ -1007,7 +1007,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information,
-        ///     <see href="https://aka.ms/efcore-docs-dbcontext"> DbContext lifetime, configuration, and initialization</see>.
+        ///     <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>.
         /// </remarks>
         public virtual async ValueTask DisposeAsync()
         {
@@ -1557,7 +1557,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange(params object[] entities)
@@ -1581,7 +1581,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
@@ -1623,7 +1623,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange(params object[] entities)
@@ -1664,7 +1664,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to update. </param>
         public virtual void UpdateRange(params object[] entities)
@@ -1692,7 +1692,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange(params object[] entities)
@@ -1719,7 +1719,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange(IEnumerable<object> entities)
@@ -1743,7 +1743,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -1800,7 +1800,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange(IEnumerable<object> entities)
@@ -1841,7 +1841,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to update. </param>
         public virtual void UpdateRange(IEnumerable<object> entities)
@@ -1869,7 +1869,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <remarks>
         ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range"> Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange(IEnumerable<object> entities)
