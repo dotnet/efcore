@@ -517,6 +517,26 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _ignoreAutoIncludes = navigationExpandingExpressionVisitor._queryCompilationContext.IgnoreAutoIncludes;
             }
 
+            protected override Expression VisitBinary(BinaryExpression binaryExpression)
+            {
+                if (binaryExpression.NodeType == ExpressionType.Equal
+                    || binaryExpression.NodeType == ExpressionType.NotEqual)
+                {
+                    // This could be entity equality. We don't want to expand include nodes over them
+                    // as either they translate or throw.
+                    var leftEntityReference = IsEntityReference(binaryExpression.Left);
+                    var rightEntityReference = IsEntityReference(binaryExpression.Right);
+                    if (leftEntityReference || rightEntityReference)
+                    {
+                        return binaryExpression;
+                    }
+                }
+
+                return base.VisitBinary(binaryExpression);
+
+                bool IsEntityReference(Expression expression) => TryGetEntityType(expression) != null;
+            }
+
             protected override Expression VisitExtension(Expression extensionExpression)
             {
                 Check.NotNull(extensionExpression, nameof(extensionExpression));
@@ -556,26 +576,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (memberExpression.Expression != null)
                 {
-                    var innerExpression = memberExpression.Expression.UnwrapTypeConversion(out var convertedType);
-                    if (UnwrapEntityReference(innerExpression) is EntityReference entityReference)
+                    // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
+                    var entityType = TryGetEntityType(memberExpression.Expression);
+                    var property = entityType?.FindProperty(memberExpression.Member);
+                    if (property != null)
                     {
-                        // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
-                        var entityType = entityReference.EntityType;
-                        if (convertedType != null)
-                        {
-                            entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                                .FirstOrDefault(et => et.ClrType == convertedType);
-                            if (entityType == null)
-                            {
-                                return base.VisitMember(memberExpression);
-                            }
-                        }
-
-                        var property = entityType.FindProperty(memberExpression.Member);
-                        if (property != null)
-                        {
-                            return memberExpression;
-                        }
+                        return memberExpression;
                     }
                 }
 
@@ -595,14 +601,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (methodCallExpression.TryGetIndexerArguments(Model, out var source, out var propertyName))
                 {
-                    if (UnwrapEntityReference(source) is EntityReference entityReferece)
+                    // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
+                    var entityType = TryGetEntityType(source);
+                    var property = entityType?.FindProperty(propertyName);
+                    if (property != null)
                     {
-                        // If it is mapped property then, it would get converted to a column so we don't need to expand includes.
-                        var property = entityReferece.EntityType.FindProperty(propertyName);
-                        if (property != null)
-                        {
-                            return methodCallExpression;
-                        }
+                        return methodCallExpression;
                     }
                 }
 
@@ -627,6 +631,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
                 => typeBinaryExpression;
+
+            private IEntityType? TryGetEntityType(Expression expression)
+            {
+                var innerExpression = expression.UnwrapTypeConversion(out var convertedType);
+                if (UnwrapEntityReference(innerExpression) is EntityReference entityReference)
+                {
+                    var entityType = entityReference.EntityType;
+                    if (convertedType != null)
+                    {
+                        entityType = entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                            .FirstOrDefault(et => et.ClrType == convertedType);
+                        if (entityType == null)
+                        {
+                            return null;
+                        }
+                    }
+
+                    return entityType;
+                }
+
+                return null;
+            }
 
             private bool ReconstructAnonymousType(
                 Expression currentRoot,

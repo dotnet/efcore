@@ -259,6 +259,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
             }
 
+            ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
+            ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
+
             return conditionalExpression.Update(test, ifTrue, ifFalse);
         }
 
