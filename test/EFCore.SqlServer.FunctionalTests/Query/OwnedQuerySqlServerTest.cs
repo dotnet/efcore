@@ -601,7 +601,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o2] ON (([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])) AND (([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId]))
+LEFT JOIN [OrderDetail] AS [o2] ON ([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])
 WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]
@@ -649,7 +649,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
                 @"SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-LEFT JOIN [OrderDetail] AS [o2] ON (([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])) AND (([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId]))
+LEFT JOIN [OrderDetail] AS [o2] ON ([o0].[ClientId] = [o2].[OrderClientId]) AND ([o0].[Id] = [o2].[OrderId])
 WHERE (
     SELECT COUNT(*)
     FROM [OrderDetail] AS [o1]

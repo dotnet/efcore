@@ -94,5 +94,61 @@ namespace Microsoft.EntityFrameworkCore
             public bool IsDeleted { get; set; }
             public string Value { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task OwnsMany_correlated_projection(bool async)
+        {
+            var contextFactory = await InitializeAsync<SomeDbContext22089>();
+
+            using (var context = contextFactory.CreateContext())
+            {
+                var results = await context.Contacts.Select(contact => new ContactDto22089()
+                {
+                    Id = contact.Id,
+                    Names = contact.Names.Select(name => new NameDto22089() { }).ToArray()
+                }).ToListAsync();
+            }
+        }
+
+        protected class Contact22089
+        {
+            public Guid Id { get; set; }
+            public IReadOnlyList<Name22809> Names { get; protected set; } = new List<Name22809>();
+        }
+
+        protected class ContactDto22089
+        {
+            public Guid Id { get; set; }
+            public IReadOnlyList<NameDto22089> Names { get; set; }
+        }
+
+        protected class Name22809
+        {
+            public Guid Id { get; set; }
+            public Guid ContactId { get; set; }
+        }
+
+        protected class NameDto22089
+        {
+            public Guid Id { get; set; }
+            public Guid ContactId { get; set; }
+        }
+
+        protected class SomeDbContext22089 : DbContext
+        {
+            public SomeDbContext22089(DbContextOptions options)
+                      : base(options)
+            {
+            }
+
+            public DbSet<Contact22089> Contacts { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Contact22089>().HasKey(c => c.Id);
+                modelBuilder.Entity<Contact22089>().OwnsMany(c => c.Names, names => names.WithOwner().HasForeignKey(n => n.ContactId));
+            }
+        }
     }
 }
