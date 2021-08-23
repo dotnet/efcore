@@ -1528,13 +1528,28 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
 
-        [ConditionalTheory(Skip = "issue #25396")]
+        public override async Task Indexof_with_one_arg(bool async)
+        {
+            await base.Indexof_with_one_arg(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN N'a' = N'' THEN 0
+    ELSE CAST(CHARINDEX(N'a', [c].[ContactName]) AS int) - 1
+END
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'");
+        }
+
         public override async Task Indexof_with_starting_position(bool async)
         {
             await base.Indexof_with_starting_position(async);
 
             AssertSql(
-                @"SELECT [c].[ContactName]
+                @"SELECT CASE
+    WHEN N'a' = N'' THEN 0
+    ELSE CAST(CHARINDEX(N'a', [c].[ContactName], 3 + 1) AS int) - 1
+END
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'ALFKI'");
         }
