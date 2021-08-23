@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore
     ///     occurs when an unexpected number of rows are affected during save. This is usually because the data in the database has
     ///     been modified since it was loaded into memory.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-optimistic-concurrency">Handling concurrency conflicts</see>.
+    /// </remarks>
     [Serializable]
     public class DbUpdateConcurrencyException : DbUpdateException
     {

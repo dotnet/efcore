@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     An exception that is thrown when an error is encountered while saving to the database.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-saving">Saving data with EF Core</see>.
+    /// </remarks>
     [Serializable]
     public class DbUpdateException : Exception
     {
