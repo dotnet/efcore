@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var index = name.IndexOf(outerClassName, StringComparison.Ordinal);
             if (index >= 0)
             {
-                name = name.Substring(0, index) + name.Substring(index + outerClassName.Length);
+                name = name.Substring(0, index) + name[(index + outerClassName.Length)..];
             }
 
             return name;

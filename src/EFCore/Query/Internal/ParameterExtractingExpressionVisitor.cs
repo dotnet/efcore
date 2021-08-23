@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
             if (compilerPrefixIndex != -1)
             {
-                parameterName = parameterName.Substring(compilerPrefixIndex + 1);
+                parameterName = parameterName[(compilerPrefixIndex + 1)..];
             }
 
             parameterName

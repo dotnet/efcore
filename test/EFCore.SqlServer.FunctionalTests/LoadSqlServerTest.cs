@@ -1471,11 +1471,11 @@ WHERE 0 = 1");
             {
                 var methodCallLine = Environment.StackTrace.Split(
                     new[] { Environment.NewLine },
-                    StringSplitOptions.RemoveEmptyEntries)[2].Substring(6);
+                    StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
                 var testName = methodCallLine.Substring(0, methodCallLine.IndexOf(')') + 1);
                 var lineIndex = methodCallLine.LastIndexOf("line", StringComparison.Ordinal);
-                var lineNumber = lineIndex > 0 ? methodCallLine.Substring(lineIndex) : "";
+                var lineNumber = lineIndex > 0 ? methodCallLine[lineIndex..] : "";
 
                 var currentDirectory = Directory.GetCurrentDirectory();
                 var logFile = currentDirectory.Substring(

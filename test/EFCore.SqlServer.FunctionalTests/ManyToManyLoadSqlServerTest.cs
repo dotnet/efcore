@@ -235,7 +235,7 @@ ORDER BY [e].[Id], [t].[EntityOneId], [t].[EntityTwoId], [t].[Id], [t0].[Id], [t
             {
                 var methodCallLine = Environment.StackTrace.Split(
                     new[] { Environment.NewLine },
-                    StringSplitOptions.RemoveEmptyEntries)[2].Substring(6);
+                    StringSplitOptions.RemoveEmptyEntries)[2][6..];
 
                 var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
                 var testName = methodCallLine.Substring(0, indexMethodEnding);

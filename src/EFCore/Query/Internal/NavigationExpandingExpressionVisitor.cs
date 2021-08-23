@@ -645,9 +645,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                         case nameof(Queryable.Select)
                             when genericMethod == QueryableMethods.Select:
-                            return ProcessSelect(
+                            var result = ProcessSelect(
                                 groupBySource,
                                 methodCallExpression.Arguments[1].UnwrapLambdaFromQuote());
+                            if (result == null)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.TranslationFailedWithDetails(
+                                        _reducingExpressionVisitor.Visit(methodCallExpression).Print(),
+                                        CoreStrings.QuerySelectContainsGrouping));
+                            }
+
+                            return result;
 
                         case nameof(Queryable.Skip)
                             when genericMethod == QueryableMethods.Skip:
@@ -1449,9 +1458,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return groupBySource;
         }
 
-        private NavigationExpansionExpression ProcessSelect(GroupByNavigationExpansionExpression groupBySource, LambdaExpression selector)
+        private NavigationExpansionExpression? ProcessSelect(GroupByNavigationExpansionExpression groupBySource, LambdaExpression selector)
         {
-            var selectorBody = new GroupingElementReplacingExpressionVisitor(selector.Parameters[0], groupBySource).Visit(selector.Body);
+            var groupingElementReplacingExpressionVisitor = new GroupingElementReplacingExpressionVisitor(selector.Parameters[0], groupBySource);
+            var selectorBody = groupingElementReplacingExpressionVisitor.Visit(selector.Body);
+            if (groupingElementReplacingExpressionVisitor.ContainsGrouping)
+            {
+                return null;
+            }
             selectorBody = Visit(selectorBody);
             selectorBody = new PendingSelectorExpandingExpressionVisitor(this, _extensibilityHelper, applyIncludes: true).Visit(selectorBody);
             selectorBody = Reduce(selectorBody);

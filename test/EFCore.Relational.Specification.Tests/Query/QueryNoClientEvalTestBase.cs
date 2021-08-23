@@ -200,12 +200,12 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private void AssertTranslationFailed(Action testCode)
             => Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
+                CoreStrings.TranslationFailed("")[21..],
                 Assert.Throws<InvalidOperationException>(testCode).Message);
 
         private void AssertTranslationFailedWithDetails(Action testCode, string details)
             => Assert.Contains(
-                CoreStrings.TranslationFailedWithDetails("", details).Substring(21),
+                CoreStrings.TranslationFailedWithDetails("", details)[21..],
                 Assert.Throws<InvalidOperationException>(testCode).Message);
 
         protected NorthwindContext CreateContext()
