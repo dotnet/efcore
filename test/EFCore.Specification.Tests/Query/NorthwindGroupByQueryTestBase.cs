@@ -3011,6 +3011,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }));
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Count_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderDate.HasValue)
+                    .Select(o => new
+                    {
+                        o,
+                        OrderDetails = o.OrderDetails.Where(od => od.ProductID < 25)
+                    })
+                    .Select(info => new
+                    {
+                        info.o.OrderID,
+                        info.o.OrderDate,
+                        HasOrderDetails = info.OrderDetails.Any(),
+                        HasMultipleProducts = info.OrderDetails.GroupBy(e => e.Product.ProductName).Count() > 1
+                    }));
+        }
+
         #endregion
 
         # region GroupByInSubquery
