@@ -8164,6 +8164,16 @@ FROM [Factions] AS [f]
 WHERE [f].[ServerAddress] = CAST(N'127.0.0.1' AS nvarchar(45))");
         }
 
+        public override async Task Contains_on_readonly_enumerable(bool async)
+        {
+            await base.Contains_on_readonly_enumerable(async);
+
+            AssertSql(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapons] AS [w]
+WHERE [w].[AmmunitionType] = 1");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

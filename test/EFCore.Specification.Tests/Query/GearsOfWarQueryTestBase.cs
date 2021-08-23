@@ -9007,6 +9007,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Faction>().Where(f => f.ServerAddress == IPAddress.Loopback));
         }
 
+        private static readonly IEnumerable<AmmunitionType?> _weaponTypes = new AmmunitionType?[] { AmmunitionType.Cartridge };
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_on_readonly_enumerable(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Weapon>().Where(w => _weaponTypes.Contains(w.AmmunitionType)));
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 
