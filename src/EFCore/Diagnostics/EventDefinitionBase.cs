@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     Base class for event definitions.
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public abstract class EventDefinitionBase
     {
         /// <summary>

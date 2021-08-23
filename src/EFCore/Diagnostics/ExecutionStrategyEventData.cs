@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload for
     ///     <see cref="CoreEventId" /> execution strategy events.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    /// </remarks>
     public class ExecutionStrategyEventData : EventData
     {
         /// <summary>

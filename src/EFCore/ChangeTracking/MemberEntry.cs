@@ -67,6 +67,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         be updated in the database  when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         public abstract bool IsModified { get; set; }
 
         /// <summary>
@@ -79,6 +82,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
         ///     for the context to detect the change.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         public virtual object? CurrentValue
         {
             get => InternalEntry[Metadata];
@@ -88,6 +94,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     The <see cref="EntityEntry" /> to which this member belongs.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         /// <value> An entry for the entity that owns this member. </value>
         public virtual EntityEntry EntityEntry
             => new(InternalEntry);

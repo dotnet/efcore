@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     Defines metadata for an event with more than six parameters such that it has to have
     ///     special handling.
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public class FallbackEventDefinition : EventDefinitionBase
     {
         /// <summary>
