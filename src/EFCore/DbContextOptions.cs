@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore
     ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> or use a <see cref="DbContextOptionsBuilder" />
     ///     to create instances of this class and it is not designed to be directly constructed in your application code.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>.
+    /// </remarks>
     public abstract class DbContextOptions : IDbContextOptions
     {
         /// <summary>

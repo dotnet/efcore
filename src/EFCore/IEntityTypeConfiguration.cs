@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore
     ///     <see cref="ModelBuilder.ApplyConfiguration{TEntity}(IEntityTypeConfiguration{TEntity})" />
     ///     in <see cref="DbContext.OnModelCreating(ModelBuilder)" />.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships in EF Core</see>.
+    /// </remarks>
     /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
     public interface IEntityTypeConfiguration<TEntity>
         where TEntity : class
