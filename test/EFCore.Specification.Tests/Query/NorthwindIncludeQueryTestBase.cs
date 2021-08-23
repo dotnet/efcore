@@ -716,7 +716,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Contains(
                 CoreStrings.TranslationFailedWithDetails(
                     "",
-                    CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer))).Substring(21),
+                    CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)))[21..],
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => AssertQuery(
                         async,

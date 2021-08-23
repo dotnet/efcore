@@ -2442,6 +2442,21 @@ FROM (
 GROUP BY [t].[CustomerID]");
         }
 
+        public override async Task GroupBy_aggregate_without_selectMany_selecting_first(bool async)
+        {
+            await base.GroupBy_aggregate_without_selectMany_selecting_first(async);
+
+            AssertSql(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT MIN([o].[OrderID]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]
+CROSS JOIN [Orders] AS [o0]
+WHERE [o0].[OrderID] = [t].[c]");
+        }
+
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)
         {
             await base.GroupBy_with_grouping_key_using_Like(async);

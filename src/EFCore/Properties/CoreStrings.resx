@@ -1313,6 +1313,9 @@
   <data name="QueryRootDifferentEntityType" xml:space="preserve">
     <value>The replacement entity type: {entityType} does not have same name and CLR type as entity type this query root represents.</value>
   </data>
+  <data name="QuerySelectContainsGrouping" xml:space="preserve">
+    <value>Translation of 'Select' which contains grouping parameter without composition is not supported.</value>
+  </data>
   <data name="QueryUnableToTranslateEFProperty" xml:space="preserve">
     <value>Translation of '{expression}' failed. Either the query source is not an entity type, or the specified property does not exist on the entity type.</value>
   </data>

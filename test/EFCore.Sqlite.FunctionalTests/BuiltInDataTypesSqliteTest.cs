@@ -1644,7 +1644,7 @@ ORDER BY ""b"".""Id"", ""b0"".""Id""");
 
         private void AssertTranslationFailed(Action testCode)
             => Assert.Contains(
-                CoreStrings.TranslationFailed("").Substring(21),
+                CoreStrings.TranslationFailed("")[21..],
                 Assert.Throws<InvalidOperationException>(testCode).Message);
 
         private void AssertSql(params string[] expected)

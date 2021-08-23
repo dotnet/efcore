@@ -1144,14 +1144,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 _cloningExpressionVisitor = new CloningExpressionVisitor();
             }
 
+            public bool ContainsGrouping { get; private set; }
+
             [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
             {
                 if (expression == _parameterExpression)
                 {
+                    ContainsGrouping = true;
+                }
+
+                return base.Visit(expression);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                    && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+                    && methodCallExpression.Arguments[0] == _parameterExpression)
+                {
                     var currentTree = _cloningExpressionVisitor.Clone(_navigationExpansionExpression.CurrentTree);
 
-                    return new NavigationExpansionExpression(
+                    var navigationExpansionExpression = new NavigationExpansionExpression(
                         _navigationExpansionExpression.Source,
                         currentTree,
                         new ReplacingExpressionVisitor(
@@ -1159,9 +1173,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             _cloningExpressionVisitor.ClonedNodesMap.Values.ToList())
                             .Visit(_navigationExpansionExpression.PendingSelector),
                         _navigationExpansionExpression.CurrentParameter.Name!);
+
+                    return methodCallExpression.Update(null, new[] { navigationExpansionExpression });
                 }
 
-                return base.Visit(expression);
+                return base.VisitMethodCall(methodCallExpression);
             }
 
             protected override Expression VisitMember(MemberExpression memberExpression)

@@ -2301,6 +2301,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     Translation of 'Select' which contains grouping parameter without composition is not supported.
+        /// </summary>
+        public static string QuerySelectContainsGrouping
+            => GetString("QuerySelectContainsGrouping");
+
+        /// <summary>
         ///     Translation of '{expression}' failed. Either the query source is not an entity type, or the specified property does not exist on the entity type.
         /// </summary>
         public static string QueryUnableToTranslateEFProperty(object? expression)
