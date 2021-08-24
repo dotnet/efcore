@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         }
                     }
 
-                    return _visitedFromSqlExpressions[fromSql] = fromSql.Update(Expression.Constant(constantValues, typeof(object?[])));
+                    return _visitedFromSqlExpressions[fromSql] = fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
 
                 default:
                     Check.DebugAssert(false, "FromSql.Arguments must be Constant/ParameterExpression");
