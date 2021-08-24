@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         methods to obtain a new instance with the option changed.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+    /// </remarks>
     public class WarningsConfiguration
     {
         private ImmutableSortedDictionary<int, (WarningBehavior? Behavior, LogLevel? Level)> _explicitBehaviors
@@ -62,6 +65,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="WarningsConfigurationBuilder" />.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+        /// </remarks>
         /// <param name="warningBehavior"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>
         public virtual WarningsConfiguration WithDefaultBehavior(WarningBehavior warningBehavior)

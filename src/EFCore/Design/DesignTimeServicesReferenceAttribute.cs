@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///         This attribute is typically used by design-time extensions. It is generally not used in application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public sealed class DesignTimeServicesReferenceAttribute : Attribute
     {

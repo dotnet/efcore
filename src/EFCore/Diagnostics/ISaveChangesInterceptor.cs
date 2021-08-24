@@ -28,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         order that they are resolved from the service provider, and then the application interceptors are run last.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see>.
+    /// </remarks>
     public interface ISaveChangesInterceptor : IInterceptor
     {
         /// <summary>

@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         in the order that they were added to the context.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see>.
+    /// </remarks>
     public interface IInterceptor
     {
     }

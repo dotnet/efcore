@@ -50,6 +50,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     and should be updated in the database when <see cref="DbContext.SaveChanges()" />
         ///     is called.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         public override bool IsModified
         {
             get => InternalEntry.IsModified(Metadata);
@@ -61,6 +64,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     temporary value which will be replaced by a value generated from the store when
         ///     <see cref="DbContext.SaveChanges()" />is called.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         public virtual bool IsTemporary
         {
             get => InternalEntry.HasTemporaryValue(Metadata);
@@ -83,6 +89,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     useful in disconnected scenarios where entities are retrieved with one context instance and
         ///     saved with a different context instance.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         public virtual object? OriginalValue
         {
             get => InternalEntry.GetOriginalValue(Metadata);

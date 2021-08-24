@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     Formatting options for use with <see cref="FormattingDbContextLogger" />
     ///     and <see cref="DbContextOptionsBuilder.LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" />.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-simple-logging">EF Core simple logging</see>.
+    /// </remarks>
     [Flags]
     public enum DbContextLoggerOptions
     {

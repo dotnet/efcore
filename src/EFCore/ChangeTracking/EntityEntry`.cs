@@ -51,6 +51,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking information and operations for a given
         ///     property of this entity.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
@@ -68,6 +71,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
         ///     navigation property that associates this entity to another entity.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>.
+        /// </remarks>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
@@ -89,6 +96,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking and loading information for a collection
         ///     navigation property that associates this entity to a collection of another entities.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>.
+        /// </remarks>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to access information and operations for
         ///     (<c>t => t.Property1</c>).
@@ -110,6 +121,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking and loading information for a reference (i.e. non-collection)
         ///     navigation property that associates this entity to another entity.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>.
+        /// </remarks>
         /// <param name="propertyName"> The name of the navigation property. </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
@@ -127,6 +142,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking and loading information for a collection
         ///     navigation property that associates this entity to a collection of another entities.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>.
+        /// </remarks>
         /// <param name="propertyName"> The name of the navigation property. </param>
         /// <returns>
         ///     An object that exposes change tracking information and operations for the
@@ -144,6 +163,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Provides access to change tracking information and operations for a given
         ///     property of this entity.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property. </typeparam>
         /// <param name="propertyName"> The property to access information and operations for. </param>
         /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
