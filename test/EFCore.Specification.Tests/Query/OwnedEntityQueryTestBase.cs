@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -149,6 +150,85 @@ namespace Microsoft.EntityFrameworkCore
                 modelBuilder.Entity<Contact22089>().HasKey(c => c.Id);
                 modelBuilder.Entity<Contact22089>().OwnsMany(c => c.Names, names => names.WithOwner().HasForeignKey(n => n.ContactId));
             }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Projecting_owned_collection_and_aggregate(bool async)
+        {
+            var contextFactory = await InitializeAsync<MyContext24133>();
+
+            using var context = contextFactory.CreateContext();
+            var query = context.Set<Blog24133>()
+                .Select(b => new BlogDto24133
+                {
+                    Id = b.Id,
+                    TotalComments = b.Posts.Sum(p => p.CommentsCount),
+                    Posts = b.Posts.Select(p => new PostDto24133
+                    {
+                        Title = p.Title,
+                        CommentsCount = p.CommentsCount
+                    })
+                });
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
+        protected class MyContext24133 : DbContext
+        {
+            public MyContext24133(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog24133>(blog =>
+                {
+                    blog.OwnsMany(b => b.Posts, p =>
+                    {
+                        p.WithOwner().HasForeignKey("BlogId");
+                        p.Property("BlogId").HasMaxLength(40);
+                    });
+                });
+            }
+        }
+
+        protected class Blog24133
+        {
+            public int Id { get; private set; }
+
+            private List<Post24133> _posts = new();
+            public static Blog24133 Create(IEnumerable<Post24133> posts)
+            {
+                return new Blog24133
+                {
+                    _posts = posts.ToList()
+                };
+            }
+
+            public IReadOnlyCollection<Post24133> Posts => new ReadOnlyCollection<Post24133>(_posts);
+        }
+
+        protected class Post24133
+        {
+            public string Title { get; set; }
+            public int CommentsCount { get; set; }
+        }
+
+        protected class BlogDto24133
+        {
+            public int Id { get; set; }
+            public int TotalComments { get; set; }
+            public IEnumerable<PostDto24133> Posts { get; set; }
+        }
+
+        protected class PostDto24133
+        {
+            public string Title { get; set; }
+            public int CommentsCount { get; set; }
         }
     }
 }

@@ -61,5 +61,19 @@ FROM (
 INNER JOIN [Leaf24777] AS [l] ON [t].[Id1] = [l].[ModdleAId]
 ORDER BY [t].[Id], [t].[Id0], [t].[Id1]");
         }
+
+        public override async Task Projecting_owned_collection_and_aggregate(bool async)
+        {
+            await base.Projecting_owned_collection_and_aggregate(async);
+
+            AssertSql(
+                @"SELECT [b].[Id], (
+    SELECT COALESCE(SUM([p].[CommentsCount]), 0)
+    FROM [Post24133] AS [p]
+    WHERE [b].[Id] = [p].[BlogId]), [p0].[Title], [p0].[CommentsCount], [p0].[BlogId], [p0].[Id]
+FROM [Blog24133] AS [b]
+LEFT JOIN [Post24133] AS [p0] ON [b].[Id] = [p0].[BlogId]
+ORDER BY [b].[Id], [p0].[BlogId]");
+        }
     }
 }
