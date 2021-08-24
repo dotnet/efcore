@@ -1842,6 +1842,19 @@ LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[CustomerID]");
         }
 
+        public override async Task Client_projection_with_string_initialization_with_scalar_subquery(bool async)
+        {
+            await base.Client_projection_with_string_initialization_with_scalar_subquery(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], (
+    SELECT TOP(1) [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE ([c].[CustomerID] = [o].[CustomerID]) AND ([o].[OrderID] < 11000)), [c].[City], N'test' + COALESCE([c].[City], N'')
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -748,6 +748,20 @@ OUTER APPLY (
 ORDER BY [t].[CustomerID], [t0].[OrderDate], [t0].[OrderID]");
         }
 
+        public override async Task Condition_on_entity_with_include(bool async)
+        {
+            await base.Condition_on_entity_with_include(async);
+
+            AssertSql(
+                @"SELECT CASE
+    WHEN [o].[OrderID] IS NOT NULL THEN [o].[OrderID]
+    ELSE -1
+END AS [a]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

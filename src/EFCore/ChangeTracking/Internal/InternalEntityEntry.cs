@@ -1443,12 +1443,30 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 property.Name,
                                 EntityType.DisplayName()));
                     }
+
+                    CheckForUnknownKey(property);
+                }
+            }
+            else if (EntityState == EntityState.Deleted)
+            {
+                foreach (var property in entityType.GetProperties())
+                {
+                    CheckForUnknownKey(property);
                 }
             }
 
             DiscardStoreGeneratedValues();
 
             return this;
+
+            void CheckForUnknownKey(IProperty property)
+            {
+                if (property.IsKey()
+                    && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
+                {
+                    throw new InvalidOperationException(CoreStrings.UnknownShadowKeyValue(entityType.DisplayName(), property.Name));
+                }
+            }
         }
 
         /// <summary>

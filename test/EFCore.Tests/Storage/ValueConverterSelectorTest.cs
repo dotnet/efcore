@@ -704,6 +704,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             AssertConverters(
                 _selector.Select(typeof(IPAddress), typeof(string)).ToList(),
                 (typeof(IPAddressToStringConverter), new ConverterMappingHints(size: 45)));
+
+            AssertConverters(
+                _selector.Select(IPAddress.Loopback.GetType(), typeof(string)).ToList(),
+                (typeof(IPAddressToStringConverter), new ConverterMappingHints(size: 45)));
         }
 
         [ConditionalFact]
@@ -711,6 +715,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             AssertConverters(
                 _selector.Select(typeof(IPAddress), typeof(byte[])).ToList(),
+                (typeof(IPAddressToBytesConverter), new ConverterMappingHints(size: 16)));
+
+            AssertConverters(
+                _selector.Select(IPAddress.Loopback.GetType(), typeof(byte[])).ToList(),
                 (typeof(IPAddressToBytesConverter), new ConverterMappingHints(size: 16)));
         }
 

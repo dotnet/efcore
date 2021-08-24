@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public interface IDiagnosticsLogger
     {
         /// <summary>

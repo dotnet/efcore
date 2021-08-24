@@ -58,6 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             typeof(float)
         };
 
+        private static readonly Type? _readOnlyIPAddressType = IPAddress.Loopback.GetType();
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverterSelector" /> class.
         /// </summary>
@@ -291,7 +293,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                                 NumberToBytesConverter<long>.DefaultInfo.MappingHints));
                 }
             }
-            else if (modelClrType == typeof(IPAddress))
+            else if (modelClrType == typeof(IPAddress) || modelClrType == _readOnlyIPAddressType)
             {
                 if (providerClrType == null
                     || providerClrType == typeof(string))

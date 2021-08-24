@@ -265,6 +265,9 @@
   <data name="UpdateConflict" xml:space="preserve">
     <value>Conflicts were detected for item with id '{itemId}'.</value>
   </data>
+  <data name="UpdateStoreException" xml:space="preserve">
+    <value>An error occurred while saving the the item with id '{itemId}'. See the inner exception for details.</value>
+  </data>
   <data name="VisitChildrenMustBeOverridden" xml:space="preserve">
     <value>'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.</value>
   </data>

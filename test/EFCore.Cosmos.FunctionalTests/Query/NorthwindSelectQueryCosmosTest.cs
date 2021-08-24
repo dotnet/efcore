@@ -1308,6 +1308,12 @@ ORDER BY c[""OrderID""]");
             return base.Client_projection_via_ctor_arguments(async);
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task Client_projection_with_string_initialization_with_scalar_subquery(bool async)
+        {
+            return base.Client_projection_with_string_initialization_with_scalar_subquery(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

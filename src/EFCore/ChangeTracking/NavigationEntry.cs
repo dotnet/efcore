@@ -24,7 +24,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
     /// </remarks>
     public abstract class NavigationEntry : MemberEntry
     {
@@ -101,6 +102,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        /// </remarks>
         public abstract void Load();
 
         /// <summary>
@@ -116,6 +121,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        /// </remarks>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -131,6 +140,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         actually loading all entities from the database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        /// </remarks>
         /// <returns> The query to load related entities. </returns>
         public abstract IQueryable Query();
 
@@ -154,6 +167,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         related entities are loaded and will set this flag to true.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        /// </remarks>
         /// <value>
         ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to true.
         /// </value>

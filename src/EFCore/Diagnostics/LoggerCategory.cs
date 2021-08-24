@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     Generic helper class used to implement the <see cref="Name" /> property.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    /// </remarks>
     /// <typeparam name="T"> The logger category type. </typeparam>
     public abstract class LoggerCategory<T>
     {
@@ -40,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var index = name.IndexOf(outerClassName, StringComparison.Ordinal);
             if (index >= 0)
             {
-                name = name.Substring(0, index) + name.Substring(index + outerClassName.Length);
+                name = name.Substring(0, index) + name[(index + outerClassName.Length)..];
             }
 
             return name;

@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     An interface implemented by any <see cref="EventData" /> subclass that represents a change to either
     ///     a skip collection navigation or a regular collection navigation.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    /// </remarks>
     public interface ICollectionChangedEventData
     {
         /// <summary>

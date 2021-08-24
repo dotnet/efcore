@@ -419,14 +419,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Int32_cannot_be_ignored()
             {
-                Assert.Equal(CoreStrings.UnconfigurableType("int", "Ignored"),
+                Assert.Equal(CoreStrings.UnconfigurableType("int?", "Ignored", "Property", "int"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<int>())).Message);
             }
 
             [ConditionalFact]
             public virtual void Object_cannot_be_ignored()
             {
-                Assert.Equal(CoreStrings.UnconfigurableType("object", "Ignored"),
+                Assert.Equal(CoreStrings.UnconfigurableType("string", "Ignored", "Property", "object"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.IgnoreAny<object>())).Message);
             }
 
@@ -1410,17 +1410,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ConditionalFact]
             public virtual void Object_cannot_be_configured_as_property()
             {
-                Assert.Equal(CoreStrings.UnconfigurableType("object", "Property"),
+                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "object"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<object>())).Message);
             }
 
             [ConditionalFact]
             public virtual void Property_bag_cannot_be_configured_as_property()
             {
-                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property"),
+                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "Dictionary<string, object>"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<Dictionary<string, object>>())).Message);
 
-                Assert.Equal(CoreStrings.UnconfigurableType("IDictionary<string, object>", "Property"),
+                Assert.Equal(CoreStrings.UnconfigurableType("Dictionary<string, object>", "Property", "SharedTypeEntityType", "IDictionary<string, object>"),
                     Assert.Throws<InvalidOperationException>(() => CreateModelBuilder(c => c.Properties<IDictionary<string, object>>())).Message);
             }
 

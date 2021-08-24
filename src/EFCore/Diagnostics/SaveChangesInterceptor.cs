@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         of the interface methods.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see>.
+    /// </remarks>
     public abstract class SaveChangesInterceptor : ISaveChangesInterceptor
     {
         /// <summary>

@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             {
                 var methodCallLine = Environment.StackTrace.Split(
                     new[] { _eol },
-                    StringSplitOptions.RemoveEmptyEntries)[3].Substring(6);
+                    StringSplitOptions.RemoveEmptyEntries)[3][6..];
 
                 var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
                 var testName = methodCallLine.Substring(0, indexMethodEnding);

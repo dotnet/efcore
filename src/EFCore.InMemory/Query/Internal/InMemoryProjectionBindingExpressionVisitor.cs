@@ -62,9 +62,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             _indexBasedBinding = false;
 
             _projectionMembers.Push(new ProjectionMember());
-
-            var expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandSharedTypeEntities(_queryExpression, expression);
-            var result = Visit(expandedExpression);
+            var result = Visit(expression);
 
             if (result == QueryCompilationContext.NotTranslatedExpression)
             {
@@ -73,8 +71,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 _entityProjectionCache = new();
                 _clientProjections = new();
 
-                expandedExpression = _queryableMethodTranslatingExpressionVisitor.ExpandSharedTypeEntities(_queryExpression, expression);
-                result = Visit(expandedExpression);
+                result = Visit(expression);
 
                 _queryExpression.ReplaceProjection(_clientProjections);
                 _clientProjections = null;
@@ -258,6 +255,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 test = Expression.Equal(test, Expression.Constant(true, typeof(bool?)));
             }
+
+            ifTrue = MatchTypes(ifTrue, conditionalExpression.IfTrue.Type);
+            ifFalse = MatchTypes(ifFalse, conditionalExpression.IfFalse.Type);
 
             return conditionalExpression.Update(test, ifTrue, ifFalse);
         }

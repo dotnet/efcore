@@ -626,6 +626,56 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                     modelBuilder.Entity<SharedFkDependant>();
+
+                    modelBuilder.Entity<Owner>();
+
+                    modelBuilder.Entity<OwnerWithKeyedCollection>(
+                        b =>
+                        {
+                            b.Navigation(e => e.Owned).IsRequired();
+                            b.Navigation(e => e.OwnedWithKey).IsRequired();
+
+                            b.OwnsMany(
+                                e => e.OwnedCollectionPrivateKey,
+                                b => b.HasKey("OwnerWithKeyedCollectionId", "PrivateKey"));
+                        });
+
+                    modelBuilder.Entity<OwnerNoKeyGeneration>(
+                        b =>
+                        {
+                            b.Property(e => e.Id).ValueGeneratedNever();
+
+                            b.OwnsOne(
+                                e => e.Owned,
+                                b => b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever());
+                            b.OwnsMany(
+                                e => e.OwnedCollection,
+                                b =>
+                                {
+                                    b.Property<int>("OwnedNoKeyGenerationId").ValueGeneratedNever();
+                                    b.Property("OwnerNoKeyGenerationId").ValueGeneratedNever();
+                                });
+                        });
+
+                    modelBuilder.Entity<Provider>().HasData(
+                        new Provider { Id = "prov1" },
+                        new Provider { Id = "prov2" });
+
+                    modelBuilder.Entity<Partner>().HasData(
+                        new Partner { Id = "partner1" });
+
+                    modelBuilder.Entity<ProviderContract>(
+                        b =>
+                        {
+                            b.HasOne(p => p.Partner).WithMany().IsRequired().HasForeignKey("PartnerId");
+                            b.HasOne<Provider>().WithMany().IsRequired().HasForeignKey("ProviderId");
+
+                            b.HasDiscriminator<string>("ProviderId")
+                                .HasValue<ProviderContract1>("prov1")
+                                .HasValue<ProviderContract2>("prov2");
+
+                            b.HasKey("PartnerId", "ProviderId");
+                        });
                 }
             }
         }

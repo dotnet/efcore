@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     A <see cref="DiagnosticSource" /> event payload class for context initialization events.
     /// </summary>
+    /// <remarks>
+    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    /// </remarks>
     public class ContextInitializedEventData : EventData
     {
         /// <summary>

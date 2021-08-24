@@ -766,7 +766,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     var newParameterName =
                         $"{_runtimeParameterPrefix}"
-                        + $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     rewrittenSource = _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
                     break;
@@ -880,7 +880,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
                     var newParameterName =
                         $"{_runtimeParameterPrefix}"
-                        + $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 

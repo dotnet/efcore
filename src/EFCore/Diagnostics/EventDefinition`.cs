@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     Defines metadata for an event with one parameter and a cached delegate to log the
     ///     event with reduced allocations.
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public class EventDefinition<TParam> : EventDefinitionBase
     {
         private readonly Action<ILogger, TParam, Exception?> _logAction;

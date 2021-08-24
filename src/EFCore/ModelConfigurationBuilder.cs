@@ -318,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="modelDependencies"> The dependencies object used during model building. </param>
         /// <returns> The configured <see cref="ModelBuilder" />. </returns>
         public virtual ModelBuilder CreateModelBuilder(ModelDependencies? modelDependencies)
-            => new(_conventions, modelDependencies, _modelConfiguration.IsEmpty() ? null : _modelConfiguration);
+            => new(_conventions, modelDependencies, _modelConfiguration.IsEmpty() ? null : _modelConfiguration.Validate());
 
         #region Hidden System.Object members
 

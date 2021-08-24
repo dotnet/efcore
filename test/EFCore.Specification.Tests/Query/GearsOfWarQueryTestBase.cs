@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
@@ -8995,6 +8996,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.Nickname, a.Nickname);
                     AssertEqual(e.IsOfficer, a.IsOfficer);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Comparison_with_value_converted_subclass(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Faction>().Where(f => f.ServerAddress == IPAddress.Loopback));
+        }
+
+        private static readonly IEnumerable<AmmunitionType?> _weaponTypes = new AmmunitionType?[] { AmmunitionType.Cartridge };
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_on_readonly_enumerable(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Weapon>().Where(w => _weaponTypes.Contains(w.AmmunitionType)));
         }
 
         protected GearsOfWarContext CreateContext()

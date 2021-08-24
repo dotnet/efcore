@@ -2138,6 +2138,33 @@ FROM (
 GROUP BY [t0].[Key0]");
         }
 
+        public override async Task GroupBy_Count_in_projection(bool async)
+        {
+            await base.GroupBy_Count_in_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[OrderDate], CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Order Details] AS [o0]
+        WHERE ([o].[OrderID] = [o0].[OrderID]) AND ([o0].[ProductID] < 25)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasOrderDetails], CASE
+    WHEN (
+        SELECT COUNT(*)
+        FROM (
+            SELECT [p].[ProductName]
+            FROM [Order Details] AS [o1]
+            INNER JOIN [Products] AS [p] ON [o1].[ProductID] = [p].[ProductID]
+            WHERE ([o].[OrderID] = [o1].[OrderID]) AND ([o1].[ProductID] < 25)
+            GROUP BY [p].[ProductName]
+        ) AS [t]) > 1 THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [HasMultipleProducts]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL");
+        }
+
         public override async Task GroupBy_based_on_renamed_property_simple(bool async)
         {
             await base.GroupBy_based_on_renamed_property_simple(async);
@@ -2440,6 +2467,21 @@ FROM (
     GROUP BY [o].[CustomerID], DATEPART(year, [o].[OrderDate])
 ) AS [t]
 GROUP BY [t].[CustomerID]");
+        }
+
+        public override async Task GroupBy_aggregate_without_selectMany_selecting_first(bool async)
+        {
+            await base.GroupBy_aggregate_without_selectMany_selecting_first(async);
+
+            AssertSql(
+                @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM (
+    SELECT MIN([o].[OrderID]) AS [c]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+) AS [t]
+CROSS JOIN [Orders] AS [o0]
+WHERE [o0].[OrderID] = [t].[c]");
         }
 
         public override async Task GroupBy_with_grouping_key_using_Like(bool async)

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -2458,6 +2459,41 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elementSorter: o => o.Key);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task GroupBy_aggregate_SelectMany(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => from o in ss.Set<Order>()
+                          group o by o.CustomerID into g
+                          let id = g.Min(x => x.OrderID)
+                          from o in ss.Set<Order>()
+                          where o.OrderID == id
+                          select o))).Message;
+
+            Assert.Contains(
+                CoreStrings.TranslationFailedWithDetails("", CoreStrings.QuerySelectContainsGrouping)[21..],
+                message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_aggregate_without_selectMany_selecting_first(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from id in
+                          (from o in ss.Set<Order>()
+                            group o by o.CustomerID into g
+                            select g.Min(x => x.OrderID))
+                      from o in ss.Set<Order>()
+                      where o.OrderID == id
+                      select o,
+                entryCount: 89);
+        }
+
         #endregion
 
         #region GroupByAggregateChainComposition
@@ -3008,6 +3044,28 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         g.Key,
                         Count = g.Sum(e => e.Count)
+                    }));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Count_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderDate.HasValue)
+                    .Select(o => new
+                    {
+                        o,
+                        OrderDetails = o.OrderDetails.Where(od => od.ProductID < 25)
+                    })
+                    .Select(info => new
+                    {
+                        info.o.OrderID,
+                        info.o.OrderDate,
+                        HasOrderDetails = info.OrderDetails.Any(),
+                        HasMultipleProducts = info.OrderDetails.GroupBy(e => e.Product.ProductName).Count() > 1
                     }));
         }
 

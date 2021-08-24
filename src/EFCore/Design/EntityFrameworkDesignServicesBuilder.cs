@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///         can handle the new scope, and that it does not cause issue for services that depend on it.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public class EntityFrameworkDesignServicesBuilder : EntityFrameworkServicesBuilder
     {
         /// <summary>

@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         intercepted to be suppressed; that is, the operation is not executed.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see>.
+    /// </remarks>
     public readonly struct InterceptionResult
     {
         /// <summary>

@@ -1254,7 +1254,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     var newParameterName =
                         $"{RuntimeParameterPrefix}"
-                        + $"{sqlParameterExpression.Name.Substring(QueryCompilationContext.QueryParameterPrefix.Length)}_{property.Name}";
+                        + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                     return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
 

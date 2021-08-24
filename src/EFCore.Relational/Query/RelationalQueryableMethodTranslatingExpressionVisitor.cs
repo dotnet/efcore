@@ -145,13 +145,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                             queryRootExpression.EntityType, sqlQuery.Sql, Expression.Constant(Array.Empty<object>(), typeof(object[]))));
 
                 case GroupByShaperExpression groupByShaperExpression:
-                    var shapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
+                    var groupShapedQueryExpression = groupByShaperExpression.GroupingEnumerable;
+                    var groupClonedSelectExpression = ((SelectExpression)groupShapedQueryExpression.QueryExpression).Clone();
+                    _groupingElementCorrelationalPredicate = groupClonedSelectExpression.Predicate;
+                    return new ShapedQueryExpression(
+                        groupClonedSelectExpression,
+                        new QueryExpressionReplacingExpressionVisitor(
+                            groupShapedQueryExpression.QueryExpression, groupClonedSelectExpression)
+                        .Visit(groupShapedQueryExpression.ShaperExpression));
+
+                case ShapedQueryExpression shapedQueryExpression:
                     var clonedSelectExpression = ((SelectExpression)shapedQueryExpression.QueryExpression).Clone();
-                    _groupingElementCorrelationalPredicate = clonedSelectExpression.Predicate;
                     return new ShapedQueryExpression(
                         clonedSelectExpression,
-                        new QueryExpressionReplacingExpressionVisitor(
-                            shapedQueryExpression.QueryExpression, clonedSelectExpression).Visit(shapedQueryExpression.ShaperExpression));
+                        new QueryExpressionReplacingExpressionVisitor(shapedQueryExpression.QueryExpression, clonedSelectExpression)
+                        .Visit(shapedQueryExpression.ShaperExpression));
 
                 default:
                     return base.VisitExtension(extensionExpression);
@@ -852,8 +860,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selectExpression.PushdownIntoSubquery();
             }
 
-            var newSelectorBody = ReplacingExpressionVisitor.Replace(
-                selector.Parameters.Single(), source.ShaperExpression, selector.Body);
+            var newSelectorBody = RemapLambdaBody(source, selector);
 
             return source.UpdateShaperExpression(_projectionBindingExpressionVisitor.Translate(selectExpression, newSelectorBody));
         }
@@ -1138,7 +1145,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             return ExpandSharedTypeEntities((SelectExpression)shapedQueryExpression.QueryExpression, lambdaBody);
         }
 
-        internal Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
+        private Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
             => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
 
         private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
@@ -1662,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 var predicate = predicateTerms.Skip(correlationTerms.Count)
                     .Aggregate((l, r) => _sqlExpressionFactory.AndAlso(l, r));
                 selector = _sqlExpressionFactory.Case(
-                    new List<CaseWhenClause> { new (predicate, selector) },
+                    new List<CaseWhenClause> { new(predicate, selector) },
                     elseResult: null);
             }
 
