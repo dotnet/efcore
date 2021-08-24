@@ -1999,6 +1999,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 service);
 
         /// <summary>
+        ///     The database provider attempted to register an implementation of the '{service}' service. This is a service defined by Entity Framework and as such must not be registered using the 'TryAddProviderSpecificServices' method.
+        /// </summary>
+        public static string NotAProviderService(object? service)
+            => string.Format(
+                GetString("NotAProviderService", nameof(service)),
+                service);
+
+        /// <summary>
         ///     The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendant of '{baseClrType}'.
         /// </summary>
         public static string NotAssignableClrBaseType(object? entityType, object? baseEntityType, object? clrType, object? baseClrType)

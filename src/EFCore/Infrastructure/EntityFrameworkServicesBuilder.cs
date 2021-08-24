@@ -176,13 +176,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
         protected virtual ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
         {
-            if (!CoreServices.TryGetValue(serviceType, out var characteristics))
-            {
-                throw new InvalidOperationException(CoreStrings.NotAnEFService(serviceType.Name));
-            }
-
-            return characteristics;
+            var characteristics = TryGetServiceCharacteristics(serviceType);
+            return characteristics == null
+                ? throw new InvalidOperationException(CoreStrings.NotAnEFService(serviceType.Name))
+                : characteristics.Value;
         }
+
+        /// <summary>
+        ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
+        /// </summary>
+        /// <param name="serviceType"> The type that defines the service API. </param>
+        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null"/> if it's not an EF service. </returns>
+        protected virtual ServiceCharacteristics? TryGetServiceCharacteristics(Type serviceType)
+            => !CoreServices.TryGetValue(serviceType, out var characteristics)
+                ? null
+                : characteristics;
 
         /// <summary>
         ///     Database providers should call this method for access to the underlying
@@ -196,7 +204,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(serviceMap, nameof(serviceMap));
 
+            ServiceCollectionMap.Validate = serviceType =>
+            {
+                if (TryGetServiceCharacteristics(serviceType) != null)
+                {
+                    throw new InvalidOperationException(CoreStrings.NotAProviderService(serviceType.Name));
+                }
+            };
+
             serviceMap(ServiceCollectionMap);
+
+            ServiceCollectionMap.Validate = null;
 
             return this;
         }
