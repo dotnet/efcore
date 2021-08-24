@@ -99,7 +99,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             var snapshot = new List<TElement?>(((IReadOnlyList<TElement?>)source).Count);
             foreach (var e in source)
             {
-                snapshot.Add(e is { } value ? elementComparer.Snapshot(value) : null);
+                snapshot.Add(e is null ? null : elementComparer.Snapshot(e.Value));
             }
 
             return (TCollection)(object)snapshot;

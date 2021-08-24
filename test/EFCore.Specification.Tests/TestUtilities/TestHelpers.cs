@@ -140,10 +140,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 customServices.AddScoped(_ => modelLogger);
             }
 
-            if (validationLogger == null)
-            {
-                validationLogger = new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions);
-            }
+            validationLogger ??= new TestLogger<DbLoggerCategory.Model.Validation, TestLoggingDefinitions>(LoggingDefinitions);
 
             customServices.AddScoped(_ => validationLogger);
 

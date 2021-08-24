@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
             for (var i = 0; i < source.Length; i++)
             {
                 var element = source[i];
-                snapshot[i] = element is null ? default! : elementComparer.Snapshot(source[i]);
+                snapshot[i] = element is null ? default! : elementComparer.Snapshot(element);
             }
             return snapshot;
         }
