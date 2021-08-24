@@ -277,12 +277,6 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 EntityProjectionExpression entityProjectionExpression;
                 if (entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    if (projectionBindingExpression.ProjectionMember == null)
-                    {
-                        // We don't process binding with client projection
-                        return QueryCompilationContext.NotTranslatedExpression;
-                    }
-
                     entityProjectionExpression = (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                         .GetProjection(projectionBindingExpression);
                 }
