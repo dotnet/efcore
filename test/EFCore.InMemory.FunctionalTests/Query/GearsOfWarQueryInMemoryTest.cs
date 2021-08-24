@@ -35,10 +35,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
             => base.Group_by_on_StartsWith_with_null_parameter_as_argument(async);
 
-        [ConditionalTheory(Skip = "issue #19584")]
-        public override Task Cast_to_derived_followed_by_include_and_FirstOrDefault(bool async)
-            => base.Cast_to_derived_followed_by_include_and_FirstOrDefault(async);
-
         [ConditionalTheory(Skip = "issue #24325")]
         public override Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
             => base.Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(async);
