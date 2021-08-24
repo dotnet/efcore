@@ -1524,6 +1524,9 @@
   <data name="UnknownKeyValue" xml:space="preserve">
     <value>The value of '{entityType}.{property}' is unknown when attempting to save changes. This is because the property is also part of a foreign key for which the principal entity in the relationship is not known.</value>
   </data>
+  <data name="UnknownShadowKeyValue" xml:space="preserve">
+    <value>The value of shadow key property '{entityType}.{property}' is unknown when attempting to save changes. This is because shadow property values cannot be preserved when the entity is not being tracked. Consider adding the property to the entity's .NET type. See https://aka.ms/efcore-docs-owned-collections for more information.</value>
+  </data>
   <data name="UnnamedIndexDefinedOnIgnoredProperty" xml:space="preserve">
     <value>The unnamed index specified via [Index] attribute on the entity type '{entityType}' with properties {indexProperties} is invalid. The property '{propertyName}' was marked as unmapped by [NotMapped] attribute or 'Ignore()' in 'OnModelCreating'. An index cannot use unmapped properties.</value>
   </data>

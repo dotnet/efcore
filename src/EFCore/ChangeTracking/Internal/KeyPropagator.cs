@@ -59,7 +59,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 && property.IsKey()
                 && !property.IsForeignKeyToSelf())
             {
-                var valueGenerator = TryGetValueGenerator(generationProperty);
+                var valueGenerator = TryGetValueGenerator(
+                    generationProperty,
+                    generationProperty == property
+                        ? entry.EntityType
+                        : generationProperty?.DeclaringEntityType);
+                
                 if (valueGenerator != null)
                 {
                     var value = valueGenerator.Next(new EntityEntry(entry));
@@ -73,7 +78,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         entry[property] = value;
                     }
 
-                    entry.MarkUnknown(property);
+                    if (!valueGenerator.GeneratesStableValues)
+                    {
+                        entry.MarkUnknown(property);
+                    }
                 }
             }
 
@@ -99,7 +107,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (principalEntry == null
                 && property.IsKey())
             {
-                var valueGenerator = TryGetValueGenerator(generationProperty);
+                var valueGenerator = TryGetValueGenerator(
+                    generationProperty,
+                    generationProperty == property
+                        ? entry.EntityType
+                        : generationProperty?.DeclaringEntityType);
+                
                 if (valueGenerator != null)
                 {
                     var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken)
@@ -114,7 +127,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         entry[property] = value;
                     }
 
-                    entry.MarkUnknown(property);
+                    if (!valueGenerator.GeneratesStableValues)
+                    {
+                        entry.MarkUnknown(property);
+                    }
                 }
             }
 
@@ -177,9 +193,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return null;
         }
 
-        private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty)
+        private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty, IEntityType? entityType)
             => generationProperty != null
-                ? _valueGeneratorSelector.Select(generationProperty, generationProperty.DeclaringEntityType)
+                ? _valueGeneratorSelector.Select(generationProperty, entityType!)
                 : null;
     }
 }

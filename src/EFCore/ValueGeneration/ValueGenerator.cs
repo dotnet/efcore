@@ -66,5 +66,14 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         ///     </para>
         /// </summary>
         public abstract bool GeneratesTemporaryValues { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the values generated are stable. That is, the value will always be the
+        ///     same for a given property in a given entity, and does not depend on what other values may have been generated
+        ///     previously. For example, discriminator values generated for a TPH hierarchy are stable. Stable values will never
+        ///     be marked as unknown.
+        /// </summary>
+        public virtual bool GeneratesStableValues
+            => false;
     }
 }
