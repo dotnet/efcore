@@ -1495,7 +1495,7 @@ OFFSET 0 LIMIT 1");
 
                 Assert.StartsWith(
                     "Response status code does not indicate success: NotFound (404); Substatus: 0",
-                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
+                    (await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())).InnerException!.Message);
             }
 
             using (var context = new CustomerContext(options))
@@ -1504,7 +1504,7 @@ OFFSET 0 LIMIT 1");
 
                 Assert.StartsWith(
                     "Response status code does not indicate success: NotFound (404); Substatus: 0",
-                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
+                    (await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())).InnerException!.Message);
             }
 
             using (var context = new CustomerContext(options))
@@ -1513,7 +1513,7 @@ OFFSET 0 LIMIT 1");
 
                 Assert.StartsWith(
                     "Response status code does not indicate success: NotFound (404); Substatus: 0",
-                    (await Assert.ThrowsAsync<CosmosException>(() => context.SaveChangesAsync())).Message);
+                    (await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())).InnerException!.Message);
             }
 
             using (var context = new CustomerContext(options))

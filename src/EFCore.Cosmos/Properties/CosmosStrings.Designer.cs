@@ -321,6 +321,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 itemId);
 
         /// <summary>
+        ///     An error occurred while saving the the item with id '{itemId}'. See the inner exception for details.
+        /// </summary>
+        public static string UpdateStoreException(object? itemId)
+            => string.Format(
+                GetString("UpdateStoreException", nameof(itemId)),
+                itemId);
+
+        /// <summary>
         ///     'VisitChildren' must be overridden in the class deriving from 'SqlExpression'.
         /// </summary>
         public static string VisitChildrenMustBeOverridden
