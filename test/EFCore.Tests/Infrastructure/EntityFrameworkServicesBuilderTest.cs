@@ -29,6 +29,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public void Throws_when_adding_EF_service()
+        {
+            var serviceCollection = new ServiceCollection();
+            var builder = new EntityFrameworkServicesBuilder(serviceCollection);
+
+            Assert.Equal(
+                CoreStrings.NotAProviderService("IConcurrencyDetector"),
+                Assert.Throws<InvalidOperationException>(() => builder.TryAddProviderSpecificServices(
+                    s => s.TryAddScoped<IConcurrencyDetector, FakeConcurrencyDetector>())).Message);
+        }
+
+        [ConditionalFact]
         public void Can_register_scoped_service_with_concrete_implementation()
         {
             TestScoped(b => b.TryAdd<IConcurrencyDetector, FakeConcurrencyDetector>());

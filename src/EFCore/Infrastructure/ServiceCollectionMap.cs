@@ -42,6 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual IServiceCollection ServiceCollection
             => _map.ServiceCollection;
 
+        internal Action<Type>? Validate { get; set; }
+
         /// <summary>
         ///     Adds a <see cref="ServiceLifetime.Transient" /> service implemented by the given concrete
         ///     type if no service for the given service type has already been registered.
@@ -123,6 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementationType, nameof(implementationType));
+
+            Validate?.Invoke(serviceType);
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (indexes.Count == 0)
@@ -254,6 +258,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(factory, nameof(factory));
 
+            Validate?.Invoke(serviceType);
+
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (indexes.Count == 0)
             {
@@ -284,6 +290,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         public virtual ServiceCollectionMap TryAddSingleton(Type serviceType, object implementation)
         {
             Check.NotNull(serviceType, nameof(serviceType));
+
+            Validate?.Invoke(serviceType);
 
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (indexes.Count == 0)
@@ -383,6 +391,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementationType, nameof(implementationType));
 
+            Validate?.Invoke(serviceType);
+
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
             {
@@ -457,6 +467,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Check.NotNull(implementationType, nameof(implementationType));
             Check.NotNull(factory, nameof(factory));
 
+            Validate?.Invoke(serviceType);
+
             var indexes = _map.GetOrCreateDescriptorIndexes(serviceType);
             if (indexes.All(i => TryGetImplementationType(ServiceCollection[i]) != implementationType))
             {
@@ -490,6 +502,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             Check.NotNull(serviceType, nameof(serviceType));
             Check.NotNull(implementation, nameof(implementation));
+
+            Validate?.Invoke(serviceType);
 
             var implementationType = implementation.GetType();
 

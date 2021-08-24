@@ -62,12 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
         /// <param name="serviceType"> The type that defines the service API. </param>
-        /// <returns> The <see cref="ServiceCharacteristics" /> for the type. </returns>
-        /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
-        protected override ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
+        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null"/> if it's not an EF service. </returns>
+        protected override ServiceCharacteristics? TryGetServiceCharacteristics(Type serviceType)
             => Services.TryGetValue(serviceType, out var characteristics)
                 ? characteristics
-                : base.GetServiceCharacteristics(serviceType);
+                : base.TryGetServiceCharacteristics(serviceType);
 
         /// <summary>
         ///     Registers default implementations of all services, including relational services, not already
