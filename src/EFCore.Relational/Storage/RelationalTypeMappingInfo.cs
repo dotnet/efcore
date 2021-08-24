@@ -189,7 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public string? StoreTypeNameBase { get; init; }
 
         /// <summary>
-        ///     Indicates the store-size to use for the mapping, or null if none.
+        ///     Indicates the store-size to use for the mapping, or <see langword="null" /> if none.
         /// </summary>
         public int? Size
         {
@@ -230,7 +230,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Indicates whether or not the mapping supports Unicode, or null if not defined.
+        ///     Indicates whether or not the mapping supports Unicode, or <see langword="null" /> if not defined.
         /// </summary>
         public bool? IsUnicode
         {
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Indicates whether or not the mapping will be used for a row version, or null if not defined.
+        ///     Indicates whether or not the mapping will be used for a row version, or <see langword="null" /> if not defined.
         /// </summary>
         public bool? IsRowVersion
         {

@@ -285,7 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 string? storeTypeBaseName = null;
                 if (storeTypeName != null)
                 {
-                   storeTypeBaseName = ParseStoreTypeName(
+                    storeTypeBaseName = ParseStoreTypeName(
                         storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
 
                     if (size == null)
@@ -343,6 +343,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
         public override CoreTypeMapping? FindMapping(MemberInfo member)
         {
+            // TODO: Remove this, see #11124
             if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
             {
                 var storeTypeName = attribute.TypeName;

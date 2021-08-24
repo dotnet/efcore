@@ -989,8 +989,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             IColumn target,
             DiffContext diffContext)
         {
-            var sourceMapping = source.PropertyMappings.First();
-            var targetMapping = target.PropertyMappings.First();
             var table = target.Table;
 
             if (source.Name != target.Name)
@@ -1008,17 +1006,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 yield return renameColumnOperation;
             }
 
-            var sourceTypeMapping = sourceMapping.TypeMapping;
-            var targetTypeMapping = targetMapping.TypeMapping;
-
-            var sourceColumnType = source.StoreType ?? sourceTypeMapping.StoreType;
-            var targetColumnType = target.StoreType ?? targetTypeMapping.StoreType;
-
             var sourceMigrationsAnnotations = source.GetAnnotations();
             var targetMigrationsAnnotations = target.GetAnnotations();
 
             var isNullableChanged = source.IsNullable != target.IsNullable;
-            var columnTypeChanged = sourceColumnType != targetColumnType;
+            var columnTypeChanged = source.StoreType != target.StoreType;
 
             if (!source.TryGetDefaultValue(out var sourceDefault))
             {
@@ -1051,6 +1043,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Name = target.Name,
                     IsDestructiveChange = isDestructiveChange
                 };
+
+                var sourceTypeMapping = source.PropertyMappings.First().TypeMapping;
+                var targetTypeMapping = target.PropertyMappings.First().TypeMapping;
 
                 Initialize(
                     alterColumnOperation, target, targetTypeMapping,
