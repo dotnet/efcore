@@ -109,8 +109,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     OutputKind.DynamicallyLinkedLibrary,
                     nullableContextOptions: NullableReferenceTypes ? NullableContextOptions.Enable : NullableContextOptions.Disable,
                     reportSuppressedDiagnostics: false,
-                    // TODO: Uncomment when #18950 is fixed
-                    //generalDiagnosticOption: ReportDiagnostic.Error,
+                    generalDiagnosticOption: ReportDiagnostic.Error,
                     specificDiagnosticOptions: new Dictionary<string, ReportDiagnostic>()
                     {
                         { "CS1030", ReportDiagnostic.Suppress },
