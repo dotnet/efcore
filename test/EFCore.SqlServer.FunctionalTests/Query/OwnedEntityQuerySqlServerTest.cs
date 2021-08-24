@@ -75,5 +75,16 @@ FROM [Blog24133] AS [b]
 LEFT JOIN [Post24133] AS [p0] ON [b].[Id] = [p0].[BlogId]
 ORDER BY [b].[Id], [p0].[BlogId]");
         }
+
+        public override async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
+        {
+            await base.Projecting_correlated_collection_property_for_owned_entity(async);
+
+            AssertSql(
+                @"SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
+FROM [Warehouses] AS [w]
+LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]
+ORDER BY [w].[Id], [w0].[WarehouseCode]");
+        }
     }
 }

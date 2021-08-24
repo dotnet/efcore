@@ -230,5 +230,83 @@ namespace Microsoft.EntityFrameworkCore
             public string Title { get; set; }
             public int CommentsCount { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Projecting_correlated_collection_property_for_owned_entity(bool async)
+        {
+            var contextFactory = await InitializeAsync<MyContext18582>(seed: c => c.Seed());
+
+            using var context = contextFactory.CreateContext();
+            var query = context.Warehouses.Select(x => new WarehouseModel
+            {
+                WarehouseCode = x.WarehouseCode,
+                DestinationCountryCodes = x.DestinationCountries.Select(c => c.CountryCode).ToArray()
+            }).AsNoTracking();
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            var warehouseModel = Assert.Single(result);
+            Assert.Equal("W001", warehouseModel.WarehouseCode);
+            Assert.True(new[] { "US", "CA" }.SequenceEqual(warehouseModel.DestinationCountryCodes));
+        }
+
+        protected class MyContext18582 : DbContext
+        {
+            public MyContext18582(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<Warehouse> Warehouses { get; set; }
+
+            public void Seed()
+            {
+                Add(new Warehouse
+                {
+                    WarehouseCode = "W001",
+                    DestinationCountries =
+                    {
+                        new WarehouseDestinationCountry { Id = "1", CountryCode = "US" },
+                        new WarehouseDestinationCountry { Id = "2", CountryCode = "CA" }
+                    }
+                });
+
+                SaveChanges();
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Warehouse>()
+                    .OwnsMany(x => x.DestinationCountries)
+                    .WithOwner()
+                    .HasForeignKey(x => x.WarehouseCode)
+                    .HasPrincipalKey(x => x.WarehouseCode);
+            }
+        }
+
+        protected class Warehouse
+        {
+            public int Id { get; set; }
+            public string WarehouseCode { get; set; }
+            public ICollection<WarehouseDestinationCountry> DestinationCountries { get; set; } = new HashSet<WarehouseDestinationCountry>();
+        }
+
+        protected class WarehouseDestinationCountry
+        {
+            public string Id { get; set; }
+            public string WarehouseCode { get; set; }
+            public string CountryCode { get; set; }
+        }
+
+        protected class WarehouseModel
+        {
+            public string WarehouseCode { get; set; }
+
+            public ICollection<string> DestinationCountryCodes { get; set; }
+        }
+
     }
 }
