@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///     Populates this command from the provided <paramref name="commandTemplate"/>.
+        ///     Populates this command from the provided <paramref name="commandTemplate" />.
         /// </summary>
         /// <param name="commandTemplate"> A template command from which the command text and parameters will be copied. </param>
         void PopulateFrom(IRelationalCommandTemplate commandTemplate);

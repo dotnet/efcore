@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
     ///     <para>
-    ///         A command template to populate a <see cref="IRelationalCommand"/> or create a <see cref="DbCommand"/>
+    ///         A command template to populate an <see cref="IRelationalCommand" /> or create a <see cref="DbCommand" />
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
