@@ -3281,5 +3281,63 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     });
             }
         }
+
+        private class Dependent
+        {
+            public int Id { get; set; }
+            public string Url { get; set; }
+            public Principal Principal { get; set; }
+        }
+
+        private class Principal
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
+        }
+
+        private class DetachingContext : DbContext
+        {
+            public DbSet<Principal> Principals { get; set; }
+            public DbSet<Dependent> Dependents { get; set; }
+
+            protected internal override void OnConfiguring(DbContextOptionsBuilder options)
+                => options
+                    .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
+                    .UseInMemoryDatabase(nameof(DetachingContext));
+        }
+
+        [ConditionalFact] // Issue #21949
+        public void Detatching_principal_tracks_unreferenced_foreign_keys()
+        {
+            using var context = new DetachingContext();
+
+            var dependent = new Dependent { Url = "http://myblog.net" };
+            var principal = new Principal { Title = "Hello World" };
+            dependent.Principal = principal;
+            context.AddRange(dependent, principal);
+
+            Assert.Equal(EntityState.Added, context.Entry(principal).State);
+            Assert.Equal(EntityState.Added, context.Entry(dependent).State);
+
+            var principalId = principal.Id;
+            Assert.Equal(principalId, context.Entry(dependent).Property<int?>("PrincipalId").CurrentValue);
+            Assert.Same(principal, dependent.Principal);
+
+            context.Entry(principal).State = EntityState.Detached;
+
+            Assert.Equal(EntityState.Detached, context.Entry(principal).State);
+            Assert.Equal(EntityState.Added, context.Entry(dependent).State);
+
+            principal.Id = 0; // So it re-adds
+
+            context.Add(principal);
+            Assert.NotEqual(principalId, principal.Id);
+
+            Assert.Equal(principal.Id, context.Entry(dependent).Property<int?>("PrincipalId").CurrentValue);
+            Assert.Same(principal, dependent.Principal);
+
+            Assert.Equal(EntityState.Added, context.Entry(principal).State);
+            Assert.Equal(EntityState.Added, context.Entry(dependent).State);
+        }
     }
 }
