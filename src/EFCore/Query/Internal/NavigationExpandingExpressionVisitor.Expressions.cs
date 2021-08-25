@@ -70,11 +70,28 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 if (IncludePaths.Count > 0)
                 {
-                    // TODO: fully render nested structure of include tree
-                    expressionPrinter.Append(
-                        " | IncludePaths: "
-                        + string.Join(
-                            " ", IncludePaths.Select(ip => ip.Value.Count() > 0 ? ip.Key.Name + "->..." : ip.Key.Name)));
+                    expressionPrinter.AppendLine(" | IncludePaths: ");
+                    using (expressionPrinter.Indent())
+                    {
+                        expressionPrinter.AppendLine("Root");
+                    }
+
+                    PrintInclude(IncludePaths);
+                }
+
+                void PrintInclude(IncludeTreeNode currentNode)
+                {
+                    if (currentNode.Count > 0)
+                    {
+                        using (expressionPrinter.Indent())
+                        {
+                            foreach (var child in currentNode)
+                            {
+                                expressionPrinter.AppendLine(@"\-> " + child.Key.Name);
+                                PrintInclude(child.Value);
+                            }
+                        }
+                    }
                 }
             }
         }
