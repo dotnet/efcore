@@ -183,7 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 25);
         }
 
-        [ConditionalTheory(Skip = "Issue#16365")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Union_non_entity(bool async)
         {
