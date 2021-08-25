@@ -2251,5 +2251,29 @@ namespace Microsoft.EntityFrameworkCore.Query
                         });
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_over_conditional_null_source(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQueryScalar(
+                async,
+                ss => ss.Set<Level2>()
+                    .SelectMany(l2 => l2.Id == 1
+                        ? l2.OneToMany_Required_Inverse2.OneToMany_Optional1.Select(e => e.Id)
+                        : null)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_over_conditional_empty_source(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQueryScalar(
+                async,
+                ss => ss.Set<Level2>()
+                    .SelectMany(l2 => l2.Id == 1
+                        ? l2.OneToMany_Required_Inverse2.OneToMany_Optional1.Select(e => e.Id)
+                        : Enumerable.Empty<int>())));
+        }
     }
 }
