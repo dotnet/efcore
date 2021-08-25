@@ -337,8 +337,19 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 bool onDependent,
                 bool derivedTypeConversion)
             {
+                var navigation = onDependent ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
                 if (entityReference.ForeignKeyExpansionMap.TryGetValue((foreignKey, onDependent), out var expansion))
                 {
+                    if (navigation != null
+                        && entityReference.IncludePaths.TryGetValue(navigation, out var pendingIncludeTree))
+                    {
+                        var cachedEntityReference = UnwrapEntityReference(expansion);
+                        if (cachedEntityReference != null)
+                        {
+                            cachedEntityReference.IncludePaths.Merge(pendingIncludeTree);
+                        }
+                    }
+
                     return expansion;
                 }
 
@@ -350,16 +361,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var innerQueryable = _extensibilityHelper.CreateQueryRoot(targetType, entityReference.QueryRootExpression);
                 var innerSource = (NavigationExpansionExpression)_navigationExpandingExpressionVisitor.Visit(innerQueryable);
 
-                // We detect and copy over include for navigation being expanded automatically
-                var navigation = onDependent ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent;
                 // Value known to be non-null
                 var innerEntityReference = UnwrapEntityReference(innerSource.PendingSelector)!;
+
+                // We detect and copy over include for navigation being expanded automatically
                 if (navigation != null
                     && entityReference.IncludePaths.TryGetValue(navigation, out var includeTree))
                 {
-                    {
-                        innerEntityReference.IncludePaths.Merge(includeTree);
-                    }
+                    innerEntityReference.IncludePaths.Merge(includeTree);
                 }
 
                 var innerSourceSequenceType = innerSource.Type.GetSequenceType();

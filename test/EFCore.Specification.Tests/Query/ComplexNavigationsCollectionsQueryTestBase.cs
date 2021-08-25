@@ -2401,5 +2401,47 @@ namespace Microsoft.EntityFrameworkCore.Query
                         ? l2.OneToMany_Required_Inverse2.OneToMany_Optional1.Select(e => e.Id)
                         : Enumerable.Empty<int>())));
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_partially_added_before_Where_and_then_build_upon(bool async)
+        {
+            var expectedIncludes = new IExpectedInclude[]
+            {
+                new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK3, "OneToOne_Optional_FK1.OneToMany_Optional2")
+            };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToOne_Optional_FK1)
+                    .Where(l1 => l1.OneToOne_Optional_PK1.Id < 3 || l1.OneToOne_Optional_FK1.Id > 8)
+                    .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2)
+                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3),
+                elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Include_partially_added_before_Where_and_then_build_upon_with_filtered_include(bool async)
+        {
+            var expectedIncludes = new IExpectedInclude[]
+            {
+                new ExpectedInclude<Level1>(l2 => l2.OneToOne_Optional_FK1),
+                new ExpectedInclude<Level2>(l2 => l2.OneToMany_Optional2, "OneToOne_Optional_FK1"),
+                new ExpectedInclude<Level3>(l3 => l3.OneToOne_Optional_FK3, "OneToOne_Optional_FK1.OneToMany_Optional2")
+            };
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Optional2.OrderBy(x => x.Id).Take(3))
+                    .Where(l1 => l1.OneToOne_Optional_PK1.Id < 3 || l1.OneToOne_Optional_FK1.Id > 8)
+                    .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Required2)
+                    .ThenInclude(l3 => l3.OneToOne_Optional_FK3),
+                elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
+        }
     }
 }
