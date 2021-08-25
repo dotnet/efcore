@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,13 +24,14 @@ namespace Microsoft.EntityFrameworkCore.Query
         public virtual async Task Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(bool async)
         {
             var contextFactory = await InitializeAsync<Context24777>();
+            using var context = contextFactory.CreateContext();
 
-            using (var context = contextFactory.CreateContext())
-            {
-                var root3 = await context.Roots.Where(e => e.Id == 3).AsSplitQuery().SingleAsync();
+            var query = context.Roots.Where(e => e.Id == 3).AsSplitQuery();
+            var root3 = async
+                ? await query.SingleAsync()
+                : query.Single();
 
-                Assert.Equal(2, root3.ModdleA.Leaves.Count);
-            }
+            Assert.Equal(2, root3.ModdleA.Leaves.Count);
         }
 
         protected class Context24777 : DbContext
@@ -112,6 +114,55 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             public int ModdleAId { get; init; }
             public int UnitThreshold { get; init; }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Owned_collection_basic_split_query(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context25680>();
+            using var context = contextFactory.CreateContext();
+
+            var id = new Guid("6c1ae3e5-30b9-4c77-8d98-f02075974a0a");
+            var query = context.Set<Location25680>().Where(e => e.Id == id).AsSplitQuery();
+            var result = async
+                ? await query.FirstOrDefaultAsync()
+                : query.FirstOrDefault();
+        }
+
+        protected class Context25680 : DbContext
+        {
+            public Context25680(DbContextOptions options)
+                   : base(options)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Location25680>().OwnsMany(e => e.PublishTokenTypes,
+                    b =>
+                    {
+                        b.WithOwner(e => e.Location).HasForeignKey(e => e.LocationId);
+                        b.HasKey(e => new { e.LocationId, e.ExternalId, e.VisualNumber, e.TokenGroupId });
+                    });
+            }
+        }
+
+        protected class Location25680
+        {
+            public Guid Id { get; set; }
+            public ICollection<PublishTokenType25680> PublishTokenTypes { get; set; }
+        }
+
+        protected class PublishTokenType25680
+        {
+            public Location25680 Location { get; set; }
+            public Guid LocationId { get; set; }
+
+            public string ExternalId { get; set; }
+            public string VisualNumber { get; set; }
+            public string TokenGroupId { get; set; }
+            public string IssuerName { get; set; }
         }
     }
 }
