@@ -2519,6 +2519,20 @@ namespace Microsoft.EntityFrameworkCore
             Assert.NotNull(ownership2.DeclaringEntityType.FindProperty(nameof(Details.Name)));
         }
 
+        [ConditionalFact]
+        public virtual void InverseProperty_with_case_sensitive_clr_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<CPSorder>()
+                .HasOne(d => d.CPSchargePartner)
+                .WithMany(p => p.CPSorders)
+                .HasForeignKey(d => d.CPSchargePartnerId);
+
+            Validate(modelBuilder);
+        }
+
         public abstract class DataAnnotationFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
         {
             protected override string StoreName { get; } = "DataAnnotations";
@@ -2652,6 +2666,28 @@ namespace Microsoft.EntityFrameworkCore
         protected class KeyFluentApiAndKeylessAttribute
         {
             public int MyKey { get; set; }
+        }
+
+        protected class CPSorder
+        {
+            public int Id { get; set; }
+
+            [Column(TypeName = "smallmoney")]
+            public decimal? CPSChargePartner { get; set; }
+
+            public int CPSchargePartnerId { get; set; }
+
+            [ForeignKey(nameof(CPSchargePartnerId))]
+            [InverseProperty(nameof(Partner.CPSorders))]
+            public virtual Partner CPSchargePartner { get; set; }
+        }
+
+        protected class Partner
+        {
+            public int Id { get; set; }
+
+            [InverseProperty(nameof(CPSorder.CPSchargePartner))]
+            public virtual ICollection<CPSorder> CPSorders { get; set; }
         }
     }
 }
