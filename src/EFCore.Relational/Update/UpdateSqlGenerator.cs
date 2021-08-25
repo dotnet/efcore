@@ -253,7 +253,6 @@ namespace Microsoft.EntityFrameworkCore.Update
 
             AppendSelectCommandHeader(commandStringBuilder, readOperations);
             AppendFromClause(commandStringBuilder, name, schema);
-            // TODO: there is no notion of operator - currently all the where conditions check equality
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.AppendLine(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
