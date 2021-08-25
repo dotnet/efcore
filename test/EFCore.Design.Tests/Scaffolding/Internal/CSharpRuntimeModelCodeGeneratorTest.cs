@@ -876,7 +876,7 @@ namespace TestNamespace
             _instance = model;
         }
 
-        private static BigContextModel? _instance;
+        private static BigContextModel _instance;
         public static IModel Instance => _instance;
 
         partial void Initialize();
@@ -3619,7 +3619,8 @@ namespace TestNamespace
                     BuildReference.ByName("Newtonsoft.Json"),
                     BuildReference.ByName(typeof(CSharpRuntimeModelCodeGeneratorTest).Assembly.GetName().Name)
                 },
-                Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code)
+                Sources = scaffoldedFiles.ToDictionary(f => f.Path, f => f.Code),
+                NullableReferenceTypes = options.UseNullableReferenceTypes
             };
 
             var assembly = build.BuildInMemory();

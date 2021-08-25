@@ -176,7 +176,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     _instance = model;
 }")
                     .AppendLine()
-                    .Append("private static ").Append(className).AppendLine(nullable ? "? _instance;" : " _instance;")
+                    .Append("private static ").Append(className).AppendLine(" _instance;")
                     .AppendLine("public static IModel Instance => _instance;")
                     .AppendLine()
                     .AppendLine("partial void Initialize();")
