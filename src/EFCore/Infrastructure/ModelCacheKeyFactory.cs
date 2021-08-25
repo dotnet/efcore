@@ -13,15 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         assuming that all contexts of a given type have the same model.
     ///     </para>
     ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    ///     <para>
     ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />. This means a single instance
     ///         is used by many <see cref="DbContext" /> instances. The implementation must be thread-safe.
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see>.
+    /// </remarks>
     public class ModelCacheKeyFactory : IModelCacheKeyFactory
     {
         /// <summary>

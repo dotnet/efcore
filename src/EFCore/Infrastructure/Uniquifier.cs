@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     Provides methods for manipulating string identifiers.
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public static class Uniquifier
     {
         /// <summary>

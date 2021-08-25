@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public class ModelValidator : IModelValidator
     {
         private static readonly IEnumerable<string> _dictionaryProperties =

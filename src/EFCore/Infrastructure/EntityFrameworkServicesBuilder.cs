@@ -48,6 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         can handle the new scope, and that it does not cause issue for services that depend on it.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public class EntityFrameworkServicesBuilder
     {
         /// <summary>
@@ -155,6 +158,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     registration of provider services. Relational providers should use
         ///     'EntityFrameworkRelationalServicesBuilder'.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <param name="serviceCollection"> The collection to which services will be registered. </param>
         public EntityFrameworkServicesBuilder(IServiceCollection serviceCollection)
         {
@@ -166,11 +172,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Access to the underlying <see cref="ServiceCollectionMap" />.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         protected virtual ServiceCollectionMap ServiceCollectionMap { get; }
 
         /// <summary>
         ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <param name="serviceType"> The type that defines the service API. </param>
         /// <returns> The <see cref="ServiceCharacteristics" /> for the type. </returns>
         /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
@@ -185,6 +197,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <param name="serviceType"> The type that defines the service API. </param>
         /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null"/> if it's not an EF service. </returns>
         protected virtual ServiceCharacteristics? TryGetServiceCharacteristics(Type serviceType)
@@ -198,6 +213,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Note that implementations of Entity Framework services should be registered directly on the
         ///     <see cref="EntityFrameworkServicesBuilder" /> and not through this method.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <param name="serviceMap"> The underlying map to which provider services should be added.</param>
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAddProviderSpecificServices(Action<ServiceCollectionMap> serviceMap)
@@ -224,6 +242,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Database providers must call this method as the last step of service registration--that is,
         ///     after all provider services have been registered.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <returns> This builder, such that further calls can be chained. </returns>
         public virtual EntityFrameworkServicesBuilder TryAddCoreServices()
         {
@@ -344,6 +365,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds an implementation of an Entity Framework service only if one has not already been registered.
         ///     The scope of the service is automatically defined by Entity Framework.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
         /// <returns> This builder, such that further calls can be chained. </returns>
@@ -356,6 +380,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds an implementation of an Entity Framework service only if one has not already been registered.
         ///     The scope of the service is automatically defined by Entity Framework.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <param name="serviceType"> The contract for the service. </param>
         /// <param name="implementationType"> The concrete type that implements the service. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
@@ -382,6 +409,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a factory for an Entity Framework service only if one has not already been registered.
         ///     The scope of the service is automatically defined by Entity Framework.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <param name="factory"> The factory that will create the service instance. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
@@ -393,6 +423,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a factory for an Entity Framework service only if one has not already been registered.
         ///     The scope of the service is automatically defined by Entity Framework.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
         /// <param name="factory"> The factory that will create the service instance. </param>
@@ -407,6 +440,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds a factory for an Entity Framework service only if one has not already been registered.
         ///     The scope of the service is automatically defined by Entity Framework.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <param name="serviceType"> The contract for the service. </param>
         /// <param name="implementationType"> The concrete type that implements the service. </param>
         /// <param name="factory"> The factory that will create the service instance. </param>
@@ -444,6 +480,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds an implementation of an Entity Framework service only if one has not already been registered.
         ///     This method can only be used for singleton services.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <typeparam name="TService"> The contract for the service. </typeparam>
         /// <param name="implementation"> The implementation of the service. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>
@@ -455,6 +494,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Adds an implementation of an Entity Framework service only if one has not already been registered.
         ///     This method can only be used for singleton services.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         /// <param name="serviceType"> The contract for the service. </param>
         /// <param name="implementation"> The implementation of the service. </param>
         /// <returns> This builder, such that further calls can be chained. </returns>

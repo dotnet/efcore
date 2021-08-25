@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     Characteristics of a given EF service.
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public readonly struct ServiceCharacteristics
     {
         /// <summary>

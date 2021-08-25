@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     A placeholder for lazily-generated debug strings that can be expanded in the debugger to
     ///     to generate and display them.
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see>.
+    /// </remarks>
     public class DebugView
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -34,12 +37,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     The long-form, detailed debug string.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see>.
+        /// </remarks>
         public virtual string LongView
             => _toLongDebugString();
 
         /// <summary>
         ///     The short-form, less-detailed debug string.
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see>.
+        /// </remarks>
         public virtual string ShortView
             => _toShortDebugString();
     }

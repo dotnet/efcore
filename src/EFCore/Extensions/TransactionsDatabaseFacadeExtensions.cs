@@ -19,6 +19,9 @@ namespace System.Transactions
         /// <summary>
         ///     Specifies an existing <see cref="Transaction" /> to be used for database operations.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction"> The transaction to be used. </param>
         public static void EnlistTransaction(this DatabaseFacade databaseFacade, Transaction? transaction)
@@ -38,6 +41,9 @@ namespace System.Transactions
         /// <summary>
         ///     Returns the currently enlisted transaction.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The currently enlisted transaction. </returns>
         public static Transaction? GetEnlistedTransaction(this DatabaseFacade databaseFacade)

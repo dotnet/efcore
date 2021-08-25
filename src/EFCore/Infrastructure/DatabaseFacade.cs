@@ -74,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         to ensure the database is created using migrations and that all migrations have been applied.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        /// </remarks>
         /// <returns> <see langword="true" /> if the database is created, <see langword="false" /> if it already existed. </returns>
         public virtual bool EnsureCreated()
             => Dependencies.DatabaseCreator.EnsureCreated();
@@ -114,6 +118,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         to ensure the database is created using migrations and that all migrations have been applied.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is created,
@@ -138,6 +146,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        /// </remarks>
         /// <returns> <see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist. </returns>
         public virtual bool EnsureDeleted()
             => Dependencies.DatabaseCreator.EnsureDeleted();
@@ -157,6 +169,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         execution of the test/prototype. Note, however, that data in the database is not preserved.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is deleted,
@@ -182,6 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see>.
+        /// </remarks>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         public virtual bool CanConnect()
             => Dependencies.DatabaseCreator.CanConnect();
@@ -202,6 +221,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         up-to-date with regard to schema creation, etc.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see>.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -211,6 +233,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Starts a new transaction.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         /// <returns>
         ///     A <see cref="IDbContextTransaction" /> that represents the started transaction.
         /// </returns>
@@ -220,6 +245,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Asynchronously starts a new transaction.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
@@ -238,6 +266,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Applies the outstanding operations in the current transaction to the database.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -247,12 +278,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Discards the outstanding operations in the current transaction.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         public virtual void RollbackTransaction()
             => Dependencies.TransactionManager.RollbackTransaction();
 
         /// <summary>
         ///     Discards the outstanding operations in the current transaction.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -262,6 +299,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-connection-resiliency">EF Core Connection Resiliency</see>.
+        /// </remarks>
         /// <returns>An <see cref="IExecutionStrategy" /> instance.</returns>
         public virtual IExecutionStrategy CreateExecutionStrategy()
             => Dependencies.ExecutionStrategyFactory.Create();
@@ -284,6 +324,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         on the returned <see cref="IDbContextTransaction" />.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         public virtual IDbContextTransaction? CurrentTransaction
             => Dependencies.TransactionManager.CurrentTransaction;
 
@@ -306,6 +349,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         could be left in a corrupted state if <see cref="DbContext.SaveChanges()" /> fails.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         public virtual bool AutoTransactionsEnabled { get; set; } = true;
 
         /// <summary>
@@ -323,6 +369,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         corrupted state if <see cref="DbContext.SaveChanges()" /> fails.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        /// </remarks>
         public virtual bool AutoSavepointsEnabled { get; set; } = true;
 
         /// <summary>
@@ -340,6 +389,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         provider to use as part of configuring the context.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information,
+        ///     <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>.
+        /// </remarks>
         public virtual string? ProviderName
             // Needs to be lazy because used from OnModelCreating
             => _context.GetService<IEnumerable<IDatabaseProvider>>()
@@ -355,6 +408,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        /// </remarks>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => ((IInfrastructure<IServiceProvider>)_context).Instance;
 

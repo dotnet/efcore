@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    /// </remarks>
     public interface IDbContextOptions
     {
         /// <summary>
