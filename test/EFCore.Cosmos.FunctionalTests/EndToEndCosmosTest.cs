@@ -456,6 +456,59 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             }
         }
 
+        [ConditionalFact]
+        public async Task Can_add_update_delete_end_to_end_with_DateTime_async()
+        {
+            var options = Fixture.CreateOptions();
+
+            var customer = new CustomerDateTime
+            {
+                Id = DateTime.MinValue,
+                Name = "Theon/\\#\\\\?",
+                PartitionKey = 42
+            };
+
+            using (var context = new CustomerContextDateTime(options))
+            {
+                await context.Database.EnsureCreatedAsync();
+
+                var entry = context.Add(customer);
+
+                Assert.Equal("CustomerDateTime|0001-01-01T00:00:00.0000000|Theon^2F^5C^23^5C^5C^3F", entry.CurrentValues["__id"]);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContextDateTime(options))
+            {
+                var customerFromStore = await context.Set<CustomerDateTime>().SingleAsync();
+
+                Assert.Equal(customer.Id, customerFromStore.Id);
+                Assert.Equal("Theon/\\#\\\\?", customerFromStore.Name);
+
+                customerFromStore.Value = 23;
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContextDateTime(options))
+            {
+                var customerFromStore = await context.Set<CustomerDateTime>().SingleAsync();
+
+                Assert.Equal(customer.Id, customerFromStore.Id);
+                Assert.Equal(23, customerFromStore.Value);
+
+                context.Remove(customerFromStore);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContextDateTime(options))
+            {
+                Assert.Empty(await context.Set<CustomerDateTime>().ToListAsync());
+            }
+        }
+
         private class Customer
         {
             public int Id { get; set; }
@@ -475,6 +528,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             public Guid Id { get; set; }
             public string Name { get; set; }
             public int PartitionKey { get; set; }
+        }
+
+        private class CustomerDateTime
+        {
+            public DateTime Id { get; set; }
+            public string Name { get; set; }
+            public int PartitionKey { get; set; }
+            public int Value { get; set; }
         }
 
         private class CustomerNoPartitionKey
@@ -511,6 +572,26 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                         cb.Property(c => c.Id).HasConversion<string>().ToJsonProperty("id");
                         cb.Property(c => c.PartitionKey).HasConversion<string>().ToJsonProperty("pk");
                         cb.HasPartitionKey(c => c.PartitionKey);
+                    });
+            }
+        }
+
+        private class CustomerContextDateTime : DbContext
+        {
+            public CustomerContextDateTime(DbContextOptions dbContextOptions)
+                : base(dbContextOptions)
+            {
+            }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<CustomerDateTime>(
+                    cb =>
+                    {
+                        cb.Property(c => c.Id);
+                        cb.Property(c => c.PartitionKey).HasConversion<string>();
+                        cb.HasPartitionKey(c => c.PartitionKey);
+                        cb.HasKey(c => new { c.Id, c.Name });
                     });
             }
         }
