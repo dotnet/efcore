@@ -17,12 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
         }
 
-        public override async Task Filtered_include_outer_parameter_used_inside_filter(bool async)
-            => Assert.Equal(
-                SqliteStrings.ApplyNotSupported,
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => base.Filtered_include_outer_parameter_used_inside_filter(async))).Message);
-
         public override async Task Filtered_include_and_non_filtered_include_followed_by_then_include_on_same_navigation(bool async)
             => Assert.Equal(
                 SqliteStrings.ApplyNotSupported,

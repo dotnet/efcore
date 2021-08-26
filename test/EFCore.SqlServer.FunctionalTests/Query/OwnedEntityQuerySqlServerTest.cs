@@ -86,5 +86,18 @@ FROM [Warehouses] AS [w]
 LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]
 ORDER BY [w].[Id], [w0].[WarehouseCode]");
         }
+
+        public override async Task Owned_collection_basic_split_query(bool async)
+        {
+            await base.Owned_collection_basic_split_query(async);
+
+            AssertSql(
+                @"@__id_0='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
+
+SELECT TOP(1) [l].[Id]
+FROM [Location25680] AS [l]
+WHERE [l].[Id] = @__id_0
+ORDER BY [l].[Id]");
+        }
     }
 }
