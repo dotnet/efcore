@@ -237,11 +237,11 @@ WHERE ((@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AN
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
     select * from Customers
-) AS [c]
-WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
+) AS [m]
+WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([m].[CompanyName] IS NOT NULL AND (LEFT([m].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))");
         }
 
         [ConditionalFact]
@@ -257,15 +257,15 @@ WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND
             AssertSql(
                 @"@__ef_filter__TenantPrefix_0='B' (Size = 4000)
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+SELECT [m].[OrderID], [m].[CustomerID], [m].[EmployeeID], [m].[OrderDate]
 FROM (
     select * from Orders
-) AS [o]
+) AS [m]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE (@__ef_filter__TenantPrefix_0 = N'') OR ([c].[CompanyName] IS NOT NULL AND (LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0))
-) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
+) AS [t] ON [m].[CustomerID] = [t].[CustomerID]
 WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL");
         }
 

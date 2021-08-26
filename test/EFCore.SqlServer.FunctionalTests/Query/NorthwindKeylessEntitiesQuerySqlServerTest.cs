@@ -38,11 +38,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             await base.KeylessEntity_where_simple(async);
 
             AssertSql(
-                @"SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle]
+                @"SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-) AS [c]
-WHERE [c].[City] = N'London'");
+) AS [m]
+WHERE [m].[City] = N'London'");
         }
 
         public override void KeylessEntity_by_database_view()
@@ -79,11 +79,11 @@ WHERE ((@__ef_filter___searchTerm_1 = N'') OR ([c].[CompanyName] IS NOT NULL AND
             await base.KeylessEntity_with_mixed_tracking(async);
 
             AssertSql(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [m].[CustomerID]
 FROM [Customers] AS [c]
 INNER JOIN (
     select * from ""Orders""
-) AS [o] ON [c].[CustomerID] = [o].[CustomerID]");
+) AS [m] ON [c].[CustomerID] = [m].[CustomerID]");
         }
 
         public override async Task KeylessEntity_with_defining_query(bool async)
@@ -91,11 +91,11 @@ INNER JOIN (
             await base.KeylessEntity_with_defining_query(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID]
+                @"SELECT [m].[CustomerID]
 FROM (
     select * from ""Orders""
-) AS [o]
-WHERE [o].[CustomerID] = N'ALFKI'");
+) AS [m]
+WHERE [m].[CustomerID] = N'ALFKI'");
         }
 
         public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
@@ -118,11 +118,11 @@ ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
             await base.KeylessEntity_select_where_navigation(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID]
+                @"SELECT [m].[CustomerID]
 FROM (
     select * from ""Orders""
-) AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+) AS [m]
+LEFT JOIN [Customers] AS [c] ON [m].[CustomerID] = [c].[CustomerID]
 WHERE [c].[City] = N'Seattle'");
         }
 
@@ -131,15 +131,15 @@ WHERE [c].[City] = N'Seattle'");
             await base.KeylessEntity_select_where_navigation_multi_level(async);
 
             AssertSql(
-                @"SELECT [o].[CustomerID]
+                @"SELECT [m].[CustomerID]
 FROM (
     select * from ""Orders""
-) AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+) AS [m]
+LEFT JOIN [Customers] AS [c] ON [m].[CustomerID] = [c].[CustomerID]
 WHERE EXISTS (
     SELECT 1
-    FROM [Orders] AS [o0]
-    WHERE [c].[CustomerID] IS NOT NULL AND ([c].[CustomerID] = [o0].[CustomerID]))");
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] IS NOT NULL AND ([c].[CustomerID] = [o].[CustomerID]))");
         }
 
         [ConditionalFact]
@@ -156,11 +156,11 @@ WHERE EXISTS (
             await base.KeylessEntity_groupby(async);
 
             AssertSql(
-                @"SELECT [c].[City] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST(LEN([c].[Address]) AS int)), 0) AS [Sum]
+                @"SELECT [m].[City] AS [Key], COUNT(*) AS [Count], COALESCE(SUM(CAST(LEN([m].[Address]) AS int)), 0) AS [Sum]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-) AS [c]
-GROUP BY [c].[City]");
+) AS [m]
+GROUP BY [m].[City]");
         }
 
         public override void Entity_mapped_to_view_on_right_side_of_join()
@@ -180,15 +180,15 @@ LEFT JOIN [Alphabetical list of products] AS [a] ON [o].[CustomerID] = [a].[Cate
             AssertSql(
                 @"@__p_0='2'
 
-SELECT TOP(@__p_0) [c].[City], [c].[ContactName]
+SELECT TOP(@__p_0) [m].[City], [m].[ContactName]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
-) AS [c]
+) AS [m]
 WHERE EXISTS (
     SELECT 1
-    FROM [Customers] AS [c0]
-    WHERE ([c0].[City] = [c].[City]) OR ([c0].[City] IS NULL AND [c].[City] IS NULL))
-ORDER BY [c].[ContactName]");
+    FROM [Customers] AS [c]
+    WHERE ([c].[City] = [m].[City]) OR ([c].[City] IS NULL AND [m].[City] IS NULL))
+ORDER BY [m].[ContactName]");
         }
 
         private void AssertSql(params string[] expected)
