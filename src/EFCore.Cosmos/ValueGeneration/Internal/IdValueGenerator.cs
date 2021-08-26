@@ -87,20 +87,40 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
             switch (propertyValue)
             {
                 case string stringValue:
-                    builder.Append(stringValue.Replace("|", "^|"));
+                    AppendEscape(builder, stringValue);
                     return;
                 case IEnumerable enumerable:
                     foreach (var item in enumerable)
                     {
-                        builder.Append(item.ToString()!.Replace("|", "^|"));
+                        AppendEscape(builder, item.ToString()!);
                         builder.Append('|');
                     }
 
                     return;
+                case DateTime dateTime:
+                    AppendEscape(builder, dateTime.ToString("O"));
+                    return;
                 default:
-                    builder.Append(propertyValue == null ? "null" : propertyValue.ToString()!.Replace("|", "^|"));
+                    if (propertyValue == null)
+                    {
+                        builder.Append("null");
+                    } else
+                    {
+                        AppendEscape(builder, propertyValue.ToString()!);
+                    }
                     return;
             }
+        }
+
+        private static StringBuilder AppendEscape(StringBuilder builder, string stringValue)
+        {
+            var startingIndex = builder.Length;
+            return builder.Append(stringValue)
+                .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
+                .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
+                .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
+                .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
+                .Replace("#", "^23", startingIndex, builder.Length - startingIndex);
         }
     }
 }
