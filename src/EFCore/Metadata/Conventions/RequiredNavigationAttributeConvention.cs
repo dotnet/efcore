@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
@@ -68,16 +69,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            if (foreignKey.GetPrincipalEndConfigurationSource() != null)
+            if (navigation.IsOnDependent)
             {
-                if (navigation.IsOnDependent)
-                {
-                    foreignKey.Builder.IsRequired(true, fromDataAnnotation: true);
-                }
-                else
-                {
-                    foreignKey.Builder.IsRequiredDependent(true, fromDataAnnotation: true);
-                }
+                foreignKey.Builder.IsRequired(true, fromDataAnnotation: true);
+            }
+            else
+            {
+                foreignKey.Builder.IsRequiredDependent(true, fromDataAnnotation: true);
             }
         }
 
