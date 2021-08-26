@@ -116,7 +116,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
         {
             var startingIndex = builder.Length;
             return builder.Append(stringValue)
+                // We need this to avoid collissions with the value separator
                 .Replace("|", "^|", startingIndex, builder.Length - startingIndex)
+                // These are invalid characters, see https://docs.microsoft.com/en-us/dotnet/api/microsoft.azure.documents.resource.id
                 .Replace("/", "^2F", startingIndex, builder.Length - startingIndex)
                 .Replace("\\", "^5C", startingIndex, builder.Length - startingIndex)
                 .Replace("?", "^3F", startingIndex, builder.Length - startingIndex)
