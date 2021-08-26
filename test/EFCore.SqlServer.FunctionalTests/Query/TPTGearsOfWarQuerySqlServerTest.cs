@@ -9087,6 +9087,64 @@ END, [t].[Note]");
             AssertSql("");
         }
 
+        public override async Task Project_navigation_defined_on_base_from_entity_with_inheritance_using_soft_cast(bool async)
+        {
+            await base.Project_navigation_defined_on_base_from_entity_with_inheritance_using_soft_cast(async);
+
+            AssertSql(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+    WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+END AS [Discriminator], [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note], CASE
+    WHEN [t].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNull], [c].[Name], [c].[Location], [c].[Nation], CASE
+    WHEN [c].[Name] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNull], [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], CASE
+    WHEN [s].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNull]
+FROM [Gears] AS [g]
+LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+LEFT JOIN [Tags] AS [t] ON ([g].[Nickname] = [t].[GearNickName]) AND ([g].[SquadId] = [t].[GearSquadId])
+LEFT JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
+LEFT JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]");
+        }
+
+        public override async Task Project_navigation_defined_on_derived_from_entity_with_inheritance_using_soft_cast(bool async)
+        {
+            await base.Project_navigation_defined_on_derived_from_entity_with_inheritance_using_soft_cast(async);
+
+            AssertSql(
+                @"SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte], [l].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], CASE
+    WHEN [l0].[Name] IS NOT NULL THEN N'LocustCommander'
+END AS [Discriminator], [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator], CASE
+    WHEN [t].[Nickname] IS NULL OR [t].[SquadId] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNull], [t0].[Id], [t0].[CapitalName], [t0].[Name], [t0].[ServerAddress], [t0].[CommanderName], [t0].[Eradicated], CASE
+    WHEN [t0].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNull], [l2].[Id], [l2].[IsOperational], [l2].[Name], CASE
+    WHEN [l2].[Id] IS NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END AS [IsNull]
+FROM [LocustLeaders] AS [l]
+LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
+LEFT JOIN (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], CASE
+        WHEN [o].[Nickname] IS NOT NULL THEN N'Officer'
+    END AS [Discriminator]
+    FROM [Gears] AS [g]
+    LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
+) AS [t] ON ([l0].[DefeatedByNickname] = [t].[Nickname]) AND ([l0].[DefeatedBySquadId] = [t].[SquadId])
+LEFT JOIN (
+    SELECT [f].[Id], [f].[CapitalName], [f].[Name], [f].[ServerAddress], [l1].[CommanderName], [l1].[Eradicated]
+    FROM [Factions] AS [f]
+    INNER JOIN [LocustHordes] AS [l1] ON [f].[Id] = [l1].[Id]
+) AS [t0] ON [l].[Name] = [t0].[CommanderName]
+LEFT JOIN [LocustHighCommands] AS [l2] ON [l0].[HighCommandId] = [l2].[Id]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

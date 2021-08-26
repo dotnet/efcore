@@ -293,6 +293,22 @@ namespace Microsoft.EntityFrameworkCore.Query
                             Assert.Equal(ee.SynergyWithId, aa.SynergyWithId);
                         }
                     }
+                },
+                {
+                    typeof(LocustHighCommand), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (LocustHighCommand)e;
+                            var aa = (LocustHighCommand)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.IsOperational, aa.IsOperational);
+                            Assert.Equal(ee.Name, aa.Name);
+                        }
+                    }
                 }
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 

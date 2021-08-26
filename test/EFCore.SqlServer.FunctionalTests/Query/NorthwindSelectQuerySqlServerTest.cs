@@ -1476,6 +1476,17 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]");
         }
 
+        public override async Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
+        {
+            await base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]");
+        }
+
         public override async Task Projection_take_projection_doesnt_project_intermittent_column(bool async)
         {
             await base.Projection_take_projection_doesnt_project_intermittent_column(async);
