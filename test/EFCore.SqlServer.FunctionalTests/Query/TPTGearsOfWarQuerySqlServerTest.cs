@@ -5359,7 +5359,7 @@ INNER JOIN (
     LEFT JOIN [LocustHordes] AS [l1] ON [f].[Id] = [l1].[Id]
     WHERE [l1].[Id] IS NOT NULL AND ([f].[Name] = N'Swarm')
 ) AS [t] ON [l].[Name] = [t].[CommanderName]
-WHERE ([t].[Eradicated] <> CAST(1 AS bit)) OR [t].[Eradicated] IS NULL");
+WHERE ([t].[Eradicated] <> CAST(1 AS bit)) OR ([t].[Eradicated] IS NULL)");
         }
 
         public override async Task Null_semantics_on_nullable_bool_from_left_join_subquery_is_fully_applied(bool async)
@@ -5377,7 +5377,7 @@ LEFT JOIN (
     LEFT JOIN [LocustHordes] AS [l1] ON [f].[Id] = [l1].[Id]
     WHERE [l1].[Id] IS NOT NULL AND ([f].[Name] = N'Swarm')
 ) AS [t] ON [l].[Name] = [t].[CommanderName]
-WHERE ([t].[Eradicated] <> CAST(1 AS bit)) OR [t].[Eradicated] IS NULL");
+WHERE ([t].[Eradicated] <> CAST(1 AS bit)) OR ([t].[Eradicated] IS NULL)");
         }
 
         public override async Task Include_on_derived_type_with_order_by_and_paging(bool async)
@@ -7254,7 +7254,7 @@ INNER JOIN (
 
             AssertSql(
                 @"SELECT CASE
-    WHEN ([l].[Eradicated] = CAST(1 AS bit)) AND [l].[Eradicated] IS NOT NULL THEN CAST(1 AS bit)
+    WHEN ([l].[Eradicated] = CAST(1 AS bit)) AND ([l].[Eradicated] IS NOT NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [IsEradicated]
 FROM [Factions] AS [f]
@@ -7789,10 +7789,10 @@ INNER JOIN (
 WHERE (CASE
     WHEN [t].[Name] = N'Locust' THEN CAST(1 AS bit)
     ELSE NULL
-END <> CAST(1 AS bit)) OR CASE
+END <> CAST(1 AS bit)) OR (CASE
     WHEN [t].[Name] = N'Locust' THEN CAST(1 AS bit)
     ELSE NULL
-END IS NULL");
+END IS NULL)");
         }
 
         public override async Task Byte_array_contains_literal(bool async)

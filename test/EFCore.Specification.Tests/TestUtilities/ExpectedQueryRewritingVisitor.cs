@@ -302,7 +302,12 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                     instance.Type,
                     memberExpression.Type.UnwrapNullableType());
 
-                return Expression.Call(methodInfo, instance, maybeLambda);
+                var maybeMethodCall = Expression.Call(methodInfo, instance, maybeLambda);
+
+                return memberExpression.Member.DeclaringType.IsNullableType()
+                    && memberExpression.Member.Name == "HasValue"
+                    ? Expression.Coalesce(maybeMethodCall, Expression.Constant(false))
+                    : maybeMethodCall;
             }
 
             return Visit(expression);
