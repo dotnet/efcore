@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     Indicates how the results of a query are tracked by the <see cref="ChangeTracker" />.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-query-tracking">Tracking vs. no-tracking queries in EF Core</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-query-tracking">Tracking vs. no-tracking queries in EF Core</see> for more information.
     /// </remarks>
     public enum QueryTrackingBehavior
     {

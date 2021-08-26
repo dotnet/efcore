@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
         /// </remarks>
         /// <typeparam name="TService"> The type of service to be resolved. </typeparam>
         /// <param name="accessor"> The object exposing the service provider. </param>

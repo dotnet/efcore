@@ -52,8 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         an optional action to configure the <see cref="DbContextOptions" /> for the context. 
         ///     </para>
         ///     <para>
-        ///         For more information on how to use this method, see the Entity Framework Core documentation at https://aka.ms/efdocs.
-        ///         For more information on using dependency injection, see https://go.microsoft.com/fwlink/?LinkId=526890.
+        ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
         ///     </para>
         /// </summary>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>

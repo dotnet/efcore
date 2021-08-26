@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     Generic helper class used to implement the <see cref="Name" /> property.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
     /// </remarks>
     /// <typeparam name="T"> The logger category type. </typeparam>
     public abstract class LoggerCategory<T>

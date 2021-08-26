@@ -20,7 +20,7 @@ namespace System.Transactions
         ///     Specifies an existing <see cref="Transaction" /> to be used for database operations.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="transaction"> The transaction to be used. </param>
@@ -42,7 +42,7 @@ namespace System.Transactions
         ///     Returns the currently enlisted transaction.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The currently enlisted transaction. </returns>

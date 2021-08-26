@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     Information/metadata for an <see cref="IDbContextOptionsExtension" />.
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
     /// </remarks>
     public abstract class DbContextOptionsExtensionInfo
     {
@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     info/metadata for the given extension.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         /// <param name="extension"> The extension. </param>
         protected DbContextOptionsExtensionInfo(IDbContextOptionsExtension extension)
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The extension for which this instance contains metadata.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         public virtual IDbContextOptionsExtension Extension { get; }
 
@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <see langword="true" /> if the extension is a database provider; <see langword="false" /> otherwise.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         public abstract bool IsDatabaseProvider { get; }
 
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     any useful non-default options that have been configured.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         public abstract string LogFragment { get; }
 
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     have any such options and should return zero.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         /// <returns> A hash over options that require a new service provider when changed. </returns>
         public abstract int GetServiceProviderHashCode();
@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     are the same as in the given extension.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         /// <param name="other"> The other extension. </param>
         /// <returns> A value indicating whether all of the options that require a new service provider are the same. </returns>
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     extension name. For example, <c>"SqlServer:"</c>.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         /// <param name="debugInfo"> The dictionary to populate. </param>
         public abstract void PopulateDebugInfo(IDictionary<string, string> debugInfo);

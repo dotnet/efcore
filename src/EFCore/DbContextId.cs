@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-dbcontext">
-    ///     DbContext lifetime, configuration, and initialization</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext"> DbContext lifetime, configuration, and initialization</see>
+    ///     for more information.
     /// </remarks>
     public readonly struct DbContextId
     {

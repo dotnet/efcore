@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
     /// </remarks>
     public interface IInterceptorAggregator
     {

@@ -75,8 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        ///     See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information.
         /// </remarks>
         /// <returns> <see langword="true" /> if the database is created, <see langword="false" /> if it already existed. </returns>
         public virtual bool EnsureCreated()
@@ -119,8 +119,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
+        ///         for more information.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///         and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
@@ -147,8 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        ///     See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information.
         /// </remarks>
         /// <returns> <see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist. </returns>
         public virtual bool EnsureDeleted()
@@ -170,8 +179,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see>.
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
+        ///         for more information.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Core</see>
+        ///         and <see href="https://aka.ms/efcore-ensure-created">Database creation APIs</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
@@ -199,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see> for more information.
         /// </remarks>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
         public virtual bool CanConnect()
@@ -222,7 +240,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see>.
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
+        ///         for more information.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-connections">Database connections in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
@@ -234,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Starts a new transaction.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
         /// <returns>
         ///     A <see cref="IDbContextTransaction" /> that represents the started transaction.
@@ -246,7 +273,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Asynchronously starts a new transaction.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
+        ///         for more information.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
@@ -267,7 +303,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Applies the outstanding operations in the current transaction to the database.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
+        ///         for more information.
+        ///     </para>
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
@@ -279,7 +324,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Discards the outstanding operations in the current transaction.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
         public virtual void RollbackTransaction()
             => Dependencies.TransactionManager.RollbackTransaction();
@@ -288,7 +333,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Discards the outstanding operations in the current transaction.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     <para>
+        ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        ///     </para>
+        ///     <para>
+        ///         Entity Framework Core does not support multiple parallel operations being run on the same DbContext instance. This
+        ///         includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
+        ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
+        ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see>
+        ///         for more information.
+        ///     </para>
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
@@ -300,7 +354,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-connection-resiliency">EF Core Connection Resiliency</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">EF Core Connection Resiliency</see> for more information.
         /// </remarks>
         /// <returns>An <see cref="IExecutionStrategy" /> instance.</returns>
         public virtual IExecutionStrategy CreateExecutionStrategy()
@@ -325,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
         public virtual IDbContextTransaction? CurrentTransaction
             => Dependencies.TransactionManager.CurrentTransaction;
@@ -350,7 +404,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
         public virtual bool AutoTransactionsEnabled { get; set; } = true;
 
@@ -370,7 +424,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
         public virtual bool AutoSavepointsEnabled { get; set; } = true;
 
@@ -390,8 +444,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information,
-        ///     <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>
+        ///     for more information.
         /// </remarks>
         public virtual string? ProviderName
             // Needs to be lazy because used from OnModelCreating
@@ -409,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
         /// </remarks>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => ((IInfrastructure<IServiceProvider>)_context).Instance;

@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     referencing a shadow state property in a LINQ query.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> and
-    ///     see <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see>. 
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> and
+    ///     <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information. 
     /// </remarks>
     // ReSharper disable once InconsistentNaming
     public static partial class EF
@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see>. 
+        ///     See <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information. 
         /// </remarks>
         /// <example>
         ///     <para>
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
         /// </remarks>
         public static DbFunctions Functions
             => DbFunctions.Instance;

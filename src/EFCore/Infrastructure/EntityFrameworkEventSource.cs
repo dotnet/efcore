@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     An <see cref="EventSource" /> emitting Entity Framework performance counter data.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
     /// </remarks>
     public sealed class EntityFrameworkEventSource : EventSource
     {
@@ -39,7 +39,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     The singleton instance of <see cref="EntityFrameworkEventSource" />.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public static readonly EntityFrameworkEventSource Log = new();
 
@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that a new <see cref="DbContext" /> instance is being initialized.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void DbContextInitializing()
             => Interlocked.Increment(ref _activeDbContexts);
@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that a <see cref="DbContext" /> instance is being disposed.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void DbContextDisposing()
             => Interlocked.Decrement(ref _activeDbContexts);
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that a query is about to begin execution.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void QueryExecuting()
             => Interlocked.Increment(ref _totalQueries);
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that changes are about to be saved.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void SavingChanges()
             => Interlocked.Increment(ref _totalSaveChanges);
@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates a hit in the compiled query cache, signifying that query compilation will not need to occur.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void CompiledQueryCacheHit()
             => Interlocked.Increment(ref _compiledQueryCacheInfo.Hits);
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates a miss in the compiled query cache, signifying that query compilation will need to occur.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void CompiledQueryCacheMiss()
             => Interlocked.Increment(ref _compiledQueryCacheInfo.Misses);
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that an operation executed by an <see cref="IExecutionStrategy" /> failed (and may be retried).
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void ExecutionStrategyOperationFailure()
             => Interlocked.Increment(ref _totalExecutionStrategyOperationFailures);
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Indicates that an optimistic concurrency failure has occurred.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-event-counters">EF Core event counters</see> for more information.
         /// </remarks>
         public void OptimisticConcurrencyFailure()
             => Interlocked.Increment(ref _totalOptimisticConcurrencyFailures);

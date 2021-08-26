@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see>.
+    ///     See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information.
     /// </remarks>
     public class ModelCacheKey
     {

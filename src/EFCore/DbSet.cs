@@ -40,14 +40,13 @@ namespace Microsoft.EntityFrameworkCore
     ///         Entity Framework Core does not support multiple parallel operations being run on the same <see cref="DbContext" />
     ///         instance. This includes both parallel execution of async queries and any explicit concurrent use from multiple threads.
     ///         Therefore, always await async calls immediately, or use separate DbContext instances for operations that execute
-    ///         in parallel. See https://aka.ms/efcore-docs-threading for more information.
+    ///         in parallel. See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information.
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, see
-    ///     <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>, 
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>, 
     ///     <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>.
+    ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information.
     /// </remarks>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
     public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
@@ -62,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns this object typed as <see cref="IAsyncEnumerable{T}" />.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         /// <returns> This object. </returns>
         public virtual IAsyncEnumerable<TEntity> AsAsyncEnumerable()
@@ -78,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         /// <returns> This object. </returns>
         public virtual IQueryable<TEntity> AsQueryable()
@@ -107,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
         /// </remarks>
         public virtual LocalView<TEntity> Local
             => throw new NotSupportedException();
@@ -120,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
@@ -135,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
@@ -150,7 +149,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     null is returned.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -170,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
         /// <param name="entity"> The entity to add. </param>
         /// <returns>
@@ -196,7 +195,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
         /// <param name="entity"> The entity to add. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -241,7 +240,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
         /// <param name="entity"> The entity to attach. </param>
         /// <returns>
@@ -270,7 +269,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use <see cref="EntityEntry.State" /> to set the state of only a single entity.
         ///     </para>
         ///     <para>
-        ///         For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         ///     </para>
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>
@@ -311,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
         /// <param name="entity"> The entity to update. </param>
         /// <returns>
@@ -327,8 +326,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange(params TEntity[] entities)
@@ -347,8 +347,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
@@ -385,8 +386,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange(params TEntity[] entities)
@@ -409,8 +411,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </remarks>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
         public virtual void RemoveRange(params TEntity[] entities)
@@ -446,8 +449,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to update. </param>
         public virtual void UpdateRange(params TEntity[] entities)
@@ -459,8 +463,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         public virtual void AddRange(IEnumerable<TEntity> entities)
@@ -479,8 +484,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to add. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -521,8 +527,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to attach. </param>
         public virtual void AttachRange(IEnumerable<TEntity> entities)
@@ -544,8 +551,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         This allows any cascading actions to be applied when <see cref="DbContext.SaveChanges()" /> is called.
         ///     </para>
         ///     <para>
-        ///         For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///         and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///         for more information.
         ///     </para>
         /// </remarks>
         /// <param name="entities"> The entities to remove. </param>
@@ -582,8 +590,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
-        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see>
+        ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
+        ///     for more information.
         /// </remarks>
         /// <param name="entities"> The entities to update. </param>
         public virtual void UpdateRange(IEnumerable<TEntity> entities)
@@ -594,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     to load all entities from the database.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         /// <returns> The query results. </returns>
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
@@ -605,7 +614,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     to load all entities from the database.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         /// <returns> The query results. </returns>
         IEnumerator IEnumerable.GetEnumerator()
@@ -616,7 +625,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     the database.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> that may be used to cancel the asynchronous iteration.
@@ -629,7 +638,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the IQueryable element type.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         Type IQueryable.ElementType
             => throw new NotSupportedException();
@@ -638,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the IQueryable LINQ Expression.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         Expression IQueryable.Expression
             => throw new NotSupportedException();
@@ -647,7 +656,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Gets the IQueryable provider.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
         IQueryProvider IQueryable.Provider
             => throw new NotSupportedException();
@@ -662,7 +671,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
         /// </remarks>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => throw new NotSupportedException();
@@ -684,7 +693,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
         /// </remarks>
         /// <exception cref="NotSupportedException"> Always thrown. </exception>
         /// <returns> Never returns, always throws an exception. </returns>
@@ -698,7 +707,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Always returns <see langword="false" />.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
         /// </remarks>
         bool IListSource.ContainsListCollection
             => false;

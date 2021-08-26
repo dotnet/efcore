@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     to identify which context a migration applies to.
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Cor</see>.
+    ///     See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Cor</see> for more information.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class DbContextAttribute : Attribute
