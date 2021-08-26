@@ -12,6 +12,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore
 {
+    // The tests interact with global state and should never be run in parallel
     [Collection("EventSourceTest")]
     public class EventSourceTest
     {
@@ -89,6 +90,8 @@ namespace Microsoft.EntityFrameworkCore
         public async Task Counts_query_cache_hits_and_misses(bool async)
         {
             ResetCacheInfo();
+
+            Assert.Equal(-1, CompiledQueryCacheInfoCalculateAndReset());
 
             for (var i = 1; i <= 3; i++)
             {
@@ -252,17 +255,19 @@ namespace Microsoft.EntityFrameworkCore
             = _compiledQueryCacheInfo.FieldType.GetField("Hits", _bindingFlags);
 
         private static int CompiledQueryCacheInfoHits
-        {
-            get => (int)_compiledQueryCacheInfoHits.GetValue(_compiledQueryCacheInfo.GetValue(EntityFrameworkEventSource.Log));
-        }
+            => (int)_compiledQueryCacheInfoHits.GetValue(_compiledQueryCacheInfo.GetValue(EntityFrameworkEventSource.Log));
 
         private static readonly FieldInfo _compiledQueryCacheInfoMisses
             = _compiledQueryCacheInfo.FieldType.GetField("Misses", _bindingFlags);
 
         private static int CompiledQueryCacheInfoMisses
-        {
-            get => (int)_compiledQueryCacheInfoMisses.GetValue(_compiledQueryCacheInfo.GetValue(EntityFrameworkEventSource.Log));
-        }
+            => (int)_compiledQueryCacheInfoMisses.GetValue(_compiledQueryCacheInfo.GetValue(EntityFrameworkEventSource.Log));
+
+        private static readonly MethodInfo _compiledQueryCacheInfoCalculateAndReset
+            = _compiledQueryCacheInfo.FieldType.GetMethod("CalculateAndReset", _bindingFlags);
+
+        private static double CompiledQueryCacheInfoCalculateAndReset()
+            => (double)_compiledQueryCacheInfoCalculateAndReset.Invoke(_compiledQueryCacheInfo.GetValue(EntityFrameworkEventSource.Log), Array.Empty<object>());
 
         private static void ResetCacheInfo()
             => _resetCacheInfo.Invoke(EntityFrameworkEventSource.Log, null);
