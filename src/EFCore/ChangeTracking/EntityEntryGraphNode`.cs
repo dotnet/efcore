@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     graph of entities that is being traversed.
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-track-graph">Tracking entities in EF Core</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-track-graph">Tracking entities in EF Core</see> for more information.
     /// </remarks>
     public class EntityEntryGraphNode<TState> : EntityEntryGraphNode
     {

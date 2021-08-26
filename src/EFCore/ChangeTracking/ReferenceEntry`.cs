@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-    ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
     /// </remarks>
     /// <typeparam name="TEntity"> The type of the entity the property belongs to. </typeparam>
     /// <typeparam name="TProperty"> The type of the property. </typeparam>
@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry{TEntity}" /> to which this member belongs.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
         /// <value> An entry for the entity that owns this member. </value>
         public new virtual EntityEntry<TEntity> EntityEntry
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     The <see cref="EntityEntry{TEntity}" /> of the entity this navigation targets.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
         /// <value> An entry for the entity that owns this navigation targets. </value>
         public new virtual EntityEntry<TProperty>? TargetEntry
@@ -84,8 +84,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     for the context to detect the change.
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>
+        ///     for more information.
         /// </remarks>
         public new virtual TProperty? CurrentValue
         {
@@ -104,8 +105,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
         /// </remarks>
         public new virtual IQueryable<TProperty> Query()
             => (IQueryable<TProperty>)base.Query();

@@ -17,6 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         <see cref="M:EntityFrameworkServiceCollectionExtensions.AddDbContextPool" /> methods.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see>,
+    ///     <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
+    /// </remarks>
     public class PooledDbContextFactory<TContext> : IDbContextFactory<TContext>
         where TContext : DbContext
     {

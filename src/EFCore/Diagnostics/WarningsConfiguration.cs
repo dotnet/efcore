@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+    ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
     /// </remarks>
     public class WarningsConfiguration
     {
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     It is unusual to call this method directly. Instead use <see cref="WarningsConfigurationBuilder" />.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+        ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
         /// <param name="warningBehavior"> The option to change. </param>
         /// <returns> A new instance with the option changed. </returns>

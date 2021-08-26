@@ -25,6 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         methods to obtain a new instance with the option changed.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
+    /// </remarks>
     public class CoreOptionsExtension : IDbContextOptionsExtension
     {
         private IServiceProvider? _internalServiceProvider;

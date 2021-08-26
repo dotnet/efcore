@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     a collection navigation property has had entities added and/or removed.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
     /// </remarks>
     public class CollectionChangedEventData : NavigationEventData, ICollectionChangedEventData
     {

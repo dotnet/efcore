@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-property-acess">Property versus field access in EF Core</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-property-acess">Property versus field access in EF Core</see> for more information.
     /// </remarks>
     public enum PropertyAccessMode
     {

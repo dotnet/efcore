@@ -29,14 +29,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         <see cref="IInfrastructure{IServiceProvider}" />.
         ///     </para>
         ///     <para>
-        ///         This method is typically used by database providers (and other extensions). It is generally
-        ///         not used in application code.
-        ///     </para>
-        ///     <para>
         ///         <see cref="IInfrastructure{T}" /> is used to hide properties that are not intended to be used in
         ///         application code but can be used in extension methods written by database providers etc.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information.
+        /// </remarks>
         /// <typeparam name="TService"> The type of service to be resolved. </typeparam>
         /// <param name="accessor"> The object exposing the service provider. </param>
         /// <returns> The requested service. </returns>

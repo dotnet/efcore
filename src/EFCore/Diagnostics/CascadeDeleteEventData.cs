@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     an entity is being deleted because its parent entity has been deleted.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
     /// </remarks>
     public class CascadeDeleteEventData : EntityEntryEventData
     {

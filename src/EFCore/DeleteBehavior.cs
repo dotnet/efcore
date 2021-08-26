@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-cascading">Cascade delete and deleting orphans in EF Core</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-cascading">Cascade delete and deleting orphans in EF Core</see> for more information.
     /// </remarks>
     public enum DeleteBehavior
     {

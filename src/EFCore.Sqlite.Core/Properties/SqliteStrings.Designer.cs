@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
-        ///     SQLite does not support this migration operation ('{operation}'). For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
+        ///     SQLite does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information.
         /// </summary>
         public static string InvalidMigrationOperation(object? operation)
             => string.Format(
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 operation);
 
         /// <summary>
-        ///     Generating idempotent scripts for migrations is not currently supported for SQLite. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
+        ///     Generating idempotent scripts for migrations is not currently supported for SQLite. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information.
         /// </summary>
         public static string MigrationScriptGenerationNotSupported
             => GetString("MigrationScriptGenerationNotSupported");
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 type);
 
         /// <summary>
-        ///     SQLite does not support sequences. For more information, see http://go.microsoft.com/fwlink/?LinkId=723262.
+        ///     SQLite does not support sequences. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information.
         /// </summary>
         public static string SequencesNotSupported
             => GetString("SequencesNotSupported");

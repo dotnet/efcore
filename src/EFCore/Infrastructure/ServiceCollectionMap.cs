@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         been completed.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
+    /// </remarks>
     public class ServiceCollectionMap : IInfrastructure<IInternalServiceCollectionMap>
     {
         private readonly InternalServiceCollectionMap _map;

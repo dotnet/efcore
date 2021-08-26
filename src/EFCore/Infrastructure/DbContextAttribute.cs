@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     Identifies the <see cref="DbContext" /> that a class belongs to. For example, this attribute is used
     ///     to identify which context a migration applies to.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-manage-schemas">Managing database schemas with EF Cor</see> for more information.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class DbContextAttribute : Attribute
     {

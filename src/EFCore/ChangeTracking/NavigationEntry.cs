@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-    ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
     /// </remarks>
     public abstract class NavigationEntry : MemberEntry
     {
@@ -103,8 +103,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
         /// </remarks>
         public abstract void Load();
 
@@ -117,13 +117,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         Note that entities that are already being tracked are not overwritten with new data from the database.
         ///     </para>
         ///     <para>
-        ///         Multiple active operations on the same context instance are not supported.  Use <see langword="await" /> to ensure
+        ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
         ///         that any asynchronous operations have completed before calling another method on this context.
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
         /// </remarks>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
@@ -141,8 +141,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
         /// </remarks>
         /// <returns> The query to load related entities. </returns>
         public abstract IQueryable Query();
@@ -168,8 +168,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+        ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
         /// </remarks>
         /// <value>
         ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to true.

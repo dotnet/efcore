@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Proxies.Internal;
@@ -16,14 +17,14 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         /// <summary>
         ///     <para>
-        ///         Adds the services required for proxy support in Entity Framework. You use this method when
-        ///         using dependency injection in your application, such as with ASP.NET. For more information
-        ///         on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        ///         Adds the services required for proxy support in Entity Framework.
         ///     </para>
         ///     <para>
-        ///         You only need to use this functionality when you want Entity Framework to resolve the services it uses
-        ///         from an external dependency injection container. If you are not using an external
-        ///         dependency injection container, Entity Framework will take care of creating the services it requires.
+        ///         Calling this method is no longer necessary when building most applications, including those that
+        ///         use dependency injection in ASP.NET or elsewhere.
+        ///         It is only needed when building the internal service provider for use with
+        ///         the <see cref="DbContextOptionsBuilder.UseInternalServiceProvider" /> method.
+        ///         This is not recommend other than for some advanced scenarios.
         ///     </para>
         /// </summary>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
