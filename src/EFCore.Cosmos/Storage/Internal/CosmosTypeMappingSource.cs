@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             var clrType = mappingInfo.ClrType!;
             if ((clrType.IsValueType
+                    && clrType != typeof(Guid)
                     && !clrType.IsEnum)
                 || clrType == typeof(string))
             {

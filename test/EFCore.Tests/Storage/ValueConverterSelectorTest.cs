@@ -384,8 +384,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             AssertConverters(
                 _selector.Select(typeof(Guid)).ToList(),
-                (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)),
-                (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)));
+                (typeof(GuidToStringConverter), new ConverterMappingHints(size: 36)),
+                (typeof(GuidToBytesConverter), new ConverterMappingHints(size: 16)));
         }
 
         [ConditionalFact]
