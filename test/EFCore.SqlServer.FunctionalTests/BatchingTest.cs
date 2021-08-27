@@ -20,6 +20,7 @@ namespace Microsoft.EntityFrameworkCore
         public BatchingTest(BatchingTestFixture fixture)
         {
             Fixture = fixture;
+            Fixture.TestSqlLoggerFactory.Clear();
         }
 
         protected BatchingTestFixture Fixture { get; }
@@ -210,6 +211,9 @@ namespace Microsoft.EntityFrameworkCore
 
         protected void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
             => facade.UseTransaction(transaction.GetDbTransaction());
+
+        private void AssertSql(params string[] expected)
+            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
         private class BloggingContext : PoolableDbContext
         {

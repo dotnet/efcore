@@ -9275,8 +9275,7 @@ VALUES (i.[Value])
 OUTPUT INSERTED.[Id], i._Position
 INTO @inserted0;
 
-SELECT [t].[Id] FROM [BaseEntities] t
-INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id])
+SELECT [i].[Id] FROM @inserted0 i
 ORDER BY [i].[_Position];");
             }
         }
