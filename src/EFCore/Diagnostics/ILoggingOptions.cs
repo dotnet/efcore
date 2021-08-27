@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
     /// </remarks>
     public interface ILoggingOptions : ISingletonOptions
     {

@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     A <see cref="IDisposable" /> returned by an <see cref="IConcurrencyDetector" />, which will exit the ongoing
     ///     critical section when disposed.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
+    /// </remarks>
     public readonly struct ConcurrencyDetectorCriticalSectionDisposer : IDisposable
     {
         private readonly IConcurrencyDetector _concurrencyDetector;

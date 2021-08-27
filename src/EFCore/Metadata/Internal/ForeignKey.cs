@@ -664,7 +664,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _isRequiredConfigurationSource = required == null
                 ? null
-                : (ConfigurationSource?)configurationSource.Max(_isRequiredConfigurationSource);
+                : configurationSource.Max(_isRequiredConfigurationSource);
 
             return IsRequired != oldRequired
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyRequirednessChanged(Builder)
@@ -727,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _isRequiredDependentConfigurationSource = required == null
                 ? null
-                : (ConfigurationSource?)configurationSource.Max(_isRequiredConfigurationSource);
+                : configurationSource.Max(_isRequiredConfigurationSource);
 
             return IsRequiredDependent != oldRequired
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyDependentRequirednessChanged(Builder)

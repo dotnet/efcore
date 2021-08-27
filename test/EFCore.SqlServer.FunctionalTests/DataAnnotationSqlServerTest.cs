@@ -47,82 +47,82 @@ namespace Microsoft.EntityFrameworkCore
             return modelBuilder;
         }
 
-        public override ModelBuilder Non_public_annotations_are_enabled()
+        public override IModel Non_public_annotations_are_enabled()
         {
-            var modelBuilder = base.Non_public_annotations_are_enabled();
+            var model = base.Non_public_annotations_are_enabled();
 
-            var property = GetProperty<PrivateMemberAnnotationClass>(modelBuilder, "PersonFirstName");
+            var property = GetProperty<PrivateMemberAnnotationClass>(model, "PersonFirstName");
             Assert.Equal("dsdsd", property.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", property.GetColumnType());
 
-            return modelBuilder;
+            return model;
         }
 
-        public override ModelBuilder Field_annotations_are_enabled()
+        public override IModel Field_annotations_are_enabled()
         {
-            var modelBuilder = base.Field_annotations_are_enabled();
+            var model = base.Field_annotations_are_enabled();
 
-            var property = GetProperty<FieldAnnotationClass>(modelBuilder, "_personFirstName");
+            var property = GetProperty<FieldAnnotationClass>(model, "_personFirstName");
             Assert.Equal("dsdsd", property.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", property.GetColumnType());
 
-            return modelBuilder;
+            return model;
         }
 
-        public override ModelBuilder Key_and_column_work_together()
+        public override IModel Key_and_column_work_together()
         {
-            var modelBuilder = base.Key_and_column_work_together();
+            var model = base.Key_and_column_work_together();
 
-            var relational = GetProperty<ColumnKeyAnnotationClass1>(modelBuilder, "PersonFirstName");
+            var relational = GetProperty<ColumnKeyAnnotationClass1>(model, "PersonFirstName");
             Assert.Equal("dsdsd", relational.GetColumnBaseName());
             Assert.Equal("nvarchar(128)", relational.GetColumnType());
 
-            return modelBuilder;
+            return model;
         }
 
-        public override ModelBuilder Key_and_MaxLength_64_produce_nvarchar_64()
+        public override IModel Key_and_MaxLength_64_produce_nvarchar_64()
         {
-            var modelBuilder = base.Key_and_MaxLength_64_produce_nvarchar_64();
+            var model = base.Key_and_MaxLength_64_produce_nvarchar_64();
 
-            var property = GetProperty<ColumnKeyAnnotationClass2>(modelBuilder, "PersonFirstName");
+            var property = GetProperty<ColumnKeyAnnotationClass2>(model, "PersonFirstName");
 
             var storeType = property.GetRelationalTypeMapping().StoreType;
 
             Assert.Equal("nvarchar(64)", storeType);
 
-            return modelBuilder;
+            return model;
         }
 
-        public override ModelBuilder Timestamp_takes_precedence_over_MaxLength()
+        public override IModel Timestamp_takes_precedence_over_MaxLength()
         {
-            var modelBuilder = base.Timestamp_takes_precedence_over_MaxLength();
+            var model = base.Timestamp_takes_precedence_over_MaxLength();
 
-            var property = GetProperty<TimestampAndMaxlen>(modelBuilder, "MaxTimestamp");
+            var property = GetProperty<TimestampAndMaxlen>(model, "MaxTimestamp");
 
             var storeType = property.GetRelationalTypeMapping().StoreType;
 
             Assert.Equal("rowversion", storeType);
 
-            return modelBuilder;
+            return model;
         }
 
-        public override ModelBuilder TableNameAttribute_affects_table_name_in_TPH()
+        public override IModel TableNameAttribute_affects_table_name_in_TPH()
         {
-            var modelBuilder = base.TableNameAttribute_affects_table_name_in_TPH();
+            var model = base.TableNameAttribute_affects_table_name_in_TPH();
 
-            Assert.Equal("A", modelBuilder.Model.FindEntityType(typeof(TNAttrBase)).GetTableName());
+            Assert.Equal("A", model.FindEntityType(typeof(TNAttrBase)).GetTableName());
 
-            return modelBuilder;
+            return model;
         }
 
-        public override ModelBuilder DatabaseGeneratedOption_configures_the_property_correctly()
+        public override IModel DatabaseGeneratedOption_configures_the_property_correctly()
         {
-            var modelBuilder = base.DatabaseGeneratedOption_configures_the_property_correctly();
+            var model = base.DatabaseGeneratedOption_configures_the_property_correctly();
 
-            var identity = modelBuilder.Model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
+            var identity = model.FindEntityType(typeof(GeneratedEntity)).FindProperty(nameof(GeneratedEntity.Identity));
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, identity.GetValueGenerationStrategy());
 
-            return modelBuilder;
+            return model;
         }
 
         [ConditionalFact]

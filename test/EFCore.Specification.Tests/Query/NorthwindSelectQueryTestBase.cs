@@ -2038,7 +2038,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 assertOrder: true);
         }
 
-        [ConditionalTheory(Skip = "issue #22701")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_count_of_navigation_which_is_generic_collection_using_convert(bool async)
         {

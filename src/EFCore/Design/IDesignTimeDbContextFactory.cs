@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///     this interface that are in the startup assembly or the same assembly as the derived context.
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
     /// </remarks>
     /// <typeparam name="TContext">The type of the context.</typeparam>
     public interface IDesignTimeDbContextFactory<out TContext>

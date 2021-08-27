@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore
     ///     Base event arguments for the <see cref="M:DbContext.SaveChanges" /> and <see cref="M:DbContext.SaveChangesAsync" /> events.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
-    ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> and
+    ///     <see href="https://aka.ms/efcore-docs-events">EF Core events</see> for more information.
     /// </remarks>
     public abstract class SaveChangesEventArgs : EventArgs
     {

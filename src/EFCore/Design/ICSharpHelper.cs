@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///     Helper for generating C# code.
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
     /// </remarks>
     public interface ICSharpHelper
     {

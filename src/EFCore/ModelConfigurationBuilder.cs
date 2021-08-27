@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     /// </summary>
     /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
     /// </remarks>
     public class ModelConfigurationBuilder
     {
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Initializes a new instance of the <see cref="ModelConfigurationBuilder" />.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <param name="conventions"> The conventions to be applied during model building. </param>
         public ModelConfigurationBuilder(ConventionSet conventions)
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Prevents the conventions from the given type from discovering properties of the given or derived types.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <typeparam name="T"> The type to be ignored. </typeparam>
         /// <returns>
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Prevents the conventions from the given type from discovering properties of the given or derived types.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <param name="type"> The type to be ignored. </param>
         /// <returns>
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
         /// <returns> An object that can be used to configure the properties. </returns>
@@ -114,7 +114,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <typeparam name="TProperty"> The property type to be configured. </typeparam>
         /// <param name="buildAction"> An action that performs configuration of the property. </param>
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <param name="propertyType"> The property type to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
@@ -165,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <param name="propertyType"> The property type to be configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the property. </param>
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
         /// <returns> An object that can be used to configure the scalars. </returns>
@@ -226,7 +226,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <typeparam name="TScalar"> The scalar type to be configured. </typeparam>
         /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
@@ -259,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <param name="scalarType"> The scalar type to be configured. </param>
         /// <returns> An object that can be used to configure the scalars. </returns>
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <param name="scalarType"> The scalar type to be configured. </param>
         /// <param name="buildAction"> An action that performs configuration for the scalars. </param>
@@ -313,7 +313,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     explicitly in cases where the automatic execution is not possible.
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see>.
+        ///     See <see href="https://aka.ms/efcore-docs-pre-convention">Pre-convention model building in EF Core</see> for more information.
         /// </remarks>
         /// <param name="modelDependencies"> The dependencies object used during model building. </param>
         /// <returns> The configured <see cref="ModelBuilder" />. </returns>

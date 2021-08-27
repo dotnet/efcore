@@ -92,7 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(
                 new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), "OrderDate" },
                 ordersTable.Columns.Select(m => m.Name));
-            Assert.Equal("Order", ordersTable.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.RelationalModelTest+Order", ordersTable.Name);
             Assert.Null(ordersTable.Schema);
 
             var orderDate = orderType.FindProperty(nameof(Order.OrderDate));
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var customerType = model.Model.FindEntityType(typeof(Customer));
             var customerTable = customerType.GetDefaultMappings().Single().Table;
-            Assert.Equal("Customer", customerTable.Name);
+            Assert.Equal("Microsoft.EntityFrameworkCore.Metadata.RelationalModelTest+Customer", customerTable.Name);
             Assert.Null(customerTable.Schema);
 
             var specialCustomerType = model.Model.FindEntityType(typeof(SpecialCustomer));
@@ -907,6 +907,33 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(tvfDbFunction.Parameters.Single().Name, tvfFunction.Parameters.Single().DbFunctionParameters.Single().Name);
         }
 
+        [ConditionalFact]
+        public void Default_mappings_does_not_share_tableBase()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+            modelBuilder.Entity<NameSpace1.SameEntityType>().HasNoKey().ToTable((string)null);
+            modelBuilder.Entity<NameSpace2.SameEntityType>().HasNoKey().ToTable((string)null);
+
+            var model = Finalize(modelBuilder);
+
+            Assert.Equal(2, model.Model.GetEntityTypes().Count());
+            Assert.Empty(model.Tables);
+            Assert.Empty(model.Views);
+            Assert.Empty(model.Functions);
+            Assert.Empty(model.Queries);
+
+            var entityType1 = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
+            var entityType2 = model.Model.FindEntityType(typeof(NameSpace2.SameEntityType));
+
+            var defaultMapping1 = Assert.Single(entityType1.GetDefaultMappings());
+            var defaultMapping2 = Assert.Single(entityType2.GetDefaultMappings());
+
+            Assert.NotSame(defaultMapping1, defaultMapping2);
+
+            Assert.True(defaultMapping1.Table.Columns.Single().IsNullable);
+            Assert.False(defaultMapping2.Table.Columns.Single().IsNullable);
+        }
+
         private static IRelationalModel Finalize(TestHelpers.TestModelBuilder modelBuilder)
             => modelBuilder.FinalizeModel(designTime: true).GetRelationalModel();
 
@@ -992,5 +1019,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public string Street { get; set; }
             public string City { get; set; }
         }
+    }
+}
+
+namespace NameSpace1
+{
+    public class SameEntityType
+    {
+        public int? MyValue { get; set; }
+    }
+}
+
+namespace NameSpace2
+{
+    public class SameEntityType
+    {
+        public int MyValue { get; set; }
     }
 }

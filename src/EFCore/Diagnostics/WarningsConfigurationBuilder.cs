@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+    ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
     /// </remarks>
     public class WarningsConfigurationBuilder
     {
@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+        ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
         /// <param name="warningBehavior"> The desired behavior. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+        ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
         /// <param name="eventIds">
         ///     The IDs for events to configure.
@@ -91,7 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+        ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
         /// <param name="eventIds">
         ///     The IDs for events to configure.
@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+        ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
         /// <param name="eventsAndLevels">
         ///     The event IDs and levels to configure.
@@ -141,7 +141,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     For more information, see <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see>.
+        ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
         /// <param name="eventIds">
         ///     The IDs for events to configure.

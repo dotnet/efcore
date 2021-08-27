@@ -11,11 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         a cached model for a given context. This default implementation uses the context type as they key, thus
     ///         assuming that all contexts of a given type have the same model.
     ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-model-caching">EF Core model caching</see> for more information.
+    /// </remarks>
     public class ModelCacheKey
     {
         private readonly Type _dbContextType;

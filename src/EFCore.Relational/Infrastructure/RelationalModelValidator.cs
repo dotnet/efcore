@@ -901,9 +901,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         currentStored));
             }
 
-            var currentDefaultValue = property.GetDefaultValue(storeObject);
-            var previousDefaultValue = duplicateProperty.GetDefaultValue(storeObject);
-            if (!Equals(currentDefaultValue, previousDefaultValue))
+            var hasDefaultValue = property.TryGetDefaultValue(storeObject, out var currentDefaultValue);
+            var duplicateHasDefaultValue = duplicateProperty.TryGetDefaultValue(storeObject, out var previousDefaultValue);
+            if ((hasDefaultValue
+                || duplicateHasDefaultValue)
+                && !Equals(currentDefaultValue, previousDefaultValue))
             {
                 currentDefaultValue = GetDefaultColumnValue(property, storeObject);
                 previousDefaultValue = GetDefaultColumnValue(duplicateProperty, storeObject);

@@ -443,7 +443,7 @@ CROSS JOIN [FunkyCustomers] AS [f0]
 WHERE (CASE
     WHEN (([f0].[LastName] = N'') AND [f0].[LastName] IS NOT NULL) OR ([f].[FirstName] IS NOT NULL AND ([f0].[LastName] IS NOT NULL AND (RIGHT([f].[FirstName], LEN([f0].[LastName])) = [f0].[LastName]))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END <> [f].[NullableBool]) OR [f].[NullableBool] IS NULL");
+END <> [f].[NullableBool]) OR ([f].[NullableBool] IS NULL)");
         }
 
         public override async Task String_FirstOrDefault_and_LastOrDefault(bool async)

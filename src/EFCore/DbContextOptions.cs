@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     to create instances of this class and it is not designed to be directly constructed in your application code.
     /// </summary>
     /// <remarks>
-    ///     For more information, see <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
     /// </remarks>
     public abstract class DbContextOptions : IDbContextOptions
     {

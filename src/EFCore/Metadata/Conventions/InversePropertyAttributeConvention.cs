@@ -78,7 +78,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             var targetEntityType = targetEntityTypeBuilder.Metadata;
             var targetClrType = targetEntityType.ClrType;
             var inverseNavigationPropertyInfo = targetEntityType.GetRuntimeProperties().Values
-                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property))
+                ?? targetEntityType.GetRuntimeProperties().Values
+                    .FirstOrDefault(p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
                 || !Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType)[inverseNavigationPropertyInfo]

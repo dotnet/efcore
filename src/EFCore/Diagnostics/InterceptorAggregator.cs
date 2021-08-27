@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     Abstract base class for implementations of the <see cref="IInterceptorAggregator" /> service.
     /// </summary>
     /// <remarks>
-    ///     For more information, <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see>.
+    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
     /// </remarks>
     /// <typeparam name="TInterceptor"> The interceptor type. </typeparam>
     public abstract class InterceptorAggregator<TInterceptor> : IInterceptorAggregator
