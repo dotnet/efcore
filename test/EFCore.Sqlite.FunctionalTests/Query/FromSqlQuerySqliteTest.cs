@@ -23,11 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Query
             var queryString = await base.FromSqlRaw_queryable_composed(async);
 
             var expected =
-                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+                @"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
 FROM (
     SELECT * FROM ""Customers""
-) AS ""c""
-WHERE ('z' = '') OR (instr(""c"".""ContactName"", 'z') > 0)";
+) AS ""m""
+WHERE ('z' = '') OR (instr(""m"".""ContactName"", 'z') > 0)";
 
             Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
 
@@ -42,11 +42,11 @@ WHERE ('z' = '') OR (instr(""c"".""ContactName"", 'z') > 0)";
                 @".param set p0 'London'
 .param set @__contactTitle_1 'Sales Representative'
 
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
-) AS ""c""
-WHERE ""c"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+) AS ""m""
+WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
 
             return queryString;
         }

@@ -7287,17 +7287,17 @@ WHERE [b].[Id] = 1");
                 Assert.Equal(MyContext19206.TestType19206.Unit, item.t1.Type);
                 Assert.Equal(MyContext19206.TestType19206.Integration, item.t2.Type);
 
-                AssertSql(
-                    @"p0='0'
+            AssertSql(
+                @"p0='0'
 p1='1'
 
-SELECT [t].[Id], [t].[Type], [t0].[Id], [t0].[Type]
+SELECT [m].[Id], [m].[Type], [m0].[Id], [m0].[Type]
 FROM (
     Select * from Tests Where Type = @p0
-) AS [t]
+) AS [m]
 CROSS JOIN (
     Select * from Tests Where Type = @p1
-) AS [t0]");
+) AS [m0]");
             }
         }
 
