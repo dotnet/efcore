@@ -711,7 +711,7 @@ UNION ALL
             commandText += @"
 ) o
 JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
-JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
+LEFT JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [o].[object_id] AND [e].[minor_id] = [c].[column_id] AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
 LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
@@ -744,7 +744,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var columnName = dataRecord.GetFieldValue<string>("column_name");
                     var ordinal = dataRecord.GetFieldValue<int>("ordinal");
                     var dataTypeSchemaName = dataRecord.GetValueOrDefault<string>("type_schema");
-                    var dataTypeName = dataRecord.GetFieldValue<string>("type_name");
+                    var dataTypeName = dataRecord.GetValueOrDefault<string>("type_name") ?? "???";
                     var maxLength = dataRecord.GetValueOrDefault<int>("max_length");
                     var precision = dataRecord.GetValueOrDefault<int>("precision");
                     var scale = dataRecord.GetValueOrDefault<int>("scale");
