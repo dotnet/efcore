@@ -587,16 +587,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 _internalEntityEntrySubscriber.Unsubscribe(entry);
             }
 
-            var entityType = entry.EntityType;
-            
-            foreach (var key in entityType.GetKeys())
+            foreach (var key in entry.EntityType.GetKeys())
             {
                 foreach (var foreignKey in key.GetReferencingForeignKeys())
                 {
-                    foreach (InternalEntityEntry dependentEntry in GetDependents(entry, foreignKey).ToList())
+                    var dependentToPrincipal = foreignKey.DependentToPrincipal;
+                    if (dependentToPrincipal != null)
                     {
-                        var dependentToPrincipal = foreignKey.DependentToPrincipal;
-                        if (dependentToPrincipal != null)
+                        foreach (InternalEntityEntry dependentEntry in GetDependents(entry, foreignKey))
                         {
                             if (dependentEntry[dependentToPrincipal] == entry.Entity)
                             {
