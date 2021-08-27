@@ -776,6 +776,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Passes_on_duplicate_column_names_within_hierarchy_with_same_column_nullability()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property<int>("OtherId").HasColumnName("OtherId");
+            modelBuilder.Entity<Dog>().Property<int?>("OtherId").HasColumnName("OtherId");
+
+            var model = Validate(modelBuilder);
+
+            var column = model.FindEntityType(typeof(Cat)).FindProperty("OtherId").GetTableColumnMappings().Single().Column;
+
+            Assert.Equal(2, column.PropertyMappings.Count());
+            Assert.True(column.IsNullable);
+            Assert.Null(column.DefaultValue);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_comments()
         {
             var modelBuilder = CreateConventionalModelBuilder();
