@@ -439,6 +439,27 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public static void ColumnWithoutTypeWarning(
+            this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
+            string tableName,
+            string columnName)
+        {
+            var definition = SqlServerResources.LogColumnWithoutType(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, tableName, columnName);
+            }
+
+            // No DiagnosticsSource events because these are purely design-time messages
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public static void SequenceFound(
             this IDiagnosticsLogger<DbLoggerCategory.Scaffolding> diagnostics,
             string sequenceName,

@@ -184,6 +184,10 @@
     <value>The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column; this requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.</value>
     <comment>Warning SqlServerEventId.ByteIdentityColumnWarning string string</comment>
   </data>
+  <data name="LogColumnWithoutType" xml:space="preserve">
+    <value>A database type for column '{columnName}' on table '{tableName}' could not be found, the column will be skipped.</value>
+    <comment>Warning SqlServerEventId.ColumnWithoutTypeWarning string string</comment>
+  </data>
   <data name="LogConflictingValueGenerationStrategies" xml:space="preserve">
     <value>Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.</value>
     <comment>Warning SqlServerEventId.ConflictingValueGenerationStrategiesWarning string string string string</comment>
