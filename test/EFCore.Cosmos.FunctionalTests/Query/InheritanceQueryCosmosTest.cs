@@ -166,7 +166,10 @@ WHERE (c[""Discriminator""] IN (""Eagle"", ""Kiwi"") AND (c[""Discriminator""] =
         {
             await base.Can_use_backwards_of_type_animal(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT c
+FROM root c
+WHERE (c[""Discriminator""] = ""Kiwi"")");
         }
 
         public override async Task Can_use_of_type_rose(bool async)

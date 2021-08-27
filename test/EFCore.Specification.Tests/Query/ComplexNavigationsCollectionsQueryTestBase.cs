@@ -2157,6 +2157,47 @@ namespace Microsoft.EntityFrameworkCore.Query
                     new ExpectedInclude<Level2>(x => x.OneToOne_Optional_FK2, "OneToMany_Optional1")));
         }
 
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_FirstOrDefault_on_top_level(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<Level1>()
+                    .OrderBy(l1 => l1.Id)
+                    .Include(l1 => l1.OneToMany_Optional1.Take(40))
+                    .ThenInclude(l2 => l2.OneToOne_Optional_FK2),
+                asserter: (e, a) => AssertInclude(
+                    e,
+                    a,
+                    new ExpectedFilteredInclude<Level1, Level2>(
+                        x => x.OneToMany_Optional1,
+                        includeFilter: x => x.Take(40)),
+                    new ExpectedInclude<Level2>(x => x.OneToOne_Optional_FK2, "OneToMany_Optional1")));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Filtered_include_with_Take_without_order_by_followed_by_ThenInclude_and_unordered_Take_on_top_level(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>()
+                    .OrderBy(l1 => l1.Id)
+                    .Include(l1 => l1.OneToMany_Optional1.Take(40))
+                    .ThenInclude(l2 => l2.OneToOne_Optional_FK2)
+                    .Take(30),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) => AssertInclude(
+                    e,
+                    a,
+                    new ExpectedFilteredInclude<Level1, Level2>(
+                        x => x.OneToMany_Optional1,
+                        includeFilter: x => x.Take(40)),
+                    new ExpectedInclude<Level2>(x => x.OneToOne_Optional_FK2, "OneToMany_Optional1")));
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Projecting_collection_with_FirstOrDefault(bool async)
@@ -2442,6 +2483,40 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Include(l1 => l1.OneToOne_Optional_FK1.OneToMany_Required2)
                     .ThenInclude(l3 => l3.OneToOne_Optional_FK3),
                 elementAsserter: (e, a) => AssertInclude(e, a, expectedIncludes));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Take_on_correlated_collection_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(l1 => new { l1.Id, Collection = l1.OneToMany_Optional1.Take(50) }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertCollection(e.Collection, a.Collection);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task FirstOrDefault_with_predicate_on_correlated_collection_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Level1>().Select(l1 => new
+                {
+                    l1.Id,
+                    Element = l1.OneToMany_Optional1.FirstOrDefault(l2 => l2.Id == l1.Id)
+                }),
+                elementSorter: e => e.Id,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Id, a.Id);
+                    AssertEqual(e.Element, a.Element);
+                });
         }
     }
 }

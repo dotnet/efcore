@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<OrderQuery>().Where(ov => ov.CustomerID == "ALFKI"));
         }
 
-        [ConditionalTheory(Skip = "Issue#21828")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
         {
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 1);
         }
 
-        [ConditionalTheory(Skip = "Issue#21828")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task KeylessEntity_with_included_navs_multi_level(bool async)
         {
