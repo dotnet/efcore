@@ -597,6 +597,57 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
         }
 
         [ConditionalFact]
+        public async Task Can_add_update_delete_with_dateTime_string_end_to_end_async()
+        {
+            var options = Fixture.CreateOptions();
+
+            var customer = new Customer { Id = 42, Name = "2021-08-23T06:23:40+00:00" };
+
+            using (var context = new CustomerContext(options))
+            {
+                await context.Database.EnsureCreatedAsync();
+
+                context.Add(customer);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = await context.Set<Customer>().SingleAsync();
+
+                var logEntry = TestSqlLoggerFactory.Log.Last();
+                Assert.Equal(LogLevel.Information, logEntry.Level);
+                Assert.Contains("ReadNext", logEntry.Message);
+                TestSqlLoggerFactory.Clear();
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("2021-08-23T06:23:40+00:00", customerFromStore.Name);
+
+                customerFromStore.Name = "2021-08-23T06:23:40+02:00";
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                var customerFromStore = await context.FindAsync<Customer>(42);
+
+                Assert.Equal(42, customerFromStore.Id);
+                Assert.Equal("2021-08-23T06:23:40+02:00", customerFromStore.Name);
+
+                context.Remove(customerFromStore);
+
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = new CustomerContext(options))
+            {
+                Assert.Empty(await context.Set<Customer>().ToListAsync());
+            }
+        }
+
+        [ConditionalFact]
         public async Task Can_add_update_delete_with_collections()
         {
             await Can_add_update_delete_with_collection(
