@@ -141,19 +141,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
             else if (modelClrType == typeof(Guid))
             {
                 if (providerClrType == null
-                    || providerClrType == typeof(byte[]))
-                {
-                    yield return _converters.GetOrAdd(
-                        (modelClrType, typeof(byte[])),
-                        k => GuidToBytesConverter.DefaultInfo);
-                }
-
-                if (providerClrType == null
                     || providerClrType == typeof(string))
                 {
                     yield return _converters.GetOrAdd(
                         (modelClrType, typeof(string)),
                         k => GuidToStringConverter.DefaultInfo);
+                }
+
+                if (providerClrType == null
+                    || providerClrType == typeof(byte[]))
+                {
+                    yield return _converters.GetOrAdd(
+                        (modelClrType, typeof(byte[])),
+                        k => GuidToBytesConverter.DefaultInfo);
                 }
             }
             else if (modelClrType == typeof(byte[]))
