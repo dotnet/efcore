@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
@@ -711,7 +713,7 @@ UNION ALL
             commandText += @"
 ) o
 JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
-JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
+LEFT JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [o].[object_id] AND [e].[minor_id] = [c].[column_id] AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
 LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
@@ -744,7 +746,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var columnName = dataRecord.GetFieldValue<string>("column_name");
                     var ordinal = dataRecord.GetFieldValue<int>("ordinal");
                     var dataTypeSchemaName = dataRecord.GetValueOrDefault<string>("type_schema");
-                    var dataTypeName = dataRecord.GetFieldValue<string>("type_name");
+                    var dataTypeName = dataRecord.GetValueOrDefault<string>("type_name");
                     var maxLength = dataRecord.GetValueOrDefault<int>("max_length");
                     var precision = dataRecord.GetValueOrDefault<int>("precision");
                     var scale = dataRecord.GetValueOrDefault<int>("scale");
@@ -757,6 +759,12 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var collation = dataRecord.GetValueOrDefault<string>("collation_name");
                     var isSparse = dataRecord.GetValueOrDefault<bool>("is_sparse");
                     var generatedAlwaysType = SupportsTemporalTable() ? dataRecord.GetValueOrDefault<byte>("generated_always_type") : 0;
+
+                    if (dataTypeName is null)
+                    {
+                        _logger.ColumnWithoutTypeWarning(DisplayName(tableSchema, tableName), columnName);
+                        continue;
+                    }
 
                     _logger.ColumnFound(
                         DisplayName(tableSchema, tableName),
@@ -991,31 +999,15 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                                 TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
                     .ToArray();
 
+                Check.DebugAssert(primaryKeyGroups.Length == 0 || primaryKeyGroups.Length == 1, "Multiple primary keys found");
+
                 if (primaryKeyGroups.Length == 1)
                 {
-                    var primaryKeyGroup = primaryKeyGroups[0];
-
-                    _logger.PrimaryKeyFound(primaryKeyGroup.Key.Name, DisplayName(tableSchema, tableName));
-
-                    var primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
-
-                    if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
+                    if (TryGetPrimaryKey(primaryKeyGroups[0], out var primaryKey))
                     {
-                        primaryKey[SqlServerAnnotationNames.Clustered] = false;
+                        _logger.PrimaryKeyFound(primaryKey.Name!, DisplayName(tableSchema, tableName));
+                        table.PrimaryKey = primaryKey;
                     }
-
-                    foreach (var dataRecord in primaryKeyGroup)
-                    {
-                        var columnName = dataRecord.GetValueOrDefault<string>("column_name");
-                        var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                            ?? table.Columns.FirstOrDefault(
-                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Check.DebugAssert(column != null, "column is null.");
-
-                        primaryKey.Columns.Add(column);
-                    }
-
-                    table.PrimaryKey = primaryKey;
                 }
 
                 var uniqueConstraintGroups = tableIndexGroup
@@ -1028,27 +1020,11 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 foreach (var uniqueConstraintGroup in uniqueConstraintGroups)
                 {
-                    _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name!, DisplayName(tableSchema, tableName));
-
-                    var uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
-
-                    if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
+                    if (TryGetUniqueConstraint(uniqueConstraintGroup, out var uniqueConstraint))
                     {
-                        uniqueConstraint[SqlServerAnnotationNames.Clustered] = true;
+                        _logger.UniqueConstraintFound(uniqueConstraintGroup.Key.Name!, DisplayName(tableSchema, tableName));
+                        table.UniqueConstraints.Add(uniqueConstraint);
                     }
-
-                    foreach (var dataRecord in uniqueConstraintGroup)
-                    {
-                        var columnName = dataRecord.GetValueOrDefault<string>("column_name");
-                        var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                            ?? table.Columns.FirstOrDefault(
-                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Check.DebugAssert(column != null, "column is null.");
-
-                        uniqueConstraint.Columns.Add(column);
-                    }
-
-                    table.UniqueConstraints.Add(uniqueConstraint);
                 }
 
                 var indexGroups = tableIndexGroup
@@ -1067,9 +1043,77 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
 
                 foreach (var indexGroup in indexGroups)
                 {
-                    _logger.IndexFound(indexGroup.Key.Name!, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
+                    if (TryGetIndex(indexGroup, out var index))
+                    {
+                        _logger.IndexFound(indexGroup.Key.Name!, DisplayName(tableSchema, tableName), indexGroup.Key.IsUnique);
+                        table.Indexes.Add(index);
+                    }
+                }
 
-                    var index = new DatabaseIndex
+                bool TryGetPrimaryKey(
+                    IGrouping<(string Name, string? TypeDesc), DbDataRecord> primaryKeyGroup,
+                    [NotNullWhen(true)] out DatabasePrimaryKey? primaryKey)
+                {
+                    primaryKey = new DatabasePrimaryKey { Table = table, Name = primaryKeyGroup.Key.Name };
+
+                    if (primaryKeyGroup.Key.TypeDesc == "NONCLUSTERED")
+                    {
+                        primaryKey[SqlServerAnnotationNames.Clustered] = false;
+                    }
+
+                    foreach (var dataRecord in primaryKeyGroup)
+                    {
+                        var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+                        var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
+                                     ?? table.Columns.FirstOrDefault(
+                                         c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+
+                        if (column is null)
+                        {
+                            return false;
+                        }
+
+                        primaryKey.Columns.Add(column);
+                    }
+
+                    return true;
+                }
+
+                bool TryGetUniqueConstraint(
+                    IGrouping<(string? Name, string? TypeDesc), DbDataRecord> uniqueConstraintGroup,
+                    [NotNullWhen(true)] out DatabaseUniqueConstraint? uniqueConstraint)
+                {
+                    uniqueConstraint = new DatabaseUniqueConstraint { Table = table, Name = uniqueConstraintGroup.Key.Name };
+
+                    if (uniqueConstraintGroup.Key.TypeDesc == "CLUSTERED")
+                    {
+                        uniqueConstraint[SqlServerAnnotationNames.Clustered] = true;
+                    }
+
+                    foreach (var dataRecord in uniqueConstraintGroup)
+                    {
+                        var columnName = dataRecord.GetValueOrDefault<string>("column_name");
+                        var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
+                                     ?? table.Columns.FirstOrDefault(
+                                         c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+
+                        if (column is null)
+                        {
+                            return false;
+                        }
+
+                        uniqueConstraint.Columns.Add(column);
+                    }
+
+                    return true;
+                }
+
+                bool TryGetIndex(
+                    IGrouping<(string? Name, string? TypeDesc, bool IsUnique, bool HasFilter, string? FilterDefinition, byte FillFactor),
+                        DbDataRecord> indexGroup,
+                    [NotNullWhen(true)] out DatabaseIndex? index)
+                {
+                    index = new DatabaseIndex
                     {
                         Table = table,
                         Name = indexGroup.Key.Name,
@@ -1098,17 +1142,18 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         }
 
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                            ?? table.Columns.FirstOrDefault(
-                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
-                        Check.DebugAssert(column != null, "column is null.");
+                                     ?? table.Columns.FirstOrDefault(
+                                         c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+
+                        if (column is null)
+                        {
+                            return false;
+                        }
 
                         index.Columns.Add(column);
                     }
 
-                    if (index.Columns.Count > 0)
-                    {
-                        table.Indexes.Add(index);
-                    }
+                    return index.Columns.Count > 0;
                 }
             }
         }
