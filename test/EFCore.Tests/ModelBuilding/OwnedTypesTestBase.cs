@@ -851,8 +851,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(SpecialOrder.SpecialOrderId), specialOwnership.DeclaringEntityType.FindPrimaryKey().Properties.Single().Name);
 
                 Assert.Equal(2, modelBuilder.Model.FindEntityTypes(typeof(Order)).Count());
-                // SpecialOrder and Address are only used once, but once they are made shared they don't revert to non-shared
-                Assert.Equal(7, modelBuilder.Model.GetEntityTypes().Count(e => !e.HasSharedClrType));
 
                 var conventionModel = (IConventionModel)modelBuilder.Model;
                 Assert.Null(conventionModel.FindIgnoredConfigurationSource(typeof(Order)));

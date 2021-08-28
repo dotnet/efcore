@@ -52,14 +52,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             int commandPosition)
         {
             var table = StoreObjectIdentifier.Table(modificationCommands[0].TableName, modificationCommands[0].Schema);
-            if (modificationCommands.Count == 1
-                && modificationCommands[0].ColumnModifications.All(
+            if (modificationCommands.Count == 1)
+            {
+                return modificationCommands[0].ColumnModifications.All(
                     o =>
                         !o.IsKey
                         || !o.IsRead
-                        || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn))
-            {
-                return AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition);
+                        || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
+                    ? AppendInsertOperation(commandStringBuilder, modificationCommands[0], commandPosition)
+                    : AppendInsertOperationWithServerKeys(
+                        commandStringBuilder,
+                        modificationCommands[0],
+                        modificationCommands[0].ColumnModifications.Where(o => o.IsKey).ToList(),
+                        modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList(),
+                        0);
             }
 
             var readOperations = modificationCommands[0].ColumnModifications.Where(o => o.IsRead).ToList();
@@ -437,30 +443,45 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             string? schema,
             string? orderColumn = null)
         {
-            commandStringBuilder
-                .AppendLine()
-                .Append("SELECT ")
-                .AppendJoin(
-                    readOperations,
-                    SqlGenerationHelper,
-                    (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName, "t"))
-                .Append(" FROM ");
-            SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, tableName, schema);
-            commandStringBuilder
-                .AppendLine(" t")
-                .Append("INNER JOIN ")
-                .Append(insertedTableName).Append(insertedTableIndex)
-                .Append(" i")
-                .Append(" ON ")
-                .AppendJoin(
-                    keyOperations, (sb, c) =>
-                    {
-                        sb.Append('(');
-                        SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
-                        sb.Append(" = ");
-                        SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
-                        sb.Append(')');
-                    }, " AND ");
+            if (readOperations.SequenceEqual(keyOperations))
+            {
+                commandStringBuilder
+                    .AppendLine()
+                    .Append("SELECT ")
+                    .AppendJoin(
+                        readOperations,
+                        SqlGenerationHelper,
+                        (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName, "i"))
+                    .Append(" FROM ")
+                    .Append(insertedTableName).Append(insertedTableIndex).Append(" i");
+            }
+            else
+            {
+                commandStringBuilder
+                    .AppendLine()
+                    .Append("SELECT ")
+                    .AppendJoin(
+                        readOperations,
+                        SqlGenerationHelper,
+                        (sb, o, helper) => helper.DelimitIdentifier(sb, o.ColumnName, "t"))
+                    .Append(" FROM ");
+                SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, tableName, schema);
+                commandStringBuilder
+                    .AppendLine(" t")
+                    .Append("INNER JOIN ")
+                    .Append(insertedTableName).Append(insertedTableIndex)
+                    .Append(" i")
+                    .Append(" ON ")
+                    .AppendJoin(
+                        keyOperations, (sb, c) =>
+                        {
+                            sb.Append('(');
+                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "t");
+                            sb.Append(" = ");
+                            SqlGenerationHelper.DelimitIdentifier(sb, c.ColumnName, "i");
+                            sb.Append(')');
+                        }, " AND ");
+            }
 
             if (orderColumn != null)
             {

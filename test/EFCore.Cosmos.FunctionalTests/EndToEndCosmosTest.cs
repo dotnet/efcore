@@ -569,7 +569,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
                 modelBuilder.Entity<CustomerGuid>(
                     cb =>
                     {
-                        cb.Property(c => c.Id).HasConversion<string>().ToJsonProperty("id");
+                        cb.Property(c => c.Id).ToJsonProperty("id");
                         cb.Property(c => c.PartitionKey).HasConversion<string>().ToJsonProperty("pk");
                         cb.HasPartitionKey(c => c.PartitionKey);
                     });

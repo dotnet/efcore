@@ -3736,6 +3736,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                                 existingTargetType.Name, existingTargetType.ClrType, configurationSource.Value, targetShouldBeOwned)
                             : ModelBuilder.Entity(existingTargetType.ClrType, configurationSource.Value, targetShouldBeOwned);
                 }
+                else if (!targetEntityType.IsNamed
+                    && !existingTargetType.HasSharedClrType
+                    && targetEntityType.Type != null
+                    && targetEntityType.Type.IsAssignableFrom(existingTargetType.ClrType))
+                {
+                    return existingNavigation.TargetEntityType.Builder;
+                }
             }
 
             if (navigation.MemberInfo == null

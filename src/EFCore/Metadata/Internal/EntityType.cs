@@ -3157,7 +3157,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (changeTrackingStrategy != null)
             {
                 var requireFullNotifications =
-                    (bool?)Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequiredAnnotation] == true;
+                    (bool?)Model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] == true;
                 var errorMessage = CheckChangeTrackingStrategy(this, changeTrackingStrategy.Value, requireFullNotifications);
                 if (errorMessage != null)
                 {

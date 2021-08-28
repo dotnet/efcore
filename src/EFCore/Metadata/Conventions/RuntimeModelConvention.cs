@@ -195,7 +195,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (!runtime)
             {
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
+                        && annotation.Key != CoreAnnotationNames.ProductVersion
+                        && annotation.Key != CoreAnnotationNames.FullChangeTrackingNotificationsRequired)
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
             else
             {
@@ -242,6 +250,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
                 annotations.Remove(CoreAnnotationNames.NavigationAccessMode);
                 annotations.Remove(CoreAnnotationNames.DiscriminatorProperty);
+                annotations.Remove(CoreAnnotationNames.AmbiguousNavigations);
+                annotations.Remove(CoreAnnotationNames.NavigationCandidates);
 
                 if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilter))
                 {

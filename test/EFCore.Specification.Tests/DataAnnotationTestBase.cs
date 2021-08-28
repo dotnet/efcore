@@ -2028,6 +2028,18 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
+        [ConditionalFact]
+        public virtual void InversePropertyAttribute_pointing_to_same_nav_on_base_with_one_ignored()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<MultipleAnswersInverse>();
+            modelBuilder.Entity<MultipleAnswersRepeatingInverse>().Ignore(a => a.Answers);
+
+            var model = Validate(modelBuilder);
+
+            Assert.NotNull(model.FindEntityType(typeof(MultipleAnswersInverse)).FindNavigation(nameof(MultipleAnswersInverse.Answers)));
+        }
+
         private class PartialAnswerInverse
         {
             public int Id { get; set; }

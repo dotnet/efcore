@@ -36,14 +36,23 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// <inheritdoc />
         public virtual void Generate(IModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
         {
+            var annotations = parameters.Annotations;
             if (!parameters.IsRuntime)
             {
-                parameters.Annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
+                        && annotation.Key != CoreAnnotationNames.ProductVersion
+                        && annotation.Key != CoreAnnotationNames.FullChangeTrackingNotificationsRequired)
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
             }
             else
             {
-                parameters.Annotations.Remove(CoreAnnotationNames.ModelDependencies);
-                parameters.Annotations.Remove(CoreAnnotationNames.ReadOnlyModel);
+                annotations.Remove(CoreAnnotationNames.ModelDependencies);
+                annotations.Remove(CoreAnnotationNames.ReadOnlyModel);
             }
 
             GenerateSimpleAnnotations(parameters);
@@ -58,6 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
                 annotations.Remove(CoreAnnotationNames.NavigationAccessMode);
                 annotations.Remove(CoreAnnotationNames.DiscriminatorProperty);
+                annotations.Remove(CoreAnnotationNames.AmbiguousNavigations);
+                annotations.Remove(CoreAnnotationNames.NavigationCandidates);
             }
 
             GenerateSimpleAnnotations(parameters);
