@@ -317,7 +317,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                             || (!isKey && nonMainEntry))
                         {
                             writeValue = columnPropagator?.TryPropagate(property, entry)
-                                ?? entry.IsModified(property);
+                                ?? (entry.EntityState == EntityState.Added || entry.IsModified(property));
                         }
                     }
 
