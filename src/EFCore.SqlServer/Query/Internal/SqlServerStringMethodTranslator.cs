@@ -445,7 +445,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, stringTypeMapping);
 
             SqlExpression[] charIndexArguments;
-            if (startIndex == null)
+            if (startIndex is null)
             {
                 charIndexArguments = new[] { searchExpression, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) };
             }
