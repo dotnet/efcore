@@ -312,7 +312,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 selectExpression.ClearOrdering();
             }
 
-            // TODO: See issue #24671
             if (source.ShaperExpression is ProjectionBindingExpression projectionBindingExpression)
             {
                 var projection = selectExpression.GetProjection(projectionBindingExpression);
@@ -323,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                     translation = _sqlExpressionFactory.In(translation, selectExpression, false);
 
-                    return new ShapedQueryExpression(
+                    return source.Update(
                         _sqlExpressionFactory.Select(translation),
                         Expression.Convert(
                             new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), typeof(bool?)),
