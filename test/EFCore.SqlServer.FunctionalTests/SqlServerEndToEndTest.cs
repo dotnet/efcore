@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -296,6 +297,115 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<SNum> SNums { get; set; }
             public DbSet<EnNum> EnNums { get; set; }
             public DbSet<BNum> BNums { get; set; }
+        }
+
+        [ConditionalFact]
+        public void Can_add_table_splitting_dependent_after_principal()
+        {
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+
+            var options = Fixture.CreateOptions(testDatabase);
+            EvaluationAction evaluationAction = null;
+            using (var context = new ProjectContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+
+                evaluationAction = new EvaluationAction()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    CreateId = "1",
+                    UpdateId = "1"
+                };
+                context.EvaluationActions.Add(evaluationAction);
+                context.SaveChanges();
+            }
+
+            using (var context = new ProjectContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+
+                var projectAction = new ProjectAction()
+                {
+                    Id = evaluationAction.Id,
+                    CreateId = "1",
+                    UpdateId = "1",
+                    Name = "123123123123"
+                };
+                context.ProjectActions.Add(projectAction);
+                context.SaveChanges();
+            }
+
+            using (var context = new ProjectContext(options))
+            {
+                Assert.NotNull(context.ProjectActions.Single());
+                Assert.NotNull(context.EvaluationActions.Single());
+            }
+        }
+
+        [ConditionalFact]
+        public void Throws_when_adding_table_splitting_dependent_without_principal()
+        {
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+
+            var options = Fixture.CreateOptions(testDatabase);
+            using (var context = new ProjectContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+
+                var projectAction = new ProjectAction()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    CreateId = "1",
+                    UpdateId = "1",
+                    Name = "123123123123"
+                };
+                context.ProjectActions.Add(projectAction);
+
+                Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges());
+            }
+        }
+
+        private class ProjectContext : DbContext
+        {
+            public ProjectContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<EvaluationAction> EvaluationActions { get; set; }
+            public DbSet<ProjectAction> ProjectActions { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<ProjectAction>()
+                   .ToTable("projectaction")
+                   .HasOne(o => o.EvaluationAction).WithOne(o => o.ProjectAction)
+                   .HasForeignKey<ProjectAction>(o => o.Id);
+
+                modelBuilder.Entity<ProjectAction>().Property(p => p.Name).IsRequired();
+
+                modelBuilder.Entity<EvaluationAction>()
+                   .ToTable("projectaction");
+            }
+        }
+
+        private class ProjectAction
+        {
+            public string Id { get; set; }
+            public string CreateId { get; set; }
+            public string UpdateId { get; set; }
+            public string Name { get; set; }
+
+            public EvaluationAction EvaluationAction { get; set; }
+        }
+
+        private class EvaluationAction
+        {
+            public string Id { get; set; }
+            public string CreateId { get; set; }
+            public string UpdateId { get; set; }
+
+            public ProjectAction ProjectAction { get; set; }
         }
 
         private class SNum
