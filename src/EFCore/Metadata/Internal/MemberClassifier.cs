@@ -2,10 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,13 +67,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var dictionaryBuilder = ImmutableSortedDictionary.CreateBuilder<PropertyInfo, (Type Type, bool? shouldBeOwned)>(
                 MemberInfoNameComparer.Instance);
 
+            var model = entityType.Model;
+            if (model.FindAnnotation(CoreAnnotationNames.InverseNavigationCandidates)?.Value
+                is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup)
+            {
+                inverseCandidatesLookup = new();
+                model.SetAnnotation(CoreAnnotationNames.InverseNavigationCandidates, inverseCandidatesLookup);
+            }
+
             foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
             {
                 var targetType = FindCandidateNavigationPropertyType(propertyInfo, entityType.Model, out var shouldBeOwned);
-                if (targetType != null)
+                if (targetType == null)
                 {
-                    dictionaryBuilder[propertyInfo] = (targetType, shouldBeOwned);
+                    continue;
                 }
+
+                dictionaryBuilder[propertyInfo] = (targetType, shouldBeOwned);
+
+                if (!inverseCandidatesLookup.TryGetValue(targetType, out var inverseCandidates))
+                {
+                    inverseCandidates = new(TypeFullNameComparer.Instance);
+                    inverseCandidatesLookup[targetType] = inverseCandidates;
+                }
+
+                inverseCandidates.Add(entityType.ClrType);
             }
 
             navigationCandidates = dictionaryBuilder.ToImmutable();
@@ -83,6 +103,24 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             return navigationCandidates;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IReadOnlyCollection<Type> GetInverseCandidateTypes(IConventionEntityType entityType)
+        {
+            if (entityType.Model.FindAnnotation(CoreAnnotationNames.InverseNavigationCandidates)?.Value
+                is not Dictionary<Type, SortedSet<Type>> inverseCandidatesLookup
+                || !inverseCandidatesLookup.TryGetValue(entityType.ClrType, out var inverseCandidates))
+            {
+                return new Type[0];
+            }
+
+            return inverseCandidates;
         }
 
         /// <summary>

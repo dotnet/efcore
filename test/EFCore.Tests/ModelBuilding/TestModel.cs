@@ -724,6 +724,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class QueryResult
         {
+            public int Id { get; set; }
             public int ValueFk { get; set; }
             public Value Value { get; set; }
         }
@@ -732,13 +733,6 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int Id { get; set; }
             public int AlternateId { get; set; }
-        }
-
-        protected class QueryCoreResult
-        {
-            public int ValueFk { get; set; }
-            public int ValueId { get; set; }
-            public Value Value { get; set; }
         }
 
         protected class KeylessEntity

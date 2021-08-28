@@ -4106,6 +4106,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.NonConfiguredNavigationToSharedType("Navigation", nameof(ReferenceNavigationToSharedType)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
+
+            [ConditionalFact]
+            public virtual void Inverse_discovered_after_entity_unignored()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Ignore<Value>();
+                modelBuilder.Entity<QueryResult>();
+                modelBuilder.Entity<Value>();
+
+                var model = modelBuilder.FinalizeModel();
+
+                var queryResult = model.FindEntityType(typeof(QueryResult));
+                Assert.NotNull(queryResult.FindNavigation(nameof(QueryResult.Value)));
+            }
         }
     }
 }
