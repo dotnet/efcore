@@ -48,7 +48,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     && sqlUnaryExpression.OperatorType == ExpressionType.Convert
                     && sqlUnaryExpression.Type == typeof(object)
                         ? sqlUnaryExpression.Operand
-                        : ApplyTypeMapping(sqlExpression, Dependencies.TypeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
+                        : ApplyTypeMapping(sqlExpression, GetDefaultTypeMapping(sqlExpression));
+
+        /// <summary>
+        ///     Gets the default type mapping for given <see cref="SqlExpression" />.
+        /// </summary>
+        /// <param name="sqlExpression"> A SQL Expression for which to get the default type mapping. </param>
+        /// <returns> The default type mapping for the given SQL expression. </returns>
+        public virtual RelationalTypeMapping? GetDefaultTypeMapping(SqlExpression sqlExpression)
+            => Dependencies.TypeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model);
 
         /// <inheritdoc />
         [return: NotNullIfNotNull("sqlExpression")]
