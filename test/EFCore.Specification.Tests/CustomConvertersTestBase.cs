@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -767,6 +768,41 @@ namespace Microsoft.EntityFrameworkCore
                 => Id.GetHashCode();
         }
 
+        [ConditionalFact]
+        public virtual void Composition_over_collection_of_complex_mapped_as_scalar()
+        {
+            using var context = CreateContext();
+            Assert.Equal(
+                CoreStrings.TranslationFailed(
+                    @"l => new {     H = l.Height,     W = l.Width }"),
+                Assert.Throws<InvalidOperationException>(
+                        () => context.Set<Dashboard>().AsNoTracking().Select(d => new
+                        {
+                            Id = d.Id,
+                            Name = d.Name,
+                            Layouts = d.Layouts.Select(l => new { H = l.Height, W = l.Width }).ToList()
+                        }).ToList())
+                    .Message.Replace("\r", "").Replace("\n", ""));
+        }
+
+        public class Dashboard
+        {
+            public Dashboard()
+            {
+                Layouts = new List<Layout>();
+            }
+
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public List<Layout> Layouts { get; set; }
+        }
+
+        public class Layout
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+        }
+
         public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
         {
             protected override string StoreName { get; } = "CustomConverters";
@@ -1269,6 +1305,15 @@ namespace Microsoft.EntityFrameworkCore
                             new User23059 { Id = 1, IsSoftDeleted = true, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } },
                             new User23059 { Id = 2, IsSoftDeleted = false, MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup } });
                     });
+
+                modelBuilder.Entity<Dashboard>()
+                    .Property(e => e.Layouts).HasConversion(
+                        v => LayoutsToStringSerializer.Serialize(v),
+                        v => LayoutsToStringSerializer.Deserialize(v),
+                        new ValueComparer<List<Layout>>(
+                            (v1, v2) => v1.SequenceEqual(v2),
+                            v => v.GetHashCode(),
+                            v => new List<Layout>(v)));
             }
 
             private static class StringToDictionarySerializer
@@ -1289,6 +1334,30 @@ namespace Microsoft.EntityFrameworkCore
                     }
 
                     return dictionary;
+                }
+            }
+            private static class LayoutsToStringSerializer
+            {
+                public static string Serialize(List<Layout> layouts)
+                {
+                    return string.Join(Environment.NewLine, layouts.Select(layout => $"({layout.Height},{layout.Width})"));
+                }
+
+                public static List<Layout> Deserialize(string s)
+                {
+                    var list = new List<Layout>();
+                    var keyValuePairs = s.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var keyValuePair in keyValuePairs)
+                    {
+                        var parts = keyValuePair[1..^1].Split(",");
+                        list.Add(new Layout
+                        {
+                            Height = int.Parse(parts[0]),
+                            Width = int.Parse(parts[1]),
+                        });
+                    }
+
+                    return list;
                 }
             }
 
