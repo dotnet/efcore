@@ -386,6 +386,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
+        ///     A database type for column '{columnName}' on table '{tableName}' could not be found, the column will be skipped.
+        /// </summary>
+        public static EventDefinition<string, string> LogColumnWithoutType(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogColumnWithoutType;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogColumnWithoutType,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        SqlServerEventId.ColumnWithoutTypeWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.ColumnWithoutTypeWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            SqlServerEventId.ColumnWithoutTypeWarning,
+                            _resourceManager.GetString("LogColumnWithoutType")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     Both the SqlServerValueGenerationStrategy '{generationStrategy}' and '{otherGenerationStrategy}' have been set on property '{propertyName}' on entity type '{entityName}'. Configuring two strategies is usually unintentional and will likely result in a database error.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogConflictingValueGenerationStrategies(IDiagnosticsLogger logger)
