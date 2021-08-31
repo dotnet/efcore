@@ -1415,6 +1415,95 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Multiple_self_ref_ForeignKeys_on_navigations()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Login14>();
+
+            Validate(modelBuilder);
+
+            var login = modelBuilder.Model.FindEntityType(typeof(Login14));
+            Assert.Equal(nameof(Login14.Login1Id), login.FindNavigation(nameof(Login14.Login1)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(nameof(Login14.Login1Id), login.FindNavigation(nameof(Login14.Login2)).ForeignKey.Properties.Single().Name);
+        }
+
+        protected class Login14
+        {
+            public int Id { get; set; }
+
+            public int Login1Id { get; set; }
+
+            [ForeignKey(nameof(Login1Id))]
+            public virtual Login14 Login1 { get; set; }
+
+            public virtual Login14 Login2 { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_self_ref_ForeignKeys_on_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Profile14>();
+
+            Validate(modelBuilder);
+
+            var profile = modelBuilder.Model.FindEntityType(typeof(Profile14));
+            Assert.Equal(nameof(Profile14.Profile1Id), profile.FindNavigation(nameof(Profile14.Profile1)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(nameof(Profile14.Profile1Id), profile.FindNavigation(nameof(Profile14.Profile2)).ForeignKey.Properties.Single().Name);
+        }
+
+        protected class Profile14
+        {
+            public int Id { get; set; }
+
+            [ForeignKey(nameof(Profile1))]
+            public int Profile1Id { get; set; }
+
+            public virtual Profile14 Profile1 { get; set; }
+
+            public virtual Profile14 Profile2 { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Multiple_self_ref_ForeignKey_and_Inverse()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Profile15>();
+
+            Validate(modelBuilder);
+
+            var profile = modelBuilder.Model.FindEntityType(typeof(Profile15));
+            Assert.Equal(nameof(Profile15.Profile1Id), profile.FindNavigation(nameof(Profile15.Profile1)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(nameof(Profile15.Profile2Id), profile.FindNavigation(nameof(Profile15.Profile2)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(nameof(Profile15.Profile1Id), profile.FindNavigation(nameof(Profile15.Profile3)).ForeignKey.Properties.Single().Name);
+            Assert.Equal(nameof(Profile15.Profile2Id), profile.FindNavigation(nameof(Profile15.Profile4)).ForeignKey.Properties.Single().Name);
+        }
+
+        protected class Profile15
+        {
+            public int Id { get; set; }
+
+            [ForeignKey(nameof(Profile1))]
+            [InverseProperty(nameof(Profile3))]
+            public int Profile1Id { get; set; }
+
+            public virtual Profile15 Profile1 { get; set; }
+
+            public int Profile2Id { get; set; }
+
+            [ForeignKey(nameof(Profile2Id))]
+            public virtual Profile15 Profile2 { get; set; }
+
+            public virtual Profile15 Profile3 { get; set; }
+
+            [InverseProperty(nameof(Profile2))]
+            public virtual Profile15 Profile4 { get; set; }
+        }
+
+        [ConditionalFact]
         public virtual void ForeignKeyAttribute_configures_relationships_when_inverse_on_derived()
         {
             var modelBuilder = CreateModelBuilder();

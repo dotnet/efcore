@@ -783,7 +783,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
             var navigation = relationshipBuilder.Metadata.DependentToPrincipal;
             Assert.Equal(
-                CoreStrings.InvalidPropertyListOnNavigation("Principal", nameof(InvalidPropertyListOnNavigation)),
+                CoreStrings.InvalidPropertyListOnNavigation("Principal", nameof(InvalidPropertyListOnNavigation), "PrincipalId1,,PrincipalId2"),
                 Assert.Throws<InvalidOperationException>(
                     () => useNavigation
                         ? RunForeignKeyAttributeConvention(relationshipBuilder, navigation)
