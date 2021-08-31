@@ -186,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore
             
              if (string.IsNullOrEmpty(annotation))
             {
-                return (IReadOnlyList<string>?)annotation.Value;
+                 return (bool?)annotation.Value;
             }
             
             var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
