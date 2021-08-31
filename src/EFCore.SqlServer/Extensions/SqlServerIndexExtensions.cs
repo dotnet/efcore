@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Clustered);
-            if (annotation != null)
+            
+            if (string.IsNullOrEmpty(annotation))
             {
                 return (bool?)annotation.Value;
             }
@@ -110,7 +111,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.Include);
-            if (annotation != null)
+            
+            if (string.IsNullOrEmpty(annotation))
             {
                 return (IReadOnlyList<string>?)annotation.Value;
             }
@@ -181,11 +183,12 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.CreatedOnline);
-            if (annotation != null)
+            
+             if (string.IsNullOrEmpty(annotation))
             {
-                return (bool?)annotation.Value;
+                return (IReadOnlyList<string>?)annotation.Value;
             }
-
+            
             var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
             return sharedTableRootIndex?.IsCreatedOnline(storeObject);
         }
@@ -252,7 +255,8 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var annotation = index.FindAnnotation(SqlServerAnnotationNames.FillFactor);
-            if (annotation != null)
+            
+           if (string.IsNullOrEmpty(annotation))
             {
                 return (int?)annotation.Value;
             }
