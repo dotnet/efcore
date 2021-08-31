@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> An <see cref="IQueryable{T}" /> representing the raw SQL query. </returns>
         [StringFormatMethod("sql")]
         public static IQueryable<TEntity> FromSqlRaw<TEntity>(
-            this IQueryable<TEntity> source,
+            this DbSet<TEntity> source,
             [NotParameterized] string sql,
             params object[] parameters)
             where TEntity : class
@@ -82,7 +82,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            var queryRootExpression = (QueryRootExpression)source.Expression;
+            var queryableSource = (IQueryable)source;
+            var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
 
             var entityType = queryRootExpression.EntityType;
 
@@ -97,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore
                 sql,
                 Expression.Constant(parameters));
 
-            return source.Provider.CreateQuery<TEntity>(fromSqlQueryRootExpression);
+            return queryableSource.Provider.CreateQuery<TEntity>(fromSqlQueryRootExpression);
         }
     }
 }
