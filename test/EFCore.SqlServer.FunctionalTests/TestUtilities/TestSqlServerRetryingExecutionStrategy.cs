@@ -15,7 +15,6 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
         {
             -1, // Physical connection is not usable
             -2, // Timeout
-            1807, // Could not obtain exclusive lock on database 'model'
             42008, // Mirroring (Only when a database is deleted and another one is created in fast succession)
             42019 // CREATE DATABASE operation failed
         };
