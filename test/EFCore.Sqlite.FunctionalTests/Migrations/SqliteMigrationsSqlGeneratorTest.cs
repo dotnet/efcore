@@ -1031,6 +1031,44 @@ PRAGMA foreign_keys = 1;
 ");
         }
 
+        [ConditionalFact]
+        public virtual void Rebuild_preserves_column_order()
+        {
+            Generate(
+                modelBuilder => modelBuilder.Entity(
+                    "Ordinal",
+                    e =>
+                    {
+                        e.Property<string>("B").HasColumnOrder(0);
+                        e.Property<string>("A").HasColumnOrder(1);
+                    }),
+                migrationBuilder => migrationBuilder.DropColumn(name: "C", table: "Ordinal"));
+
+            AssertSql(
+                @"CREATE TABLE ""ef_temp_Ordinal"" (
+    ""B"" TEXT NULL,
+    ""A"" TEXT NULL
+);
+GO
+
+INSERT INTO ""ef_temp_Ordinal"" (""A"", ""B"")
+SELECT ""A"", ""B""
+FROM ""Ordinal"";
+GO
+
+PRAGMA foreign_keys = 0;
+GO
+
+DROP TABLE ""Ordinal"";
+GO
+
+ALTER TABLE ""ef_temp_Ordinal"" RENAME TO ""Ordinal"";
+GO
+
+PRAGMA foreign_keys = 1;
+");
+        }
+
         public SqliteMigrationsSqlGeneratorTest()
             : base(
                 SqliteTestHelpers.Instance,

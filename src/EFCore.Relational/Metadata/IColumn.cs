@@ -65,6 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 && PropertyMappings.First().Property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
 
         /// <summary>
+        ///     Gets the column order.
+        /// </summary>
+        /// <value> The column order. </value>
+        public virtual int? Order
+            => PropertyMappings.First().Property.GetColumnOrder(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
+
+        /// <summary>
         ///     Returns the object that is used as the default value for this column.
         /// </summary>
         public virtual object? DefaultValue

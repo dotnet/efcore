@@ -600,7 +600,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 .FilterIgnoredAnnotations(property.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
             _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(property, annotations);
-            annotations.Remove(ScaffoldingAnnotationNames.ColumnOrdinal);
+            annotations.Remove(RelationalAnnotationNames.ColumnOrder);
 
             if (_useDataAnnotations)
             {
@@ -879,7 +879,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                     .FilterIgnoredAnnotations(property.GetAnnotations())
                                     .ToDictionary(a => a.Name, a => a);
                                 _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(property, propertyAnnotations);
-                                propertyAnnotations.Remove(ScaffoldingAnnotationNames.ColumnOrdinal);
+                                propertyAnnotations.Remove(RelationalAnnotationNames.ColumnOrder);
 
                                 if ((!_useNullableReferenceTypes || property.ClrType.IsValueType)
                                     && !property.IsNullable

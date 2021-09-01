@@ -1929,6 +1929,10 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => rowid.GetCollation()).Message);
+                    Assert.Null(rowid[RelationalAnnotationNames.ColumnOrder]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => rowid.GetColumnOrder()).Message);
                     Assert.Null(rowid.GetValueConverter());
                     Assert.NotNull(rowid.GetValueComparer());
                     Assert.NotNull(rowid.GetKeyValueComparer());
@@ -2115,7 +2119,8 @@ namespace TestNamespace
                             jb.Property<byte[]>("rowid")
                                 .IsRowVersion()
                                 .HasComment("RowVersion")
-                                .UseCollation("ri");
+                                .UseCollation("ri")
+                                .HasColumnOrder(1);
                         });
 
                     eb.Navigation(e => e.Principals).AutoInclude();

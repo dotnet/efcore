@@ -255,6 +255,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else
             {
+                annotations.Remove(RelationalAnnotationNames.ColumnOrder);
                 annotations.Remove(RelationalAnnotationNames.Comment);
                 annotations.Remove(RelationalAnnotationNames.Collation);
 

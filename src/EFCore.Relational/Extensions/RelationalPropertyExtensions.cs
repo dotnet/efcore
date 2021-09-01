@@ -278,6 +278,74 @@ namespace Microsoft.EntityFrameworkCore
             => ((RelationalPropertyOverrides?)RelationalPropertyOverrides.Find(property, storeObject))?.GetColumnNameConfigurationSource();
 
         /// <summary>
+        ///     Returns the order of the column this property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The column order. </returns>
+        public static int? GetColumnOrder(this IReadOnlyProperty property)
+            => property is RuntimeProperty
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (int?)property.FindAnnotation(RelationalAnnotationNames.ColumnOrder)?.Value;
+
+        /// <summary>
+        ///     Returns the order of the column this property is mapped to for a particular table.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
+        /// <returns> The column order. </returns>
+        public static int? GetColumnOrder(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        {
+            if (property is RuntimeProperty)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
+            var annotation = property.FindAnnotation(RelationalAnnotationNames.ColumnOrder);
+            if (annotation != null)
+            {
+                return (int?)annotation.Value;
+            }
+
+            var sharedTableRootProperty = property.FindSharedStoreObjectRootProperty(storeObject);
+            if (sharedTableRootProperty != null)
+            {
+                return GetColumnOrder(sharedTableRootProperty, storeObject);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Sets the order of the column the property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="order"> The column order. </param>
+        public static void SetColumnOrder(this IMutableProperty property, int? order)
+            => property.SetOrRemoveAnnotation(RelationalAnnotationNames.ColumnOrder, order);
+
+        /// <summary>
+        ///     Sets the order of the column the property is mapped to.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <param name="order"> The column order. </param>
+        /// <param name="fromDataAnnotation"> A value indicating whether the configuration was specified using a data annotation. </param>
+        /// <returns> The configured value. </returns>
+        public static int? SetColumnOrder(this IConventionProperty property, int? order, bool fromDataAnnotation = false)
+        {
+            property.SetOrRemoveAnnotation(RelationalAnnotationNames.ColumnOrder, order, fromDataAnnotation);
+
+            return order;
+        }
+
+        /// <summary>
+        ///     Gets the <see cref="ConfigurationSource" /> of the column order.
+        /// </summary>
+        /// <param name="property"> The property. </param>
+        /// <returns> The <see cref="ConfigurationSource" />. </returns>
+        public static ConfigurationSource? GetColumnOrderConfigurationSource(this IConventionProperty property)
+            => property.FindAnnotation(RelationalAnnotationNames.ColumnName)?.GetConfigurationSource();
+
+        /// <summary>
         ///     Returns the database type of the column to which the property is mapped, or <see langword="null" /> if the database type
         ///     could not be found.
         /// </summary>

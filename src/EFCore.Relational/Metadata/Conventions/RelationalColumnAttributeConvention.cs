@@ -56,6 +56,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 propertyBuilder.HasColumnType(attribute.TypeName, fromDataAnnotation: true);
             }
+
+            if (attribute.Order >= 0)
+            {
+                propertyBuilder.HasColumnOrder(attribute.Order, fromDataAnnotation: true);
+            }
         }
     }
 }

@@ -193,6 +193,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
+            if (operation[RelationalAnnotationNames.ColumnOrder] != null)
+            {
+                Dependencies.MigrationsLogger.ColumnOrderIgnoredWarning(operation);
+            }
+
             builder
                 .Append("ALTER TABLE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))

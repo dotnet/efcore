@@ -55,6 +55,10 @@ namespace Microsoft.EntityFrameworkCore.Design
             = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(RelationalPropertyBuilderExtensions.HasColumnName), typeof(PropertyBuilder), typeof(string));
 
+        private static readonly MethodInfo _propertyHasColumnOrderMethodInfo
+            = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
+                nameof(RelationalPropertyBuilderExtensions.HasColumnOrder), typeof(PropertyBuilder), typeof(int?));
+
         private static readonly MethodInfo _propertyHasDefaultValueSqlMethodInfo1
             = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql), typeof(PropertyBuilder));
@@ -220,6 +224,10 @@ namespace Microsoft.EntityFrameworkCore.Design
             GenerateSimpleFluentApiCall(
                 annotations,
                 RelationalAnnotationNames.ColumnName, _propertyHasColumnNameMethodInfo, methodCallCodeFragments);
+
+            GenerateSimpleFluentApiCall(
+                annotations,
+                RelationalAnnotationNames.ColumnOrder, _propertyHasColumnOrderMethodInfo, methodCallCodeFragments);
 
             if (TryGetAndRemove(annotations, RelationalAnnotationNames.DefaultValueSql, out string? defaultValueSql))
             {

@@ -739,7 +739,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 }
             }
 
-            return sortedColumns;
+            Check.DebugAssert(columns.Count == 0, "columns is not empty");
+
+            return sortedColumns.Where(c => c.Order.HasValue).OrderBy(c => c.Order)
+                .Concat(sortedColumns.Where(c => !c.Order.HasValue))
+                .Concat(columns);
         }
 
         private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType, ITable table)
@@ -1030,6 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 || !Equals(sourceDefault, targetDefault)
                 || source.Comment != target.Comment
                 || source.Collation != target.Collation
+                || source.Order != target.Order
                 || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
             {
                 var isDestructiveChange = isNullableChanged && source.IsNullable
@@ -1054,6 +1059,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 Initialize(
                     alterColumnOperation.OldColumn, source, sourceTypeMapping,
                     source.IsNullable, sourceMigrationsAnnotations, inline: true);
+
+                if (source.Order != target.Order)
+                {
+                    if (source.Order.HasValue)
+                    {
+                        alterColumnOperation.OldColumn.AddAnnotation(RelationalAnnotationNames.ColumnOrder, source.Order.Value);
+                    }
+
+                    if (target.Order.HasValue)
+                    {
+                        alterColumnOperation.AddAnnotation(RelationalAnnotationNames.ColumnOrder, target.Order.Value);
+                    }
+                }
 
                 yield return alterColumnOperation;
             }
@@ -1085,6 +1103,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Initialize(
                 operation, target, targetTypeMapping, target.IsNullable,
                 target.GetAnnotations(), inline);
+
+            if (!inline && target.Order.HasValue)
+            {
+                operation.AddAnnotation(RelationalAnnotationNames.ColumnOrder, target.Order.Value);
+            }
 
             yield return operation;
         }

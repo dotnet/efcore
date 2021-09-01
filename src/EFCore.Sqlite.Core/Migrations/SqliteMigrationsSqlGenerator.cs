@@ -312,7 +312,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     createTableOperation.PrimaryKey = AddPrimaryKeyOperation.CreateFrom(primaryKey);
                 }
 
-                foreach (var column in table.Columns)
+                foreach (var column in table.Columns.Where(c => c.Order.HasValue).OrderBy(c => c.Order.Value)
+                    .Concat(table.Columns.Where(c => !c.Order.HasValue)))
                 {
                     if (!column.TryGetDefaultValue(out var defaultValue))
                     {

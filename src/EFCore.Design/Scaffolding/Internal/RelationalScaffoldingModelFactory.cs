@@ -519,7 +519,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 property.IsConcurrencyToken();
             }
 
-            property.Metadata.SetColumnOrdinal(column.Table.Columns.IndexOf(column));
+            property.Metadata.SetColumnOrder(column.Table.Columns.IndexOf(column));
 
             property.Metadata.AddAnnotations(
                 column.GetAnnotations().Where(

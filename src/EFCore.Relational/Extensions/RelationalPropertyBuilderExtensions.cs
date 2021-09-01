@@ -130,6 +130,62 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
+        ///     Configures the order of the column the property is mapped to.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder of the property being configured. </param>
+        /// <param name="order"> The column order. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder HasColumnOrder(this PropertyBuilder propertyBuilder, int? order)
+        {
+            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
+
+            propertyBuilder.Metadata.SetColumnOrder(order);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Configures the order of the column the property is mapped to.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder of the property being configured. </param>
+        /// <param name="order"> The column order. </param>
+        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        public static PropertyBuilder<TProperty> HasColumnOrder<TProperty>(this PropertyBuilder<TProperty> propertyBuilder, int? order)
+            => (PropertyBuilder<TProperty>)HasColumnOrder((PropertyBuilder)propertyBuilder, order);
+
+        /// <summary>
+        ///     Configures the order of the column the property is mapped to.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder of the property being configured. </param>
+        /// <param name="order"> The column order. </param>
+        /// <param name="fromDataAnnotation"> A value indicating whether the configuration was specified using a data annotation. </param>
+        /// <returns> The same builder instance if the configuration was applied, <see langword="null" /> otherwise. </returns>
+        public static IConventionPropertyBuilder? HasColumnOrder(
+            this IConventionPropertyBuilder propertyBuilder,
+            int? order,
+            bool fromDataAnnotation = false)
+        {
+            if (!propertyBuilder.CanSetColumnOrder(order, fromDataAnnotation))
+            {
+                return null;
+            }
+
+            propertyBuilder.Metadata.SetColumnOrder(order, fromDataAnnotation);
+
+            return propertyBuilder;
+        }
+
+        /// <summary>
+        ///     Gets a value indicating whether the given column order can be set for the property.
+        /// </summary>
+        /// <param name="propertyBuilder"> The builder of the property being configured. </param>
+        /// <param name="order"> The column order. </param>
+        /// <param name="fromDataAnnotation"> A value indicating whether the configuration was specified using a data annotation. </param>
+        /// <returns> <see langword="true" /> if the column order can be set for the property. </returns>
+        public static bool CanSetColumnOrder(this IConventionPropertyBuilder propertyBuilder, int? order, bool fromDataAnnotation = false)
+            => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.ColumnOrder, order, fromDataAnnotation);
+
+        /// <summary>
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>

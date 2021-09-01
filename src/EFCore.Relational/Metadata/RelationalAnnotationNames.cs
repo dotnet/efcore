@@ -22,6 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public const string ColumnName = Prefix + "ColumnName";
 
         /// <summary>
+        ///     The name for column order annotations.
+        /// </summary>
+        public const string ColumnOrder = Prefix + "ColumnOrder";
+
+        /// <summary>
         ///     The name for column type annotations.
         /// </summary>
         public const string ColumnType = Prefix + "ColumnType";
