@@ -20,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            public override void Attempting_to_save_two_entity_cycle_with_lazy_loading_throws()
+            {
+            }
+
             // #11552
             public override void Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
             {

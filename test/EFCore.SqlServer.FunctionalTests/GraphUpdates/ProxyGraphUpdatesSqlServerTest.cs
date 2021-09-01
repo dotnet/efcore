@@ -70,6 +70,11 @@ namespace Microsoft.EntityFrameworkCore
             {
             }
 
+            // Needs lazy-loading
+            public override void Attempting_to_save_two_entity_cycle_with_lazy_loading_throws()
+            {
+            }
+
             protected override bool DoesLazyLoading
                 => false;
 
