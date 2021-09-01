@@ -1521,6 +1521,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            protected virtual void Throws_for_int_keyed_dictionary()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<IntDict>();
+
+                Assert.Equal(
+                    CoreStrings.EntityRequiresKey(typeof(Dictionary<int, string>).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            protected class IntDict
+            {
+                public int Id { get; set; }
+                public Dictionary<int, string> Notes { get; set; }
+            }
+
+            [ConditionalFact]
             public virtual void Can_set_unicode_for_properties()
             {
                 var modelBuilder = CreateModelBuilder();

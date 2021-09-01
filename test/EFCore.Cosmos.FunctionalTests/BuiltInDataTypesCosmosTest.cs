@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos
             base.Object_to_string_conversion();
 
             AssertSql(
-                @"SELECT c[""TestSignedByte""], c[""TestByte""], c[""TestInt16""], c[""TestUnsignedInt16""], c[""TestInt32""], c[""TestUnsignedInt32""], c[""TestInt64""], c[""TestUnsignedInt64""], c[""TestSingle""], c[""TestDouble""], c[""TestDecimal""], c[""TestCharacter""], c[""TestDateTime""], c, c[""TestTimeSpan""]
+                @"SELECT c[""TestSignedByte""], c[""TestByte""], c[""TestInt16""], c[""TestUnsignedInt16""], c[""TestInt32""], c[""TestUnsignedInt32""], c[""TestInt64""], c[""TestUnsignedInt64""], c[""TestSingle""], c[""TestDouble""], c[""TestDecimal""], c[""TestCharacter""], c[""TestDateTime""], c[""TestDateTimeOffset""], c[""TestTimeSpan""]
 FROM root c
 WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
         }
@@ -117,10 +117,6 @@ WHERE ((c[""Discriminator""] = ""BuiltInDataTypes"") AND (c[""Id""] = 13))");
                 shadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
                 var nullableShadowJObject = (Property)modelBuilder.Entity<BuiltInNullableDataTypesShadow>().Property("__jObject").Metadata;
                 nullableShadowJObject.SetConfigurationSource(ConfigurationSource.Convention);
-
-                // Issue #24684
-                modelBuilder.Entity<BuiltInDataTypes>().Ignore(e => e.TestDateTimeOffset);
-                modelBuilder.Entity<BuiltInDataTypesShadow>().Ignore("TestDateTimeOffset");
             }
         }
     }
