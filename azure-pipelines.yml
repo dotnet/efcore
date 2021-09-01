@@ -190,7 +190,7 @@ stages:
                 name: NetCore1ESPool-Svc-Public
                 demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                ame: NetCore1ESPool-Svc-Internal
+                name: NetCore1ESPool-Svc-Internal
                 demands: ImageOverride -equals Build.Server.Amd64.VS2017
             variables:
               - name: _HelixBuildConfig
