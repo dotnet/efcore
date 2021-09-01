@@ -337,11 +337,14 @@ SELECT 1 ELSE SELECT 0");
             //   Microsoft.Data.SqlClient.SqlException: Unable to Attach database file as database xxxxxxx.
             // And (Number 5120)
             //   Microsoft.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
+            // And (Number 18456)
+            //   Microsoft.Data.SqlClient.SqlException: Login failed for user 'xxxxxxx'.
             if (exception.Number == 233
                 || exception.Number == -2
                 || exception.Number == 4060
                 || exception.Number == 1832
-                || exception.Number == 5120)
+                || exception.Number == 5120
+                || exception.Number == 18456)
             {
                 ClearPool();
                 return true;
