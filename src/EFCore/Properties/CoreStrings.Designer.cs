@@ -1315,12 +1315,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 expression);
 
         /// <summary>
-        ///     The property list specified using [ForeignKey] attribute on navigation '{1_entityType}.{0_navigation}' is incorrect. Provide a comma-separated list of property names.
+        ///     The property list specified using [ForeignKey("{2_properties}")] attribute on navigation '{1_entityType}.{0_navigation}' is incorrect. Provide a comma-separated list of property names.
         /// </summary>
-        public static string InvalidPropertyListOnNavigation(object? navigation, object? entityType)
+        public static string InvalidPropertyListOnNavigation(object? navigation, object? entityType, object? properties)
             => string.Format(
-                GetString("InvalidPropertyListOnNavigation", "0_navigation", "1_entityType"),
-                navigation, entityType);
+                GetString("InvalidPropertyListOnNavigation", "0_navigation", "1_entityType", "2_properties"),
+                navigation, entityType, properties);
 
         /// <summary>
         ///     An invalid relationship has been specified using the [InverseProperty] and [ForeignKey] attributes. The navigations '{1_entityType}.{0_navigation}' and '{3_referencedEntityType}.{2_referencedNavigation}' are related by the [InverseProperty] attribute, but the [ForeignKey] attributes specified for both navigations have different values. Either specify the same properties or remove one of the attributes.

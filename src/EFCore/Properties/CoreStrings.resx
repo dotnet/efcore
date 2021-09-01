@@ -619,7 +619,7 @@
     <comment>Obsolete</comment>
   </data>
   <data name="InvalidPropertyListOnNavigation" xml:space="preserve">
-    <value>The property list specified using [ForeignKey] attribute on navigation '{1_entityType}.{0_navigation}' is incorrect. Provide a comma-separated list of property names.</value>
+    <value>The property list specified using [ForeignKey("{2_properties}")] attribute on navigation '{1_entityType}.{0_navigation}' is incorrect. Provide a comma-separated list of property names.</value>
   </data>
   <data name="InvalidRelationshipUsingDataAnnotations" xml:space="preserve">
     <value>An invalid relationship has been specified using the [InverseProperty] and [ForeignKey] attributes. The navigations '{1_entityType}.{0_navigation}' and '{3_referencedEntityType}.{2_referencedNavigation}' are related by the [InverseProperty] attribute, but the [ForeignKey] attributes specified for both navigations have different values. Either specify the same properties or remove one of the attributes.</value>
