@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A base type for conventions that perform configuration based on an attribute applied to a navigation.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     /// <typeparam name="TAttribute"> The attribute type to look for. </typeparam>
     public abstract class NavigationAttributeConventionBase<TAttribute> :
         IEntityTypeAddedConvention,

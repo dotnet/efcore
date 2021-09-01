@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public interface IConventionSetBuilder
     {
         /// <summary>

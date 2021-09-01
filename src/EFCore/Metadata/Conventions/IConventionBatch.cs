@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     Represents an object that delays any convention invocations until it is run or disposed.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public interface IConventionBatch : IDisposable
     {
         /// <summary>

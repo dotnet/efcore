@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that sets a flag on the model to always skip detecting changes if no entity type is using the
     ///     <see cref="ChangeTrackingStrategy.Snapshot" /> strategy.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class ChangeTrackingStrategyConvention : IModelFinalizingConvention
     {
         /// <summary>

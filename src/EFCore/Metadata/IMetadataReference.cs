@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a reference to a metadata object. If the metadata object instance is replaced
     ///     this will be updated with the new object.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     /// <typeparam name="T"> The metadata type </typeparam>
     public interface IMetadataReference<out T> : IDisposable
     {

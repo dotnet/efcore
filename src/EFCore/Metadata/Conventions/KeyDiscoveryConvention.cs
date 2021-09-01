@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         is configured using the foreign key properties with an extra property that matches the naming convention above.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class KeyDiscoveryConvention :
         IEntityTypeAddedConvention,
         IPropertyAddedConvention,

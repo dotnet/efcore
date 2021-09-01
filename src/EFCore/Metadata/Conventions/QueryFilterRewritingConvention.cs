@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     This makes them consistent with how DbSet accesses in the actual queries are represented, which allows for easier processing in the
     ///     query pipeline.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class QueryFilterRewritingConvention : IModelFinalizingConvention
     {
         /// <summary>

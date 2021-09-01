@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that adds entity types based on the <see cref="DbSet{TEntity}" /> properties defined on the
     ///     derived <see cref="DbContext" /> class.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class DbSetFindingConvention : IModelInitializedConvention
     {
         /// <summary>

@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Defines the binding of parameters to a factory method.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public class FactoryMethodBinding : InstantiationBinding
     {
         private readonly object? _factoryInstance;

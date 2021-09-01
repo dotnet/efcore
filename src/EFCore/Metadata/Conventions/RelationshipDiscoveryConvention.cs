@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures relationships between entity types based on the navigation properties
     ///     as long as there is no ambiguity as to which is the corresponding inverse navigation.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class RelationshipDiscoveryConvention :
         IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,

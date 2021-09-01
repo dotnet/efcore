@@ -4,9 +4,18 @@
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     /// <summary>
-    ///     Represents operations backed by compiled delegates that support getting the value
-    ///     of a mapped EF property.
+    ///     <para>
+    ///         Represents operations backed by compiled delegates that support getting the value
+    ///         of a mapped EF property.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
+    /// </remarks>
     public interface IClrPropertyGetter
     {
         /// <summary>

@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a navigation property that is part of a relationship
     ///     that is forwarded through a third entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
     {
         /// <summary>

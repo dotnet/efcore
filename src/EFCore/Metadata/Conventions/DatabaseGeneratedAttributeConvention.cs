@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     <see cref="DatabaseGeneratedOption.Computed" /> is specified or <see cref="ValueGenerated.Never" /> if
     ///     <see cref="DatabaseGeneratedOption.None" /> is specified using a <see cref="DatabaseGeneratedAttribute" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class DatabaseGeneratedAttributeConvention : PropertyAttributeConventionBase<DatabaseGeneratedAttribute>
     {
         /// <summary>

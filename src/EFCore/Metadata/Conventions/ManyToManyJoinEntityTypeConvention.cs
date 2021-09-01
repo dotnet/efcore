@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     a many-to-many join entity with suitable foreign keys, sets the two
     ///     matching skip navigations to use those foreign keys.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class ManyToManyJoinEntityTypeConvention :
         ISkipNavigationAddedConvention,
         ISkipNavigationInverseChangedConvention,

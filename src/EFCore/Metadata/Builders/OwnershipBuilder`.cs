@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         Provides a simple API for configuring an ownership.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public class OwnershipBuilder<TEntity, TDependentEntity> : OwnershipBuilder
         where TEntity : class
         where TDependentEntity : class

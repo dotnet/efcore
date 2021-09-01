@@ -18,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         Provides a simple API for configuring a one-to-one relationship.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public class ReferenceReferenceBuilder : InvertibleRelationshipBuilderBase
     {
         /// <summary>

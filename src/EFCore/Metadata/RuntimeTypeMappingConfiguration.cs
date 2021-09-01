@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents scalar type configuration.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public sealed class RuntimeTypeMappingConfiguration : AnnotatableBase, ITypeMappingConfiguration
     {
         private readonly ValueConverter? _valueConverter;

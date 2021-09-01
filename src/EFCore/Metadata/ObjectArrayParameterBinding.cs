@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     a new array of objects suitable for passing to a general purpose factory method such as is often used for
     ///     creating proxies.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public class ObjectArrayParameterBinding : ParameterBinding
     {
         private readonly IReadOnlyList<ParameterBinding> _bindings;

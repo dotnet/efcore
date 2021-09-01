@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     may not also have and associated <see cref="IServiceProperty" />, to a parameter in
     ///     a constructor, factory method, or similar.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public abstract class ServiceParameterBinding : ParameterBinding
     {
         private Func<MaterializationContext, IEntityType, object, object>? _serviceDelegate;

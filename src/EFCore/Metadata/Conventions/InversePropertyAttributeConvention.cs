@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the inverse navigation property based on the <see cref="InversePropertyAttribute" />
     ///     specified on the other navigation property.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class InversePropertyAttributeConvention :
         NavigationAttributeConventionBase<InversePropertyAttribute>,
         IModelFinalizingConvention

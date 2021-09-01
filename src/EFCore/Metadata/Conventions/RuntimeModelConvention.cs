@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that creates an optimized copy of the mutable model. This convention is typically
     ///     implemented by database providers to update provider annotations when creating a read-only model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class RuntimeModelConvention : IModelFinalizedConvention
     {
         /// <summary>

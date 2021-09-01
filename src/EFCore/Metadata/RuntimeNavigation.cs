@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a navigation property which can be used to navigate a relationship.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public class RuntimeNavigation : RuntimePropertyBase, INavigation
     {
         // Warning: Never access these fields directly as access needs to be thread-safe

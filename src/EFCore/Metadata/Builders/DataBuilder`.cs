@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Allows further configuration of model data.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     /// <typeparam name="TEntity"> The entity type of the data. </typeparam>
     public class DataBuilder<TEntity> : DataBuilder
     {

@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the non-nullable navigations to principal entity type as required.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    /// </remarks>
     public class NonNullableNavigationConvention :
         NonNullableConventionBase,
         INavigationAddedConvention,

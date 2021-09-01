@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a relationship where a foreign key composed of properties on the dependent entity type
     ///     references a corresponding primary or alternate key on the principal entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
     {
         private readonly DeleteBehavior _deleteBehavior;
