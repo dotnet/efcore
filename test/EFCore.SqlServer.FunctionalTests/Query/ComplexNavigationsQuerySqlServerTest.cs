@@ -3677,7 +3677,20 @@ WHERE [l].[Id] < 3");
             await base.Collection_FirstOrDefault_entity_collection_accesses_in_projection(async);
 
             AssertSql(
-                @"");
+                @"SELECT [l].[Id], [t0].[Id], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [t0].[c]
+FROM [LevelOne] AS [l]
+LEFT JOIN (
+    SELECT [t].[c], [t].[Id], [t].[OneToMany_Optional_Inverse2Id]
+    FROM (
+        SELECT 1 AS [c], [l0].[Id], [l0].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
+        FROM [LevelTwo] AS [l0]
+        WHERE [l0].[Name] = N'L2 02'
+    ) AS [t]
+    WHERE [t].[row] <= 1
+) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
+LEFT JOIN [LevelThree] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse3Id]
+WHERE [l].[Id] < 2
+ORDER BY [l].[Id], [t0].[Id]");
         }
 
         public override async Task Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(bool async)

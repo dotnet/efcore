@@ -744,7 +744,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     var otherEntityType = FindActualEntityType(referencingTuple.Item2);
                     if (otherEntityType != null)
                     {
-                        // TODO: Trigger relationship discovery instead #25279
+                        // TODO: Rely on layering to trigger relationship discovery instead #15898
 
                         var existingInverses = targetEntityType.GetNavigations()
                             .Where(n => n.TargetEntityType == otherEntityType).ToList();

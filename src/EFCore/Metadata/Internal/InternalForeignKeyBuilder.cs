@@ -2516,7 +2516,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             navigationToPrincipal?.Name
                                 ?? referencingSkipNavigations?.FirstOrDefault().Navigation?.Inverse?.Name,
                             isRequired,
-                            configurationSource: null)!;
+                            configurationSource: null);
+                        if (newRelationshipBuilder == null)
+                        {
+                            return null;
+                        }
 
                         if (foreignKeyPropertiesConfigurationSource != null
                             && dependentProperties?.Count != 0)
