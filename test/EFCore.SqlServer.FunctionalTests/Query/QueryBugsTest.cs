@@ -4111,7 +4111,7 @@ ORDER BY [p].[Id]");
             }
         }
 
-        [ConditionalFact(Skip = "Issue #22256")]
+        [ConditionalFact]
         public virtual async Task Projecting_column_with_value_converter_of_ulong_byte_array()
         {
             var contextFactory = await InitializeAsync<MyContext12518>(seed: c => c.Seed());
@@ -4120,8 +4120,8 @@ ORDER BY [p].[Id]");
             {
                 var result = context.Parents.OrderBy(e => e.Id).Select(p => (ulong?)p.Child.ULongRowVersion).FirstOrDefault();
 
-                AssertSql(
-                    @"SELECT TOP(1) [p].[Id], [p].[ChildId], [c].[Id], [c].[ParentId], [c].[ULongRowVersion]
+            AssertSql(
+                @"SELECT TOP(1) [c].[ULongRowVersion]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
 ORDER BY [p].[Id]");
