@@ -576,7 +576,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                memberInfo ??= Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault();
+                memberInfo ??= Metadata.IsPropertyBag
+                    ? null
+                    : Metadata.ClrType.GetMembersInHierarchy(propertyName).FirstOrDefault();
 
                 if (propertyType == null)
                 {

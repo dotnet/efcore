@@ -253,6 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
             Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
             Assert.Null(model.FindEntityType(typeof(string)));
+            Assert.Null(model.FindEntityType(typeof(IList<>).GetGenericArguments().Single()));
         }
 
         [ConditionalFact]
