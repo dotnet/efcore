@@ -21,32 +21,29 @@ namespace Microsoft.EntityFrameworkCore
         public virtual async Task Multiple_nested_reference_navigations(bool async)
         {
             var contextFactory = await InitializeAsync<Context24368>();
+            using var context = contextFactory.CreateContext();
+            var id = 1;
+            var staff = await context.Staff.FindAsync(3);
 
-            using (var context = contextFactory.CreateContext())
-            {
-                var id = 1;
-                var staff = await context.Staff.FindAsync(3);
+            Assert.Equal(1, staff.ManagerId);
 
-                Assert.Equal(1, staff.ManagerId);
+            var query = context.Appraisals
+                    .Include(ap => ap.Staff).ThenInclude(s => s.Manager)
+                    .Include(ap => ap.Staff).ThenInclude(s => s.SecondaryManager)
+                    .Where(ap => ap.Id == id);
 
-                var query = context.Appraisals
-                        .Include(ap => ap.Staff).ThenInclude(s => s.Manager)
-                        .Include(ap => ap.Staff).ThenInclude(s => s.SecondaryManager)
-                        .Where(ap => ap.Id == id);
+            var appraisal = async
+                ? await query.SingleOrDefaultAsync()
+                : query.SingleOrDefault();
 
-                var appraisal = async
-                    ? await query.SingleOrDefaultAsync()
-                    : query.SingleOrDefault();
+            Assert.Equal(1, staff.ManagerId);
 
-                Assert.Equal(1, staff.ManagerId);
-
-                Assert.NotNull(appraisal);
-                Assert.Same(staff, appraisal.Staff);
-                Assert.NotNull(appraisal.Staff.Manager);
-                Assert.Equal(1, appraisal.Staff.ManagerId);
-                Assert.NotNull(appraisal.Staff.SecondaryManager);
-                Assert.Equal(2, appraisal.Staff.SecondaryManagerId);
-            }
+            Assert.NotNull(appraisal);
+            Assert.Same(staff, appraisal.Staff);
+            Assert.NotNull(appraisal.Staff.Manager);
+            Assert.Equal(1, appraisal.Staff.ManagerId);
+            Assert.NotNull(appraisal.Staff.SecondaryManager);
+            Assert.Equal(2, appraisal.Staff.SecondaryManagerId);
         }
 
         protected class Context24368 : DbContext
@@ -122,6 +119,72 @@ namespace Microsoft.EntityFrameworkCore
 
             public int? SecondaryManagerId { get; set; }
             public Staff SecondaryManager { get; set; }
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Comparing_enum_casted_to_byte_with_int_parameter(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context21770>();
+            using var context = contextFactory.CreateContext();
+            var bitterTaste = Taste.Bitter;
+            var query = context.IceCreams.Where(i => i.Taste == (byte)bitterTaste);
+
+            var bitterIceCreams = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Single(bitterIceCreams);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Comparing_enum_casted_to_byte_with_int_constant(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context21770>();
+            using var context = contextFactory.CreateContext();
+            var query = context.IceCreams.Where(i => i.Taste == (byte)Taste.Bitter);
+
+            var bitterIceCreams = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Single(bitterIceCreams);
+        }
+
+        protected class Context21770 : DbContext
+        {
+            public Context21770(DbContextOptions options)
+                   : base(options)
+            {
+            }
+
+            public DbSet<IceCream> IceCreams { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<IceCream>(
+                   entity =>
+                   {
+                       entity.HasData(
+                           new IceCream { IceCreamId = 1, Name = "Vanilla", Taste = (byte)Taste.Sweet },
+                           new IceCream { IceCreamId = 2, Name = "Chocolate", Taste = (byte)Taste.Sweet },
+                           new IceCream { IceCreamId = 3, Name = "Match", Taste = (byte)Taste.Bitter });
+                   });
+            }
+        }
+
+        protected enum Taste : byte
+        {
+            Sweet = 0,
+            Bitter = 1,
+        }
+
+        protected class IceCream
+        {
+            public int IceCreamId { get; set; }
+            public string Name { get; set; }
+            public int Taste { get; set; }
         }
     }
 }
