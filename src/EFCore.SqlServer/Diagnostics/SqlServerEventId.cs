@@ -64,7 +64,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             ForeignKeyPrincipalColumnMissingWarning,
             ReflexiveConstraintIgnored,
             DuplicateForeignKeyConstraintIgnored,
-            ColumnWithoutTypeWarning
+            ColumnWithoutTypeWarning,
+            ForeignKeyReferencesUnknownPrincipalTableWarning
         }
 
         private static readonly string _validationPrefix = DbLoggerCategory.Model.Validation.Name + ".";
@@ -183,6 +184,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId ForeignKeyReferencesMissingPrincipalTableWarning =
             MakeScaffoldingId(Id.ForeignKeyReferencesMissingPrincipalTableWarning);
+
+        /// <summary>
+        ///     A foreign key references a unknown table at the principal end.
+        ///     This event is in the <see cref="DbLoggerCategory.Scaffolding" /> category.
+        /// </summary>
+        public static readonly EventId ForeignKeyReferencesUnknownPrincipalTableWarning =
+            MakeScaffoldingId(Id.ForeignKeyReferencesUnknownPrincipalTableWarning);
 
         /// <summary>
         ///     A table was found.
