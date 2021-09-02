@@ -197,9 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
-                            executionStrategy.Execute(this, (_, enumerator) => InitializeReader(enumerator), null);
-                            _relationalQueryContext.ExecutionStrategyFactory.Return(executionStrategy);
+                            _relationalQueryContext.ExecutionStrategy.Execute(this, (_, enumerator) => InitializeReader(enumerator), null);
                         }
 
                         var hasNext = _dataReader!.Read();
@@ -304,14 +302,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            var executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
-                            await executionStrategy.ExecuteAsync(
+                            await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
                                     this,
                                     (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
                                     null,
                                     _relationalQueryContext.CancellationToken)
                                 .ConfigureAwait(false);
-                            _relationalQueryContext.ExecutionStrategyFactory.Return(executionStrategy);
                         }
 
                         var hasNext = await _dataReader!.ReadAsync(_relationalQueryContext.CancellationToken).ConfigureAwait(false);

@@ -42,17 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Creates a new  <see cref="IExecutionStrategy" />.
+        ///     Creates a new <see cref="IExecutionStrategy" />.
         /// </summary>
-        /// <returns>An instance of <see cref="IExecutionStrategy" />.</returns>
+        /// <returns> An instance of <see cref="IExecutionStrategy" />. </returns>
         public virtual IExecutionStrategy Create() => _instance;
-
-        /// <summary>
-        ///     Returns the <see cref="IExecutionStrategy" /> instance to the pool
-        /// </summary>
-        /// <param name="executionStrategy"> The <see cref="IExecutionStrategy" /> instance. </param>
-        public virtual void Return(IExecutionStrategy executionStrategy)
-        {
-        }
     }
 }

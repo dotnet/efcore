@@ -23,7 +23,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public class RelationalExecutionStrategyFactory : IExecutionStrategyFactory
     {
         private readonly Func<ExecutionStrategyDependencies, IExecutionStrategy> _createExecutionStrategy;
-        private IExecutionStrategy? _instance;
 
         /// <summary>
         ///     Creates a new instance of this class with the given service dependencies.
@@ -56,24 +55,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Creates an <see cref="IExecutionStrategy" /> for the current database provider.
         /// </summary>
         public virtual IExecutionStrategy Create()
-        {
-            var instance = _instance;
-            if (instance != null)
-            {
-                _instance = null;
-                return instance;
-            }
-
-            return _createExecutionStrategy(Dependencies);
-        }
-
-        /// <summary>
-        ///     Returns the <see cref="IExecutionStrategy" /> instance to the pool
-        /// </summary>
-        /// <param name="executionStrategy"> The <see cref="IExecutionStrategy" /> instance. </param>
-        public virtual void Return(IExecutionStrategy executionStrategy)
-        {
-            _instance = executionStrategy;
-        }
+            => _createExecutionStrategy(Dependencies);
     }
 }

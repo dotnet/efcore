@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         }
 
         /// <summary>
-        ///     Gets or sets the currently executing stategy. All nested calls will be handled by the outermost strategy.
+        ///     Gets or sets the currently executing strategy. All nested calls will be handled by the outermost strategy.
         /// </summary>
         public static ExecutionStrategy? Current
         {

@@ -26,7 +26,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
     public class CosmosExecutionStrategyFactory : IExecutionStrategyFactory
     {
         private readonly Func<ExecutionStrategyDependencies, IExecutionStrategy> _createExecutionStrategy;
-        private IExecutionStrategy? _instance;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -68,26 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IExecutionStrategy Create()
-        {
-            var instance = _instance;
-            if (instance != null)
-            {
-                _instance = null;
-                return instance;
-            }
-
-            return _createExecutionStrategy(Dependencies);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Return(IExecutionStrategy executionStrategy)
-        {
-            _instance = executionStrategy;
-        }
+            => _createExecutionStrategy(Dependencies);
     }
 }

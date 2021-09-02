@@ -19,7 +19,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -63,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
         private readonly ISingletonCosmosClientWrapper _singletonWrapper;
         private readonly string _databaseId;
-        private readonly IExecutionStrategyFactory _executionStrategyFactory;
+        private readonly IExecutionStrategy _executionStrategy;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Database.Command> _commandLogger;
         private readonly bool? _enableContentResponseOnWrite;
 
@@ -84,14 +83,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         public CosmosClientWrapper(
             ISingletonCosmosClientWrapper singletonWrapper,
             IDbContextOptions dbContextOptions,
-            IExecutionStrategyFactory executionStrategyFactory,
+            IExecutionStrategy executionStrategy,
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger)
         {
             var options = dbContextOptions.FindExtension<CosmosOptionsExtension>();
 
             _singletonWrapper = singletonWrapper;
             _databaseId = options!.DatabaseName;
-            _executionStrategyFactory = executionStrategyFactory;
+            _executionStrategy = executionStrategy;
             _commandLogger = commandLogger;
             _enableContentResponseOnWrite = options.EnableContentResponseOnWrite;
         }
@@ -106,12 +105,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateDatabaseIfNotExists(ThroughputProperties? throughput)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = executionStrategy.Execute((throughput, this), CreateDatabaseIfNotExistsOnce, null);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.Execute((throughput, this), CreateDatabaseIfNotExistsOnce, null);
 
         private static bool CreateDatabaseIfNotExistsOnce(
             DbContext? context,
@@ -124,16 +118,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<bool> CreateDatabaseIfNotExistsAsync(
+        public virtual Task<bool> CreateDatabaseIfNotExistsAsync(
             ThroughputProperties? throughput,
             CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = await executionStrategy.ExecuteAsync(
-                (throughput, this), CreateDatabaseIfNotExistsOnceAsync, null, cancellationToken).ConfigureAwait(false);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.ExecuteAsync(
+                (throughput, this), CreateDatabaseIfNotExistsOnceAsync, null, cancellationToken);
 
         private static async Task<bool> CreateDatabaseIfNotExistsOnceAsync(
             DbContext? _,
@@ -154,12 +143,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool DeleteDatabase()
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = executionStrategy.Execute(this, DeleteDatabaseOnce, null);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.Execute(this, DeleteDatabaseOnce, null);
 
         private static bool DeleteDatabaseOnce(
             DbContext? context,
@@ -172,15 +156,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<bool> DeleteDatabaseAsync(
+        public virtual Task<bool> DeleteDatabaseAsync(
             CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = await executionStrategy.ExecuteAsync(
-                this, DeleteDatabaseOnceAsync, null, cancellationToken).ConfigureAwait(false);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.ExecuteAsync(this, DeleteDatabaseOnceAsync, null, cancellationToken);
 
         private static async Task<bool> DeleteDatabaseOnceAsync(
             DbContext? _,
@@ -205,12 +183,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual bool CreateContainerIfNotExists(ContainerProperties properties)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = executionStrategy.Execute((properties, this), CreateContainerIfNotExistsOnce, null);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.Execute((properties, this), CreateContainerIfNotExistsOnce, null);
 
         private static bool CreateContainerIfNotExistsOnce(
             DbContext context,
@@ -223,14 +196,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<bool> CreateContainerIfNotExistsAsync(ContainerProperties properties, CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = await executionStrategy.ExecuteAsync(
-                (properties, this), CreateContainerIfNotExistsOnceAsync, null, cancellationToken).ConfigureAwait(false);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+        public virtual Task<bool> CreateContainerIfNotExistsAsync(ContainerProperties properties, CancellationToken cancellationToken = default)
+            => _executionStrategy.ExecuteAsync((properties, this), CreateContainerIfNotExistsOnceAsync, null, cancellationToken);
 
         private static async Task<bool> CreateContainerIfNotExistsOnceAsync(
             DbContext _,
@@ -268,12 +235,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string containerId,
             JToken document,
             IUpdateEntry entry)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = executionStrategy.Execute((containerId, document, entry, this), CreateItemOnce, null);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.Execute((containerId, document, entry, this), CreateItemOnce, null);
 
         private static bool CreateItemOnce(
             DbContext context,
@@ -286,18 +248,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<bool> CreateItemAsync(
+        public virtual Task<bool> CreateItemAsync(
             string containerId,
             JToken document,
             IUpdateEntry updateEntry,
             CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = await executionStrategy.ExecuteAsync(
-                (containerId, document, updateEntry, this), CreateItemOnceAsync, null, cancellationToken).ConfigureAwait(false);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.ExecuteAsync((containerId, document, updateEntry, this), CreateItemOnceAsync, null, cancellationToken);
 
         private async static Task<bool> CreateItemOnceAsync(
             DbContext _,
@@ -347,13 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string documentId,
             JObject document,
             IUpdateEntry entry)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = executionStrategy.Execute(
-                (collectionId, documentId, document, entry, this), ReplaceItemOnce, null);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.Execute((collectionId, documentId, document, entry, this), ReplaceItemOnce, null);
 
         private static bool ReplaceItemOnce(
             DbContext context,
@@ -366,20 +316,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<bool> ReplaceItemAsync(
+        public virtual Task<bool> ReplaceItemAsync(
             string collectionId,
             string documentId,
             JObject document,
             IUpdateEntry updateEntry,
             CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = await executionStrategy.ExecuteAsync(
-                (collectionId, documentId, document, updateEntry, this), ReplaceItemOnceAsync, null, cancellationToken)
-                .ConfigureAwait(false);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.ExecuteAsync(
+                (collectionId, documentId, document, updateEntry, this), ReplaceItemOnceAsync, null, cancellationToken);
 
         private async static Task<bool> ReplaceItemOnceAsync(
             DbContext _,
@@ -429,12 +373,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             string containerId,
             string documentId,
             IUpdateEntry entry)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = executionStrategy.Execute((containerId, documentId, entry, this), DeleteItemOnce, null);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.Execute((containerId, documentId, entry, this), DeleteItemOnce, null);
 
         private static bool DeleteItemOnce(
             DbContext context,
@@ -447,18 +386,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<bool> DeleteItemAsync(
+        public virtual Task<bool> DeleteItemAsync(
             string containerId,
             string documentId,
             IUpdateEntry entry,
             CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = _executionStrategyFactory.Create();
-            var result = await executionStrategy.ExecuteAsync(
-                (containerId, documentId, entry, this), DeleteItemOnceAsync, null, cancellationToken).ConfigureAwait(false);
-            _executionStrategyFactory.Return(executionStrategy);
-            return result;
-        }
+            => _executionStrategy.ExecuteAsync((containerId, documentId, entry, this), DeleteItemOnceAsync, null, cancellationToken);
 
         private static async Task<bool> DeleteItemOnceAsync(
             DbContext? _,
@@ -625,9 +558,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
 
-            var executionStrategy = _executionStrategyFactory.Create();
-            var response = executionStrategy.Execute((containerId, partitionKey, resourceId, this), CreateSingleItemQuery, null);
-            _executionStrategyFactory.Return(executionStrategy);
+            var response = _executionStrategy.Execute((containerId, partitionKey, resourceId, this), CreateSingleItemQuery, null);
 
             _commandLogger.ExecutedReadItem(
                 response.Diagnostics.GetClientElapsedTime(),
@@ -654,14 +585,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         {
             _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
 
-            var executionStrategy = _executionStrategyFactory.Create();
-            var response = await executionStrategy.ExecuteAsync(
+            var response = await _executionStrategy.ExecuteAsync(
                 (containerId, partitionKey, resourceId, this),
                 CreateSingleItemQueryAsync,
                 null,
                 cancellationToken)
                 .ConfigureAwait(false);
-            _executionStrategyFactory.Return(executionStrategy);
 
             _commandLogger.ExecutedReadItem(
                 response.Diagnostics.GetClientElapsedTime(),

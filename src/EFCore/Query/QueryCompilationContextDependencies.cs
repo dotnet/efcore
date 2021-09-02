@@ -64,30 +64,18 @@ namespace Microsoft.EntityFrameworkCore.Query
             IQueryableMethodTranslatingExpressionVisitorFactory queryableMethodTranslatingExpressionVisitorFactory,
             IQueryTranslationPostprocessorFactory queryTranslationPostprocessorFactory,
             IShapedQueryCompilingExpressionVisitorFactory shapedQueryCompilingExpressionVisitorFactory,
-            IExecutionStrategyFactory executionStrategyFactory,
+            IExecutionStrategy executionStrategy,
             ICurrentDbContext currentContext,
             IDbContextOptions contextOptions,
             IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(queryTranslationPreprocessorFactory, nameof(queryTranslationPreprocessorFactory));
-            Check.NotNull(queryableMethodTranslatingExpressionVisitorFactory, nameof(queryableMethodTranslatingExpressionVisitorFactory));
-            Check.NotNull(queryTranslationPostprocessorFactory, nameof(queryTranslationPostprocessorFactory));
-            Check.NotNull(shapedQueryCompilingExpressionVisitorFactory, nameof(shapedQueryCompilingExpressionVisitorFactory));
-            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(contextOptions, nameof(contextOptions));
-            Check.NotNull(logger, nameof(logger));
-
             _currentContext = currentContext;
             Model = model;
             QueryTranslationPreprocessorFactory = queryTranslationPreprocessorFactory;
             QueryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
             QueryTranslationPostprocessorFactory = queryTranslationPostprocessorFactory;
             ShapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
-            var executionStrategy = executionStrategyFactory.Create();
             IsRetryingExecutionStrategy = executionStrategy.RetriesOnFailure;
-            executionStrategyFactory.Return(executionStrategy);
             ContextOptions = contextOptions;
             Logger = logger;
         }

@@ -502,12 +502,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void OpenConnection(this DatabaseFacade databaseFacade)
-        {
-            var executionStrategy = databaseFacade.CreateExecutionStrategy();
-            executionStrategy.Execute(databaseFacade, database
-                => GetFacadeDependencies(database).RelationalConnection.Open(), null);
-            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
-        }
+            => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy
+                .Execute(databaseFacade, database => GetFacadeDependencies(database).RelationalConnection.Open(), null);
 
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
@@ -516,15 +512,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static async Task OpenConnectionAsync(
+        public static Task OpenConnectionAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = databaseFacade.CreateExecutionStrategy();
-            await executionStrategy.ExecuteAsync(databaseFacade, (database, ct) =>
-                GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), null, cancellationToken).ConfigureAwait(false);
-            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
-        }
+            => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy
+                .ExecuteAsync(databaseFacade, (database, ct) => GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), null, cancellationToken);
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
@@ -548,9 +540,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="isolationLevel"> The <see cref="IsolationLevel" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that represents the started transaction. </returns>
         public static IDbContextTransaction BeginTransaction(this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
-        {
-            var executionStrategy = databaseFacade.CreateExecutionStrategy();
-            var transaction = executionStrategy.Execute(
+            => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy.Execute(
                 databaseFacade, database =>
                 {
                     var transactionManager = database.GetTransactionManager();
@@ -560,9 +550,6 @@ namespace Microsoft.EntityFrameworkCore
                         : transactionManager.BeginTransaction();
                 },
                 null);
-            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
-            return transaction;
-        }
 
         /// <summary>
         ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel" />.
@@ -575,24 +562,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     that represents the started transaction.
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static async Task<IDbContextTransaction> BeginTransactionAsync(
+        public static Task<IDbContextTransaction> BeginTransactionAsync(
             this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
-        {
-            var executionStrategy = databaseFacade.CreateExecutionStrategy();
-            var transaction = await executionStrategy.ExecuteAsync(
-                           databaseFacade, (database, ct) =>
-                           {
-                               var transactionManager = database.GetTransactionManager();
+            => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy.ExecuteAsync(
+                databaseFacade, (database, ct) =>
+                {
+                    var transactionManager = database.GetTransactionManager();
 
-                               return transactionManager is IRelationalTransactionManager relationalTransactionManager
-                                   ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
-                                   : transactionManager.BeginTransactionAsync(ct);
-                           }, null, cancellationToken).ConfigureAwait(false);
-            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
-            return transaction;
-        }
+                    return transactionManager is IRelationalTransactionManager relationalTransactionManager
+                        ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
+                        : transactionManager.BeginTransactionAsync(ct);
+                }, null, cancellationToken);
 
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
@@ -616,16 +598,9 @@ namespace Microsoft.EntityFrameworkCore
             this DatabaseFacade databaseFacade,
             DbTransaction? transaction,
             Guid transactionId)
-        {
-            var transactionManager = GetTransactionManager(databaseFacade);
-
-            if (!(transactionManager is IRelationalTransactionManager relationalTransactionManager))
-            {
-                throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
-            }
-
-            return relationalTransactionManager.UseTransaction(transaction, transactionId);
-        }
+            => GetTransactionManager(databaseFacade) is not IRelationalTransactionManager relationalTransactionManager
+                ? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse)
+                : relationalTransactionManager.UseTransaction(transaction, transactionId);
 
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
@@ -655,16 +630,9 @@ namespace Microsoft.EntityFrameworkCore
             DbTransaction? transaction,
             Guid transactionId,
             CancellationToken cancellationToken = default)
-        {
-            var transactionManager = GetTransactionManager(databaseFacade);
-
-            if (!(transactionManager is IRelationalTransactionManager relationalTransactionManager))
-            {
-                throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
-            }
-
-            return relationalTransactionManager.UseTransactionAsync(transaction, transactionId, cancellationToken);
-        }
+            => GetTransactionManager(databaseFacade) is not IRelationalTransactionManager relationalTransactionManager
+                ? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse)
+                : relationalTransactionManager.UseTransactionAsync(transaction, transactionId, cancellationToken);
 
         /// <summary>
         ///     <para>
