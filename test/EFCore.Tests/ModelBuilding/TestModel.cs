@@ -10,6 +10,8 @@ using System.Dynamic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
+#nullable enable
+
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.ModelBuilding
 {
@@ -20,18 +22,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             public int AlternateKey { get; set; }
 
-            public IEnumerable<Pickle> Pickles { get; set; }
+            public IEnumerable<Pickle>? Pickles { get; set; }
 
-            public Bun Bun { get; set; }
+            public Bun? Bun { get; set; }
         }
 
         protected class Ingredient
         {
-            public static readonly PropertyInfo BurgerIdProperty = typeof(Ingredient).GetProperty("BurgerId");
+            public static readonly PropertyInfo BurgerIdProperty = typeof(Ingredient).GetProperty("BurgerId")!;
 
             public int Id { get; set; }
-            public int BurgerId { get; set; }
-            public BigMak BigMak { get; set; }
+            public int? BurgerId { get; set; }
+            public BigMak? BigMak { get; set; }
         }
 
         protected class Pickle : Ingredient
@@ -53,11 +55,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int AlternateKey1 { get; set; }
             public int AlternateKey2 { get; set; }
 
-            public IEnumerable<Tomato> Tomatoes { get; set; }
+            public IEnumerable<Tomato>? Tomatoes { get; set; }
 
-            public ToastedBun ToastedBun { get; set; }
+            public ToastedBun? ToastedBun { get; set; }
 
-            public Mustard Mustard { get; set; }
+            public Mustard? Mustard { get; set; }
         }
 
         protected class Tomato
@@ -66,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public int BurgerId1 { get; set; }
             public int BurgerId2 { get; set; }
-            public Whoopper Whoopper { get; set; }
+            public Whoopper? Whoopper { get; set; }
         }
 
         protected class ToastedBun
@@ -75,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public int BurgerId1 { get; set; }
             public int BurgerId2 { get; set; }
-            public Whoopper Whoopper { get; set; }
+            public Whoopper? Whoopper { get; set; }
         }
 
         protected class Mustard
@@ -83,31 +85,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id1 { get; set; }
             public int Id2 { get; set; }
 
-            public Whoopper Whoopper { get; set; }
+            public Whoopper? Whoopper { get; set; }
         }
 
         protected class Customer
         {
-            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name");
-            public static readonly PropertyInfo AlternateKeyProperty = typeof(Customer).GetProperty("AlternateKey");
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id")!;
+            public static readonly PropertyInfo NameProperty = typeof(Customer).GetProperty("Name")!;
+            public static readonly PropertyInfo AlternateKeyProperty = typeof(Customer).GetProperty("AlternateKey")!;
 
             public int Id { get; set; }
             public Guid AlternateKey { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public IEnumerable<Order> Orders { get; set; }
+            public IEnumerable<Order>? Orders { get; set; }
 
             [NotMapped]
-            public ICollection<SpecialOrder> SomeOrders { get; set; }
+            public ICollection<SpecialOrder>? SomeOrders { get; set; }
 
-            public CustomerDetails Details { get; set; }
+            public CustomerDetails? Details { get; set; }
         }
 
         [NotMapped]
         protected class SpecialCustomer : Customer
         {
-            public ICollection<SpecialOrder> SpecialOrders { get; set; }
+            public ICollection<SpecialOrder>? SpecialOrders { get; set; }
         }
 
         protected class OtherCustomer : Customer
@@ -123,11 +125,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int CustomerId { get; set; }
 
-            public Customer Customer { get; set; }
+            public Customer? Customer { get; set; }
 
-            public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangedEventHandler? PropertyChanged;
 
-            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
             {
                 if (PropertyChanged == null)
                 {
@@ -138,19 +140,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class Order : INotifyPropertyChanged
         {
-            public static readonly PropertyInfo DetailsProperty = typeof(Order).GetProperty(nameof(Details));
+            public static readonly PropertyInfo DetailsProperty = typeof(Order).GetProperty(nameof(Details))!;
 
             public int OrderId { get; set; }
 
             public int? CustomerId { get; set; }
             public Guid AnotherCustomerId { get; set; }
-            public Customer Customer { get; set; }
-            public OrderCombination OrderCombination { get; set; }
-            public OrderDetails Details { get; set; }
-            public ICollection<Product> Products { get; set; }
-            public event PropertyChangedEventHandler PropertyChanged;
+            public Customer? Customer { get; set; }
+            public OrderCombination? OrderCombination { get; set; }
+            public OrderDetails? Details { get; set; }
+            public ICollection<Product>? Products { get; set; }
+            public event PropertyChangedEventHandler? PropertyChanged;
 
-            protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+            protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
             {
                 if (PropertyChanged == null)
                 {
@@ -161,13 +163,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         private class OrderProduct
         {
-            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId));
-            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId));
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderProduct).GetProperty(nameof(OrderId))!;
+            public static readonly PropertyInfo ProductIdProperty = typeof(OrderProduct).GetProperty(nameof(ProductId))!;
 
             public int OrderId { get; set; }
             public int ProductId { get; set; }
-            public virtual Order Order { get; set; }
-            public virtual Product Product { get; set; }
+            public virtual Order Order { get; set; } = null!;
+            public virtual Product Product { get; set; } = null!;
         }
 
         [NotMapped]
@@ -176,39 +178,39 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
 
             [NotMapped]
-            public Order Order { get; set; }
+            public Order? Order { get; set; }
 
             [NotMapped]
-            public virtual ICollection<Order> Orders { get; set; }
+            public virtual ICollection<Order>? Orders { get; set; }
 
-            public virtual ICollection<Category> Categories { get; set; }
+            public virtual ICollection<Category>? Categories { get; set; }
         }
 
         protected class ProductCategory
         {
-            public int ProductId { get; set; }
-            public int CategoryId { get; set; }
-            public virtual Product Product { get; set; }
-            public virtual Category Category { get; set; }
+            public int? ProductId { get; set; }
+            public int? CategoryId { get; set; }
+            public virtual Product? Product { get; set; }
+            public virtual Category? Category { get; set; }
         }
 
         protected class CategoryBase
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         protected class Category : CategoryBase
         {
-            public virtual ICollection<ProductCategory> ProductCategories { get; set; }
-            public virtual ICollection<Product> Products { get; set; }
+            public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
+            public virtual ICollection<Product>? Products { get; set; }
         }
 
         [Owned]
         protected class StreetAddress
         {
-            public string Street { get; set; }
-            public string City { get; set; }
+            public string Street { get; set; } = "";
+            public string City { get; set; } = "";
         }
 
         [NotMapped]
@@ -216,16 +218,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int SpecialOrderId { get; set; }
             public int? SpecialCustomerId { get; set; }
-            public SpecialCustomer SpecialCustomer { get; set; }
-            public BackOrder BackOrder { get; set; }
-            public OrderCombination SpecialOrderCombination { get; set; }
-            public StreetAddress ShippingAddress { get; set; }
+            public SpecialCustomer? SpecialCustomer { get; set; }
+            public BackOrder? BackOrder { get; set; }
+            public OrderCombination? SpecialOrderCombination { get; set; }
+            public StreetAddress ShippingAddress { get; set; } = null!;
         }
 
         protected class BackOrder : Order
         {
             public int SpecialOrderId { get; set; }
-            public SpecialOrder SpecialOrder { get; set; }
+            public SpecialOrder SpecialOrder { get; set; } = null!;
         }
 
         [NotMapped]
@@ -233,25 +235,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int Id { get; set; }
             public int OrderId { get; set; }
-            public Order Order { get; set; }
+            public Order Order { get; set; } = null!;
             public int SpecialOrderId { get; set; }
-            public SpecialOrder SpecialOrder { get; set; }
-            public DetailsBase Details { get; set; }
+            public SpecialOrder SpecialOrder { get; set; } = null!;
+            public DetailsBase Details { get; set; } = null!;
         }
 
         protected class OrderDetails : DetailsBase
         {
-            public static readonly PropertyInfo OrderIdProperty = typeof(OrderDetails).GetProperty("OrderId");
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderDetails).GetProperty("OrderId")!;
 
             public int OrderId { get; set; }
-            public Order Order { get; set; }
+            public Order Order { get; set; } = null!;
         }
 
         // INotify interfaces not really implemented; just marking the classes to test metadata construction
         protected class Quarks : INotifyPropertyChanging, INotifyPropertyChanged
         {
             private int _forUp;
-            private string _forDown;
+            private string? _forDown;
 #pragma warning disable IDE0044 // Add readonly modifier
 #pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable CS0169 // Remove unused private fields
@@ -270,28 +272,28 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             // ReSharper disable once ConvertToAutoProperty
-            public string Down
+            public string? Down
             {
                 get => _forDown;
                 set => _forDown = value;
             }
 
 #pragma warning disable 67
-            public event PropertyChangingEventHandler PropertyChanging;
-            public event PropertyChangedEventHandler PropertyChanged;
+            public event PropertyChangingEventHandler? PropertyChanging;
+            public event PropertyChangedEventHandler? PropertyChanged;
 #pragma warning restore 67
         }
 
         protected class Hob
         {
-            public string Id1 { get; set; }
-            public string Id2 { get; set; }
+            public string? Id1 { get; set; }
+            public string? Id2 { get; set; }
 
             public int NobId1 { get; set; }
             public int NobId2 { get; set; }
 
-            public Nob Nob { get; set; }
-            public ICollection<Nob> Nobs { get; set; }
+            public Nob? Nob { get; set; }
+            public ICollection<Nob>? Nobs { get; set; }
         }
 
         protected class Nob
@@ -299,57 +301,53 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id1 { get; set; }
             public int Id2 { get; set; }
 
-            public string HobId1 { get; set; }
-            public string HobId2 { get; set; }
+            public string? HobId1 { get; set; }
+            public string? HobId2 { get; set; }
 
-            public Hob Hob { get; set; }
-            public ICollection<Hob> Hobs { get; set; }
+            public Hob? Hob { get; set; }
+            public ICollection<Hob>? Hobs { get; set; }
         }
 
         protected class SelfRef
         {
             public int Id { get; set; }
-            public SelfRef SelfRef1 { get; set; }
-            public SelfRef SelfRef2 { get; set; }
+            // TODO: Make both non-nullable when #25830 is fixed
+            public SelfRef? SelfRef1 { get; set; }
+            public SelfRef? SelfRef2 { get; set; }
             public int SelfRefId { get; set; }
         }
 
         protected class SelfRefManyToOne
         {
             public int Id { get; set; }
-            public int SelfRefId { get; set; }
-            public SelfRefManyToOne SelfRef1 { get; set; }
-            public ICollection<SelfRefManyToOne> SelfRef2 { get; set; }
+            public int SelfRef1Id { get; set; }
+            public SelfRefManyToOne SelfRef1 { get; set; } = null!;
+            public ICollection<SelfRefManyToOne> SelfRef2 { get; set; } = null!;
 
             [NotMapped]
-            public ManyToManyRelated Related { get; set; }
+            public ManyToManyRelated Related { get; set; } = null!;
 
             [NotMapped]
-            public ICollection<ManyToManyRelated> Relateds { get; set; }
+            public ICollection<ManyToManyRelated> Relateds { get; set; } = null!;
         }
 
         protected class ManyToManyRelated
         {
             public int Id { get; set; }
-            public ICollection<SelfRefManyToOne> DirectlyRelatedSelfRefs { get; set; }
-            public ICollection<SelfRefManyToOne> RelatedSelfRefs { get; set; }
+            public ICollection<SelfRefManyToOne>? DirectlyRelatedSelfRefs { get; set; }
+            public ICollection<SelfRefManyToOne>? RelatedSelfRefs { get; set; }
         }
 
         protected class User
         {
-            [Required]
             public Guid Id { get; set; }
 
-            [Required]
-            [MaxLength(150)]
-            public string Name { get; set; }
+            public string Name { get; set; } = "";
 
-            [Required]
-            public User CreatedBy { get; set; }
+            public User CreatedBy { get; set; } = null!;
 
-            public User UpdatedBy { get; set; }
+            public User? UpdatedBy { get; set; }
 
-            [Required]
             public Guid CreatedById { get; set; }
 
             public Guid? UpdatedById { get; set; }
@@ -361,28 +359,28 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class Book
         {
-            public static readonly PropertyInfo BookDetailsNavigation = typeof(Book).GetProperty("Details");
+            public static readonly PropertyInfo BookDetailsNavigation = typeof(Book).GetProperty("Details")!;
 
             public int Id { get; set; }
 
-            public BookLabel Label { get; set; }
+            public BookLabel Label { get; set; } = null!;
 
-            public BookLabel AlternateLabel { get; set; }
+            public BookLabel AlternateLabel { get; set; } = null!;
 
-            public BookDetails Details { get; set; }
+            public BookDetails Details { get; set; } = null!;
         }
 
         protected abstract class BookDetailsBase : DetailsBase
         {
             public int AnotherBookId { get; set; }
 
-            public Book AnotherBook { get; set; }
+            public Book AnotherBook { get; set; } = null!;
         }
 
         protected class BookDetails : BookDetailsBase
         {
             [NotMapped]
-            public Book Book { get; set; }
+            public Book Book { get; set; } = null!;
         }
 
         protected class BookLabel
@@ -390,18 +388,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
 
             [InverseProperty("Label")]
-            public Book Book { get; set; }
+            public Book Book { get; set; } = null!;
 
             public int BookId { get; set; }
 
-            public SpecialBookLabel SpecialBookLabel { get; set; }
+            public SpecialBookLabel? SpecialBookLabel { get; set; }
 
-            public AnotherBookLabel AnotherBookLabel { get; set; }
+            public AnotherBookLabel? AnotherBookLabel { get; set; }
         }
 
         protected class SpecialBookLabel : BookLabel
         {
-            public BookLabel BookLabel { get; set; }
+            public BookLabel? BookLabel { get; set; }
         }
 
         protected class ExtraSpecialBookLabel : SpecialBookLabel
@@ -414,14 +412,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         private class EntityWithoutId
         {
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         protected class PrincipalEntity
         {
             public int Id { get; set; }
 
-            public List<DependentEntity> InverseNav { get; set; }
+            public List<DependentEntity>? InverseNav { get; set; }
         }
 
         protected class DependentEntity
@@ -431,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [NotMapped]
             public int PrincipalEntityId { get; set; }
 
-            public PrincipalEntity Nav { get; set; }
+            public PrincipalEntity Nav { get; set; } = null!;
         }
 
         protected class Alpha
@@ -439,23 +437,23 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int? Id { get; set; }
             public int AnotherId { get; set; }
 
-            public Delta NavDelta { get; set; }
-            public IList<Epsilon> Epsilons { get; set; }
-            public IList<Eta> Etas { get; set; }
+            public Delta? NavDelta { get; set; }
+            public IList<Epsilon>? Epsilons { get; set; }
+            public IList<Eta>? Etas { get; set; }
 
             [ForeignKey("Id")]
-            public IList<Theta> Thetas { get; set; }
+            public IList<Theta>? Thetas { get; set; }
 
             [ForeignKey("Id")]
-            public IList<Kappa> Kappas { get; set; }
+            public IList<Kappa>? Kappas { get; set; }
         }
 
         protected class Beta
         {
             public int Id { get; set; }
 
-            public Alpha FirstNav { get; set; }
-            public Alpha SecondNav { get; set; }
+            public Alpha? FirstNav { get; set; }
+            public Alpha? SecondNav { get; set; }
         }
 
         protected class Gamma
@@ -463,7 +461,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             private int PrivateProperty { get; set; }
 
-            public List<Alpha> Alphas { get; set; }
+            public List<Alpha>? Alphas { get; set; }
         }
 
         protected class Delta
@@ -471,7 +469,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ForeignKey("Alpha")]
             public int Id { get; set; }
 
-            public Alpha Alpha { get; set; }
+            public Alpha? Alpha { get; set; }
         }
 
         protected class Epsilon
@@ -479,7 +477,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [ForeignKey("Alpha")]
             public int Id { get; set; }
 
-            public Alpha Alpha { get; set; }
+            public Alpha? Alpha { get; set; }
         }
 
         protected class Eta
@@ -487,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
 
             [ForeignKey("Id")]
-            public Alpha Alpha { get; set; }
+            public Alpha? Alpha { get; set; }
         }
 
         protected class Zeta
@@ -497,10 +495,10 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int CommonFkProperty { get; set; }
 
             [ForeignKey("CommonFkProperty")]
-            public Alpha AlphaOne { get; set; }
+            public Alpha AlphaOne { get; set; } = null!;
 
             [ForeignKey("CommonFkProperty")]
-            public Alpha AlphaTwo { get; set; }
+            public Alpha AlphaTwo { get; set; } = null!;
         }
 
         [NotMapped]
@@ -508,11 +506,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public int ThetaId { get; set; }
 
-            public Alpha Alpha { get; set; }
+            public Alpha? Alpha { get; set; }
 
-            public Theta NavTheta { get; set; }
-            public IList<Theta> InverseNavThetas { get; set; }
-            public IList<Iota> AllIotas { get; set; }
+            public Theta? NavTheta { get; set; }
+            public IList<Theta>? InverseNavThetas { get; set; }
+            public IList<Iota>? AllIotas { get; set; }
         }
 
         protected class Kappa
@@ -520,16 +518,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int KappaId { get; set; }
             public int OmegaId { get; set; }
 
-            public Alpha Alpha { get; set; }
-            public IList<Omega> Omegas { get; set; }
+            public Alpha? Alpha { get; set; }
+            public IList<Omega>? Omegas { get; set; }
         }
 
         protected class Iota
         {
             public int Id { get; set; }
 
-            public Theta FirstTheta { get; set; }
-            public Theta SecondTheta { get; set; }
+            public Theta? FirstTheta { get; set; }
+            public Theta? SecondTheta { get; set; }
         }
 
         protected class Omega
@@ -537,14 +535,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
             public int KappaId { get; set; }
 
-            public Kappa Kappa { get; set; }
+            public Kappa? Kappa { get; set; }
         }
 
         protected class DynamicProperty
         {
             public int Id { get; set; }
 
-            public ExpandoObject ExpandoObject { get; set; }
+            public ExpandoObject? ExpandoObject { get; set; }
         }
 
         protected interface IEntityBase
@@ -560,13 +558,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class OneToOnePrincipalEntity
         {
             public static readonly PropertyInfo NavigationProperty =
-                typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntity");
+                typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntity")!;
 
             public static readonly PropertyInfo EntityMatchingProperty =
-                typeof(OneToOnePrincipalEntity).GetProperty("OneToOneDependentEntityId");
+                typeof(OneToOnePrincipalEntity).GetProperty("OneToOneDependentEntityId")!;
 
             public static readonly PropertyInfo NavigationMatchingProperty =
-                typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntityId");
+                typeof(OneToOnePrincipalEntity).GetProperty("NavOneToOneDependentEntityId")!;
 
             public int Id { get; set; }
 
@@ -574,19 +572,19 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int OneToOneDependentEntityId { get; set; }
 
             [NotMapped]
-            public OneToOneDependentEntity NavOneToOneDependentEntity { get; set; }
+            public OneToOneDependentEntity NavOneToOneDependentEntity { get; set; } = null!;
         }
 
         protected class OneToOneDependentEntity
         {
             public static readonly PropertyInfo NavigationProperty =
-                typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntity");
+                typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntity")!;
 
             public static readonly PropertyInfo EntityMatchingProperty =
-                typeof(OneToOneDependentEntity).GetProperty("OneToOnePrincipalEntityId");
+                typeof(OneToOneDependentEntity).GetProperty("OneToOnePrincipalEntityId")!;
 
             public static readonly PropertyInfo NavigationMatchingProperty =
-                typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntityId");
+                typeof(OneToOneDependentEntity).GetProperty("NavOneToOnePrincipalEntityId")!;
 
             public int Id { get; set; }
 
@@ -594,7 +592,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int OneToOnePrincipalEntityId { get; set; }
 
             [NotMapped]
-            public OneToOnePrincipalEntity NavOneToOnePrincipalEntity { get; set; }
+            public OneToOnePrincipalEntity NavOneToOnePrincipalEntity { get; set; } = null!;
         }
 
         protected class OneToOnePrincipalEntityWithAnnotation
@@ -607,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             [NotMapped]
             [ForeignKey("FkProperty")]
-            public OneToOneDependentEntityWithAnnotation NavOneToOneDependentEntityWithAnnotation { get; set; }
+            public OneToOneDependentEntityWithAnnotation NavOneToOneDependentEntityWithAnnotation { get; set; } = null!;
         }
 
         protected class OneToOneDependentEntityWithAnnotation
@@ -618,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int OneToOnePrincipalEntityWithAnnotationId { get; set; }
 
             [NotMapped]
-            public OneToOnePrincipalEntityWithAnnotation NavOneToOnePrincipalEntityWithAnnotation { get; set; }
+            public OneToOnePrincipalEntityWithAnnotation NavOneToOnePrincipalEntityWithAnnotation { get; set; } = null!;
         }
 
         protected class BaseTypeWithKeyAnnotation
@@ -631,7 +629,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int ForeignKeyProperty { get; set; }
 
             [ForeignKey("ForeignKeyProperty")]
-            public PrincipalTypeWithKeyAnnotation Navigation { get; set; }
+            public PrincipalTypeWithKeyAnnotation Navigation { get; set; } = null!;
         }
 
         protected class DerivedTypeWithKeyAnnotation : BaseTypeWithKeyAnnotation
@@ -643,18 +641,18 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
 
             [NotMapped]
-            public BaseTypeWithKeyAnnotation Navigation { get; set; }
+            public BaseTypeWithKeyAnnotation? Navigation { get; set; }
         }
 
         protected class CityViewModel
         {
             public int Id { get; set; }
 
-            public virtual ICollection<CitizenViewModel> People { get; set; }
+            public virtual ICollection<CitizenViewModel> People { get; set; } = null!;
 
-            public virtual ICollection<PoliceViewModel> Police { get; set; }
+            public virtual ICollection<PoliceViewModel> Police { get; set; } = null!;
 
-            public virtual ICollection<DoctorViewModel> Medics { get; set; }
+            public virtual ICollection<DoctorViewModel> Medics { get; set; } = null!;
         }
 
         protected abstract class PersonBaseViewModel
@@ -663,7 +661,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public int CityVMId { get; set; }
 
-            public virtual CityViewModel CityVM { get; set; }
+            public virtual CityViewModel CityVM { get; set; } = null!;
         }
 
         protected class CitizenViewModel : PersonBaseViewModel
@@ -684,7 +682,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class StringIdBase
         {
-            public string Id { get; set; }
+            public string Id { get; set; } = "";
         }
 
         protected class StringIdDerived : StringIdBase
@@ -696,16 +694,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
 
             public int ActionUserId { get; set; }
-            public ApplicationUser ActionUser { get; set; }
+            public ApplicationUser ActionUser { get; set; } = null!;
 
             public int ApplicationUserId { get; set; }
-            public ApplicationUser ApplicationUser { get; set; }
+            public ApplicationUser ApplicationUser { get; set; } = null!;
         }
 
         protected class ApplicationUser
         {
             public int Id { get; set; }
-            public IList<Friendship> Friendships { get; set; }
+            public IList<Friendship> Friendships { get; set; } = null!;
         }
 
         public class EntityWithFields
@@ -713,20 +711,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public long Id;
             public int CompanyId;
             public int TenantId;
-            public KeylessEntityWithFields KeylessEntity;
+            public KeylessEntityWithFields? KeylessEntity;
         }
 
         public class KeylessEntityWithFields
         {
-            public string FirstName;
-            public string LastName;
+            public string? FirstName;
+            public string? LastName;
         }
 
         protected class QueryResult
         {
             public int Id { get; set; }
             public int ValueFk { get; set; }
-            public Value Value { get; set; }
+            public Value Value { get; set; } = null!;
         }
 
         protected class Value
@@ -738,38 +736,38 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class KeylessEntity
         {
             public int CustomerId { get; set; }
-            public Customer Customer { get; set; }
+            public Customer Customer { get; set; } = null!;
         }
 
         protected class Parent
         {
             public int Id { get; set; }
-            public List<CompositeChild> Children { get; set; }
+            public List<CompositeChild> Children { get; set; } = null!;
         }
 
         protected class CompositeChild
         {
             public int Id { get; set; }
             public int Value { get; set; }
-            public Parent Parent { get; set; }
+            public Parent Parent { get; set; } = null!;
         }
 
         protected class BillingOwner
         {
             public int Id { get; set; }
-            public BillingDetail Bill1 { get; set; }
-            public BillingDetail Bill2 { get; set; }
+            public BillingDetail? Bill1 { get; set; }
+            public BillingDetail? Bill2 { get; set; }
         }
 
         protected class BillingDetail
         {
-            public string Country { get; set; }
+            public string? Country { get; set; }
         }
 
         protected class Country
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         }
 
         protected class DependentShadowFk
@@ -777,20 +775,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public Guid DependentShadowFkId { get; set; }
 
             [ForeignKey("PrincipalShadowFkId")]
-            public PrincipalShadowFk Principal { get; set; }
+            public PrincipalShadowFk Principal { get; set; } = null!;
         }
 
         protected class PrincipalShadowFk
         {
             public Guid PrincipalShadowFkId { get; set; }
-            public List<DependentShadowFk> Dependents { get; set; }
+            public List<DependentShadowFk>? Dependents { get; set; }
         }
 
         protected class BaseOwner
         {
             public int Id { get; set; }
-            public OwnedTypeInheritance1 Owned1 { get; set; }
-            public OwnedTypeInheritance2 Owned2 { get; set; }
+            public OwnedTypeInheritance1 Owned1 { get; set; } = null!;
+            public OwnedTypeInheritance2 Owned2 { get; set; } = null!;
         }
 
         protected class DerivedOwner : BaseOwner
@@ -800,13 +798,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         [Owned]
         protected class OwnedTypeInheritance1
         {
-            public string Value { get; set; }
+            public string? Value { get; set; }
         }
 
         [Owned]
         protected class OwnedTypeInheritance2
         {
-            public string Value { get; set; }
+            public string? Value { get; set; }
         }
 
         protected interface IReplacable
@@ -829,11 +827,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class IndexedClass
         {
             private int _required;
-            private string _optional;
+            private string? _optional;
 
             public int Id { get; set; }
 
-            public object this[string name]
+            public object? this[string name]
             {
                 get
                 {
@@ -854,11 +852,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 {
                     if (string.Equals(name, "Required", StringComparison.Ordinal))
                     {
-                        _required = (int)value;
+                        _required = (int)value!;
                     }
                     else if (string.Equals(name, "Optional", StringComparison.Ordinal))
                     {
-                        _optional = (string)value;
+                        _optional = (string?)value;
                     }
                     else
                     {
@@ -870,11 +868,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class IndexedClassByDictionary
         {
-            private readonly Dictionary<string, object> _indexerData = new();
+            private readonly Dictionary<string, object?> _indexerData = new();
 
             public int Id { get; set; }
 
-            public object this[string name]
+            public object? this[string name]
             {
                 get => _indexerData[name];
                 set => _indexerData[name] = value;
@@ -884,17 +882,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class OneToManyNavPrincipal
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public List<NavDependent> Dependents { get; set; }
+            public List<NavDependent>? Dependents { get; set; }
         }
 
         protected class OneToOneNavPrincipal
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public NavDependent Dependent { get; set; }
+            public NavDependent? Dependent { get; set; }
         }
 
         protected class ManyToManyNavPrincipal
@@ -907,100 +905,100 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
             [BackingField("_randomField")]
-            public List<NavDependent> Dependents { get; set; }
+            public List<NavDependent> Dependents { get; set; } = null!;
         }
 
         protected class NavDependent
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public OneToManyNavPrincipal OneToManyPrincipal { get; set; }
-            public OneToOneNavPrincipal OneToOnePrincipal { get; set; }
-            public List<ManyToManyNavPrincipal> ManyToManyPrincipals { get; set; }
+            public OneToManyNavPrincipal? OneToManyPrincipal { get; set; }
+            public OneToOneNavPrincipal? OneToOnePrincipal { get; set; }
+            public List<ManyToManyNavPrincipal>? ManyToManyPrincipals { get; set; }
         }
 
         protected class OneToManyNavPrincipalOwner
         {
             public int Id { get; set; }
-            public string Description { get; set; }
+            public string? Description { get; set; }
 
-            public List<OwnedOneToManyNavDependent> OwnedDependents { get; set; }
+            public List<OwnedOneToManyNavDependent>? OwnedDependents { get; set; }
         }
 
         protected class OneToOneNavPrincipalOwner
         {
             public int Id { get; set; }
-            public string Description { get; set; }
+            public string? Description { get; set; }
 
-            public OwnedNavDependent OwnedDependent { get; set; }
+            public OwnedNavDependent? OwnedDependent { get; set; }
         }
 
         protected class OwnedNavDependent
         {
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
+            public string? FirstName { get; set; }
+            public string? LastName { get; set; }
 
-            public OneToOneNavPrincipalOwner OneToOneOwner { get; set; }
+            public OneToOneNavPrincipalOwner? OneToOneOwner { get; set; }
         }
 
         protected class OwnedOneToManyNavDependent
         {
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
+            public string? FirstName { get; set; }
+            public string? LastName { get; set; }
 
-            public OneToManyNavPrincipalOwner OneToManyOwner { get; set; }
+            public OneToManyNavPrincipalOwner? OneToManyOwner { get; set; }
         }
 
         protected class OwnerOfOwnees
         {
-            public string Id { get; private set; }
+            public string? Id { get; private set; }
 
-            public Ownee2 AnOwnee2 { get; private set; }
-            public Ownee1 Ownee1 { get; private set; }
+            public Ownee2? AnOwnee2 { get; private set; }
+            public Ownee1? Ownee1 { get; private set; }
         }
 
         protected class Ownee1
         {
-            public Ownee3 NewOwnee3 { get; private set; }
+            public Ownee3? NewOwnee3 { get; private set; }
         }
 
         protected class Ownee2
         {
-            public Ownee3 Ownee3 { get; private set; }
+            public Ownee3? Ownee3 { get; private set; }
         }
 
         protected class Ownee3
         {
-            public string Name { get; private set; }
+            public string? Name { get; private set; }
         }
 
         protected class OneToManyPrincipalWithField
         {
             public int Id;
             public Guid AlternateKey;
-            public string Name;
+            public string? Name;
 
-            public IEnumerable<DependentWithField> Dependents;
+            public IEnumerable<DependentWithField>? Dependents;
         }
 
         protected class OneToOnePrincipalWithField
         {
             public int Id;
-            public string Name;
+            public string? Name;
 
-            public DependentWithField Dependent;
+            public DependentWithField? Dependent;
         }
 
         protected class ManyToManyPrincipalWithField
         {
             public int Id;
-            public string Name;
+            public string? Name;
 
-            public List<DependentWithField> Dependents;
+            public List<DependentWithField>? Dependents;
         }
 
         protected class ManyToManyJoinWithFields
@@ -1008,8 +1006,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int ManyToManyPrincipalWithFieldId;
             public int DependentWithFieldId;
 
-            public ManyToManyPrincipalWithField ManyToManyPrincipalWithField { get; set; }
-            public DependentWithField DependentWithField { get; set; }
+            public ManyToManyPrincipalWithField ManyToManyPrincipalWithField { get; set; } = null!;
+            public DependentWithField DependentWithField { get; set; } = null!;
         }
 
         protected class DependentWithField
@@ -1018,74 +1016,74 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
             public int? OneToManyPrincipalId;
             public Guid AnotherOneToManyPrincipalId;
-            public OneToManyPrincipalWithField OneToManyPrincipal { get; set; }
+            public OneToManyPrincipalWithField? OneToManyPrincipal { get; set; }
             public int OneToOnePrincipalId;
-            public OneToOnePrincipalWithField OneToOnePrincipal { get; set; }
-            public List<ManyToManyPrincipalWithField> ManyToManyPrincipals { get; set; }
+            public OneToOnePrincipalWithField OneToOnePrincipal { get; set; } = null!;
+            public List<ManyToManyPrincipalWithField> ManyToManyPrincipals { get; set; } = null!;
         }
 
         protected class OneToManyOwnerWithField
         {
             public int Id;
             public Guid AlternateKey;
-            public string Description;
+            public string? Description;
 
-            public List<OneToManyOwnedWithField> OwnedDependents { get; set; }
+            public List<OneToManyOwnedWithField>? OwnedDependents { get; set; }
         }
 
         protected class OneToManyOwnedWithField
         {
-            public string FirstName;
-            public string LastName;
+            public string? FirstName;
+            public string? LastName;
 
             public int OneToManyOwnerId;
-            public OneToManyOwnerWithField OneToManyOwner { get; set; }
+            public OneToManyOwnerWithField? OneToManyOwner { get; set; }
         }
 
         protected class OneToOneOwnerWithField
         {
             public int Id;
             public Guid AlternateKey;
-            public string Description;
+            public string? Description;
 
-            public OneToOneOwnedWithField OwnedDependent { get; set; }
+            public OneToOneOwnedWithField? OwnedDependent { get; set; }
         }
 
         protected class OneToOneOwnedWithField
         {
-            public string FirstName;
-            public string LastName;
+            public string? FirstName;
+            public string? LastName;
 
             public int OneToOneOwnerId;
-            public OneToOneOwnerWithField OneToOneOwner { get; set; }
+            public OneToOneOwnerWithField? OneToOneOwner { get; set; }
         }
 
         protected class ImplicitManyToManyA
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public List<ImplicitManyToManyB> Bs { get; set; }
+            public List<ImplicitManyToManyB>? Bs { get; set; }
         }
 
         protected class ImplicitManyToManyB
         {
             public int Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
 
-            public List<ImplicitManyToManyA> As { get; set; }
+            public List<ImplicitManyToManyA>? As { get; set; }
         }
 
         protected class ReferenceNavigationToSharedType
         {
             public int Id { get; set; }
-            public Dictionary<string, object> Navigation { get; set; }
+            public Dictionary<string, object>? Navigation { get; set; }
         }
 
         protected class CollectionNavigationToSharedType
         {
             public int Id { get; set; }
-            public List<Dictionary<string, object>> Navigation { get; set; }
+            public List<Dictionary<string, object>>? Navigation { get; set; }
         }
 
         protected class AmbiguousManyToManyImplicitLeft
@@ -1105,12 +1103,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class AmbiguousInversePropertyLeft
         {
             public int Id { get; set; }
-            public List<AmbiguousInversePropertyRight> BaseRights { get; set; }
+            public List<AmbiguousInversePropertyRight>? BaseRights { get; set; }
         }
 
         protected class AmbiguousInversePropertyLeftDerived : AmbiguousInversePropertyLeft
         {
-            public List<AmbiguousInversePropertyRightDerived> DerivedRights { get; set; }
+            public List<AmbiguousInversePropertyRightDerived>? DerivedRights { get; set; }
         }
 
         protected class AmbiguousInversePropertyRight
@@ -1118,37 +1116,37 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public int Id { get; set; }
 
             [InverseProperty("BaseRights")]
-            public List<AmbiguousInversePropertyLeft> BaseLefts { get; set; }
+            public List<AmbiguousInversePropertyLeft>? BaseLefts { get; set; }
         }
 
         protected class AmbiguousInversePropertyRightDerived : AmbiguousInversePropertyRight
         {
             [InverseProperty("BaseRights")]
-            public List<AmbiguousInversePropertyLeftDerived> DerivedLefts { get; set; }
+            public List<AmbiguousInversePropertyLeftDerived>? DerivedLefts { get; set; }
         }
 
         protected class OwnerOfSharedType
         {
             public int Id { get; set; }
-            public Dictionary<string, object> Reference { get; set; }
-            public List<Dictionary<string, object>> Collection { get; set; }
-            public NestedOwnerOfSharedType OwnedNavigation { get; set; }
+            public Dictionary<string, object>? Reference { get; set; }
+            public List<Dictionary<string, object>>? Collection { get; set; }
+            public NestedOwnerOfSharedType? OwnedNavigation { get; set; }
         }
 
         protected class NestedOwnerOfSharedType
         {
             public int Id { get; set; }
-            public Dictionary<string, object> Reference { get; set; }
-            public List<Dictionary<string, object>> Collection { get; set; }
+            public Dictionary<string, object>? Reference { get; set; }
+            public List<Dictionary<string, object>>? Collection { get; set; }
         }
 
         protected class Dr
         {
             public int Id { get; set; }
 
-            public Dre Dre { get; set; }
+            public Dre? Dre { get; set; }
 
-            public ICollection<DreJr> Jrs { get; set; }
+            public ICollection<DreJr>? Jrs { get; set; }
         }
 
         protected class Dre

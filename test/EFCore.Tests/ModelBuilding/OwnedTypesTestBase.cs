@@ -534,10 +534,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             [Flags]
             public enum HasDataOverload
             {
+#pragma warning disable SA1602 // Enumeration items should be documented
                 Array = 0,
                 Enumerable = 1,
                 Generic = 2,
                 Params = 4
+#pragma warning restore SA1602 // Enumeration items should be documented
             }
 
             [ConditionalTheory]
@@ -875,6 +877,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var owner = model.FindEntityType(typeof(SpecialOrder));
                 var ownership = owner.FindNavigation(nameof(SpecialOrder.ShippingAddress)).ForeignKey;
                 Assert.True(ownership.IsOwnership);
+                Assert.True(ownership.IsRequired);
+                Assert.True(ownership.IsRequiredDependent);
                 Assert.NotNull(ownership.DeclaringEntityType.FindProperty(nameof(StreetAddress.Street)));
             }
 

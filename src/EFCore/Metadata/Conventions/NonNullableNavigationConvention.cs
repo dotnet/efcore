@@ -66,16 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 return;
             }
 
-            if (foreignKey.GetPrincipalEndConfigurationSource() != null)
+            if (navigation.IsOnDependent)
             {
-                if (navigation.IsOnDependent)
-                {
-                    foreignKey.Builder.IsRequired(true);
-                }
-                else
-                {
-                    foreignKey.Builder.IsRequiredDependent(true);
-                }
+                foreignKey.Builder.IsRequired(true);
+            }
+            else
+            {
+                foreignKey.Builder.IsRequiredDependent(true);
             }
         }
 
