@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Xunit;
 
 // ReSharper disable InconsistentNaming
@@ -13,6 +15,42 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class ProxyGraphUpdatesTestBase<TFixture>
         where TFixture : ProxyGraphUpdatesTestBase<TFixture>.ProxyGraphUpdatesFixtureBase, new()
     {
+        [ConditionalFact]
+        public virtual void Attempting_to_save_two_entity_cycle_with_lazy_loading_throws()
+        {
+            ExecuteWithStrategyInTransaction(
+                context =>
+                {
+                    context.AddRange(
+                        context.CreateProxy<Car>(
+                            car =>
+                            {
+                                car.Owner = context.CreateProxy<Person>();
+                                car.Id = Guid.NewGuid();
+                            }),
+                        context.CreateProxy<Car>(
+                            car =>
+                            {
+                                car.Owner = context.CreateProxy<Person>();
+                                car.Id = Guid.NewGuid();
+                            }));
+
+                    context.SaveChanges();
+                },
+                context =>
+                {
+                    var cars = context.Set<Car>().ToList();
+
+                    (cars[1].Owner, cars[0].Owner) = (cars[0].Owner, cars[1].Owner);
+
+                    cars[0].Owner.Vehicle = cars[0];
+                    cars[1].Owner.Vehicle = cars[1];
+
+                    var message = Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message;
+                    Assert.StartsWith(CoreStrings.CircularDependency("").Substring(0, 30), message);
+                });
+        }
+
         [ConditionalFact]
         public virtual void Avoid_nulling_shared_FK_property_when_deleting()
         {

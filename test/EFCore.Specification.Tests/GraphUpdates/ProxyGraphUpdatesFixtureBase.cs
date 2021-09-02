@@ -374,6 +374,20 @@ namespace Microsoft.EntityFrameworkCore
                     });
 
                 modelBuilder.Entity<SharedFkDependant>();
+
+                modelBuilder.Entity<Person>(p =>
+                {
+                    p.HasKey(tp => tp.Id);
+                });
+
+                modelBuilder.Entity<Car>(c =>
+                {
+                    c.HasKey(tc => tc.Id);
+                    c.HasOne(tc => tc.Owner)
+                        .WithOne(tp => tp.Vehicle)
+                        .HasForeignKey<Car>("fk_PersonId")
+                        .IsRequired();
+                });
             }
 
             protected virtual object CreateFullGraph(DbContext context)
@@ -1878,6 +1892,18 @@ namespace Microsoft.EntityFrameworkCore
             public virtual long RootId { get; set; }
             public virtual SharedFkRoot Root { get; set; }
             public virtual SharedFkParent Parent { get; set; }
+        }
+
+        public class Car
+        {
+            public virtual Guid Id { get; set; }
+            public virtual Person Owner { get; set; }
+        }
+
+        public class Person
+        {
+            public virtual Guid Id { get; set; }
+            public virtual Car Vehicle { get; set; }
         }
 
         protected DbContext CreateContext()

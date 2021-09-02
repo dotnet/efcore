@@ -157,10 +157,10 @@
     <value>The property '{entityType}.{property}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.</value>
   </data>
   <data name="CompiledModelValueComparer" xml:space="preserve">
-    <value>The property '{entityType}.{property}' has a value comparer configured. Use '{method}' to configure the value comparer type.</value>
+    <value>The property '{entityType}.{property}' has a value comparer configured using a ValueComparer instance. Instead, create types that inherit from ValueConverter and ValueComparer and use '{method}=&lt;ConverterType, ComparerType=&gt;()' or '{method}(Type converterType, Type comparerType)' to configure the value converter and comparer.</value>
   </data>
   <data name="CompiledModelValueConverter" xml:space="preserve">
-    <value>The property '{entityType}.{property}' has a value converter configured. Use '{method}' to configure the value converter type.</value>
+    <value>The property '{entityType}.{property}' has a value converter configured using a ValueConverter instance or inline expressions. Instead, create a type that inherits from ValueConverter and use '{method}=&lt;ConverterType=&gt;()' or '{method}(Type converterType)' to configure the value converter.</value>
   </data>
   <data name="CompiledModelValueGenerator" xml:space="preserve">
     <value>The property '{entityType}.{property}' has a value generator configured. Use '{method}' to configure the value generator factory type.</value>

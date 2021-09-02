@@ -1521,6 +1521,24 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            protected virtual void Throws_for_int_keyed_dictionary()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<IntDict>();
+
+                Assert.Equal(
+                    CoreStrings.EntityRequiresKey(typeof(Dictionary<int, string>).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+            }
+
+            protected class IntDict
+            {
+                public int Id { get; set; }
+                public Dictionary<int, string> Notes { get; set; }
+            }
+
+            [ConditionalFact]
             public virtual void Can_set_unicode_for_properties()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -2071,6 +2089,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.SharedTypeEntity<Dictionary<string, object>>("Shared1", b =>
                 {
                     b.IndexerProperty<int>("Key");
+                    b.Property<int>("Keys");
+                    b.Property<byte[]>("Values");
+                    b.Property<string>("Count");
                     b.HasKey("Key");
                 });
 
@@ -2087,6 +2108,9 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 Assert.NotNull(shared1);
                 Assert.True(shared1.HasSharedClrType);
                 Assert.Null(shared1.FindProperty("Id"));
+                Assert.Equal(typeof(int), shared1.FindProperty("Keys").ClrType);
+                Assert.Equal(typeof(byte[]), shared1.FindProperty("Values").ClrType);
+                Assert.Equal(typeof(string), shared1.FindProperty("Count").ClrType);
 
                 var shared2 = model.FindEntityType("Shared2");
                 Assert.NotNull(shared2);

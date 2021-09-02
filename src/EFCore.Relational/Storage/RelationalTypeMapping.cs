@@ -485,6 +485,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.ParameterName = name;
 
             value = ConvertUnderlyingEnumValueToEnum(value);
+
+            // We preserve convert nodes around enum to get actual enum value for type mapping
+            // But when enum is cast manually to something same as implicit cast
+            // And type mapping is not really enum then we need to convert the enum value to current Clr Type
+            if (value?.GetType().IsEnum == true
+                && ClrType.IsInteger())
+            {
+                value = Convert.ChangeType(value, ClrType);
+            }
+
             if (Converter != null)
             {
                 value = Converter.ConvertToProvider(value);

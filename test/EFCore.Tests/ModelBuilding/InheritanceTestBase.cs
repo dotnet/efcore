@@ -99,15 +99,17 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<SelfRefManyToOneDerived>().HasData(
-                    new SelfRefManyToOneDerived { Id = 1, SelfRefId = 1 });
+                    new SelfRefManyToOneDerived { Id = 1, SelfRef1Id = 1 });
                 modelBuilder.Entity<SelfRefManyToOne>();
 
                 modelBuilder.FinalizeModel();
 
                 var model = modelBuilder.Model;
                 Assert.Empty(model.FindEntityType(typeof(SelfRefManyToOneDerived)).GetDeclaredProperties());
-                Assert.NotNull(model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef1)));
-                Assert.NotNull(model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef2)));
+                var fk = model.FindEntityType(typeof(SelfRefManyToOne)).FindNavigation(nameof(SelfRefManyToOne.SelfRef1)).ForeignKey;
+                Assert.Equal(nameof(SelfRefManyToOne.SelfRef2), fk.PrincipalToDependent.Name);
+                Assert.Equal(nameof(SelfRefManyToOne.SelfRef1Id), fk.Properties.Single().Name);
+                Assert.True(fk.IsRequired);
             }
 
             [ConditionalFact]

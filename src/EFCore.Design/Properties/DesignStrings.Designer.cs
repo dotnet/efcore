@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property, customize, className);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' has a value comparer configured. Use '{method}' to configure the value comparer type.
+        ///     The property '{entityType}.{property}' has a value comparer configured using a ValueComparer instance. Instead, create types that inherit from ValueConverter and ValueComparer and use '{method}HasConversion=&lt;ConverterType, ComparerType=&gt;()' or '{method}(Type converterType, Type comparerType)' to configure the value converter and comparer.
         /// </summary>
         public static string CompiledModelValueComparer(object? entityType, object? property, object? method)
             => string.Format(
@@ -126,7 +126,7 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType, property, method);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' has a value converter configured. Use '{method}' to configure the value converter type.
+        ///     The property '{entityType}.{property}' has a value converter configured using a ValueConverter instance or inline expressions. Instead, create a type that inherits from ValueConverter and use '{method}HasConversion=&lt;ConverterType=&gt;()' or '{method}(Type converterType)' to configure the value converter.
         /// </summary>
         public static string CompiledModelValueConverter(object? entityType, object? property, object? method)
             => string.Format(

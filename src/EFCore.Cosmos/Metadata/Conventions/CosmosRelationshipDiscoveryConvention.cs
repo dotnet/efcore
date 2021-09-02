@@ -40,6 +40,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="model"> The model. </param>
         /// <returns> <see langword="true"/> if the given entity type should be owned. </returns>
         public static bool ShouldBeOwnedType(Type targetType, IConventionModel model)
-            => !targetType.IsGenericType || targetType.GetGenericTypeDefinition() != typeof(List<>);
+            => !targetType.IsGenericType
+            || targetType == typeof(Dictionary<string, object>)
+            || targetType.GetInterface(typeof(IEnumerable<>).Name) == null;
     }
 }
