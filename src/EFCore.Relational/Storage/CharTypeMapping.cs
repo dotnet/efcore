@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public CharTypeMapping(
             string storeType,
-            DbType? dbType = null) // No DbType for char
+            DbType? dbType = System.Data.DbType.String)
             : base(storeType, typeof(char), dbType)
         {
         }
