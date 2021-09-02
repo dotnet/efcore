@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
             => unicode
                 ? (fixedLength
                     ? System.Data.DbType.StringFixedLength
-                    : (DbType?)null)
+                    : System.Data.DbType.String)
                 : (fixedLength
                     ? System.Data.DbType.AnsiStringFixedLength
                     : System.Data.DbType.AnsiString);

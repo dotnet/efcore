@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -429,7 +430,7 @@ namespace TestNamespace
                 base.OnModelCreating(modelBuilder);
 
                 modelBuilder.HasDbFunction(typeof(FunctionTypeMappingContext).GetMethod(nameof(GetSqlFragmentStatic)))
-                    .Metadata.TypeMapping = new StringTypeMapping("varchar");
+                    .Metadata.TypeMapping = new StringTypeMapping("varchar", DbType.AnsiString);
             }
         }
 
@@ -453,7 +454,7 @@ namespace TestNamespace
                 base.OnModelCreating(modelBuilder);
 
                 modelBuilder.HasDbFunction(typeof(FunctionParameterTypeMappingContext).GetMethod(nameof(GetSqlFragmentStatic)))
-                    .HasParameter("param").Metadata.TypeMapping = new StringTypeMapping("varchar");
+                    .HasParameter("param").Metadata.TypeMapping = new StringTypeMapping("varchar", DbType.AnsiString);
             }
         }
 

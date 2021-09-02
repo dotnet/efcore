@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerShortTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.Int16)
             : base(storeType, dbType)
         {
         }

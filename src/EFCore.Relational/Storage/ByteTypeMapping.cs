@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public ByteTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.Byte)
             : base(storeType, typeof(byte), dbType)
         {
         }

@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerDateTimeTypeMapping(
             string storeType,
-            DbType? dbType = null,
+            DbType? dbType,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
             : base(
                 new RelationalTypeMappingParameters(

@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public UIntTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.UInt32)
             : base(storeType, typeof(uint), dbType)
         {
         }

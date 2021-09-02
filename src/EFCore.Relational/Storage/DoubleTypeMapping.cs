@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public DoubleTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.Double)
             : base(storeType, typeof(double), dbType)
         {
         }

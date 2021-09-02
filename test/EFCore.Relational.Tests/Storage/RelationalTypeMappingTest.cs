@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
             Assert.Equal(17, parameter.Value);
-            Assert.Equal(DefaultParameterType, parameter.DbType);
+            Assert.Equal(DbType.Int32, parameter.DbType);
             Assert.False(parameter.IsNullable);
         }
 
@@ -287,7 +287,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
             Assert.Equal(17, parameter.Value);
-            Assert.Equal(DefaultParameterType, parameter.DbType);
+            Assert.Equal(DbType.Int32, parameter.DbType);
             Assert.True(parameter.IsNullable);
         }
 
@@ -523,7 +523,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         [ConditionalFact]
         public virtual void String_literal_generated_correctly()
         {
-            Test_GenerateSqlLiteral_helper(new StringTypeMapping("string"), "Text", "'Text'");
+            Test_GenerateSqlLiteral_helper(new StringTypeMapping("string", DbType.String), "Text", "'Text'");
         }
 
         [ConditionalFact]
@@ -665,7 +665,5 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected abstract DbContextOptions ContextOptions { get; }
 
         protected abstract DbCommand CreateTestCommand();
-
-        protected abstract DbType DefaultParameterType { get; }
     }
 }

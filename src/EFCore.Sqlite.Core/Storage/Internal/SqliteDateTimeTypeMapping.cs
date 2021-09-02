@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public SqliteDateTimeTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.DateTime2)
             : base(storeType, dbType)
         {
         }

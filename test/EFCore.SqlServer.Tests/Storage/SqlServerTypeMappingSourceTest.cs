@@ -64,16 +64,16 @@ namespace Microsoft.EntityFrameworkCore
         public void Does_simple_SQL_Server_mappings_to_DbTypes()
         {
             Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int)).DbType);
-            Assert.Null(GetTypeMapping(typeof(string)).DbType);
+            Assert.Equal(DbType.String, GetTypeMapping(typeof(string)).DbType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
-            Assert.Null(GetTypeMapping(typeof(TimeSpan)).DbType);
+            Assert.Equal(DbType.Time, GetTypeMapping(typeof(TimeSpan)).DbType);
             Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid)).DbType);
             Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte)).DbType);
-            Assert.Null(GetTypeMapping(typeof(double)).DbType);
-            Assert.Null(GetTypeMapping(typeof(bool)).DbType);
+            Assert.Equal(DbType.Double, GetTypeMapping(typeof(double)).DbType);
+            Assert.Equal(DbType.Boolean, GetTypeMapping(typeof(bool)).DbType);
             Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).DbType);
             Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).DbType);
-            Assert.Null(GetTypeMapping(typeof(float)).DbType);
+            Assert.Equal(DbType.Single, GetTypeMapping(typeof(float)).DbType);
             Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset)).DbType);
         }
 
@@ -81,16 +81,16 @@ namespace Microsoft.EntityFrameworkCore
         public void Does_simple_SQL_Server_mappings_for_nullable_CLR_types_to_DbTypes()
         {
             Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(string)).DbType);
+            Assert.Equal(DbType.String, GetTypeMapping(typeof(string)).DbType);
             Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
-            Assert.Null(GetTypeMapping(typeof(TimeSpan?)).DbType);
+            Assert.Equal(DbType.Time, GetTypeMapping(typeof(TimeSpan?)).DbType);
             Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid?)).DbType);
             Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(double?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(bool?)).DbType);
+            Assert.Equal(DbType.Double, GetTypeMapping(typeof(double?)).DbType);
+            Assert.Equal(DbType.Boolean, GetTypeMapping(typeof(bool?)).DbType);
             Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).DbType);
             Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).DbType);
-            Assert.Null(GetTypeMapping(typeof(float?)).DbType);
+            Assert.Equal(DbType.Single, GetTypeMapping(typeof(float?)).DbType);
             Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset?)).DbType);
         }
 
@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(decimal));
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.Decimal, typeMapping.DbType);
             Assert.Equal("decimal(18,2)", typeMapping.StoreType);
         }
 
@@ -121,7 +121,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(decimal?));
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.Decimal, typeMapping.DbType);
             Assert.Equal("decimal(18,2)", typeMapping.StoreType);
         }
 
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), unicode: unicode, fixedLength: fixedLength);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
             Assert.Null(typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: fixedLength);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: fixedLength);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -239,7 +239,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), unicode: unicode, fixedLength: fixedLength);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
             Assert.Null(typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -256,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: fixedLength);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(3)", typeMapping.StoreType);
             Assert.Equal(3, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -273,7 +273,7 @@ namespace Microsoft.EntityFrameworkCore
         {
             var typeMapping = GetTypeMapping(typeof(string), nullable: false, unicode: unicode, fixedLength: fixedLength);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(max)", typeMapping.StoreType);
             Assert.Null(typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
             Assert.Equal(450, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -321,7 +321,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
             Assert.Equal(450, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -347,7 +347,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
             Assert.Equal(450, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -370,7 +370,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
             Assert.Equal(450, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -393,7 +393,7 @@ namespace Microsoft.EntityFrameworkCore
 
             var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
 
-            Assert.Null(typeMapping.DbType);
+            Assert.Equal(DbType.String, typeMapping.DbType);
             Assert.Equal("nvarchar(450)", typeMapping.StoreType);
             Assert.Equal(450, typeMapping.Size);
             Assert.True(typeMapping.IsUnicode);
@@ -1238,7 +1238,7 @@ namespace Microsoft.EntityFrameworkCore
         class FakeTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
         {
             public RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
-                => new StringTypeMapping("datetime2");
+                => new StringTypeMapping("datetime2", null);
         }
 
         protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource()
