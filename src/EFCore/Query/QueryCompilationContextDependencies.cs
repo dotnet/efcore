@@ -85,7 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             QueryableMethodTranslatingExpressionVisitorFactory = queryableMethodTranslatingExpressionVisitorFactory;
             QueryTranslationPostprocessorFactory = queryTranslationPostprocessorFactory;
             ShapedQueryCompilingExpressionVisitorFactory = shapedQueryCompilingExpressionVisitorFactory;
-            IsRetryingExecutionStrategy = executionStrategyFactory.Create().RetriesOnFailure;
+            var executionStrategy = executionStrategyFactory.Create();
+            IsRetryingExecutionStrategy = executionStrategy.RetriesOnFailure;
+            executionStrategyFactory.Return(executionStrategy);
             ContextOptions = contextOptions;
             Logger = logger;
         }

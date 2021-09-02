@@ -69,7 +69,9 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Model = model;
             CurrentContext = currentContext;
-            IsRetryingExecutionStrategy = executionStrategyFactory.Create().RetriesOnFailure;
+            var executionStrategy = executionStrategyFactory.Create();
+            IsRetryingExecutionStrategy = executionStrategy.RetriesOnFailure;
+            executionStrategyFactory.Return(executionStrategy);
         }
 
         /// <summary>

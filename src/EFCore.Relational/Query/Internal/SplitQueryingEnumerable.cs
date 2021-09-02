@@ -245,6 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (_dataReader is not null)
                 {
+                    _relationalQueryContext.ExecutionStrategyFactory.Return(_executionStrategy!);
                     _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
                     _dataReader.Dispose();
                     if (_resultCoordinator != null)
@@ -259,6 +260,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _resultCoordinator = null;
                     }
 
+                    _executionStrategy = null;
                     _dataReader = null;
                     _dbDataReader = null;
                 }
@@ -393,6 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 if (_dataReader != null)
                 {
+                    _relationalQueryContext.ExecutionStrategyFactory.Return(_executionStrategy!);
                     _relationalQueryContext.Connection.ReturnCommand(_relationalCommand!);
                     await _dataReader.DisposeAsync().ConfigureAwait(false);
                     if (_resultCoordinator != null)
@@ -408,6 +411,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _resultCoordinator.DataReaders.Clear();
                         _resultCoordinator = null;
                     }
+
+                    _executionStrategy = null;
                     _dataReader = null;
                     _dbDataReader = null;
                 }

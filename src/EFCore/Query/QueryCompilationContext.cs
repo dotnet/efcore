@@ -9,6 +9,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -80,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Dependencies = dependencies;
             IsAsync = async;
             QueryTrackingBehavior = dependencies.QueryTrackingBehavior;
-            IsBuffering = dependencies.IsRetryingExecutionStrategy;
+            IsBuffering = ExecutionStrategy.Current?.RetriesOnFailure ?? dependencies.IsRetryingExecutionStrategy;
             Model = dependencies.Model;
             ContextOptions = dependencies.ContextOptions;
             ContextType = dependencies.ContextType;

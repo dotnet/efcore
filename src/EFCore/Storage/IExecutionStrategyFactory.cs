@@ -19,9 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
     public interface IExecutionStrategyFactory
     {
         /// <summary>
-        ///     Creates a new  <see cref="IExecutionStrategy" />.
+        ///     Creates a new <see cref="IExecutionStrategy" />.
         /// </summary>
         /// <returns>An instance of <see cref="IExecutionStrategy" />.</returns>
         IExecutionStrategy Create();
+
+        /// <summary>
+        ///     Returns the <see cref="IExecutionStrategy" /> instance to the pool
+        /// </summary>
+        /// <param name="executionStrategy"> The <see cref="IExecutionStrategy" /> instance. </param>
+        void Return(IExecutionStrategy executionStrategy);
     }
 }

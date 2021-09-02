@@ -502,9 +502,12 @@ namespace Microsoft.EntityFrameworkCore
         /// </summary>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void OpenConnection(this DatabaseFacade databaseFacade)
-            => databaseFacade.CreateExecutionStrategy().Execute(
-                databaseFacade, database
-                    => GetFacadeDependencies(database).RelationalConnection.Open());
+        {
+            var executionStrategy = databaseFacade.CreateExecutionStrategy();
+            executionStrategy.Execute(databaseFacade, database
+                => GetFacadeDependencies(database).RelationalConnection.Open(), null);
+            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
+        }
 
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
@@ -513,12 +516,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task OpenConnectionAsync(
+        public static async Task OpenConnectionAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
-            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
-                databaseFacade, (database, ct) =>
-                    GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), cancellationToken);
+        {
+            var executionStrategy = databaseFacade.CreateExecutionStrategy();
+            await executionStrategy.ExecuteAsync(databaseFacade, (database, ct) =>
+                GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), null, cancellationToken).ConfigureAwait(false);
+            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
+        }
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
@@ -542,7 +548,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="isolationLevel"> The <see cref="IsolationLevel" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that represents the started transaction. </returns>
         public static IDbContextTransaction BeginTransaction(this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
-            => databaseFacade.CreateExecutionStrategy().Execute(
+        {
+            var executionStrategy = databaseFacade.CreateExecutionStrategy();
+            var transaction = executionStrategy.Execute(
                 databaseFacade, database =>
                 {
                     var transactionManager = database.GetTransactionManager();
@@ -550,7 +558,11 @@ namespace Microsoft.EntityFrameworkCore
                     return transactionManager is IRelationalTransactionManager relationalTransactionManager
                         ? relationalTransactionManager.BeginTransaction(isolationLevel)
                         : transactionManager.BeginTransaction();
-                });
+                },
+                null);
+            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
+            return transaction;
+        }
 
         /// <summary>
         ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel" />.
@@ -563,19 +575,24 @@ namespace Microsoft.EntityFrameworkCore
         ///     that represents the started transaction.
         /// </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
-        public static Task<IDbContextTransaction> BeginTransactionAsync(
+        public static async Task<IDbContextTransaction> BeginTransactionAsync(
             this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
-            => databaseFacade.CreateExecutionStrategy().ExecuteAsync(
-                databaseFacade, (database, ct) =>
-                {
-                    var transactionManager = database.GetTransactionManager();
+        {
+            var executionStrategy = databaseFacade.CreateExecutionStrategy();
+            var transaction = await executionStrategy.ExecuteAsync(
+                           databaseFacade, (database, ct) =>
+                           {
+                               var transactionManager = database.GetTransactionManager();
 
-                    return transactionManager is IRelationalTransactionManager relationalTransactionManager
-                        ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
-                        : transactionManager.BeginTransactionAsync(ct);
-                }, cancellationToken);
+                               return transactionManager is IRelationalTransactionManager relationalTransactionManager
+                                   ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
+                                   : transactionManager.BeginTransactionAsync(ct);
+                           }, null, cancellationToken).ConfigureAwait(false);
+            ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
+            return transaction;
+        }
 
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.

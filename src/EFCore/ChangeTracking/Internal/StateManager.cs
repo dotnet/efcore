@@ -1162,12 +1162,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
-            => Context.Database.AutoTransactionsEnabled
-                ? Dependencies.ExecutionStrategyFactory.Create().Execute(
-                    (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
-                    (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
-                    null)
-                : SaveChanges(this, acceptAllChangesOnSuccess);
+        {
+            if (!Context.Database.AutoTransactionsEnabled)
+            {
+                return SaveChanges(this, acceptAllChangesOnSuccess);
+            }
+
+            var executionStrategy = Dependencies.ExecutionStrategyFactory.Create();
+            var result = executionStrategy.Execute((StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
+                               static (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
+                               null);
+            Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
+            return result;
+        }
 
         private static int SaveChanges(StateManager stateManager, bool acceptAllChangesOnSuccess)
         {
@@ -1215,16 +1222,25 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task<int> SaveChangesAsync(
+        public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default)
-            => Context.Database.AutoTransactionsEnabled
-                ? Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+        {
+            if (!Context.Database.AutoTransactionsEnabled)
+            {
+                return await SaveChangesAsync(this, acceptAllChangesOnSuccess, cancellationToken).ConfigureAwait(acceptAllChangesOnSuccess);
+            }
+
+            var executionStrategy = Dependencies.ExecutionStrategyFactory.Create();
+            var result = await executionStrategy.ExecuteAsync(
                     (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
-                    (_, t, cancellationToken) => SaveChangesAsync(t.StateManager, t.AcceptAllChangesOnSuccess, cancellationToken),
+                    static (_, t, cancellationToken) => SaveChangesAsync(t.StateManager, t.AcceptAllChangesOnSuccess, cancellationToken),
                     null,
-                    cancellationToken)
-                : SaveChangesAsync(this, acceptAllChangesOnSuccess, cancellationToken);
+                    cancellationToken);
+            Dependencies.ExecutionStrategyFactory.Return(executionStrategy);
+
+            return result;
+        }
 
         private static async Task<int> SaveChangesAsync(
             StateManager stateManager,
