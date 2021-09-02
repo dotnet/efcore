@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public SqliteTimeOnlyTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.Time)
             : base(storeType, dbType)
         {
         }

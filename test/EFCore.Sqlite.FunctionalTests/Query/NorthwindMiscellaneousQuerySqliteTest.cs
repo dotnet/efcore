@@ -40,8 +40,8 @@ WHERE ""o"".""OrderDate"" IS NOT NULL AND (('10' = '') OR (instr(CAST(""o"".""Em
             await base.Take_Skip(async);
 
             AssertSql(
-                @"@__p_0='10' (DbType = String)
-@__p_1='5' (DbType = String)
+                @"@__p_0='10'
+@__p_1='5'
 
 SELECT ""t"".""CustomerID"", ""t"".""Address"", ""t"".""City"", ""t"".""CompanyName"", ""t"".""ContactName"", ""t"".""ContactTitle"", ""t"".""Country"", ""t"".""Fax"", ""t"".""Phone"", ""t"".""PostalCode"", ""t"".""Region""
 FROM (
@@ -165,7 +165,7 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
             await base.Select_expression_date_add_milliseconds_large_number_divided(async);
 
             AssertSql(
-                @"@__millisecondsPerDay_0='86400000' (DbType = String)
+                @"@__millisecondsPerDay_0='86400000'
 
 SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", COALESCE(CAST(CAST((CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0) AS INTEGER) / @__millisecondsPerDay_0) AS REAL) AS TEXT), '') || ' days', COALESCE(CAST((CAST((CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0) AS INTEGER) % @__millisecondsPerDay_0) AS REAL) / 1000.0) AS TEXT), '') || ' seconds'), '0'), '.') AS ""OrderDate""
 FROM ""Orders"" AS ""o""
@@ -200,7 +200,7 @@ FROM (
             await base.Select_orderBy_skip_long_count(async);
 
             AssertSql(
-                @"@__p_0='7' (DbType = String)
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
@@ -216,7 +216,7 @@ FROM (
             await base.Select_orderBy_take_long_count(async);
 
             AssertSql(
-                @"@__p_0='7' (DbType = String)
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
@@ -232,7 +232,7 @@ FROM (
             await base.Select_skip_long_count(async);
 
             AssertSql(
-                @"@__p_0='7' (DbType = String)
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
@@ -247,7 +247,7 @@ FROM (
             await base.Select_take_long_count(async);
 
             AssertSql(
-                @"@__p_0='7' (DbType = String)
+                @"@__p_0='7'
 
 SELECT COUNT(*)
 FROM (

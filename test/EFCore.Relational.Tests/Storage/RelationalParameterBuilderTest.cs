@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                     new TypeMappedRelationalParameter(
                         "SecondInvariant",
                         "SecondName",
-                        new StringTypeMapping("nvarchar(max)"),
+                        new StringTypeMapping("nvarchar(max)", DbType.String),
                         nullable: true)
                 });
 

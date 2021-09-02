@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerDecimalTypeMapping(
             string storeType,
-            DbType? dbType = null,
+            DbType? dbType = System.Data.DbType.Decimal,
             int? precision = null,
             int? scale = null,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
