@@ -454,6 +454,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public bool IsUnknown(IProperty property)
+            => _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public void SetPropertyModified(
             IProperty property,
             bool changeState = true,
@@ -1322,7 +1331,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                     if (propertyIndex != -1)
                     {
-                        _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, isFlagged: false);
+                        if (_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown))
+                        {
+                            if (!_originalValues.IsEmpty)
+                            {
+                                SetOriginalValue(propertyBase, value);
+                            }
+                            _stateData.FlagProperty(propertyIndex, PropertyFlag.Unknown, isFlagged: false);
+                        }
                     }
 
                     if (propertyBase is INavigationBase navigation)

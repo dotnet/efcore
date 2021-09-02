@@ -19,6 +19,64 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class GraphUpdatesTestBase<TFixture>
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
+        [ConditionalTheory] // Issue #22465
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Reset_unknown_original_value_when_current_value_is_set(bool async)
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var entityZ = new EntityZ();
+                    var eventZ = new EventDescriptorZ {EntityZ = entityZ};
+
+                    if (async)
+                    {
+                        await context.AddRangeAsync(entityZ, eventZ);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.AddRange(entityZ, eventZ);
+                        context.SaveChanges();
+                    }
+
+                    context.Entry(entityZ).State = EntityState.Detached;
+                    context.Entry(eventZ).State = EntityState.Detached;
+
+                    context.Entry(entityZ).State = EntityState.Deleted;
+                    context.Entry(eventZ).State = EntityState.Deleted;
+
+                    Assert.Same(entityZ, eventZ.EntityZ);
+                    Assert.Equal(entityZ.Id, context.Entry(eventZ).Property<long>("EntityZId").CurrentValue);
+                    Assert.Equal(entityZ.Id, context.Entry(eventZ).Property<long>("EntityZId").OriginalValue);
+
+                    if (async)
+                    {
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.SaveChanges();
+                    }
+
+                    Assert.Empty(context.ChangeTracker.Entries());
+                },
+                async context =>
+                {
+                    if (async)
+                    {
+                        Assert.False(await context.Set<EventDescriptorZ>().AnyAsync());
+                        Assert.False(await context.Set<EntityZ>().AnyAsync());
+                    }
+                    else
+                    {
+                        Assert.False(context.Set<EventDescriptorZ>().Any());
+                        Assert.False(context.Set<EntityZ>().Any());
+                    }
+                });
+        }
+
         [ConditionalTheory] // Issue #19856
         [InlineData(false)]
         [InlineData(true)]

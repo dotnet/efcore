@@ -470,6 +470,13 @@ namespace Microsoft.EntityFrameworkCore
 
                         b.HasKey("PartnerId", "ProviderId");
                     });
+
+                modelBuilder.Entity<EventDescriptorZ>(
+                    b =>
+                    {
+                        b.Property<long>("EntityZId");
+                        b.HasOne(e => e.EntityZ).WithMany().HasForeignKey("EntityZId").IsRequired();
+                    });
             }
 
             protected virtual object CreateFullGraph()
@@ -3374,6 +3381,35 @@ namespace Microsoft.EntityFrameworkCore
             {
                 get => _id;
                 set => SetWithNotify(value, ref _id);
+            }
+        }
+
+        protected class EventDescriptorZ : NotifyingEntity
+        {
+            private int _id;
+            private EntityZ _entityZ;
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public EntityZ EntityZ
+            {
+                get => _entityZ;
+                set => SetWithNotify(value, ref _entityZ);
+            }
+        }
+
+        protected class EntityZ : NotifyingEntity
+        {
+            private long _id;
+
+            public long Id
+            {
+                get => _id;
+                set => _id = value;
             }
         }
 
