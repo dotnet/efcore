@@ -49,7 +49,7 @@ WHERE ""c"".""City"" = @__city_0", queryString, ignoreLineEndingDifferences: tru
             await base.Where_datetime_now(async);
 
             AssertSql(
-                @"@__myDatetime_0='2015-04-10T00:00:00.0000000' (DbType = String)
+                @"@__myDatetime_0='2015-04-10T00:00:00.0000000' (DbType = DateTime)
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
@@ -61,7 +61,7 @@ WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), '0'), '.') 
             await base.Where_datetime_utcnow(async);
 
             AssertSql(
-                @"@__myDatetime_0='2015-04-10T00:00:00.0000000' (DbType = String)
+                @"@__myDatetime_0='2015-04-10T00:00:00.0000000' (DbType = DateTime)
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
@@ -86,7 +86,7 @@ WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime', 'start of da
             await base.Where_datetime_date_component(async);
 
             AssertSql(
-                @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = String)
+                @"@__myDatetime_0='1998-05-04T00:00:00.0000000' (DbType = DateTime)
 
 SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
 FROM ""Orders"" AS ""o""

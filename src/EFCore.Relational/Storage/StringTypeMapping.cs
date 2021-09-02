@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public StringTypeMapping(
             string storeType,
-            DbType? dbType = null,
+            DbType? dbType,
             bool unicode = false,
             int? size = null)
             : base(

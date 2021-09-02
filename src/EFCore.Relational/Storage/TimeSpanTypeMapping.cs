@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
         public TimeSpanTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.Time)
             : base(storeType, typeof(TimeSpan), dbType)
         {
         }

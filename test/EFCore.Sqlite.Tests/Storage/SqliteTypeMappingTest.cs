@@ -74,9 +74,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         protected override DbCommand CreateTestCommand()
             => new SqliteCommand();
 
-        protected override DbType DefaultParameterType
-            => DbType.String;
-
         [ConditionalTheory]
         [InlineData(typeof(SqliteDateTimeOffsetTypeMapping), typeof(DateTimeOffset))]
         [InlineData(typeof(SqliteDateTimeTypeMapping), typeof(DateTime))]

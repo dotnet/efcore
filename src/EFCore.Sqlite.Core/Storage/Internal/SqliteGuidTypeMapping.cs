@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// </summary>
         public SqliteGuidTypeMapping(
             string storeType,
-            DbType? dbType = null)
+            DbType? dbType = System.Data.DbType.Guid)
             : base(storeType, dbType)
         {
         }

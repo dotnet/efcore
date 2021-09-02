@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="scale"> The scale of data the property is configured to store, or null if the default scale is required. </param>
         public DecimalTypeMapping(
             string storeType,
-            DbType? dbType = null,
+            DbType? dbType = System.Data.DbType.Decimal,
             int? precision = null,
             int? scale = null)
             : base(storeType, typeof(decimal), dbType, precision: precision, scale: scale)

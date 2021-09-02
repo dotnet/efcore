@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// </summary>
         public SqlServerDoubleTypeMapping(
             string storeType,
-            DbType? dbType = null,
+            DbType? dbType = System.Data.DbType.Double,
             StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
             : base(
                 new RelationalTypeMappingParameters(

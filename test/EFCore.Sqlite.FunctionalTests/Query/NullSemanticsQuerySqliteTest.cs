@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 FROM ""Entities1"" AS ""e""
 WHERE ""e"".""NullableBoolA"" IS NOT NULL",
                 //
-                @"@__prm_0='False' (DbType = String)
+                @"@__prm_0='False'
 
 SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
 FROM ""Entities1"" AS ""e""
@@ -44,7 +44,7 @@ WHERE ""e"".""BoolB"" = (""e"".""NullableBoolA"" IS NOT NULL)");
 FROM ""Entities1"" AS ""e""
 WHERE ""e"".""NullableBoolA"" IS NULL",
                 //
-                @"@__prm_0='False' (DbType = String)
+                @"@__prm_0='False'
 
 SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
 FROM ""Entities1"" AS ""e""
@@ -60,7 +60,7 @@ WHERE @__prm_0 = (""e"".""NullableBoolA"" IS NOT NULL)");
 FROM ""Entities1"" AS ""e""
 WHERE ""e"".""NullableBoolA"" IS NULL",
                 //
-                @"@__prm_0='False' (DbType = String)
+                @"@__prm_0='False'
 
 SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
 FROM ""Entities1"" AS ""e""
@@ -80,7 +80,7 @@ WHERE ""e"".""BoolB"" <> (""e"".""NullableBoolA"" IS NOT NULL)");
 FROM ""Entities1"" AS ""e""
 WHERE ""e"".""NullableBoolA"" IS NOT NULL",
                 //
-                @"@__prm_0='False' (DbType = String)
+                @"@__prm_0='False'
 
 SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
 FROM ""Entities1"" AS ""e""

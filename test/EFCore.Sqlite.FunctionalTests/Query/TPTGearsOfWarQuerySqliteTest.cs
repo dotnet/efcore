@@ -245,7 +245,7 @@ WHERE instr(""s"".""Banner"", X'01') > 0");
             await base.Byte_array_contains_parameter(async);
 
             AssertSql(
-                @"@__someByte_0='1' (DbType = String)
+                @"@__someByte_0='1'
 
 SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
@@ -267,7 +267,7 @@ WHERE length(""s"".""Banner"") = 1");
             await base.Byte_array_filter_by_length_parameter(async);
 
             AssertSql(
-                @"@__p_0='1' (DbType = String)
+                @"@__p_0='1'
 
 SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""
@@ -279,7 +279,7 @@ WHERE length(""s"".""Banner"") = @__p_0");
             base.Byte_array_filter_by_length_parameter_compiled();
 
             AssertSql(
-                @"@__byteArrayParam='0x2A80' (Size = 2) (DbType = String)
+                @"@__byteArrayParam='0x2A80' (Size = 2)
 
 SELECT COUNT(*)
 FROM ""Squads"" AS ""s""
@@ -291,7 +291,7 @@ WHERE length(""s"".""Banner"") = length(@__byteArrayParam)");
             await base.Byte_array_filter_by_SequenceEqual(async);
 
             AssertSql(
-                @"@__byteArrayParam_0='0x0405060708' (Size = 5) (DbType = String)
+                @"@__byteArrayParam_0='0x0405060708' (Size = 5)
 
 SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
 FROM ""Squads"" AS ""s""

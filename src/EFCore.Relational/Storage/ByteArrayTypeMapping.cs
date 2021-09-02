@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
         public ByteArrayTypeMapping(
             string storeType,
-            DbType? dbType = null,
+            DbType? dbType = System.Data.DbType.Binary,
             int? size = null)
             : base(
                 new RelationalTypeMappingParameters(
