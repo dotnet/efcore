@@ -339,6 +339,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 },
                 {
+                    typeof(NestedReferenceDerived), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (NestedReferenceDerived)e;
+                            var aa = (NestedReferenceDerived)a;
+
+                            Assert.Equal(ee.Id, aa.Id);
+                            Assert.Equal(ee.Name, aa.Name);
+                            Assert.Equal(ee.ParentReferenceId, aa.ParentReferenceId);
+                            Assert.Equal(ee.ParentCollectionId, aa.ParentCollectionId);
+                        }
+                    }
+                },
+                {
                     typeof(NonEntityBase), (e, a) =>
                     {
                         Assert.Equal(e == null, a == null);

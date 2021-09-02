@@ -4133,7 +4133,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => ss.Set<Order>().Where(o => o.OrderDate != null)
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderDate != null)
                     .Select(o => new Order { OrderDate = o.OrderDate.Value.AddMonths(1) }),
                 e => e.OrderDate);
         }

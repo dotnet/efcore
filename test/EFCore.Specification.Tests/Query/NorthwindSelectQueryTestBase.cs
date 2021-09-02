@@ -2240,7 +2240,7 @@ namespace Microsoft.EntityFrameworkCore.Query
               elementSorter: e => e.c.CustomerID,
               elementAsserter: (e, a) =>
               {
-                  AssertInclude(e, a,
+                  AssertInclude(e.c, a.c,
                       new ExpectedInclude<Customer>(c => c.Orders),
                       new ExpectedInclude<Order>(o => o.OrderDetails, "Orders"));
                   AssertInclude(e.SingleOrder, a.SingleOrder, new ExpectedInclude<Order>(o => o.OrderDetails));

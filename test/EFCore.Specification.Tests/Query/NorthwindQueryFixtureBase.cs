@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -90,7 +91,150 @@ namespace Microsoft.EntityFrameworkCore.Query
             }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-            => null;
+            => new Dictionary<Type, Action<object, object>>
+            {
+                {
+                    typeof(Customer), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (Customer)e;
+                            var aa = (Customer)a;
+
+                            Assert.Equal(ee.CustomerID, aa.CustomerID);
+                            Assert.Equal(ee.Address, aa.Address);
+                            Assert.Equal(ee.CompanyName, aa.CompanyName);
+                            Assert.Equal(ee.ContactName, aa.ContactName);
+                            Assert.Equal(ee.ContactTitle, aa.ContactTitle);
+                            Assert.Equal(ee.Country, aa.Country);
+                            Assert.Equal(ee.Fax, aa.Fax);
+                            Assert.Equal(ee.Phone, aa.Phone);
+                            Assert.Equal(ee.PostalCode, aa.PostalCode);
+                        }
+                    }
+                },
+                {
+                    typeof(CustomerQuery), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (CustomerQuery)e;
+                            var aa = (CustomerQuery)a;
+
+                            Assert.Equal(ee.CompanyName, aa.CompanyName);
+                            Assert.Equal(ee.Address, aa.Address);
+                            Assert.Equal(ee.City, aa.City);
+                            Assert.Equal(ee.ContactName, aa.ContactName);
+                            Assert.Equal(ee.ContactTitle, aa.ContactTitle);
+                        }
+                    }
+                },
+                {
+                    typeof(Order), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (Order)e;
+                            var aa = (Order)a;
+
+                            Assert.Equal(ee.OrderID, aa.OrderID);
+                            Assert.Equal(ee.CustomerID, aa.CustomerID);
+                            Assert.Equal(ee.EmployeeID, aa.EmployeeID);
+                            Assert.Equal(ee.OrderDate, aa.OrderDate);
+                        }
+                    }
+                },
+                {
+                    typeof(OrderQuery), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (OrderQuery)e;
+                            var aa = (OrderQuery)a;
+
+                            Assert.Equal(ee.CustomerID, aa.CustomerID);
+                        }
+                    }
+                },
+                {
+                    typeof(Employee), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (Employee)e;
+                            var aa = (Employee)a;
+
+                            Assert.Equal(ee.EmployeeID, aa.EmployeeID);
+                            Assert.Equal(ee.Title, aa.Title);
+                            Assert.Equal(ee.City, aa.City);
+                            Assert.Equal(ee.Country, aa.Country);
+                            Assert.Equal(ee.FirstName, aa.FirstName);
+                        }
+                    }
+                },
+                {
+                    typeof(Product), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (Product)e;
+                            var aa = (Product)a;
+
+                            Assert.Equal(ee.ProductID, aa.ProductID);
+                            Assert.Equal(ee.ProductName, aa.ProductName);
+                            Assert.Equal(ee.SupplierID, aa.SupplierID);
+                            Assert.Equal(ee.UnitPrice, aa.UnitPrice);
+                            Assert.Equal(ee.UnitsInStock, aa.UnitsInStock);
+                        }
+                    }
+                },
+                {
+                    typeof(ProductQuery), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (ProductQuery)e;
+                            var aa = (ProductQuery)a;
+
+                            Assert.Equal(ee.ProductID, aa.ProductID);
+                            Assert.Equal(ee.CategoryName, aa.CategoryName);
+                            Assert.Equal(ee.ProductName, aa.ProductName);
+                        }
+                    }
+                },
+                {
+                    typeof(OrderDetail), (e, a) =>
+                    {
+                        Assert.Equal(e == null, a == null);
+
+                        if (a != null)
+                        {
+                            var ee = (OrderDetail)e;
+                            var aa = (OrderDetail)a;
+
+                            Assert.Equal(ee.OrderID, aa.OrderID);
+                            Assert.Equal(ee.ProductID, aa.ProductID);
+                            Assert.Equal(ee.Quantity, aa.Quantity);
+                            Assert.Equal(ee.UnitPrice, aa.UnitPrice);
+                            Assert.Equal(ee.Discount, aa.Discount);
+                        }
+                    }
+                },
+            }.ToDictionary(e => e.Key, e => (object)e.Value);
 
         protected override string StoreName { get; } = "Northwind";
 
