@@ -82,11 +82,36 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             return _modelRuntimeInitializer.Initialize((IModel)model, designTime: true, validationLogger: null);
         }
 
+        private void ProcessCollection(IEnumerable<IReadOnlyProperty> metadata, string version)
+        {
+            foreach (var element in metadata)
+            {
+                ProcessElement(element, version);
+            }
+        }
+
         private void ProcessCollection(IEnumerable<IReadOnlyAnnotatable> metadata, string version)
         {
             foreach (var element in metadata)
             {
                 ProcessElement(element, version);
+            }
+        }
+
+        private void ProcessElement(IReadOnlyModel model, string version)
+        {
+            ProcessElement((IReadOnlyAnnotatable)model, version);
+
+            if ((version.StartsWith("3.", StringComparison.Ordinal)
+                || version.StartsWith("5.", StringComparison.Ordinal))
+                    && model is IMutableModel mutableModel)
+            {
+                var seed = model["SqlServer:IdentitySeed"];
+                if (seed != null
+                    && seed is int intSeed)
+                {
+                    mutableModel["SqlServer:IdentitySeed"] = (long)intSeed;
+                }
             }
         }
 
@@ -100,6 +125,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 && !entityType.IsOwned())
             {
                 UpdateOwnedTypes(mutableEntityType);
+            }
+        }
+
+        private void ProcessElement(IReadOnlyProperty property, string version)
+        {
+            ProcessElement((IReadOnlyAnnotatable)property, version);
+
+            if ((version.StartsWith("3.", StringComparison.Ordinal)
+                || version.StartsWith("5.", StringComparison.Ordinal))
+                    && property is IMutableProperty mutableProperty)
+            {
+                var seed = property["SqlServer:IdentitySeed"];
+                if (seed != null
+                    && seed is int intSeed)
+                {
+                    mutableProperty["SqlServer:IdentitySeed"] = (long)intSeed;
+                }
             }
         }
 
