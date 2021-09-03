@@ -56,6 +56,26 @@ namespace Microsoft.EntityFrameworkCore.Query
             Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.KeylessEntity_with_included_navs_multi_level(async))).Message;
+
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
+        {
+            var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.KeylessEntity_with_defining_query_and_correlated_collection(async))).Message;
+
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+        }
+
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)
             => new RelationalQueryAsserter(
                 fixture, RewriteExpectedQueryExpression, RewriteServerQueryExpression, canExecuteQueryString: CanExecuteQueryString);

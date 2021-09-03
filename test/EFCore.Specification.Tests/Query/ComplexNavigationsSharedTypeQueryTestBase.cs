@@ -16,45 +16,25 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         // Self-ref not supported
         public override Task Join_navigation_self_ref(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_multiple_properties(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
         public override Task Join_condition_optimizations_applied_correctly_when_anonymous_type_with_single_property(bool async)
-        {
-            return Task.CompletedTask;
-        }
+            => Task.CompletedTask;
 
-        [ConditionalTheory(Skip = "issue #13560")]
         public override Task Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(bool async)
-        {
-            return base.Multiple_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_joined_together(async);
-        }
+            => Task.CompletedTask;
 
-        [ConditionalTheory(Skip = "issue #13560")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(
-            bool async)
-        {
-            return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(async);
-        }
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany(bool async)
+            => Task.CompletedTask;
 
-        [ConditionalTheory(Skip = "issue #13560")]
-        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(
-            bool async)
-        {
-            return base.SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(async);
-        }
+        public override Task SelectMany_with_nested_navigations_explicit_DefaultIfEmpty_and_additional_joins_outside_of_SelectMany2(bool async)
+            => Task.CompletedTask;
 
-        [ConditionalTheory(Skip = "issue #13560")]
         public override Task SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(bool async)
-        {
-            return base.SelectMany_with_nested_navigations_and_additional_joins_outside_of_SelectMany(async);
-        }
+            => Task.CompletedTask;
 
         [ConditionalTheory(Skip = "Issue#16752")]
         public override Task Include8(bool async)
@@ -66,12 +46,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override Task Include9(bool async)
         {
             return base.Include9(async);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17803")]
-        public override Task Member_pushdown_with_multiple_collections(bool async)
-        {
-            return base.Member_pushdown_with_multiple_collections(async);
         }
 
         // Cannot create DbSet for Level2
@@ -93,12 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public override Task Union_over_entities_with_different_nullability(bool async)
             => Task.CompletedTask;
-
-        [ConditionalTheory(Skip = "Issue#17803")]
-        public override Task Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(bool async)
-        {
-            return base.Multiple_collection_FirstOrDefault_followed_by_member_access_in_projection(async);
-        }
 
         public override Task Project_shadow_properties(bool async)
             => Task.CompletedTask;

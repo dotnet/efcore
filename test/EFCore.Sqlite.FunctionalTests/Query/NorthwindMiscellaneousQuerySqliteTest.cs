@@ -90,6 +90,7 @@ FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
 
+        [ConditionalTheory(Skip = "issue #25851")]
         public override async Task Select_expression_datetime_add_month(bool async)
         {
             await base.Select_expression_datetime_add_month(async);
@@ -130,6 +131,7 @@ FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
         }
 
+        [ConditionalTheory(Skip = "issue #25851")]
         public override async Task Select_expression_datetime_add_ticks(bool async)
         {
             await base.Select_expression_datetime_add_ticks(async);

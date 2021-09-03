@@ -136,6 +136,14 @@ WHERE (c[""Discriminator""] = ""Customer"")");
             AssertSql(@"");
         }
 
+        [ConditionalTheory(Skip = "issue#17314")] // left join translation
+        public override async Task KeylessEntity_with_included_navs_multi_level(bool async)
+        {
+            await base.KeylessEntity_with_included_navs_multi_level(async);
+
+            AssertSql(@"");
+        }
+
         [ConditionalTheory(Skip = "Issue #17246")]
         public override async Task KeylessEntity_groupby(bool async)
         {

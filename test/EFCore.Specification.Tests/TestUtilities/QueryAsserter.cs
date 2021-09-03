@@ -1698,6 +1698,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
                 ((Action<TElement, TElement>)asserter)(expected, actual);
                 ProcessIncludes(expected, actual, expectedIncludes);
             }
+            else
+            {
+                throw new InvalidOperationException($"Couldn't find entity asserter for entity type: '{typeof(TElement).Name}'.");
+            }
         }
 
         private void AssertIncludeCollection<TElement>(

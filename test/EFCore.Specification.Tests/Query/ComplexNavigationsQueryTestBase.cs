@@ -4275,5 +4275,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                       },
                 elementSorter: e => e.Id);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Prune_does_not_throw_null_ref(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from ids in (from l2 in ss.Set<Level2>().Where(i => i.Id < 5)
+                                   select l2.Level1_Required_Id).DefaultIfEmpty()
+                      from l1 in ss.Set<Level1>().Where(x => x.Id != ids)
+                      select l1);
+        }
     }
 }

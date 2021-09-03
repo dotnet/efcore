@@ -290,7 +290,11 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
         {
             await base.Can_use_backwards_of_type_animal(async);
 
-            AssertSql(" ");
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Name], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
+FROM [Animals] AS [a]
+INNER JOIN [Birds] AS [b] ON [a].[Species] = [b].[Species]
+INNER JOIN [Kiwi] AS [k] ON [a].[Species] = [k].[Species]");
         }
 
         public override async Task Can_use_is_kiwi(bool async)

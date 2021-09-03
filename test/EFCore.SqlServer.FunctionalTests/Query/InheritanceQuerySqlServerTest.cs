@@ -544,6 +544,26 @@ FROM [Animals] AS [a]");
 FROM [Animals] AS [a]");
         }
 
+        public override async Task Can_use_backwards_of_type_animal(bool async)
+        {
+            await base.Can_use_backwards_of_type_animal(async);
+
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'");
+        }
+
+        public override async Task Can_use_backwards_is_animal(bool async)
+        {
+            await base.Can_use_backwards_is_animal(async);
+
+            AssertSql(
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
+FROM [Animals] AS [a]
+WHERE [a].[Discriminator] = N'Kiwi'");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }

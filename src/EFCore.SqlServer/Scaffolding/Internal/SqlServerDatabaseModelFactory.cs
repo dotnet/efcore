@@ -694,7 +694,7 @@ SELECT
             {
                 commandText += @",
     [c].[generated_always_type]";
-            }    
+            }
 
             commandText += @"FROM
 (
@@ -1196,7 +1196,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                     .GroupBy(
                         c => (Name: c.GetValueOrDefault<string>("name"),
                             PrincipalTableSchema: c.GetValueOrDefault<string>("principal_table_schema"),
-                            PrincipalTableName: c.GetFieldValue<string>("principal_table_name"),
+                            PrincipalTableName: c.GetValueOrDefault<string>("principal_table_name"),
                             OnDeleteAction: c.GetValueOrDefault<string>("delete_referential_action_desc")));
 
                 foreach (var foreignKeyGroup in foreignKeyGroups)
@@ -1206,9 +1206,18 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                     var principalTableName = foreignKeyGroup.Key.PrincipalTableName;
                     var onDeleteAction = foreignKeyGroup.Key.OnDeleteAction;
 
+                    if (principalTableName == null)
+                    {
+                        _logger.ForeignKeyReferencesUnknownPrincipalTableWarning(
+                            fkName,
+                            DisplayName(table.Schema, table.Name));
+
+                        continue;
+                    }
+
                     _logger.ForeignKeyFound(
                         fkName!,
-                        DisplayName(table.Schema, table.Name!),
+                        DisplayName(table.Schema, table.Name),
                         DisplayName(principalTableSchema, principalTableName),
                         onDeleteAction!);
 
@@ -1217,13 +1226,13 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                                 && t.Name == principalTableName)
                         ?? tables.FirstOrDefault(
                             t => t.Schema?.Equals(principalTableSchema, StringComparison.OrdinalIgnoreCase) == true
-                                && t.Name!.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
+                                && t.Name.Equals(principalTableName, StringComparison.OrdinalIgnoreCase));
 
                     if (principalTable == null)
                     {
                         _logger.ForeignKeyReferencesMissingPrincipalTableWarning(
                             fkName,
-                            DisplayName(table.Schema, table.Name!),
+                            DisplayName(table.Schema, table.Name),
                             DisplayName(principalTableSchema, principalTableName));
 
                         continue;

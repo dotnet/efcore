@@ -98,21 +98,6 @@ FROM (
 WHERE [m].[CustomerID] = N'ALFKI'");
         }
 
-        public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
-        {
-            await base.KeylessEntity_with_defining_query_and_correlated_collection(async);
-
-            AssertSql(
-                @"SELECT [o].[OrderID], [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
-FROM (
-    select * from ""Orders""
-) AS [o]
-LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE [o].[CustomerID] = N'ALFKI'
-ORDER BY [c].[CustomerID], [o].[OrderID], [o0].[OrderID]");
-        }
-
         public override async Task KeylessEntity_select_where_navigation(bool async)
         {
             await base.KeylessEntity_select_where_navigation(async);
