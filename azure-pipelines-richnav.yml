@@ -19,7 +19,7 @@ stages:
             enablePublishTestResults: true
             pool:
               name: NetCorePublic-Pool
-              queue: BuildPool.Server.Amd64.VS2017.Open
+              demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
