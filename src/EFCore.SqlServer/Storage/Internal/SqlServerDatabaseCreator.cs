@@ -116,19 +116,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override bool HasTables()
-            => Dependencies.ExecutionStrategyFactory
-                .Create()
-                .Execute(
-                    _connection,
-                    connection => (int)CreateHasTablesCommand()
-                            .ExecuteScalar(
-                                new RelationalCommandParameterObject(
-                                    connection,
-                                    null,
-                                    null,
-                                    Dependencies.CurrentContext.Context,
-                                    Dependencies.CommandLogger, CommandSource.Migrations))!
-                        != 0);
+            => Dependencies.ExecutionStrategy.Execute(
+                _connection,
+                connection => (int)CreateHasTablesCommand()
+                        .ExecuteScalar(
+                            new RelationalCommandParameterObject(
+                                connection,
+                                null,
+                                null,
+                                Dependencies.CurrentContext.Context,
+                                Dependencies.CommandLogger, CommandSource.Migrations))!
+                    != 0,
+                null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -136,10 +135,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
-            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default)
+            => (int)(await Dependencies.ExecutionStrategy.ExecuteAsync(
                 _connection,
-                async (connection, ct) => (int)(await CreateHasTablesCommand()
+                (connection, ct) => CreateHasTablesCommand()
                         .ExecuteScalarAsync(
                             new RelationalCommandParameterObject(
                                 connection,
@@ -147,9 +146,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                                 null,
                                 Dependencies.CurrentContext.Context,
                                 Dependencies.CommandLogger, CommandSource.Migrations),
-                            cancellationToken: ct)
-                        .ConfigureAwait(false))!
-                    != 0, cancellationToken);
+                            cancellationToken: ct),
+                null,
+                cancellationToken).ConfigureAwait(false))!
+                    != 0;
 
         private IRelationalCommand CreateHasTablesCommand()
             => _rawSqlCommandBuilder
@@ -197,7 +197,7 @@ SELECT 1 ELSE SELECT 0");
             => Exists(retryOnNotExists: false);
 
         private bool Exists(bool retryOnNotExists)
-            => Dependencies.ExecutionStrategyFactory.Create().Execute(
+            => Dependencies.ExecutionStrategy.Execute(
                 DateTime.UtcNow + RetryTimeout, giveUp =>
                 {
                     while (true)
@@ -245,7 +245,8 @@ SELECT 1 ELSE SELECT 0");
                             }
                         }
                     }
-                });
+                },
+                null);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -257,7 +258,7 @@ SELECT 1 ELSE SELECT 0");
             => ExistsAsync(retryOnNotExists: false, cancellationToken: cancellationToken);
 
         private Task<bool> ExistsAsync(bool retryOnNotExists, CancellationToken cancellationToken)
-            => Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+            => Dependencies.ExecutionStrategy.ExecuteAsync(
                 DateTime.UtcNow + RetryTimeout, async (giveUp, ct) =>
                 {
                     while (true)
@@ -308,7 +309,7 @@ SELECT 1 ELSE SELECT 0");
                             }
                         }
                     }
-                }, cancellationToken);
+                }, null, cancellationToken);
 
         // Login failed is thrown when database does not exist (See Issue #776)
         // Unable to attach database file is thrown when file does not exist (See Issue #2810)

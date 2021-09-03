@@ -22,6 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     /// </summary>
     public class ExecutionStrategyFactory : IExecutionStrategyFactory
     {
+        private readonly NonRetryingExecutionStrategy _instance;
+
         /// <summary>
         ///     Creates a new instance of this class with the given service dependencies.
         /// </summary>
@@ -31,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
+            _instance = new NonRetryingExecutionStrategy(Dependencies);
         }
 
         /// <summary>
@@ -39,10 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
         /// <summary>
-        ///     Creates a new  <see cref="IExecutionStrategy" />.
+        ///     Creates a new <see cref="IExecutionStrategy" />.
         /// </summary>
-        /// <returns>An instance of <see cref="IExecutionStrategy" />.</returns>
-        public virtual IExecutionStrategy Create()
-            => new NonRetryingExecutionStrategy(Dependencies);
+        /// <returns> An instance of <see cref="IExecutionStrategy" />. </returns>
+        public virtual IExecutionStrategy Create() => _instance;
     }
 }

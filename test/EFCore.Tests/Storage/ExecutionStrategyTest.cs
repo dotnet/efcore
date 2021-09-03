@@ -738,6 +738,31 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.Equal(3, executionCount);
         }
 
+        [ConditionalFact]
+        public void ShouldRetryOn_does_not_get_null_on_DbUpdateConcurrencyException()
+        {
+            var executionStrategyMock = new TestExecutionStrategy(
+                Context,
+                shouldRetryOn: e =>
+                {
+                    Assert.IsType<DbUpdateConcurrencyException>(e);
+                    return true;
+                },
+                getNextDelay: e => TimeSpan.FromTicks(0));
+
+            var executionCount = 0;
+
+            executionStrategyMock.Execute(() =>
+                {
+                    if (executionCount++ < 1)
+                    {
+                        throw new DbUpdateConcurrencyException("");
+                    }
+                });
+
+            Assert.Equal(2, executionCount);
+        }
+
         protected DbContext CreateContext()
             => InMemoryTestHelpers.Instance.CreateContext(
                 InMemoryTestHelpers.Instance.CreateServiceProvider(
@@ -764,6 +789,14 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 _getNextDelay = getNextDelay;
             }
 
+            protected TestExecutionStrategy()
+                : base(
+                    (ExecutionStrategyDependencies)null,
+                    DefaultMaxRetryCount,
+                    DefaultMaxDelay)
+            {
+            }
+
             protected internal override bool ShouldRetryOn(Exception exception)
                 => _shouldRetryOn?.Invoke(exception) == true;
 
@@ -781,7 +814,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             public static new bool Suspended
             {
-                set => ExecutionStrategy.Suspended = value;
+                set => ExecutionStrategy.Current = value ? new TestExecutionStrategy() : null;
             }
         }
     }

@@ -110,23 +110,39 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         protected virtual ExecutionStrategyDependencies Dependencies { get; }
 
-        private static readonly AsyncLocal<bool?> _suspended = new();
+        private static readonly AsyncLocal<ExecutionStrategy?> _current = new();
 
         /// <summary>
         ///     Indicates whether the strategy is suspended. The strategy is typically suspending while executing to avoid
         ///     recursive execution from nested operations.
         /// </summary>
+        [Obsolete("Use Current instead")]
         protected static bool Suspended
         {
-            get => _suspended.Value ?? false;
-            set => _suspended.Value = value;
+            get => Current != null;
+            set { }
+        }
+
+        /// <summary>
+        ///     Gets or sets the currently executing strategy. All nested calls will be handled by the outermost strategy.
+        /// </summary>
+        public static ExecutionStrategy? Current
+        {
+            get => _current.Value;
+            protected set => _current.Value = value;
         }
 
         /// <summary>
         ///     Indicates whether this <see cref="IExecutionStrategy" /> might retry the execution after a failure.
         /// </summary>
         public virtual bool RetriesOnFailure
-            => !Suspended && MaxRetryCount > 0;
+        {
+            get
+            {
+                var current = Current;
+                return (current == null || current == this) && MaxRetryCount > 0;
+            }
+        }
 
         /// <summary>
         ///     Executes the specified operation and returns the result.
@@ -149,7 +165,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(operation, nameof(operation));
 
-            if (Suspended)
+            if (Current != null)
             {
                 return operation(Dependencies.CurrentContext.Context, state);
             }
@@ -172,14 +188,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
             {
                 try
                 {
-                    Suspended = true;
+                    Check.DebugAssert(Current == null, "Current != null");
+
+                    Current = this;
                     var result = operation(Dependencies.CurrentContext.Context, state);
-                    Suspended = false;
+                    Current = null;
                     return result;
                 }
                 catch (Exception ex)
                 {
-                    Suspended = false;
+                    Current = null;
 
                     EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
 
@@ -247,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             Check.NotNull(operation, nameof(operation));
 
-            if (Suspended)
+            if (Current != null)
             {
                 return await operation(Dependencies.CurrentContext.Context, state, cancellationToken).ConfigureAwait(false);
             }
@@ -275,15 +293,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
                 try
                 {
-                    Suspended = true;
+                    Check.DebugAssert(Current == null, "Current != null");
+
+                    Current = this;
                     var result = await operation(Dependencies.CurrentContext.Context, state, cancellationToken)
                         .ConfigureAwait(false);
-                    Suspended = false;
+                    Current = null;
                     return result;
                 }
                 catch (Exception ex)
                 {
-                    Suspended = false;
+                    Current = null;
 
                     EntityFrameworkEventSource.Log.ExecutionStrategyOperationFailure();
 
@@ -385,7 +405,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     <see langword="true" /> if the specified exception could be thrown after a successful execution, otherwise <see langword="false" />.
         /// </returns>
-        protected internal virtual bool ShouldVerifySuccessOn(Exception? exception)
+        protected internal virtual bool ShouldVerifySuccessOn(Exception exception)
             => ShouldRetryOn(exception);
 
         /// <summary>
@@ -395,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
-        protected internal abstract bool ShouldRetryOn(Exception? exception);
+        protected internal abstract bool ShouldRetryOn(Exception exception);
 
         /// <summary>
         ///     Recursively gets InnerException from <paramref name="exception" /> as long as it is an
@@ -408,9 +428,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     The result from <paramref name="exceptionHandler" />.
         /// </returns>
         public static TResult CallOnWrappedException<TResult>(
-            Exception? exception,
-            Func<Exception?, TResult> exceptionHandler)
+            Exception exception,
+            Func<Exception, TResult> exceptionHandler)
             => exception is DbUpdateException dbUpdateException
+                && dbUpdateException.InnerException != null
                 ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
                 : exceptionHandler(exception);
     }

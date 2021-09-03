@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     obtained from <see cref="DbContext.Database" /> and it is not designed to be directly constructed
         ///     in your application code.
         /// </summary>
-        /// <param name="context"> The context this database API belongs to .</param>
+        /// <param name="context"> The context this database API belongs to. </param>
         public DatabaseFacade(DbContext context)
         {
             Check.NotNull(context, nameof(context));

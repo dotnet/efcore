@@ -34,6 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         public DatabaseFacadeDependencies(
             IDbContextTransactionManager transactionManager,
             IDatabaseCreator databaseCreator,
+            IExecutionStrategy executionStrategy,
             IExecutionStrategyFactory executionStrategyFactory,
             IEnumerable<IDatabaseProvider> databaseProviders,
             IDiagnosticsLogger<DbLoggerCategory.Database.Command> commandLogger,
@@ -42,6 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         {
             TransactionManager = transactionManager;
             DatabaseCreator = databaseCreator;
+            ExecutionStrategy = executionStrategy;
             ExecutionStrategyFactory = executionStrategyFactory;
             DatabaseProviders = databaseProviders;
             CommandLogger = commandLogger;
@@ -64,6 +66,14 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IDatabaseCreator DatabaseCreator { get; init; }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual IExecutionStrategy ExecutionStrategy { get; init; }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

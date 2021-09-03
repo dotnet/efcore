@@ -61,15 +61,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         public CompiledQueryCacheKeyGeneratorDependencies(
             IModel model,
             ICurrentDbContext currentContext,
-            IExecutionStrategyFactory executionStrategyFactory)
+            IExecutionStrategy executionStrategy)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
-
             Model = model;
             CurrentContext = currentContext;
-            IsRetryingExecutionStrategy = executionStrategyFactory.Create().RetriesOnFailure;
+            IsRetryingExecutionStrategy = executionStrategy.RetriesOnFailure;
         }
 
         /// <summary>

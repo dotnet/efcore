@@ -1162,12 +1162,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
-            => Context.Database.AutoTransactionsEnabled
-                ? Dependencies.ExecutionStrategyFactory.Create().Execute(
-                    (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
-                    (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
-                    null)
-                : SaveChanges(this, acceptAllChangesOnSuccess);
+            => !Context.Database.AutoTransactionsEnabled
+                ? SaveChanges(this, acceptAllChangesOnSuccess)
+                : Dependencies.ExecutionStrategy.Execute((StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
+                static (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
+                null);
 
         private static int SaveChanges(StateManager stateManager, bool acceptAllChangesOnSuccess)
         {
@@ -1218,13 +1217,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default)
-            => Context.Database.AutoTransactionsEnabled
-                ? Dependencies.ExecutionStrategyFactory.Create().ExecuteAsync(
+            => !Context.Database.AutoTransactionsEnabled
+                ? SaveChangesAsync(this, acceptAllChangesOnSuccess, cancellationToken)
+                : Dependencies.ExecutionStrategy.ExecuteAsync(
                     (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
-                    (_, t, cancellationToken) => SaveChangesAsync(t.StateManager, t.AcceptAllChangesOnSuccess, cancellationToken),
+                    static (_, t, cancellationToken) => SaveChangesAsync(t.StateManager, t.AcceptAllChangesOnSuccess, cancellationToken),
                     null,
-                    cancellationToken)
-                : SaveChangesAsync(this, acceptAllChangesOnSuccess, cancellationToken);
+                    cancellationToken);
 
         private static async Task<int> SaveChangesAsync(
             StateManager stateManager,

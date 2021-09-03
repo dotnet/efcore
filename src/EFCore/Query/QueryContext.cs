@@ -80,8 +80,15 @@ namespace Microsoft.EntityFrameworkCore.Query
             => Dependencies.QueryProvider;
 
         /// <summary>
+        ///     The execution strategy to use while executing the query.
+        /// </summary>
+        public virtual IExecutionStrategy ExecutionStrategy
+            => Dependencies.ExecutionStrategy;
+
+        /// <summary>
         ///     The execution strategy factory to use while executing the query.
         /// </summary>
+        [Obsolete("Use ExecutionStrategy instead")]
         public virtual IExecutionStrategyFactory ExecutionStrategyFactory
             => Dependencies.ExecutionStrategyFactory;
 

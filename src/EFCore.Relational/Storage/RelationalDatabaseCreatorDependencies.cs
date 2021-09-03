@@ -69,20 +69,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
             IMigrationsSqlGenerator migrationsSqlGenerator,
             IMigrationCommandExecutor migrationCommandExecutor,
             ISqlGenerationHelper sqlGenerationHelper,
+            IExecutionStrategy executionStrategy,
             IExecutionStrategyFactory executionStrategyFactory,
             ICurrentDbContext currentContext,
             IRelationalCommandDiagnosticsLogger commandLogger)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(connection, nameof(connection));
-            Check.NotNull(modelDiffer, nameof(modelDiffer));
-            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(migrationCommandExecutor, nameof(migrationCommandExecutor));
-            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
-            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
-            Check.NotNull(currentContext, nameof(currentContext));
-            Check.NotNull(commandLogger, nameof(commandLogger));
-
 #pragma warning disable CS0618 // Type or member is obsolete
             Model = model;
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -91,7 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
             MigrationsSqlGenerator = migrationsSqlGenerator;
             MigrationCommandExecutor = migrationCommandExecutor;
             SqlGenerationHelper = sqlGenerationHelper;
+            ExecutionStrategy = executionStrategy;
+#pragma warning disable CS0618 // Type or member is obsolete
             ExecutionStrategyFactory = executionStrategyFactory;
+#pragma warning restore CS0618 // Type or member is obsolete
             CurrentContext = currentContext;
             CommandLogger = commandLogger;
         }
@@ -128,12 +122,18 @@ namespace Microsoft.EntityFrameworkCore.Storage
         public ISqlGenerationHelper SqlGenerationHelper { get; init; }
 
         /// <summary>
-        ///     Gets the <see cref="IExecutionStrategyFactory" /> to be used.
+        ///     Gets the execution strategy.
         /// </summary>
+        public IExecutionStrategy ExecutionStrategy { get; }
+
+        /// <summary>
+        ///     Gets the execution strategy factory to be used.
+        /// </summary>
+        [Obsolete("Use ExecutionStrategy instead")]
         public IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
 
         /// <summary>
-        ///     The command logger.
+        ///     Gets the command logger.
         /// </summary>
         public IRelationalCommandDiagnosticsLogger CommandLogger { get; init; }
 

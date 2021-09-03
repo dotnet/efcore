@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -71,7 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 base.GenerateCacheKeyCore(query, async),
                 relationalOptions.UseRelationalNulls,
                 relationalOptions.QuerySplittingBehavior,
-                shouldBuffer: Dependencies.IsRetryingExecutionStrategy);
+                shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy);
         }
 
         /// <summary>
