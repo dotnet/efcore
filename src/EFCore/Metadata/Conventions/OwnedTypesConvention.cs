@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     without defining navigation if there's only one navigation of this type.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">EF Core model building conventions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
     /// </remarks>
     [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
     public class OwnedTypesConvention : IEntityTypeRemovedConvention
