@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entry[nameProperty] = "Beans";
 
-            Assert.Null(entry.GetOriginalValue(nameProperty));
+            Assert.Equal(nameProperty.IsShadowProperty() ? "Beans" : null, entry.GetOriginalValue(nameProperty));
             Assert.Equal("Beans", entry[nameProperty]);
 
             entry.SetOriginalValue(nameProperty, "Franks");
@@ -627,7 +627,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             entry[nameProperty] = "Beans";
 
-            Assert.Null(entry.GetOriginalValue<string>(nameProperty));
+            Assert.Equal(nameProperty.IsShadowProperty() ? "Beans" : null, entry.GetOriginalValue<string>(nameProperty));
             Assert.Equal("Beans", entry.GetCurrentValue<string>(nameProperty));
 
             entry.SetOriginalValue(nameProperty, "Franks");

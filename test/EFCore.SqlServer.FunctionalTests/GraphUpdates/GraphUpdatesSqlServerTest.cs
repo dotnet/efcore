@@ -676,6 +676,13 @@ namespace Microsoft.EntityFrameworkCore
 
                             b.HasKey("PartnerId", "ProviderId");
                         });
+
+                    modelBuilder.Entity<EventDescriptorZ>(
+                        b =>
+                        {
+                            b.Property<long>("EntityZId");
+                            b.HasOne(e => e.EntityZ).WithMany().HasForeignKey("EntityZId").IsRequired();
+                        });
                 }
             }
         }

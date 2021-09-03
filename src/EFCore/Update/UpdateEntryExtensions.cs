@@ -113,6 +113,11 @@ namespace Microsoft.EntityFrameworkCore.Update
                         builder.Append(" Temporary");
                     }
 
+                    if (entry.IsUnknown(property))
+                    {
+                        builder.Append(" Unknown");
+                    }
+
                     if (entry.HasOriginalValuesSnapshot
                         && property.GetOriginalValueIndex() != -1)
                     {
