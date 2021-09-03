@@ -598,9 +598,9 @@ namespace Microsoft.EntityFrameworkCore
             this DatabaseFacade databaseFacade,
             DbTransaction? transaction,
             Guid transactionId)
-            => GetTransactionManager(databaseFacade) is not IRelationalTransactionManager relationalTransactionManager
-                ? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse)
-                : relationalTransactionManager.UseTransaction(transaction, transactionId);
+            => GetTransactionManager(databaseFacade) is IRelationalTransactionManager relationalTransactionManager
+                ? relationalTransactionManager.UseTransaction(transaction, transactionId)
+                : throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
 
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
@@ -630,9 +630,9 @@ namespace Microsoft.EntityFrameworkCore
             DbTransaction? transaction,
             Guid transactionId,
             CancellationToken cancellationToken = default)
-            => GetTransactionManager(databaseFacade) is not IRelationalTransactionManager relationalTransactionManager
-                ? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse)
-                : relationalTransactionManager.UseTransactionAsync(transaction, transactionId, cancellationToken);
+            => GetTransactionManager(databaseFacade) is IRelationalTransactionManager relationalTransactionManager
+                ? relationalTransactionManager.UseTransactionAsync(transaction, transactionId, cancellationToken)
+                : throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
 
         /// <summary>
         ///     <para>
