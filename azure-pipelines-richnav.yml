@@ -18,7 +18,7 @@ stages:
             timeoutInMinutes: 90
             enablePublishTestResults: true
             pool:
-              name: NetCorePublic-Pool
+              name: NetCore1ESPool-Svc-Public
               demands: ImageOverride -equals Build.Server.Amd64.VS2017.Open
             steps:
               - task: NuGetCommand@2
