@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => PropertyMappings.First().Property.IsUnicode(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
-        ///     Returns a flag indicating if the property as capable of storing only fixed-length data, such as strings.
+        ///     Returns a flag indicating whether the property is capable of storing only fixed-length data, such as strings.
         /// </summary>
         bool? IsFixedLength
             => PropertyMappings.First().Property.IsFixedLength(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
