@@ -2422,7 +2422,7 @@ CREATE TABLE DependentTable (
                         Fixture.ListLoggerFactory.Log, t => t.Id == SqlServerEventId.DuplicateForeignKeyConstraintIgnored);
                     Assert.Equal(LogLevel.Warning, level);
                     Assert.Equal(
-                        SqlServerResources.DuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
+                        SqlServerResources.LogDuplicateForeignKeyConstraintIgnored(new TestLogger<SqlServerLoggingDefinitions>())
                             .GenerateMessage("MYFK2", "dbo.DependentTable", "MYFK1"), message);
 
                     var table = dbModel.Tables.Single(t => t.Name == "DependentTable");
