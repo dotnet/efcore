@@ -247,11 +247,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         {
             if (!runtime)
             {
-                annotations.Remove(CoreAnnotationNames.PropertyAccessMode);
-                annotations.Remove(CoreAnnotationNames.NavigationAccessMode);
-                annotations.Remove(CoreAnnotationNames.DiscriminatorProperty);
-                annotations.Remove(CoreAnnotationNames.AmbiguousNavigations);
-                annotations.Remove(CoreAnnotationNames.NavigationCandidates);
+#pragma warning disable CS0612 // Type or member is obsolete
+                foreach (var annotation in annotations)
+                {
+                    if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
+                        && annotation.Key != CoreAnnotationNames.QueryFilter
+                        && annotation.Key != CoreAnnotationNames.DefiningQuery
+                        && annotation.Key != CoreAnnotationNames.DiscriminatorValue
+                        && annotation.Key != CoreAnnotationNames.DiscriminatorMappingComplete)
+                    {
+                        annotations.Remove(annotation.Key);
+                    }
+                }
 
                 if (annotations.TryGetValue(CoreAnnotationNames.QueryFilter, out var queryFilter))
                 {
@@ -259,7 +266,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         new QueryRootRewritingExpressionVisitor(runtimeEntityType.Model).Rewrite((Expression)queryFilter!);
                 }
 
-#pragma warning disable CS0612 // Type or member is obsolete
                 if (annotations.TryGetValue(CoreAnnotationNames.DefiningQuery, out var definingQuery))
                 {
                     annotations[CoreAnnotationNames.DefiningQuery] =
