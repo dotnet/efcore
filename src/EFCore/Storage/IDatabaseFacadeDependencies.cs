@@ -36,6 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         IDatabaseCreator DatabaseCreator { get; }
 
         /// <summary>
+        ///     The execution strategy.
+        /// </summary>
+        IExecutionStrategy ExecutionStrategy { get; }
+
+        /// <summary>
         ///     The execution strategy factory.
         /// </summary>
         IExecutionStrategyFactory ExecutionStrategyFactory { get; }

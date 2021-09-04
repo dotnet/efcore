@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring an invertible relationship.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public abstract class InvertibleRelationshipBuilderBase : IInfrastructure<IConventionForeignKeyBuilder>
     {
         private readonly IReadOnlyList<Property>? _foreignKeyProperties;

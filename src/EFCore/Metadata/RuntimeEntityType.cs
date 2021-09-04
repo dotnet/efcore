@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents an entity type in a model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     {
         private readonly List<RuntimeForeignKey> _foreignKeys = new();

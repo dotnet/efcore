@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that creates indexes on foreign key properties unless they are already covered by existing indexes or keys.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class ForeignKeyIndexConvention :
         IForeignKeyAddedConvention,
         IForeignKeyRemovedConvention,

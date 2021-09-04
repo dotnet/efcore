@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         For one-to-one relationships the attribute has to be specified on the navigation property pointing to the principal.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class ForeignKeyAttributeConvention :
         IEntityTypeAddedConvention,
         IForeignKeyAddedConvention,

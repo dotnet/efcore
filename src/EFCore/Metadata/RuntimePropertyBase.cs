@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Base type for navigations and properties.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBase
     {
         private readonly PropertyInfo? _propertyInfo;

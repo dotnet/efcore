@@ -16,6 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         See <see cref="PropertySaveBehavior" /> for more details.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
+    ///     See <see href="https://aka.ms/efcore-value-generation">Value generation in EF Core</see> for more information.
+    /// </remarks>
     [Flags]
     public enum ValueGenerated
     {

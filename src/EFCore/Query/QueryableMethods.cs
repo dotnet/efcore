@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     A class that provides reflection metadata for translatable LINQ methods.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    /// </remarks>
     public static class QueryableMethods
     {
         //public static MethodInfo AggregateWithoutSeed { get; }

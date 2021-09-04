@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that checks whether the model is valid.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     [Obsolete("The validation is no longer performed by a convention")]
     public class ValidatingConvention : IModelFinalizedConvention
     {

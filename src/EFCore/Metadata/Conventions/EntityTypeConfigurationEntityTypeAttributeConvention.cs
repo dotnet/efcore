@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that applies the entity type configuration specified in <see cref="EntityTypeConfigurationAttribute" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class EntityTypeConfigurationEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<EntityTypeConfigurationAttribute>
     {
         private static readonly MethodInfo _configureMethod = typeof(EntityTypeConfigurationEntityTypeAttributeConvention)

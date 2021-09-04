@@ -197,8 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            _relationalQueryContext.ExecutionStrategyFactory.Create()
-                                .Execute(this, (_, enumerator) => InitializeReader(enumerator), null);
+                            _relationalQueryContext.ExecutionStrategy.Execute(this, (_, enumerator) => InitializeReader(enumerator), null);
                         }
 
                         var hasNext = _dataReader!.Read();
@@ -303,8 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            await _relationalQueryContext.ExecutionStrategyFactory.Create()
-                                .ExecuteAsync(
+                            await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
                                     this,
                                     (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
                                     null,

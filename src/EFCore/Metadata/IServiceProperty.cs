@@ -7,6 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a property on an entity type that represents an
     ///     injected service from the <see cref="DbContext" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public interface IServiceProperty : IReadOnlyServiceProperty, IPropertyBase
     {
         /// <summary>

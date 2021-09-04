@@ -7,6 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///     This interface is typically used by database providers (and other extensions). It is generally
     ///     not used in application code.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public interface IConventionOwnedEntityTypeBuilder
     {
     }

@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     /// <typeparam name="TEntity"> The entity type to be configured. </typeparam>
     /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
     public class ReferenceNavigationBuilder<TEntity, TRelatedEntity> : ReferenceNavigationBuilder

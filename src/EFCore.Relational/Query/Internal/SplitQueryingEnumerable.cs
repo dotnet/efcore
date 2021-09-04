@@ -141,7 +141,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader? _dataReader;
             private DbDataReader? _dbDataReader;
             private SplitQueryResultCoordinator? _resultCoordinator;
-            private IExecutionStrategy? _executionStrategy;
 
             public Enumerator(SplitQueryingEnumerable<T> queryingEnumerable)
             {
@@ -175,12 +174,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            if (_executionStrategy == null)
-                            {
-                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
-                            }
-
-                            _executionStrategy.Execute(this, static (_, enumerator) => InitializeReader(enumerator), null);
+                            _relationalQueryContext.ExecutionStrategy.Execute(this, static (_, enumerator) => InitializeReader(enumerator), null);
                         }
 
                         var hasNext = _dataReader!.Read();
@@ -192,7 +186,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                 _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                             if (_relatedDataLoaders != null)
                             {
-                                _relatedDataLoaders.Invoke(_relationalQueryContext, _executionStrategy!, _resultCoordinator);
+                                _relatedDataLoaders.Invoke(_relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator);
                                 Current = _shaper(
                                     _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                             }
@@ -285,7 +279,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             private RelationalDataReader? _dataReader;
             private DbDataReader? _dbDataReader;
             private SplitQueryResultCoordinator? _resultCoordinator;
-            private IExecutionStrategy? _executionStrategy;
 
             public AsyncEnumerator(SplitQueryingEnumerable<T> queryingEnumerable)
             {
@@ -317,12 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            if (_executionStrategy == null)
-                            {
-                                _executionStrategy = _relationalQueryContext.ExecutionStrategyFactory.Create();
-                            }
-
-                            await _executionStrategy.ExecuteAsync(
+                            await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
                                     this,
                                     static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
                                     null,
@@ -338,7 +326,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             Current = _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
                             if (_relatedDataLoaders != null)
                             {
-                                await _relatedDataLoaders(_relationalQueryContext, _executionStrategy!, _resultCoordinator)
+                                await _relatedDataLoaders(_relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
                                     .ConfigureAwait(false);
                                 Current =
                                     _shaper(_relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
@@ -408,6 +396,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _resultCoordinator.DataReaders.Clear();
                         _resultCoordinator = null;
                     }
+
                     _dataReader = null;
                     _dbDataReader = null;
                 }

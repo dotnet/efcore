@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
         /// </returns>
-        protected override bool ShouldRetryOn(Exception? exception)
+        protected override bool ShouldRetryOn(Exception exception)
         {
             if (_additionalErrorNumbers != null
                 && exception is SqlException sqlException)
@@ -166,7 +166,7 @@ namespace Microsoft.EntityFrameworkCore
                 : baseDelay;
         }
 
-        private static bool IsMemoryOptimizedError(Exception? exception)
+        private static bool IsMemoryOptimizedError(Exception exception)
         {
             if (exception is SqlException sqlException)
             {

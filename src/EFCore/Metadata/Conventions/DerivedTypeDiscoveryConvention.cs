@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that finds derived entity types that are already part of the model based on the associated
     ///     CLR type hierarchy.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     [Obsolete]
     public class DerivedTypeDiscoveryConvention : InheritanceDiscoveryConventionBase, IEntityTypeAddedConvention
     {

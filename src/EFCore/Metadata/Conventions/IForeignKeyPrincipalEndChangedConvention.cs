@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     Represents an operation that should be performed when the principal end of a foreign key is changed.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public interface IForeignKeyPrincipalEndChangedConvention : IConvention
     {
         /// <summary>

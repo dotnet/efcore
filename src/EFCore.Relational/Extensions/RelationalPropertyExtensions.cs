@@ -911,19 +911,19 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Returns a flag indicating if the property as capable of storing only fixed-length data, such as strings.
+        ///     Returns a flag indicating whether the property is capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <param name="property"> The property. </param>
-        /// <returns> A flag indicating if the property as capable of storing only fixed-length data, such as strings. </returns>
+        /// <returns> A flag indicating whether the property is capable of storing only fixed-length data, such as strings. </returns>
         public static bool? IsFixedLength(this IReadOnlyProperty property)
             => (bool?)property.FindAnnotation(RelationalAnnotationNames.IsFixedLength)?.Value;
 
         /// <summary>
-        ///     Returns a flag indicating if the property as capable of storing only fixed-length data, such as strings.
+        ///     Returns a flag indicating whether the property is capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="storeObject"> The identifier of the table-like store object containing the column. </param>
-        /// <returns> A flag indicating if the property as capable of storing only fixed-length data, such as strings. </returns>
+        /// <returns> A flag indicating whether the property is capable of storing only fixed-length data, such as strings. </returns>
         public static bool? IsFixedLength(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
         {
             var annotation = property.FindAnnotation(RelationalAnnotationNames.IsFixedLength);
@@ -942,7 +942,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <summary>
-        ///     Sets a flag indicating whether the property as capable of storing only fixed-length data, such as strings.
+        ///     Sets a flag indicating whether the property is capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
@@ -950,7 +950,7 @@ namespace Microsoft.EntityFrameworkCore
             => property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength);
 
         /// <summary>
-        ///     Sets a flag indicating whether the property as capable of storing only fixed-length data, such as strings.
+        ///     Sets a flag indicating whether the property is capable of storing only fixed-length data, such as strings.
         /// </summary>
         /// <param name="property"> The property. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>

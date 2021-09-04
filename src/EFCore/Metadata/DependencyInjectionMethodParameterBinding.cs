@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     also have and associated <see cref="IServiceProperty" />, to a parameter in a constructor,
     ///     factory method, or similar.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public class DependencyInjectionMethodParameterBinding : DependencyInjectionParameterBinding
     {
         /// <summary>

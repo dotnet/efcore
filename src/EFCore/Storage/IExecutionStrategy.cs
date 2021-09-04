@@ -4,11 +4,20 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {
     /// <summary>
-    ///     A strategy that is used to execute a command or query against the database, possibly with logic to retry when a failure occurs.
+    ///     <para>
+    ///         A strategy that is used to execute a command or query against the database, possibly with logic to retry when a failure occurs.
+    ///     </para>
+    ///     <para>
+    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+    ///         <see cref="DbContext" /> instance will use its own instance of this service.
+    ///         The implementation may depend on other services registered with any lifetime.
+    ///         The implementation does not need to be thread-safe.
+    ///     </para>
     /// </summary>
     public interface IExecutionStrategy
     {

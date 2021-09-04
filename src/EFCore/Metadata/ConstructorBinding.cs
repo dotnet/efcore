@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Defines the binding of parameters to a CLR <see cref="ConstructorInfo" /> for an entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public class ConstructorBinding : InstantiationBinding
     {
         /// <summary>
