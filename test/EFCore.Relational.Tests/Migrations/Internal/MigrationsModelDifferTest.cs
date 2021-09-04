@@ -333,13 +333,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 },
                 result =>
                 {
-                    Assert.Equal(14, result.Count);
-
-                    var createBankTableOperation = Assert.IsType<CreateTableOperation>(result[0]);
-                    Assert.Equal("Banks", createBankTableOperation.Name);
-                    Assert.Empty(createBankTableOperation.ForeignKeys);
-
-                    Assert.Equal(4, result.OfType<AddForeignKeyOperation>().Count());
+                    Assert.Equal(3, result.OfType<CreateTableOperation>().Count());
+                    Assert.Equal(7, result.OfType<CreateIndexOperation>().Count());
+                    Assert.Equal(7, result.OfType<CreateTableOperation>().SelectMany(t => t.ForeignKeys).Count()
+                        + result.OfType<AddForeignKeyOperation>().Count());
                 });
         }
 

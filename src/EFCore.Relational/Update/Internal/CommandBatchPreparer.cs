@@ -287,7 +287,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
 
             AddUniqueValueEdges(modificationCommandGraph);
 
-            return modificationCommandGraph.BatchingTopologicalSort(FormatCycle);
+            AddSameTableEdges(modificationCommandGraph);
+
+            return modificationCommandGraph.BatchingTopologicalSort(static (_, _, edges) => edges.All(e => e is IEntityType), FormatCycle);
         }
 
         private string FormatCycle(IReadOnlyList<Tuple<IReadOnlyModificationCommand, IReadOnlyModificationCommand, IEnumerable<IAnnotatable>>> data)
@@ -760,6 +762,33 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                                 AddMatchingPredecessorEdge(
                                     keyPredecessorsMap, (key, principalKeyValue), commandGraph, command, key);
                             }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void AddSameTableEdges(Multigraph<IReadOnlyModificationCommand, IAnnotatable> modificationCommandGraph)
+        {
+            var deletedDictionary = new Dictionary<(string, string?), List<IReadOnlyModificationCommand>>();
+
+            foreach (var command in modificationCommandGraph.Vertices)
+            {
+                if (command.EntityState == EntityState.Deleted)
+                {
+                    deletedDictionary.GetOrAddNew((command.TableName, command.Schema)).Add(command);
+                }
+            }
+
+            foreach (var command in modificationCommandGraph.Vertices)
+            {
+                if (command.EntityState == EntityState.Added)
+                {
+                    if (deletedDictionary.TryGetValue((command.TableName, command.Schema), out var deletedList))
+                    {
+                        foreach (var deleted in deletedList)
+                        {
+                            modificationCommandGraph.AddEdge(deleted, command, command.Entries[0].EntityType);
                         }
                     }
                 }
