@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that sets the delete behavior to <see cref="DeleteBehavior.Cascade" /> for required foreign keys
     ///     and <see cref="DeleteBehavior.ClientSetNull" /> for optional ones.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class CascadeDeleteConvention : IForeignKeyAddedConvention, IForeignKeyRequirednessChangedConvention
     {
         /// <summary>

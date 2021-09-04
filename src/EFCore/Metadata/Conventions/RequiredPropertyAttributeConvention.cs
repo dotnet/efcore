@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures properties as required if they have the <see cref="RequiredAttribute" /> applied.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class RequiredPropertyAttributeConvention : PropertyAttributeConventionBase<RequiredAttribute>
     {
         /// <summary>

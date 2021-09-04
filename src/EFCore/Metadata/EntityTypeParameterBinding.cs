@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Describes the binding of a <see cref="IEntityType" />, which may or may not also have and associated
     ///     <see cref="IServiceProperty" />, to a parameter in a constructor, factory method, or similar.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public class EntityTypeParameterBinding : ServiceParameterBinding
     {
         /// <summary>

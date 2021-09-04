@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Describes the binding from one or many EF model properties, dependency injection services, or metadata types to
     ///     a parameter in a constructor, factory method, or similar.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public abstract class ParameterBinding
     {
         /// <summary>

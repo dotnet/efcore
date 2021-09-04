@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API surface for setting discriminator values.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     /// <typeparam name="TDiscriminator"> The type of the discriminator property. </typeparam>
     public class DiscriminatorBuilder<TDiscriminator>
     {

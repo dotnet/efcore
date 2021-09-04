@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Defines how to create an entity instance through the binding of EF model properties to, for
     ///     example, constructor parameters or parameters of a factory method.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-constructor-binding">Entity types with constructors</see> for more information.
+    /// </remarks>
     public abstract class InstantiationBinding
     {
         /// <summary>

@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures store value generation as <see cref="ValueGenerated.OnAdd" /> on properties that are
     ///     part of the primary key and not part of any foreign keys.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class ValueGenerationConvention :
         IEntityTypePrimaryKeyChangedConvention,
         IForeignKeyAddedConvention,

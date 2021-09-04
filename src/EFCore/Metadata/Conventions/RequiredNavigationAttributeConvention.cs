@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the principal side of the relationship as required if the
     ///     <see cref="RequiredAttribute" /> is applied on the navigation property to the principal entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class RequiredNavigationAttributeConvention : NavigationAttributeConventionBase<RequiredAttribute>
     {
         /// <summary>

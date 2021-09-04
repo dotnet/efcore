@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public interface IConventionIndexBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>

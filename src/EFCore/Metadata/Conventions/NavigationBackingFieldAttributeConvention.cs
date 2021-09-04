@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures a navigation property as having a backing field
     ///     based on the <see cref="BackingFieldAttribute" /> attribute.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class NavigationBackingFieldAttributeConvention : NavigationAttributeConventionBase<BackingFieldAttribute>
     {
         /// <summary>

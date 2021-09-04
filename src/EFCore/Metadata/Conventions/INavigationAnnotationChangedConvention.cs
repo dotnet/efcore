@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     Represents an operation that should be performed when an annotation is changed on a navigation.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public interface INavigationAnnotationChangedConvention : IConvention
     {
         /// <summary>

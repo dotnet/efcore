@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a navigation to an owned entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavigationBuilder
         where TOwnerEntity : class
         where TDependentEntity : class

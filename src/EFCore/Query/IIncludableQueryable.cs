@@ -8,6 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Query
     /// <summary>
     ///     Supports queryable Include/ThenInclude chaining operators.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     and <see href="https://aka.ms/efcore-how-queries-work">How EF Core queries work</see> for more information.
+    /// </remarks>
     /// <typeparam name="TEntity"> The entity type. </typeparam>
     /// <typeparam name="TProperty"> The property type. </typeparam>
     // ReSharper disable once UnusedTypeParameter

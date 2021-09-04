@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents the identity of an entity type member, can be based on <see cref="MemberInfo" /> or just the name.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     [DebuggerDisplay("{DebuggerDisplay(),nq}")]
     public readonly struct MemberIdentity : IEquatable<MemberIdentity>
     {

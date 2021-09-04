@@ -9,6 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Used with <see cref="IReadOnlyProperty.GetBeforeSaveBehavior" /> and
     ///     <see cref="IReadOnlyProperty.GetAfterSaveBehavior" />
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> and
+    ///     <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information.
+    /// </remarks>
     public enum PropertySaveBehavior
     {
         /// <summary>

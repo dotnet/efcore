@@ -28,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         If more than one matching field is found an exception is thrown.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class BackingFieldConvention :
         IPropertyAddedConvention,
         INavigationAddedConvention,

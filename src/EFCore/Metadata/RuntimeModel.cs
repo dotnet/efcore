@@ -27,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         This is a light-weight implementation that is constructed from a built model and is not meant to be used at design-time.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public class RuntimeModel : AnnotatableBase, IRuntimeModel
     {
         private readonly SortedDictionary<string, RuntimeEntityType> _entityTypes = new(StringComparer.Ordinal);

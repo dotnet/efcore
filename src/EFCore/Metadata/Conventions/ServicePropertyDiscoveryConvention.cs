@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that adds service properties to entity types.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class ServicePropertyDiscoveryConvention :
         IEntityTypeAddedConvention,
         IEntityTypeBaseTypeChangedConvention

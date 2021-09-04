@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///         Once the model is built, <see cref="IReadOnlyNavigationBase" /> represents a read-only view of the same metadata.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public interface IConventionNavigationBase : IReadOnlyNavigationBase, IConventionPropertyBase
     {
         /// <summary>

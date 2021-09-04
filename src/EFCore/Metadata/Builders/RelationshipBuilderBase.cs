@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Base class used for configuring a relationship.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public abstract class RelationshipBuilderBase : IInfrastructure<IConventionForeignKeyBuilder>
     {
         private readonly IReadOnlyList<Property>? _foreignKeyProperties;
