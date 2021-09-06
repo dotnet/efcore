@@ -443,17 +443,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, searchExpression)!;
             searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, stringTypeMapping);
+            instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
-            SqlExpression[] charIndexArguments;
-            if (startIndex is null)
+            var charIndexArguments = new SqlExpression[2] { searchExpression, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) };
+
+            if (startIndex is not null)
             {
-                charIndexArguments = new[] { searchExpression, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) };
+                charIndexArguments = charIndexArguments.Append(_sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1))).ToArray();
             }
-            else
-            {
-                var startIndexSql = _sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1));
-                charIndexArguments = new[] { searchExpression, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping), startIndexSql };
-            }
+
+            var argumentsPropagateNullability = Enumerable.Repeat(true, charIndexArguments.Length).ToArray();
 
             SqlExpression charIndexExpression;
             var storeType = stringTypeMapping.StoreType;
@@ -464,7 +463,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     "CHARINDEX",
                     charIndexArguments,
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    argumentsPropagateNullability,
                     typeof(long));
 
                 charIndexExpression = _sqlExpressionFactory.Convert(charIndexExpression, typeof(int));
@@ -475,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     "CHARINDEX",
                     charIndexArguments,
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
+                    argumentsPropagateNullability,
                     method.ReturnType);
             }
 
@@ -484,11 +483,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             return _sqlExpressionFactory.Case(
                 new[]
                 {
-                            new CaseWhenClause(
-                                _sqlExpressionFactory.Equal(
-                                    searchExpression,
-                                    _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
-                                _sqlExpressionFactory.Constant(0))
+                    new CaseWhenClause(
+                        _sqlExpressionFactory.Equal(
+                            searchExpression,
+                            _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
+                        _sqlExpressionFactory.Constant(0))
                 },
                 charIndexExpression);
         }
