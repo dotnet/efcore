@@ -1177,6 +1177,16 @@ FROM [Orders] AS [o]
 WHERE 0 = 1");
         }
 
+        public override async Task Contains_over_entityType_with_null_in_projection(bool async)
+        {
+            await base.Contains_over_entityType_with_null_in_projection(async);
+
+            AssertSql(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE 0 = 1");
+        }
+
         public override async Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
         {
             await base.Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(async);
