@@ -551,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual JObject ExecuteReadItem(
+        public virtual JObject? ExecuteReadItem(
             string containerId,
             string? partitionKey,
             string resourceId)
@@ -577,7 +577,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual async Task<JObject> ExecuteReadItemAsync(
+        public virtual async Task<JObject?> ExecuteReadItemAsync(
             string containerId,
             string? partitionKey,
             string resourceId,
@@ -622,8 +622,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     cancellationToken: cancellationToken);
         }
 
-        private static JObject JObjectFromReadItemResponseMessage(ResponseMessage responseMessage)
+        private static JObject? JObjectFromReadItemResponseMessage(ResponseMessage responseMessage)
         {
+            if (responseMessage.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
             responseMessage.EnsureSuccessStatusCode();
 
             var responseStream = responseMessage.Content;
