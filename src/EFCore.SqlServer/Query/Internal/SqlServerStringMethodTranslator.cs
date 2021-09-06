@@ -445,14 +445,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             searchExpression = _sqlExpressionFactory.ApplyTypeMapping(searchExpression, stringTypeMapping);
             instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
 
-            var charIndexArguments = new SqlExpression[2] { searchExpression, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) };
+            var charIndexArguments = new List<SqlExpression> { searchExpression, _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping) };
 
             if (startIndex is not null)
             {
-                charIndexArguments = charIndexArguments.Append(_sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1))).ToArray();
+                charIndexArguments.Add(_sqlExpressionFactory.Add(startIndex, _sqlExpressionFactory.Constant(1)));
             }
 
-            var argumentsPropagateNullability = Enumerable.Repeat(true, charIndexArguments.Length).ToArray();
+            var argumentsPropagateNullability = Enumerable.Repeat(true, charIndexArguments.Count);
 
             SqlExpression charIndexExpression;
             var storeType = stringTypeMapping.StoreType;
