@@ -66,7 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
         private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
         private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
-        private Func<InternalEntityEntry, ISnapshot>? _storeGeneratedValuesFactory;
+        private Func<ISnapshot>? _storeGeneratedValuesFactory;
         private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
         private Func<ISnapshot>? _emptyShadowValuesFactory;
         private Func<MaterializationContext, object>? _instanceFactory;
@@ -1258,10 +1258,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 static entityType => new OriginalValuesFactoryFactory().Create(entityType));
 
         /// <inheritdoc/>
-        Func<InternalEntityEntry, ISnapshot> IRuntimeEntityType.StoreGeneratedValuesFactory
+        Func<ISnapshot> IRuntimeEntityType.StoreGeneratedValuesFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _storeGeneratedValuesFactory, this,
-                static entityType => new SidecarValuesFactoryFactory().Create(entityType));
+                static entityType => new StoreGeneratedValuesFactoryFactory().CreateEmpty(entityType));
 
         /// <inheritdoc/>
         Func<InternalEntityEntry, ISnapshot> IRuntimeEntityType.TemporaryValuesFactory
