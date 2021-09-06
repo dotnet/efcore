@@ -1581,6 +1581,17 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Contains_over_entityType_with_null_in_projection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(
+                    o => ss.Set<Order>().Where(o => o.CustomerID == "VINET")
+                        .Contains(null)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Contains_over_scalar_with_null_should_rewrite_to_identity_equality_subquery(bool async)
         {
             return AssertQuery(
