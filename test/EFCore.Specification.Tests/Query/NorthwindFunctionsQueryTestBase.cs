@@ -1893,5 +1893,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Customer>().Where(o => Regex.IsMatch("ALFKI", o.CustomerID)),
                 entryCount: 1);
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Datetime_subtraction_TotalDays(bool async)
+        {
+            var date = new DateTime(1997, 1, 1);
+            return AssertQuery(
+                async,
+                ss => ss.Set<Order>().Where(o => o.OrderDate.HasValue && (o.OrderDate.Value - date).TotalDays > 365),
+                entryCount: 267);
+        }
     }
 }

@@ -617,6 +617,11 @@ FROM ""Customers"" AS ""c""
 WHERE regexp(""c"".""CustomerID"", 'ALFKI')");
         }
 
+        public override Task Datetime_subtraction_TotalDays(bool async)
+        {
+            return AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
