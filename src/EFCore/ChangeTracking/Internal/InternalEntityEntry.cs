@@ -352,9 +352,28 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             FireStateChanged(oldState);
 
-            if (newState == EntityState.Unchanged)
+            if (SharedIdentityEntry != null)
             {
-                SharedIdentityEntry?.SetEntityState(EntityState.Detached);
+                if (newState == EntityState.Unchanged)
+                {
+                    SharedIdentityEntry.SetEntityState(EntityState.Detached);
+                }
+                else if (newState == EntityState.Modified
+                    && SharedIdentityEntry.EntityState == EntityState.Modified)
+                {
+                    if (StateManager.SensitiveLoggingEnabled)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.IdentityConflictSensitive(
+                                EntityType.DisplayName(),
+                                this.BuildCurrentValuesString(EntityType.FindPrimaryKey()!.Properties)));
+                    }
+
+                    throw new InvalidOperationException(
+                        CoreStrings.IdentityConflict(
+                            EntityType.DisplayName(),
+                            EntityType.FindPrimaryKey()!.Properties.Format()));
+                }
             }
 
             if ((newState == EntityState.Deleted
