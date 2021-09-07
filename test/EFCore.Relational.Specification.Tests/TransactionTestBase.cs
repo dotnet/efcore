@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
                 context.Database.AutoTransactionsEnabled = false;
 
                 context.Add(
-                    new TransactionCustomer { Id = 77, Name = "Bobble" });
+                    new TransactionCustomer { Id = -77, Name = "Bobble" });
 
                 context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
@@ -69,9 +69,9 @@ namespace Microsoft.EntityFrameworkCore
                 Assert.Equal(
                     new List<int>
                     {
+                        -77,
                         1,
                         2,
-                        77
                     },
                     context.Set<TransactionCustomer>().OrderBy(c => c.Id).Select(e => e.Id).ToList());
             }
@@ -119,7 +119,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = autoTransactionsEnabled;
 
                     context.Add(
-                        new TransactionCustomer { Id = 77, Name = "Bobble" });
+                        new TransactionCustomer { Id = -77, Name = "Bobble" });
 
                     context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
@@ -151,7 +151,7 @@ namespace Microsoft.EntityFrameworkCore
                     if (!autoTransactionsEnabled)
                     {
                         using var context = CreateContext();
-                        context.Entry(context.Set<TransactionCustomer>().Single(c => c.Id == 77)).State = EntityState.Deleted;
+                        context.Entry(context.Set<TransactionCustomer>().Single(c => c.Id == -77)).State = EntityState.Deleted;
 
                         if (async)
                         {
@@ -275,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.Database.AutoTransactionsEnabled = autoTransactionsEnabled;
 
                     context.Add(
-                        new TransactionCustomer { Id = 77, Name = "Bobble" });
+                        new TransactionCustomer { Id = -77, Name = "Bobble" });
 
                     context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).Last()).State = EntityState.Added;
 
@@ -305,7 +305,7 @@ namespace Microsoft.EntityFrameworkCore
                         Fixture.ListLoggerFactory.Log.Skip(2).First().Message);
 
                     using var context = CreateContext();
-                    context.Entry(context.Set<TransactionCustomer>().Single(c => c.Id == 77)).State = EntityState.Deleted;
+                    context.Entry(context.Set<TransactionCustomer>().Single(c => c.Id == -77)).State = EntityState.Deleted;
 
                     if (async)
                     {
@@ -1268,7 +1268,7 @@ namespace Microsoft.EntityFrameworkCore
                     ? await context.Database.BeginTransactionAsync()
                     : context.Database.BeginTransaction();
 
-                context.Add(new TransactionCustomer { Id = 77, Name = "Bobble" });
+                context.Add(new TransactionCustomer { Id = -77, Name = "Bobble" });
 
                 if (async)
                 {
@@ -1279,7 +1279,7 @@ namespace Microsoft.EntityFrameworkCore
                     context.SaveChanges();
                 }
 
-                context.Add(new TransactionCustomer { Id = 78, Name = "Hobble" });
+                context.Add(new TransactionCustomer { Id = -78, Name = "Hobble" });
                 context.Add(new TransactionCustomer { Id = 1, Name = "Gobble" }); // Cause SaveChanges failure
 
                 if (async)
@@ -1298,7 +1298,7 @@ namespace Microsoft.EntityFrameworkCore
 
             using (var context = CreateContext())
             {
-                Assert.Equal(78, context.Set<TransactionCustomer>().Max(c => c.Id));
+                Assert.Equal(-78, context.Set<TransactionCustomer>().Min(c => c.Id));
             }
         }
 

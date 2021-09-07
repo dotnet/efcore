@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                     var readItemExpression = new ReadItemExpression(entityType, propertyParameterList);
 
                                     return CreateShapedQueryExpression(entityType, readItemExpression)
-                                        .UpdateResultCardinality(ResultCardinality.Single);
+                                        .UpdateResultCardinality(ResultCardinality.SingleOrDefault);
                                 }
                             }
                         }

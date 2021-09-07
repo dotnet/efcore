@@ -3928,65 +3928,6 @@ ORDER BY [p].[Id]");
 
         #endregion
 
-        #region Issue13346
-
-        [ConditionalFact]
-        public virtual async Task ToQuery_can_define_in_own_terms_using_FromSql()
-        {
-            var contextFactory = await InitializeAsync<MyContext13346>(seed: c => c.Seed());
-
-            using (var context = contextFactory.CreateContext())
-            {
-                var query = context.Set<MyContext13346.OrderSummary13346>().ToList();
-
-                Assert.Equal(4, query.Count);
-
-                AssertSql("SELECT o.Amount From Orders AS o");
-            }
-        }
-
-        protected class MyContext13346 : DbContext
-        {
-            public virtual DbSet<Order13346> Orders { get; set; }
-
-            public MyContext13346(DbContextOptions options)
-                : base(options)
-            {
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<OrderSummary13346>()
-                    .HasNoKey()
-                    .ToSqlQuery("SELECT o.Amount From Orders AS o");
-            }
-
-            public void Seed()
-            {
-                AddRange(
-                    new Order13346 { Amount = 1 },
-                    new Order13346 { Amount = 2 },
-                    new Order13346 { Amount = 3 },
-                    new Order13346 { Amount = 4 }
-                );
-
-                SaveChanges();
-            }
-
-            public class Order13346
-            {
-                public int Id { get; set; }
-                public int Amount { get; set; }
-            }
-
-            public class OrderSummary13346
-            {
-                public int Amount { get; set; }
-            }
-        }
-
-        #endregion
-
         #region Issue13079
 
         [ConditionalFact]

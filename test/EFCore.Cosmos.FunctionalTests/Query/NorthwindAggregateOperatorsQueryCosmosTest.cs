@@ -1398,6 +1398,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND c[""CustomerID""] IN (""ALFKI""
             return base.Contains_over_entityType_with_null_should_rewrite_to_false(async);
         }
 
+        [ConditionalTheory(Skip = "Issue#17246 (Contains over subquery is not supported)")]
+        public override Task Contains_over_entityType_with_null_in_projection(bool async)
+        {
+            return base.Contains_over_entityType_with_null_in_projection(async);
+        }
+
         public override async Task String_FirstOrDefault_in_projection_does_not_do_client_eval(bool async)
         {
             await base.String_FirstOrDefault_in_projection_does_not_do_client_eval(async);
