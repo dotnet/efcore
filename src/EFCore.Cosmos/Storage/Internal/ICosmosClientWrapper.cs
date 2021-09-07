@@ -148,7 +148,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        JObject ExecuteReadItem(
+        JObject? ExecuteReadItem(
             string containerId,
             string? partitionKey,
             string resourceId);
@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        Task<JObject> ExecuteReadItemAsync(
+        Task<JObject?> ExecuteReadItemAsync(
             string containerId,
             string? partitionKey,
             string resourceId,
