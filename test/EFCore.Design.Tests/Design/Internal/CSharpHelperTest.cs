@@ -334,8 +334,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain()
         {
-            var method = new MethodCallCodeFragment(
-                    _testFuncMethodInfo, new[] { "One" }, new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
+                .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
                 .Chain(_testFuncMethodInfo, "Three");
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
@@ -346,8 +346,8 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_when_chaining_on_chain_with_call()
         {
-            var method = new MethodCallCodeFragment(_testFuncMethodInfo, new[] { "One" }, new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
-                .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, new[] { "Three" }, new MethodCallCodeFragment(_testFuncMethodInfo, "Four")));
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One").Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Two"))
+                .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Three").Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Four")));
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
@@ -379,7 +379,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         [ConditionalFact]
         public void Fragment_MethodCallCodeFragment_works_with_identifier_chained()
         {
-            var method = new MethodCallCodeFragment(_testFuncMethodInfo, new[] { "One"}, new MethodCallCodeFragment(_testFuncMethodInfo));
+            var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One").Chain(new MethodCallCodeFragment(_testFuncMethodInfo));
 
             var result = new CSharpHelper(TypeMappingSource).Fragment(method, instanceIdentifier: "builder");
 
