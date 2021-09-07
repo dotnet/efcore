@@ -178,7 +178,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                 foreach (var mapping in mappings)
                 {
                     var table = mapping.Table;
-                    var tableKey = (table.Name, table.Schema);
 
                     IModificationCommand command;
                     var isMainEntry = true;
@@ -189,6 +188,7 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
                             sharedTablesCommandsMap = new Dictionary<(string, string?), SharedTableEntryMap<IModificationCommand>>();
                         }
 
+                        var tableKey = (table.Name, table.Schema);
                         if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
                         {
                             sharedCommandsMap = new SharedTableEntryMap<IModificationCommand>(table, updateAdapter);
