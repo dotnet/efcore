@@ -45,18 +45,15 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         private readonly struct CacheKey : IEquatable<CacheKey>
         {
-            public CacheKey(IProperty property, IEntityType entityType, Func<IProperty, IEntityType, ValueGenerator> factory)
+            public CacheKey(IProperty property, IEntityType entityType)
             {
                 Property = property;
                 EntityType = entityType;
-                Factory = factory;
             }
 
             public IProperty Property { get; }
 
             public IEntityType EntityType { get; }
-
-            public Func<IProperty, IEntityType, ValueGenerator> Factory { get; }
 
             public bool Equals(CacheKey other)
                 => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
@@ -87,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(factory, nameof(factory));
 
-            return _cache.GetOrAdd(new CacheKey(property, entityType, factory), ck => ck.Factory(ck.Property, ck.EntityType));
+            return _cache.GetOrAdd(new CacheKey(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
         }
     }
 }
