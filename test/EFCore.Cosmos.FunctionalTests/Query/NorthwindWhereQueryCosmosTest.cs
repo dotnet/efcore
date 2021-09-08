@@ -2216,6 +2216,90 @@ FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""CustomerID""] = ""ALFKI""))");
         }
 
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task FirstOrDefault_over_scalar_projection_compared_to_null(bool async)
+        {
+            return base.FirstOrDefault_over_scalar_projection_compared_to_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task FirstOrDefault_over_scalar_projection_compared_to_not_null(bool async)
+        {
+            return base.FirstOrDefault_over_scalar_projection_compared_to_not_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task FirstOrDefault_over_custom_projection_compared_to_null(bool async)
+        {
+            return base.FirstOrDefault_over_custom_projection_compared_to_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task FirstOrDefault_over_custom_projection_compared_to_not_null(bool async)
+        {
+            return base.FirstOrDefault_over_custom_projection_compared_to_not_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task SingleOrDefault_over_custom_projection_compared_to_null(bool async)
+        {
+            return base.SingleOrDefault_over_custom_projection_compared_to_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task SingleOrDefault_over_custom_projection_compared_to_not_null(bool async)
+        {
+            return base.SingleOrDefault_over_custom_projection_compared_to_not_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task LastOrDefault_over_custom_projection_compared_to_null(bool async)
+        {
+            return base.LastOrDefault_over_custom_projection_compared_to_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task LastOrDefault_over_custom_projection_compared_to_not_null(bool async)
+        {
+            return base.LastOrDefault_over_custom_projection_compared_to_not_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task First_over_custom_projection_compared_to_null(bool async)
+        {
+            return base.First_over_custom_projection_compared_to_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task First_over_custom_projection_compared_to_not_null(bool async)
+        {
+            return base.First_over_custom_projection_compared_to_not_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task Single_over_custom_projection_compared_to_null(bool async)
+        {
+            return base.Single_over_custom_projection_compared_to_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task Single_over_custom_projection_compared_to_not_null(bool async)
+        {
+            return base.Single_over_custom_projection_compared_to_not_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task Last_over_custom_projection_compared_to_null(bool async)
+        {
+            return base.Last_over_custom_projection_compared_to_null(async);
+        }
+
+        [ConditionalTheory(Skip = "Issue#17246 (Cross-collection join is not supported)")]
+        public override Task Last_over_custom_projection_compared_to_not_null(bool async)
+        {
+            return base.Last_over_custom_projection_compared_to_not_null(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

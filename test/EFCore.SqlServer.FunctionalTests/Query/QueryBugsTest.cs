@@ -4061,8 +4061,8 @@ ORDER BY [p].[Id]");
             {
                 var result = context.Parents.OrderBy(e => e.Id).Select(p => (ulong?)p.Child.ULongRowVersion).FirstOrDefault();
 
-            AssertSql(
-                @"SELECT TOP(1) [c].[ULongRowVersion]
+                AssertSql(
+                    @"SELECT TOP(1) [c].[ULongRowVersion]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
 ORDER BY [p].[Id]");
@@ -5338,10 +5338,10 @@ OUTER APPLY (
     SELECT [s].[ThingId], [t].[Id], [s].[Id] AS [Id0]
     FROM [Things] AS [t]
     LEFT JOIN [Subthings] AS [s] ON [t].[Id] = [s].[ThingId]
-    WHERE (
-        SELECT TOP(1) [v].[Id]
+    WHERE EXISTS (
+        SELECT 1
         FROM [Values] AS [v]
-        WHERE [e].[Id] = [v].[Entity11023Id]) IS NOT NULL AND (((
+        WHERE [e].[Id] = [v].[Entity11023Id]) AND (((
         SELECT TOP(1) [v0].[Id]
         FROM [Values] AS [v0]
         WHERE [e].[Id] = [v0].[Entity11023Id]) = [t].[Value11023Id]) OR ((
@@ -7089,10 +7089,10 @@ FROM [Businesses] AS [b]");
 
                 AssertSql(
                     @"SELECT TOP(2) CASE
-    WHEN (
-        SELECT TOP(1) [c].[Id]
+    WHEN EXISTS (
+        SELECT 1
         FROM [CoverIllustrations] AS [c]
-        WHERE ([b0].[Id] = [c].[CoverId]) AND ([c].[State] >= 2)) IS NOT NULL THEN CAST(1 AS bit)
+        WHERE ([b0].[Id] = [c].[CoverId]) AND ([c].[State] >= 2)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, (
     SELECT TOP(1) [c0].[Uri]
@@ -7228,8 +7228,8 @@ WHERE [b].[Id] = 1");
                 Assert.Equal(MyContext19206.TestType19206.Unit, item.t1.Type);
                 Assert.Equal(MyContext19206.TestType19206.Integration, item.t2.Type);
 
-            AssertSql(
-                @"p0='0'
+                AssertSql(
+                    @"p0='0'
 p1='1'
 
 SELECT [m].[Id], [m].[Type], [m0].[Id], [m0].[Type]
@@ -10120,8 +10120,8 @@ CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]" });
 
                 Assert.Equal(1, Test25400.ConstructorCallCount);
 
-            AssertSql(
-                @"SELECT TOP(1) [t].[Id], [t].[Value]
+                AssertSql(
+                    @"SELECT TOP(1) [t].[Id], [t].[Value]
 FROM [Tests] AS [t]
 ORDER BY [t].[Id]");
             }
