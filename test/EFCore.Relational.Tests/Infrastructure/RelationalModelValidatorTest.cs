@@ -1296,6 +1296,23 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_filters()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasFilter("Foo").HasDatabaseName("IX_Animal_Name");
+            modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasFilter("Bar").HasDatabaseName("IX_Animal_Name");
+
+            VerifyError(
+                RelationalStrings.DuplicateIndexFiltersMismatch(
+                    "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                    "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                    nameof(Animal), "IX_Animal_Name",
+                    "Bar", "Foo"),
+                modelBuilder);
+        }
+
+        [ConditionalFact]
         public virtual void Passes_for_incompatible_indexes_within_hierarchy_when_one_name_configured_explicitly()
         {
             var modelBuilder = CreateConventionalModelBuilder();

@@ -303,6 +303,9 @@
   <data name="DuplicateIndexUniquenessMismatch" xml:space="preserve">
     <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.</value>
   </data>
+  <data name="DuplicateIndexFiltersMismatch" xml:space="preserve">
+    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').</value>
+  </data>
   <data name="DuplicateKeyColumnMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different columns ({columnNames1} and {columnNames2}).</value>
   </data>
