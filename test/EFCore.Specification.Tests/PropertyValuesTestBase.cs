@@ -1481,6 +1481,96 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public virtual void Current_values_can_be_set_from_dictionary_typed_int()
+        {
+            TestDictionarySetValuesTypedInt(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        }
+
+        [ConditionalFact]
+        public virtual void Original_values_can_be_set_from_dictionary_typed_int()
+        {
+            TestDictionarySetValuesTypedInt(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        }
+
+        private void TestDictionarySetValuesTypedInt(
+            Func<EntityEntry, PropertyValues> getPropertyValues,
+            Func<EntityEntry, string, object> getValue)
+        {
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
+
+            var dictionary = new Dictionary<string, int>
+            {
+                { "Shadow1", 13 },
+                { "PrincipalMailRoomId", 0 }
+            };
+
+            buildingValues.SetValues(dictionary);
+
+            Assert.Equal("Building One", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(13, buildingValues["Shadow1"]);
+            Assert.Equal("Meadow Drive", buildingValues["Shadow2"]);
+
+            Assert.Equal("Building One", getValue(context.Entry(building), "Name"));
+            Assert.Equal(1500000m, getValue(context.Entry(building), "Value"));
+            Assert.Equal(13, getValue(context.Entry(building), "Shadow1"));
+            Assert.Equal("Meadow Drive", getValue(context.Entry(building), "Shadow2"));
+
+            Assert.False(context.Entry(building).Property("Name").IsModified);
+            Assert.False(context.Entry(building).Property("BuildingId").IsModified);
+            Assert.False(context.Entry(building).Property("Value").IsModified);
+            Assert.True(context.Entry(building).Property("Shadow1").IsModified);
+            Assert.False(context.Entry(building).Property("Shadow2").IsModified);
+        }
+
+        [ConditionalFact]
+        public virtual void Current_values_can_be_set_from_dictionary_typed_string()
+        {
+            TestDictionarySetValuesTypedString(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);
+        }
+
+        [ConditionalFact]
+        public virtual void Original_values_can_be_set_from_dictionary_typed_string()
+        {
+            TestDictionarySetValuesTypedString(e => e.OriginalValues, (e, n) => e.Property(n).OriginalValue);
+        }
+
+        private void TestDictionarySetValuesTypedString(
+            Func<EntityEntry, PropertyValues> getPropertyValues,
+            Func<EntityEntry, string, object> getValue)
+        {
+            using var context = CreateContext();
+            var building = context.Set<Building>().Single(b => b.Name == "Building One");
+            var buildingValues = getPropertyValues(context.Entry(building));
+
+            var dictionary = new Dictionary<string, string>
+            {
+                { "Name", "Values End" },
+                { "Shadow2", "Pine Walk" },
+            };
+
+            buildingValues.SetValues(dictionary);
+
+            Assert.Equal("Values End", buildingValues["Name"]);
+            Assert.Equal(1500000m, buildingValues["Value"]);
+            Assert.Equal(11, buildingValues["Shadow1"]);
+            Assert.Equal("Pine Walk", buildingValues["Shadow2"]);
+
+            Assert.Equal("Values End", getValue(context.Entry(building), "Name"));
+            Assert.Equal(1500000m, getValue(context.Entry(building), "Value"));
+            Assert.Equal(11, getValue(context.Entry(building), "Shadow1"));
+            Assert.Equal("Pine Walk", getValue(context.Entry(building), "Shadow2"));
+
+            Assert.True(context.Entry(building).Property("Name").IsModified);
+            Assert.False(context.Entry(building).Property("BuildingId").IsModified);
+            Assert.False(context.Entry(building).Property("Value").IsModified);
+            Assert.False(context.Entry(building).Property("Shadow1").IsModified);
+            Assert.True(context.Entry(building).Property("Shadow2").IsModified);
+        }
+
+        [ConditionalFact]
         public virtual void Current_values_can_be_set_from_dictionary_some_missing()
         {
             TestPartialDictionarySetValues(e => e.CurrentValues, (e, n) => e.Property(n).CurrentValue);

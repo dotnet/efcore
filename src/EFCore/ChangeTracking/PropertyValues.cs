@@ -116,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
         /// <param name="values"> The dictionary to read values from. </param>
-        public virtual void SetValues(IDictionary<string, object?> values)
+        public virtual void SetValues<TProperty>(IDictionary<string, TProperty> values)
         {
             Check.NotNull(values, nameof(values));
 

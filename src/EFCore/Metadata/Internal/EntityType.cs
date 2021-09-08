@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
         private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
         private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
-        private Func<InternalEntityEntry, ISnapshot>? _storeGeneratedValuesFactory;
+        private Func<ISnapshot>? _storeGeneratedValuesFactory;
         private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
         private Func<ISnapshot>? _emptyShadowValuesFactory;
         private Func<MaterializationContext, object>? _instanceFactory;
@@ -2665,13 +2665,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Func<InternalEntityEntry, ISnapshot> StoreGeneratedValuesFactory
+        public virtual Func<ISnapshot> StoreGeneratedValuesFactory
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _storeGeneratedValuesFactory, this,
                 static entityType =>
                 {
                     entityType.EnsureReadOnly();
-                    return new SidecarValuesFactoryFactory().Create(entityType);
+                    return new StoreGeneratedValuesFactoryFactory().CreateEmpty(entityType);
                 });
 
         /// <summary>

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
 using Xunit;
 
 // ReSharper disable AccessToDisposedClosure
@@ -19,6 +18,60 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class GraphUpdatesTestBase<TFixture>
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
+        [ConditionalTheory] // Issue #23043
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Saving_multiple_modified_entities_with_the_same_key_does_not_overflow(bool async)
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    var city = new City
+                    {
+                        Colleges =
+                        {
+                            new()
+                        }
+                    };
+
+                    if (async)
+                    {
+                        await context.AddAsync(city);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(city);
+                        context.SaveChanges();
+                    }
+                },
+                context =>
+                {
+                    var city = context.Set<City>().Include(x => x.Colleges).Single();
+                    var college = city.Colleges.Single();
+
+                    city.Colleges.Clear();
+                    city.Colleges.Add(new() { Id = college.Id });
+
+                    if (Fixture.ForceClientNoAction)
+                    {
+                        Assert.Equal(
+                            CoreStrings.RelationshipConceptualNullSensitive(nameof(City), nameof(College), $"{{CityId: {city.Id}}}"),
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Entry(college).State = EntityState.Modified).Message);
+                    }
+                    else
+                    {
+                        Assert.Equal(
+                            CoreStrings.IdentityConflictSensitive(nameof(College), $"{{Id: {college.Id}}}"),
+                            Assert.Throws<InvalidOperationException>(
+                                () => context.Entry(college).State = EntityState.Modified).Message);
+                    }
+
+                    return Task.CompletedTask;
+                });
+        }
+
         [ConditionalTheory] // Issue #22465
         [InlineData(false)]
         [InlineData(true)]
