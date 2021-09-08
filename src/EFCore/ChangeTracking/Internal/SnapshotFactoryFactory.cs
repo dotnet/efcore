@@ -192,6 +192,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         expression,
                         comparer.SnapshotExpression.Body);
 
+                    if (snapshotExpression.Type != propertyBase.ClrType)
+                    {
+                        snapshotExpression = Expression.Convert(snapshotExpression, propertyBase.ClrType);
+                    }
+
                     expression = propertyBase.ClrType.IsNullableType()
                         ? Expression.Condition(
                             Expression.Equal(expression, Expression.Constant(null, propertyBase.ClrType)),
