@@ -10,11 +10,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts strings to and from a <see cref="Guid" /> using the
     ///     standard "8-4-4-4-12" format./>.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public class StringToGuidConverter : StringGuidConverter<string, Guid>
     {
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public StringToGuidConverter()
             : this(null)
         {
@@ -23,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.

@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public interface IValueConverterSelector
     {
         /// <summary>
@@ -26,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     used to convert the given model type. Converters nearer the front of
         ///     the list should be used in preference to converters nearer the end.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="modelClrType"> The type for which a converter is needed. </param>
         /// <param name="providerClrType"> The store type to target, or null for any. </param>
         /// <returns> The converters available. </returns>

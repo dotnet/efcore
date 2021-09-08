@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         The generated values are non-temporary, meaning they will be saved to the database.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     {
         private long _counter = DateTime.UtcNow.Ticks;

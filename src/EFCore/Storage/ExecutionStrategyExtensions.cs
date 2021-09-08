@@ -13,11 +13,19 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IExecutionStrategy" />
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///     for more information.
+    /// </remarks>
     public static class ExecutionStrategyExtensions
     {
         /// <summary>
         ///     Executes the specified operation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">A delegate representing an executable operation that doesn't return any results.</param>
         public static void Execute(
@@ -37,6 +45,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
@@ -55,6 +67,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified operation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">A delegate representing an executable operation that doesn't return any results.</param>
@@ -77,6 +93,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">A function that returns a started task.</param>
         /// <returns>
@@ -101,6 +121,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">A function that returns a started task.</param>
         /// <param name="cancellationToken">
@@ -131,6 +155,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
@@ -155,6 +183,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
@@ -185,6 +217,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">A function that returns a started task.</param>
@@ -212,6 +248,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">A function that returns a started task.</param>
@@ -245,6 +285,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
@@ -273,6 +317,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
@@ -290,6 +338,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="state">The state that will be passed to the operation.</param>
         /// <param name="operation">
@@ -319,6 +371,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
@@ -344,6 +400,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy">The strategy that will be used for the execution.</param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -382,6 +442,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="operation">
         ///     A delegate representing an executable operation.
@@ -403,6 +467,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="operation">
         ///     A function that returns a started task.
@@ -429,6 +497,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="operation">
         ///     A function that returns a started task.
@@ -462,6 +534,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
@@ -485,6 +561,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
@@ -519,6 +599,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -548,6 +632,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -588,6 +676,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -617,6 +709,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -657,6 +753,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -700,6 +800,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">

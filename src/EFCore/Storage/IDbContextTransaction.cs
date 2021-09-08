@@ -18,21 +18,33 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         to be directly constructed in your application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    /// </remarks>
     public interface IDbContextTransaction : IDisposable, IAsyncDisposable
     {
         /// <summary>
         ///     Gets the transaction identifier.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         Guid TransactionId { get; }
 
         /// <summary>
         ///     Commits all changes made to the database in the current transaction.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         void Commit();
 
         /// <summary>
         ///     Commits all changes made to the database in the current transaction asynchronously.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -41,11 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Discards all changes made to the database in the current transaction.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         void Rollback();
 
         /// <summary>
         ///     Discards all changes made to the database in the current transaction asynchronously.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
         /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
@@ -56,6 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     was established to be rolled back, restoring the transaction state to what it was at the time of the
         ///     savepoint.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the savepoint to be created. </param>
         void CreateSavepoint(string name)
             => throw new NotSupportedException(CoreStrings.SavepointsNotSupported);
@@ -65,6 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     was established to be rolled back, restoring the transaction state to what it was at the time of the
         ///     savepoint.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the savepoint to be created. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
@@ -75,6 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the savepoint to roll back to. </param>
         void RollbackToSavepoint(string name)
             => throw new NotSupportedException(CoreStrings.SavepointsNotSupported);
@@ -82,6 +109,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the savepoint to roll back to. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
@@ -99,6 +129,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         do nothing rather than throw. This is the default behavior.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the savepoint to release. </param>
         void ReleaseSavepoint(string name) { }
 
@@ -112,6 +145,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         do nothing rather than throw. This is the default behavior.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the savepoint to release. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
@@ -126,6 +162,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     and <see cref="ReleaseSavepointAsync" /> as well as their synchronous counterparts are expected to throw
         ///     <see cref="NotSupportedException" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <returns>
         ///     <see langword="true" /> if this <see cref="IDbContextTransaction" /> instance supports database savepoints;
         ///     otherwise, <see langword="false" />.

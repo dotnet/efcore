@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     Describes metadata needed to decide on a type mapping for a property or type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public readonly record struct TypeMappingInfo : IEquatable<TypeMappingInfo>
     {
         /// <summary>

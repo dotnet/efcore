@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///     Represents usage of an attribute.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
     /// </remarks>
     public class AttributeCodeFragment
     {

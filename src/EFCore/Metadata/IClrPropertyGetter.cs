@@ -14,7 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
     /// </remarks>
     public interface IClrPropertyGetter
     {

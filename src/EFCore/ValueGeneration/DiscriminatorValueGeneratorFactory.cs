@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     A factory that creates value generators for the discriminator property that always outputs
     ///     the discriminator value for the given entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class DiscriminatorValueGeneratorFactory : ValueGeneratorFactory
     {
         /// <inheritdoc />
