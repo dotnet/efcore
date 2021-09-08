@@ -853,6 +853,48 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
         }
 
         [ConditionalFact]
+        public void Create_multiple_indexes_on_same_column()
+        {
+            Test(
+                @"
+CREATE TABLE IndexTable (
+    Id int,
+    IndexProperty int
+);
+
+CREATE INDEX IX_One on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 100);
+CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = dbModel.Tables.Single();
+
+                    Assert.Equal(2, table.Indexes.Count);
+                    Assert.All(
+                        table.Indexes, c =>
+                        {
+                            Assert.Equal("dbo", c.Table.Schema);
+                            Assert.Equal("IndexTable", c.Table.Name);
+                        });
+
+                    Assert.Collection(
+                        table.Indexes.OrderBy(i => i.Name),
+                        index =>
+                        {
+                            Assert.Equal("IX_One", index.Name);
+                            Assert.Equal(100, index[SqlServerAnnotationNames.FillFactor]);
+                        },
+                        index =>
+                        {
+                            Assert.Equal("IX_Two", index.Name);
+                            Assert.Equal(50, index[SqlServerAnnotationNames.FillFactor]);
+                        });
+                },
+                "DROP TABLE IndexTable;");
+        }
+
+        [ConditionalFact]
         public void Create_foreign_keys()
         {
             Test(
