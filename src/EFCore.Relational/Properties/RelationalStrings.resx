@@ -303,6 +303,9 @@
   <data name="DuplicateIndexUniquenessMismatch" xml:space="preserve">
     <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different uniqueness configurations.</value>
   </data>
+  <data name="DuplicateIndexFiltersMismatch" xml:space="preserve">
+    <value>The indexes {indexProperties1} on '{entityType1}' and {indexProperties2} on '{entityType2}' are both mapped to '{table}.{indexName}', but with different filters ('{filter1}' and '{filter2}').</value>
+  </data>
   <data name="DuplicateKeyColumnMismatch" xml:space="preserve">
     <value>The keys {keyProperties1} on '{entityType1}' and {keyProperties2} on '{entityType2}' are both mapped to '{table}.{keyName}', but with different columns ({columnNames1} and {columnNames2}).</value>
   </data>
@@ -539,7 +542,7 @@
   </data>
   <data name="LogNamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
-    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string? string string</comment>
+    <comment>Warning RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string? string string</comment>
   </data>
   <data name="LogNamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
     <value>The index named '{indexName}' on the entity type '{entityType}' specifies properties {indexProperties}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties must be mapped for the index to be created in the database.</value>
@@ -619,7 +622,7 @@
   </data>
   <data name="LogUnnamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
-    <comment>Information RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string</comment>
+    <comment>Warning RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string</comment>
   </data>
   <data name="LogUnnamedIndexPropertiesBothMappedAndNotMappedToTable" xml:space="preserve">
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexProperties}. Some properties are mapped to a column in a table, but the property '{propertyName}' is not. All of the properties must be mapped for the index to be created in the database.</value>

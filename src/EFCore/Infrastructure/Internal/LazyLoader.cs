@@ -98,7 +98,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
 
             if (ShouldLoad(entity, navigationName, out var entry))
             {
-                entry.Load();
+                try
+                {
+                    entry.Load();
+                }
+                catch
+                {
+                    SetLoaded(entity, navigationName, false);
+                    throw;
+                }
             }
         }
 
@@ -108,7 +116,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task LoadAsync(
+        public virtual async Task LoadAsync(
             object entity,
             CancellationToken cancellationToken = default,
             [CallerMemberName] string navigationName = "")
@@ -116,9 +124,18 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal
             Check.NotNull(entity, nameof(entity));
             Check.NotEmpty(navigationName, nameof(navigationName));
 
-            return ShouldLoad(entity, navigationName, out var entry)
-                ? entry.LoadAsync(cancellationToken)
-                : Task.CompletedTask;
+            if (ShouldLoad(entity, navigationName, out var entry))
+            {
+                try
+                {
+                    await entry.LoadAsync(cancellationToken);
+                }
+                catch
+                {
+                    SetLoaded(entity, navigationName, false);
+                    throw;
+                }
+            }
         }
 
         private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)

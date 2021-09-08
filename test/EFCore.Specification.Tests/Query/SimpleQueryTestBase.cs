@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -152,6 +153,27 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Single(bitterIceCreams);
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Comparing_byte_column_to_enum_in_vb_creating_double_cast(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context21770>();
+            using var context = contextFactory.CreateContext();
+            Expression<Func<Food, byte?>> memberAccess = (Food i) => i.Taste;
+            var predicate = Expression.Lambda<Func<Food, bool>>(
+                Expression.Equal(
+                    Expression.Convert(memberAccess.Body, typeof(int?)),
+                    Expression.Convert(
+                        Expression.Convert(Expression.Constant(Taste.Bitter, typeof(Taste)), typeof(int)),
+                        typeof(int?))),
+                memberAccess.Parameters);
+            var query = context.Food.Where(predicate);
+
+            var bitterFood = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+
         protected class Context21770 : DbContext
         {
             public Context21770(DbContextOptions options)
@@ -160,6 +182,7 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public DbSet<IceCream> IceCreams { get; set; }
+            public DbSet<Food> Food { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -185,6 +208,12 @@ namespace Microsoft.EntityFrameworkCore
             public int IceCreamId { get; set; }
             public string Name { get; set; }
             public int Taste { get; set; }
+        }
+
+        protected class Food
+        {
+            public int Id { get; set; }
+            public byte? Taste { get; set; }
         }
     }
 }

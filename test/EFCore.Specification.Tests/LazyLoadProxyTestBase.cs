@@ -2513,6 +2513,7 @@ namespace Microsoft.EntityFrameworkCore
             public virtual IEnumerable<ChildCompositeKey> ChildrenCompositeKey { get; set; }
             public virtual SingleCompositeKey SingleCompositeKey { get; set; }
             public virtual WithRecursiveProperty WithRecursiveProperty { get; set; }
+            public virtual IEnumerable<Child> ManyChildren { get; set; }
         }
 
         public class Mother : Parent
@@ -2556,6 +2557,8 @@ namespace Microsoft.EntityFrameworkCore
             public int? ParentId { get; set; }
 
             public virtual Parent Parent { get; set; }
+
+            public virtual IEnumerable<Parent> ManyParents { get; set; }
         }
 
         public class SinglePkToPk
@@ -2885,6 +2888,8 @@ namespace Microsoft.EntityFrameworkCore
                                 e => new { e.AlternateId, e.Id })
                             .HasForeignKey<SingleCompositeKey>(
                                 e => new { e.ParentAlternateId, e.ParentId });
+
+                        b.HasMany(e => e.ManyChildren).WithMany(e => e.ManyParents);
                     });
 
                 modelBuilder.Entity<Mother>();
@@ -3002,7 +3007,8 @@ namespace Microsoft.EntityFrameworkCore
                         ChildrenCompositeKey =
                             new List<ChildCompositeKey> { new() { Id = 51 }, new() { Id = 52 } },
                         SingleCompositeKey = new SingleCompositeKey { Id = 62 },
-                        WithRecursiveProperty = new WithRecursiveProperty { Id = 8086 }
+                        WithRecursiveProperty = new WithRecursiveProperty { Id = 8086 },
+                        ManyChildren = new List<Child> { new() { Id = 999 } }
                     });
 
                 context.Add(

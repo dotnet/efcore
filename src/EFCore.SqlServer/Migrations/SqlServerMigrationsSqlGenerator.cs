@@ -539,8 +539,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             MigrationCommandListBuilder builder,
             bool terminate = true)
         {
-            if (!terminate
-                && operation.Comment != null)
+            var hasComments = operation.Comment != null || operation.Columns.Any(c => c.Comment != null);
+
+            if (!terminate && hasComments)
             {
                 throw new ArgumentException(SqlServerStrings.CannotProduceUnterminatedSQLWithComments(nameof(CreateTableOperation)));
             }
@@ -615,34 +616,45 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
             }
 
-            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
-
-            var firstDescription = true;
-            if (operation.Comment != null)
+            if (hasComments)
             {
-                AddDescription(builder, operation.Comment, operation.Schema, operation.Name);
+                Check.DebugAssert(terminate, "terminate is false but there are comments");
 
-                firstDescription = false;
-            }
+                builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
-            foreach (var column in operation.Columns)
-            {
-                if (column.Comment == null)
+                var firstDescription = true;
+                if (operation.Comment != null)
                 {
-                    continue;
+                    AddDescription(builder, operation.Comment, operation.Schema, operation.Name);
+
+                    firstDescription = false;
                 }
 
-                AddDescription(
-                    builder, column.Comment,
-                    operation.Schema,
-                    operation.Name,
-                    column.Name,
-                    omitVariableDeclarations: !firstDescription);
+                foreach (var column in operation.Columns)
+                {
+                    if (column.Comment == null)
+                    {
+                        continue;
+                    }
 
-                firstDescription = false;
+                    AddDescription(
+                        builder, column.Comment,
+                        operation.Schema,
+                        operation.Name,
+                        column.Name,
+                        omitVariableDeclarations: !firstDescription);
+
+                    firstDescription = false;
+                }
+
+                builder.EndCommand(suppressTransaction: memoryOptimized);
             }
-
-            builder.EndCommand(suppressTransaction: memoryOptimized);
+            else if (terminate)
+            {
+                builder
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator)
+                    .EndCommand(suppressTransaction: memoryOptimized);
+            }
         }
 
         /// <summary>

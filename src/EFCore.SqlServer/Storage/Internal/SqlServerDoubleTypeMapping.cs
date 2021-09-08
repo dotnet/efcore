@@ -4,6 +4,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
@@ -16,6 +18,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     /// </summary>
     public class SqlServerDoubleTypeMapping : DoubleTypeMapping
     {
+        private static readonly MethodInfo _getFloatMethod
+            = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFloat), new[] { typeof(int) })!;
+        
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -71,6 +76,30 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 && !double.IsInfinity(doubleValue)
                     ? literal + "E0"
                     : literal;
+        }
+
+        /// <summary>
+        ///     The method to use when reading values of the given type. The method must be defined
+        ///     on <see cref="DbDataReader" /> or one of its subclasses.
+        /// </summary>
+        /// <returns> The method to use to read the value. </returns>
+        public override MethodInfo GetDataReaderMethod()
+            => Precision is <= 24 ? _getFloatMethod : base.GetDataReaderMethod();
+
+        /// <summary>
+        ///     Gets a custom expression tree for reading the value from the input data reader
+        ///     expression that contains the database value.
+        /// </summary>
+        /// <param name="expression"> The input expression, containing the database value. </param>
+        /// <returns> The expression with customization added. </returns>
+        public override Expression CustomizeDataReaderExpression(Expression expression)
+        {
+            if (Precision is <= 24)
+            {
+                expression = Expression.Convert(expression, typeof(double));
+            }
+
+            return base.CustomizeDataReaderExpression(expression);
         }
 
         /// <summary>

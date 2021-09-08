@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -18,6 +20,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     {
+        private static readonly List<MethodInfo> _singleResultMethodInfos = new()
+        {
+            QueryableMethods.FirstWithPredicate,
+            QueryableMethods.FirstWithoutPredicate,
+            QueryableMethods.FirstOrDefaultWithPredicate,
+            QueryableMethods.FirstOrDefaultWithoutPredicate,
+            QueryableMethods.SingleWithPredicate,
+            QueryableMethods.SingleWithoutPredicate,
+            QueryableMethods.SingleOrDefaultWithPredicate,
+            QueryableMethods.SingleOrDefaultWithoutPredicate,
+            QueryableMethods.LastWithPredicate,
+            QueryableMethods.LastWithoutPredicate,
+            QueryableMethods.LastOrDefaultWithPredicate,
+            QueryableMethods.LastOrDefaultWithoutPredicate
+            //QueryableMethodProvider.ElementAtMethodInfo,
+            //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
+        };
+
         private static readonly MethodInfo _stringCompareWithComparisonMethod =
             typeof(string).GetRequiredRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string), typeof(StringComparison) });
 
@@ -38,6 +58,128 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            var left = Visit(binaryExpression.Left);
+            var right = Visit(binaryExpression.Right);
+
+            if (binaryExpression.NodeType != ExpressionType.Coalesce
+                && left.Type != right.Type
+                && left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType())
+            {
+                if (left.Type.IsNullableValueType())
+                {
+                    right = Expression.Convert(right, left.Type);
+                }
+                else
+                {
+                    left = Expression.Convert(left, right.Type);
+                }
+            }
+
+            if (binaryExpression.NodeType == ExpressionType.Equal
+                || binaryExpression.NodeType == ExpressionType.NotEqual)
+            {
+                var leftNullConstant = IsNullConstant(left);
+                var rightNullConstant = IsNullConstant(right);
+                if (leftNullConstant || rightNullConstant)
+                {
+                    var nonNullExpression = leftNullConstant ? right : left;
+                    if (nonNullExpression is MethodCallExpression methodCallExpression
+                        && methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                        && methodCallExpression.Method.IsGenericMethod
+                        && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo genericMethod
+                        && _singleResultMethodInfos.Contains(genericMethod))
+                    {
+                        var result = Expression.Call(
+                            (methodCallExpression.Arguments.Count == 2
+                                ? QueryableMethods.AnyWithPredicate
+                                : QueryableMethods.AnyWithoutPredicate)
+                                .MakeGenericMethod(methodCallExpression.Type),
+                            methodCallExpression.Arguments);
+
+                        return binaryExpression.NodeType == ExpressionType.Equal
+                            ? Expression.Not(result)
+                            : result;
+                    }
+                }
+            }
+
+            return binaryExpression.Update(left, binaryExpression.Conversion, right);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+        {
+            var test = Visit(conditionalExpression.Test);
+            var ifTrue = Visit(conditionalExpression.IfTrue);
+            var ifFalse = Visit(conditionalExpression.IfFalse);
+
+            if (ifTrue.Type != ifFalse.Type
+                && ifTrue.Type.UnwrapNullableType() == ifFalse.Type.UnwrapNullableType())
+            {
+                if (ifTrue.Type.IsNullableValueType())
+                {
+                    ifFalse = Expression.Convert(ifFalse, ifTrue.Type);
+                }
+                else
+                {
+                    ifTrue = Expression.Convert(ifTrue, ifFalse.Type);
+                }
+
+                return Expression.Condition(test, ifTrue, ifFalse);
+            }
+
+            return conditionalExpression.Update(test, ifTrue, ifFalse);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override ElementInit VisitElementInit(ElementInit elementInit)
+        {
+            var arguments = new Expression[elementInit.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                arguments[i] = MatchExpressionType(
+                    Visit(elementInit.Arguments[i]),
+                    elementInit.Arguments[i].Type);
+            }
+
+            return elementInit.Update(arguments);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
+        {
+            Check.NotNull(lambdaExpression, nameof(lambdaExpression));
+
+            var body = Visit(lambdaExpression.Body);
+
+            return body.Type != lambdaExpression.Body.Type
+                ? Expression.Lambda(Expression.Convert(body, lambdaExpression.Body.Type), lambdaExpression.Parameters)
+                : lambdaExpression.Update(body, lambdaExpression.Parameters)!;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             var expression = memberExpression.Expression != null
@@ -49,6 +191,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             var visitedExpression = memberExpression.Update(expression);
 
             return TryOptimizeMemberAccessOverConditional(visitedExpression) ?? visitedExpression;
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
+        {
+            var expression = MatchExpressionType(
+                Visit(memberAssignment.Expression),
+                memberAssignment.Expression.Type);
+
+            return memberAssignment.Update(expression);
         }
 
         /// <summary>
@@ -136,16 +293,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             if (methodCallExpression.Object != null)
             {
                 @object = MatchExpressionType(
-                    Visit(methodCallExpression.Object),
-                    methodCallExpression.Object.Type);
+                    Visit(methodCallExpression.Object), methodCallExpression.Object.Type);
             }
 
             var arguments = new Expression[methodCallExpression.Arguments.Count];
             for (var i = 0; i < arguments.Length; i++)
             {
                 arguments[i] = MatchExpressionType(
-                    Visit(methodCallExpression.Arguments[i]),
-                    methodCallExpression.Arguments[i].Type);
+                    Visit(methodCallExpression.Arguments[i]), methodCallExpression.Arguments[i].Type);
             }
 
             var visited = methodCallExpression.Update(@object!, arguments);
@@ -177,10 +332,48 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             return visited;
         }
 
-        private Expression MatchExpressionType(Expression expression, Type typeToMatch)
-            => expression.Type != typeToMatch
-                ? Expression.Convert(expression, typeToMatch)
-                : expression;
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitNew(NewExpression newExpression)
+        {
+            if (newExpression.Arguments.Count == 0)
+            {
+                return newExpression;
+            }
+
+            var arguments = new Expression[newExpression.Arguments.Count];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                arguments[i] = MatchExpressionType(
+                    Visit(newExpression.Arguments[i]),
+                    newExpression.Arguments[i].Type);
+            }
+
+            return newExpression.Update(arguments);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
+        {
+            var expressions = new Expression[newArrayExpression.Expressions.Count];
+            for (var i = 0; i < expressions.Length; i++)
+            {
+                expressions[i] = MatchExpressionType(
+                    Visit(newArrayExpression.Expressions[i]),
+                    newArrayExpression.Expressions[i].Type);
+            }
+
+            return newArrayExpression.Update(expressions);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -227,157 +420,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 Visit(unaryExpression.Operand));
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
-        {
-            var left = Visit(binaryExpression.Left);
-            var right = Visit(binaryExpression.Right);
-
-            if (binaryExpression.NodeType != ExpressionType.Coalesce
-                && left.Type != right.Type
-                && left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType())
-            {
-                if (left.Type.IsNullableValueType())
-                {
-                    right = Expression.Convert(right, left.Type);
-                }
-                else
-                {
-                    left = Expression.Convert(left, right.Type);
-                }
-            }
-
-            return binaryExpression.Update(left, binaryExpression.Conversion, right);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
-        {
-            var test = Visit(conditionalExpression.Test);
-            var ifTrue = Visit(conditionalExpression.IfTrue);
-            var ifFalse = Visit(conditionalExpression.IfFalse);
-
-            if (ifTrue.Type != ifFalse.Type
-                && ifTrue.Type.UnwrapNullableType() == ifFalse.Type.UnwrapNullableType())
-            {
-                if (ifTrue.Type.IsNullableValueType())
-                {
-                    ifFalse = Expression.Convert(ifFalse, ifTrue.Type);
-                }
-                else
-                {
-                    ifTrue = Expression.Convert(ifTrue, ifFalse.Type);
-                }
-
-                return Expression.Condition(test, ifTrue, ifFalse);
-            }
-
-            return conditionalExpression.Update(test, ifTrue, ifFalse);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitLambda<T>(Expression<T> lambdaExpression)
-        {
-            Check.NotNull(lambdaExpression, nameof(lambdaExpression));
-
-            var body = Visit(lambdaExpression.Body);
-
-            return body.Type != lambdaExpression.Body.Type
-                ? Expression.Lambda(Expression.Convert(body, lambdaExpression.Body.Type), lambdaExpression.Parameters)
-                : lambdaExpression.Update(body, lambdaExpression.Parameters)!;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitNew(NewExpression newExpression)
-        {
-            if (newExpression.Arguments.Count == 0)
-            {
-                return newExpression;
-            }
-
-            var arguments = new Expression[newExpression.Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
-            {
-                arguments[i] = MatchExpressionType(
-                    Visit(newExpression.Arguments[i]),
-                    newExpression.Arguments[i].Type);
-            }
-
-            return newExpression.Update(arguments);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override ElementInit VisitElementInit(ElementInit elementInit)
-        {
-            var arguments = new Expression[elementInit.Arguments.Count];
-            for (var i = 0; i < arguments.Length; i++)
-            {
-                arguments[i] = MatchExpressionType(
-                    Visit(elementInit.Arguments[i]),
-                    elementInit.Arguments[i].Type);
-            }
-
-            return elementInit.Update(arguments);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
-        {
-            var expression = MatchExpressionType(
-                Visit(memberAssignment.Expression),
-                memberAssignment.Expression.Type);
-
-            return memberAssignment.Update(expression);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        {
-            var expressions = new Expression[newArrayExpression.Expressions.Count];
-            for (var i = 0; i < expressions.Length; i++)
-            {
-                expressions[i] = MatchExpressionType(
-                    Visit(newArrayExpression.Expressions[i]),
-                    newArrayExpression.Expressions[i].Type);
-            }
-
-            return newArrayExpression.Update(expressions);
-        }
+        private Expression MatchExpressionType(Expression expression, Type typeToMatch)
+            => expression.Type != typeToMatch
+                ? Expression.Convert(expression, typeToMatch)
+                : expression;
 
         private bool TryExtractEqualityOperands(
             Expression expression,

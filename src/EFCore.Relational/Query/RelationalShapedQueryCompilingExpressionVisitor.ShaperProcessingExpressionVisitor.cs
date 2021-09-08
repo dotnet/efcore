@@ -1482,10 +1482,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             (queryContext, relationalCommandCache, detailedErrorsEnabled),
                             ((RelationalQueryContext, RelationalCommandCache, bool) tup, CancellationToken cancellationToken)
                                 => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, cancellationToken),
-                            verifySucceeded: null)
+                            verifySucceeded: null,
+                            queryContext.CancellationToken)
                         .ConfigureAwait(false);
 
-                    async Task<RelationalDataReader> InitializeReaderAsync(
+                    static async Task<RelationalDataReader> InitializeReaderAsync(
                         RelationalQueryContext queryContext,
                         RelationalCommandCache relationalCommandCache,
                         bool detailedErrorsEnabled,
@@ -1801,10 +1802,11 @@ namespace Microsoft.EntityFrameworkCore.Query
                             (queryContext, relationalCommandCache, detailedErrorsEnabled),
                             ((RelationalQueryContext, RelationalCommandCache, bool) tup, CancellationToken cancellationToken)
                                 => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, cancellationToken),
-                            verifySucceeded: null)
+                            verifySucceeded: null,
+                            queryContext.CancellationToken)
                         .ConfigureAwait(false);
 
-                    async Task<RelationalDataReader> InitializeReaderAsync(
+                    static async Task<RelationalDataReader> InitializeReaderAsync(
                         RelationalQueryContext queryContext,
                         RelationalCommandCache relationalCommandCache,
                         bool detailedErrorsEnabled,

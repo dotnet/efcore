@@ -1694,6 +1694,45 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
             };
 
         [ConditionalFact]
+        public virtual void Can_insert_and_read_back_double_types_with_precision()
+        {
+            using (var context = CreateContext())
+            {
+                context.Set<DoubleDataTypes>().Add(CreateDoubleDataTypes(77));
+
+                Assert.Equal(1, context.SaveChanges());
+            }
+
+            var parameters = DumpParameters();
+            Assert.Equal(
+                @"@p0='77'
+@p1='83.33000183105469' (Size = 25)
+@p2='83.30000305175781' (Size = 3)",
+                parameters,
+                ignoreLineEndingDifferences: true);
+
+            using (var context = CreateContext())
+            {
+                AssertDoubleDataTypes(context.Set<DoubleDataTypes>().Single(e => e.Id == 77), 77);
+            }
+        }
+
+        private static void AssertDoubleDataTypes(DoubleDataTypes entity, int id)
+        {
+            Assert.Equal(id, entity.Id);
+            Assert.Equal(83.3f, entity.Double3);
+            Assert.Equal(83.33f, entity.Double25);
+        }
+
+        private static DoubleDataTypes CreateDoubleDataTypes(int id)
+            => new()
+            {
+                Id = id,
+                Double3 = 83.3f,
+                Double25 = 83.33f
+            };
+
+        [ConditionalFact]
         public virtual void Can_insert_and_read_back_all_mapped_data_types_with_precision_and_scale()
         {
             using (var context = CreateContext())
@@ -2965,6 +3004,9 @@ BuiltInNullableDataTypesShadow.TestNullableUnsignedInt64 ---> [nullable decimal]
 BuiltInNullableDataTypesShadow.TestString ---> [nullable nvarchar] [MaxLength = -1]
 DateTimeEnclosure.DateTimeOffset ---> [nullable datetimeoffset] [Precision = 7]
 DateTimeEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
+DoubleDataTypes.Double25 ---> [float] [Precision = 53]
+DoubleDataTypes.Double3 ---> [real] [Precision = 24]
+DoubleDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 EmailTemplate.Id ---> [uniqueidentifier]
 EmailTemplate.TemplateType ---> [int] [Precision = 10 Scale = 0]
 MappedDataTypes.BoolAsBit ---> [bit]
@@ -3599,6 +3641,14 @@ WHERE [b].[Id] = 13");
                         b.Property(e => e.DecimalAsNumeric3).HasPrecision(3);
                     });
 
+                modelBuilder.Entity<DoubleDataTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Double3).HasPrecision(3);
+                        b.Property(e => e.Double25).HasPrecision(25);
+                    });
+
                 modelBuilder.Entity<MappedPrecisionAndScaledSeparatelyDataTypes>(
                     b =>
                     {
@@ -4116,6 +4166,14 @@ WHERE [b].[Id] = 13");
 
             [Column(TypeName = "numeric")]
             public decimal DecimalAsNumeric3 { get; set; }
+        }
+
+        protected class DoubleDataTypes
+        {
+            public int Id { get; set; }
+
+            public double Double3 { get; set; }
+            public double Double25 { get; set; }
         }
 
         protected class MappedPrecisionAndScaledDataTypes
