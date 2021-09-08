@@ -215,19 +215,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                 // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart")
                 temporalTableBuilderCalls.Add(
                     periodStartColumnName != null
-                    ? new MethodCallCodeFragment(
-                        _temporalTableHasPeriodStartMethodInfo,
-                        new[] { periodStartProperty.Name },
-                        new MethodCallCodeFragment(_temporalPropertyHasColumnNameMethodInfo, periodStartColumnName))
+                    ? new MethodCallCodeFragment(_temporalTableHasPeriodStartMethodInfo, periodStartProperty.Name)
+                        .Chain(new MethodCallCodeFragment(_temporalPropertyHasColumnNameMethodInfo, periodStartColumnName))
                     : new MethodCallCodeFragment(_temporalTableHasPeriodStartMethodInfo, periodStartProperty.Name));
 
                 // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd")
                 temporalTableBuilderCalls.Add(
                     periodEndColumnName != null
-                        ? new MethodCallCodeFragment(
-                            _temporalTableHasPeriodEndMethodInfo,
-                            new[] { periodEndProperty.Name },
-                            new MethodCallCodeFragment(_temporalPropertyHasColumnNameMethodInfo, periodEndColumnName))
+                        ? new MethodCallCodeFragment(_temporalTableHasPeriodEndMethodInfo, periodEndProperty.Name)
+                            .Chain(new MethodCallCodeFragment(_temporalPropertyHasColumnNameMethodInfo, periodEndColumnName))
                         : new MethodCallCodeFragment(_temporalTableHasPeriodEndMethodInfo, periodEndProperty.Name));
 
                 // ToTable(tb => tb.IsTemporal(ttb => { ... }))
