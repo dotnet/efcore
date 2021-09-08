@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public abstract class ComplexNavigationsSharedQueryTypeRelationalTestBase<TFixture> : ComplexNavigationsSharedTypeQueryTestBase<TFixture>
+    public abstract class ComplexNavigationsSharedTypeQueryRelationalTestBase<TFixture> : ComplexNavigationsSharedTypeQueryTestBase<TFixture>
         where TFixture : ComplexNavigationsSharedTypeQueryRelationalFixtureBase, new()
     {
-        protected ComplexNavigationsSharedQueryTypeRelationalTestBase(TFixture fixture)
+        protected ComplexNavigationsSharedTypeQueryRelationalTestBase(TFixture fixture)
             : base(fixture)
         {
         }
@@ -18,6 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertTranslationFailed(() => base.Complex_query_with_optional_navigations_and_client_side_evaluation(async));
         }
+
 
         protected virtual bool CanExecuteQueryString
             => false;

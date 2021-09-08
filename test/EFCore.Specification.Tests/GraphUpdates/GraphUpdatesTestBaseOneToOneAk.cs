@@ -1145,22 +1145,21 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertNavigations(loadedRoot);
 
-                        //TODO: Aggregate on optional dependent #23230
-                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == old1.Id);
-                        //Assert.Equal(0, removedCount);
+                        var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == old1.Id);
+                        Assert.Equal(0, removedCount);
 
                         Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null && r.RequiredSingleAk.Id == old1.Id));
 
-                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
-                        //    .Count(e => e.Id == old2.Id);
-                        //Assert.Equal(0, orphanedCount);
+                        var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                            .Count(e => e.Id == old2.Id);
+                        Assert.Equal(0, orphanedCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
                             .Any(r => r.Single != null && r.Single.Id == old2.Id));
 
-                        //var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
-                        //    .Count(e => e.Id == old2c.Id);
-                        //Assert.Equal(0, orphanedCCount);
+                        var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                            .Count(e => e.Id == old2c.Id);
+                        Assert.Equal(0, orphanedCCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
                             .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
@@ -1512,22 +1511,21 @@ namespace Microsoft.EntityFrameworkCore
                         AssertKeys(root, loadedRoot);
                         AssertPossiblyNullNavigations(loadedRoot);
 
-                        //TODO: Aggregate on optional dependent #23230
-                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == old1.Id);
-                        //Assert.Equal(0, removedCount);
+                        var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == old1.Id);
+                        Assert.Equal(0, removedCount);
 
                         Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null && r.RequiredSingleAk.Id == old1.Id));
 
-                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
-                        //    .Count(e => e.Id == old2.Id);
-                        //Assert.Equal(0, orphanedCount);
+                        var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                            .Count(e => e.Id == old2.Id);
+                        Assert.Equal(0, orphanedCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
                             .Any(r => r.Single != null && r.Single.Id == old2.Id));
 
-                        //var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
-                        //    .Count(e => e.Id == old2c.Id);
-                        //Assert.Equal(0, orphanedCCount);
+                        var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                            .Count(e => e.Id == old2c.Id);
+                        Assert.Equal(0, orphanedCCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk)
                             .Any(r => r.SingleComposite != null && r.SingleComposite.Id == old2c.Id));
@@ -2013,21 +2011,20 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Null(root.RequiredSingleAk);
 
-                        //TODO: Aggregate on optional dependent #23230
-                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
-                        //Assert.Equal(0, removedCount);
+                        var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
+                        Assert.Equal(0, removedCount);
 
                         Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null));
 
-                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
-                        //    .Count(e => e.Id == orphanedId);
-                        //Assert.Equal(0, orphanedCount);
+                        var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                            .Count(e => e.Id == orphanedId);
+                        Assert.Equal(0, orphanedCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.Single != null));
 
-                        //var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
-                        //    .Count(e => e.Id == orphanedId);
-                        //Assert.Equal(0, orphanedCCount);
+                        var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                            .Count(e => e.Id == orphanedId);
+                        Assert.Equal(0, orphanedCCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.SingleComposite != null));
                     }
@@ -2374,21 +2371,20 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Null(root.RequiredSingleAk);
 
-                        //TODO: Aggregate on optional dependent #23230
-                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
-                        //Assert.Equal(0, removedCount);
+                        var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
+                        Assert.Equal(0, removedCount);
 
                         Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null));
 
-                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
-                        //    .Count(e => e.Id == orphanedId);
-                        //Assert.Equal(0, orphanedCount);
+                        var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                            .Count(e => e.Id == orphanedId);
+                        Assert.Equal(0, orphanedCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.Single != null));
 
-                        //var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
-                        //    .Count(e => e.Id == orphanedId);
-                        //Assert.Equal(0, orphanedCCount);
+                        var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                            .Count(e => e.Id == orphanedId);
+                        Assert.Equal(0, orphanedCCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.SingleComposite != null));
                     }
@@ -2591,21 +2587,20 @@ namespace Microsoft.EntityFrameworkCore
 
                         Assert.Null(root.RequiredSingleAk);
 
-                        //TODO: Aggregate on optional dependent #23230
-                        //var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
-                        //Assert.Equal(0, removedCount);
+                        var removedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Count(e => e.Id == removedId);
+                        Assert.Equal(0, removedCount);
 
                         Assert.False(context.Set<Root>().Any(r => r.RequiredSingleAk != null));
 
-                        //var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
-                        //    .Count(e => e.Id == orphanedId);
-                        //Assert.Equal(0, orphanedCount);
+                        var orphanedCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.Single)
+                            .Count(e => e.Id == orphanedId);
+                        Assert.Equal(0, orphanedCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.Single != null));
 
-                        //var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
-                        //    .Count(e => e.Id == orphanedId);
-                        //Assert.Equal(0, orphanedCCount);
+                        var orphanedCCount = context.Set<Root>().Select(r => r.RequiredSingleAk).Select(r => r.SingleComposite)
+                            .Count(e => e.Id == orphanedId);
+                        Assert.Equal(0, orphanedCCount);
 
                         Assert.False(context.Set<Root>().Select(r => r.RequiredSingleAk).Any(r => r.SingleComposite != null));
                     }

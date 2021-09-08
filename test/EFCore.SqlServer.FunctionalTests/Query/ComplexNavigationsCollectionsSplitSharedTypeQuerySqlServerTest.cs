@@ -5,7 +5,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsCollectionsSplitSharedTypeQuerySqlServerTest : ComplexNavigationsCollectionsSplitSharedQueryTypeRelationalTestBase<
+    public class ComplexNavigationsCollectionsSplitSharedTypeQuerySqlServerTest : ComplexNavigationsCollectionsSplitSharedTypeQueryRelationalTestBase<
         ComplexNavigationsSharedTypeQuerySqlServerFixture>
     {
         public ComplexNavigationsCollectionsSplitSharedTypeQuerySqlServerTest(
