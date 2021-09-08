@@ -1947,8 +1947,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 definition.GenerateMessage(
                     nameof(Animal),
                     "{'Id', 'Name'}"),
-                modelBuilder,
-                LogLevel.Information);
+                modelBuilder);
         }
 
         [ConditionalFact]
@@ -1970,8 +1969,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     "IX_AllPropertiesNotMapped",
                     nameof(Animal),
                     "{'Id', 'Name'}"),
-                modelBuilder,
-                LogLevel.Information);
+                modelBuilder);
         }
 
         [ConditionalFact]
