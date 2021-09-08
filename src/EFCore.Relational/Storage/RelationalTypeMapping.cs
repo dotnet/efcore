@@ -484,16 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             parameter.Direction = ParameterDirection.Input;
             parameter.ParameterName = name;
 
-            value = ConvertUnderlyingEnumValueToEnum(value);
-
-            // We preserve convert nodes around enum to get actual enum value for type mapping
-            // But when enum is cast manually to something same as implicit cast
-            // And type mapping is not really enum then we need to convert the enum value to current Clr Type
-            if (value?.GetType().IsEnum == true
-                && ClrType.IsInteger())
-            {
-                value = Convert.ChangeType(value, ClrType);
-            }
+            value = NormalizeEnumValue(value);
 
             if (Converter != null)
             {
@@ -519,14 +510,27 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return parameter;
         }
 
-        // Enum when compared to constant will always have value of integral type
-        // when enum would contain convert node. We remove the convert node but we also
-        // need to convert the integral value to enum value.
-        // This allows us to use converter on enum value or print enum value directly if supported by provider
-        private object? ConvertUnderlyingEnumValueToEnum(object? value)
-            => value?.GetType().IsInteger() == true && ClrType.UnwrapNullableType().IsEnum
-                ? Enum.ToObject(ClrType.UnwrapNullableType(), value)
-                : value;
+        private object? NormalizeEnumValue(object? value)
+        {
+            // When Enum column is compared to constant the C# compiler put a constant of integer there
+            // In some unknown cases for parameter we also see integer value.
+            // So if CLR type is enum we need to convert integer value to enum value
+            if (value?.GetType().IsInteger() == true
+                && ClrType.UnwrapNullableType().IsEnum)
+            {
+                return Enum.ToObject(ClrType.UnwrapNullableType(), value);
+            }
+
+            // When Enum is cast manually our logic of removing implicit convert gives us enum value here
+            // So if CLR type is integer we need to convert enum value to integer value
+            if (value?.GetType().IsEnum == true
+                && ClrType.UnwrapNullableType().IsInteger())
+            {
+                return Convert.ChangeType(value, ClrType);
+            }
+
+            return value;
+        }
 
         /// <summary>
         ///     Configures type information of a <see cref="DbParameter" />.
@@ -545,7 +549,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </returns>
         public virtual string GenerateSqlLiteral(object? value)
         {
-            value = ConvertUnderlyingEnumValueToEnum(value);
+            value = NormalizeEnumValue(value);
 
             if (Converter != null)
             {

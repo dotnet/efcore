@@ -31,5 +31,37 @@ LEFT JOIN [Staff] AS [s0] ON [s].[ManagerId] = [s0].[Id]
 LEFT JOIN [Staff] AS [s1] ON [s].[SecondaryManagerId] = [s1].[Id]
 WHERE [a].[Id] = @__id_0");
         }
+
+        public override async Task Comparing_enum_casted_to_byte_with_int_parameter(bool async)
+        {
+            await base.Comparing_enum_casted_to_byte_with_int_parameter(async);
+
+            AssertSql(
+                @"@__bitterTaste_0='1'
+
+SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
+FROM [IceCreams] AS [i]
+WHERE [i].[Taste] = @__bitterTaste_0");
+        }
+
+        public override async Task Comparing_enum_casted_to_byte_with_int_constant(bool async)
+        {
+            await base.Comparing_enum_casted_to_byte_with_int_constant(async);
+
+            AssertSql(
+                @"SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
+FROM [IceCreams] AS [i]
+WHERE [i].[Taste] = 1");
+        }
+
+        public override async Task Comparing_byte_column_to_enum_in_vb_creating_double_cast(bool async)
+        {
+            await base.Comparing_byte_column_to_enum_in_vb_creating_double_cast(async);
+
+            AssertSql(
+                @"SELECT [f].[Id], [f].[Taste]
+FROM [Food] AS [f]
+WHERE [f].[Taste] = CAST(1 AS tinyint)");
+        }
     }
 }
