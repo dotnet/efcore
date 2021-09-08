@@ -613,6 +613,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     SetTemporaryValue(dependentProperty, principalValue);
                 }
             }
+            else if (principalEntry.GetValueType(principalProperty) == CurrentValueType.StoreGenerated)
+            {
+                SetStoreGeneratedValue(dependentProperty, principalValue);
+            }
             else
             {
                 SetProperty(dependentProperty, principalValue, isMaterialization, setModified);
@@ -1052,7 +1056,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             if (_storeGeneratedValues.IsEmpty)
             {
-                _storeGeneratedValues = new SidecarValues(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory(this));
+                _storeGeneratedValues = new SidecarValues(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory());
             }
         }
 

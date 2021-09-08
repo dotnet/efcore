@@ -29,11 +29,32 @@ namespace Microsoft.EntityFrameworkCore
             var entities = new List<Darwin>();
             for (var i = 0; i < 100; i++)
             {
-                entities.Add(new Darwin());
+                entities.Add(new()
+                {
+                    Species = new() { Name = "Goldfish (with legs)" },
+                    MixedMetaphors = new List<Species>
+                    {
+                        new() { Name = "Large ground finch" },
+                        new() { Name = "Medium ground finch" },
+                        new() { Name = "Small tree finch" },
+                        new() { Name = "Green warbler-finch" }
+                    }
+                });
             }
 
             entities.Add(
-                new Darwin { Id = 1777 });
+                new()
+                {
+                    Id = 1777,
+                    Species = new() { Name = "Goldfish (with legs)" },
+                    MixedMetaphors = new List<Species>
+                    {
+                        new() { Name = "Large ground finch" },
+                        new() { Name = "Medium ground finch" },
+                        new() { Name = "Small tree finch" },
+                        new() { Name = "Green warbler-finch" }
+                    }
+                });
 
             for (var i = 0; i < 2; i++)
             {
@@ -77,9 +98,19 @@ namespace Microsoft.EntityFrameworkCore
                         {
                             Assert.Equal(0, entity.Id);
                             Assert.Null(entity._id);
+                            Assert.Null(entity.Species.DarwinId);
+                            foreach (var species in entity.MixedMetaphors)
+                            {
+                                Assert.Null(species.MetaphoricId);
+                            }
                         }
 
                         Assert.Equal(1777, entities[100].Id);
+                        Assert.Equal(1777, entities[100].Species.DarwinId);
+                        foreach (var species in entities[100].MixedMetaphors)
+                        {
+                            Assert.Equal(1777, species.MetaphoricId);
+                        }
 
                         foreach (var entity in entities)
                         {
