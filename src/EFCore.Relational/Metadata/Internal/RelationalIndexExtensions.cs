@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (index.GetFilter() != duplicateIndex.GetFilter())
+            if (index.GetFilter(storeObject) != duplicateIndex.GetFilter(storeObject))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateIndexFiltersMismatch(
