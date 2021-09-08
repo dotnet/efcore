@@ -1656,9 +1656,9 @@ FROM [Customers] AS [c]
 WHERE [c].[Region] IS NULL OR ([c].[Region] LIKE N'')");
         }
 
-        public override void IsNullOrEmpty_in_projection()
+        public override async Task IsNullOrEmpty_in_projection(bool async)
         {
-            base.IsNullOrEmpty_in_projection();
+            await base.IsNullOrEmpty_in_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
@@ -1668,13 +1668,23 @@ END AS [Value]
 FROM [Customers] AS [c]");
         }
 
-        public override void IsNullOrEmpty_negated_in_projection()
+        public override async Task IsNullOrEmpty_negated_in_predicate(bool async)
         {
-            base.IsNullOrEmpty_negated_in_projection();
+            await base.IsNullOrEmpty_negated_in_predicate(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'')");
+        }
+
+        public override async Task IsNullOrEmpty_negated_in_projection(bool async)
+        {
+            await base.IsNullOrEmpty_negated_in_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN NOT ([c].[Region] IS NULL OR ([c].[Region] LIKE N'')) THEN CAST(1 AS bit)
+    WHEN [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");

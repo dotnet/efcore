@@ -27,6 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Query
     public class SqlNullabilityProcessor
     {
         private readonly List<ColumnExpression> _nonNullableColumns;
+        private readonly List<ColumnExpression> _nullValueColumns;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private bool _canCache;
 
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             UseRelationalNulls = useRelationalNulls;
             _nonNullableColumns = new List<ColumnExpression>();
+            _nullValueColumns = new List<ColumnExpression>();
             ParameterValues = null!;
         }
 
@@ -81,6 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             _canCache = true;
             _nonNullableColumns.Clear();
+            _nullValueColumns.Clear();
             ParameterValues = parameterValues;
 
             var result = Visit(selectExpression);
@@ -342,13 +345,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <returns> An optimized sql expression. </returns>
         [return: NotNullIfNotNull("sqlExpression")]
         protected virtual SqlExpression? Visit(SqlExpression? sqlExpression, bool allowOptimizedExpansion, out bool nullable)
-            => Visit(sqlExpression, allowOptimizedExpansion, preserveNonNullableColumns: false, out nullable);
+            => Visit(sqlExpression, allowOptimizedExpansion, preserveColumnNullabilityInformation: false, out nullable);
 
         [return: NotNullIfNotNull("sqlExpression")]
         private SqlExpression? Visit(
             SqlExpression? sqlExpression,
             bool allowOptimizedExpansion,
-            bool preserveNonNullableColumns,
+            bool preserveColumnNullabilityInformation,
             out bool nullable)
         {
             if (sqlExpression == null)
@@ -358,6 +361,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
 
             var nonNullableColumnsCount = _nonNullableColumns.Count;
+            var nullValueColumnsCount = _nullValueColumns.Count;
             var result = sqlExpression switch
             {
                 CaseExpression caseExpression
@@ -393,9 +397,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                 _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
             };
 
-            if (!preserveNonNullableColumns)
+            if (!preserveColumnNullabilityInformation)
             {
                 RestoreNonNullableColumnsList(nonNullableColumnsCount);
+                RestoreNullValueColumnsList(nullValueColumnsCount);
             }
 
             return result;
@@ -430,6 +435,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // otherwise the result is nullable if any of the WhenClause results OR ElseResult is nullable
             nullable = caseExpression.ElseResult == null;
             var currentNonNullableColumnsCount = _nonNullableColumns.Count;
+            var currentNullValueColumnsCount = _nullValueColumns.Count;
 
             var operand = Visit(caseExpression.Operand, out _);
             var whenClauses = new List<CaseWhenClause>();
@@ -438,8 +444,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var testEvaluatesToTrue = false;
             foreach (var whenClause in caseExpression.WhenClauses)
             {
-                // we can use non-nullable column information we got from visiting Test, in the Result
-                var test = Visit(whenClause.Test, allowOptimizedExpansion: testIsCondition, preserveNonNullableColumns: true, out _);
+                // we can use column nullability information we got from visiting Test, in the Result
+                var test = Visit(whenClause.Test, allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
 
                 if (TryGetBoolConstantValue(test) is bool testConstantBool)
                 {
@@ -451,6 +457,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     {
                         // if test evaluates to 'false' we can remove the WhenClause
                         RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
+                        RestoreNullValueColumnsList(currentNullValueColumnsCount);
 
                         continue;
                     }
@@ -461,6 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 nullable |= resultNullable;
                 whenClauses.Add(new CaseWhenClause(test, newResult));
                 RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
+                RestoreNullValueColumnsList(currentNonNullableColumnsCount);
 
                 // if test evaluates to 'true' we can remove every condition that comes after, including ElseResult
                 if (testEvaluatesToTrue)
@@ -475,6 +483,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 elseResult = Visit(caseExpression.ElseResult, out var elseResultNullable);
                 nullable |= elseResultNullable;
             }
+
+            RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
+            RestoreNullValueColumnsList(currentNullValueColumnsCount);
 
             // if there are no whenClauses left (e.g. their tests evaluated to false):
             // - if there is Else block, return it
@@ -830,16 +841,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                     || sqlBinaryExpression.OperatorType == ExpressionType.OrElse);
 
             var currentNonNullableColumnsCount = _nonNullableColumns.Count;
+            var currentNullValueColumnsCount = _nullValueColumns.Count;
 
-            var left = Visit(sqlBinaryExpression.Left, allowOptimizedExpansion, preserveNonNullableColumns: true, out var leftNullable);
+            var left = Visit(sqlBinaryExpression.Left, allowOptimizedExpansion, preserveColumnNullabilityInformation: true, out var leftNullable);
 
             var leftNonNullableColumns = _nonNullableColumns.Skip(currentNonNullableColumnsCount).ToList();
+            var leftNullValueColumns = _nullValueColumns.Skip(currentNullValueColumnsCount).ToList();
             if (sqlBinaryExpression.OperatorType != ExpressionType.AndAlso)
             {
                 RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
             }
 
-            var right = Visit(sqlBinaryExpression.Right, allowOptimizedExpansion, preserveNonNullableColumns: true, out var rightNullable);
+            if (sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
+            {
+                // in case of OrElse, we can assume all null value columns on the left side can be treated as non-nullable on the right
+                // e.g. (a == null || b == null) || f(a, b)
+                // f(a, b) will only be executed if a != null and b != null
+                _nonNullableColumns.AddRange(_nullValueColumns.Skip(currentNullValueColumnsCount).ToList());
+            }
+            else
+            {
+                RestoreNullValueColumnsList(currentNullValueColumnsCount);
+            }
+
+            var right = Visit(sqlBinaryExpression.Right, allowOptimizedExpansion, preserveColumnNullabilityInformation: true, out var rightNullable);
 
             if (sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
             {
@@ -851,6 +876,17 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 // in case of AndAlso we already have what we need as the column information propagates from left to right
                 RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
+            }
+
+            if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
+            {
+                var intersect = leftNullValueColumns.Intersect(_nullValueColumns.Skip(currentNullValueColumnsCount)).ToList();
+                RestoreNullValueColumnsList(currentNullValueColumnsCount);
+                _nullValueColumns.AddRange(intersect);
+            }
+            else if (sqlBinaryExpression.OperatorType != ExpressionType.OrElse)
+            {
+                RestoreNullValueColumnsList(currentNullValueColumnsCount);
             }
 
             // nullableStringColumn + a -> COALESCE(nullableStringColumn, "") + a
@@ -886,10 +922,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                     out nullable);
 
                 if (optimized is SqlUnaryExpression optimizedUnary
-                    && optimizedUnary.OperatorType == ExpressionType.NotEqual
                     && optimizedUnary.Operand is ColumnExpression optimizedUnaryColumnOperand)
                 {
-                    _nonNullableColumns.Add(optimizedUnaryColumnOperand);
+                    if (optimizedUnary.OperatorType == ExpressionType.NotEqual)
+                    {
+                        _nonNullableColumns.Add(optimizedUnaryColumnOperand);
+                    }
+                    else if (optimizedUnary.OperatorType == ExpressionType.Equal)
+                    {
+                        _nullValueColumns.Add(optimizedUnaryColumnOperand);
+                    }
                 }
 
                 // we assume that NullSemantics rewrite is only needed (on the current level)
@@ -1069,10 +1111,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                 nullable = false;
 
                 if (result is SqlUnaryExpression resultUnary
-                    && resultUnary.OperatorType == ExpressionType.NotEqual
                     && resultUnary.Operand is ColumnExpression resultColumnOperand)
                 {
-                    _nonNullableColumns.Add(resultColumnOperand);
+                    if (resultUnary.OperatorType == ExpressionType.NotEqual)
+                    {
+                        _nonNullableColumns.Add(resultColumnOperand);
+                    }
+                    else if (resultUnary.OperatorType == ExpressionType.Equal)
+                    {
+                        _nullValueColumns.Add(resultColumnOperand);
+                    }
                 }
 
                 return result;
@@ -1096,6 +1144,14 @@ namespace Microsoft.EntityFrameworkCore.Query
             if (counter < _nonNullableColumns.Count)
             {
                 _nonNullableColumns.RemoveRange(counter, _nonNullableColumns.Count - counter);
+            }
+        }
+
+        private void RestoreNullValueColumnsList(int counter)
+        {
+            if (counter < _nullValueColumns.Count)
+            {
+                _nullValueColumns.RemoveRange(counter, _nullValueColumns.Count - counter);
             }
         }
 
