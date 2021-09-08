@@ -1183,7 +1183,7 @@ namespace Microsoft.EntityFrameworkCore
                             new ValueComparer<IDictionary<string, string>>(
                                 (v1, v2) => v1.SequenceEqual(v2),
                                 v => v.GetHashCode(),
-                                v => (IDictionary<string, string>)new Dictionary<string, string>(v)));
+                                v => new Dictionary<string, string>(v)));
                     });
 
                 var urlConverter = new UrlSchemeRemover();

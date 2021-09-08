@@ -918,7 +918,7 @@ namespace Microsoft.EntityFrameworkCore
                 : base(
                     (c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
                     c => c == null ? 0 : c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                    c => c == null ? null : (IEnumerable<int>)c.ToList())
+                    c => c == null ? null : c.ToList())
             {
             }
         }
