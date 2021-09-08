@@ -2107,7 +2107,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     static logger => new EventDefinition<string?, string, string>(
                         logger.Options,
                         RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
-                        LogLevel.Information,
+                        LogLevel.Warning,
                         "RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable",
                         level => LoggerMessage.Define<string?, string, string>(
                             level,
@@ -2605,7 +2605,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                     static logger => new EventDefinition<string, string>(
                         logger.Options,
                         RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable,
-                        LogLevel.Information,
+                        LogLevel.Warning,
                         "RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable",
                         level => LoggerMessage.Define<string, string>(
                             level,
