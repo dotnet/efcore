@@ -477,6 +477,8 @@ namespace Microsoft.EntityFrameworkCore
                         b.Property<long>("EntityZId");
                         b.HasOne(e => e.EntityZ).WithMany().HasForeignKey("EntityZId").IsRequired();
                     });
+
+                modelBuilder.Entity<City>();
             }
 
             protected virtual object CreateFullGraph()
@@ -3409,7 +3411,43 @@ namespace Microsoft.EntityFrameworkCore
             public long Id
             {
                 get => _id;
-                set => _id = value;
+                set => SetWithNotify(value, ref _id);
+            }
+        }
+
+        protected class City : NotifyingEntity
+        {
+            private int _id;
+            private ICollection<College> _colleges = new ObservableHashSet<College>();
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public ICollection<College> Colleges
+            {
+                get => _colleges;
+                set => SetWithNotify(value, ref _colleges);
+            }
+        }
+
+        protected class College : NotifyingEntity
+        {
+            private int _id;
+            private int _cityId;
+
+            public int Id
+            {
+                get => _id;
+                set => SetWithNotify(value, ref _id);
+            }
+
+            public int CityId
+            {
+                get => _cityId;
+                set => SetWithNotify(value, ref _cityId);
             }
         }
 
