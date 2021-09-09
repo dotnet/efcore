@@ -1923,15 +1923,34 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             }
         }
 
-        [ConditionalTheory] // Issue #16546
-        [InlineData(false)]
-        [InlineData(true)]
-        public void Optional_relationship_with_cascade_still_cascades(bool delayCascade)
+        [ConditionalTheory] // Issues #16546 #25360
+        [InlineData(false, false, false, true, false)]
+        [InlineData(true, false, false, true, false)]
+        [InlineData(false, true, false, true, false)]
+        [InlineData(true, true, false, true, false)]
+        [InlineData(false, false, true, true, false)]
+        [InlineData(true, false, true, true, false)]
+        [InlineData(false, true, false, false, true)]
+        [InlineData(true, true, false, false, true)]
+        [InlineData(false, false, true, false, true)]
+        [InlineData(true, false, true, false, true)]
+        [InlineData(false, true, false, true, true)]
+        [InlineData(true, true, false, true, true)]
+        [InlineData(false, false, true, true, true)]
+        [InlineData(true, false, true, true, true)]
+        public void Optional_relationship_with_cascade_still_cascades(
+            bool delayCascade,
+            bool setProperty,
+            bool setCurrentValue,
+            bool useForeignKey,
+            bool useNavigation)
         {
             Kontainer detachedContainer;
-            var databaseName = "K" + delayCascade;
-            using (var context = new KontainerContext(databaseName))
+            using (var context = new KontainerContext())
             {
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+
                 context.Add(
                     new Kontainer
                     {
@@ -1949,51 +1968,77 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     .Single();
             }
 
-            using (var context = new KontainerContext(databaseName))
+            using (var context = new KontainerContext())
             {
                 var attachedContainer = context.Set<Kontainer>()
                     .Include(container => container.Rooms)
                     .ThenInclude(room => room.Troduct)
                     .Single();
 
+                var attachedRoom = attachedContainer.Rooms.Single();
+                var attachedTroduct = attachedRoom.Troduct;
+
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single()).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single().Troduct).State);
-
-                var detachedRoom = detachedContainer.Rooms.Single();
-                detachedRoom.Troduct = null;
-                detachedRoom.TroductId = null;
-
-                var attachedRoom = attachedContainer.Rooms.Single();
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedRoom).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
 
                 if (delayCascade)
                 {
                     context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.OnSaveChanges;
                 }
 
-                context.Entry(attachedRoom).CurrentValues.SetValues(detachedRoom);
+                if (setProperty)
+                {
+                    if (useForeignKey)
+                    {
+                        attachedRoom.TroductId = null;
+                    }
+
+                    if (useNavigation)
+                    {
+                        attachedRoom.Troduct = null;
+                    }
+                }
+                else if (setCurrentValue)
+                {
+                    if (useForeignKey)
+                    {
+                        context.Entry(attachedRoom).Property(e => e.TroductId).CurrentValue = null;
+                    }
+
+                    if (useNavigation)
+                    {
+                        context.Entry(attachedRoom).Reference(e => e.Troduct).CurrentValue = null;
+                    }
+                }
+                else
+                {
+                    var detachedRoom = detachedContainer.Rooms.Single();
+                    detachedRoom.TroductId = null;
+                    context.Entry(attachedRoom).CurrentValues.SetValues(detachedRoom);
+                }
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single().Troduct).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
 
                 if (delayCascade)
                 {
-                    Assert.Equal(EntityState.Modified, context.Entry(attachedContainer.Rooms.Single()).State);
+                    Assert.Equal(EntityState.Modified, context.Entry(attachedRoom).State);
                 }
                 else
                 {
                     // Deleted because FK with cascade has been set to null
-                    Assert.Equal(EntityState.Deleted, context.Entry(attachedContainer.Rooms.Single()).State);
+                    Assert.Equal(EntityState.Deleted, context.Entry(attachedRoom).State);
                 }
 
                 context.ChangeTracker.CascadeChanges();
 
                 Assert.Equal(3, context.ChangeTracker.Entries().Count());
                 Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
-                Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer.Rooms.Single().Troduct).State);
-                Assert.Equal(EntityState.Deleted, context.Entry(attachedContainer.Rooms.Single()).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct).State);
+                Assert.Equal(EntityState.Deleted, context.Entry(attachedRoom).State);
 
                 context.SaveChanges();
             }
@@ -2025,13 +2070,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
 
         private class KontainerContext : DbContext
         {
-            private readonly string _databaseName;
-
-            public KontainerContext(string databaseName)
-            {
-                _databaseName = databaseName;
-            }
-
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<KontainerRoom>()
@@ -2045,7 +2083,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
                     .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
-                    .UseInMemoryDatabase(_databaseName);
+                    .UseInMemoryDatabase(nameof(KontainerContext));
         }
 
         [ConditionalTheory]
