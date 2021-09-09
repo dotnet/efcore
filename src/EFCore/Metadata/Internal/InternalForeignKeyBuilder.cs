@@ -410,14 +410,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
 
-                    if (navigationProperty != null)
-                    {
-                        Metadata.SetDependentToPrincipal(navigationProperty, configurationSource);
-                    }
-                    else
-                    {
-                        Metadata.SetDependentToPrincipal(navigationToPrincipalName, configurationSource);
-                    }
+                    Metadata.SetDependentToPrincipal(navigationToPrincipal, configurationSource);
                 }
 
                 if (navigationToDependent != null)
@@ -438,14 +431,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         }
                     }
 
-                    if (navigationProperty != null)
-                    {
-                        Metadata.SetPrincipalToDependent(navigationProperty, configurationSource);
-                    }
-                    else
-                    {
-                        Metadata.SetPrincipalToDependent(navigationToDependentName, configurationSource);
-                    }
+                    Metadata.SetPrincipalToDependent(navigationToDependent, configurationSource);
                 }
 
                 builder = batch.Run(builder);
@@ -1362,10 +1348,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            if (Metadata.PrincipalToDependent?.IsShadowProperty() == false
+            var navigationMember = Metadata.PrincipalToDependent?.GetIdentifyingMemberInfo();
+            if (navigationMember != null
                 && !Navigation.IsCompatible(
-                    Metadata.PrincipalToDependent.Name,
-                    Metadata.PrincipalToDependent.GetIdentifyingMemberInfo()!,
+                    Metadata.PrincipalToDependent!.Name,
+                    navigationMember,
                     Metadata.PrincipalEntityType,
                     Metadata.DeclaringEntityType,
                     !unique,

@@ -38,5 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         bool IsEagerLoaded
             => (bool?)this[CoreAnnotationNames.EagerLoaded] ?? false;
+
+        /// <inheritdoc />
+        // TODO: Remove when #3864 is implemented
+        bool IReadOnlyPropertyBase.IsShadowProperty() => this.GetIdentifyingMemberInfo() == null;
     }
 }

@@ -18,8 +18,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static MemberIdentity CreateMemberIdentity(this IReadOnlySkipNavigation? navigation)
-            => navigation?.GetIdentifyingMemberInfo() == null
-                ? MemberIdentity.Create(navigation?.Name)
-                : MemberIdentity.Create(navigation.GetIdentifyingMemberInfo());
+        {
+            var memberInfo = navigation?.GetIdentifyingMemberInfo();
+            return memberInfo == null
+                           ? MemberIdentity.Create(navigation?.Name)
+                           : MemberIdentity.Create(memberInfo);
+        }
     }
 }

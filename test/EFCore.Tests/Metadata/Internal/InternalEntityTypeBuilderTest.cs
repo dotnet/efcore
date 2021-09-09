@@ -154,6 +154,35 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         [ConditionalFact]
+        public void Can_add_relationship_on_property_bag()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity("Count", ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity("Value", ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.HasRelationship(principalEntityBuilder.Metadata, ConfigurationSource.Explicit)
+                .HasNavigation(
+                    "Count",
+                    pointsToPrincipal: true,
+                    ConfigurationSource.Explicit)
+                .HasNavigation(
+                    "Values",
+                    pointsToPrincipal: false,
+                    ConfigurationSource.Explicit);
+
+            var fk = relationshipBuilder.Metadata;
+            Assert.Same(dependentEntityBuilder.Metadata.FindIndexerPropertyInfo(), fk.DependentToPrincipal.PropertyInfo);
+            Assert.Same(principalEntityBuilder.Metadata.FindIndexerPropertyInfo(), fk.PrincipalToDependent.PropertyInfo);
+
+            var skipNavigationBuilder = principalEntityBuilder.HasSkipNavigation(
+                   MemberIdentity.Create("Keys"),
+                   dependentEntityBuilder.Metadata,
+                   ConfigurationSource.Explicit);
+
+            Assert.Same(dependentEntityBuilder.Metadata.FindIndexerPropertyInfo(), skipNavigationBuilder.Metadata.PropertyInfo);
+        }
+
+        [ConditionalFact]
         public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_non_shadow()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1641,6 +1670,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 typeof(string), IndexedClass.IndexerPropertyName, ConfigurationSource.Convention);
 
             Assert.NotNull(propertyBuilder);
+            Assert.True(propertyBuilder.Metadata.IsIndexerProperty());
+            Assert.False(propertyBuilder.Metadata.IsShadowProperty());
 
             var replacedPropertyBuilder = entityBuilder.Property(
                 typeof(int), IndexedClass.IndexerPropertyName, ConfigurationSource.DataAnnotation);

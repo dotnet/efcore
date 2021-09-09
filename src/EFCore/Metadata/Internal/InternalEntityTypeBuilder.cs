@@ -553,7 +553,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                         return null;
                     }
 
-                    memberInfo ??= existingProperty.GetIdentifyingMemberInfo();
+                    memberInfo ??= existingProperty.PropertyInfo ?? (MemberInfo?)existingProperty.FieldInfo;
                 }
                 else if (!configurationSource.Overrides(existingProperty.GetConfigurationSource()))
                 {
@@ -727,7 +727,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var existingMemberInfo = existingProperty.GetIdentifyingMemberInfo();
             if (existingMemberInfo == null)
             {
-                return false;
+                return newMemberInfo == existingProperty.DeclaringType.FindIndexerPropertyInfo();
             }
 
             if (newMemberInfo == existingMemberInfo)
@@ -4181,7 +4181,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             if (existingNavigation != null)
             {
                 Check.DebugAssert(
-                    memberInfo == null || memberInfo.IsSameAs(existingNavigation.GetIdentifyingMemberInfo()),
+                    memberInfo == null
+                    || existingNavigation.IsIndexerProperty()
+                    || memberInfo.IsSameAs(existingNavigation.GetIdentifyingMemberInfo()),
                     "Expected memberInfo to be the same on the existing navigation");
 
                 Check.DebugAssert(
@@ -4230,9 +4232,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             if (collection == null
-                && navigationProperty.MemberInfo != null)
+                && memberInfo != null)
             {
-                var navigationType = navigationProperty.MemberInfo.GetMemberType();
+                var navigationType = memberInfo.GetMemberType();
                 var navigationTargetClrType = navigationType.TryGetSequenceType();
                 collection = navigationTargetClrType != null
                     && navigationType != targetEntityType.ClrType
@@ -4294,7 +4296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
 
                 builder = Metadata.AddSkipNavigation(
-                    navigationName, navigationProperty.MemberInfo,
+                    navigationName, memberInfo,
                     targetEntityType, collection ?? true, onDependent ?? false, configurationSource.Value)!.Builder;
 
                 if (detachedNavigations != null)
@@ -4994,7 +4996,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 return false;
             }
 
-            var memberInfo = Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+            var memberInfo = Metadata.IsPropertyBag
+                ? null
+                : Metadata.ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             if (memberInfo != null
                 && propertyType != memberInfo.GetMemberType()
                 && typeConfigurationSource != null)
