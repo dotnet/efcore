@@ -2518,5 +2518,23 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.Element, a.Element);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task SelectMany_with_predicate_and_DefaultIfEmpty_projecting_root_collection_element_and_another_collection(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from l1 in ss.Set<Level1>()
+                      from l2 in ss.Set<Level2>().Where(x => x.Level1_Required_Id == l1.Id * 2 || x.Name.Length == x.Id).DefaultIfEmpty()
+                      select new { Root = l1, Element = l2, Collection = l1.OneToMany_Optional1 },
+                elementSorter: e => (e.Root.Id, e.Element.Id),
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Root, a.Root);
+                    AssertEqual(e.Element, a.Element);
+                    AssertCollection(e.Collection, a.Collection);
+                });
+        }
     }
 }
