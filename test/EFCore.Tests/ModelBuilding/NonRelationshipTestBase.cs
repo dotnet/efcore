@@ -980,6 +980,27 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
+            public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
+            {
+                var modelBuilder = CreateModelBuilder(c =>
+                {
+                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>>();
+                });
+
+                modelBuilder.Entity<Quarks>(
+                    b =>
+                    {
+                        b.Property<int?>("Wierd");
+                    });
+
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(Quarks));
+
+                Assert.IsType<NumberToStringConverter<int>>(entityType.FindProperty("Id").GetValueConverter());
+                Assert.IsType<NumberToStringConverter<int>>(entityType.FindProperty("Wierd").GetValueConverter());
+            }
+
+            [ConditionalFact]
             public virtual void Value_converter_configured_on_base_type_is_not_applied()
             {
                 var modelBuilder = CreateModelBuilder(c =>
