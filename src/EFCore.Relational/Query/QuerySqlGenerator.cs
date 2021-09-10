@@ -115,10 +115,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             {
                 foreach (var tag in selectExpression.Tags)
                 {
-                    _relationalCommandBuilder
-                        .AppendLines(_sqlGenerationHelper.GenerateComment(tag))
-                        .AppendLine();
+                    _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
                 }
+                _relationalCommandBuilder.AppendLine();
             }
         }
 

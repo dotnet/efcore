@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var filePath = methodCallExpression.Arguments[1].GetConstantValue<string>();
                 var lineNumber = methodCallExpression.Arguments[2].GetConstantValue<int>();
-                _queryCompilationContext.AddTag($"file: {filePath}:{lineNumber}");
+                _queryCompilationContext.AddTag($"File: {filePath}:{lineNumber}");
 
                 return visitedExpression;
             }
