@@ -969,7 +969,27 @@ WHERE POWER([o].[Discount], CAST(2 AS real)) > CAST(0.05 AS real)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ROUND(CAST([o].[UnitPrice] AS real), 2) > CAST(100 AS real)");
+WHERE CAST(ROUND(CAST([o].[UnitPrice] AS real), 2) AS real) > CAST(100 AS real)");
+        }
+
+        public override async Task Select_mathf_round(bool async)
+        {
+            await base.Select_mathf_round(async);
+
+            AssertSql(
+                @"SELECT CAST(ROUND(CAST([o].[OrderID] AS real), 0) AS real)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250");
+        }
+
+        public override async Task Select_mathf_round2(bool async)
+        {
+            await base.Select_mathf_round2(async);
+
+            AssertSql(
+                @"SELECT CAST(ROUND(CAST([o].[UnitPrice] AS real), 2) AS real)
+FROM [Order Details] AS [o]
+WHERE [o].[Quantity] < CAST(5 AS smallint)");
         }
 
         public override async Task Where_mathf_truncate(bool async)
@@ -979,7 +999,17 @@ WHERE ROUND(CAST([o].[UnitPrice] AS real), 2) > CAST(100 AS real)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND(CAST([o].[UnitPrice] AS real), 0, 1) > CAST(10 AS real))");
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (CAST(ROUND(CAST([o].[UnitPrice] AS real), 0, 1) AS real) > CAST(10 AS real))");
+        }
+
+        public override async Task Select_mathf_truncate(bool async)
+        {
+            await base.Select_mathf_truncate(async);
+
+            AssertSql(
+                @"SELECT CAST(ROUND(CAST([o].[UnitPrice] AS real), 0, 1) AS real)
+FROM [Order Details] AS [o]
+WHERE [o].[Quantity] < CAST(5 AS smallint)");
         }
 
         public override async Task Where_mathf_exp(bool async)
