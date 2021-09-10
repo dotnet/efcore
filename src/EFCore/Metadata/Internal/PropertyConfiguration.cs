@@ -74,14 +74,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                         break;
                     case CoreAnnotationNames.ValueConverterType:
-                        if (ClrType == property.ClrType)
+                        if (ClrType.UnwrapNullableType() == property.ClrType.UnwrapNullableType())
                         {
                             property.SetValueConverter((Type?)annotation.Value);
                         }
 
                         break;
                     case CoreAnnotationNames.ValueComparerType:
-                        if (ClrType == property.ClrType)
+                        if (ClrType.UnwrapNullableType() == property.ClrType.UnwrapNullableType())
                         {
                             property.SetValueComparer((Type?)annotation.Value);
                         }
