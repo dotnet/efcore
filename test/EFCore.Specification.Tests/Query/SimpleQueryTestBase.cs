@@ -215,5 +215,90 @@ namespace Microsoft.EntityFrameworkCore
             public int Id { get; set; }
             public byte? Taste { get; set; }
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual async Task Bool_discriminator_column_works(bool async)
+        {
+            var contextFactory = await InitializeAsync<Context24657>(seed: c => c.Seed());
+            using var context = contextFactory.CreateContext();
+
+            var query = context.Authors.Include(e => e.Blog);
+
+            var authors = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(2, authors.Count);
+        }
+
+        protected class Context24657 : DbContext
+        {
+            public Context24657(DbContextOptions options)
+                   : base(options)
+            {
+            }
+
+            public DbSet<Author> Authors { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Blog>()
+                    .HasDiscriminator<bool>(nameof(Blog.IsPhotoBlog))
+                    .HasValue<DevBlog>(false)
+                    .HasValue<PhotoBlog>(true);
+            }
+
+            public void Seed()
+            {
+                Add(new Author
+                {
+                    Blog = new DevBlog
+                    {
+                        Title = "Dev Blog",
+                    }
+                });
+                Add(new Author
+                {
+                    Blog = new PhotoBlog
+                    {
+                        Title = "Photo Blog",
+                    }
+                });
+
+                SaveChanges();
+            }
+        }
+
+        protected class Author
+        {
+            public int Id { get; set; }
+            public Blog Blog { get; set; }
+        }
+
+        protected abstract class Blog
+        {
+            public int Id { get; set; }
+            public bool IsPhotoBlog { get; set; }
+            public string Title { get; set; }
+        }
+
+        protected class DevBlog : Blog
+        {
+            public DevBlog()
+            {
+                IsPhotoBlog = false;
+            }
+        }
+
+        protected class PhotoBlog : Blog
+        {
+            public PhotoBlog()
+            {
+                IsPhotoBlog = true;
+            }
+
+            public int NumberOfPhotos { get; set; }
+        }
     }
 }
