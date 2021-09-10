@@ -7885,7 +7885,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         }
 
-        [ConditionalTheory(Skip = "issue #22692")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cast_to_derived_followed_by_multiple_includes(bool async)
         {

@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 
 namespace Microsoft.EntityFrameworkCore.Query
@@ -9,5 +10,12 @@ namespace Microsoft.EntityFrameworkCore.Query
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(
+                    c => c
+                        .Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning)
+                        .Log(CoreEventId.FirstWithoutOrderByAndFilterWarning))
+                .EnableDetailedErrors();
     }
 }
