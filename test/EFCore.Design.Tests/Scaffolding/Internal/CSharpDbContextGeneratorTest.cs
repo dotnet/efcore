@@ -56,9 +56,7 @@ namespace TestNamespace
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
+#warning " + DesignStrings.SensitiveInformationWarning + @"
                 optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
@@ -639,9 +637,7 @@ namespace TestNamespace
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
+#warning " + DesignStrings.SensitiveInformationWarning + @"
                 optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
@@ -721,9 +717,7 @@ namespace TestNamespace
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
+#warning " + DesignStrings.SensitiveInformationWarning + @"
                 optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
@@ -806,9 +800,7 @@ namespace TestNamespace
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
+#warning " + DesignStrings.SensitiveInformationWarning + @"
                 optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
@@ -887,9 +879,7 @@ namespace TestNamespace
         {
             if (!optionsBuilder.IsConfigured)
             {
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
+#warning " + DesignStrings.SensitiveInformationWarning + @"
                 optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
             }
         }
@@ -941,13 +931,52 @@ namespace TestNamespace
         {
             Test(
                 modelBuilder => modelBuilder.Entity("MyEntity"),
-                new ModelCodeGenerationOptions
-                {
-                    ModelNamespace = string.Empty
-                },
+                new ModelCodeGenerationOptions { ModelNamespace = string.Empty },
                 code =>
                 {
-                    Assert.DoesNotContain("namespace ", code.ContextFile.Code);
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<MyEntity> MyEntity { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+#warning " + DesignStrings.SensitiveInformationWarning + @"
+            optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+        }
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<MyEntity>(entity =>
+        {
+            entity.HasNoKey();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                        code.ContextFile);
+
                     Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
                 },
                 model =>
