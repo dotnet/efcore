@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore
     ///     For example, if the property is a <see cref="decimal" />
     ///     then this is the maximum number of digits.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class PrecisionAttribute : Attribute
     {

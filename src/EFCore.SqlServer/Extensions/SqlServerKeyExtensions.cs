@@ -12,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Key extension methods for SQL Server-specific metadata.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlServerKeyExtensions
     {
         /// <summary>

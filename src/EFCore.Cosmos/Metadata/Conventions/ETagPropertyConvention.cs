@@ -9,6 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions
     /// <summary>
     ///     A convention that adds etag metadata on the concurrency token, if present.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    /// </remarks>
     public class ETagPropertyConvention : IModelFinalizingConvention
     {
         /// <inheritdoc />

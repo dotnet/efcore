@@ -19,6 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     /// <summary>
     ///     Finds and loads SpatiaLite.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    /// </remarks>
     public static class SpatialiteLoader
     {
         private static readonly string? _sharedLibraryExtension;

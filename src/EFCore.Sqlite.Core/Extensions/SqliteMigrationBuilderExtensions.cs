@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// <summary>
     ///     SQLite specific extension methods for <see cref="MigrationBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    /// </remarks>
     public static class SqliteMigrationBuilderExtensions
     {
         /// <summary>
@@ -17,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         Returns <see langword="true" /> if the database provider currently in use is the SQLite provider.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="migrationBuilder">
         ///     The migrationBuilder from the parameters on <see cref="Migration.Up(MigrationBuilder)" /> or
         ///     <see cref="Migration.Down(MigrationBuilder)" />.

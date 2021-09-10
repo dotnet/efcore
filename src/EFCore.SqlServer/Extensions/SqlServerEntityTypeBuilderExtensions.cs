@@ -11,11 +11,20 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     SQL Server specific extension methods for <see cref="EntityTypeBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlServerEntityTypeBuilderExtensions
     {
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -33,6 +42,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
@@ -46,6 +59,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="collectionOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -63,6 +80,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="collectionOwnershipBuilder"> The builder for the entity type being configured. </param>
@@ -79,6 +100,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -103,6 +128,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the mapped table can be configured as memory-optimized.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="memoryOptimized"> A value indicating whether the table is memory-optimized. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -120,6 +149,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table as temporal.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity being configured. </param>
         /// <param name="temporal"> A value indicating whether the table is temporal. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -145,6 +178,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the mapped table can be configured as temporal.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-memory-optimized">Using SQL Server memory-optimized tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="temporal"> A value indicating whether the table is temporal. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -162,6 +199,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a history table name for the entity mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity being configured. </param>
         /// <param name="name"> The name of the history table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -187,6 +228,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given history table name can be set for the entity.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the history table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -205,6 +250,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a history table schema for the entity mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity being configured. </param>
         /// <param name="schema"> The schema of the history table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -230,6 +279,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the mapped table can have history table schema.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="schema"> The schema of the history table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -247,6 +300,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a period start property for the entity mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity being configured. </param>
         /// <param name="propertyName"> The name of the period start property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -272,6 +329,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the mapped table can have period start property.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="propertyName"> The name of the period start property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -289,6 +350,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a period end property for the entity mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity being configured. </param>
         /// <param name="propertyName"> The name of the period end property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -314,6 +379,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the mapped table can have period end property.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="propertyName"> The name of the period end property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

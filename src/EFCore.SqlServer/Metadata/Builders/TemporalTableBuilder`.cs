@@ -30,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures a history table for the entity mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="name"> The name of the history table. </param>
         /// <param name="schema"> The schema of the history table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>

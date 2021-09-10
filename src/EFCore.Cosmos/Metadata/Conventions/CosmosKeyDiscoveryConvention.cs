@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that finds primary key property for the entity type based on the names
     ///     and adds the partition key to it if present.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    /// </remarks>
     public class CosmosKeyDiscoveryConvention :
         KeyDiscoveryConvention,
         IEntityTypeAnnotationChangedConvention

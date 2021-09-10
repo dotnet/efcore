@@ -9,11 +9,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     Extension methods for the <see cref="ILazyLoader" /> service that make it more
     ///     convenient to use from entity classes.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy-loading</see> for more information.
+    /// </remarks>
     public static class LazyLoaderExtensions
     {
         /// <summary>
         ///     Loads a navigation property if it has not already been loaded.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy-loading</see> for more information.
+        /// </remarks>
         /// <typeparam name="TRelated"> The type of the navigation property. </typeparam>
         /// <param name="loader">The loader instance, which may be <see langword="null" />.</param>
         /// <param name="entity"> The entity on which the navigation property is located. </param>

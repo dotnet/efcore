@@ -14,11 +14,19 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="EntityTypeBuilder" /> for the in-memory provider.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    /// </remarks>
     public static class InMemoryEntityTypeBuilderExtensions
     {
         /// <summary>
         ///     Configures a query used to provide data for an entity type.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -36,6 +44,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a query used to provide data for an entity type.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -54,6 +66,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a query used to provide data for an entity type.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -78,6 +94,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given in-memory query can be set from the current configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

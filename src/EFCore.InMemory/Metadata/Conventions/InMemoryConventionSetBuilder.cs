@@ -21,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Metadata.Conventions
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    /// </remarks>
     public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder
     {
         /// <summary>

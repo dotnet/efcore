@@ -12,11 +12,19 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Cosmos-specific extension methods for <see cref="DbContextOptionsBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    /// </remarks>
     public static class CosmosDbContextOptionsExtensions
     {
         /// <summary>
         ///     Configures the context to connect to an Azure Cosmos database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="accountEndpoint"> The account end-point to connect to. </param>
@@ -41,6 +49,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to an Azure Cosmos database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="accountEndpoint"> The account end-point to connect to. </param>
         /// <param name="accountKey"> The account key. </param>
@@ -77,6 +89,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to an Azure Cosmos database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connectionString"> The connection string of the database to connect to. </param>
@@ -98,6 +114,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to an Azure Cosmos database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connectionString"> The connection string of the database to connect to. </param>
         /// <param name="databaseName"> The database name. </param>

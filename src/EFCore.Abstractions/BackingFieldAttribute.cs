@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Names the backing field associated with this property or navigation property.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class BackingFieldAttribute : Attribute
     {

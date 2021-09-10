@@ -11,11 +11,21 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     SQL Server specific extension methods for <see cref="KeyBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlServerKeyBuilderExtensions
     {
         /// <summary>
         ///     Configures whether the key is clustered when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -31,6 +41,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures whether the key is clustered when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -42,6 +57,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures whether the key is clustered when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -66,6 +86,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the key can be configured as clustered.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="keyBuilder"> The builder for the key being configured. </param>
         /// <param name="clustered"> A value indicating whether the key is clustered. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

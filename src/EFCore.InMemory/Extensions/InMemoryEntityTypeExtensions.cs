@@ -12,6 +12,10 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="IReadOnlyEntityType" /> for the in-memory provider.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    /// </remarks>
     public static class InMemoryEntityTypeExtensions
     {
         /// <summary>

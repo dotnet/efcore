@@ -16,6 +16,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         behavior of warnings.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlServerEventId
     {
         // Warning: These values must not change between releases.

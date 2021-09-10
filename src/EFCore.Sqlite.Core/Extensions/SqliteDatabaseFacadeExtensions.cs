@@ -24,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         provider to use as part of configuring the context.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
         /// <returns> <see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise. </returns>
         public static bool IsSqlite(this DatabaseFacade database)

@@ -20,6 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         The implementations do not need to be thread-safe.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    /// </remarks>
     public class SqliteConventionSetBuilder : RelationalConventionSetBuilder
     {
         /// <summary>
