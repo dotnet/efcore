@@ -9,7 +9,7 @@ using Xunit.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
-    public class ComplexNavigationsCollectionsSplitSharedTypeQuerySqliteTest : ComplexNavigationsCollectionsSplitSharedQueryTypeRelationalTestBase<
+    public class ComplexNavigationsCollectionsSplitSharedTypeQuerySqliteTest : ComplexNavigationsCollectionsSplitSharedTypeQueryRelationalTestBase<
         ComplexNavigationsSharedTypeQuerySqliteFixture>
     {
         public ComplexNavigationsCollectionsSplitSharedTypeQuerySqliteTest(ComplexNavigationsSharedTypeQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)

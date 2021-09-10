@@ -7085,7 +7085,7 @@ LEFT JOIN (
     END AS [Discriminator]
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON ([g].[Nickname] = [o].[Nickname]) AND ([g].[SquadId] = [o].[SquadId])
-) AS [t0] ON (([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])) AND [t].[Note] IS NOT NULL
+) AS [t0] ON ([t].[GearNickName] = [t0].[Nickname]) AND ([t].[GearSquadId] = [t0].[SquadId])
 ORDER BY [t].[Id], [t0].[Nickname]");
         }
 

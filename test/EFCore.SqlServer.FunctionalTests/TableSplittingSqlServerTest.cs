@@ -40,7 +40,9 @@ LEFT JOIN (
         INNER JOIN [Vehicles] AS [v4] ON [v3].[Name] = [v4].[Name]
     ) AS [t1] ON [v2].[Name] = [t1].[Name]
     WHERE [v2].[Active] IS NOT NULL
-) AS [t0] ON [t].[Name] = [t0].[Name]
+) AS [t0] ON [t].[Name] = CASE
+    WHEN [t0].[Active] IS NOT NULL THEN [t0].[Name]
+END
 LEFT JOIN (
     SELECT [v5].[Name], [v5].[Computed], [v5].[Description], [v5].[Engine_Discriminator]
     FROM [Vehicles] AS [v5]
@@ -50,7 +52,9 @@ LEFT JOIN (
         WHERE [v6].[Discriminator] IN (N'PoweredVehicle', N'CompositeVehicle')
     ) AS [t3] ON [v5].[Name] = [t3].[Name]
     WHERE [v5].[Computed] IS NOT NULL AND [v5].[Engine_Discriminator] IS NOT NULL
-) AS [t2] ON [v].[Name] = [t2].[Name]
+) AS [t2] ON [v].[Name] = CASE
+    WHEN [t2].[Computed] IS NOT NULL AND [t2].[Engine_Discriminator] IS NOT NULL THEN [t2].[Name]
+END
 LEFT JOIN (
     SELECT [v7].[Name], [v7].[Capacity], [v7].[FuelTank_Discriminator], [v7].[FuelType], [v7].[GrainGeometry]
     FROM [Vehicles] AS [v7]
@@ -74,7 +78,11 @@ LEFT JOIN (
         WHERE [v10].[Engine_Discriminator] IN (N'ContinuousCombustionEngine', N'IntermittentCombustionEngine', N'SolidRocket')
     ) AS [t6] ON [v9].[Name] = [t6].[Name]
     WHERE [v9].[Capacity] IS NOT NULL AND [v9].[FuelTank_Discriminator] IS NOT NULL
-) AS [t4] ON [t2].[Name] = [t4].[Name]
+) AS [t4] ON CASE
+    WHEN [t2].[Computed] IS NOT NULL AND [t2].[Engine_Discriminator] IS NOT NULL THEN [t2].[Name]
+END = CASE
+    WHEN [t4].[Capacity] IS NOT NULL AND [t4].[FuelTank_Discriminator] IS NOT NULL THEN [t4].[Name]
+END
 ORDER BY [v].[Name]");
         }
 
@@ -264,7 +272,9 @@ LEFT JOIN (
         INNER JOIN [Vehicles] AS [v4] ON [v3].[Name] = [v4].[Name]
     ) AS [t1] ON [v2].[Name] = [t1].[Name]
     WHERE [v2].[Active] IS NOT NULL
-) AS [t0] ON [t].[Name] = [t0].[Name]
+) AS [t0] ON [t].[Name] = CASE
+    WHEN [t0].[Active] IS NOT NULL THEN [t0].[Name]
+END
 WHERE [v].[Name] = N'AIM-9M Sidewinder'
 ORDER BY [v].[Name]");
         }

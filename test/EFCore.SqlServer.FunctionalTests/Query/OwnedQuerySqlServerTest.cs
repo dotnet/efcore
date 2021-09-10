@@ -1114,7 +1114,9 @@ LEFT JOIN (
     FROM [OwnedPerson] AS [o]
     INNER JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
     WHERE [o].[PersonAddress_ZipCode] IS NOT NULL
-) AS [t] ON [m].[Id] = [t].[Id]
+) AS [t] ON [m].[Id] = CASE
+    WHEN [t].[PersonAddress_ZipCode] IS NOT NULL THEN [t].[Id]
+END
 LEFT JOIN (
     SELECT [o1].[Id], [o1].[BranchAddress_BranchName], [o1].[BranchAddress_PlaceType], [t1].[Id] AS [Id0], [o1].[Id] AS [Id1], [o1].[BranchAddress_Country_Name], [o1].[BranchAddress_Country_PlanetId]
     FROM [OwnedPerson] AS [o1]
@@ -1124,7 +1126,9 @@ LEFT JOIN (
         WHERE [o2].[Discriminator] IN (N'Branch', N'LeafA')
     ) AS [t1] ON [o1].[Id] = [t1].[Id]
     WHERE [o1].[BranchAddress_BranchName] IS NOT NULL
-) AS [t0] ON [m].[Id] = [t0].[Id]
+) AS [t0] ON [m].[Id] = CASE
+    WHEN [t0].[BranchAddress_BranchName] IS NOT NULL THEN [t0].[Id]
+END
 LEFT JOIN (
     SELECT [o3].[Id], [o3].[LeafBAddress_LeafBType], [o3].[LeafBAddress_PlaceType], [t3].[Id] AS [Id0], [o3].[Id] AS [Id1], [o3].[LeafBAddress_Country_Name], [o3].[LeafBAddress_Country_PlanetId]
     FROM [OwnedPerson] AS [o3]
@@ -1134,7 +1138,9 @@ LEFT JOIN (
         WHERE [o4].[Discriminator] = N'LeafB'
     ) AS [t3] ON [o3].[Id] = [t3].[Id]
     WHERE [o3].[LeafBAddress_LeafBType] IS NOT NULL
-) AS [t2] ON [m].[Id] = [t2].[Id]
+) AS [t2] ON [m].[Id] = CASE
+    WHEN [t2].[LeafBAddress_LeafBType] IS NOT NULL THEN [t2].[Id]
+END
 LEFT JOIN (
     SELECT [o5].[Id], [o5].[LeafAAddress_LeafType], [o5].[LeafAAddress_PlaceType], [t5].[Id] AS [Id0], [o5].[Id] AS [Id1], [o5].[LeafAAddress_Country_Name], [o5].[LeafAAddress_Country_PlanetId]
     FROM [OwnedPerson] AS [o5]
@@ -1144,7 +1150,9 @@ LEFT JOIN (
         WHERE [o6].[Discriminator] = N'LeafA'
     ) AS [t5] ON [o5].[Id] = [t5].[Id]
     WHERE [o5].[LeafAAddress_LeafType] IS NOT NULL
-) AS [t4] ON [m].[Id] = [t4].[Id]
+) AS [t4] ON [m].[Id] = CASE
+    WHEN [t4].[LeafAAddress_LeafType] IS NOT NULL THEN [t4].[Id]
+END
 LEFT JOIN (
     SELECT [o7].[ClientId], [o7].[Id], [o7].[OrderDate], [o8].[OrderClientId], [o8].[OrderId], [o8].[Id] AS [Id0], [o8].[Detail]
     FROM [Order] AS [o7]
