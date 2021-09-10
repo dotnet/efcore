@@ -10,12 +10,18 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Specifies hints used by the type mapper when mapping using a <see cref="ValueConverter" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public class ConverterMappingHints
     {
         /// <summary>
         ///     Creates a new <see cref="ConverterMappingHints" /> instance. Any hint contained in the instance
         ///     can be <see langword="null" /> to indicate it has not been specified.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="size"> The suggested size of the mapped data type.</param>
         /// <param name="precision"> The suggested precision of the mapped data type. </param>
         /// <param name="scale"> The suggested scale of the mapped data type. </param>
@@ -39,6 +45,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Adds hints from the given object to this one. Hints that are already specified are
         ///     not overridden.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="hints"> The hints to add. </param>
         /// <returns> The combined hints. </returns>
         public virtual ConverterMappingHints With(ConverterMappingHints? hints)

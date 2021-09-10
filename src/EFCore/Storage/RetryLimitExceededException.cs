@@ -9,6 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     The exception that is thrown when the action failed more times than the configured limit.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///     for more information.
+    /// </remarks>
     [Serializable]
     public class RetryLimitExceededException : Exception
     {

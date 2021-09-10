@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     Generates <see cref="string" /> values using a string representation of <see cref="Guid.NewGuid()" />.
     ///     The generated values are non-temporary, meaning they will be saved to the database.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class StringValueGenerator : ValueGenerator<string>
     {
         /// <summary>

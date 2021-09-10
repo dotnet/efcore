@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Converts numeric values to and from arrays of bytes.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     {
         // ReSharper disable once StaticMemberInGenericType
@@ -26,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         and <see cref="char" />.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public NumberToBytesConverter()
             : this(null)
         {
@@ -42,6 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///         and <see cref="char" />.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.

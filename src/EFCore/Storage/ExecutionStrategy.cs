@@ -15,11 +15,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     The base class for <see cref="IExecutionStrategy" /> implementations.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///     for more information.
+    /// </remarks>
     public abstract class ExecutionStrategy : IExecutionStrategy
     {
         /// <summary>
         ///     The default number of retry attempts.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         protected static readonly int DefaultMaxRetryCount = 6;
 
         /// <summary>
@@ -45,6 +53,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="ExecutionStrategy" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="context"> The context on which the operations will be invoked. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
@@ -62,6 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new instance of <see cref="ExecutionStrategy" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="dependencies"> Parameter object containing service dependencies. </param>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
@@ -88,6 +104,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The list of exceptions that caused the operation to be retried so far.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         protected virtual List<Exception> ExceptionsEncountered { get; } = new();
 
         /// <summary>
@@ -98,11 +118,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The maximum number of retry attempts.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         protected virtual int MaxRetryCount { get; }
 
         /// <summary>
         ///     The maximum delay between retries.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         protected virtual TimeSpan MaxRetryDelay { get; }
 
         /// <summary>
@@ -116,6 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Indicates whether the strategy is suspended. The strategy is typically suspending while executing to avoid
         ///     recursive execution from nested operations.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         [Obsolete("Use Current instead")]
         protected static bool Suspended
         {
@@ -126,6 +158,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets or sets the currently executing strategy. All nested calls will be handled by the outermost strategy.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         public static ExecutionStrategy? Current
         {
             get => _current.Value;
@@ -135,6 +171,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Indicates whether this <see cref="IExecutionStrategy" /> might retry the execution after a failure.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         public virtual bool RetriesOnFailure
         {
             get
@@ -147,6 +187,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Executes the specified operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
@@ -237,6 +281,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.
@@ -343,6 +391,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Method called before the first operation execution
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         protected virtual void OnFirstExecution()
         {
             if (RetriesOnFailure &&
@@ -368,6 +420,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Method called before retrying the operation execution
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         protected virtual void OnRetry()
         {
         }
@@ -375,6 +431,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Determines whether the operation should be retried and the delay before the next attempt.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="lastException"> The exception thrown during the last execution attempt. </param>
         /// <returns>
         ///     Returns the delay indicating how long to wait for before the next execution attempt if the operation should be retried;
@@ -401,6 +461,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Determines whether the specified exception could be thrown after a successful execution.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="exception"> The exception object to be verified. </param>
         /// <returns>
         ///     <see langword="true" /> if the specified exception could be thrown after a successful execution, otherwise <see langword="false" />.
@@ -411,6 +475,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Determines whether the specified exception represents a transient failure that can be compensated by a retry.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="exception"> The exception object to be verified. </param>
         /// <returns>
         ///     <see langword="true" /> if the specified exception is considered as transient, otherwise <see langword="false" />.
@@ -421,6 +489,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Recursively gets InnerException from <paramref name="exception" /> as long as it is an
         ///     exception created by Entity Framework and calls <paramref name="exceptionHandler" /> on the innermost one.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="exception"> The exception to be unwrapped. </param>
         /// <param name="exceptionHandler"> A delegate that will be called with the unwrapped exception. </param>
         /// <typeparam name="TResult"> The return type of <paramref name="exceptionHandler" />. </typeparam>

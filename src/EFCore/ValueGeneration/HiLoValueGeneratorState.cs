@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// <summary>
     ///     The thread safe state used by <see cref="HiLoValueGenerator{TValue}" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class HiLoValueGeneratorState : IDisposable
     {
         private readonly SemaphoreSlim _semaphoreSlim = new(1);

@@ -16,11 +16,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///     for more information.
+    /// </remarks>
     public interface IExecutionStrategyFactory
     {
         /// <summary>
         ///     Creates a new <see cref="IExecutionStrategy" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <returns> An instance of <see cref="IExecutionStrategy" />. </returns>
         IExecutionStrategy Create();
     }

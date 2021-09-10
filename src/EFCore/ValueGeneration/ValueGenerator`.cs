@@ -11,11 +11,17 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// <summary>
     ///     Generates values for properties when an entity is added to a context.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public abstract class ValueGenerator<TValue> : ValueGenerator
     {
         /// <summary>
         ///     Template method to be overridden by implementations to perform value generation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        /// </remarks>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The generated value. </returns>
         public new abstract TValue Next(EntityEntry entry);
@@ -23,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Template method to be overridden by implementations to perform value generation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        /// </remarks>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The generated value. </returns>
@@ -35,6 +44,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        /// </remarks>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <returns> The value to be assigned to a property. </returns>
         protected override object? NextValue(EntityEntry entry)
@@ -43,6 +55,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+        /// </remarks>
         /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>

@@ -354,7 +354,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates an instance of the configured <see cref="IExecutionStrategy" />.
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">EF Core Connection Resiliency</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
         /// </remarks>
         /// <returns>An <see cref="IExecutionStrategy" /> instance.</returns>
         public virtual IExecutionStrategy CreateExecutionStrategy()
@@ -463,7 +464,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see> for more information.
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+        ///     for more information.
         /// </remarks>
         IServiceProvider IInfrastructure<IServiceProvider>.Instance
             => ((IInfrastructure<IServiceProvider>)_context).Instance;

@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Defines conversions from an object of one type in a model to an object of the same or
     ///     different type in the store.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public class ValueConverter<TModel, TProvider> : ValueConverter
     {
         private Func<object?, object?>? _convertToProvider;
@@ -19,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="convertToProviderExpression"> An expression to convert objects when writing data to the store. </param>
         /// <param name="convertFromProviderExpression"> An expression to convert objects when reading data from the store. </param>
         /// <param name="mappingHints">
@@ -36,6 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="convertToProviderExpression"> An expression to convert objects when writing data to the store. </param>
         /// <param name="convertFromProviderExpression"> An expression to convert objects when reading data from the store. </param>
         /// <param name="convertsNulls">
@@ -81,6 +90,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Gets the function to convert objects when writing data to the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public override Func<object?, object?> ConvertToProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _convertToProvider, this, static c => SanitizeConverter(c.ConvertToProviderExpression, c.ConvertsNulls));
@@ -89,6 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Gets the function to convert objects when reading data from the store,
         ///     setup to handle nulls, boxing, and non-exact matches of simple types.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public override Func<object?, object?> ConvertFromProvider
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _convertFromProvider, this, static c => SanitizeConverter(c.ConvertFromProviderExpression, c.ConvertsNulls));
@@ -98,6 +113,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public new virtual Expression<Func<TModel, TProvider>> ConvertToProviderExpression
             => (Expression<Func<TModel, TProvider>>)base.ConvertToProviderExpression;
 
@@ -106,18 +124,27 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public new virtual Expression<Func<TProvider, TModel>> ConvertFromProviderExpression
             => (Expression<Func<TProvider, TModel>>)base.ConvertFromProviderExpression;
 
         /// <summary>
         ///     The CLR type used in the EF model.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public override Type ModelClrType
             => typeof(TModel);
 
         /// <summary>
         ///     The CLR type used when reading and writing from the store.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public override Type ProviderClrType
             => typeof(TProvider);
     }
