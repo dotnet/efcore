@@ -2832,11 +2832,13 @@ FROM [Bases] AS [b]");
                     @"SELECT [t1].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[Exists] IS NOT NULL
-) AS [t1] ON [t].[Id] = [t1].[Id]
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
+END
 GROUP BY [t1].[AnotherEntity11818_Name]");
             }
 
@@ -2863,17 +2865,21 @@ GROUP BY [t1].[AnotherEntity11818_Name]");
                     @"SELECT [t1].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[Exists] IS NOT NULL
-) AS [t1] ON [t].[Id] = [t1].[Id]
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
+END
 LEFT JOIN (
-    SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
+    SELECT [t4].[Id], [t4].[MaumarEntity11818_Exists], [t4].[MaumarEntity11818_Name]
     FROM [Table] AS [t4]
     INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
     WHERE [t4].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t3] ON [t].[Id] = [t3].[Id]
+) AS [t3] ON [t].[Id] = CASE
+    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
+END
 GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
 
@@ -2898,17 +2904,21 @@ GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
                     @"SELECT TOP(1) [t1].[AnotherEntity11818_Name] AS [MyKey], [t3].[MaumarEntity11818_Name] AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t0].[Id], [t0].[AnotherEntity11818_Name]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
     FROM [Table] AS [t0]
     INNER JOIN [Table] AS [t2] ON [t0].[Id] = [t2].[Id]
     WHERE [t0].[Exists] IS NOT NULL
-) AS [t1] ON [t].[Id] = [t1].[Id]
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
+END
 LEFT JOIN (
-    SELECT [t4].[Id], [t4].[MaumarEntity11818_Name]
+    SELECT [t4].[Id], [t4].[MaumarEntity11818_Exists], [t4].[MaumarEntity11818_Name]
     FROM [Table] AS [t4]
     INNER JOIN [Table] AS [t5] ON [t4].[Id] = [t5].[Id]
     WHERE [t4].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t3] ON [t].[Id] = [t3].[Id]
+) AS [t3] ON [t].[Id] = CASE
+    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
+END
 GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]");
             }
         }
@@ -7693,13 +7703,19 @@ FROM (
 LEFT JOIN (
     SELECT [s].[Id], [s].[AggregateId], [s].[FourthValueObject_Value], [f].[Id] AS [Id0], [f].[AnyValue], [f].[SecondValueObjectId], [t1].[Id] AS [Id1], [t1].[SecondValueObjectId] AS [SecondValueObjectId0], [t1].[FourthValueObject_Value] AS [FourthValueObject_Value0], [t1].[Id0] AS [Id00], [t1].[AnyValue] AS [AnyValue0], [t1].[ThirdValueObjectId]
     FROM [SecondValueObjects] AS [s]
-    LEFT JOIN [FourthFifthValueObjects] AS [f] ON [s].[Id] = [f].[SecondValueObjectId]
+    LEFT JOIN [FourthFifthValueObjects] AS [f] ON CASE
+        WHEN [s].[FourthValueObject_Value] IS NOT NULL THEN [s].[Id]
+    END = [f].[SecondValueObjectId]
     LEFT JOIN (
         SELECT [t0].[Id], [t0].[SecondValueObjectId], [t0].[FourthValueObject_Value], [t3].[Id] AS [Id0], [t3].[AnyValue], [t3].[ThirdValueObjectId]
         FROM [ThirdValueObjects] AS [t0]
-        LEFT JOIN [ThirdFifthValueObjects] AS [t3] ON [t0].[Id] = [t3].[ThirdValueObjectId]
+        LEFT JOIN [ThirdFifthValueObjects] AS [t3] ON CASE
+            WHEN [t0].[FourthValueObject_Value] IS NOT NULL THEN [t0].[Id]
+        END = [t3].[ThirdValueObjectId]
     ) AS [t1] ON [s].[Id] = [t1].[SecondValueObjectId]
-) AS [t2] ON [t].[Id] = [t2].[AggregateId]
+) AS [t2] ON CASE
+    WHEN [t].[FirstValueObject_Value] IS NOT NULL THEN [t].[Id]
+END = [t2].[AggregateId]
 ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1]");
             }
         }

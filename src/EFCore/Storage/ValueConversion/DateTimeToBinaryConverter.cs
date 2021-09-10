@@ -9,11 +9,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts <see cref="DateTime" /> using <see cref="DateTime.ToBinary" />. This
     ///     will preserve the <see cref="DateTimeKind" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public class DateTimeToBinaryConverter : ValueConverter<DateTime, long>
     {
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public DateTimeToBinaryConverter()
             : this(null)
         {
@@ -22,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.

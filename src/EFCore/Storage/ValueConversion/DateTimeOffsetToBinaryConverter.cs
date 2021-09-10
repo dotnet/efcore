@@ -9,11 +9,17 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Converts <see cref="DateTime" /> to and from binary representation in a long.
     ///     The DateTime is truncated beyond 0.1 millisecond precision.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public class DateTimeOffsetToBinaryConverter : ValueConverter<DateTimeOffset, long>
     {
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         public DateTimeOffsetToBinaryConverter()
             : this(null)
         {
@@ -22,6 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new instance of this converter.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.

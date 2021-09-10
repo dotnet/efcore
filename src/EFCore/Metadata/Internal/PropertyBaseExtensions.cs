@@ -98,7 +98,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         // GetMemberInfo to get the property/field to use, which may be different.
         public static MemberInfo? GetIdentifyingMemberInfo(
             this IReadOnlyPropertyBase propertyBase)
-            => propertyBase.PropertyInfo ?? (MemberInfo?)propertyBase.FieldInfo;
+        {
+            var indexerPropertyInfo = propertyBase.DeclaringType.FindIndexerPropertyInfo();
+            return indexerPropertyInfo != null && propertyBase.PropertyInfo == indexerPropertyInfo
+                ? null
+                : (propertyBase.PropertyInfo ?? (MemberInfo?)propertyBase.FieldInfo);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

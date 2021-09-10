@@ -1911,7 +1911,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     c =>
                     {
                         c.HasData(
-                            new Beta { Id = -1 });
+                            new Beta { Id = -1, Name = " -1" });
                         var customers = new List<Beta> { new() { Id = -2 } };
                         c.HasData(customers);
                     });
@@ -1922,6 +1922,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 var data = customer.GetSeedData();
                 Assert.Equal(2, data.Count());
                 Assert.Equal(-1, data.First()[nameof(Beta.Id)]);
+                Assert.Equal(" -1", data.First()[nameof(Beta.Name)]);
                 Assert.Equal(-2, data.Last()[nameof(Beta.Id)]);
 
                 var _ = finalModel.ToDebugString();

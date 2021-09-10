@@ -5,7 +5,6 @@ using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
@@ -60,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     <see langword="true" /> if the property is a shadow property, otherwise <see langword="false" />.
         /// </returns>
-        bool IsShadowProperty() => this.GetIdentifyingMemberInfo() == null;
+        bool IsShadowProperty() => PropertyInfo == null && FieldInfo == null;
 
         /// <summary>
         ///     Gets a value indicating whether this is an indexer property. An indexer property is one that is accessed through
@@ -70,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     <see langword="true" /> if the property is an indexer property, otherwise <see langword="false" />.
         /// </returns>
         bool IsIndexerProperty()
-            => this.GetIdentifyingMemberInfo() is PropertyInfo propertyInfo
+            => PropertyInfo is PropertyInfo propertyInfo
                 && propertyInfo == DeclaringType.FindIndexerPropertyInfo();
 
         /// <summary>

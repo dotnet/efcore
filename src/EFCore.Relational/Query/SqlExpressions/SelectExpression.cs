@@ -2136,18 +2136,18 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     && inner.Offset == null
                     && inner.Predicate != null)
                 {
-                    var columnExpressions = new List<ColumnExpression>();
+                    var outerColumnExpressions = new List<SqlExpression>();
                     var joinPredicate = TryExtractJoinKey(
                         outer,
                         inner,
                         inner.Predicate,
-                        columnExpressions,
+                        outerColumnExpressions,
                         allowNonEquality,
                         out var predicate);
 
                     if (joinPredicate != null)
                     {
-                        joinPredicate = RemoveRedundantNullChecks(joinPredicate, columnExpressions);
+                        joinPredicate = RemoveRedundantNullChecks(joinPredicate, outerColumnExpressions);
                     }
                     // TODO: verify the case for GroupBy. See issue#24474
                     // We extract join predicate from Predicate part but GroupBy would have last Having. Changing predicate can change groupings
@@ -2188,13 +2188,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     SelectExpression outer,
                     SelectExpression inner,
                     SqlExpression predicate,
-                    List<ColumnExpression> columnExpressions,
+                    List<SqlExpression> outerColumnExpressions,
                     bool allowNonEquality,
                     out SqlExpression? updatedPredicate)
                 {
                     if (predicate is SqlBinaryExpression sqlBinaryExpression)
                     {
-                        var joinPredicate = ValidateKeyComparison(outer, inner, sqlBinaryExpression, columnExpressions, allowNonEquality);
+                        var joinPredicate = ValidateKeyComparison(outer, inner, sqlBinaryExpression, outerColumnExpressions, allowNonEquality);
                         if (joinPredicate != null)
                         {
                             updatedPredicate = null;
@@ -2205,9 +2205,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                         if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
                         {
                             var leftJoinKey = TryExtractJoinKey(
-                                outer, inner, sqlBinaryExpression.Left, columnExpressions, allowNonEquality, out var leftPredicate);
+                                outer, inner, sqlBinaryExpression.Left, outerColumnExpressions, allowNonEquality, out var leftPredicate);
                             var rightJoinKey = TryExtractJoinKey(
-                                outer, inner, sqlBinaryExpression.Right, columnExpressions, allowNonEquality, out var rightPredicate);
+                                outer, inner, sqlBinaryExpression.Right, outerColumnExpressions, allowNonEquality, out var rightPredicate);
 
                             updatedPredicate = CombineNonNullExpressions(leftPredicate, rightPredicate);
 
@@ -2224,7 +2224,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     SelectExpression outer,
                     SelectExpression inner,
                     SqlBinaryExpression sqlBinaryExpression,
-                    List<ColumnExpression> columnExpressions,
+                    List<SqlExpression> outerColumnExpressions,
                     bool allowNonEquality)
                 {
                     if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
@@ -2235,45 +2235,39 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                                 || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
                                 || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)))
                     {
-                        if (sqlBinaryExpression.Left is ColumnExpression leftColumn
-                            && sqlBinaryExpression.Right is ColumnExpression rightColumn)
+                        if (IsContainedColumn(outer, sqlBinaryExpression.Left)
+                            && IsContainedColumn(inner, sqlBinaryExpression.Right))
                         {
-                            if (outer.ContainsTableReference(leftColumn)
-                                && inner.ContainsTableReference(rightColumn))
-                            {
-                                columnExpressions.Add(leftColumn);
+                            outerColumnExpressions.Add(sqlBinaryExpression.Left);
 
-                                return sqlBinaryExpression;
-                            }
+                            return sqlBinaryExpression;
+                        }
 
-                            if (outer.ContainsTableReference(rightColumn)
-                                && inner.ContainsTableReference(leftColumn))
-                            {
-                                columnExpressions.Add(rightColumn);
+                        if (IsContainedColumn(outer, sqlBinaryExpression.Right)
+                            && IsContainedColumn(inner, sqlBinaryExpression.Left))
+                        {
+                            outerColumnExpressions.Add(sqlBinaryExpression.Right);
 
-                                return new SqlBinaryExpression(
-                                    _mirroredOperationMap[sqlBinaryExpression.OperatorType],
-                                    sqlBinaryExpression.Right,
-                                    sqlBinaryExpression.Left,
-                                    sqlBinaryExpression.Type,
-                                    sqlBinaryExpression.TypeMapping);
-                            }
+                            return new SqlBinaryExpression(
+                                _mirroredOperationMap[sqlBinaryExpression.OperatorType],
+                                sqlBinaryExpression.Right,
+                                sqlBinaryExpression.Left,
+                                sqlBinaryExpression.Type,
+                                sqlBinaryExpression.TypeMapping);
                         }
                     }
 
                     // null checks are considered part of join key
                     if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
                     {
-                        if (sqlBinaryExpression.Left is ColumnExpression leftNullCheckColumn
-                            && outer.ContainsTableReference(leftNullCheckColumn)
+                        if (IsContainedColumn(outer, sqlBinaryExpression.Left)
                             && sqlBinaryExpression.Right is SqlConstantExpression rightConstant
                             && rightConstant.Value == null)
                         {
                             return sqlBinaryExpression;
                         }
 
-                        if (sqlBinaryExpression.Right is ColumnExpression rightNullCheckColumn
-                            && outer.ContainsTableReference(rightNullCheckColumn)
+                        if (IsContainedColumn(outer, sqlBinaryExpression.Right)
                             && sqlBinaryExpression.Left is SqlConstantExpression leftConstant
                             && leftConstant.Value == null)
                         {
@@ -2284,6 +2278,36 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     }
 
                     return null;
+                }
+
+                static bool IsContainedColumn(SelectExpression selectExpression, SqlExpression sqlExpression)
+                {
+                    switch (sqlExpression)
+                    {
+                        case ColumnExpression columnExpression:
+                            return selectExpression.ContainsTableReference(columnExpression);
+
+                        case SqlConstantExpression sqlConstantExpression
+                            when sqlConstantExpression.Value == null:
+                            return true;
+
+                        case SqlBinaryExpression sqlBinaryExpression
+                        when sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
+                            || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
+                            || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual:
+                            return IsContainedColumn(selectExpression, sqlBinaryExpression.Left)
+                                && IsContainedColumn(selectExpression, sqlBinaryExpression.Right);
+
+                        case CaseExpression caseExpression
+                        when caseExpression.ElseResult == null
+                            && caseExpression.Operand == null
+                            && caseExpression.WhenClauses.Count == 1:
+                            return IsContainedColumn(selectExpression, caseExpression.WhenClauses[0].Test)
+                                && IsContainedColumn(selectExpression, caseExpression.WhenClauses[0].Result);
+
+                        default:
+                            return false;
+                    }
                 }
 
                 static void InnerKeyColumns(IEnumerable<TableExpressionBase> tables, SqlExpression joinPredicate, List<ColumnExpression> resultColumns)
@@ -2334,13 +2358,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             : left
                         : right;
 
-                static SqlExpression? RemoveRedundantNullChecks(SqlExpression predicate, List<ColumnExpression> columnExpressions)
+                static SqlExpression? RemoveRedundantNullChecks(SqlExpression predicate, List<SqlExpression> outerColumnExpressions)
                 {
                     if (predicate is SqlBinaryExpression sqlBinaryExpression)
                     {
                         if (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                            && sqlBinaryExpression.Left is ColumnExpression leftColumn
-                            && columnExpressions.Contains(leftColumn)
+                            && outerColumnExpressions.Contains(sqlBinaryExpression.Left)
                             && sqlBinaryExpression.Right is SqlConstantExpression sqlConstantExpression
                             && sqlConstantExpression.Value == null)
                         {
@@ -2349,8 +2372,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
                         if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso)
                         {
-                            var leftPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Left, columnExpressions);
-                            var rightPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Right, columnExpressions);
+                            var leftPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Left, outerColumnExpressions);
+                            var rightPredicate = RemoveRedundantNullChecks(sqlBinaryExpression.Right, outerColumnExpressions);
 
                             return CombineNonNullExpressions(leftPredicate, rightPredicate);
                         }

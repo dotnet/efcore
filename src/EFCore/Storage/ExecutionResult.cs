@@ -6,6 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     Represents the execution state of an operation.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///     for more information.
+    /// </remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     public class ExecutionResult<TResult>
     {

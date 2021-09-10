@@ -1257,28 +1257,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     if (value == null)
                     {
-                        if (EntityState != EntityState.Deleted
-                            && EntityState != EntityState.Detached)
-                        {
-                            _stateData.FlagProperty(propertyIndex, PropertyFlag.Null, isFlagged: true);
-
-                            if (setModified)
-                            {
-                                SetPropertyModified(
-                                    asProperty, changeState: true, isModified: true,
-                                    isConceptualNull: true);
-                            }
-
-                            if (!isCascadeDelete
-                                && StateManager.DeleteOrphansTiming == CascadeTiming.Immediate)
-                            {
-                                HandleConceptualNulls(
-                                    StateManager.SensitiveLoggingEnabled,
-                                    force: false,
-                                    isCascadeDelete: false);
-                            }
-                        }
-
+                        HandleNullForeignKey(asProperty, setModified, isCascadeDelete);
                         writeValue = false;
                     }
                     else
@@ -1373,6 +1352,40 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
 
                     StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public void HandleNullForeignKey(
+            IProperty property,
+            bool setModified = false, 
+            bool isCascadeDelete = false)
+        {
+            if (EntityState != EntityState.Deleted
+                && EntityState != EntityState.Detached)
+            {
+                _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Null, isFlagged: true);
+
+                if (setModified)
+                {
+                    SetPropertyModified(
+                        property, changeState: true, isModified: true,
+                        isConceptualNull: true);
+                }
+
+                if (!isCascadeDelete
+                    && StateManager.DeleteOrphansTiming == CascadeTiming.Immediate)
+                {
+                    HandleConceptualNulls(
+                        StateManager.SensitiveLoggingEnabled,
+                        force: false,
+                        isCascadeDelete: false);
                 }
             }
         }

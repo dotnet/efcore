@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     ///     Contains information on an available <see cref="ValueConverter" /> including a factory to
     ///     create an instance.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public readonly struct ValueConverterInfo
     {
         private readonly Func<ValueConverterInfo, ValueConverter> _factory;
@@ -17,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Creates a new <see cref="ValueConverterInfo" /> instance.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+        /// </remarks>
         /// <param name="modelClrType"> The CLR type used in the EF model. </param>
         /// <param name="providerClrType"> The CLR type used when reading and writing from the database provider. </param>
         /// <param name="factory"> A factory to create the converter, if needed. </param>

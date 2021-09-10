@@ -23,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     /// <typeparam name="TOptionsExtension">
     ///     The type of options that the database provider will add to <see cref="DbContextOptions.Extensions" />
     ///     to identify that is has been selected (and to store its database specific settings).

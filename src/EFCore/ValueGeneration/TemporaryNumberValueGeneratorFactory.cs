@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///         <see cref="decimal" />, <see cref="float" />, <see cref="double" />
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
     {
         /// <summary>

@@ -923,8 +923,63 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     return null;
                 }
+                var entityProjectionExpression = (EntityProjectionExpression)valueBufferExpression;
+                var propertyAccess = entityProjectionExpression.BindProperty(property);
 
-                return ((EntityProjectionExpression)valueBufferExpression).BindProperty(property);
+                var entityType = entityReferenceExpression.EntityType;
+                var table = entityType.GetViewOrTableMappings().FirstOrDefault()?.Table;
+                if ((table?.IsOptional(entityType)) != true)
+                {
+                    return propertyAccess;
+                }
+
+                // this is optional dependent sharing table
+                var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
+                if (nonPrincipalSharedNonPkProperties.Contains(property))
+                {
+                    // The column is not being shared with principal side so we can always use directly
+                    return propertyAccess;
+                }
+
+                SqlExpression? condition = null;
+                // Property is being shared with principal side, so we need to make it conditional access
+                var allRequiredNonPkPropertiesCondition = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+                if (allRequiredNonPkPropertiesCondition.Count > 0)
+                {
+                    condition = allRequiredNonPkPropertiesCondition.Select(p => entityProjectionExpression.BindProperty(p))
+                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                        .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+                }
+
+                if (nonPrincipalSharedNonPkProperties.Count != 0
+                    && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                {
+                    // If all non principal shared properties are nullable then we need additional condition
+                    var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
+                        .Select(p => entityProjectionExpression.BindProperty(p))
+                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                        .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
+
+                    condition = condition == null
+                        ? atLeastOneNonNullValueInNullableColumnsCondition
+                        : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
+                }
+
+                if (condition == null)
+                {
+                    // if we cannot compute condition then we just return property access (and hope for the best)
+                    return propertyAccess;
+                }
+
+                return _sqlExpressionFactory.Case(
+                    new List<CaseWhenClause>
+                    {
+                        new CaseWhenClause(condition, propertyAccess)
+                    },
+                    elseResult: null);
+
+                // We don't do above processing for subquery entity since it comes from after subquery which has been
+                // single result so either it is regular entity or a collection which always have their own table.
             }
 
             if (entityReferenceExpression.SubqueryEntity != null)

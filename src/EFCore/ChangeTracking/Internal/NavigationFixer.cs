@@ -495,6 +495,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         }
                     }
 
+                    if (newValue == null
+                        && (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
+                            || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade))
+                    {
+                        entry.HandleNullForeignKey(property);
+                    }
+
                     stateManager.UpdateDependentMap(entry, foreignKey);
                 }
 

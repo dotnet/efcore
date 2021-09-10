@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             var memberInfo = GetMostDerivedMemberInfo();
-            var propertyType = memberInfo.GetMemberType();
+            var propertyType = navigation.IsIndexerProperty() ? navigation.ClrType : memberInfo.GetMemberType();
             var elementType = propertyType.TryGetElementType(typeof(IEnumerable<>));
 
             if (elementType == null)
@@ -110,7 +110,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     : propertyInfo == null
                         ? fieldInfo
                         : fieldInfo.FieldType.IsAssignableFrom(propertyInfo.PropertyType)
-                            ? (MemberInfo)propertyInfo
+                            ? propertyInfo
                             : fieldInfo;
             }
         }

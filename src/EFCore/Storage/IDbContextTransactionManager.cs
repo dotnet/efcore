@@ -24,6 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///         The implementation does not need to be thread-safe.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     and <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+    /// </remarks>
     public interface IDbContextTransactionManager : IResettableService
     {
         /// <summary>

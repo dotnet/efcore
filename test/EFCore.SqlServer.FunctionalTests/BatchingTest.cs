@@ -170,6 +170,73 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Deadlock_on_inserts_and_deletes_with_dependents_is_handled_correctly()
+        {
+            var blogs = new List<Blog>();
+
+            using (var context = CreateContext())
+            {
+                var owner1 = new Owner { Name = "0" };
+                var owner2 = new Owner { Name = "1" };
+                context.Owners.Add(owner1);
+                context.Owners.Add(owner2);
+
+                blogs.Add(new Blog
+                {
+                    Id = Guid.NewGuid(),
+                    Owner = owner1,
+                    Order = 1
+                });
+                blogs.Add(new Blog
+                {
+                    Id = Guid.NewGuid(),
+                    Owner = owner2,
+                    Order = 2
+                });
+                blogs.Add(new Blog
+                {
+                    Id = Guid.NewGuid(),
+                    Owner = owner1,
+                    Order = 3
+                });
+                blogs.Add(new Blog
+                {
+                    Id = Guid.NewGuid(),
+                    Owner = owner2,
+                    Order = 4
+                });
+
+                context.AddRange(blogs);
+
+                context.SaveChanges();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                Parallel.ForEach(blogs, blog =>
+                {
+                    RemoveAndAddPosts(blog);
+                });
+            }
+
+            void RemoveAndAddPosts(Blog blog)
+            {
+                using var context = (BloggingContext)Fixture.CreateContext(useConnectionString: true);
+
+                context.Attach(blog);
+                blog.Posts.Clear();
+
+                blog.Posts.Add(new Post { Comments = { new Comment() } });
+                blog.Posts.Add(new Post { Comments = { new Comment() } });
+                blog.Posts.Add(new Post { Comments = { new Comment() } });
+
+                context.SaveChanges();
+            }
+
+            Fixture.Reseed();
+        }
+
+        [ConditionalFact]
         public void Deadlock_on_deletes_with_dependents_is_handled_correctly()
         {
             var owners = new[] { new Owner { Name = "0" }, new Owner { Name = "1" } };

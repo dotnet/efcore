@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -1460,7 +1461,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddNavigation(new MemberIdentity(navigationMember), foreignKey, pointsToPrincipal);
         }
 
-        private Navigation AddNavigation(MemberIdentity navigationMember, ForeignKey foreignKey, bool pointsToPrincipal)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Navigation AddNavigation(MemberIdentity navigationMember, ForeignKey foreignKey, bool pointsToPrincipal)
         {
             EnsureMutable();
 
@@ -1504,7 +1511,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 ValidateClrMember(name, memberInfo);
             }
-            else
+            else if (!IsPropertyBag)
             {
                 memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             }
@@ -1518,6 +1525,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     pointsToPrincipal ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType,
                     !pointsToPrincipal && !foreignKey.IsUnique,
                     shouldThrow: true);
+            }
+            else if (IsPropertyBag)
+            {
+                memberInfo = FindIndexerPropertyInfo()!;
             }
 
             var navigation = new Navigation(name, memberInfo as PropertyInfo, memberInfo as FieldInfo, foreignKey);
@@ -1665,7 +1676,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 ValidateClrMember(name, memberInfo);
             }
-            else
+            else if (!IsPropertyBag)
             {
                 memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             }
@@ -1679,6 +1690,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     targetEntityType,
                     collection,
                     shouldThrow: true);
+            }
+            else if (IsPropertyBag)
+            {
+                memberInfo = FindIndexerPropertyInfo()!;
             }
 
             var skipNavigation = new SkipNavigation(
@@ -1725,7 +1740,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return memberInfo.GetMemberType();
                 }
 
-                var clashingMemberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+                var clashingMemberInfo = IsPropertyBag
+                    ? null
+                    : ClrType.GetMembersInHierarchy(name).FirstOrDefault();
                 if (clashingMemberInfo != null)
                 {
                     throw new InvalidOperationException(
@@ -2301,7 +2318,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return AddProperty(
                 name,
                 propertyType,
-                ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
+                null,
                 typeConfigurationSource,
                 configurationSource);
         }
@@ -2332,10 +2349,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             string name,
             ConfigurationSource configurationSource)
         {
-            var clrMember = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
-            if (clrMember == null)
+            MemberInfo? clrMember;
+            if (IsPropertyBag)
             {
-                throw new InvalidOperationException(CoreStrings.NoPropertyType(name, DisplayName()));
+                clrMember = FindIndexerPropertyInfo()!;
+            }
+            else
+            {
+                clrMember = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
+                if (clrMember == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.NoPropertyType(name, DisplayName()));
+                }
             }
 
             return AddProperty(clrMember, configurationSource);
@@ -2386,9 +2411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
             else
             {
-                Check.DebugAssert(
-                    ClrType.GetMembersInHierarchy(name).FirstOrDefault() == null,
-                    "MemberInfo not supplied for non-shadow property");
+                memberInfo = ClrType.GetMembersInHierarchy(name).FirstOrDefault();
             }
 
             if (memberInfo != null
@@ -3013,7 +3036,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             var data = new List<Dictionary<string, object?>>();
             var valueConverters = new Dictionary<string, ValueConverter?>(StringComparer.Ordinal);
             var properties = GetProperties()
-                .Concat<IReadOnlyPropertyBase>(GetNavigations())
+                .Concat<IPropertyBase>(GetNavigations())
                 .Concat(GetSkipNavigations())
                 .ToDictionary(p => p.Name);
             foreach (var rawSeed in _data)
@@ -3029,15 +3052,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         ValueConverter? valueConverter = null;
                         if (providerValues
-                            && propertyBase is IReadOnlyProperty property
+                            && propertyBase is IProperty property
                             && !valueConverters.TryGetValue(propertyBase.Name, out valueConverter))
                         {
                             valueConverter = property.GetTypeMapping().Converter;
                             valueConverters[propertyBase.Name] = valueConverter;
                         }
 
+                        propertyBase.TryGetMemberInfo(forConstruction: false, forSet: false, out var memberInfo, out _);
+
                         object? value = null;
-                        switch (propertyBase.GetIdentifyingMemberInfo())
+                        switch (memberInfo)
                         {
                             case PropertyInfo propertyInfo:
                                 if (propertyBase.IsIndexerProperty())
@@ -4828,7 +4853,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 propertyType,
                 setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
-                    : (ConfigurationSource?)null,
+                    : null,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -4840,7 +4865,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo? memberInfo)
             => AddProperty(
-                name, propertyType, memberInfo ?? ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
+                name, propertyType, memberInfo,
                 ConfigurationSource.Explicit, ConfigurationSource.Explicit)!;
 
         /// <summary>
@@ -4859,10 +4884,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => AddProperty(
                 name,
                 propertyType,
-                memberInfo ?? ClrType.GetMembersInHierarchy(name).FirstOrDefault(),
+                memberInfo,
                 setTypeConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
-                    : (ConfigurationSource?)null,
+                    : null,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

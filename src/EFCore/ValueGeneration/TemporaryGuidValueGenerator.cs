@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     ///     The generated values are temporary, meaning they will be replaced by database
     ///     generated values when the entity is saved.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class TemporaryGuidValueGenerator : GuidValueGenerator
     {
         /// <summary>

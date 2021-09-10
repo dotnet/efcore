@@ -450,7 +450,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
 
         protected class Beta
         {
+            private string? _name;
             public int Id { get; set; }
+            public string? Name
+            {
+                get => "Beta: " + _name;
+                set => _name = value;
+            }
 
             public Alpha? FirstNav { get; set; }
             public Alpha? SecondNav { get; set; }

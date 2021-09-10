@@ -52,7 +52,9 @@ LEFT JOIN (
         ) AS [t3] ON [v3].[Name] = [t3].[Name]
     ) AS [t2] ON [v2].[Name] = [t2].[Name]
     WHERE [v2].[Active] IS NOT NULL
-) AS [t1] ON [t0].[Name] = [t1].[Name]
+) AS [t1] ON [t0].[Name] = CASE
+    WHEN [t1].[Active] IS NOT NULL THEN [t1].[Name]
+END
 LEFT JOIN (
     SELECT [p2].[Name], [p2].[Computed], [p2].[Description], CASE
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
@@ -69,7 +71,9 @@ LEFT JOIN (
         INNER JOIN [PoweredVehicles] AS [p3] ON [v5].[Name] = [p3].[Name]
     ) AS [t5] ON [p2].[Name] = [t5].[Name]
     WHERE [p2].[Computed] IS NOT NULL
-) AS [t4] ON [v].[Name] = [t4].[Name]
+) AS [t4] ON [v].[Name] = CASE
+    WHEN [t4].[Computed] IS NOT NULL THEN [t4].[Name]
+END
 LEFT JOIN (
     SELECT [c5].[VehicleName], [c5].[Capacity], [c5].[FuelType], [s0].[GrainGeometry], CASE
         WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
@@ -82,7 +86,11 @@ LEFT JOIN (
         INNER JOIN [CombustionEngines] AS [c6] ON [p4].[Name] = [c6].[VehicleName]
     ) AS [t7] ON [c5].[VehicleName] = [t7].[Name]
     WHERE [c5].[Capacity] IS NOT NULL
-) AS [t6] ON [t4].[Name] = [t6].[VehicleName]
+) AS [t6] ON CASE
+    WHEN [t4].[Computed] IS NOT NULL THEN [t4].[Name]
+END = CASE
+    WHEN [t6].[Capacity] IS NOT NULL THEN [t6].[VehicleName]
+END
 ORDER BY [v].[Name]");
         }
 
@@ -285,7 +293,9 @@ LEFT JOIN (
         ) AS [t3] ON [v3].[Name] = [t3].[Name]
     ) AS [t2] ON [v2].[Name] = [t2].[Name]
     WHERE [v2].[Active] IS NOT NULL
-) AS [t1] ON [t0].[Name] = [t1].[Name]
+) AS [t1] ON [t0].[Name] = CASE
+    WHEN [t1].[Active] IS NOT NULL THEN [t1].[Name]
+END
 WHERE [v].[Name] = N'AIM-9M Sidewinder'
 ORDER BY [v].[Name]");
         }

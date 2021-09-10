@@ -10,6 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     An implementation of <see cref="IExecutionStrategy" /> that does no retries.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///     for more information.
+    /// </remarks>
     public sealed class NonRetryingExecutionStrategy : IExecutionStrategy
     {
         /// <summary>
@@ -24,12 +28,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Always returns false, since the <see cref="NonRetryingExecutionStrategy" /> does not perform retries.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         public bool RetriesOnFailure
             => false;
 
         /// <summary>
         ///     Executes the specified operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
         ///     A delegate representing an executable operation that returns the result of type <typeparamref name="TResult" />.
@@ -50,6 +62,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Executes the specified asynchronous operation and returns the result.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
         ///     A function that returns a started task of type <typeparamref name="TResult" />.

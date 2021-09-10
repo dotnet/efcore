@@ -703,11 +703,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var identifyingMemberInfo = Metadata.GetIdentifyingMemberInfo();
 
-                newPropertyBuilder = identifyingMemberInfo == null
-                    ? entityTypeBuilder.Property(
-                        Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)
-                    : (identifyingMemberInfo as PropertyInfo)?.IsIndexerProperty() == true
-                        ? entityTypeBuilder.IndexerProperty(Metadata.ClrType, Metadata.Name, configurationSource)
+                newPropertyBuilder =  Metadata.IsIndexerProperty()
+                    ? entityTypeBuilder.IndexerProperty(Metadata.ClrType, Metadata.Name, configurationSource)
+                    : identifyingMemberInfo == null
+                        ? entityTypeBuilder.Property(
+                            Metadata.ClrType, Metadata.Name, Metadata.GetTypeConfigurationSource(), configurationSource)
                         : entityTypeBuilder.Property(identifyingMemberInfo, configurationSource!);
 
                 if (newPropertyBuilder is null)
