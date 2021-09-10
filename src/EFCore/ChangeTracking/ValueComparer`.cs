@@ -130,6 +130,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                     && m.GetParameters().Length == 1
                     && m.GetParameters()[0].ParameterType == typeof(T));
 
+            if (typedEquals != null)
+            {
+                return Expression.Lambda<Func<T?, T?, bool>>(
+                    type.IsClass
+                        ? Expression.OrElse(
+                            Expression.AndAlso(
+                                Expression.Equal(param1, Expression.Constant(null, type)),
+                                Expression.Equal(param2, Expression.Constant(null, type))),
+                            Expression.AndAlso(
+                                Expression.AndAlso(
+                                    Expression.NotEqual(param1, Expression.Constant(null, type)),
+                                    Expression.NotEqual(param2, Expression.Constant(null, type))),
+                                Expression.Call(param1, typedEquals, param2)))
+                        : Expression.Call(param1, typedEquals, param2),
+                    param1, param2);
+            }
+
             while (typedEquals == null
                 && type != null)
             {
@@ -151,9 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                         ObjectEqualsMethod,
                         Expression.Convert(param1, typeof(object)),
                         Expression.Convert(param2, typeof(object)))
-                    : typedEquals.IsStatic
-                        ? Expression.Call(typedEquals, param1, param2)
-                        : Expression.Call(param1, typedEquals, param2),
+                    : Expression.Call(typedEquals, param1, param2),
                 param1, param2);
         }
 

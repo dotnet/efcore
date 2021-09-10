@@ -285,7 +285,37 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Assert.False(keyEquals(value2, value1));
 
             Assert.Equal(hashCode ?? value1.GetHashCode(), getHashCode(value1));
+            Assert.Equal(hashCode ?? value1.GetHashCode(), getKeyHashCode(value1));
+        }
 
+        private void GenericCompareTestWithNulls<T>(T value1, T value2, int? hashCode = null)
+            where T : class
+        {
+            var comparer = new ValueComparer<T>(false);
+            var equals = comparer.EqualsExpression.Compile();
+            var getHashCode = comparer.HashCodeExpression.Compile();
+
+            Assert.True(equals(value1, value1));
+            Assert.True(equals(value2, value2));
+            Assert.False(equals(value1, value2));
+            Assert.False(equals(value2, value1));
+            Assert.False(equals(value1, null));
+            Assert.False(equals(null, value2));
+            Assert.True(equals(null, null));
+
+            var keyComparer = new ValueComparer<T>(true);
+            var keyEquals = keyComparer.EqualsExpression.Compile();
+            var getKeyHashCode = keyComparer.HashCodeExpression.Compile();
+
+            Assert.True(keyEquals(value1, value1));
+            Assert.True(keyEquals(value2, value2));
+            Assert.False(keyEquals(value1, value2));
+            Assert.False(keyEquals(value2, value1));
+            Assert.False(keyEquals(value1, null));
+            Assert.False(keyEquals(null, value2));
+            Assert.True(keyEquals(null, null));
+
+            Assert.Equal(hashCode ?? value1.GetHashCode(), getHashCode(value1));
             Assert.Equal(hashCode ?? value1.GetHashCode(), getKeyHashCode(value1));
         }
 
@@ -305,20 +335,19 @@ namespace Microsoft.EntityFrameworkCore.Storage
             GenericCompareTest<decimal>(1, 2);
             GenericCompareTest('A', 'B', 'A');
             GenericCompareTest("A", "B");
-            GenericCompareTest<object>(1, "A");
             GenericCompareTest(JustAnEnum.A, JustAnEnum.B);
-            GenericCompareTest(
-                new JustAClass { A = 1 }, new JustAClass { A = 2 });
-            GenericCompareTest(
-                new JustAClassWithEquality { A = 1 }, new JustAClassWithEquality { A = 2 });
-            GenericCompareTest(
-                new JustAClassWithEqualityOperators { A = 1 }, new JustAClassWithEqualityOperators { A = 2 });
-            GenericCompareTest(
-                new JustAStruct { A = 1 }, new JustAStruct { A = 2 });
-            GenericCompareTest(
-                new JustAStructWithEquality { A = 1 }, new JustAStructWithEquality { A = 2 });
-            GenericCompareTest(
-                new JustAStructWithEqualityOperators { A = 1 }, new JustAStructWithEqualityOperators { A = 2 });
+            GenericCompareTest(new JustAStruct { A = 1 }, new JustAStruct { A = 2 });
+            GenericCompareTest(new JustAStructWithEquality { A = 1 }, new JustAStructWithEquality { A = 2 });
+            GenericCompareTest(new JustAStructWithEqualityOperators { A = 1 }, new JustAStructWithEqualityOperators { A = 2 });
+        }
+
+        [ConditionalFact]
+        public void Default_raw_comparer_works_for_reference_types()
+        {
+            GenericCompareTestWithNulls<object>(1, "A");
+            GenericCompareTestWithNulls(new JustAClass { A = 1 }, new JustAClass { A = 2 });
+            GenericCompareTestWithNulls(new JustAClassWithEquality { A = 1 }, new JustAClassWithEquality { A = 2 });
+            GenericCompareTestWithNulls(new JustAClassWithEqualityOperators { A = 1 }, new JustAClassWithEqualityOperators { A = 2 });
         }
 
         [ConditionalFact]
