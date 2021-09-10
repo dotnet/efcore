@@ -228,7 +228,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             IPropertyBase property)
             => Expression.Call(
                 parameter,
-                InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod(property.ClrType),
+                InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod((property as IProperty)?.ClrType ?? typeof(object)),
                 Expression.Constant(property.GetShadowIndex()));
 
         /// <summary>

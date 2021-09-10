@@ -363,6 +363,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual Navigation? SetDependentToPrincipal(
+            MemberIdentity? property,
+            ConfigurationSource configurationSource)
+            => Navigation(property, configurationSource, pointsToPrincipal: true);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         [DebuggerStepThrough]
         public virtual ConfigurationSource? GetDependentToPrincipalConfigurationSource()
             => _dependentToPrincipalConfigurationSource;
@@ -401,6 +412,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual Navigation? SetPrincipalToDependent(MemberInfo? property, ConfigurationSource configurationSource)
             => Navigation(MemberIdentity.Create(property), configurationSource, pointsToPrincipal: false);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual Navigation? SetPrincipalToDependent(MemberIdentity? property, ConfigurationSource configurationSource)
+            => Navigation(property, configurationSource, pointsToPrincipal: false);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -497,18 +517,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             Navigation? navigation = null;
-            var property = propertyIdentity?.MemberInfo;
-            if (property != null)
+            if (propertyIdentity?.Name != null)
             {
                 navigation = pointsToPrincipal
-                    ? DeclaringEntityType.AddNavigation(property, this, pointsToPrincipal: true)
-                    : PrincipalEntityType.AddNavigation(property, this, pointsToPrincipal: false);
-            }
-            else if (name != null)
-            {
-                navigation = pointsToPrincipal
-                    ? DeclaringEntityType.AddNavigation(name, this, pointsToPrincipal: true)
-                    : PrincipalEntityType.AddNavigation(name, this, pointsToPrincipal: false);
+                    ? DeclaringEntityType.AddNavigation(propertyIdentity.Value, this, pointsToPrincipal: true)
+                    : PrincipalEntityType.AddNavigation(propertyIdentity.Value, this, pointsToPrincipal: false);
             }
 
             if (pointsToPrincipal)
@@ -595,14 +608,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     CoreStrings.NonUniqueRequiredDependentForeignKey(Properties.Format(), DeclaringEntityType.DisplayName()));
             }
 
+            var navigationMember = PrincipalToDependent?.GetIdentifyingMemberInfo();
             if (unique.HasValue
-                && PrincipalEntityType.ClrType != Model.DefaultPropertyBagType
-                && DeclaringEntityType.ClrType != Model.DefaultPropertyBagType
-                && PrincipalToDependent != null)
+                && navigationMember != null)
             {
                 if (!Internal.Navigation.IsCompatible(
-                    PrincipalToDependent.Name,
-                    PrincipalToDependent.GetIdentifyingMemberInfo()!,
+                    PrincipalToDependent!.Name,
+                    navigationMember,
                     PrincipalEntityType,
                     DeclaringEntityType,
                     !unique,
@@ -618,7 +630,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             _isUniqueConfigurationSource = unique == null
                 ? null
-                : (ConfigurationSource?)configurationSource.Max(_isUniqueConfigurationSource);
+                : configurationSource.Max(_isUniqueConfigurationSource);
 
             return IsUnique != oldUnique
                 ? DeclaringEntityType.Model.ConventionDispatcher.OnForeignKeyUniquenessChanged(Builder)

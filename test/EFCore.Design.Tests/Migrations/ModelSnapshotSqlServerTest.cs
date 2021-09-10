@@ -1518,11 +1518,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                         {
                             Assert.Equal("LeftsId", p.Name);
                             Assert.False(p.IsShadowProperty());
+                            Assert.True(p.IsIndexerProperty());
                         },
                         p =>
                         {
                             Assert.Equal("RightsId", p.Name);
                             Assert.False(p.IsShadowProperty());
+                            Assert.True(p.IsIndexerProperty());
                         });
                     Assert.Collection(
                         joinEntity.FindDeclaredPrimaryKey().Properties,

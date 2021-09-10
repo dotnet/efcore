@@ -51,12 +51,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             this IReadOnlyEntityType entityType,
             string navigationName)
         {
-            var memberInfo = entityType.ClrType.GetMembersInHierarchy(navigationName).FirstOrDefault();
-
-            if (memberInfo == null)
+            MemberInfo? memberInfo;
+            if (entityType.IsPropertyBag)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.NoClrNavigation(navigationName, entityType.DisplayName()));
+                memberInfo = entityType.FindIndexerPropertyInfo()!;
+            }
+            else
+            {
+                memberInfo = entityType.ClrType.GetMembersInHierarchy(navigationName).FirstOrDefault();
+
+                if (memberInfo == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NoClrNavigation(navigationName, entityType.DisplayName()));
+                }
             }
 
             return memberInfo;
