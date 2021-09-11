@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     </para>
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy-loading</see> for more information.
+    ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
     /// </remarks>
     public interface ILazyLoader : IDisposable
     {

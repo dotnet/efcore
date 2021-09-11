@@ -759,7 +759,7 @@
     <comment>Information CoreEventId.ContextInitialized string string string? string? string</comment>
   </data>
   <data name="LogDetachedLazyLoading" xml:space="preserve">
-    <value>An attempt was made to lazy-load navigation '{navigation}' on a detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking'.</value>
+    <value>An attempt was made to lazy-load navigation '{navigation}' on a detached entity of type '{entityType}'. Lazy loading is not supported for detached entities or entities that are loaded with 'AsNoTracking'.</value>
     <comment>Warning CoreEventId.DetachedLazyLoadingWarning string string</comment>
   </data>
   <data name="LogDetectChangesCompleted" xml:space="preserve">

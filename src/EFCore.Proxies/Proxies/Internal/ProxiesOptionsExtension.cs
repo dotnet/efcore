@@ -182,9 +182,9 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
 
             public override string LogFragment
                 => _logFragment ??= Extension.UseLazyLoadingProxies && Extension.UseChangeTrackingProxies
-                    ? "using lazy-loading and change tracking proxies "
+                    ? "using lazy loading and change tracking proxies "
                     : Extension.UseLazyLoadingProxies
-                        ? "using lazy-loading proxies "
+                        ? "using lazy loading proxies "
                         : Extension.UseChangeTrackingProxies
                             ? "using change tracking proxies "
                             : "";
