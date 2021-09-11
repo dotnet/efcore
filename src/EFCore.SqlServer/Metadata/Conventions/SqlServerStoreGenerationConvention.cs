@@ -13,6 +13,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that ensures that properties aren't configured to have a default value, as computed column
     ///     or using a <see cref="SqlServerValueGenerationStrategy" /> at the same time.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public class SqlServerStoreGenerationConvention : StoreGenerationConvention
     {
         /// <summary>

@@ -15,6 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the filter for unique non-clustered indexes with nullable columns
     ///     to filter out null values.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public class SqlServerIndexConvention :
         IEntityTypeBaseTypeChangedConvention,
         IIndexAddedConvention,

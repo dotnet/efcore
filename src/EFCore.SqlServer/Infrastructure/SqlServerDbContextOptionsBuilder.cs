@@ -41,6 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Default values of 6 for the maximum retry count and 30 seconds for the maximum default delay are used.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure()
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c));
 
@@ -56,6 +60,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         A default value 30 seconds for the maximum default delay is used.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(int maxRetryCount)
             => ExecutionStrategy(c => new SqlServerRetryingExecutionStrategy(c, maxRetryCount));
 
@@ -68,6 +76,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         error numbers for transient errors that can be retried, but additional error numbers can also be supplied.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
         /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
         /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>

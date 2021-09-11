@@ -31,6 +31,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures a history table for the entity mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="name"> The name of the history table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TemporalTableBuilder UseHistoryTable(string name)
@@ -43,6 +47,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures a history table for the entity mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="name"> The name of the history table. </param>
         /// <param name="schema"> The schema of the history table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -57,6 +65,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns an object that can be used to configure a period start property of the entity type mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyName"> The name of the period start property. </param>
         /// <returns> An object that can be used to configure the period start property. </returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodStart(string propertyName)
@@ -69,6 +81,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns an object that can be used to configure a period end property of the entity type mapped to a temporal table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyName"> The name of the period end property. </param>
         /// <returns> An object that can be used to configure the period end property. </returns>
         public virtual TemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName)

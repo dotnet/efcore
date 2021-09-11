@@ -18,6 +18,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    /// </remarks>
     public class InMemoryDbContextOptionsBuilder : IInMemoryDbContextOptionsBuilderInfrastructure
     {
         /// <summary>
@@ -46,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Enables nullability check for all properties across all entities within the in-memory database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <param name="nullChecksEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual InMemoryDbContextOptionsBuilder EnableNullChecks(bool nullChecksEnabled = true)

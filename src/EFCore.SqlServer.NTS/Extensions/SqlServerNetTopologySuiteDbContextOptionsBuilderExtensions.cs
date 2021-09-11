@@ -10,6 +10,11 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     NetTopologySuite specific extension methods for <see cref="SqlServerDbContextOptionsBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions
     {
         /// <summary>

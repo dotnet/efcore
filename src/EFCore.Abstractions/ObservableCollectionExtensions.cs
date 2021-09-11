@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Extension methods for <see cref="ObservableCollection{T}" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
+    /// </remarks>
     public static class ObservableCollectionExtensions
     {
         /// <summary>

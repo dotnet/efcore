@@ -3291,7 +3291,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An attempt was made to lazy-load navigation '{navigation}' on a detached entity of type '{entityType}'. Lazy-loading is not supported for detached entities or entities that are loaded with 'AsNoTracking'.
+        ///     An attempt was made to lazy-load navigation '{navigation}' on a detached entity of type '{entityType}'. Lazy loading is not supported for detached entities or entities that are loaded with 'AsNoTracking'.
         /// </summary>
         public static EventDefinition<string, string> LogDetachedLazyLoading(IDiagnosticsLogger logger)
         {

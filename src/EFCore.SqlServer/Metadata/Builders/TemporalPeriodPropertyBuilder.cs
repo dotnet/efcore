@@ -33,6 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the column name the period property maps to.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="name"> The name of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public virtual TemporalPeriodPropertyBuilder HasColumnName(string name)

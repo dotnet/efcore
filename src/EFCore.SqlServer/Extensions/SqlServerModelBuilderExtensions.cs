@@ -12,12 +12,22 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     SQL Server specific extension methods for <see cref="ModelBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlServerModelBuilderExtensions
     {
         /// <summary>
         ///     Configures the model to use a sequence-based hi-lo pattern to generate values for key properties
         ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -53,6 +63,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the database sequence used for the hi-lo pattern to generate values for key properties
         ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -78,6 +93,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given name and schema can be set for the hi-lo sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -102,6 +122,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server. This is the default
         ///     behavior when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
@@ -129,6 +154,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     marked as <see cref="ValueGenerated.OnAdd" />, when targeting SQL Server. This is the default
         ///     behavior when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
@@ -142,6 +172,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the default seed for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -166,6 +201,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the default seed for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -183,6 +223,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the default increment for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -207,6 +252,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the default increment for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -225,6 +275,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the default value generation strategy for key properties marked as <see cref="ValueGenerated.OnAdd" />,
         ///     when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -260,6 +315,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the default value generation strategy.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -283,6 +343,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         Units must be included, e.g. "100 MB". See Azure SQL Database documentation for all supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="maxSize"> The maximum size of the database. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -304,6 +369,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         Units must be included, e.g. "100 MB". See Azure SQL Database documentation for all supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="maxSize"> The maximum size of the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -328,6 +398,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the maximum size of the database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="maxSize"> The maximum size of the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -350,6 +425,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="serviceTier"> The service tier of the database as a string literal. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -371,6 +451,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="serviceTier"> The expression for the service tier of the database. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -392,6 +477,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="serviceTier"> The expression for the service tier of the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -416,6 +506,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the service tier of the database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="serviceTier"> The expression for the service tier of the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -438,6 +533,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="performanceLevel"> The performance level of the database as a string literal. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -459,6 +559,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="performanceLevel"> The expression for the performance level of the database. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -480,6 +585,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See Azure SQL Database documentation for supported values.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="performanceLevel"> The expression for the performance level of the database. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -504,6 +614,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the performance level of the database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="performanceLevel"> The performance level of the database expression. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

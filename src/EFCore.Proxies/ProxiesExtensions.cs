@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Turns on the creation of lazy-loading proxies.
+        ///         Turns on the creation of lazy loading proxies.
         ///     </para>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy-loading proxies; <see langword="false" /> to prevent their use. </param>
+        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy loading proxies; <see langword="false" /> to prevent their use. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
         public static DbContextOptionsBuilder UseLazyLoadingProxies(
             this DbContextOptionsBuilder optionsBuilder,
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     <para>
-        ///         Turns on the creation of lazy-loading proxies.
+        ///         Turns on the creation of lazy loading proxies.
         ///     </para>
         ///     <para>
         ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
@@ -135,7 +135,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
         /// </param>
-        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy-loading proxies; <see langword="false" /> to prevent their use. </param>
+        /// <param name="useLazyLoadingProxies"> <see langword="true" /> to use lazy loading proxies; <see langword="false" /> to prevent their use. </param>
         /// <returns> The same builder to allow method calls to be chained. </returns>
         public static DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(
             this DbContextOptionsBuilder<TContext> optionsBuilder,

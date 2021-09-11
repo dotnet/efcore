@@ -12,6 +12,10 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Model extension methods for Cosmos metadata.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    /// </remarks>
     public static class CosmosModelExtensions
     {
         /// <summary>

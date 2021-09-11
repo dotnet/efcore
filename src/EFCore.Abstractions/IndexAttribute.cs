@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Specifies an index to be generated in the database.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class IndexAttribute : Attribute
     {

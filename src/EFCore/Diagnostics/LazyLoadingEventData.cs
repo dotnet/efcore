@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventDefinition"> The event definition. </param>
         /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
         /// <param name="context"> The current <see cref="DbContext" />. </param>
-        /// <param name="entity"> The entity instance on which lazy-loading was initiated. </param>
+        /// <param name="entity"> The entity instance on which lazy loading was initiated. </param>
         /// <param name="navigationPropertyName"> The navigation property name of the relationship to be loaded. </param>
         public LazyLoadingEventData(
             EventDefinitionBase eventDefinition,
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         }
 
         /// <summary>
-        ///     The entity instance on which lazy-loading was initiated.
+        ///     The entity instance on which lazy loading was initiated.
         /// </summary>
         public virtual object Entity { get; }
 

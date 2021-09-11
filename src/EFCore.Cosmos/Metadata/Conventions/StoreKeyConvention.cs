@@ -21,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///         This convention also adds the '__jObject' containing the JSON object returned by the store.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    /// </remarks>
     public class StoreKeyConvention :
         IEntityTypeAddedConvention,
         IPropertyAnnotationChangedConvention,

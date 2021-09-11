@@ -15,6 +15,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     or were configured to use a <see cref="SqlServerValueGenerationStrategy" />.
     ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate" /> if they were configured as computed columns.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public class SqlServerValueGenerationConvention : RelationalValueGenerationConvention
     {
         /// <summary>

@@ -3,7 +3,6 @@
 
 using System;
 using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -14,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     SQLite specific extension methods for <see cref="DbContextOptionsBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    /// </remarks>
     public static class SqliteDbContextOptionsBuilderExtensions
     {
         /// <summary>
@@ -27,6 +30,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
@@ -48,6 +55,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to a SQLite database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connectionString"> The connection string of the database to connect to. </param>
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
@@ -73,6 +84,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to a SQLite database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connection">
         ///     An existing <see cref="DbConnection" /> to be used to connect to the database. If the connection is
@@ -110,6 +125,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         Set a connection string using <see cref="RelationalDatabaseFacadeExtensions.SetConnectionString" />.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
@@ -123,6 +142,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to a SQLite database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connectionString"> The connection string of the database to connect to. </param>
@@ -139,6 +162,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the context to connect to a SQLite database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="connection">
