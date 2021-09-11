@@ -1933,8 +1933,8 @@ SELECT @@ROWCOUNT;");
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');");
@@ -1985,8 +1985,8 @@ EXEC(N'CREATE TABLE [Customer] (
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [End] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [Start] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [End] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [Start] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([Start], [End])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');");
@@ -2038,8 +2038,8 @@ EXEC(N'CREATE TABLE [Customer] (
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[HistoryTable]))');");
@@ -2092,8 +2092,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));");
@@ -2150,8 +2150,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myDefaultSchema].[CustomerHistory]));");
@@ -2208,8 +2208,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));");
@@ -2266,8 +2266,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [historySchema].[HistoryTable]));");
@@ -3071,6 +3071,10 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])",
                 //
+                @"ALTER TABLE [Customer] ALTER COLUMN [PeriodStart] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN",
+                //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')");
         }
@@ -3123,6 +3127,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
             AssertSql(
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')");
@@ -3179,6 +3187,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
             AssertSql(
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')");
@@ -3237,6 +3249,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
                 //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
+                //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')");
         }
@@ -3294,6 +3310,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                 @"ALTER TABLE [Customer] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';",
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')");
@@ -3466,8 +3486,8 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');
@@ -3549,6 +3569,10 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                 @"CREATE INDEX [IX_Customer_Name] ON [Customer] ([Name]);",
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')");
@@ -3725,8 +3749,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[MyHistoryTable]));");
@@ -3784,8 +3808,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));",
@@ -3793,8 +3817,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Orders] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Orders] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[OrderHistory]));");
@@ -3856,8 +3880,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[CustomersHistoryTable]));",
@@ -3865,8 +3889,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Orders] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Orders] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[OrdersHistoryTable]));");

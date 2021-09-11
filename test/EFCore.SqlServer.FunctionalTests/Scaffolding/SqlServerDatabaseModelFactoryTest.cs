@@ -1657,7 +1657,7 @@ CREATE TABLE ColumnsWithSparseness (
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
-        public void Hidden_columns_are_not_created()
+        public void Hidden_temporal_period_columns_are_created_properly()
         {
             Test(
                 @"
@@ -1670,20 +1670,65 @@ CREATE TABLE dbo.HiddenColumnsTable
      PERIOD FOR SYSTEM_TIME(SysStartTime, SysEndTime)
 )
 WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.HiddenColumnsTableHistory));
-CREATE INDEX IX_HiddenColumnsTable_1 ON dbo.HiddenColumnsTable ( Name, SysStartTime);
-CREATE INDEX IX_HiddenColumnsTable_2 ON dbo.HiddenColumnsTable ( SysStartTime);
-CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable ( Name );
+CREATE INDEX IX_HiddenColumnsTable_1 ON dbo.HiddenColumnsTable (Name, SysStartTime);
+CREATE INDEX IX_HiddenColumnsTable_2 ON dbo.HiddenColumnsTable (SysStartTime);
+CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable (Name);
 ",
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<string>(),
                 dbModel =>
                 {
-                    var columns = dbModel.Tables.Single().Columns;
+                    var table = dbModel.Tables.Single();
+                    Assert.True((bool)table[SqlServerAnnotationNames.IsTemporal]);
+                    Assert.Equal("SysStartTime", (string)table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
+                    Assert.Equal("SysEndTime", (string)table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
 
-                    Assert.Equal(2, columns.Count);
-                    Assert.DoesNotContain(columns, c => c.Name == "SysStartTime");
-                    Assert.DoesNotContain(columns, c => c.Name == "SysEndTime");
-                    Assert.Equal("IX_HiddenColumnsTable_3", dbModel.Tables.Single().Indexes.Single().Name);
+                    var columns = table.Columns;
+                    Assert.Equal(4, columns.Count);
+                    Assert.Contains(columns, x => x.Name == "SysStartTime");
+                    Assert.Contains(columns, x => x.Name == "SysEndTime");
+                    Assert.Equal(3, table.Indexes.Count);
+                },
+                @"
+ALTER TABLE dbo.HiddenColumnsTable SET (SYSTEM_VERSIONING = OFF);
+DROP TABLE dbo.HiddenColumnsTableHistory;
+DROP TABLE dbo.HiddenColumnsTable;
+");
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsHiddenColumns)]
+        public void Temporal_period_columns_are_created_properly()
+        {
+            Test(
+                @"
+CREATE TABLE dbo.HiddenColumnsTable
+(
+     Id int NOT NULL PRIMARY KEY CLUSTERED,
+     Name varchar(50) NOT NULL,
+     SysStartTime datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+     SysEndTime datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
+     PERIOD FOR SYSTEM_TIME(SysStartTime, SysEndTime)
+)
+WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = dbo.HiddenColumnsTableHistory));
+CREATE INDEX IX_HiddenColumnsTable_1 ON dbo.HiddenColumnsTable (Name, SysStartTime);
+CREATE INDEX IX_HiddenColumnsTable_2 ON dbo.HiddenColumnsTable (SysStartTime);
+CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable (Name);
+",
+                Enumerable.Empty<string>(),
+                Enumerable.Empty<string>(),
+                dbModel =>
+                {
+                    var table = dbModel.Tables.Single();
+                    Assert.True((bool)table[SqlServerAnnotationNames.IsTemporal]);
+                    Assert.Equal("SysStartTime", (string)table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
+                    Assert.Equal("SysEndTime", (string)table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+
+                    var columns = table.Columns;
+                    Assert.Equal(4, columns.Count);
+                    Assert.Contains(columns, x => x.Name == "SysStartTime");
+                    Assert.Contains(columns, x => x.Name == "SysEndTime");
+                    Assert.Equal(3, table.Indexes.Count);
                 },
                 @"
 ALTER TABLE dbo.HiddenColumnsTable SET (SYSTEM_VERSIONING = OFF);

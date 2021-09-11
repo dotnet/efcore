@@ -1075,6 +1075,85 @@ namespace TestNamespace
                 skipBuild: true);
         }
 
+        [ConditionalFact]
+        public void Temporal_table_works()
+        {
+            Test(
+                modelBuilder => modelBuilder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id");
+                        e.Property<string>("Name");
+                        e.HasKey("Id");
+
+                        e.ToTable(tb => tb.IsTemporal());
+                    }),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Customer> Customer { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning " + DesignStrings.SensitiveInformationWarning + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Customer>(entity =>
+            {
+                entity.ToTable(tb => tb.IsTemporal(ttb =>
+    {
+        ttb
+            .HasPeriodStart(""PeriodStart"")
+            .HasColumnName(""PeriodStart"");
+        ttb
+            .HasPeriodEnd(""PeriodEnd"")
+            .HasColumnName(""PeriodEnd"");
+    }
+));
+
+                entity.Property(e => e.Id).UseIdentityColumn();
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+                },
+                model =>
+                {
+                    // TODO
+                });
+        }
+
         protected override void AddModelServices(IServiceCollection services)
         {
             services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());

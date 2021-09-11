@@ -718,11 +718,6 @@ LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [o].[object_id]
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
 LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
 
-            if (SupportsTemporalTable())
-            {
-                commandText += " WHERE [c].[is_hidden] = 0";
-            }
-
             commandText += @"
 ORDER BY [table_schema], [table_name], [c].[column_id]";
 
@@ -953,25 +948,6 @@ JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[colu
 WHERE [i].[is_hypothetical] = 0
 AND "
                 + tableFilter;
-
-            if (SupportsTemporalTable())
-            {
-                commandText += @"
-AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12)) NOT IN
-(
-   SELECT CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarchar(12))
-   FROM [sys].[indexes] i
-   JOIN [sys].[tables] AS [t] ON [i].[object_id] = [t].[object_id]
-   JOIN [sys].[index_columns] AS [ic] ON [i].[object_id] = [ic].[object_id] AND [i].[index_id] = [ic].[index_id]
-   JOIN [sys].[columns] AS [c] ON [ic].[object_id] = [c].[object_id] AND [ic].[column_id] = [c].[column_id]
-   WHERE "
-                    + tableFilter;
-
-                commandText += @"
-   AND [c].[is_hidden] = 1
-   AND [i].[is_hypothetical] = 0
-)";
-            }
 
             commandText += @"
 ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
