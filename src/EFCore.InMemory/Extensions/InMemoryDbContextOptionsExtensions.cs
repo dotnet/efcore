@@ -24,6 +24,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         cref="UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
         ///     passing a shared <see cref="InMemoryDatabaseRoot" /> on which to root the database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="databaseName">
@@ -47,6 +51,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="UseInMemoryDatabase(DbContextOptionsBuilder,string,InMemoryDatabaseRoot,Action{InMemoryDbContextOptionsBuilder})" />
         ///     passing a shared <see cref="InMemoryDatabaseRoot" /> on which to root the database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
@@ -65,6 +73,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The in-memory database is shared anywhere the same name is used, but only for a given
         ///     service provider.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The type of context being configured. </typeparam>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="databaseName">
@@ -92,6 +104,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     The in-memory database is shared anywhere the same name is used, but only for a given
         ///     service provider.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled

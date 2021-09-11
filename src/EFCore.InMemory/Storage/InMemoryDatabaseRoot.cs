@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     <see
     ///         cref="InMemoryDbContextOptionsExtensions.UseInMemoryDatabase{TContext}(DbContextOptionsBuilder{TContext},string,System.Action{InMemoryDbContextOptionsBuilder})" />
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
+    /// </remarks>
     public sealed class InMemoryDatabaseRoot
     {
         /// <summary>

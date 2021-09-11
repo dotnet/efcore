@@ -11,11 +11,19 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     NetTopologySuite specific extension methods for <see cref="SqliteDbContextOptionsBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    /// </remarks>
     public static class SqliteNetTopologySuiteDbContextOptionsBuilderExtensions
     {
         /// <summary>
         ///     Use NetTopologySuite to access SpatiaLite data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder"> The build being used to configure SQLite. </param>
         /// <returns> The options builder so that further configuration can be chained. </returns>
         public static SqliteDbContextOptionsBuilder UseNetTopologySuite(

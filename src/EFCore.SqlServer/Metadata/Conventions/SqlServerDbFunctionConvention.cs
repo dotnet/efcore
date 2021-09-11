@@ -12,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that ensures that <see cref="IReadOnlyDbFunction.Schema" /> is populated for database functions which
     ///     have <see cref="IReadOnlyDbFunction.IsBuiltIn" /> flag set to <see langword="false" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public class SqlServerDbFunctionConvention : IModelFinalizingConvention
     {
         /// <summary>

@@ -10,6 +10,10 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Contains extension methods on <see cref="DbFunctions"/> for the Microsoft.EntityFrameworkCore.Sqlite provider.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    /// </remarks>
     public static class SqliteDbFunctionsExtensions
     {
         /// <summary>
@@ -17,6 +21,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see cref="DbFunctionsExtensions.Like(DbFunctions, string, string)"/> but uses the file system globbing
         ///     syntax instead.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="matchExpression">The string that is to be matched.</param>
         /// <param name="pattern">The pattern which may involve wildcards <c>*,?,[,^,-,]</c>.</param>
@@ -27,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Maps to the SQLite <c>hex</c> function which returns a hexadecimal string representing the specified value.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="bytes">The binary value.</param>
         /// <returns>A hexadecimal string.</returns>
@@ -37,6 +49,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Maps to the SQLite <c>substr</c> function which returns a subarray of the specified value. The subarray starts
         ///     at <paramref name="startIndex" /> and continues to the end of the value.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="bytes">The binary value.</param>
         /// <param name="startIndex"> The 1-based starting index. If negative, the index is relative to the end of the value. </param>
@@ -51,6 +67,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     Maps to the SQLite substr function which returns a subarray of the specified value. The subarray starts
         ///     at <paramref name="startIndex" /> and has the specified <paramref name="length"/>.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
         /// <param name="bytes">The binary value.</param>
         /// <param name="startIndex"> The 1-based starting index. If negative, the index is relative to the end of the value. </param>

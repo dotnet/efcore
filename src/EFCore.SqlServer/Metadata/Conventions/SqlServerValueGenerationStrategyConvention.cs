@@ -12,6 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures the default model <see cref="SqlServerValueGenerationStrategy" /> as
     ///     <see cref="SqlServerValueGenerationStrategy.IdentityColumn" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public class SqlServerValueGenerationStrategyConvention : IModelInitializedConvention, IModelFinalizingConvention
     {
         /// <summary>

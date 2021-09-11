@@ -69,6 +69,31 @@ namespace Microsoft.EntityFrameworkCore.Query
         [ConditionalTheory]
         [InlineData(false)]
         [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_with_tags(bool async)
+        {
+            using var context = CreateContext();
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .TagWith("One")
+                .TagWith("Two")
+                .TagWith("Three");
+
+            var actual = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            Assert.Equal(10, actual.Length);
+
+            Assert.Contains(
+                actual, mep =>
+                    mep.TenMostExpensiveProducts == "Côte de Blaye"
+                    && mep.UnitPrice == 263.50m);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
         public virtual async Task From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
         {
             using var context = CreateContext();
@@ -83,7 +108,31 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             var actual = query.ToQueryString().Split(Environment.NewLine).First();
 
-            Assert.Equal("-- file: SampleFileName:13", actual);
+            Assert.Equal("-- File: SampleFileName:13", actual);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task From_sql_queryable_stored_procedure_with_caller_info_tag_and_other_tags(bool async)
+        {
+            using var context = CreateContext();
+            var query = context
+                .Set<MostExpensiveProduct>()
+                .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
+                .TagWith("Before")
+                .TagWithCallSite("SampleFileName", 13)
+                .TagWith("After");
+
+            var queryResult = async
+                ? await query.ToArrayAsync()
+                : query.ToArray();
+
+            var tags = query.ToQueryString().Split(Environment.NewLine).ToList();
+
+            Assert.Equal("-- Before", tags[0]);
+            Assert.Equal("-- File: SampleFileName:13", tags[1]);
+            Assert.Equal("-- After", tags[2]);
         }
 
         [ConditionalTheory]

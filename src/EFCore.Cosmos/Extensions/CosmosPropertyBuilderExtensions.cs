@@ -11,11 +11,19 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Cosmos-specific extension methods for <see cref="PropertyBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+    /// </remarks>
     public static class CosmosPropertyBuilderExtensions
     {
         /// <summary>
         ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <remarks> If an empty string is supplied then the property will not be persisted. </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the property. </param>
@@ -35,6 +43,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property name that the property is mapped to when targeting Azure Cosmos.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the property. </param>
@@ -52,6 +64,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         If an empty string is supplied then the property will not be persisted.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -77,6 +93,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given property name can be set.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the property. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -90,6 +110,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures this property to be the etag concurrency token.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder IsETagConcurrency(this PropertyBuilder propertyBuilder)
@@ -105,6 +129,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures this property to be the etag concurrency token.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>

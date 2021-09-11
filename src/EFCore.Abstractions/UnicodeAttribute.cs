@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Configures the property as capable of persisting unicode characters.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public sealed class UnicodeAttribute : Attribute
     {

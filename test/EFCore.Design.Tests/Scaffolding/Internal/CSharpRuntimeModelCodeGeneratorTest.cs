@@ -35,6 +35,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json.Linq;
 using Xunit;
+using static Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest;
 using static Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest;
 
 public class GlobalNamespaceContext : Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest.ContextBase
@@ -76,7 +77,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 namespace TestNamespace
 {
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.EmptyContext))]
-    partial class EmptyContextModel : RuntimeModel
+    public partial class EmptyContextModel : RuntimeModel
     {
         static EmptyContextModel()
         {
@@ -107,7 +108,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TestNamespace
 {
-    partial class EmptyContextModel
+    public partial class EmptyContextModel
     {
         partial void Initialize()
         {
@@ -482,7 +483,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.TestModel.Internal;
 namespace Internal
 {
     [DbContext(typeof(DbContext))]
-    partial class DbContextModel : RuntimeModel
+    public partial class DbContextModel : RuntimeModel
     {
         static DbContextModel()
         {
@@ -513,7 +514,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Internal
 {
-    partial class DbContextModel
+    public partial class DbContextModel
     {
         partial void Initialize()
         {
@@ -545,7 +546,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Internal
 {
-    partial class IndexEntityType
+    internal partial class IndexEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -594,7 +595,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Internal
 {
-    partial class InternalEntityType
+    internal partial class InternalEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -643,7 +644,7 @@ using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Internal
 {
-    partial class IdentityUserEntityType
+    internal partial class IdentityUserEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -792,7 +793,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace Internal
 {
-    partial class IdentityUser0EntityType
+    internal partial class IdentityUser0EntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -867,7 +868,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 namespace TestNamespace
 {
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.BigContext))]
-    partial class BigContextModel : RuntimeModel
+    public partial class BigContextModel : RuntimeModel
     {
         static BigContextModel()
         {
@@ -897,7 +898,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TestNamespace
 {
-    partial class BigContextModel
+    public partial class BigContextModel
     {
         partial void Initialize()
         {
@@ -939,6 +940,7 @@ using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
 using NetTopologySuite.Geometries;
@@ -948,7 +950,7 @@ using NetTopologySuite.Geometries;
 
 namespace TestNamespace
 {
-    partial class DependentBasebyteEntityType
+    internal partial class DependentBasebyteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
@@ -973,7 +975,7 @@ namespace TestNamespace
 
             var enumDiscriminator = runtimeEntityType.AddProperty(
                 ""EnumDiscriminator"",
-                typeof(CSharpRuntimeModelCodeGeneratorTest.Discriminator),
+                typeof(CSharpMigrationsGeneratorTest.Enum1),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
             enumDiscriminator.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
@@ -1038,7 +1040,7 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", CSharpRuntimeModelCodeGeneratorTest.Discriminator.Base);
+            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", CSharpMigrationsGeneratorTest.Enum1.One);
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
             runtimeEntityType.AddAnnotation(""Relational:Schema"", null);
             runtimeEntityType.AddAnnotation(""Relational:SqlQuery"", null);
@@ -1068,7 +1070,7 @@ using NetTopologySuite.Geometries;
 
 namespace TestNamespace
 {
-    partial class PrincipalBaseEntityType
+    internal partial class PrincipalBaseEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
@@ -1180,7 +1182,7 @@ using NetTopologySuite.Geometries;
 
 namespace TestNamespace
 {
-    partial class OwnedTypeEntityType
+    internal partial class OwnedTypeEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
@@ -1270,7 +1272,7 @@ using NetTopologySuite.Geometries;
 
 namespace TestNamespace
 {
-    partial class OwnedType0EntityType
+    internal partial class OwnedType0EntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
@@ -1359,7 +1361,7 @@ using NetTopologySuite.Geometries;
 
 namespace TestNamespace
 {
-    partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
+    internal partial class PrincipalBasePrincipalDerivedDependentBasebyteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
@@ -1462,6 +1464,7 @@ namespace TestNamespace
 using System;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations.Design;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 #pragma warning disable 219, 612, 618
@@ -1469,7 +1472,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace TestNamespace
 {
-    partial class DependentDerivedbyteEntityType
+    internal partial class DependentDerivedbyteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
@@ -1502,7 +1505,7 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", CSharpRuntimeModelCodeGeneratorTest.Discriminator.Derived);
+            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", CSharpMigrationsGeneratorTest.Enum1.Two);
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
             runtimeEntityType.AddAnnotation(""Relational:Schema"", null);
             runtimeEntityType.AddAnnotation(""Relational:SqlQuery"", null);
@@ -1530,7 +1533,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace TestNamespace
 {
-    partial class PrincipalDerivedDependentBasebyteEntityType
+    internal partial class PrincipalDerivedDependentBasebyteEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
@@ -1948,7 +1951,7 @@ namespace TestNamespace
                     var principalDiscriminator = dependentBase.FindDiscriminatorProperty();
                     Assert.IsType<DiscriminatorValueGenerator>(
                         principalDiscriminator.GetValueGeneratorFactory()(principalDiscriminator, dependentBase));
-                    Assert.Equal(Discriminator.Base, dependentBase.GetDiscriminatorValue());
+                    Assert.Equal(Enum1.One, dependentBase.GetDiscriminatorValue());
 
                     var dependentBaseForeignKey = dependentBase.GetForeignKeys().Single(fk => fk != dependentForeignKey);
                     var dependentForeignKeyProperty = dependentBaseForeignKey.Properties.Single();
@@ -1956,7 +1959,7 @@ namespace TestNamespace
                     Assert.Equal(new[] { dependentBaseForeignKey, dependentForeignKey }, dependentForeignKeyProperty.GetContainingForeignKeys());
 
                     var dependentDerived = dependentBase.GetDerivedTypes().Single();
-                    Assert.Equal(Discriminator.Derived, dependentDerived.GetDiscriminatorValue());
+                    Assert.Equal(Enum1.Two, dependentDerived.GetDiscriminatorValue());
 
                     Assert.Equal(2, dependentDerived.GetDeclaredProperties().Count());
 
@@ -2132,9 +2135,9 @@ namespace TestNamespace
 
                     eb.ToTable("PrincipalDerived");
 
-                    eb.HasDiscriminator<Discriminator>("EnumDiscriminator")
-                        .HasValue(Discriminator.Base)
-                        .HasValue<DependentDerived<byte?>>(Discriminator.Derived);
+                    eb.HasDiscriminator<Enum1>("EnumDiscriminator")
+                        .HasValue(Enum1.One)
+                        .HasValue<DependentDerived<byte?>>(Enum1.Two);
                 });
 
                 modelBuilder.Entity<DependentDerived<byte?>>(eb =>
@@ -2191,15 +2194,6 @@ namespace TestNamespace
             private string Data { get; set; }
         }
 
-        public enum Discriminator
-        {
-            /// <summary />
-            Base,
-
-            /// <summary />
-            Derived
-        }
-
         public class OwnedType : INotifyPropertyChanged, INotifyPropertyChanging
         {
             private EntityFrameworkCore.DbContext _context;
@@ -2242,7 +2236,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 namespace TestNamespace
 {
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.DbFunctionContext))]
-    partial class DbFunctionContextModel : RuntimeModel
+    public partial class DbFunctionContextModel : RuntimeModel
     {
         static DbFunctionContextModel()
         {
@@ -2277,7 +2271,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace TestNamespace
 {
-    partial class DbFunctionContextModel
+    public partial class DbFunctionContextModel
     {
         partial void Initialize()
         {
@@ -2413,7 +2407,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace TestNamespace
 {
-    partial class DataEntityType
+    internal partial class DataEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -2461,7 +2455,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TestNamespace
 {
-    partial class ObjectEntityType
+    internal partial class ObjectEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -2727,7 +2721,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 namespace TestNamespace
 {
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.SequencesContext))]
-    partial class SequencesContextModel : RuntimeModel
+    public partial class SequencesContextModel : RuntimeModel
     {
         static SequencesContextModel()
         {
@@ -2759,7 +2753,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TestNamespace
 {
-    partial class SequencesContextModel
+    public partial class SequencesContextModel
     {
         partial void Initialize()
         {
@@ -2809,7 +2803,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace TestNamespace
 {
-    partial class DataEntityType
+    internal partial class DataEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -2930,7 +2924,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 namespace TestNamespace
 {
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.ConstraintsContext))]
-    partial class ConstraintsContextModel : RuntimeModel
+    public partial class ConstraintsContextModel : RuntimeModel
     {
         static ConstraintsContextModel()
         {
@@ -2961,7 +2955,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TestNamespace
 {
-    partial class ConstraintsContextModel
+    public partial class ConstraintsContextModel
     {
         partial void Initialize()
         {
@@ -2988,7 +2982,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 namespace TestNamespace
 {
-    partial class DataEntityType
+    internal partial class DataEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -3081,7 +3075,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.SqliteContext))]
-    partial class SqliteContextModel : RuntimeModel
+    public partial class SqliteContextModel : RuntimeModel
     {
         static SqliteContextModel()
         {
@@ -3110,7 +3104,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
-    partial class SqliteContextModel
+    public partial class SqliteContextModel
     {
         partial void Initialize()
         {
@@ -3135,7 +3129,7 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
 {
-    partial class DataEntityType
+    internal partial class DataEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
@@ -3256,7 +3250,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 namespace TestNamespace
 {
     [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.CosmosContext))]
-    partial class CosmosContextModel : RuntimeModel
+    public partial class CosmosContextModel : RuntimeModel
     {
         static CosmosContextModel()
         {
@@ -3287,7 +3281,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace TestNamespace
 {
-    partial class CosmosContextModel
+    public partial class CosmosContextModel
     {
         partial void Initialize()
         {
@@ -3315,7 +3309,7 @@ using Newtonsoft.Json.Linq;
 
 namespace TestNamespace
 {
-    partial class DataEntityType
+    internal partial class DataEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {

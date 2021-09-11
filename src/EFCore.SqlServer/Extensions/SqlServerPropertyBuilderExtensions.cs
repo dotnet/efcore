@@ -12,12 +12,22 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     SQL Server specific extension methods for <see cref="PropertyBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlServerPropertyBuilderExtensions
     {
         /// <summary>
         ///     Configures the key property to use a sequence-based hi-lo pattern to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema"> The schema of the sequence. </param>
@@ -55,6 +65,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the key property to use a sequence-based hi-lo pattern to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -70,6 +85,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the database sequence used for the hi-lo pattern to generate values for the key property,
         ///     when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -97,6 +117,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given name and schema can be set for the hi-lo sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -120,6 +145,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
@@ -145,6 +175,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
@@ -159,6 +194,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
@@ -174,6 +214,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the key property to use the SQL Server IDENTITY feature to generate values for new entities,
         ///     when targeting SQL Server. This method sets the property to be <see cref="ValueGenerated.OnAdd" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
@@ -188,6 +233,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the seed for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -212,6 +262,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the seed for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="seed"> The value that is used for the very first row loaded into the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -229,6 +284,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the increment for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -253,6 +313,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the increment for SQL Server IDENTITY.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="increment"> The incremental value that is added to the identity value of the previous row that was loaded. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -270,6 +335,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the value generation strategy for the key property, when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -306,6 +376,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the value generation strategy.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="valueGenerationStrategy"> The value generation strategy. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -326,6 +401,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures whether the property's column is created as sparse when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        /// </remarks>
+        ///     for more information.
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
         /// <returns> A builder to further configure the property. </returns>
@@ -342,6 +422,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures whether the property's column is created as sparse when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
         /// <returns> A builder to further configure the property. </returns>
@@ -354,6 +439,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures whether the property's column is created as sparse when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -377,6 +467,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the property's column can be configured as sparse when targeting SQL Server.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="property"> The builder for the property being configured. </param>
         /// <param name="sparse"> A value indicating whether the property's column is created as sparse. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

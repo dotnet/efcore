@@ -9,6 +9,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Defines two strategies to use across the EF Core stack when generating key values
     ///     from SQL Server database columns.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public enum SqlServerValueGenerationStrategy
     {
         /// <summary>

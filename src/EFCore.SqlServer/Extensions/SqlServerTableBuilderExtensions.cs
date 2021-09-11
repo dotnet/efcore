@@ -15,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table as temporal.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="tableBuilder"> The builder for the table being configured. </param>
         /// <param name="temporal"> A value indicating whether the table is temporal. </param>
         /// <returns> An object that can be used to configure the temporal table. </returns>
@@ -30,6 +34,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table as temporal.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="tableBuilder"> The builder for the table being configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the temporal table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -47,6 +55,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table as temporal.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="tableBuilder"> The builder for the table being configured. </param>
         /// <param name="temporal"> A value indicating whether the table is temporal. </param>
@@ -64,6 +76,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table as temporal.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="tableBuilder"> The builder for the table being configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the temporal table. </param>

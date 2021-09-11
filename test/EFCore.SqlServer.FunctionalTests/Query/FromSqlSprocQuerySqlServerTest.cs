@@ -31,12 +31,36 @@ namespace Microsoft.EntityFrameworkCore.Query
 [dbo].[Ten Most Expensive Products]");
         }
 
+        public override async Task From_sql_queryable_stored_procedure_with_tags(bool async)
+        {
+            await base.From_sql_queryable_stored_procedure_with_tags(async);
+
+            AssertSql(
+                @"-- One
+-- Two
+-- Three
+
+[dbo].[Ten Most Expensive Products]");
+        }
+
         public override async Task From_sql_queryable_stored_procedure_with_caller_info_tag(bool async)
         {
             await base.From_sql_queryable_stored_procedure_with_caller_info_tag(async);
 
             AssertSql(
-                @"-- file: SampleFileName:13
+                @"-- File: SampleFileName:13
+
+[dbo].[Ten Most Expensive Products]");
+        }
+
+        public override async Task From_sql_queryable_stored_procedure_with_caller_info_tag_and_other_tags(bool async)
+        {
+            await base.From_sql_queryable_stored_procedure_with_caller_info_tag_and_other_tags(async);
+
+            AssertSql(
+                @"-- Before
+-- File: SampleFileName:13
+-- After
 
 [dbo].[Ten Most Expensive Products]");
         }

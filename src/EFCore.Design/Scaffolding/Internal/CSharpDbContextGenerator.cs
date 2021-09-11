@@ -261,15 +261,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     if (!suppressConnectionStringWarning)
                     {
-                        _builder.DecrementIndent()
-                            .DecrementIndent()
-                            .DecrementIndent()
-                            .DecrementIndent()
-                            .AppendLine("#warning " + DesignStrings.SensitiveInformationWarning)
-                            .IncrementIndent()
-                            .IncrementIndent()
-                            .IncrementIndent()
-                            .IncrementIndent();
+                        using var _ = _builder.SuspendIndent();
+
+                        _builder.AppendLine("#warning " + DesignStrings.SensitiveInformationWarning);
                     }
 
                     var useProviderCall = _providerConfigurationCodeGenerator.GenerateUseProvider(

@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore
     ///     Maps a static CLR method to a database function so that the CLR method may be used in LINQ queries.
     ///     By convention uses the .NET method name as name of the database function and the default schema.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     [AttributeUsage(AttributeTargets.Method)]
 #pragma warning disable CA1813 // Avoid unsealed attributes
     // Already shipped unsealed

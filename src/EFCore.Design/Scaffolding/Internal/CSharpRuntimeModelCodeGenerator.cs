@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             var className = _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
             mainBuilder
                 .Append("[DbContext(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
-                .Append("partial class ").Append(className).AppendLine(" : " + nameof(RuntimeModel))
+                .Append("public partial class ").Append(className).AppendLine(" : " + nameof(RuntimeModel))
                 .AppendLine("{");
 
             using (mainBuilder.Indent())
@@ -219,7 +219,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var className = _code.Identifier(contextType.ShortDisplayName()) + ModelSuffix;
             mainBuilder
-                .Append("partial class ").AppendLine(className)
+                .Append("public partial class ").AppendLine(className)
                 .AppendLine("{");
 
             using (mainBuilder.Indent())
@@ -474,7 +474,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             }
 
             mainBuilder
-                .Append("partial class ").AppendLine(className)
+                .Append("internal partial class ").AppendLine(className)
                 .AppendLine("{");
             using (mainBuilder.Indent())
             {

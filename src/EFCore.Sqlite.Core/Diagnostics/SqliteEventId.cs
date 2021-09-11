@@ -17,6 +17,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         behavior of warnings.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
+    /// </remarks>
     public static class SqliteEventId
     {
         // Warning: These values must not change between releases.
