@@ -1914,15 +1914,13 @@ SELECT @@ROWCOUNT;");
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -1933,8 +1931,8 @@ SELECT @@ROWCOUNT;");
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');");
@@ -1966,15 +1964,13 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -1985,8 +1981,8 @@ EXEC(N'CREATE TABLE [Customer] (
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [End] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [Start] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [End] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [Start] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([Start], [End])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');");
@@ -2018,16 +2014,14 @@ EXEC(N'CREATE TABLE [Customer] (
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2038,8 +2032,8 @@ EXEC(N'CREATE TABLE [Customer] (
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[HistoryTable]))');");
@@ -2072,15 +2066,13 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal("mySchema", table.Schema);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2092,8 +2084,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));");
@@ -2130,15 +2122,13 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal("myDefaultSchema", table.Schema);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2150,8 +2140,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myDefaultSchema].[CustomerHistory]));");
@@ -2188,15 +2178,13 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal("mySchema", table.Schema);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("CustomerHistory", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2208,8 +2196,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));");
@@ -2246,15 +2234,13 @@ EXEC(N'CREATE TABLE [Customer] (
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                     Assert.Equal("historySchema", table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2266,8 +2252,8 @@ EXEC(N'CREATE TABLE [Customer] (
                 @"CREATE TABLE [Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [historySchema].[HistoryTable]));");
@@ -2409,16 +2395,14 @@ EXEC(N'CREATE TABLE [Customer] (
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("RenamedCustomers", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2473,16 +2457,14 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("RenamedCustomers", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2538,16 +2520,14 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("RenamedHistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2595,17 +2575,15 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                     Assert.Equal("modifiedHistorySchema", table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2660,17 +2638,15 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
                     Assert.Equal("RenamedCustomers", table.Name);
                     Assert.Equal("newSchema", table.Schema);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("RenamedHistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                     Assert.Equal("newHistorySchema", table[SqlServerAnnotationNames.TemporalHistoryTableSchema]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2729,15 +2705,13 @@ ALTER SCHEMA [newHistorySchema] TRANSFER [historySchema].[RenamedHistoryTable];"
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
                     Assert.Collection(
                         table.Columns,
-                        c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Id", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -2813,15 +2787,13 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Start", c.Name),
                         c => Assert.Equal("Name", c.Name),
                         c => Assert.Equal("Number", c.Name));
                     Assert.Same(
@@ -3056,9 +3028,7 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("PeriodEnd", c.Name),
-                        c => Assert.Equal("PeriodStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3070,6 +3040,10 @@ ALTER TABLE [Customer] DROP COLUMN [PeriodStart];",
                 @"ALTER TABLE [Customer] ADD [PeriodStart] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';",
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [PeriodStart] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')");
@@ -3113,9 +3087,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3123,6 +3095,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
             AssertSql(
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')");
@@ -3163,15 +3139,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3179,6 +3153,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
             AssertSql(
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')");
@@ -3216,15 +3194,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.NotNull(table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3236,6 +3212,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                 @"ALTER TABLE [Customer] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';",
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')");
@@ -3274,15 +3254,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3294,6 +3272,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                 @"ALTER TABLE [Customer] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';",
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')");
@@ -3341,15 +3323,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Equal("Customer", table.Name);
                     Assert.NotNull(table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("ModifiedStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("ModifiedEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("ModifiedStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("ModifiedEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("ModifiedEnd", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("ModifiedStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3400,15 +3380,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Equal("Customer", table.Name);
                     Assert.NotNull(table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("ModifiedStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("ModifiedEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("ModifiedStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("ModifiedEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("ModifiedEnd", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("ModifiedStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3447,15 +3425,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.NotNull(table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3466,8 +3442,8 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customer] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].[CustomerHistory]))');
@@ -3514,15 +3490,13 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("End", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3549,6 +3523,10 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                 @"CREATE INDEX [IX_Customer_Name] ON [Customer] ([Name]);",
                 //
                 @"ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN",
+                //
+                @"ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN",
                 //
                 @"DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')");
@@ -3591,15 +3569,13 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
                     Assert.Equal("Customer", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
                     Assert.NotNull(table[SqlServerAnnotationNames.TemporalHistoryTableName]);
-                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("SystemTimeStart", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("SystemTimeEnd", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("SystemTimeEnd", c.Name),
-                        c => Assert.Equal("SystemTimeStart", c.Name));
+                        c => Assert.Equal("Name", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3655,18 +3631,16 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
                     var table = Assert.Single(model.Tables);
                     Assert.Equal("Customers", table.Name);
                     Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
-                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartColumnName]);
-                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndColumnName]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
                     Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
                     Assert.Equal(2, table.Indexes.Count);
 
                     Assert.Collection(
                         table.Columns,
                         c => Assert.Equal("Id", c.Name),
-                        c => Assert.Equal("End", c.Name),
                         c => Assert.Equal("Name", c.Name),
-                        c => Assert.Equal("Number", c.Name),
-                        c => Assert.Equal("Start", c.Name));
+                        c => Assert.Equal("Number", c.Name));
                     Assert.Same(
                         table.Columns.Single(c => c.Name == "Id"),
                         Assert.Single(table.PrimaryKey!.Columns));
@@ -3684,6 +3658,72 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE INDEX [IX_Customers_Name] ON [Customers] ([Name]);",
                 //
                 @"CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);");
+        }
+
+
+        [ConditionalFact]
+        public virtual async Task Add_index_on_period_column_to_temporal_table()
+        {
+            await Test(
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.Property<int>("Id").ValueGeneratedOnAdd();
+                        e.Property<string>("Name");
+                        e.Property<int>("Number");
+                        e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                        e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                        e.HasKey("Id");
+
+                        e.ToTable("Customers", tb => tb.IsTemporal(ttb =>
+                        {
+                            ttb.UseHistoryTable("HistoryTable");
+                            ttb.HasPeriodStart("Start");
+                            ttb.HasPeriodEnd("End");
+                        }));
+                    }),
+
+                builder => { },
+                builder => builder.Entity(
+                    "Customer", e =>
+                    {
+                        e.HasIndex("Start");
+                        e.HasIndex("End", "Name");
+                    }),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    Assert.Equal("Customers", table.Name);
+                    Assert.Equal(true, table[SqlServerAnnotationNames.IsTemporal]);
+                    Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                    Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+                    Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+
+                    // TODO: issue #26008 - we don't reverse engineer indexes on period columns since the columns are not added to the database model
+                    //Assert.Equal(2, table.Indexes.Count);
+
+                    Assert.Collection(
+                        table.Columns,
+                        c => Assert.Equal("Id", c.Name),
+                        c => Assert.Equal("Name", c.Name),
+                        c => Assert.Equal("Number", c.Name));
+                    Assert.Same(
+                        table.Columns.Single(c => c.Name == "Id"),
+                        Assert.Single(table.PrimaryKey!.Columns));
+                });
+
+            AssertSql(
+                @"DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
+                //
+                @"CREATE INDEX [IX_Customers_End_Name] ON [Customers] ([End], [Name]);",
+                //
+                @"CREATE INDEX [IX_Customers_Start] ON [Customers] ([Start]);");
         }
 
         [ConditionalFact]
@@ -3725,8 +3765,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[MyHistoryTable]));");
@@ -3784,8 +3824,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomerHistory]));",
@@ -3793,8 +3833,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Orders] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Orders] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[OrderHistory]));");
@@ -3856,8 +3896,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Customers] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[CustomersHistoryTable]));",
@@ -3865,8 +3905,8 @@ ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;",
                 @"CREATE TABLE [mySchema].[Orders] (
     [Id] int NOT NULL,
     [Name] nvarchar(max) NULL,
-    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END NOT NULL,
-    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START NOT NULL,
+    [SystemTimeEnd] datetime2 GENERATED ALWAYS AS ROW END HIDDEN NOT NULL,
+    [SystemTimeStart] datetime2 GENERATED ALWAYS AS ROW START HIDDEN NOT NULL,
     CONSTRAINT [PK_Orders] PRIMARY KEY ([Id]),
     PERIOD FOR SYSTEM_TIME([SystemTimeStart], [SystemTimeEnd])
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[OrdersHistoryTable]));");

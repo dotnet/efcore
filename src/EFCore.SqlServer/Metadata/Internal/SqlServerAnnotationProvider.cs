@@ -116,19 +116,33 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
                 yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableName, entityType.GetHistoryTableName());
                 yield return new Annotation(SqlServerAnnotationNames.TemporalHistoryTableSchema, entityType.GetHistoryTableSchema());
 
+                // for the RevEng path, we avoid adding period properties to the entity
+                // because we don't want code for them to be generated - they need to be in shadow state
+                // so if we don't find property on the entity, we know it's this scenario
+                // and in that case period column name is actually the same as the period property name annotation
+                // since in RevEng scenario there can't be custom column mapping
+                // see #26007
                 var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
                 var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
                 if (periodStartPropertyName != null)
                 {
-                    var periodStartProperty = entityType.GetProperty(periodStartPropertyName);
-                    yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartProperty.GetColumnName(storeObjectIdentifier));
+                    var periodStartProperty = entityType.FindProperty(periodStartPropertyName);
+                    var periodStartColumnName = periodStartProperty != null
+                        ? periodStartProperty.GetColumnName(storeObjectIdentifier)
+                        : periodStartPropertyName;
+
+                    yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodStartColumnName, periodStartColumnName);
                 }
 
                 var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
                 if (periodEndPropertyName != null)
                 {
-                    var periodEndProperty = entityType.GetProperty(entityType.GetPeriodEndPropertyName()!);
-                    yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndProperty.GetColumnName(storeObjectIdentifier));
+                    var periodEndProperty = entityType.FindProperty(periodEndPropertyName);
+                    var periodEndColumnName = periodEndProperty != null
+                        ? periodEndProperty.GetColumnName(storeObjectIdentifier)
+                        : periodEndPropertyName;
+
+                    yield return new Annotation(SqlServerAnnotationNames.TemporalPeriodEndColumnName, periodEndColumnName);
                 }
             }
         }
@@ -244,13 +258,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
             {
                 var periodStartPropertyName = entityType.GetPeriodStartPropertyName();
                 var periodEndPropertyName = entityType.GetPeriodEndPropertyName();
-
-                var periodStartProperty = entityType.GetProperty(periodStartPropertyName!);
-                var periodEndProperty = entityType.GetProperty(periodEndPropertyName!);
-
                 var storeObjectIdentifier = StoreObjectIdentifier.Table(table.Name, table.Schema);
-                var periodStartColumnName = periodStartProperty.GetColumnName(storeObjectIdentifier);
-                var periodEndColumnName = periodEndProperty.GetColumnName(storeObjectIdentifier);
+
+                // for the RevEng path, we avoid adding period properties to the entity
+                // because we don't want code for them to be generated - they need to be in shadow state
+                // so if we don't find property on the entity, we know it's this scenario
+                // and in that case period column name is actually the same as the period property name annotation
+                // since in RevEng scenario there can't be custom column mapping
+                // see #26007
+                var periodStartProperty = entityType.FindProperty(periodStartPropertyName!);
+                var periodStartColumnName = periodStartProperty != null
+                    ? periodStartProperty.GetColumnName(storeObjectIdentifier)
+                    : periodStartPropertyName;
+
+                var periodEndProperty = entityType.FindProperty(periodEndPropertyName!);
+                var periodEndColumnName = periodEndProperty != null
+                    ? periodEndProperty.GetColumnName(storeObjectIdentifier)
+                    : periodEndPropertyName;
 
                 if (column.Name == periodStartColumnName
                     || column.Name == periodEndColumnName)

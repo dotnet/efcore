@@ -1608,6 +1608,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     builder.Append("END");
                 }
+
+                builder.Append(" HIDDEN");
             }
 
             builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
@@ -2680,6 +2682,30 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             .Append(", ")
                             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
                             .Append(")")
+                            .ToString()
+                    });
+
+                operations.Add(
+                    new SqlOperation
+                    {
+                        Sql = new StringBuilder()
+                            .Append("ALTER TABLE ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
+                            .Append(" ALTER COLUMN ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodStartColumnName))
+                            .Append(" ADD HIDDEN")
+                            .ToString()
+                    });
+
+                operations.Add(
+                    new SqlOperation
+                    {
+                        Sql = new StringBuilder()
+                            .Append("ALTER TABLE ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(table, schema))
+                            .Append(" ALTER COLUMN ")
+                            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
+                            .Append(" ADD HIDDEN")
                             .ToString()
                     });
             }

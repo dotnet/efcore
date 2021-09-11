@@ -639,10 +639,10 @@ WHERE "
                             table[SqlServerAnnotationNames.TemporalHistoryTableSchema] = historyTableSchema;
 
                             var periodStartColumnName = reader.GetValueOrDefault<string>("period_start_column");
-                            table[SqlServerAnnotationNames.TemporalPeriodStartColumnName] = periodStartColumnName;
+                            table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] = periodStartColumnName;
 
                             var periodEndColumnName = reader.GetValueOrDefault<string>("period_end_column");
-                            table[SqlServerAnnotationNames.TemporalPeriodEndColumnName] = periodEndColumnName;
+                            table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] = periodEndColumnName;
                         }
                     }
 
@@ -690,12 +690,6 @@ SELECT
     [c].[collation_name],
     [c].[is_sparse]";
 
-            if (SupportsTemporalTable())
-            {
-                commandText += @",
-    [c].[generated_always_type]";
-            }
-
             commandText += @"FROM
 (
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
@@ -720,7 +714,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
 
             if (SupportsTemporalTable())
             {
-                commandText += " WHERE [c].[is_hidden] = 0";
+                commandText += " WHERE [c].[generated_always_type] <> 1 AND [c].[generated_always_type] <> 2";
             }
 
             commandText += @"
@@ -758,7 +752,6 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                     var comment = dataRecord.GetValueOrDefault<string>("comment");
                     var collation = dataRecord.GetValueOrDefault<string>("collation_name");
                     var isSparse = dataRecord.GetValueOrDefault<bool>("is_sparse");
-                    var generatedAlwaysType = SupportsTemporalTable() ? dataRecord.GetValueOrDefault<byte>("generated_always_type") : 0;
 
                     if (dataTypeName is null)
                     {
