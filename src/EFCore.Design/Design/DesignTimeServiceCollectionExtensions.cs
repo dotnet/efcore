@@ -22,11 +22,17 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///     Extension methods for adding Entity Framework Core design-time services to an
     ///     <see cref="IServiceCollection" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public static class DesignTimeServiceCollectionExtensions
     {
         /// <summary>
         ///     Adds the Entity Framework Core design-time services.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+        /// </remarks>
         /// <param name="services"> The <see cref="IServiceCollection" /> the services will be added to. </param>
         /// <param name="reporter"> Used to report design-time messages. </param>
         /// <param name="applicationServiceProviderAccessor"> An accessor to the application service provider. </param>
@@ -80,6 +86,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Adds services from the <see cref="DbContext" /> which are used at design time.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+        /// </remarks>
         /// <param name="services"> The <see cref="IServiceCollection" /> the services will be added to. </param>
         /// <param name="context"> The <see cref="DbContext" /> the services will be added from. </param>
         /// <returns> The <paramref name="services" />. This enables chaining additional method calls. </returns>

@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -36,6 +39,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
@@ -48,6 +54,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -65,6 +74,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
@@ -78,6 +90,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="collation"> The collation for the column. </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -95,6 +110,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="collation"> The collation for the column. </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>

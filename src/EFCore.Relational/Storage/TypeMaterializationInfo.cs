@@ -11,6 +11,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     Associates a <see cref="RelationalTypeMapping" /> with an optional <see cref="IProperty" />
     ///     and an index into the data reader for use when reading and converting values from the database.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public class TypeMaterializationInfo
     {
         /// <summary>

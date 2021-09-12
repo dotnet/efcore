@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Relational-specific model extension methods.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalModelExtensions
     {
         /// <summary>

@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder">
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
@@ -66,6 +69,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-notification-entities">Notification entities</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The <see cref="DbContext" /> type. </typeparam>
         /// <param name="optionsBuilder">
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
@@ -98,6 +104,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        /// </remarks>
         /// <param name="optionsBuilder">
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
         ///     or exposed AddDbContext.
@@ -130,6 +139,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
+        /// </remarks>
         /// <typeparam name="TContext"> The <see cref="DbContext" /> type. </typeparam>
         /// <param name="optionsBuilder">
         ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />

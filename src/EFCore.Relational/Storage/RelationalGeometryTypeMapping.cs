@@ -16,6 +16,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     Base class for relation type mappings to NTS Geometry and derived types.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     /// <typeparam name="TGeometry"> The geometry type. </typeparam>
     /// <typeparam name="TProvider"> The native type of the database provider. </typeparam>
     public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : RelationalTypeMapping

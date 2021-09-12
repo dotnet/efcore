@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a database sequence in the model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+    /// </remarks>
     public class RuntimeSequence : AnnotatableBase, ISequence
     {
         private readonly string? _schema;

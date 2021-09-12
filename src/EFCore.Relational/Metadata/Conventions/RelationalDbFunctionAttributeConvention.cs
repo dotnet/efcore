@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that configures model function mappings based on public static methods on the context marked with
     ///     <see cref="DbFunctionAttribute" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
+    ///     <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public class RelationalDbFunctionAttributeConvention : IModelInitializedConvention, IModelFinalizingConvention
     {
         /// <summary>

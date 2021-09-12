@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// <summary>
     ///     Represents a command ready to be sent to the database to migrate it.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     public class MigrationCommand
     {
         private readonly IRelationalCommand _relationalCommand;

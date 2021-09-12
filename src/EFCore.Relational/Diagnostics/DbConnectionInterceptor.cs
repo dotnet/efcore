@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         of the interface methods.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information.
+    /// </remarks>
     public abstract class DbConnectionInterceptor : IDbConnectionInterceptor
     {
         /// <summary>

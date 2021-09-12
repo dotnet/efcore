@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a table index.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+    /// </remarks>
     public interface ITableIndex : IAnnotatable
     {
         /// <summary>

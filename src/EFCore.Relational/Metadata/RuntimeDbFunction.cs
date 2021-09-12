@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a relational database function in a model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
     {
         private readonly List<RuntimeDbFunctionParameter> _parameters = new();

@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Index extension methods for relational database metadata.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
+    /// </remarks>
     public static class RelationalIndexExtensions
     {
         /// <summary>

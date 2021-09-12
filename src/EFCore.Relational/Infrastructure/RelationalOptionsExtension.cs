@@ -23,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         methods to obtain a new instance with the option changed.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     {
         // NB: When adding new options, make sure to update the copy constructor below.

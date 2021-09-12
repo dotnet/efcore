@@ -34,6 +34,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         to create the database and therefore the database that is created cannot be later updated using migrations.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void Migrate(this DatabaseFacade databaseFacade)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetRelationalService<IMigrator>().Migrate();
@@ -41,6 +44,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets all the migrations that are defined in the configured migrations assembly.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns>The list of migrations.</returns>
         public static IEnumerable<string> GetMigrations(this DatabaseFacade databaseFacade)
@@ -49,6 +55,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets all migrations that have been applied to the target database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The list of migrations. </returns>
         public static IEnumerable<string> GetAppliedMigrations(this DatabaseFacade databaseFacade)
@@ -58,6 +67,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Asynchronously gets all migrations that have been applied to the target database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
@@ -71,6 +83,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets all migrations that are defined in the assembly but haven't been applied to the target database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <returns> The list of migrations. </returns>
         public static IEnumerable<string> GetPendingMigrations(this DatabaseFacade databaseFacade)
@@ -79,6 +94,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Asynchronously gets all migrations that are defined in the assembly but haven't been applied to the target database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
@@ -100,6 +118,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         that is created cannot be later updated using migrations.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous migration operation. </returns>
@@ -139,6 +160,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
         /// <param name="parameters"> Parameters to use with the SQL. </param>
@@ -173,6 +198,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         context.Database.ExecuteSqlInterpolated($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
         ///     </code>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
         /// <returns> The number of rows affected. </returns>
@@ -210,6 +239,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
         /// <param name="parameters"> Parameters to use with the SQL. </param>
@@ -276,6 +309,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         context.Database.ExecuteSqlInterpolatedAsync($"UPDATE Blogs SET Rank = 50 WHERE Name = {userSuppliedSearchTerm})");
         ///     </code>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The interpolated string representing a SQL query with parameters. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
@@ -312,6 +349,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         into this method. Doing so may expose your application to SQL injection attacks.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
@@ -354,6 +395,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
         /// <param name="parameters"> Parameters to use with the SQL. </param>
@@ -395,6 +440,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         consider using <see cref="ExecuteSqlInterpolated" /> to create parameters.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="sql"> The SQL to execute. </param>
         /// <param name="parameters"> Parameters to use with the SQL. </param>
@@ -455,6 +504,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         passed to Entity Framework in 'UseMyProvider'.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The <see cref="DbConnection" /> </returns>
         public static DbConnection GetDbConnection(this DatabaseFacade databaseFacade)
@@ -471,6 +523,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         Note that the given connection must be disposed by application code since it was not created by Entity Framework.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="connection"> The connection. </param>
         public static void SetDbConnection(this DatabaseFacade databaseFacade, DbConnection? connection)
@@ -479,6 +534,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the underlying connection string configured for this <see cref="DbContext" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The connection string. </returns>
         public static string? GetConnectionString(this DatabaseFacade databaseFacade)
@@ -492,6 +550,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         It may not be possible to change the connection string if existing connection, if any, is open.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="connectionString"> The connection string. </param>
         public static void SetConnectionString(this DatabaseFacade databaseFacade, string? connectionString)
@@ -500,6 +561,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void OpenConnection(this DatabaseFacade databaseFacade)
             => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy
@@ -508,6 +572,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Opens the underlying <see cref="DbConnection" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
@@ -521,6 +588,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void CloseConnection(this DatabaseFacade databaseFacade)
             => GetFacadeDependencies(databaseFacade).RelationalConnection.Close();
@@ -528,6 +598,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         public static Task CloseConnectionAsync(this DatabaseFacade databaseFacade)
@@ -536,6 +609,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Starts a new transaction with a given <see cref="IsolationLevel" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="isolationLevel"> The <see cref="IsolationLevel" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that represents the started transaction. </returns>
@@ -554,6 +630,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Asynchronously starts a new transaction with a given <see cref="IsolationLevel" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="isolationLevel"> The <see cref="IsolationLevel" /> to use. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
@@ -579,6 +658,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <returns> A <see cref="IDbContextTransaction" /> that encapsulates the given transaction. </returns>
@@ -590,6 +672,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
@@ -605,6 +690,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
@@ -619,6 +707,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
@@ -654,6 +745,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         will override any value set in the connection string.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="timeout"> The timeout to use, in seconds. </param>
         public static void SetCommandTimeout(this DatabaseFacade databaseFacade, int? timeout)
@@ -668,6 +762,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="SetCommandTimeout(DatabaseFacade,int?)" />.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="timeout"> The timeout to use. </param>
         public static void SetCommandTimeout(this DatabaseFacade databaseFacade, TimeSpan timeout)
@@ -700,6 +797,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         set on the database connection string.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information.
+        /// </remarks>
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <returns> The timeout, in seconds, or null if no timeout has been set. </returns>
         public static int? GetCommandTimeout(this DatabaseFacade databaseFacade)
@@ -708,6 +808,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Generates a script to create all tables for the current model.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <returns>
         ///     A SQL script.
         /// </returns>

@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a function parameter.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public class RuntimeDbFunctionParameter : AnnotatableBase, IRuntimeDbFunctionParameter
     {
         private readonly string _name;

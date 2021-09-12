@@ -14,6 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the entity type to which a queryable function is mapped.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
+    ///     <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public class TableValuedDbFunctionConvention : IModelFinalizingConvention
     {
         /// <summary>

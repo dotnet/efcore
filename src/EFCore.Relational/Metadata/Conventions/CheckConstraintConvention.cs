@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     A convention that ensures that the check constraints on the derived types are compatible with
     ///     the check constraints on the base type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention
     {
         /// <summary>

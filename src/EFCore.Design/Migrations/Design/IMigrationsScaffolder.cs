@@ -6,6 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// <summary>
     ///     Used to scaffold new migrations.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public interface IMigrationsScaffolder
     {
         /// <summary>

@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for deleting seed data from an existing table.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     [DebuggerDisplay("DELETE FROM {Table}")]
     public class DeleteDataOperation : MigrationOperation, ITableMigrationOperation
     {

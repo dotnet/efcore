@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     A type that represents the id of a store object
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier>, IEquatable<StoreObjectIdentifier>
     {
         private StoreObjectIdentifier(StoreObjectType storeObjectType, string name, string? schema = null)

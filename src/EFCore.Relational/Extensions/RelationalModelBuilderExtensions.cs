@@ -16,11 +16,17 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Relational database specific extension methods for <see cref="ModelBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalModelBuilderExtensions
     {
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -39,6 +45,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
@@ -52,6 +61,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -73,6 +85,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="type"> The type of values the sequence will generate. </param>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -96,6 +111,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="type"> The type of values the sequence will generate. </param>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -111,6 +129,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="type"> The type of values the sequence will generate. </param>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -134,6 +155,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <typeparam name="T"> The type of values the sequence will generate. </typeparam>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -155,6 +179,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <typeparam name="T"> The type of values the sequence will generate. </typeparam>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -169,6 +196,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <typeparam name="T"> The type of values the sequence will generate. </typeparam>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
@@ -191,6 +221,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database sequence when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the sequence. </param>
         /// <param name="schema">The schema of the sequence. </param>
@@ -229,6 +262,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database function when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="methodInfo"> The methodInfo this dbFunction uses. </param>
         /// <returns> A builder to further configure the function. </returns>
@@ -255,6 +291,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database function when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="expression"> The method this dbFunction uses. </param>
         /// <returns> A builder to further configure the function. </returns>
@@ -278,6 +317,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database function when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="methodInfo"> The methodInfo this dbFunction uses. </param>
         /// <param name="builderAction"> An action that performs configuration of the sequence. </param>
@@ -297,6 +339,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a relational database function.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="methodInfo"> The method this function uses. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -326,6 +371,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a relational database function.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="returnType"> The function's return type. </param>
@@ -358,6 +406,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the default schema that database objects should be created in, if no schema
         ///     is explicitly configured.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="schema"> The default schema. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -377,6 +428,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the default schema that database objects should be created in, if no schema
         ///     is explicitly configured.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="schema"> The default schema. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -402,6 +456,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given schema can be set as default.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="schema"> The default schema. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -420,6 +477,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the maximum length allowed for store identifiers.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="length"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -445,6 +505,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the maximum length allowed for store identifiers can be set.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="length"> The value to set. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -462,6 +525,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the database collation, which will be used by all columns without an explicit collation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="collation"> The collation. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -480,6 +546,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the database collation, which will be used by all columns without an explicit collation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="collation"> The collation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -505,6 +574,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given collation can be set as default.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="modelBuilder"> The model builder. </param>
         /// <param name="collation"> The collation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

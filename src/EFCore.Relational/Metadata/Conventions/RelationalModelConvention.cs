@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that precomputes a relational model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     [Obsolete("Use IModelRuntimeInitializer.Initialize instead.")]
     public class RelationalModelConvention : IModelFinalizedConvention
     {

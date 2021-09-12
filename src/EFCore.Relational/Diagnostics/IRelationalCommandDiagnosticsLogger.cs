@@ -12,6 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     /// <summary>
     ///     An <see cref="IDiagnosticsLogger{ConnectionCategory}" /> with some extra functionality suited for high-performance logging.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLoggerCategory.Database.Command>
     {
         /// <summary>

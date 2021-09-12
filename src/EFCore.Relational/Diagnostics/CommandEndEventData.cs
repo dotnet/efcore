@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     The <see cref="DiagnosticSource" /> event payload for
     ///     <see cref="RelationalEventId" /> command end events.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    /// </remarks>
     public class CommandEndEventData : CommandEventData
     {
         /// <summary>

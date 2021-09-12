@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -17,11 +16,17 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Relational database specific extension methods for <see cref="EntityTypeBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalEntityTypeBuilderExtensions
     {
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -40,6 +45,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -57,6 +65,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="buildAction"> An action that performs configuration of the table. </param>
@@ -79,6 +90,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
@@ -92,6 +106,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the table. </param>
@@ -111,6 +128,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
@@ -135,6 +155,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -155,6 +178,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -180,6 +206,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
@@ -195,6 +224,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
@@ -222,6 +254,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -240,6 +275,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -257,6 +295,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="buildAction"> An action that performs configuration of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -276,6 +317,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
@@ -290,6 +334,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -303,6 +350,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="buildAction"> An action that performs configuration of the table. </param>
@@ -325,6 +375,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
@@ -342,6 +395,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="buildAction"> An action that performs configuration of the table. </param>
@@ -366,6 +422,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -387,6 +446,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -409,6 +471,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -434,6 +499,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -449,6 +517,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -468,6 +539,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -513,6 +587,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -536,6 +613,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="schema"> The schema of the table. </param>
@@ -564,6 +644,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the table name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -581,6 +664,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the schema of the table that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -605,6 +691,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the schema of the table name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="schema"> The schema of the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -622,6 +711,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Mark the table that this entity type is mapped to as excluded from migrations.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -647,6 +739,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the table that this entity type is mapped to can be excluded from migrations
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="excludedFromMigrations"> A value indicating whether the table should be managed by migrations. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -661,6 +756,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -672,6 +770,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
@@ -685,6 +786,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <param name="schema"> The schema of the view. </param>
@@ -708,6 +812,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
@@ -723,6 +830,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -734,6 +844,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -747,6 +860,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <param name="schema"> The schema of the view. </param>
@@ -770,6 +886,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <param name="schema"> The schema of the view. </param>
@@ -785,6 +904,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -808,6 +930,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <param name="schema"> The schema of the view. </param>
@@ -836,6 +961,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the view name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the view. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -853,6 +981,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the schema of the view that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="schema"> The schema of the view. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -877,6 +1008,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the schema of the view can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="schema"> The schema of the view. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -894,6 +1028,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a SQL string used to provide data for the entity type.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The SQL query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -911,6 +1048,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a SQL string used to provide data for the entity type.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="query"> The SQL query that will provide the underlying data for the entity type. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -923,6 +1063,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a SQL string used to provide data for the entity type.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The SQL query that will provide the underlying data for the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -949,6 +1092,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the query SQL string can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The SQL query that will provide the underlying data for the entity type. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -966,6 +1112,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <returns> The function configuration builder. </returns>
@@ -984,6 +1133,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <returns> The function configuration builder. </returns>
@@ -1001,6 +1153,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
@@ -1022,6 +1177,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
@@ -1043,6 +1201,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
@@ -1056,6 +1217,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
@@ -1069,6 +1233,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
@@ -1084,6 +1251,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
@@ -1099,6 +1269,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="ownedNavigationBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <returns> The function configuration builder. </returns>
@@ -1117,6 +1290,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="ownedNavigationBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <returns> The function configuration builder. </returns>
@@ -1134,6 +1310,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="ownedNavigationBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
@@ -1155,6 +1334,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="ownedNavigationBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
@@ -1176,6 +1358,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <returns> The function configuration builder. </returns>
@@ -1189,6 +1374,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <returns> The function configuration builder. </returns>
@@ -1202,6 +1390,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
@@ -1218,6 +1409,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceOwnershipBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <param name="configureFunction"> The function configuration action. </param>
@@ -1283,6 +1477,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -1314,6 +1511,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the function that the entity type maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -1347,6 +1547,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the function name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -1365,6 +1568,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the function name can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="function"> The method representing the function. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -1378,6 +1584,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1401,6 +1610,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1425,6 +1637,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
         /// <param name="name"> The name of the check constraint. </param>
@@ -1440,6 +1655,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
         /// <param name="name"> The name of the check constraint. </param>
@@ -1457,6 +1675,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1480,6 +1701,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1496,6 +1720,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1520,6 +1747,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <typeparam name="TOwnerEntity"> The entity type owning the relationship. </typeparam>
         /// <typeparam name="TDependentEntity"> The dependent entity type of the relationship. </typeparam>
         /// <param name="ownedNavigationBuilder"> The navigation builder for the owned type. </param>
@@ -1540,6 +1770,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a database check constraint when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1563,6 +1796,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the check constraint can be configured.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1579,6 +1815,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the check constraint can be configured.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="name"> The name of the check constraint. </param>
         /// <param name="sql"> The logical constraint sql used in the check constraint. </param>
@@ -1598,6 +1837,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a comment to be applied to the table
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="comment"> The comment for the table. </param>
         /// <returns> A builder to further configure the entity type. </returns>
@@ -1614,6 +1856,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a comment to be applied to the table
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
         /// <param name="entityTypeBuilder"> The entity type builder. </param>
         /// <param name="comment"> The comment for the table. </param>
@@ -1627,6 +1872,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a comment to be applied to the table
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="comment"> The comment for the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -1654,6 +1902,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether a comment can be set for this entity type
         ///     using the specified configuration source.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="comment"> The comment for the table. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

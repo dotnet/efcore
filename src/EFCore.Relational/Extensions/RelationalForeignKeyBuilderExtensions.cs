@@ -11,11 +11,17 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Relational database specific extension methods for relationship builders.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalForeignKeyBuilderExtensions
     {
         /// <summary>
         ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceCollectionBuilder"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -34,6 +40,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceCollectionBuilder"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -50,6 +59,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceReferenceBuilder"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -68,6 +80,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="referenceReferenceBuilder"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -84,6 +99,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="ownershipBuilder"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -101,6 +119,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="ownershipBuilder"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -117,6 +138,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the foreign key constraint name for this relationship when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="relationship"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -142,6 +166,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a value indicating whether the foreign key constraint name can be set for this relationship
         ///     from the current configuration source
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="relationship"> The builder being used to configure the relationship. </param>
         /// <param name="name"> The name of the foreign key constraint. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

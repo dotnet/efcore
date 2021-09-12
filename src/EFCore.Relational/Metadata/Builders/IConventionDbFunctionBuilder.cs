@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="IConventionDbFunction" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public interface IConventionDbFunctionBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>
