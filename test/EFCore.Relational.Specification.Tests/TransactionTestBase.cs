@@ -935,21 +935,41 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(RelationalStrings.TransactionAssociatedWithDifferentConnection, ex.Message);
         }
 
-        [ConditionalFact]
-        public virtual void UseTransaction_throws_if_another_transaction_started()
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task UseTransaction_is_no_op_if_same_DbTransaction_is_used(bool async)
         {
-            using var transaction = TestStore.BeginTransaction();
-            using var context = CreateContextWithConnectionString();
-            using (context.Database.BeginTransaction(
-                DirtyReadsOccur
-                    ? IsolationLevel.ReadUncommitted
-                    : IsolationLevel.Unspecified))
+            using (var transaction = TestStore.BeginTransaction())
             {
-                var ex = Assert.Throws<InvalidOperationException>(
-                    () =>
-                        context.Database.UseTransaction(transaction));
-                Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
+                using var context = CreateContext();
+
+                var currentTransaction = async
+                    ? await context.Database.UseTransactionAsync(transaction)
+                    : context.Database.UseTransaction(transaction);
+
+                Assert.Same(transaction, currentTransaction!.GetDbTransaction());
+
+                var newTransaction =  async
+                    ? await context.Database.UseTransactionAsync(transaction)
+                    : context.Database.UseTransaction(transaction);
+
+                Assert.Same(currentTransaction, newTransaction);
+                Assert.Same(transaction, newTransaction!.GetDbTransaction());
+
+                context.Entry(context.Set<TransactionCustomer>().OrderBy(c => c.Id).First()).State = EntityState.Deleted;
+
+                if (async)
+                {
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.SaveChanges();
+                }
             }
+
+            AssertStoreInitialState();
         }
 
         [ConditionalFact]

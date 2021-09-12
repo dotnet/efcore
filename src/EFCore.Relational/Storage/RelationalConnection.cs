@@ -429,6 +429,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
 
+            EnsureNoAmbientOrEnlistedTransactions();
+        }
+
+        private void EnsureNoAmbientOrEnlistedTransactions()
+        {
             if (CurrentAmbientTransaction != null)
             {
                 throw new InvalidOperationException(RelationalStrings.ConflictingAmbientTransaction);
@@ -471,6 +476,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (ShouldUseTransaction(transaction))
             {
+                if (CurrentTransaction != null)
+                {
+                    CurrentTransaction.Dispose();
+                }
+                
                 Open();
 
                 transaction = Dependencies.TransactionLogger.TransactionUsed(
@@ -512,6 +522,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (ShouldUseTransaction(transaction))
             {
+                if (CurrentTransaction != null)
+                {
+                    await CurrentTransaction.DisposeAsync();
+                }
+
                 await OpenAsync(cancellationToken).ConfigureAwait(false);
 
                 transaction = await Dependencies.TransactionLogger.TransactionUsedAsync(
@@ -540,7 +555,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return false;
             }
 
-            EnsureNoTransactions();
+            EnsureNoAmbientOrEnlistedTransactions();
+
+            if (CurrentTransaction != null 
+                && transaction == CurrentTransaction.GetDbTransaction())
+            {
+                return false;
+            }
 
             return true;
         }
