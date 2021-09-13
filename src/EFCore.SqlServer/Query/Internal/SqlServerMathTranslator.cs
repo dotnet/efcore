@@ -144,28 +144,40 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             if (_truncateMethodInfos.Contains(method))
             {
                 var argument = arguments[0];
-
-                return _sqlExpressionFactory.Function(
+                // Result of ROUND for float/double is always double in server side
+                var result = (SqlExpression)_sqlExpressionFactory.Function(
                     "ROUND",
                     new[] { argument, _sqlExpressionFactory.Constant(0), _sqlExpressionFactory.Constant(1) },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true, false, false },
-                    method.ReturnType,
-                    argument.TypeMapping);
+                    typeof(double));
+
+                if (argument.Type == typeof(float))
+                {
+                    result = _sqlExpressionFactory.Convert(result, typeof(float));
+                }
+
+                return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
             }
 
             if (_roundMethodInfos.Contains(method))
             {
                 var argument = arguments[0];
                 var digits = arguments.Count == 2 ? arguments[1] : _sqlExpressionFactory.Constant(0);
-
-                return _sqlExpressionFactory.Function(
+                // Result of ROUND for float/double is always double in server side
+                var result = (SqlExpression) _sqlExpressionFactory.Function(
                     "ROUND",
                     new[] { argument, digits },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true, true },
-                    method.ReturnType,
-                    argument.TypeMapping);
+                    typeof(double));
+
+                if (argument.Type == typeof(float))
+                {
+                    result = _sqlExpressionFactory.Convert(result, typeof(float));
+                }
+
+                return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
             }
 
             return null;

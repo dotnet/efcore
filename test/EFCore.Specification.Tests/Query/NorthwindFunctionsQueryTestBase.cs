@@ -1122,6 +1122,28 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_mathf_round(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<Order>()
+                    .Where(o => o.OrderID < 10250)
+                    .Select(o => MathF.Round((float)o.OrderID)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_mathf_round2(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(od => od.Quantity < 5)
+                    .Select(od => MathF.Round((float)od.UnitPrice, 2)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Where_mathf_truncate(bool async)
         {
             return AssertQuery(
@@ -1130,6 +1152,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                     .Where(od => od.Quantity < 5)
                     .Where(od => MathF.Truncate((float)od.UnitPrice) > 10),
                 entryCount: 137);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Select_mathf_truncate(bool async)
+        {
+            return AssertQueryScalar(
+                async,
+                ss => ss.Set<OrderDetail>()
+                    .Where(od => od.Quantity < 5)
+                    .Select(od => MathF.Truncate((float)od.UnitPrice)));
         }
 
         [ConditionalTheory]
