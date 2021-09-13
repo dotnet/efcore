@@ -1320,6 +1320,12 @@ ORDER BY c[""OrderID""]");
             return base.Projecting_count_of_navigation_which_is_generic_collection_using_convert(async);
         }
 
+        [ConditionalTheory(Skip = "Cross collection join Issue#17246")]
+        public override Task MemberInit_in_projection_without_arguments(bool async)
+        {
+            return base.MemberInit_in_projection_without_arguments(async);
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
