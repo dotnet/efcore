@@ -62,5 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         // Navigations used are not mapped in shared type.
         public override Task SelectMany_DefaultIfEmpty_multiple_times_with_joins_projecting_a_collection(bool async)
             => Task.CompletedTask;
+
+        public override Task Complex_query_issue_21665(bool async) => Task.CompletedTask;
     }
 }
