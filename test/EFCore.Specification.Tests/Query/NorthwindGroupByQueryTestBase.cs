@@ -1900,6 +1900,37 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Aggregate_Join_converted_from_SelectMany(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                      from o in ss.Set<Order>().GroupBy(o => o.CustomerID)
+                        .Where(g => g.Count() > 5)
+                        .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                        .Where(c1 => c.CustomerID == c1.CustomerID)
+                    select c,
+                entryCount: 63);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Aggregate_LeftJoin_converted_from_SelectMany(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from c in ss.Set<Customer>()
+                      from o in ss.Set<Order>().GroupBy(o => o.CustomerID)
+                        .Where(g => g.Count() > 5)
+                        .Select(g => new { CustomerID = g.Key, LastOrderID = g.Max(o => o.OrderID) })
+                        .Where(c1 => c.CustomerID == c1.CustomerID)
+                        .DefaultIfEmpty()
+                      select c,
+                entryCount: 91);
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task Join_GroupBy_Aggregate_multijoins(bool async)
         {
             return AssertQuery(
@@ -2486,8 +2517,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 async,
                 ss => from id in
                           (from o in ss.Set<Order>()
-                            group o by o.CustomerID into g
-                            select g.Min(x => x.OrderID))
+                           group o by o.CustomerID into g
+                           select g.Min(x => x.OrderID))
                       from o in ss.Set<Order>()
                       where o.OrderID == id
                       select o,
