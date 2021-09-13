@@ -45,6 +45,31 @@ namespace System.Text
             return stringBuilder;
         }
 
+        public static StringBuilder AppendJoin<T>(
+            this StringBuilder stringBuilder,
+            IEnumerable<T> values,
+            Func<StringBuilder, T, bool> joinFunc,
+            string separator = ", ")
+        {
+            var appended = false;
+
+            foreach (var value in values)
+            {
+                if (joinFunc(stringBuilder, value))
+                {
+                    stringBuilder.Append(separator);
+                    appended = true;
+                }
+            }
+
+            if (appended)
+            {
+                stringBuilder.Length -= separator.Length;
+            }
+
+            return stringBuilder;
+        }
+
         public static StringBuilder AppendJoin<T, TParam>(
             this StringBuilder stringBuilder,
             IEnumerable<T> values,
@@ -57,31 +82,6 @@ namespace System.Text
             foreach (var value in values)
             {
                 joinAction(stringBuilder, value, param);
-                stringBuilder.Append(separator);
-                appended = true;
-            }
-
-            if (appended)
-            {
-                stringBuilder.Length -= separator.Length;
-            }
-
-            return stringBuilder;
-        }
-
-        public static StringBuilder AppendJoin<T, TParam1, TParam2>(
-            this StringBuilder stringBuilder,
-            IEnumerable<T> values,
-            TParam1 param1,
-            TParam2 param2,
-            Action<StringBuilder, T, TParam1, TParam2> joinAction,
-            string separator = ", ")
-        {
-            var appended = false;
-
-            foreach (var value in values)
-            {
-                joinAction(stringBuilder, value, param1, param2);
                 stringBuilder.Append(separator);
                 appended = true;
             }

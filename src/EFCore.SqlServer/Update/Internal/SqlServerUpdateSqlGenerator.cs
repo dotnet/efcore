@@ -295,10 +295,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
                 .Append('(')
                 .AppendJoin(
                     writeOperations,
-                    toInsertTableAlias,
-                    SqlGenerationHelper,
-                    (sb, o, alias, helper) =>
+                    (toInsertTableAlias, SqlGenerationHelper),
+                    static (sb, o, state) =>
                     {
+                        var (alias, helper) = state;
                         sb.Append(alias).Append('.');
                         helper.DelimitIdentifier(sb, o.ColumnName);
                     })
