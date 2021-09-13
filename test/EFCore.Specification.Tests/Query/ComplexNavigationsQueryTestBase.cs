@@ -2764,7 +2764,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             select l3).Distinct().OrderBy(l => l.Id).Skip(1).FirstOrDefault().Name);
         }
 
-        [ConditionalTheory(Skip = "issue #8523")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy(bool async)
         {
@@ -3402,15 +3402,6 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = query.ToList();
         }
 
-        [ConditionalFact(Skip = "issue #12200")]
-        public virtual void GroupJoin_with_navigations_in_the_result_selector()
-        {
-            using var ctx = CreateContext();
-            var query = ctx.LevelOne.GroupJoin(
-                ctx.LevelTwo, l1 => l1.Id, l2 => l2.Level1_Required_Id, (o, i) => new { o.OneToOne_Optional_FK1, i });
-            var result = query.ToList();
-        }
-
         [ConditionalFact]
         public virtual void Member_pushdown_chain_3_levels_deep()
         {
@@ -3607,7 +3598,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ss => ss.Set<Level1>().Select(s => s.Id as int?));
         }
 
-        [ConditionalTheory(Skip = "Issue#12657")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_with_filter_with_include_selector_cast_using_as(bool async)
         {

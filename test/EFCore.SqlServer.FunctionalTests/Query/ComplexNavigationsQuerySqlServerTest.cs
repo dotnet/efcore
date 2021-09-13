@@ -2526,7 +2526,16 @@ WHERE [l].[Id] < 3");
             await base.Subquery_with_Distinct_Skip_FirstOrDefault_without_OrderBy(async);
 
             AssertSql(
-                "");
+                @"SELECT (
+    SELECT [t].[Name]
+    FROM (
+        SELECT DISTINCT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
+        FROM [LevelThree] AS [l0]
+    ) AS [t]
+    ORDER BY (SELECT 1)
+    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY)
+FROM [LevelOne] AS [l]
+WHERE [l].[Id] < 3");
         }
 
         public override async Task Project_collection_navigation_count(bool async)
@@ -3106,14 +3115,6 @@ LEFT JOIN [LevelThree] AS [l2] ON [l0].[Id] = [l2].[OneToMany_Optional_Inverse3I
 ORDER BY [l].[Id], [l0].[Id], [l1].[Id]");
         }
 
-        public override void GroupJoin_with_navigations_in_the_result_selector()
-        {
-            base.GroupJoin_with_navigations_in_the_result_selector();
-
-            AssertSql(
-                @"");
-        }
-
         public override void Member_pushdown_chain_3_levels_deep()
         {
             base.Member_pushdown_chain_3_levels_deep();
@@ -3336,14 +3337,12 @@ FROM [LevelOne] AS [l]");
             await base.Sum_with_filter_with_include_selector_cast_using_as(async);
 
             AssertSql(
-                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+                @"SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
-LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 WHERE [l].[Id] > (
-    SELECT SUM([l1].[Id])
-    FROM [LevelTwo] AS [l1]
-    WHERE [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id])
-ORDER BY [l].[Id], [l0].[Id]");
+    SELECT COALESCE(SUM([l0].[Id]), 0)
+    FROM [LevelTwo] AS [l0]
+    WHERE [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id])");
         }
 
         public override async Task Select_with_joined_where_clause_cast_using_as(bool async)
