@@ -78,10 +78,56 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             programGenerator.Initialize();
 
             // TODO: We may not always have access to TEMP
-            var directory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(directory);
+            var tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            Directory.CreateDirectory(tempDirectory);
             try
             {
+                var directory = tempDirectory;
+
+                var globalJson = default(string);
+                var nugetConfigs = new Stack<string>();
+
+                var searchPath = WorkingDir!.Value();
+                do
+                {
+                    foreach (var file in Directory.EnumerateFiles(searchPath))
+                    {
+                        var fileName = Path.GetFileName(file);
+                        if (fileName.Equals("NuGet.Config", StringComparison.OrdinalIgnoreCase))
+                        {
+                            nugetConfigs.Push(file);
+                        }
+                        else if (globalJson == null
+                            && fileName.Equals("global.json", StringComparison.OrdinalIgnoreCase))
+                        {
+                            globalJson = file;
+                        }
+                    }
+
+                    searchPath = Path.GetDirectoryName(searchPath);
+                }
+                while (searchPath != null);
+
+                while (nugetConfigs.Count > 1)
+                {
+                    var nugetConfig = nugetConfigs.Pop();
+                    File.Copy(nugetConfig, Path.Combine(directory, Path.GetFileName(nugetConfig)));
+
+                    directory = Path.Combine(directory, Path.GetRandomFileName());
+                    Directory.CreateDirectory(directory);
+                }
+
+                if (globalJson != null)
+                {
+                    File.Copy(globalJson, Path.Combine(directory, Path.GetFileName(globalJson)));
+                }
+
+                if (nugetConfigs.Count > 0)
+                {
+                    var nugetConfig = nugetConfigs.Pop();
+                    File.Copy(nugetConfig, Path.Combine(directory, Path.GetFileName(nugetConfig)));
+                }
+
                 var publishArgs = new List<string> { "publish" };
 
                 var runtime = _runtime!.HasValue()
@@ -156,7 +202,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             }
             finally
             {
-                Directory.Delete(directory, recursive: true);
+                Directory.Delete(tempDirectory, recursive: true);
             }
 
             return base.Execute(args);
