@@ -93,13 +93,15 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     foreach (var property in derivedEntityType.GetDeclaredProperties())
                     {
+                        // We read nullable value from property of derived type since it could be null.
+                        var typeToRead = property.ClrType.MakeNullable();
                         var propertyExpression = Condition(
                             entityCheck,
-                            CreateReadValueExpression(property.ClrType, property.GetIndex(), property),
-                            Default(property.ClrType));
+                            CreateReadValueExpression(typeToRead, property.GetIndex(), property),
+                            Default(typeToRead));
 
                         selectorExpressions.Add(propertyExpression);
-                        var readExpression = CreateReadValueExpression(property.ClrType, selectorExpressions.Count - 1, property);
+                        var readExpression = CreateReadValueExpression(propertyExpression.Type, selectorExpressions.Count - 1, property);
                         propertyExpressionsMap[property] = readExpression;
                         _projectionMappingExpressions.Add(readExpression);
                     }

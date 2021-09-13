@@ -66,11 +66,5 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             Assert.Equal(InMemoryStrings.DistinctOnSubqueryNotSupported, message);
         }
-
-        [ConditionalTheory(Skip = "Issue #25735")]
-        public override Task Project_navigation_defined_on_derived_from_entity_with_inheritance_using_soft_cast(bool async)
-        {
-            return base.Project_navigation_defined_on_derived_from_entity_with_inheritance_using_soft_cast(async);
-        }
     }
 }
