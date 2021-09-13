@@ -375,6 +375,27 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
                 @"ALTER TABLE [People] ADD [RowVersion] rowversion NULL;");
         }
 
+        [ConditionalFact]
+        public virtual async Task Add_column_with_rowversion_and_value_conversion()
+        {
+            await Test(
+                builder => builder.Entity("People").Property<int>("Id"),
+                builder => { },
+                builder => builder.Entity("People").Property<ulong>("RowVersion")
+                    .IsRowVersion()
+                    .HasConversion<byte[]>(),
+                model =>
+                {
+                    var table = Assert.Single(model.Tables);
+                    var column = Assert.Single(table.Columns, c => c.Name == "RowVersion");
+                    Assert.Equal("rowversion", column.StoreType);
+                    Assert.True(column.IsRowVersion());
+                });
+
+            AssertSql(
+                @"ALTER TABLE [People] ADD [RowVersion] rowversion NOT NULL;");
+        }
+
         public override async Task Add_column_with_defaultValueSql()
         {
             await base.Add_column_with_defaultValueSql();

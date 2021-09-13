@@ -1614,7 +1614,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             builder.Append(operation.IsNullable ? " NULL" : " NOT NULL");
 
-            DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, builder);
+            if (!string.Equals(columnType, "rowversion", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(columnType, "timestamp", StringComparison.OrdinalIgnoreCase))
+            {
+                // rowversion/timestamp columns cannot have default values, but also don't need them when adding a new column.
+                DefaultValue(operation.DefaultValue, operation.DefaultValueSql, columnType, builder);
+            }
 
             var identity = operation[SqlServerAnnotationNames.Identity] as string;
             if (identity != null
