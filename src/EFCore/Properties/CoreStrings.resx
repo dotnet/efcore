@@ -1018,6 +1018,9 @@
     <value>'{contextType}' generated value '{keyValue}' for the property '{3_entityType}.{2_property}'.</value>
     <comment>Debug CoreEventId.ValueGenerated string object? string string</comment>
   </data>
+  <data name="ManyToManyOneNav" xml:space="preserve">
+    <value>The navigation '{entityType}.{navigation}' cannot be used for both sides of a many-to-many relationship. Many-to-many relationships must use different navigation properties for either end of the relationship.</value>
+  </data>
   <data name="MissingBackingField" xml:space="preserve">
     <value>The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.</value>
   </data>

@@ -472,12 +472,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             {
                 var modelBuilder = CreateModelBuilder();
 
-                modelBuilder.Entity<SelfRefManyToOne>().Ignore(s => s.SelfRef1);
-                modelBuilder.Entity<SelfRefManyToOne>().HasMany(t => t.SelfRef2)
-                    .WithMany(t => t.SelfRef2);
-
-                Assert.Equal(CoreStrings.EntityRequiresKey("SelfRefManyToOneSelfRefManyToOne (Dictionary<string, object>)"),
-                    Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Equal(
+                    CoreStrings.ManyToManyOneNav(nameof(SelfRefManyToOne), nameof(SelfRefManyToOne.SelfRef2)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder
+                            .Entity<SelfRefManyToOne>()
+                            .HasMany(e => e.SelfRef2)
+                            .WithMany(e => e.SelfRef2)).Message);
             }
 
             [ConditionalFact]

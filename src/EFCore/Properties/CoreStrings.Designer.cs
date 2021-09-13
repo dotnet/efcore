@@ -1546,6 +1546,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
+        ///     The navigation '{entityType}.{navigation}' cannot be used for both sides of a many-to-many relationship. Many-to-many relationships must use different navigation properties for either end of the relationship.
+        /// </summary>
+        public static string ManyToManyOneNav(object? entityType, object? navigation)
+            => string.Format(
+                GetString("ManyToManyOneNav", "entityType", "navigation"),
+                entityType, navigation);
+
+        /// <summary>
         ///     The specified field '{field}' could not be found for property '{2_entityType}.{1_property}'.
         /// </summary>
         public static string MissingBackingField(object? field, object? property, object? entityType)
