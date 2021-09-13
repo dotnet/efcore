@@ -65,10 +65,6 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override void Client_code_using_instance_method_throws()
             => base.Client_code_using_instance_method_throws();
 
-        [ConditionalTheory(Skip = "Issue#24291")]
-        public override Task Select_nested_collection_with_distinct(bool async)
-            => base.Select_nested_collection_with_distinct(async);
-
         public override async Task Max_on_empty_sequence_throws(bool async)
         {
             using var context = CreateContext();
