@@ -279,9 +279,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 path = Directory.GetCurrentDirectory();
             }
-            else if (!Directory.Exists(path)) // It's not a directory
+            else
             {
-                return new List<string> { path };
+                path = Path.GetFullPath(path);
+
+                if (!Directory.Exists(path)) // It's not a directory
+                {
+                    return new List<string> { path };
+                }
             }
 
             var projectFiles = Directory.EnumerateFiles(path, "*.*proj", SearchOption.TopDirectoryOnly)
