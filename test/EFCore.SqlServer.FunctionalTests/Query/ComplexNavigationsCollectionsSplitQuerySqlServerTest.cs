@@ -3311,6 +3311,63 @@ INNER JOIN [LevelTwo] AS [l1] ON [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l].[Id], [t].[Id]");
         }
 
+        public override async Task Complex_query_issue_21665(bool async)
+        {
+            await base.Complex_query_issue_21665(async);
+
+            AssertSql(
+                @"SELECT TOP(1) [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id], [l0].[Name], (
+    SELECT COUNT(*)
+    FROM [LevelOne] AS [l1]
+    WHERE [l].[Id] = [l1].[OneToMany_Optional_Self_Inverse1Id]), (
+    SELECT COUNT(*)
+    FROM [LevelTwo] AS [l2]
+    WHERE [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]), CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [LevelTwo] AS [l3]
+        WHERE ([l].[Id] = [l3].[OneToMany_Optional_Inverse2Id]) AND ([l3].[Id] = 2)) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [l0].[Id]
+FROM [LevelOne] AS [l]
+LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+WHERE [l].[Id] = 2
+ORDER BY [l].[Name], [l].[Id], [l0].[Id]",
+                //
+                @"SELECT [t0].[Id], [t0].[Date], [t0].[Name], [t0].[OneToMany_Optional_Self_Inverse1Id], [t0].[OneToMany_Required_Self_Inverse1Id], [t0].[OneToOne_Optional_Self1Id], [t0].[ChildCount], [t0].[Level2Name], [t0].[Level2Count], [t0].[IsLevel2There], [t].[Id], [t].[Id0]
+FROM (
+    SELECT TOP(1) [l].[Id], [l0].[Id] AS [Id0], [l].[Name]
+    FROM [LevelOne] AS [l]
+    LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
+    WHERE [l].[Id] = 2
+    ORDER BY [l].[Name]
+) AS [t]
+CROSS APPLY (
+    SELECT [t1].[Id], [t1].[Date], [t1].[Name], [t1].[OneToMany_Optional_Self_Inverse1Id], [t1].[OneToMany_Required_Self_Inverse1Id], [t1].[OneToOne_Optional_Self1Id], (
+        SELECT COUNT(*)
+        FROM [LevelOne] AS [l2]
+        WHERE [t1].[Id] = [l2].[OneToMany_Optional_Self_Inverse1Id]) AS [ChildCount], [l1].[Name] AS [Level2Name], (
+        SELECT COUNT(*)
+        FROM [LevelTwo] AS [l3]
+        WHERE [t1].[Id] = [l3].[OneToMany_Optional_Inverse2Id]) AS [Level2Count], CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [LevelTwo] AS [l4]
+            WHERE ([t1].[Id] = [l4].[OneToMany_Optional_Inverse2Id]) AND ([l4].[Id] = 2)) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [IsLevel2There]
+    FROM (
+        SELECT [l5].[Id], [l5].[Date], [l5].[Name], [l5].[OneToMany_Optional_Self_Inverse1Id], [l5].[OneToMany_Required_Self_Inverse1Id], [l5].[OneToOne_Optional_Self1Id]
+        FROM [LevelOne] AS [l5]
+        WHERE [t].[Id] = [l5].[OneToMany_Optional_Self_Inverse1Id]
+        ORDER BY [l5].[Name]
+        OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+    ) AS [t1]
+    LEFT JOIN [LevelTwo] AS [l1] ON [t1].[Id] = [l1].[Level1_Optional_Id]
+) AS [t0]
+ORDER BY [t].[Name], [t].[Id], [t].[Id0], [t0].[Name]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
