@@ -2421,5 +2421,30 @@ namespace Microsoft.EntityFrameworkCore.Query
                   AssertCollection(e.Collection, a.Collection, ordered: true);
               });
         }
+
+        private class OrderDto
+        {
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task MemberInit_in_projection_without_arguments(bool async)
+        {
+            return AssertQuery(
+              async,
+              ss => ss.Set<Customer>()
+                    .Where(c => c.CustomerID.StartsWith("F"))
+                    .Select(c => new
+                    {
+                        c.CustomerID,
+                        Orders = c.Orders.Select(o => new OrderDto())
+                    }),
+              elementSorter: e => e.CustomerID,
+              elementAsserter: (e, a) =>
+              {
+                  AssertEqual(e.CustomerID, a.CustomerID);
+                  AssertEqual(e.Orders.Count(), a.Orders.Count());
+              });
+        }
     }
 }

@@ -1866,6 +1866,18 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'F%'");
         }
 
+        public override async Task MemberInit_in_projection_without_arguments(bool async)
+        {
+            await base.MemberInit_in_projection_without_arguments(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [o].[OrderID]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
