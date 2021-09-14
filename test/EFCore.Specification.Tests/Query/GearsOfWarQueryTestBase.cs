@@ -9118,6 +9118,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 });
         }
 
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_equals_method_on_nullable_with_object_overload(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Rating.Equals(null)));
+        }
+
         protected GearsOfWarContext CreateContext()
             => Fixture.CreateContext();
 

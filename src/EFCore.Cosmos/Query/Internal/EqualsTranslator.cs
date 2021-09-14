@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 && right != null)
             {
                 return left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType()
-                    || (right.Type == typeof(object) && right is SqlParameterExpression)
-                    || (left.Type == typeof(object) && left is SqlParameterExpression)
+                    || (right.Type == typeof(object) && (right is SqlParameterExpression || right is SqlConstantExpression))
+                    || (left.Type == typeof(object) && (left is SqlParameterExpression || left is SqlConstantExpression))
                         ? _sqlExpressionFactory.Equal(left, right)
                         : (SqlExpression)_sqlExpressionFactory.Constant(false);
             }
