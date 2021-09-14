@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -40,6 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Check.DebugAssert(((IConventionEntityType)rightEntityType).IsInModel, "Not in model");
             Check.DebugAssert(((IConventionSkipNavigation)leftNavigation).IsInModel, "Not in model");
             Check.DebugAssert(((IConventionSkipNavigation)rightNavigation).IsInModel, "Not in model");
+
+            if (leftNavigation == rightNavigation)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.ManyToManyOneNav(leftEntityType.DisplayName(), leftNavigation.Name));
+            }
 
             LeftEntityType = leftEntityType;
             RightEntityType = rightEntityType;
