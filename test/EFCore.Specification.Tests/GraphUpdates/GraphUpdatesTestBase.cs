@@ -3451,6 +3451,49 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        protected class Cruiser : NotifyingEntity
+        {
+            private int _cruiserId;
+            private int _idUserState;
+            private AccessState _userState;
+
+            public int CruiserId
+            {
+                get => _cruiserId;
+                set => SetWithNotify(value, ref _cruiserId);
+            }
+
+            public int IdUserState
+            {
+                get => _idUserState;
+                set => SetWithNotify(value, ref _idUserState);
+            }
+
+            public virtual AccessState UserState
+            {
+                get => _userState;
+                set => SetWithNotify(value, ref _userState);
+            }
+        }
+
+        protected class AccessState : NotifyingEntity
+        {
+            private int _accessStateId;
+            private ICollection<Cruiser> _users = new ObservableHashSet<Cruiser>();
+
+            public int AccessStateId
+            {
+                get => _accessStateId;
+                set => SetWithNotify(value, ref _accessStateId);
+            }
+
+            public virtual ICollection<Cruiser> Users
+            {
+                get => _users;
+                set => SetWithNotify(value, ref _users);
+            }
+        }
+
         protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
             protected void SetWithNotify<T>(T value, ref T field, [CallerMemberName] string propertyName = "")

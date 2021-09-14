@@ -76,6 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             ValueGenerationConvention valueGenerationConvention =
                 new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
+            ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, valueGenerationConvention);
+            ReplaceConvention(conventionSet.ForeignKeyOwnershipChangedConventions, valueGenerationConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(tableNameFromDbSetConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(new CheckConstraintConvention(Dependencies, RelationalDependencies));
 
