@@ -178,10 +178,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual int GetCountForState(
-            bool added = false,
-            bool modified = false,
-            bool deleted = false,
-            bool unchanged = false)
+            bool added, bool modified, bool deleted, bool unchanged, bool countDeletedSharedIdentity)
         {
             var count = 0;
 
@@ -200,7 +197,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (deleted
                 && _deletedReferenceMap != null)
             {
-                count += _deletedReferenceMap.Count;
+                count += countDeletedSharedIdentity
+                    ? _deletedReferenceMap.Count
+                    : _deletedReferenceMap.Count(p => p.Value.SharedIdentityEntry == null);
             }
 
             if (unchanged
@@ -213,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var map in _sharedTypeReferenceMap)
                 {
-                    count += map.Value.GetCountForState(added, modified, deleted, unchanged);
+                    count += map.Value.GetCountForState(added, modified, deleted, unchanged, countDeletedSharedIdentity);
                 }
             }
 
@@ -227,10 +226,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> GetEntriesForState(
-            bool added = false,
-            bool modified = false,
-            bool deleted = false,
-            bool unchanged = false)
+            bool added, bool modified, bool deleted, bool unchanged, bool returnDeletedSharedIdentity)
         {
             // Perf sensitive
 
@@ -298,7 +294,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             return GetEntriesForState(
                 added, modified, deleted, unchanged,
                 hasSharedTypes,
-                returnAdded, returnModified, returnDeleted, returnUnchanged);
+                returnAdded, returnModified, returnDeleted, returnUnchanged,
+                returnDeletedSharedIdentity);
         }
 
         private IEnumerable<InternalEntityEntry> GetEntriesForState(
@@ -310,7 +307,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool returnAdded,
             bool returnModified,
             bool returnDeleted,
-            bool returnUnchanged)
+            bool returnUnchanged,
+            bool returnSharedIdentity)
         {
             if (returnAdded)
             {
@@ -332,7 +330,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var entry in _deletedReferenceMap!.Values)
                 {
-                    yield return entry;
+                    if (entry.SharedIdentityEntry == null
+                        || returnSharedIdentity)
+                    {
+                        yield return entry;
+                    }
                 }
             }
 
@@ -348,13 +350,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             {
                 foreach (var subMap in _sharedTypeReferenceMap!.Values)
                 {
-                    foreach (var entry in subMap.GetEntriesForState(added, modified, deleted, unchanged))
+                    foreach (var entry in subMap.GetEntriesForState(added, modified, deleted, unchanged, returnSharedIdentity))
                     {
-                        if ((entry.SharedIdentityEntry == null
-                            || entry.EntityState != EntityState.Deleted))
-                        {
-                            yield return entry;
-                        }
+                        yield return entry;
                     }
                 }
             }

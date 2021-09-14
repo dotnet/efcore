@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             builder.AppendJoin(
                 ", ", Properties.Select(
                     p => singleLine
-                        ? p.DeclaringEntityType.DisplayName() + "." + p.Name
+                        ? p.DeclaringEntityType.DisplayName(omitSharedType: true) + "." + p.Name
                         : p.Name));
 
             if (IsPrimaryKey())

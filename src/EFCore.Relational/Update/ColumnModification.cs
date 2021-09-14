@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             _sharedColumnModifications ??= new List<IColumnModification>();
 
             if (UseCurrentValueParameter
-                && !StructuralComparisons.StructuralEqualityComparer.Equals(Value, modification.Value))
+                && !modification.Property.GetValueComparer().Equals(Value, modification.Value))
             {
                 if (_sensitiveLoggingEnabled)
                 {
@@ -447,7 +447,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             }
 
             if (UseOriginalValueParameter
-                && !StructuralComparisons.StructuralEqualityComparer.Equals(OriginalValue, modification.OriginalValue))
+                && !modification.Property.GetValueComparer().Equals(OriginalValue, modification.OriginalValue))
             {
                 if (Entry.EntityState == EntityState.Modified
                     && modification.Entry.EntityState == EntityState.Added

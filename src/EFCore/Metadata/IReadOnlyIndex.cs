@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     ", ",
                     Properties.Select(
                         p => singleLine
-                            ? p.DeclaringEntityType.DisplayName() + "." + p.Name
+                            ? p.DeclaringEntityType.DisplayName(omitSharedType: true) + "." + p.Name
                             : p.Name));
 
             builder.Append(" " + Name ?? "<unnamed>");
