@@ -44,7 +44,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
             object value)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(value, nameof(value));
 
             Operation.OldAnnotations.AddAnnotation(name, value);
 
