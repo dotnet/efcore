@@ -422,9 +422,9 @@ namespace Microsoft.EntityFrameworkCore.Internal
             var property2 = (Property)entityTypeA.FindProperty("Col2");
             var property3 = (Property)entityTypeA.FindProperty("Col3");
 
-            Assert.Equal(0, property1.GetColumnOrdinal());
-            Assert.Equal(1, property2.GetColumnOrdinal());
-            Assert.Equal(2, property3.GetColumnOrdinal());
+            Assert.Equal(0, property1.GetColumnOrder());
+            Assert.Equal(1, property2.GetColumnOrder());
+            Assert.Equal(2, property3.GetColumnOrder());
         }
 
         [ConditionalTheory]

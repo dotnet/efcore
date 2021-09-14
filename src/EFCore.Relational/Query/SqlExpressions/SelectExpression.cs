@@ -2132,57 +2132,67 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             static SqlExpression? TryExtractJoinKey(SelectExpression outer, SelectExpression inner, bool allowNonEquality)
             {
-                if (inner.Limit == null
-                    && inner.Offset == null
-                    && inner.Predicate != null)
+                if (inner.Limit != null
+                    || inner.Offset != null)
                 {
-                    var outerColumnExpressions = new List<SqlExpression>();
-                    var joinPredicate = TryExtractJoinKey(
-                        outer,
-                        inner,
-                        inner.Predicate,
-                        outerColumnExpressions,
-                        allowNonEquality,
-                        out var predicate);
-
-                    if (joinPredicate != null)
-                    {
-                        joinPredicate = RemoveRedundantNullChecks(joinPredicate, outerColumnExpressions);
-                    }
-                    // TODO: verify the case for GroupBy. See issue#24474
-                    // We extract join predicate from Predicate part but GroupBy would have last Having. Changing predicate can change groupings
-
-                    // we can't convert apply to join in case of distinct and groupby, if the projection doesn't already contain the join keys
-                    // since we can't add the missing keys to the projection - only convert to join if all the keys are already there
-                    if (joinPredicate != null
-                        && (inner.IsDistinct
-                        || inner.GroupBy.Count > 0))
-                    {
-                        var innerKeyColumns = new List<ColumnExpression>();
-                        InnerKeyColumns(inner.Tables, joinPredicate, innerKeyColumns);
-
-                        // if projection has already been applied we can use it directly
-                        // otherwise we extract future projection columns from projection mapping
-                        // and based on that we determine whether we can convert from APPLY to JOIN
-                        var projectionColumns = inner.Projection.Count > 0
-                            ? inner.Projection.Select(p => p.Expression)
-                            : ExtractColumnsFromProjectionMapping(inner._projectionMapping);
-
-                        foreach (var innerColumn in innerKeyColumns)
-                        {
-                            if (!projectionColumns.Contains(innerColumn))
-                            {
-                                return null;
-                            }
-                        }
-                    }
-
-                    inner.Predicate = predicate;
-
-                    return joinPredicate;
+                    return null;
                 }
 
-                return null;
+                var predicate = inner.GroupBy.Count > 0 ? inner.Having : inner.Predicate;
+                if (predicate == null)
+                {
+                    return null;
+                }
+
+                var outerColumnExpressions = new List<SqlExpression>();
+                var joinPredicate = TryExtractJoinKey(
+                    outer,
+                    inner,
+                    predicate,
+                    outerColumnExpressions,
+                    allowNonEquality,
+                    out var updatedPredicate);
+
+                if (joinPredicate != null)
+                {
+                    joinPredicate = RemoveRedundantNullChecks(joinPredicate, outerColumnExpressions);
+                }
+
+                // we can't convert apply to join in case of distinct and groupby, if the projection doesn't already contain the join keys
+                // since we can't add the missing keys to the projection - only convert to join if all the keys are already there
+                if (joinPredicate != null
+                    && (inner.IsDistinct
+                    || inner.GroupBy.Count > 0))
+                {
+                    var innerKeyColumns = new List<ColumnExpression>();
+                    PopulateInnerKeyColumns(inner.Tables, joinPredicate, innerKeyColumns);
+
+                    // if projection has already been applied we can use it directly
+                    // otherwise we extract future projection columns from projection mapping
+                    // and based on that we determine whether we can convert from APPLY to JOIN
+                    var projectionColumns = inner.Projection.Count > 0
+                        ? inner.Projection.Select(p => p.Expression)
+                        : ExtractColumnsFromProjectionMapping(inner._projectionMapping);
+
+                    foreach (var innerColumn in innerKeyColumns)
+                    {
+                        if (!projectionColumns.Contains(innerColumn))
+                        {
+                            return null;
+                        }
+                    }
+                }
+
+                if (inner.GroupBy.Count > 0)
+                {
+                    inner.Having = updatedPredicate;
+                }
+                else
+                {
+                    inner.Predicate = updatedPredicate;
+                }
+
+                return joinPredicate;
 
                 static SqlExpression? TryExtractJoinKey(
                     SelectExpression outer,
@@ -2310,12 +2320,12 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     }
                 }
 
-                static void InnerKeyColumns(IEnumerable<TableExpressionBase> tables, SqlExpression joinPredicate, List<ColumnExpression> resultColumns)
+                static void PopulateInnerKeyColumns(IEnumerable<TableExpressionBase> tables, SqlExpression joinPredicate, List<ColumnExpression> resultColumns)
                 {
                     if (joinPredicate is SqlBinaryExpression sqlBinaryExpression)
                     {
-                        InnerKeyColumns(tables, sqlBinaryExpression.Left, resultColumns);
-                        InnerKeyColumns(tables, sqlBinaryExpression.Right, resultColumns);
+                        PopulateInnerKeyColumns(tables, sqlBinaryExpression.Left, resultColumns);
+                        PopulateInnerKeyColumns(tables, sqlBinaryExpression.Right, resultColumns);
                     }
                     else if (joinPredicate is ColumnExpression columnExpression
                         && tables.Contains(columnExpression.Table))

@@ -9,6 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Metadata
     /// <summary>
     ///     A simple model for a database primary key used when reverse engineering an existing database.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-scaffolding">Reverse engineering (scaffolding) an existing database</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public class DatabasePrimaryKey : Annotatable
     {
         /// <summary>

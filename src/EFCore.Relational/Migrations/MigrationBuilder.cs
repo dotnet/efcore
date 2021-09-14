@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// <summary>
     ///     A builder providing a fluentish API for building <see cref="MigrationOperation" />s.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     public class MigrationBuilder
     {
         /// <summary>
@@ -39,6 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddColumnOperation" /> to add a new column to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <typeparam name="T"> The CLR type that the column is mapped to. </typeparam>
         /// <param name="name"> The column name. </param>
         /// <param name="table"> The name of the table that contains the column. </param>
@@ -120,6 +126,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddForeignKeyOperation" /> to add a new foreign key to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The foreign key constraint name. </param>
         /// <param name="table"> The table that contains the foreign key. </param>
         /// <param name="column"> The column that is constrained. </param>
@@ -159,6 +168,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddForeignKeyOperation" /> to add a new composite (multi-column) foreign key to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The foreign key constraint name. </param>
         /// <param name="table"> The table that contains the foreign key. </param>
         /// <param name="columns"> The ordered list of columns that are constrained. </param>
@@ -210,6 +222,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddPrimaryKeyOperation" /> to add a new primary key to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The primary key constraint name. </param>
         /// <param name="table"> The table that will contain the primary key. </param>
         /// <param name="column"> The column that constitutes the primary key. </param>
@@ -229,6 +244,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddPrimaryKeyOperation" /> to add a new composite (multi-column) primary key to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The primary key constraint name. </param>
         /// <param name="table"> The table that will contain the primary key. </param>
         /// <param name="columns"> The ordered list of columns that constitute the primary key. </param>
@@ -259,6 +277,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddUniqueConstraintOperation" /> to add a new unique constraint to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The constraint name. </param>
         /// <param name="table"> The table that will contain the constraint. </param>
         /// <param name="column"> The column that is constrained. </param>
@@ -278,6 +299,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddUniqueConstraintOperation" /> to add a new composite (multi-column) unique constraint to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The constraint name. </param>
         /// <param name="table"> The table that will contain the constraint. </param>
         /// <param name="columns"> The ordered list of columns that are constrained. </param>
@@ -308,6 +332,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AlterColumnOperation" /> to alter an existing column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <typeparam name="T"> The CLR type that the column is mapped to. </typeparam>
         /// <param name="name"> The column name. </param>
         /// <param name="table"> The name of the table that contains the column. </param>
@@ -469,6 +496,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AlterDatabaseOperation" /> to alter an existing database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="collation"> A collation to apply to the column. </param>
         /// <param name="oldCollation"> The previous collation to apply to the column. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
@@ -492,6 +522,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AlterSequenceOperation" /> to alter an existing sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The sequence name. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <param name="incrementBy"> The amount to increment by when generating the next value in the sequence, defaulting to 1. </param>
@@ -541,6 +574,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AlterTableOperation" /> to alter an existing table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The table name. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <param name="comment"> A comment to associate with the table. </param>
@@ -569,6 +605,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="CreateIndexOperation" /> to create a new index.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The index name. </param>
         /// <param name="table"> The table that contains the index. </param>
         /// <param name="column"> The column that is indexed. </param>
@@ -594,6 +633,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="CreateIndexOperation" /> to create a new composite (multi-column) index.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The index name. </param>
         /// <param name="table"> The table that contains the index. </param>
         /// <param name="columns"> The ordered list of columns that are indexed. </param>
@@ -630,6 +672,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="EnsureSchemaOperation" /> to ensure that a schema exists.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<EnsureSchemaOperation> EnsureSchema(
@@ -646,6 +691,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="CreateSequenceOperation" /> to create a new sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The sequence name. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <param name="startValue"> The value at which the sequence will start, defaulting to 1. </param>
@@ -667,6 +715,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="CreateSequenceOperation" /> to create a new sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <typeparam name="T"> The CLR type of the values generated by the sequence. </typeparam>
         /// <param name="name"> The sequence name. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
@@ -711,6 +762,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///         Builds an <see cref="AddCheckConstraintOperation" /> to create a new check constraint.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The check constraint name. </param>
         /// <param name="table"> The name of the table for the check constraint. </param>
         /// <param name="sql"> The constraint sql for the check constraint. </param>
@@ -727,6 +781,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="AddCheckConstraintOperation" /> to add a new check constraint to a table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The check constraint name. </param>
         /// <param name="table"> The name of the table for the check constraint. </param>
         /// <param name="sql"> The constraint sql for the check constraint. </param>
@@ -755,6 +812,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="CreateTableOperation" /> to create a new table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <typeparam name="TColumns"> Type of a typically anonymous type for building columns. </typeparam>
         /// <param name="name"> The name of the table. </param>
         /// <param name="columns">
@@ -809,6 +869,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropColumnOperation" /> to drop an existing column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the column to drop. </param>
         /// <param name="table"> The table that contains the column. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
@@ -835,6 +898,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropForeignKeyOperation" /> to drop an existing foreign key constraint.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the foreign key constraint to drop. </param>
         /// <param name="table"> The table that contains the foreign key. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
@@ -861,6 +927,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropIndexOperation" /> to drop an existing index.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the index to drop. </param>
         /// <param name="table"> The table that contains the index. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
@@ -886,6 +955,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropPrimaryKeyOperation" /> to drop an existing primary key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the primary key constraint to drop. </param>
         /// <param name="table"> The table that contains the key. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
@@ -912,6 +984,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropSchemaOperation" /> to drop an existing schema.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the schema to drop. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
         public virtual OperationBuilder<DropSchemaOperation> DropSchema(
@@ -928,6 +1003,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropSequenceOperation" /> to drop an existing sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the sequence to drop. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
@@ -946,6 +1024,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropCheckConstraintOperation" /> to drop an existing check constraint.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the check constraint to drop. </param>
         /// <param name="table"> The name of the table for the check constraint to drop. </param>
         /// <param name="schema"> The schema that contains the check constraint, or <see langword="null" /> to use the default schema. </param>
@@ -971,6 +1052,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropTableOperation" /> to drop an existing table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the table to drop. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <returns> A builder to allow annotations to be added to the operation. </returns>
@@ -989,6 +1073,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DropUniqueConstraintOperation" /> to drop an existing unique constraint.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the constraint to drop. </param>
         /// <param name="table"> The table that contains the constraint. </param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
@@ -1015,6 +1102,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="RenameColumnOperation" /> to rename an existing column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the column to be renamed.</param>
         /// <param name="table"> The table that contains the column. </param>
         /// <param name="newName"> The new name for the column. </param>
@@ -1045,6 +1135,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="RenameIndexOperation" /> to rename an existing index.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the index to be renamed.</param>
         /// <param name="newName"> The new name for the column. </param>
         /// <param name="table"> The table that contains the index. </param>
@@ -1075,6 +1168,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="RenameSequenceOperation" /> to rename an existing sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the sequence to be renamed.</param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
         /// <param name="newName"> The new sequence name or <see langword="null" /> if only the schema has changed. </param>
@@ -1103,6 +1199,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="RenameTableOperation" /> to rename an existing table.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the table to be renamed.</param>
         /// <param name="schema"> The schema that contains the table, or <see langword="null" /> to use the default schema. </param>
         /// <param name="newName"> The new table name or <see langword="null" /> if only the schema has changed. </param>
@@ -1131,6 +1230,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="RestartSequenceOperation" /> to re-start an existing sequence.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the sequence.</param>
         /// <param name="startValue"> The value at which the sequence will start, defaulting to 1. </param>
         /// <param name="schema"> The schema that contains the sequence, or <see langword="null" /> to use the default schema. </param>
@@ -1156,6 +1258,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="SqlOperation" /> to execute raw SQL.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="sql"> The SQL string to be executed to perform the operation. </param>
         /// <param name="suppressTransaction">
         ///     Indicates whether or not transactions will be suppressed while executing the SQL.
@@ -1176,6 +1281,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert a single seed data value for a single column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="column"> The name of the column into which the data will be inserted. </param>
         /// <param name="value"> The value to insert. </param>
@@ -1191,6 +1299,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert a single seed data value for a single column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="column"> The name of the column into which the data will be inserted. </param>
         /// <param name="columnType"> The store type for the column into which data will be inserted. </param>
@@ -1212,6 +1323,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert a single row of seed data values.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="columns"> The names of the columns into which the data will be inserted. </param>
         /// <param name="values"> The values to insert, one value for each column in 'columns'. </param>
@@ -1227,6 +1341,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert a single row of seed data values.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="columns"> The names of the columns into which the data will be inserted. </param>
         /// <param name="columnTypes"> A list of store types for the columns into which data will be inserted. </param>
@@ -1244,6 +1361,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert multiple rows of seed data values for a single column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="column"> The name of the column into which the data will be inserted. </param>
         /// <param name="values"> The values to insert, one value for each row. </param>
@@ -1264,6 +1384,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert multiple rows of seed data values for a single column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="column"> The name of the column into which the data will be inserted. </param>
         /// <param name="columnType"> The store type for the column into which data will be inserted. </param>
@@ -1286,6 +1409,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert multiple rows of seed data values for multiple columns.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="columns"> The names of the columns into which the data will be inserted. </param>
         /// <param name="values">
@@ -1304,6 +1430,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="InsertDataOperation" /> to insert multiple rows of seed data values for multiple columns.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table into which the data will be inserted. </param>
         /// <param name="columns"> The names of the columns into which the data will be inserted. </param>
         /// <param name="columnTypes"> A list of store types for the columns into which data will be inserted. </param>
@@ -1352,6 +1481,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DeleteDataOperation" /> to delete a single row of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyValue"> The key value of the row to delete. </param>
@@ -1367,6 +1499,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DeleteDataOperation" /> to delete a single row of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyColumnType">
@@ -1392,6 +1527,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds a <see cref="DeleteDataOperation" /> to delete a single row of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the row to delete. </param>
         /// <param name="keyValues"> The key values of the row to delete, one value for each column in 'keyColumns'. </param>
@@ -1412,6 +1550,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds a <see cref="DeleteDataOperation" /> to delete a single row of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the row to delete. </param>
         /// <param name="keyColumnTypes">
@@ -1436,6 +1577,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DeleteDataOperation" /> to delete multiple rows of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyValues"> The key values of the rows to delete, one value per row. </param>
@@ -1455,6 +1599,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds a <see cref="DeleteDataOperation" /> to delete multiple rows of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to delete. </param>
         /// <param name="keyColumnType">
@@ -1480,6 +1627,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds a <see cref="DeleteDataOperation" /> to delete multiple rows of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the rows to delete. </param>
         /// <param name="keyValues">
@@ -1499,6 +1649,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds a <see cref="DeleteDataOperation" /> to delete multiple rows of seed data from
         ///     a table with a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table from which the data will be deleted. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the rows to delete. </param>
         /// <param name="keyColumnTypes">
@@ -1549,6 +1702,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="UpdateDataOperation" /> to update a single row of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to update. </param>
         /// <param name="keyValue"> The key value of the row to update. </param>
@@ -1574,6 +1730,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="UpdateDataOperation" /> to update a single row of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to update. </param>
         /// <param name="keyValue"> The key value of the row to update. </param>
@@ -1600,6 +1759,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="UpdateDataOperation" /> to update a single row of seed data for a table with
         ///     a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the row to update. </param>
         /// <param name="keyValues"> The key values of the row to update, one value for each column in 'keyColumns'. </param>
@@ -1626,6 +1788,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="UpdateDataOperation" /> to update a single row of seed data for a table with
         ///     a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the row to update. </param>
         /// <param name="keyValues"> The key values of the row to update, one value for each column in 'keyColumns'. </param>
@@ -1652,6 +1817,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="UpdateDataOperation" /> to update a single row of seed data for a table with
         ///     a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the row to update. </param>
         /// <param name="keyColumnTypes">
@@ -1685,6 +1853,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="UpdateDataOperation" /> to update multiple rows of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to update. </param>
         /// <param name="keyValues"> The key values of the rows to update, one value per row. </param>
@@ -1710,6 +1881,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Builds an <see cref="UpdateDataOperation" /> to update multiple rows of seed data.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumn"> The name of the key column used to select the row to update. </param>
         /// <param name="keyValues"> The key values of the rows to update, one value per row. </param>
@@ -1739,6 +1913,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="UpdateDataOperation" /> to update multiple rows of seed data for a table with
         ///     a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the rows to update. </param>
         /// <param name="keyValues">
@@ -1768,6 +1945,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="UpdateDataOperation" /> to update multiple rows of seed data for a table with
         ///     a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the rows to update. </param>
         /// <param name="keyValues">
@@ -1794,6 +1974,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         ///     Builds an <see cref="UpdateDataOperation" /> to update multiple rows of seed data for a table with
         ///     a composite (multi-column) key.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+        /// </remarks>
         /// <param name="table"> The table containing the data to be updated. </param>
         /// <param name="keyColumns"> The names of the key columns used to select the rows to update. </param>
         /// <param name="keyColumnTypes">

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var generator = CreateGenerator();
             var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
-            modelBuilder.Entity("TestEntity").Property<int>("Id").HasAnnotation(ScaffoldingAnnotationNames.ColumnOrdinal, 0);
+            modelBuilder.Entity("TestEntity").Property<int>("Id");
 
             var result = generator.GenerateModel(
                 modelBuilder.FinalizeModel(designTime: true),

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -18,9 +17,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
@@ -39,6 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         not used in application code.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public static class RelationalLoggerExtensions
     {
         /// <summary>
@@ -3032,6 +3035,79 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (EventDefinition<string, string>)definition;
             var p = (UpdateEntryEventData)payload;
             return d.GenerateMessage(p.EntityEntry.EntityType.DisplayName(), p.EntityEntry.BuildCurrentValuesString(p.EntityEntry.EntityType.FindPrimaryKey()!.Properties));
+        }
+
+        /// <summary>
+        ///     Logs the <see cref="RelationalEventId.DuplicateColumnOrders" /> event.
+        /// </summary>
+        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="storeObject"> The table. </param>
+        /// <param name="columns"> The columns. </param>
+        public static void DuplicateColumnOrders(
+            this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+            StoreObjectIdentifier storeObject,
+            IReadOnlyList<string> columns)
+        {
+            var definition = RelationalResources.LogDuplicateColumnOrders(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, storeObject.DisplayName(), string.Join(", ", columns.Select(c => "'" + c + "'")));
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new ColumnsEventData(
+                    definition,
+                    DuplicateColumnOrders,
+                    storeObject,
+                    columns);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string DuplicateColumnOrders(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (ColumnsEventData)payload;
+
+            return d.GenerateMessage(p.StoreObject.DisplayName(), string.Join(", ", p.Columns.Select(c => "'" + c + "'")));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static void ColumnOrderIgnoredWarning(
+            this IDiagnosticsLogger<DbLoggerCategory.Migrations> diagnostics,
+            ColumnOperation operation)
+        {
+            var definition = RelationalResources.LogColumnOrderIgnoredWarning(diagnostics);
+
+            if (diagnostics.ShouldLog(definition))
+            {
+                definition.Log(diagnostics, (operation.Table, operation.Schema).FormatTable(), operation.Name);
+            }
+
+            if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+            {
+                var eventData = new MigrationColumnOperationEventData(
+                    definition,
+                    ColumnOrderIgnoredWarning,
+                    operation);
+
+                diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+            }
+        }
+
+        private static string ColumnOrderIgnoredWarning(EventDefinitionBase definition, EventData payload)
+        {
+            var d = (EventDefinition<string, string>)definition;
+            var p = (MigrationColumnOperationEventData)payload;
+            return d.GenerateMessage((p.ColumnOperation.Table, p.ColumnOperation.Schema).FormatTable(), p.ColumnOperation.Name);
         }
     }
 }

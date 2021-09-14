@@ -23,6 +23,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public class RelationalModelValidator : ModelValidator
     {
         /// <summary>
@@ -738,6 +742,26 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     }
                 }
             }
+
+            var columnOrders = new Dictionary<int, List<string>>();
+            foreach (var property in propertyMappings.Values)
+            {
+                var columnOrder = property.GetColumnOrder(storeObject);
+                if (!columnOrder.HasValue)
+                {
+                    continue;
+                }
+
+                var columns = columnOrders.GetOrAddNew(columnOrder.Value);
+                columns.Add(property.GetColumnName(storeObject)!);
+            }
+
+            if (columnOrders.Any(g => g.Value.Count > 1))
+            {
+                logger.DuplicateColumnOrders(
+                    storeObject,
+                    columnOrders.Where(g => g.Value.Count > 1).SelectMany(g => g.Value).ToList());
+            }
         }
 
         /// <summary>
@@ -971,6 +995,22 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         storeObject.DisplayName(),
                         previousCollation,
                         currentCollation));
+            }
+
+            var currentColumnOrder = property.GetColumnOrder(storeObject);
+            var previousColumnOrder = duplicateProperty.GetColumnOrder(storeObject);
+            if (currentColumnOrder != previousColumnOrder)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateColumnNameOrderMismatch(
+                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.Name,
+                        property.DeclaringEntityType.DisplayName(),
+                        property.Name,
+                        columnName,
+                        storeObject.DisplayName(),
+                        previousColumnOrder,
+                        currentColumnOrder));
             }
         }
 

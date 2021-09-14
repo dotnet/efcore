@@ -8,6 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///     methods that are used by database provider extension methods but not intended to be called by application
     ///     developers.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public interface IRelationalDbContextOptionsBuilderInfrastructure
     {
         /// <summary>

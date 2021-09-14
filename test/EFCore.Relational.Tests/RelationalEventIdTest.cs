@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -46,11 +47,13 @@ namespace Microsoft.EntityFrameworkCore
             var index = new Index(new List<Property> { property }, "IndexName", entityType, ConfigurationSource.Convention);
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(model.FinalizeModel());
             var updateEntry = new InternalEntityEntry(contextServices.GetRequiredService<IStateManager>(), entityType, new object());
+            var columnOperation = new AddColumnOperation { Name = "Column1", Table = "Table1", ClrType = typeof(int) };
 
             var fakeFactories = new Dictionary<Type, Func<object>>
             {
                 { typeof(string), () => "Fake" },
                 { typeof(IList<string>), () => new List<string> { "Fake1", "Fake2" } },
+                { typeof(IReadOnlyList<string>), () => new List<string> { "Fake1", "Fake2" } },
                 {
                     typeof(IEnumerable<IUpdateEntry>), () => new List<IUpdateEntry>
                     {
@@ -81,7 +84,8 @@ namespace Microsoft.EntityFrameworkCore
                 { typeof(ValueConverter), () => new BoolToZeroOneConverter<int>() },
                 { typeof(DbContext), () => new FakeDbContext() },
                 { typeof(SqlExpression), () => new FakeSqlExpression() },
-                { typeof(IUpdateEntry), () =>  updateEntry}
+                { typeof(IUpdateEntry), () =>  updateEntry },
+                { typeof(ColumnOperation), () => columnOperation }
             };
 
             TestEventLogging(

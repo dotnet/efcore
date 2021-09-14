@@ -8,6 +8,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Extension methods for <see cref="ISqlQuery" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public static class SqlQueryExtensions
     {
         /// <summary>

@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for dropping a primary key.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
     public class DropPrimaryKeyOperation : MigrationOperation, ITableMigrationOperation
     {

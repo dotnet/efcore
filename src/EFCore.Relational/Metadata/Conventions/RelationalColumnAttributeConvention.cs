@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures column name and type for a property based on the applied <see cref="ColumnAttribute" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class RelationalColumnAttributeConvention : PropertyAttributeConventionBase<ColumnAttribute>
     {
         /// <summary>
@@ -55,6 +58,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             if (!string.IsNullOrWhiteSpace(attribute.TypeName))
             {
                 propertyBuilder.HasColumnType(attribute.TypeName, fromDataAnnotation: true);
+            }
+
+            if (attribute.Order >= 0)
+            {
+                propertyBuilder.HasColumnOrder(attribute.Order, fromDataAnnotation: true);
             }
         }
     }

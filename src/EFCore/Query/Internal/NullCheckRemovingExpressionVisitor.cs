@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -64,6 +65,20 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 var accessOperation = binaryTest.NodeType == ExpressionType.Equal
                     ? conditionalExpression.IfFalse
                     : conditionalExpression.IfTrue;
+
+                if (accessOperation is UnaryExpression outerUnary
+                    && (outerUnary.NodeType == ExpressionType.Convert
+                        || outerUnary.NodeType == ExpressionType.ConvertChecked)
+                    && accessOperation.Type.IsNullableType()
+                    && accessOperation.Type.UnwrapNullableType() == outerUnary.Operand.Type
+                    && outerUnary.Operand is UnaryExpression innerUnary
+                    && (innerUnary.NodeType == ExpressionType.Convert
+                        || innerUnary.NodeType == ExpressionType.ConvertChecked))
+                {
+                    // If expression is of type Convert(Convert(a, type), type?)
+                    // then we convert it to Convert(a, type?) since a can be nullable after removing check
+                    accessOperation = outerUnary.Update(innerUnary.Operand);
+                }
 
                 if (_nullSafeAccessVerifyingExpressionVisitor.Verify(caller, accessOperation))
                 {
@@ -153,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 var operand = Visit(unaryExpression.Operand);
                 if ((unaryExpression.NodeType == ExpressionType.Convert
-                        || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
                     && _nullSafeAccesses.Contains(operand))
                 {
                     _nullSafeAccesses.Add(unaryExpression);

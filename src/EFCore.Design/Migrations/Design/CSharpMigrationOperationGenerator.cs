@@ -15,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// <summary>
     ///     Used to generate C# for creating <see cref="MigrationOperation" /> objects.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenerator
     {
         /// <summary>

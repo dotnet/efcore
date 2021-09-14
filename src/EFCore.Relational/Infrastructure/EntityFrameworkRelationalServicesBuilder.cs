@@ -35,6 +35,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
     ///         can handle the new scope, and that it does not cause issue for services that depend on it.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesBuilder
     {
         /// <summary>
@@ -128,6 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     registered by the provider. Relational database providers must call this method as the last
         ///     step of service registration--that is, after all provider services have been registered.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+        ///     for more information.
+        /// </remarks>
         /// <returns> This builder, such that further calls can be chained. </returns>
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {

@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///     Enum used by <see cref="CommandEventData" />, and subclasses to indicate the
     ///     source of the <see cref="DbCommand" /> being used to execute the command.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    /// </remarks>
     public enum CommandSource
     {
         /// <summary>

@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 && right != null)
             {
                 if (left.Type == right.Type
-                    || (right.Type == typeof(object) && right is SqlParameterExpression)
-                    || (left.Type == typeof(object) && left is SqlParameterExpression))
+                    || (right.Type == typeof(object) && (right is SqlParameterExpression || right is SqlConstantExpression))
+                    || (left.Type == typeof(object) && (left is SqlParameterExpression || left is SqlConstantExpression)))
                 {
                     return _sqlExpressionFactory.Equal(left, right);
                 }

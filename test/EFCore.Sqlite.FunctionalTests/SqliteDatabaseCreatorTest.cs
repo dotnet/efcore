@@ -103,6 +103,55 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task Delete_works_even_when_different_connection_exists_to_same_file(bool async)
+        {
+            using (var context = new BathtubContext("DataSource=bathtub.db"))
+            {
+                if (async)
+                {
+                    await context.Database.EnsureDeletedAsync();
+                    await context.Database.EnsureCreatedAsync();
+                }
+                else
+                {
+                    context.Database.EnsureDeleted();
+                    context.Database.EnsureCreated();
+                }
+            }
+
+            using (var context = new BathtubContext("Command Timeout=60;DataSource=bathtub.db"))
+            {
+                var creator = context.GetService<IRelationalDatabaseCreator>();
+
+                if (async)
+                {
+                    await context.Database.EnsureDeletedAsync();
+                    Assert.False(await creator.ExistsAsync());
+                }
+                else
+                {
+                    context.Database.EnsureDeleted();
+                    Assert.False(creator.Exists());
+                }
+            }
+        }
+
+        private class BathtubContext : DbContext
+        {
+            private readonly string _connectionString;
+
+            public BathtubContext(string connectionString)
+            {
+                _connectionString = connectionString;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlite(_connectionString);
+        }
+
+        [ConditionalTheory]
         [InlineData("Data Source=:memory:")]
         [InlineData("Data Source=exists-memory;Mode=Memory;Cache=Shared")]
         public void Exists_returns_true_when_memory(string connectionString)

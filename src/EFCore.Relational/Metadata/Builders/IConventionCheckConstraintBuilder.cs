@@ -6,6 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a check constraint.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
+    ///     <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+    /// </remarks>
     public interface IConventionCheckConstraintBuilder : IConventionAnnotatableBuilder
     {
         /// <summary>

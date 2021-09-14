@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a column in a table.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public interface IColumn : IColumnBase
     {
         /// <summary>
@@ -63,6 +66,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         bool IsRowVersion
             => PropertyMappings.First().Property.IsConcurrencyToken
                 && PropertyMappings.First().Property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
+
+        /// <summary>
+        ///     Gets the column order.
+        /// </summary>
+        /// <value> The column order. </value>
+        public virtual int? Order
+            => PropertyMappings.First().Property.GetColumnOrder(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
         /// <summary>
         ///     Returns the object that is used as the default value for this column.

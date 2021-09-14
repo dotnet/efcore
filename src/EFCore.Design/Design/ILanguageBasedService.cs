@@ -6,6 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// <summary>
     ///     Represents a service that gets resolved based on the programming language it supports.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public interface ILanguageBasedService
     {
         /// <summary>

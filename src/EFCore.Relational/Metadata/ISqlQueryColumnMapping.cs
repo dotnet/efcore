@@ -9,6 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents property mapping to a SQL query column.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///     for more information.
+    /// </remarks>
     public interface ISqlQueryColumnMapping : IColumnMappingBase
     {
         /// <summary>

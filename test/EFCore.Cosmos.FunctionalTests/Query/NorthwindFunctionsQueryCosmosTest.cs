@@ -1088,14 +1088,22 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
         [ConditionalTheory(Skip = "Issue #17246")]
+        public override async Task IsNullOrEmpty_negated_in_predicate(bool async)
+        {
+            await base.IsNullOrEmpty_negated_in_predicate(async);
+
+            AssertSql(@"");
+        }
+
+        [ConditionalTheory(Skip = "Issue #17246")]
         public override Task IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(bool async)
         {
             return base.IsNullOrWhiteSpace_in_predicate_on_non_nullable_column(async);
         }
 
-        public override void IsNullOrEmpty_in_projection()
+        public override async Task IsNullOrEmpty_in_projection(bool async)
         {
-            base.IsNullOrEmpty_in_projection();
+            await base.IsNullOrEmpty_in_projection(async);
 
             AssertSql(
                 @"SELECT c[""CustomerID""], c[""Region""]
@@ -1103,9 +1111,9 @@ FROM root c
 WHERE (c[""Discriminator""] = ""Customer"")");
         }
 
-        public override void IsNullOrEmpty_negated_in_projection()
+        public override async Task IsNullOrEmpty_negated_in_projection(bool async)
         {
-            base.IsNullOrEmpty_negated_in_projection();
+            await base.IsNullOrEmpty_negated_in_projection(async);
 
             AssertSql(
                 @"SELECT c[""CustomerID""], c[""Region""]

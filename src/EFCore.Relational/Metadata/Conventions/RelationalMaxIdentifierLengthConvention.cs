@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the maximum object identifier length supported by the database.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class RelationalMaxIdentifierLengthConvention : IModelInitializedConvention
     {
         /// <summary>

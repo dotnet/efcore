@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for inserting seed data into a table.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     [DebuggerDisplay("INSERT INTO {Table}")]
     public class InsertDataOperation : MigrationOperation, ITableMigrationOperation
     {

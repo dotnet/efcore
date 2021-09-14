@@ -27,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///         annotations that they understand.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public class AnnotationCodeGenerator : IAnnotationCodeGenerator
     {
         private static readonly ISet<string> _ignoredRelationalAnnotations = new HashSet<string>
@@ -54,6 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Design
         private static readonly MethodInfo _propertyHasColumnNameMethodInfo
             = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(RelationalPropertyBuilderExtensions.HasColumnName), typeof(PropertyBuilder), typeof(string));
+
+        private static readonly MethodInfo _propertyHasColumnOrderMethodInfo
+            = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
+                nameof(RelationalPropertyBuilderExtensions.HasColumnOrder), typeof(PropertyBuilder), typeof(int?));
 
         private static readonly MethodInfo _propertyHasDefaultValueSqlMethodInfo1
             = typeof(RelationalPropertyBuilderExtensions).GetRequiredRuntimeMethod(
@@ -220,6 +228,10 @@ namespace Microsoft.EntityFrameworkCore.Design
             GenerateSimpleFluentApiCall(
                 annotations,
                 RelationalAnnotationNames.ColumnName, _propertyHasColumnNameMethodInfo, methodCallCodeFragments);
+
+            GenerateSimpleFluentApiCall(
+                annotations,
+                RelationalAnnotationNames.ColumnOrder, _propertyHasColumnOrderMethodInfo, methodCallCodeFragments);
 
             if (TryGetAndRemove(annotations, RelationalAnnotationNames.DefaultValueSql, out string? defaultValueSql))
             {

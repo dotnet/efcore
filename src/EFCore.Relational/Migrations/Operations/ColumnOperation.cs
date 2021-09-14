@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on columns.
     ///     See also <see cref="AddColumnOperation" /> and <see cref="AlterColumnOperation" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     public abstract class ColumnOperation : MigrationOperation, ITableMigrationOperation
     {
         /// <summary>

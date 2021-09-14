@@ -737,6 +737,34 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         [ConditionalFact]
+        public void Create_table_columns_use_explicit_order()
+        {
+            Execute(
+                _ => { },
+                modelBuilder => modelBuilder.Entity<CreateTableEntity1>(
+                    b =>
+                    {
+                        b.Property(e => e.C).HasColumnOrder(3);
+                        b.Property(e => e.B).HasColumnOrder(1);
+                        b.Property(e => e.A).HasColumnOrder(2);
+                    }),
+                operations =>
+                {
+                    var operation = Assert.IsType<CreateTableOperation>(Assert.Single(operations));
+                    Assert.Collection(
+                        operation.Columns,
+                        x =>
+                        {
+                            Assert.Equal("B", x.Name);
+                            Assert.Null(operation.FindAnnotation(RelationalAnnotationNames.ColumnOrder));
+                        },
+                        x => Assert.Equal("A", x.Name),
+                        x => Assert.Equal("C", x.Name),
+                        x => Assert.Equal("Id", x.Name));
+                });
+        }
+
+        [ConditionalFact]
         public void Create_FK_to_excluded_principal()
         {
             Execute(
@@ -1564,6 +1592,31 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         Assert.Equal("Firefly", operation.Table);
                         Assert.Equal("Name", operation.Name);
                     }));
+        }
+
+        [ConditionalFact]
+        public void Add_column_with_order()
+        {
+            Execute(
+                source => source.Entity("Peacock").Property<int>("Id"),
+                target => target.Entity(
+                    "Peacock",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnOrder(1);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddColumnOperation>(operations[0]);
+                    Assert.Equal("Peacock", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal(1, operation[RelationalAnnotationNames.ColumnOrder]);
+                });
         }
 
         [ConditionalFact]
@@ -2662,6 +2715,71 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                     Assert.Equal("nvarchar(30)", operation.ColumnType);
                     Assert.Equal("New comment", operation.Comment);
                     Assert.Equal("Old comment", operation.OldColumn.Comment);
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_column_order()
+        {
+            Execute(
+                source => source.Entity(
+                    "Pangolin",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnOrder(1);
+                    }),
+                target => target.Entity(
+                    "Pangolin",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnOrder(2);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Pangolin", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Equal(2, operation[RelationalAnnotationNames.ColumnOrder]);
+                    Assert.Equal(1, operation.OldColumn[RelationalAnnotationNames.ColumnOrder]);
+                });
+        }
+
+        [ConditionalFact]
+        public void Alter_column_but_not_order()
+        {
+            Execute(
+                source => source.Entity(
+                    "Crane",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnOrder(1);
+                    }),
+                target => target.Entity(
+                    "Crane",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasColumnOrder(1)
+                            .IsUnicode(false);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Crane", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.Null(operation.FindAnnotation(RelationalAnnotationNames.ColumnOrder));
+                    Assert.Null(operation.OldColumn.FindAnnotation(RelationalAnnotationNames.ColumnOrder));
                 });
         }
 

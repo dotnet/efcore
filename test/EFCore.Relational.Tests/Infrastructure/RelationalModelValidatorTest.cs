@@ -821,6 +821,20 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         [ConditionalFact]
+        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_orders()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>();
+            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasColumnOrder(0);
+            modelBuilder.Entity<Dog>().Property(c => c.Breed).HasColumnName("Breed");
+
+            VerifyError(
+                RelationalStrings.DuplicateColumnNameOrderMismatch(
+                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal), 0, null),
+                modelBuilder);
+        }
+
+        [ConditionalFact]
         public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_precision()
         {
             var modelBuilder = CreateConventionalModelBuilder();
@@ -2118,6 +2132,21 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             Validate(modelBuilder);
 
             Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
+        }
+
+        [ConditionalFact]
+        public virtual void Detects_duplicate_column_orders()
+        {
+            var modelBuilder = CreateConventionalModelBuilder();
+            modelBuilder.Entity<Animal>(
+                x =>
+                {
+                    x.Property(a => a.Id).HasColumnOrder(0);
+                    x.Property(a => a.Name).HasColumnOrder(0);
+                });
+
+            var definition = RelationalResources.LogDuplicateColumnOrders(new TestLogger<TestRelationalLoggingDefinitions>());
+            VerifyWarning(definition.GenerateMessage("Animal", "'Id', 'Name'"), modelBuilder, LogLevel.Error);
         }
 
         protected override void SetBaseType(IMutableEntityType entityType, IMutableEntityType baseEntityType)

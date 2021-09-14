@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     /// <summary>
     ///     The options to use when generating SQL for migrations.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     [Flags]
     public enum MigrationsSqlGenerationOptions
     {

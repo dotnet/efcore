@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="IMutableDbFunction" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public class DbFunctionBuilder : DbFunctionBuilderBase
     {
         /// <summary>
@@ -28,6 +31,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the name of the database function.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual DbFunctionBuilder HasName(string name)
@@ -36,6 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the schema of the database function.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual DbFunctionBuilder HasSchema(string? schema)
@@ -44,6 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Marks whether the database function is built-in.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="builtIn"> The value indicating whether the database function is built-in. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual DbFunctionBuilder IsBuiltIn(bool builtIn = true)
@@ -52,6 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Marks whether the database function can return null value.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="nullable"> The value indicating whether the database function can return null. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilderBase IsNullable(bool nullable = true)
@@ -64,6 +79,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the return store type of the database function.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="storeType"> The return store type of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilder HasStoreType(string? storeType)
@@ -84,6 +102,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         See https://go.microsoft.com/fwlink/?linkid=852477 for more information.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="translation"> The translation to use. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilder HasTranslation(Func<IReadOnlyList<SqlExpression>, SqlExpression> translation)

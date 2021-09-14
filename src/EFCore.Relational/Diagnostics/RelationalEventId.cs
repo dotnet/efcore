@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         behavior of warnings.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information.
+    /// </remarks>
     public static class RelationalEventId
     {
         // Warning: These values must not change between releases.
@@ -72,6 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             MigrationsNotApplied,
             MigrationsNotFound,
             MigrationAttributeMissingWarning,
+            ColumnOrderIgnoredWarning,
 
             // Query events
             QueryClientEvaluationWarning = CoreEventId.RelationalBaseId + 500,
@@ -88,6 +92,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             IndexPropertiesMappedToNonOverlappingTables,
             ForeignKeyPropertiesMappedToUnrelatedTables,
             OptionalDependentWithoutIdentifyingPropertyWarning,
+            DuplicateColumnOrders,
 
             // Update events
             BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -598,6 +603,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId MigrationAttributeMissingWarning = MakeMigrationsId(Id.MigrationAttributeMissingWarning);
 
+        /// <summary>
+        ///     <para>
+        ///         Column order was ignored.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Migrations" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="MigrationColumnOperationEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId ColumnOrderIgnoredWarning = MakeMigrationsId(Id.ColumnOrderIgnoredWarning);
+
         private static readonly string _queryPrefix = DbLoggerCategory.Query.Name + ".";
 
         private static EventId MakeQueryId(Id id)
@@ -738,6 +756,19 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static readonly EventId OptionalDependentWithoutIdentifyingPropertyWarning
             = MakeValidationId(Id.OptionalDependentWithoutIdentifyingPropertyWarning);
+
+        /// <summary>
+        ///     <para>
+        ///         The configured column orders for a table contains duplicates.
+        ///     </para>
+        ///     <para>
+        ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+        ///     </para>
+        ///     <para>
+        ///         This event uses the <see cref="ColumnsEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+        ///     </para>
+        /// </summary>
+        public static readonly EventId DuplicateColumnOrders = MakeValidationId(Id.DuplicateColumnOrders);
 
         private static readonly string _updatePrefix = DbLoggerCategory.Update.Name + ".";
 

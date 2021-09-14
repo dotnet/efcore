@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore
     ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
     ///     The methods on this class are accessed via <see cref="EF.Functions" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public static class RelationalDbFunctionsExtensions
     {
         /// <summary>
@@ -25,8 +28,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
-        ///     This can happen if the query contains one or more expressions that could not be translated to the store.
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
         /// </remarks>
         /// <typeparam name="TProperty"> The type of the operand on which the collation is being specified. </typeparam>
         /// <param name="_"> The <see cref="DbFunctions" /> instance. </param>

@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Names for well-known relational model annotations. Applications should not use these names
     ///     directly, but should instead use the extension methods on metadata objects.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalAnnotationNames
     {
         /// <summary>
@@ -20,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     The name for column name annotations.
         /// </summary>
         public const string ColumnName = Prefix + "ColumnName";
+
+        /// <summary>
+        ///     The name for column order annotations.
+        /// </summary>
+        public const string ColumnOrder = Prefix + "ColumnOrder";
 
         /// <summary>
         ///     The name for column type annotations.

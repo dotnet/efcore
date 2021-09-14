@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="ISequence" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+    /// </remarks>
     public class SequenceBuilder : IInfrastructure<IConventionSequenceBuilder>
     {
         /// <summary>
@@ -43,6 +46,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the <see cref="ISequence" /> to increment by the given amount when generating each next value.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="increment"> The amount to increment between values. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder IncrementsBy(int increment)
@@ -55,6 +61,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the <see cref="ISequence" /> to start at the given value.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="startValue"> The starting value for the sequence. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder StartsAt(long startValue)
@@ -67,6 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the maximum value for the <see cref="ISequence" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="maximum"> The maximum value for the sequence. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder HasMax(long maximum)
@@ -79,6 +91,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the minimum value for the <see cref="ISequence" />.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="minimum"> The minimum value for the sequence. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder HasMin(long minimum)
@@ -92,6 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Sets whether or not the sequence will start again from the beginning once
         ///     the maximum value is reached.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+        /// </remarks>
         /// <param name="cyclic"> If <see langword="true" />, then the sequence will restart when the maximum is reached. </param>
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual SequenceBuilder IsCyclic(bool cyclic = true)

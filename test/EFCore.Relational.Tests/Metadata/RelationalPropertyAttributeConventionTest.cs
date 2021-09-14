@@ -25,6 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.GetColumnBaseName());
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.GetColumnType());
+            Assert.Equal(1, entityBuilder.Property(e => e.Name).Metadata.GetColumnOrder());
         }
 
         [ConditionalFact]
@@ -46,6 +47,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Equal("Post Name", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnBaseName());
             Assert.Equal("DECIMAL", entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnType());
+            Assert.Equal(1, entityBuilder.Property<string>(nameof(F.Name)).Metadata.GetColumnOrder());
         }
 
         [ConditionalFact]
@@ -67,12 +69,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnOrder, 2, ConfigurationSource.Convention);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ConventionalName", ConfigurationSource.Convention);
 
             RunConvention(propertyBuilder);
 
             Assert.Equal("Post Name", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.GetColumnType());
+            Assert.Equal(1, propertyBuilder.Metadata.GetColumnOrder());
             Assert.Equal("Test column comment", propertyBuilder.Metadata.GetComment());
         }
 
@@ -99,12 +103,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);
+            propertyBuilder.HasAnnotation(RelationalAnnotationNames.ColumnOrder, 2, ConfigurationSource.Explicit);
             propertyBuilder.HasAnnotation(RelationalAnnotationNames.Comment, "ExplicitComment", ConfigurationSource.Explicit);
 
             RunConvention(propertyBuilder);
 
             Assert.Equal("ExplicitName", propertyBuilder.Metadata.GetColumnBaseName());
             Assert.Equal("BYTE", propertyBuilder.Metadata.GetColumnType());
+            Assert.Equal(2, propertyBuilder.Metadata.GetColumnOrder());
             Assert.Equal("ExplicitComment", propertyBuilder.Metadata.GetComment());
         }
 

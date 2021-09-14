@@ -6,6 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a primary key constraint.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+    /// </remarks>
     public interface IPrimaryKeyConstraint : IUniqueConstraint
     {
     }

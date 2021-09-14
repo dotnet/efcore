@@ -7885,7 +7885,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         }
 
-        [ConditionalTheory(Skip = "issue #22692")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cast_to_derived_followed_by_multiple_includes(bool async)
         {
@@ -9116,6 +9116,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertEqual(e.NestedOuter.NestedInner.Property, a.NestedOuter.NestedInner.Property);
                     AssertEqual(e.NestedOuter.NestedInner.PropertyAfterNavigation, a.NestedOuter.NestedInner.PropertyAfterNavigation);
                 });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Where_equals_method_on_nullable_with_object_overload(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Mission>().Where(m => m.Rating.Equals(null)));
         }
 
         protected GearsOfWarContext CreateContext()

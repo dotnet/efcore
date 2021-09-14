@@ -276,8 +276,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 case EntityShaperExpression entityShaperExpression:
                     return new EntityReferenceExpression(entityShaperExpression);
 
-                case ProjectionBindingExpression projectionBindingExpression
-                    when projectionBindingExpression.ProjectionMember != null:
+                case ProjectionBindingExpression projectionBindingExpression:
                     return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression).GetProjection(projectionBindingExpression);
 
                 default:

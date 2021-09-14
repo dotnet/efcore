@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
     /// <summary>
     ///     Defines the entry point for Migrations bundles.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migration-bundles">EF Core migration bundles</see>.
+    /// </remarks>
     public static class MigrationsBundle
     {
         private static string? _context;

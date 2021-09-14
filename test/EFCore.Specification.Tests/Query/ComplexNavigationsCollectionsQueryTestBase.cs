@@ -2536,5 +2536,53 @@ namespace Microsoft.EntityFrameworkCore.Query
                     AssertCollection(e.Collection, a.Collection);
                 });
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_issue_21665(bool async)
+        {
+            return AssertFirstOrDefault(
+                async,
+                ss => ss.Set<Level1>()
+                    .OrderBy(l1 => l1.Name)
+                    .Select(l1 => new
+                    {
+                        Level1 = l1,
+                        Level2Name = l1.OneToOne_Optional_FK1.Name,
+                        ChildCount = l1.OneToMany_Optional_Self1.Count,
+                        Level2Count = l1.OneToMany_Optional1.Count(),
+                        IsLevel2There = l1.OneToMany_Optional1.Any(l2 => l2.Id == 2),
+                        Children = l1.OneToMany_Optional_Self1
+                            .OrderBy(e => e.Name)
+                            .Skip(1)
+                            .Take(5)
+                            .Select(lc1 => new
+                            {
+                                Level1 = lc1,
+                                ChildCount = lc1.OneToMany_Optional_Self1.Count,
+                                Level2Name = lc1.OneToOne_Optional_FK1.Name,
+                                Level2Count = lc1.OneToMany_Optional1.Count(),
+                                IsLevel2There = lc1.OneToMany_Optional1.Any(l2 => l2.Id == 2)
+                            })
+                    }),
+                e => e.Level1.Id == 2,
+                asserter: (e, a) =>
+                {
+                    AssertEqual(e.Level1, a.Level1);
+                    AssertEqual(e.Level2Name, a.Level2Name);
+                    AssertEqual(e.ChildCount, a.ChildCount);
+                    AssertEqual(e.Level2Count, a.Level2Count);
+                    AssertEqual(e.IsLevel2There, a.IsLevel2There);
+                    AssertCollection(e.Children, a.Children, ordered: true,
+                        elementAsserter: (ee, aa) =>
+                        {
+                            AssertEqual(ee.Level1, aa.Level1);
+                            AssertEqual(ee.Level2Name, aa.Level2Name);
+                            AssertEqual(ee.ChildCount, aa.ChildCount);
+                            AssertEqual(ee.Level2Count, aa.Level2Count);
+                            AssertEqual(ee.IsLevel2There, aa.IsLevel2There);
+                        });
+                });
+        }
     }
 }

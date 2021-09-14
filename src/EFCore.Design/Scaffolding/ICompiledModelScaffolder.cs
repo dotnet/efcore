@@ -9,6 +9,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// <summary>
     ///     Used to scaffold a compiled model from a model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-compiled-models">EF Core compiled models</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public interface ICompiledModelScaffolder
     {
         /// <summary>

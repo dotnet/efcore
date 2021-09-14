@@ -14,6 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Design
     ///     have code generated (as opposed to being handled by convention) and then to generate
     ///     the code if needed.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public interface IAnnotationCodeGenerator
     {
         /// <summary>

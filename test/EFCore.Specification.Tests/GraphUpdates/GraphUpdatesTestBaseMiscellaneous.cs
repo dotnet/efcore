@@ -18,6 +18,33 @@ namespace Microsoft.EntityFrameworkCore
     public abstract partial class GraphUpdatesTestBase<TFixture>
         where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
     {
+        [ConditionalTheory] // Issue #23974
+        [InlineData(false)]
+        [InlineData(true)]
+        public virtual async Task Can_insert_when_FK_has_default_value(bool async)
+        {
+            await ExecuteWithStrategyInTransactionAsync(
+                async context =>
+                {
+                    if (async)
+                    {
+                        await context.AddAsync(new Cruiser());
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        context.Add(new Cruiser());
+                        context.SaveChanges();
+                    }
+                },
+                async context =>
+                {
+                    var queryable = context.Set<Cruiser>().Include(e => e.UserState);
+                    var cruiser = async ? (await queryable.SingleAsync()) : queryable.Single();
+                    Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateId);
+                });
+        }
+
         [ConditionalTheory] // Issue #23043
         [InlineData(false)]
         [InlineData(true)]

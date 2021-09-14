@@ -617,6 +617,35 @@ FROM ""Customers"" AS ""c""
 WHERE regexp(""c"".""CustomerID"", 'ALFKI')");
         }
 
+        public override async Task IsNullOrEmpty_in_predicate(bool async)
+        {
+            await base.IsNullOrEmpty_in_predicate(async);
+
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""Region"" IS NULL OR (""c"".""Region"" = '')");
+        }
+
+        public override async Task IsNullOrEmpty_in_projection(bool async)
+        {
+            await base.IsNullOrEmpty_in_projection(async);
+
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"" AS ""Id"", ""c"".""Region"" IS NULL OR (""c"".""Region"" = '') AS ""Value""
+FROM ""Customers"" AS ""c""");
+        }
+
+        public override async Task IsNullOrEmpty_negated_in_predicate(bool async)
+        {
+            await base.IsNullOrEmpty_negated_in_predicate(async);
+
+            AssertSql(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""Region"" IS NOT NULL AND (""c"".""Region"" <> '')");
+        }
+
         public override Task Datetime_subtraction_TotalDays(bool async)
         {
             return AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));

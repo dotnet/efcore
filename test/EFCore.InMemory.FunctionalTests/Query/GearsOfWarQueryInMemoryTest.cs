@@ -25,11 +25,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 CoreStrings.QueryUnableToTranslateMember(nameof(Gear.IsMarcus), nameof(Gear)));
         }
 
-        [ConditionalTheory(Skip = "issue #17540")]
-        public override Task
+        public override async Task
             Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(bool async)
-            => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
-                async);
+        {
+            Assert.Equal(
+                "Nullable object must have a value.",
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    () => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
+                           async))).Message);
+        }
 
         [ConditionalTheory(Skip = "issue #19683")]
         public override Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
@@ -65,12 +69,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 () => base.Projecting_some_properties_as_well_as_correlated_collection_followed_by_Distinct(async))).Message;
 
             Assert.Equal(InMemoryStrings.DistinctOnSubqueryNotSupported, message);
-        }
-
-        [ConditionalTheory(Skip = "Issue #25735")]
-        public override Task Project_navigation_defined_on_derived_from_entity_with_inheritance_using_soft_cast(bool async)
-        {
-            return base.Project_navigation_defined_on_derived_from_entity_with_inheritance_using_soft_cast(async);
         }
     }
 }

@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             {
                 foreach (var property in foreignKey.Properties)
                 {
-                    property.Builder.ValueGenerated(ValueGenerated.Never);
+                    property.Builder.ValueGenerated(GetValueGenerated(property));
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     foreach (var property in foreignKey.Properties)
                     {
-                        property.Builder.ValueGenerated(ValueGenerated.Never);
+                        property.Builder.ValueGenerated(GetValueGenerated(property));
                     }
                 }
             }

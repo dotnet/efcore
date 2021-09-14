@@ -2120,6 +2120,149 @@ END = CASE
 END");
         }
 
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_simple(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_simple(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] IS NOT NULL AND ([e].[NullableStringA] = N'Foo')");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_negative(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_negative(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] IS NOT NULL OR (([e].[NullableStringA] = N'Foo') AND [e].[NullableStringA] IS NOT NULL)");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_nested(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_nested(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) OR ([e].[NullableStringA] <> [e].[NullableStringB])");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_intersection(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_intersection(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableStringA] IS NULL AND ((([e].[StringA] = N'Foo') OR [e].[NullableStringA] IS NULL) OR [e].[NullableStringB] IS NULL)) OR (([e].[NullableStringA] <> [e].[NullableStringB]) OR [e].[NullableStringB] IS NULL)");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional(async);
+
+            // issue #25977
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableStringA] IS NULL THEN CASE
+        WHEN (([e].[NullableStringA] <> [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    ELSE CASE
+        WHEN (([e].[NullableStringA] <> [e].[NullableStringC]) OR ([e].[NullableStringA] IS NULL OR [e].[NullableStringC] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringC] IS NOT NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit)");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_multiple(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_multiple(async);
+
+            // issue #25977
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL THEN CASE
+        WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    ELSE CASE
+        WHEN (([e].[NullableStringA] <> [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit)");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_negative(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_negative(async);
+
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL) AND ([e].[NullableBoolC] IS NULL) THEN CASE
+        WHEN (([e].[NullableStringA] = [e].[NullableStringB]) AND ([e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL)) OR ([e].[NullableStringA] IS NULL AND [e].[NullableStringB] IS NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    ELSE CASE
+        WHEN (([e].[NullableStringA] <> [e].[NullableStringB]) OR ([e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL)) AND ([e].[NullableStringA] IS NOT NULL OR [e].[NullableStringB] IS NOT NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit)");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_with_setup(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_with_setup(async);
+
+            // issue #25977
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE ([e].[NullableBoolA] IS NULL) OR (CASE
+    WHEN [e].[NullableBoolB] IS NULL THEN CASE
+        WHEN ([e].[NullableBoolB] <> [e].[NullableBoolA]) OR ([e].[NullableBoolB] IS NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    ELSE CASE
+        WHEN ([e].[NullableBoolA] <> [e].[NullableBoolB]) OR ([e].[NullableBoolB] IS NULL) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit))");
+        }
+
+        public override async Task Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_nested(bool async)
+        {
+            await base.Is_null_on_column_followed_by_OrElse_optimizes_nullability_conditional_nested(async);
+
+            // issue #25977
+            AssertSql(
+                @"SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
+FROM [Entities1] AS [e]
+WHERE CASE
+    WHEN [e].[NullableBoolA] IS NULL THEN CASE
+        WHEN [e].[BoolA] = [e].[BoolB] THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    WHEN [e].[NullableBoolC] IS NULL THEN CASE
+        WHEN (([e].[NullableBoolA] <> [e].[NullableBoolC]) OR (([e].[NullableBoolA] IS NULL) OR ([e].[NullableBoolC] IS NULL))) AND (([e].[NullableBoolA] IS NOT NULL) OR ([e].[NullableBoolC] IS NOT NULL)) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+    ELSE CASE
+        WHEN (([e].[NullableBoolC] <> [e].[NullableBoolA]) OR (([e].[NullableBoolC] IS NULL) OR ([e].[NullableBoolA] IS NULL))) AND (([e].[NullableBoolC] IS NOT NULL) OR ([e].[NullableBoolA] IS NOT NULL)) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
+END = CAST(1 AS bit)");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

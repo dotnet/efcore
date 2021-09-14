@@ -969,7 +969,27 @@ WHERE POWER([o].[Discount], CAST(2 AS real)) > CAST(0.05 AS real)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ROUND(CAST([o].[UnitPrice] AS real), 2) > CAST(100 AS real)");
+WHERE CAST(ROUND(CAST([o].[UnitPrice] AS real), 2) AS real) > CAST(100 AS real)");
+        }
+
+        public override async Task Select_mathf_round(bool async)
+        {
+            await base.Select_mathf_round(async);
+
+            AssertSql(
+                @"SELECT CAST(ROUND(CAST([o].[OrderID] AS real), 0) AS real)
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] < 10250");
+        }
+
+        public override async Task Select_mathf_round2(bool async)
+        {
+            await base.Select_mathf_round2(async);
+
+            AssertSql(
+                @"SELECT CAST(ROUND(CAST([o].[UnitPrice] AS real), 2) AS real)
+FROM [Order Details] AS [o]
+WHERE [o].[Quantity] < CAST(5 AS smallint)");
         }
 
         public override async Task Where_mathf_truncate(bool async)
@@ -979,7 +999,17 @@ WHERE ROUND(CAST([o].[UnitPrice] AS real), 2) > CAST(100 AS real)");
             AssertSql(
                 @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (ROUND(CAST([o].[UnitPrice] AS real), 0, 1) > CAST(10 AS real))");
+WHERE ([o].[Quantity] < CAST(5 AS smallint)) AND (CAST(ROUND(CAST([o].[UnitPrice] AS real), 0, 1) AS real) > CAST(10 AS real))");
+        }
+
+        public override async Task Select_mathf_truncate(bool async)
+        {
+            await base.Select_mathf_truncate(async);
+
+            AssertSql(
+                @"SELECT CAST(ROUND(CAST([o].[UnitPrice] AS real), 0, 1) AS real)
+FROM [Order Details] AS [o]
+WHERE [o].[Quantity] < CAST(5 AS smallint)");
         }
 
         public override async Task Where_mathf_exp(bool async)
@@ -1626,9 +1656,9 @@ FROM [Customers] AS [c]
 WHERE [c].[Region] IS NULL OR ([c].[Region] LIKE N'')");
         }
 
-        public override void IsNullOrEmpty_in_projection()
+        public override async Task IsNullOrEmpty_in_projection(bool async)
         {
-            base.IsNullOrEmpty_in_projection();
+            await base.IsNullOrEmpty_in_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
@@ -1638,13 +1668,23 @@ END AS [Value]
 FROM [Customers] AS [c]");
         }
 
-        public override void IsNullOrEmpty_negated_in_projection()
+        public override async Task IsNullOrEmpty_negated_in_predicate(bool async)
         {
-            base.IsNullOrEmpty_negated_in_projection();
+            await base.IsNullOrEmpty_negated_in_predicate(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'')");
+        }
+
+        public override async Task IsNullOrEmpty_negated_in_projection(bool async)
+        {
+            await base.IsNullOrEmpty_negated_in_projection(async);
 
             AssertSql(
                 @"SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN NOT ([c].[Region] IS NULL OR ([c].[Region] LIKE N'')) THEN CAST(1 AS bit)
+    WHEN [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]");

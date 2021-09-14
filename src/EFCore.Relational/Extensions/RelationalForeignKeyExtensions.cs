@@ -12,8 +12,11 @@ using Microsoft.EntityFrameworkCore.Utilities;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Foregn key extension methods for relational database metadata.
+    ///     Foreign key extension methods for relational database metadata.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalForeignKeyExtensions
     {
         /// <summary>

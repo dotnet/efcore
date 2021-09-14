@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///         Note that some database engines do not support or correctly honor every action.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     public enum ReferentialAction
     {
         /// <summary>

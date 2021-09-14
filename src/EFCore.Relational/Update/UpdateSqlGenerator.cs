@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,10 @@ namespace Microsoft.EntityFrameworkCore.Update
     ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
         /// <summary>
@@ -499,18 +504,31 @@ namespace Microsoft.EntityFrameworkCore.Update
                         {
                             if (v.IsKey)
                             {
-                                if (v.IsRead)
-                                {
-                                    AppendIdentityWhereCondition(sb, v);
-                                }
-                                else
+                                if (!v.IsRead)
                                 {
                                     AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
+                                    return true;
                                 }
                             }
+
+                            if (IsIdentityOperation(v))
+                            {
+                                AppendIdentityWhereCondition(sb, v);
+                                return true;
+                            }
+
+                            return false;
                         }, " AND ");
             }
         }
+
+        /// <summary>
+        ///     Returns a value indicating whether the given modification represents an auto-incrementing column.
+        /// </summary>
+        /// <param name="modification"> The column modification. </param>
+        /// <returns> <see langword="true" /> if the given modification represents an auto-incrementing column. </returns>
+        protected virtual bool IsIdentityOperation(IColumnModification modification)
+            => modification.IsKey && modification.IsRead;
 
         /// <summary>
         ///     Appends a <c>WHERE</c> condition checking rows affected.

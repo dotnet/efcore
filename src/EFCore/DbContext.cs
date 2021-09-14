@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>,
     ///         <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, 
     ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-saving">Saving data with EF Core</see> for more information.
+    ///         <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information.
     ///     </para>
     /// </remarks>
     public class DbContext :
