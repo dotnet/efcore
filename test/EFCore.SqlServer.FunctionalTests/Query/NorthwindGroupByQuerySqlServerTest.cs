@@ -1420,6 +1420,36 @@ INNER JOIN [Customers] AS [c] ON [t].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Orders] AS [o0] ON [t].[LastOrderID] = [o0].[OrderID]");
         }
 
+        public override async Task GroupBy_Aggregate_Join_converted_from_SelectMany(bool async)
+        {
+            await base.GroupBy_Aggregate_Join_converted_from_SelectMany(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [o].[CustomerID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 5
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+        }
+
+        public override async Task GroupBy_Aggregate_LeftJoin_converted_from_SelectMany(bool async)
+        {
+            await base.GroupBy_Aggregate_LeftJoin_converted_from_SelectMany(async);
+
+            AssertSql(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 5
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
+        }
+
         public override async Task Join_GroupBy_Aggregate_multijoins(bool async)
         {
             await base.Join_GroupBy_Aggregate_multijoins(async);
