@@ -86,7 +86,10 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.HasDefaultValue)),
                 typeof(DiagnosticsLogger<>).GetMethod("DispatchEventData", AnyInstance),
                 typeof(DiagnosticsLogger<>).GetMethod("ShouldLog", AnyInstance),
-                typeof(DiagnosticsLogger<>).GetMethod("NeedsEventData", AnyInstance)
+                typeof(DiagnosticsLogger<>).GetMethod("NeedsEventData", AnyInstance),
+                typeof(ChangeDetector).GetMethod("DetectValueChange"),
+                typeof(ChangeDetector).GetMethod("DetectNavigationChange"),
+                typeof(StateManager).GetMethod("get_ChangeDetector")
             };
 
             public override HashSet<MethodInfo> NotAnnotatedMethods { get; } = new()
@@ -119,8 +122,6 @@ namespace Microsoft.EntityFrameworkCore
                 typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
                 typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
                 typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetConcreteDerivedTypesInclusive)),
-                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.FindClosestCommonParent)),
-                typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.LeastDerivedType)),
                 typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
                 typeof(IReadOnlyNavigationBase).GetMethod("get_DeclaringEntityType"),
                 typeof(IReadOnlyNavigationBase).GetMethod("get_TargetEntityType"),

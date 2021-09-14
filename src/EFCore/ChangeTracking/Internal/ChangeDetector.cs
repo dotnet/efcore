@@ -150,7 +150,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             _logger.DetectChangesStarting(stateManager.Context);
 
-            foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
+            foreach (var entry in stateManager.ToListForState(
+                added: true, modified: true, deleted: true, unchanged: true, returnDeletedSharedIdentity: false))
             {
                 if (entry.EntityState != EntityState.Detached)
                 {
@@ -205,26 +206,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     && !entry.IsModified(property)
                     && !entry.IsConceptualNull(property))
                 {
-                    var current = entry[property];
-                    var original = entry.GetOriginalValue(property);
-
-                    if (!property.GetValueComparer().Equals(current, original))
-                    {
-                        if (entry.EntityState == EntityState.Deleted)
-                        {
-                            ThrowIfKeyChanged(entry, property);
-                        }
-                        else
-                        {
-                            LogChangeDetected(entry, property, original, current);
-                            entry.SetPropertyModified(property);
-                        }
-                    }
+                    DetectValueChange(entry, property);
                 }
-            }
 
-            foreach (var property in entityType.GetProperties())
-            {
                 DetectKeyChange(entry, property);
             }
 
@@ -238,6 +222,31 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 foreach (var navigation in entityType.GetSkipNavigations())
                 {
                     DetectNavigationChange(entry, navigation);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public void DetectValueChange(InternalEntityEntry entry, IProperty property)
+        {
+            var current = entry[property];
+            var original = entry.GetOriginalValue(property);
+
+            if (!property.GetValueComparer().Equals(current, original))
+            {
+                if (entry.EntityState == EntityState.Deleted)
+                {
+                    ThrowIfKeyChanged(entry, property);
+                }
+                else
+                {
+                    LogChangeDetected(entry, property, original, current);
+                    entry.SetPropertyModified(property);
                 }
             }
         }
@@ -289,7 +298,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
         }
 
-        private void DetectNavigationChange(InternalEntityEntry entry, INavigationBase navigationBase)
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public void DetectNavigationChange(InternalEntityEntry entry, INavigationBase navigationBase)
         {
             var snapshotValue = entry.GetRelationshipSnapshotValue(navigationBase);
             var currentValue = entry[navigationBase];

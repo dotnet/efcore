@@ -830,6 +830,92 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
+        public void Can_replace_identifying_FK_entity_with_many_to_many()
+        {
+            using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+            var options = Fixture.CreateOptions(testDatabase);
+
+            using (var context = new SomeDbContext(options))
+            {
+                context.Database.EnsureCreatedResiliently();
+
+                context.Add(new EntityA()
+                {
+                    EntityB = new EntityB()
+                    {
+                        EntitiesC = { new EntityC() },
+                    }
+                });
+
+                context.SaveChanges();
+            }
+
+            var expectedCId = 0;
+            using (var context = new SomeDbContext(options))
+            {
+                var entityA = context.EntitiesA.Include(x => x.EntityB).ThenInclude(x => x.EntitiesC).OrderBy(x => x.Id).First();
+
+                entityA.EntityB = new EntityB()
+                {
+                    EntitiesC = { new EntityC() }
+                };
+
+                context.ChangeTracker.DetectChanges();
+
+                context.SaveChanges();
+
+                expectedCId = entityA.EntityB.EntitiesC.Single().Id;
+            }
+
+            using (var context = new SomeDbContext(options))
+            {
+                var entityA = context.EntitiesA.Include(x => x.EntityB).ThenInclude(x => x.EntitiesC).OrderBy(x => x.Id).First();
+
+                Assert.Equal(expectedCId, entityA.EntityB.EntitiesC.Single().Id);
+            }
+        }
+
+        private class EntityA
+        {
+            public int Id { get; set; }
+            public virtual EntityB EntityB { get; set; }
+        }
+
+        private class EntityB
+        {
+            public int Id { get; set; }
+            public virtual EntityA EntityA { get; set; }
+            public virtual ICollection<EntityC> EntitiesC { get; } = new List<EntityC>();
+        }
+
+        private class EntityC
+        {
+            public int Id { get; set; }
+            public virtual ICollection<EntityB> EntitiesB { get; } = new List<EntityB>();
+        }
+
+        private class SomeDbContext : DbContext
+        {
+            public SomeDbContext(DbContextOptions options)
+                : base(options)
+            {
+            }
+
+            public DbSet<EntityA> EntitiesA { get; set; }
+            public DbSet<EntityB> EntitiesB { get; set; }
+            public DbSet<EntityC> EntitiesC { get; set; }
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder
+                    .Entity<EntityA>()
+                    .HasOne(e => e.EntityB)
+                    .WithOne(e => e.EntityA)
+                    .HasForeignKey<EntityB>(e => e.Id);
+            }
+        }
+
+        [ConditionalFact]
         public void Adding_an_item_to_a_collection_marks_it_as_modified()
         {
             using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);

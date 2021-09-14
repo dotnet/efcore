@@ -762,13 +762,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                                 SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
                             }
 
-                            foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
+                            if (dependentEntry.EntityState != EntityState.Deleted
+                                && dependentEntry.EntityState != EntityState.Detached)
                             {
-                                var otherEntry = stateManager.FindPrincipal(dependentEntry, skipNavigation.Inverse.ForeignKey);
-                                if (otherEntry != null)
+                                foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
                                 {
-                                    AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
-                                    AddToCollection(entry, skipNavigation, otherEntry, fromQuery);
+                                    var otherEntry = stateManager.FindPrincipal(dependentEntry, skipNavigation.Inverse.ForeignKey);
+                                    if (otherEntry != null)
+                                    {
+                                        AddToCollection(otherEntry, skipNavigation.Inverse, entry, fromQuery);
+                                        AddToCollection(entry, skipNavigation, otherEntry, fromQuery);
+                                    }
                                 }
                             }
                         }
@@ -1309,7 +1313,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                     case EntityState.Unchanged:
                     case EntityState.Modified:
-                        dependentEntry.SetEntityState(EntityState.Deleted);
+                        dependentEntry.SetEntityState(dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
                         DeleteFixup(dependentEntry);
                         break;
                 }
