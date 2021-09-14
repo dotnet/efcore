@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Property extension methods for relational database metadata.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalPropertyExtensions
     {
         /// <summary>

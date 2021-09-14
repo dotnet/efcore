@@ -12,6 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that ensures that properties aren't configured to have a default value and as computed column at the same time.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
+    ///     <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class StoreGenerationConvention : IPropertyAnnotationChangedConvention, IModelFinalizingConvention
     {
         /// <summary>

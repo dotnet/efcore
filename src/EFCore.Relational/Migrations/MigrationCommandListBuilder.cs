@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
     ///     A builder for creating a list of <see cref="MigrationCommand" />s that can then be
     ///     executed to migrate a database.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     public class MigrationCommandListBuilder
     {
         private readonly List<MigrationCommand> _commands = new();

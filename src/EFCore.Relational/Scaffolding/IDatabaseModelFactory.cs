@@ -10,6 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     ///     A service typically implemented by database providers to reverse engineer a database into
     ///     a <see cref="DatabaseModel" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-scaffolding">Reverse engineering (scaffolding) an existing database</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public interface IDatabaseModelFactory
     {
         /// <summary>

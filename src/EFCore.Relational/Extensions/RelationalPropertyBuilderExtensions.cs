@@ -13,11 +13,17 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Relational database specific extension methods for <see cref="PropertyBuilder" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public static class RelationalPropertyBuilderExtensions
     {
         /// <summary>
         ///     Configures the column that the property maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -36,6 +42,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the column that the property maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the column. </param>
@@ -48,6 +57,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the column that the property maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -72,6 +84,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the column that the property maps to in a particular table-like store object.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the column. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
@@ -98,6 +113,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given column can be set for the property.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -111,6 +129,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given column for a particular table-like store object can be set for the property.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="name"> The name of the column. </param>
         /// <param name="storeObject"> The identifier of the store object. </param>
@@ -189,6 +210,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -208,6 +232,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
@@ -221,6 +248,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the data type of the column that the property maps to when targeting a relational database.
         ///     This should be the complete type name, including precision, scale, length, etc.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -245,6 +275,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given data type can be set for the property.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="typeName"> The name of the data type of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -258,6 +291,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -275,6 +311,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
@@ -287,6 +326,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property as capable of storing only fixed-length data, such as strings.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -311,6 +353,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the property can be configured as being fixed length or not.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="fixedLength"> A value indicating whether the property is constrained to fixed length values. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -332,6 +377,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         existing database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasDefaultValueSql(this PropertyBuilder propertyBuilder)
@@ -346,6 +394,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression for the default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -372,6 +423,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         existing database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -382,6 +436,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression for the default value of the column. </param>
@@ -394,6 +451,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression for the default value of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -418,6 +478,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given default value expression can be set for the column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression for the default value of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -441,6 +504,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasComputedColumnSql(this PropertyBuilder propertyBuilder)
@@ -455,6 +521,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -466,6 +535,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
         /// <param name="stored">
@@ -502,6 +574,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -512,6 +587,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
@@ -524,6 +602,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
@@ -542,6 +623,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property to map to a computed column when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -566,6 +650,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the property to map to a computed column of the given type when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="stored">
         ///     If <see langword="true" />, the computed value is calculated on row modification and stored in the database like a regular column.
@@ -593,6 +680,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given computed value SQL expression can be set for the column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="sql"> The SQL expression that computes values for the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -609,6 +699,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given computed column type can be set for the column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="stored">
         ///     If <see langword="true" />, the computed value is calculated on row modification and stored in the database like a regular column.
@@ -637,6 +730,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         This can be useful when mapping EF to an existing database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
         public static PropertyBuilder HasDefaultValue(this PropertyBuilder propertyBuilder)
@@ -652,6 +748,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the default value for the column that the property maps
         ///     to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="value"> The default value of the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -677,6 +776,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         This can be useful when mapping EF to an existing database.
         ///     </para>
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -688,6 +790,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the default value for the column that the property maps
         ///     to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="value"> The default value of the column. </param>
@@ -700,6 +805,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures the default value for the column that the property maps to when targeting a relational database.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="value"> The default value of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -724,6 +832,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as default for the column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-default-values">Database default values</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="value"> The default value of the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -740,6 +851,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a comment to be applied to the column
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="comment"> The comment for the column. </param>
         /// <returns> The same builder instance so that multiple calls can be chained. </returns>
@@ -757,6 +871,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a comment to be applied to the column
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <typeparam name="TProperty"> The type of the property being configured. </typeparam>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="comment"> The comment for the column. </param>
@@ -769,6 +886,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Configures a comment to be applied to the column
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="comment"> The comment for the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -793,6 +913,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as comment for the column.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="comment"> The comment for the column. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -810,6 +933,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="collation"> The collation for the column. </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -827,6 +953,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="collation"> The collation for the column. </param>
         /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -839,6 +968,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Configures the property to use the given collation. The database column will be created with the given
         ///     collation, and it will be used implicitly in all collation-sensitive operations.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="collation"> The collation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
@@ -864,6 +996,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a value indicating whether the given value can be set as the collation.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-collations">Database collations</see> for more information.
+        /// </remarks>
         /// <param name="propertyBuilder"> The builder for the property being configured. </param>
         /// <param name="collation"> The collation. </param>
         /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>

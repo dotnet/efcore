@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore
     /// <summary>
     ///     Key extension methods for relational database metadata.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
+    /// </remarks>
     public static class RelationalKeyExtensions
     {
         /// <summary>

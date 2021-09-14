@@ -6,6 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// <summary>
     ///     Selects an <see cref="IModelCodeGenerator" /> service for a given programming language.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public interface IModelCodeGeneratorSelector
     {
         /// <summary>

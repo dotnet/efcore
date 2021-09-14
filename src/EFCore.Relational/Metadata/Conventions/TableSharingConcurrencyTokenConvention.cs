@@ -17,6 +17,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     creates a shadow concurrency property mapped to that column
     ///     on the base-most entity type(s).
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
     {
         private const string ConcurrencyPropertyPrefix = "_TableSharingConcurrencyTokenConvention_";

@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that configures the table comment for an entity type based on the applied <see cref="CommentAttribute" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
+    /// </remarks>
     public class RelationalTableCommentAttributeConvention : EntityTypeAttributeConventionBase<CommentAttribute>
     {
         /// <summary>

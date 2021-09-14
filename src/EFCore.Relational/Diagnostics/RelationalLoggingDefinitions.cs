@@ -15,6 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
     ///         to add caching for their events. It should not be used for any other purpose.
     ///     </para>
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public abstract class RelationalLoggingDefinitions : LoggingDefinitions
     {
         /// <summary>

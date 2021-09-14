@@ -12,6 +12,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <summary>
     ///     A convention that removes discriminators from non-TPH entity types and unmaps the inherited properties for TPT entity types.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
+    ///     <see href="https://aka.ms/efcore-docs-inheritance">Entity type hierarchy mapping</see> for more information.
+    /// </remarks>
     public class EntityTypeHierarchyMappingConvention : IModelFinalizingConvention
     {
         /// <summary>

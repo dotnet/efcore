@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Design
     /// <summary>
     ///     Converts identifiers to the plural and singular equivalents.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public interface IPluralizer
     {
         /// <summary>

@@ -6,6 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     The table-like store object type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
+    /// </remarks>
     public enum StoreObjectType
     {
         /// <summary>

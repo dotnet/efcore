@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     /// <summary>
     ///     A <see cref="MigrationOperation" /> for dropping an existing check constraint.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     [DebuggerDisplay("ALTER TABLE {Table} DROP CONSTRAINT {Name}")]
     public class DropCheckConstraintOperation : MigrationOperation, ITableMigrationOperation
     {

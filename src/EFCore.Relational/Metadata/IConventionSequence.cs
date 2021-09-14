@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     ///     Represents a database sequence in the model in a form that
     ///     can be mutated while building the model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sequences">Database sequences</see> for more information.
+    /// </remarks>
     public interface IConventionSequence : IReadOnlySequence, IConventionAnnotatable
     {
         /// <summary>

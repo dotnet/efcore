@@ -8,6 +8,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a function parameter.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public interface IDbFunctionParameter : IReadOnlyDbFunctionParameter, IAnnotatable
     {
         /// <summary>

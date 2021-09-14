@@ -13,12 +13,20 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     Extension methods for <see cref="IExecutionStrategy" /> that can only be used with a
     ///     relational database provider.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+    ///     for more information.
+    /// </remarks>
     public static class RelationalExecutionStrategyExtensions
     {
         /// <summary>
         ///     Executes the specified operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="operation">
@@ -42,6 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="operation">
@@ -70,6 +82,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="operation">
@@ -105,6 +121,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="operation">
@@ -130,6 +150,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified asynchronous operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="operation">
@@ -166,6 +190,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -198,6 +226,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified asynchronous operation in a transaction. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -241,6 +273,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified operation in a transaction and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">
@@ -270,6 +306,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Executes the specified asynchronous operation and returns the result. Allows to check whether
         ///     the transaction has been rolled back if an error occurs during commit.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
+        ///     for more information.
+        /// </remarks>
         /// <param name="strategy"> The strategy that will be used for the execution. </param>
         /// <param name="state"> The state that will be passed to the operation. </param>
         /// <param name="operation">

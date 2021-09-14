@@ -6,6 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
     /// <summary>
     ///     Represents a check constraint on the entity type.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information.
+    /// </remarks>
     public interface IMutableCheckConstraint : IReadOnlyCheckConstraint, IMutableAnnotatable
     {
         /// <summary>

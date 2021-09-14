@@ -13,6 +13,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     ///     part of the primary key and not part of any foreign keys or were configured to have a database default value.
     ///     It also configures properties as <see cref="ValueGenerated.OnAddOrUpdate" /> if they were configured as computed columns.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> and
+    ///     <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
+    /// </remarks>
     public class RelationalValueGenerationConvention :
         ValueGenerationConvention,
         IPropertyAnnotationChangedConvention,

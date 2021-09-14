@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
     /// <summary>
     ///     Specifies hints used by the type mapper when mapping using a <see cref="ValueConverter" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
+    /// </remarks>
     public class RelationalConverterMappingHints : ConverterMappingHints
     {
         /// <summary>

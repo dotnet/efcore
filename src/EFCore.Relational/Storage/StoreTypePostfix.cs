@@ -6,6 +6,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
     /// <summary>
     ///     Indicates which values should be appended to the store type name.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+    ///     for more information.
+    /// </remarks>
     public enum StoreTypePostfix
     {
         /// <summary>

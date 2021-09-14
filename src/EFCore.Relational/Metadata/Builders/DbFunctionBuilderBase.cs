@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <summary>
     ///     Provides a simple API for configuring a <see cref="IMutableDbFunction" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+    /// </remarks>
     public abstract class DbFunctionBuilderBase : IInfrastructure<IConventionDbFunctionBuilder>
     {
         /// <summary>
@@ -52,6 +55,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the name of the database function.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="name"> The name of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilderBase HasName(string name)
@@ -64,6 +70,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets the schema of the database function.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="schema"> The schema of the function in the database. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilderBase HasSchema(string? schema)
@@ -76,6 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Marks whether the database function is built-in.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="builtIn"> The value indicating whether the database function is built-in. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual DbFunctionBuilderBase IsBuiltIn(bool builtIn = true)
@@ -89,6 +101,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns an object that can be used to configure a parameter with the given name.
         ///     If no parameter with the given name exists, then a new parameter will be added.
         /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information.
+        /// </remarks>
         /// <param name="name"> The parameter name. </param>
         /// <returns> The builder to use for further parameter configuration. </returns>
         public virtual DbFunctionParameterBuilder HasParameter(string name)

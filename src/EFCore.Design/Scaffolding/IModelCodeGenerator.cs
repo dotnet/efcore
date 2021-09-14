@@ -9,6 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
     /// <summary>
     ///     Used to generate code for a model.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-design-time-services">EF Core design-time services</see> for more information.
+    /// </remarks>
     public interface IModelCodeGenerator : ILanguageBasedService
     {
         /// <summary>

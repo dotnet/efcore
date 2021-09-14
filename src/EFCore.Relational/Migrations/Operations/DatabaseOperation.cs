@@ -7,6 +7,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
     ///     A <see cref="MigrationOperation" /> for operations on databases.
     ///     See also <see cref="AlterDatabaseOperation" />.
     /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
+    /// </remarks>
     public abstract class DatabaseOperation : MigrationOperation
     {
         /// <summary>
