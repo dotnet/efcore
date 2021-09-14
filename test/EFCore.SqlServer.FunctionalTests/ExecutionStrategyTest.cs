@@ -446,13 +446,6 @@ namespace Microsoft.EntityFrameworkCore
 
                             Assert.NotSame(currentTransaction, c.AuditContext.Database.CurrentTransaction);
 
-                            if (currentTransaction != null)
-                            {
-                                Assert.True(
-                                    (bool)typeof(RelationalTransaction).GetRuntimeFields().Single(f => f.Name == "_disposed")
-                                        .GetValue(currentTransaction)!);
-                            }
-
                             await c.AuditContext.Audits.AddAsync(new Audit(), ct);
                             await c.AuditContext.SaveChangesAsync(ct);
 
@@ -496,13 +489,6 @@ namespace Microsoft.EntityFrameworkCore
                             c.AuditContext.Database.UseTransaction(c.MainContext.Database.CurrentTransaction!.GetDbTransaction());
 
                             Assert.NotSame(currentTransaction, c.AuditContext.Database.CurrentTransaction);
-
-                            if (currentTransaction != null)
-                            {
-                                Assert.True(
-                                    (bool)typeof(RelationalTransaction).GetRuntimeFields().Single(f => f.Name == "_disposed")
-                                        .GetValue(currentTransaction)!);
-                            }
 
                             c.AuditContext.Audits.Add(new Audit());
                             c.AuditContext.SaveChanges();

@@ -476,11 +476,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (ShouldUseTransaction(transaction))
             {
-                if (CurrentTransaction != null)
-                {
-                    CurrentTransaction.Dispose();
-                }
-                
                 Open();
 
                 transaction = Dependencies.TransactionLogger.TransactionUsed(
@@ -522,11 +517,6 @@ namespace Microsoft.EntityFrameworkCore.Storage
         {
             if (ShouldUseTransaction(transaction))
             {
-                if (CurrentTransaction != null)
-                {
-                    await CurrentTransaction.DisposeAsync();
-                }
-
                 await OpenAsync(cancellationToken).ConfigureAwait(false);
 
                 transaction = await Dependencies.TransactionLogger.TransactionUsedAsync(
