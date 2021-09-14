@@ -64,6 +64,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The display name. </returns>
         [DebuggerStepThrough]
         string DisplayName()
+            => DisplayName(omitSharedType: false);
+
+        /// <summary>
+        ///     Gets the friendly display name for the given <see cref="IReadOnlyTypeBase" />.
+        /// </summary>
+        /// <param name="omitSharedType">
+        ///     A value indicating whether the name of the type for shared type entity types should be omitted from the returned value.
+        /// </param>
+        /// <returns> The display name. </returns>
+        [DebuggerStepThrough]
+        string DisplayName(bool omitSharedType)
         {
             if (!HasSharedClrType)
             {
@@ -97,8 +108,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             }
 
             return shortName == Name
-                       ? shortName + " (" + ClrType.ShortDisplayName() + ")"
-                       : shortName;
+                ? shortName + " (" + ClrType.ShortDisplayName() + ")"
+                : shortName;
         }
 
         /// <summary>

@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             context.Set<Dictionary<string, object>>("EntityOneEntityTwo").AddRange(CreateEntityOneEntityTwos(context));
             context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
                 .AddRange(CreateJoinOneToThreePayloadFullShareds(context));
-            context.Set<Dictionary<string, object>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
-            context.Set<Dictionary<string, object>>("JoinTwoToCompositeKeyShared").AddRange(CreateJoinTwoToCompositeKeyShareds(context));
+            context.Set<Dictionary<string, object>>("EntityTwoEntityTwo").AddRange(CreateJoinTwoSelfShareds(context));
+            context.Set<Dictionary<string, object>>("EntityCompositeKeyEntityTwo").AddRange(CreateJoinTwoToCompositeKeyShareds(context));
             context.Set<Dictionary<string, object>>("EntityRootEntityThree").AddRange(CreateEntityRootEntityThrees(context));
-            context.Set<Dictionary<string, object>>("JoinCompositeKeyToRootShared").AddRange(CreateJoinCompositeKeyToRootShareds(context));
+            context.Set<Dictionary<string, object>>("EntityCompositeKeyEntityRoot").AddRange(CreateJoinCompositeKeyToRootShareds(context));
         }
 
         public IQueryable<TEntity> Set<TEntity>()
@@ -1064,10 +1064,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             EntityTwo left,
             EntityTwo right)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinTwoSelfShared"), (e, p) =>
+                context?.Set<Dictionary<string, object>>("EntityTwoEntityTwo"), (e, p) =>
                 {
-                    e["LeftId"] = context?.Entry(left).Property(e => e.Id).CurrentValue ?? left.Id;
-                    e["RightId"] = context?.Entry(right).Property(e => e.Id).CurrentValue ?? right.Id;
+                    e["SelfSkipSharedLeftId"] = context?.Entry(left).Property(e => e.Id).CurrentValue ?? left.Id;
+                    e["SelfSkipSharedRightId"] = context?.Entry(right).Property(e => e.Id).CurrentValue ?? right.Id;
                 });
 
         private Dictionary<string, object>[] CreateJoinTwoToCompositeKeyShareds(ManyToManyContext context)
@@ -1116,12 +1116,12 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             EntityTwo two,
             EntityCompositeKey composite)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinTwoToCompositeKeyShared"), (e, p) =>
+                context?.Set<Dictionary<string, object>>("EntityCompositeKeyEntityTwo"), (e, p) =>
                 {
-                    e["TwoId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
-                    e["CompositeId1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
-                    e["CompositeId2"] = composite.Key2;
-                    e["CompositeId3"] = composite.Key3;
+                    e["TwoSkipSharedId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
+                    e["CompositeKeySkipSharedKey1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
+                    e["CompositeKeySkipSharedKey2"] = composite.Key2;
+                    e["CompositeKeySkipSharedKey3"] = composite.Key3;
                 });
 
         private Dictionary<string, object>[] CreateEntityRootEntityThrees(ManyToManyContext context)
@@ -1165,8 +1165,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             => CreateInstance(
                 context?.Set<Dictionary<string, object>>("EntityRootEntityThree"), (e, p) =>
                 {
-                    e["EntityThreeId"] = context?.Entry(three).Property(e => e.Id).CurrentValue ?? three.Id;
-                    e["EntityRootId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
+                    e["ThreeSkipSharedId"] = context?.Entry(three).Property(e => e.Id).CurrentValue ?? three.Id;
+                    e["RootSkipSharedId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
                 });
 
         private Dictionary<string, object>[] CreateJoinCompositeKeyToRootShareds(ManyToManyContext context)
@@ -1214,19 +1214,19 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             };
 
         private static ICollection<TEntity> CreateCollection<TEntity>(bool proxy)
-            => proxy ? (ICollection<TEntity>)new ObservableCollection<TEntity>() : new List<TEntity>();
+            => proxy ? new ObservableCollection<TEntity>() : new List<TEntity>();
 
         private static Dictionary<string, object> CreateJoinCompositeKeyToRootShared(
             ManyToManyContext context,
             EntityRoot root,
             EntityCompositeKey composite)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinCompositeKeyToRootShared"), (e, p) =>
+                context?.Set<Dictionary<string, object>>("EntityCompositeKeyEntityRoot"), (e, p) =>
                 {
-                    e["RootId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
-                    e["CompositeId1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
-                    e["CompositeId2"] = composite.Key2;
-                    e["CompositeId3"] = composite.Key3;
+                    e["RootSkipSharedId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
+                    e["CompositeKeySkipSharedKey1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
+                    e["CompositeKeySkipSharedKey2"] = composite.Key2;
+                    e["CompositeKeySkipSharedKey3"] = composite.Key3;
                 });
 
         private static TEntity CreateInstance<TEntity>(DbSet<TEntity> set, Action<TEntity, bool> configureEntity)

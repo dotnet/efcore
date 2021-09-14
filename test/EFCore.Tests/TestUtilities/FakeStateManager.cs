@@ -53,14 +53,16 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities
             bool added = false,
             bool modified = false,
             bool deleted = false,
-            bool unchanged = false)
+            bool unchanged = false,
+            bool returnSharedIdentity = false)
             => throw new NotImplementedException();
 
         public int GetCountForState(
             bool added = false,
             bool modified = false,
             bool deleted = false,
-            bool unchanged = false)
+            bool unchanged = false,
+            bool countSharedIdentity = false)
             => throw new NotImplementedException();
 
         public int ChangedCount { get; set; }

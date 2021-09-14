@@ -208,21 +208,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     var current = entry[property];
                     var original = entry.GetOriginalValue(property);
 
-                    var comparer = property.GetValueComparer();
-
-                    if (comparer == null)
-                    {
-                        if (!Equals(current, original))
-                        {
-                            SetPropertyModified();
-                        }
-                    }
-                    else if (!comparer.Equals(current, original))
-                    {
-                        SetPropertyModified();
-                    }
-
-                    void SetPropertyModified()
+                    if (!property.GetValueComparer().Equals(current, original))
                     {
                         if (entry.EntityState == EntityState.Deleted)
                         {
