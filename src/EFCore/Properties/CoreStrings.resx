@@ -142,7 +142,7 @@
     <value>The dependent side could not be determined for the one-to-one relationship between '{dependentToPrincipalNavigationSpecification}' and '{principalToDependentNavigationSpecification}'. To identify the dependent side of the relationship, configure the foreign key property. If these navigations should not be part of the same relationship, configure them independently via separate method chains in 'OnModelCreating'. See http://go.microsoft.com/fwlink/?LinkId=724062 for more details.</value>
   </data>
   <data name="AmbiguousOwnedNavigation" xml:space="preserve">
-    <value>Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the [NotMapped] attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+    <value>Unable to determine the owner for the relationship between '{entityTypeNavigationSpecification}' and '{otherEntityType}' as both types have been marked as owned. Either manually configure the ownership, or ignore the corresponding navigations using the [NotMapped] attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="AmbiguousSharedTypeEntityTypeName" xml:space="preserve">
     <value>The shared type entity type '{entityType}' cannot be added to the model because its name is the same as the CLR type name. This usually indicates an error, either add it as a non-shared entity type or choose a different name.</value>
@@ -172,7 +172,7 @@
     <value>The filter expression '{filter}' specified for entity type '{entityType}' is invalid. The expression must accept a single parameter of type '{clrType}' and return bool.</value>
   </data>
   <data name="BadFilterOwnedType" xml:space="preserve">
-    <value>The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned.</value>
+    <value>The filter expression '{filter}' cannot be specified for owned entity type '{entityType}'. A filter may only be applied to an entity type that is not owned. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="BadValueComparerType" xml:space="preserve">
     <value>The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.</value>
@@ -236,13 +236,13 @@
     <value>The shared-type entity type '{entityType}' cannot be added because the model already contains an entity type with the same name, but with a different CLR type '{otherClrType}'. Ensure all entity type names are unique.</value>
   </data>
   <data name="ClashingNamedOwnedType" xml:space="preserve">
-    <value>An entity type named '{ownedTypeName}' has already been added to the model. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'.</value>
+    <value>An entity type named '{ownedTypeName}' has already been added to the model. Use a different name when configuring the ownership '{ownerEntityType}.{navigation}' in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="ClashingNonOwnedDerivedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' cannot be marked as owned because the derived entity type '{derivedType}' has been configured as non-owned. Either don't configure '{derivedType}' as non-owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="ClashingNonOwnedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.</value>
+    <value>The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.  See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="ClashingNonSharedType" xml:space="preserve">
     <value>The shared-type entity type '{entityType}' with CLR type '{type}' cannot be added to the model because a non-shared entity type with the same CLR type already exists.</value>
@@ -252,10 +252,10 @@
     <comment>Obsolete</comment>
   </data>
   <data name="ClashingOwnedDerivedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'.</value>
+    <value>The entity type '{entityType}' cannot be marked as non-owned because the derived entity type '{derivedType}' has been configured as owned. Either don't configure '{derivedType}' as owned, or call 'HasBaseType(null)' for it in 'OnModelCreating'. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="ClashingOwnedEntityType" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.</value>
+    <value>The entity type '{entityType}' cannot be configured as non-owned because it has already been configured as a owned. Use the nested builder in `OwnsOne` or `OwnsMany` on the owner entity type builder to further configure this type. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="ClashingSharedType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because its CLR type has been configured as a shared type.</value>
@@ -354,7 +354,7 @@
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined. Only root types can have keys.</value>
   </data>
   <data name="DerivedEntityOwnershipMismatch" xml:space="preserve">
-    <value>Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status.</value>
+    <value>Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
     <value>'{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model.</value>
@@ -640,7 +640,7 @@
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context.</value>
   </data>
   <data name="InvalidSetTypeOwned" xml:space="preserve">
-    <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'.</value>
+    <value>Cannot create a DbSet for '{typeName}' because it is configured as an owned entity type and must be accessed through its owning entity type '{ownerType}'. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="InvalidSetTypeWeak" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because it is mapped to multiple entity types with defining navigations and should be accessed through the owning entities.</value>
@@ -665,7 +665,7 @@
     <value>[InverseProperty] attributes on navigation '{1_entityType}.{0_navigation}' and on navigation '{3_referencedEntityType}.{2_referencedNavigation}' are not pointing to each other. Change the attributes to use the corresponding names or remove one of them.</value>
   </data>
   <data name="InverseToOwnedType" xml:space="preserve">
-    <value>The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type.</value>
+    <value>The navigation '{principalEntityType}.{navigation}' is not supported because it is pointing to an owned entity type '{ownedType}'. Only the ownership navigation from the entity type '{ownerType}' can point to the owned entity type. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="IQueryableNotAsync" xml:space="preserve">
     <value>The source 'IQueryable' doesn't implement 'IAsyncEnumerable&lt;{genericParameter}&gt;'. Only sources that implement 'IAsyncEnumerable' can be used for Entity Framework asynchronous operations.</value>
@@ -1080,7 +1080,7 @@
     <value>The property '{1_entityType}.{0_property}' is being accessed using the '{referenceMethod}' or '{collectionMethod}' method, but is defined in the model as a non-navigation. Use the '{propertyMethod}' method to access non-navigation properties.</value>
   </data>
   <data name="NavigationlessOwnership" xml:space="preserve">
-    <value>The relationship between '{principalEntityType}' and '{dependentEntityType}' cannot be configured as an ownership as there is no associated navigation to the owned type. An ownership must always have an associated navigation.</value>
+    <value>The relationship between '{principalEntityType}' and '{dependentEntityType}' cannot be configured as an ownership as there is no associated navigation to the owned type. An ownership must always have an associated navigation. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
     <value>The navigation '{1_entityType}.{0_navigation}' does not have a setter and no writable backing field was found or specified. Read-only collection navigations must be initialized before use.</value>
@@ -1221,7 +1221,7 @@
     <value>The original value for property '{1_entityType}.{0_property}' cannot be accessed because it is not being tracked. Original values are not recorded for most properties of entities when the 'ChangingAndChangedNotifications' strategy is used. To access all original values, use a different change tracking strategy such as 'ChangingAndChangedNotificationsWithOriginalValues'.</value>
   </data>
   <data name="OwnedDerivedType" xml:space="preserve">
-    <value>The owned entity type '{entityType}' cannot have a base type.</value>
+    <value>The owned entity type '{entityType}' cannot have a base type. See https://aka.ms/efcore-docs-owned for more information.</value>
   </data>
   <data name="OwnedEntitiesCannotBeTrackedWithoutTheirOwner" xml:space="preserve">
     <value>A tracking query is attempting to project an owned entity without a corresponding owner in its result, but owned entities cannot be tracked without their owner. Either include the owner entity in the result or make the query non-tracking using 'AsNoTracking'.</value>
