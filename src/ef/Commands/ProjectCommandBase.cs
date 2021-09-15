@@ -28,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         protected CommandOption? StartupProject { get; private set; }
         protected CommandOption? WorkingDir { get; private set; }
         protected CommandOption? Framework { get; private set; }
+        protected CommandOption? Configuration { get; private set; }
 
         protected string? EFCoreVersion
             => _efcoreVersion ??= System.Reflection.Assembly.Load("Microsoft.EntityFrameworkCore.Design")
@@ -49,6 +50,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _nullable = command.Option("--nullable", Resources.NullableDescription);
             WorkingDir = command.Option("--working-dir <PATH>", Resources.WorkingDirDescription);
             Framework = command.Option("--framework <FRAMEWORK>", Resources.FrameworkDescription);
+            Configuration = command.Option("--configuration <CONFIGURATION>", Resources.ConfigurationDescription);
 
             base.Configure(command);
         }

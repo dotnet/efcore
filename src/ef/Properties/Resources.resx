@@ -132,6 +132,9 @@
   <data name="BuildBundleSucceeded" xml:space="preserve">
     <value>Done. Migrations Bundle: {path}</value>
   </data>
+  <data name="ConfigurationDescription" xml:space="preserve">
+    <value>The configuration to use.</value>
+  </data>
   <data name="ConnectionDescription" xml:space="preserve">
     <value>The connection string to the database.</value>
   </data>
@@ -242,9 +245,6 @@
   </data>
   <data name="MigrationsAddDescription" xml:space="preserve">
     <value>Adds a new migration.</value>
-  </data>
-  <data name="MigrationsBundleConfigurationDescription" xml:space="preserve">
-    <value>The configuration to use for the bundle.</value>
   </data>
   <data name="MigrationsBundleDescription" xml:space="preserve">
     <value>Creates an executable to update the database.</value>

@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         private CommandOption? _force;
         private CommandOption? _selfContained;
         private CommandOption? _runtime;
-        private CommandOption? _configuration;
 
         public override void Configure(CommandLineApplication command)
         {
@@ -22,7 +21,6 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             _force = command.Option("-f|--force", Resources.DbContextScaffoldForceDescription);
             _selfContained = command.Option("--self-contained", Resources.SelfContainedDescription);
             _runtime = command.Option("-r|--target-runtime <RUNTIME_IDENTIFIER>", Resources.MigrationsBundleRuntimeDescription);
-            _configuration = command.Option("--target-configuration <CONFIGURATION>", Resources.MigrationsBundleConfigurationDescription);
 
             base.Configure(command);
         }

@@ -184,6 +184,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add("--framework");
             args.Add(startupProject.TargetFramework!);
 
+            if (_configuration.HasValue())
+            {
+                args.Add("--configuration");
+                args.Add(_configuration.Value()!);
+            }
+
             if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(project.Nullable, "annotations", StringComparison.OrdinalIgnoreCase))
             {

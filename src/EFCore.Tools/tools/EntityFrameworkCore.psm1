@@ -122,9 +122,6 @@ Register-TabExpansion Bundle-Migration @{
 .PARAMETER TargetRuntime
     The target runtime to bundle for.
 
-.PARAMETER Configuration
-    The configuration to use for the bundle.
-
 .PARAMETER Framework
     The target framework. Defaults to the first one in the project.
 
@@ -153,7 +150,6 @@ function Bundle-Migration
         [switch] $Force,
         [switch] $SelfContained,
         [string] $TargetRuntime,
-        [string] $Configuration,
         [string] $Framework,
         [string] $Context,
         [string] $Project,
@@ -188,11 +184,6 @@ function Bundle-Migration
     if ($TargetRuntime)
     {
         $params += '--target-runtime', $TargetRuntime
-    }
-
-    if ($Configuration)
-    {
-        $params += '--target-configuration', $Configuration
     }
 
     $params += GetParams $Context
@@ -1308,6 +1299,7 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
         '--startup-project', $startupProject.FullName,
         '--project-dir', $projectDir,
         '--language', $language,
+        '--configuration', $activeConfiguration.ConfigurationName,
         '--working-dir', $PWD.Path
 
     if (IsWeb $startupProject)
