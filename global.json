@@ -1,17 +1,17 @@
 {
   "tools": {
-    "dotnet": "5.0.206",
+    "dotnet": "5.0.207",
     "runtimes": {
       "dotnet": [
-        "3.1.18"
+        "3.1.19"
       ],
       "aspnetcore": [
-        "3.1.18"
+        "3.1.19"
       ]
     }
   },
   "sdk": {
-    "version": "5.0.206",
+    "version": "5.0.207",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
