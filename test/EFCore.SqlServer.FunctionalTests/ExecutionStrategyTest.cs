@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -381,6 +382,163 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalTheory] // Issue #25946
+        [MemberData(nameof(DataGenerator.GetBoolCombinations), 3, MemberType = typeof(DataGenerator))]
+        public async Task Retries_SaveChanges_on_execution_failure_with_two_contexts(
+            bool realFailure,
+            bool openConnection,
+            bool async)
+        {
+            CleanContext();
+
+            using (var context = CreateContext())
+            {
+                using var auditContext = new AuditContext();
+
+                var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
+
+                connection.ExecutionFailures.Enqueue(new bool?[] { null, realFailure });
+
+                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
+
+                if (openConnection)
+                {
+                    if (async)
+                    {
+                        await context.Database.OpenConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.OpenConnection();
+                    }
+
+                    Assert.Equal(ConnectionState.Open, context.Database.GetDbConnection().State);
+                }
+
+                context.Products.Add(new Product());
+                context.Products.Add(new Product());
+
+                var throwTransientError = true;
+
+                if (async)
+                {
+                    await new TestSqlServerRetryingExecutionStrategy(context).ExecuteInTransactionAsync(
+                        (MainContext: context, AuditContext: auditContext),
+                        async (c, ct) =>
+                        {
+                            var result = await c.MainContext.SaveChangesAsync(false, ct);
+
+                            c.AuditContext.ChangeTracker.Clear();
+                            c.AuditContext.Database.SetDbConnection(c.MainContext.Database.GetDbConnection());
+
+                            var currentTransaction = c.AuditContext.Database.CurrentTransaction;
+                            if (throwTransientError)
+                            {
+                                Assert.Null(currentTransaction);
+                            }
+                            else
+                            {
+                                Assert.NotNull(currentTransaction);
+                            }
+
+                            await c.AuditContext.Database.UseTransactionAsync(
+                                c.MainContext.Database.CurrentTransaction!.GetDbTransaction(), ct);
+
+                            Assert.NotSame(currentTransaction, c.AuditContext.Database.CurrentTransaction);
+
+                            await c.AuditContext.Audits.AddAsync(new Audit(), ct);
+                            await c.AuditContext.SaveChangesAsync(ct);
+
+                            if (throwTransientError)
+                            {
+                                throwTransientError = false;
+                                throw SqlExceptionFactory.CreateSqlException(10928);
+                            }
+
+                            return result;
+                        },
+                        (c, _) =>
+                        {
+                            Assert.True(false);
+                            return Task.FromResult(false);
+                        });
+
+                    context.ChangeTracker.AcceptAllChanges();
+                }
+                else
+                {
+                    new TestSqlServerRetryingExecutionStrategy(context).ExecuteInTransaction(
+                        (MainContext: context, AuditContext: auditContext),
+                        c =>
+                        {
+                            var result = c.MainContext.SaveChanges(false);
+
+                            c.AuditContext.ChangeTracker.Clear();
+                            c.AuditContext.Database.SetDbConnection(c.MainContext.Database.GetDbConnection());
+
+                            var currentTransaction = c.AuditContext.Database.CurrentTransaction;
+                            if (throwTransientError)
+                            {
+                                Assert.Null(currentTransaction);
+                            }
+                            else
+                            {
+                                Assert.NotNull(currentTransaction);
+                            }
+
+                            c.AuditContext.Database.UseTransaction(c.MainContext.Database.CurrentTransaction!.GetDbTransaction());
+
+                            Assert.NotSame(currentTransaction, c.AuditContext.Database.CurrentTransaction);
+
+                            c.AuditContext.Audits.Add(new Audit());
+                            c.AuditContext.SaveChanges();
+
+                            if (throwTransientError)
+                            {
+                                throwTransientError = false;
+                                throw SqlExceptionFactory.CreateSqlException(10928);
+                            }
+
+                            return result;
+                        },
+                        c =>
+                        {
+                            Assert.True(false);
+                            return false;
+                        });
+
+                    context.ChangeTracker.AcceptAllChanges();
+                }
+
+                Assert.Equal(openConnection ? 2 : 3, connection.OpenCount);
+                Assert.Equal(6, connection.ExecutionCount);
+
+                Assert.Equal(
+                    openConnection
+                        ? ConnectionState.Open
+                        : ConnectionState.Closed, context.Database.GetDbConnection().State);
+
+                if (openConnection)
+                {
+                    if (async)
+                    {
+                        await context.Database.CloseConnectionAsync();
+                    }
+                    else
+                    {
+                        context.Database.CloseConnection();
+                    }
+                }
+
+                Assert.Equal(ConnectionState.Closed, context.Database.GetDbConnection().State);
+            }
+
+            using (var context = CreateContext())
+            {
+                Assert.Equal(2, context.Products.Count());
+            }
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(DataGenerator.GetBoolCombinations), 2, MemberType = typeof(DataGenerator))]
         public async Task Retries_query_on_execution_failure(bool externalStrategy, bool async)
@@ -629,12 +787,26 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             public DbSet<Product> Products { get; set; }
+            public DbSet<Audit> Audits { get; set; }
         }
 
         protected class Product
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        public class AuditContext : DbContext
+        {
+            public DbSet<Audit> Audits { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer();
+        }
+
+        public class Audit
+        {
+            public int AuditId { get; set; }
         }
 
         protected virtual ExecutionStrategyContext CreateContext()

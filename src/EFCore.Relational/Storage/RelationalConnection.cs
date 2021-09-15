@@ -429,6 +429,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
 
+            EnsureNoAmbientOrEnlistedTransactions();
+        }
+
+        private void EnsureNoAmbientOrEnlistedTransactions()
+        {
             if (CurrentAmbientTransaction != null)
             {
                 throw new InvalidOperationException(RelationalStrings.ConflictingAmbientTransaction);
@@ -540,7 +545,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 return false;
             }
 
-            EnsureNoTransactions();
+            EnsureNoAmbientOrEnlistedTransactions();
+
+            if (CurrentTransaction != null 
+                && transaction == CurrentTransaction.GetDbTransaction())
+            {
+                return false;
+            }
 
             return true;
         }
