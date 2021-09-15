@@ -41,10 +41,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations.Builders
         /// <returns> The same builder so that multiple calls can be chained. </returns>
         public virtual OperationBuilder<TOperation> Annotation(
             string name,
-            object value)
+            object? value)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotNull(value, nameof(value));
 
             Operation.AddAnnotation(name, value);
 
