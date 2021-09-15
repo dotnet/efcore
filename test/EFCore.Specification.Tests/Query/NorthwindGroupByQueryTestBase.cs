@@ -2752,6 +2752,34 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_as_final_operator(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().GroupBy(c => c.City)));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_Where_with_grouping_result(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().GroupBy(c => c.City).Where(e => e.Key.StartsWith("s"))));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task GroupBy_OrderBy_with_grouping_result(bool async)
+        {
+            return AssertTranslationFailed(() => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().GroupBy(c => c.City).OrderBy(e => e.Key),
+                assertOrder: true));
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_SelectMany(bool async)
         {
             return AssertTranslationFailed(() => AssertQuery(

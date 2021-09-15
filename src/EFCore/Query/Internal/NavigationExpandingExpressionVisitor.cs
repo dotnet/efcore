@@ -110,6 +110,13 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         public virtual Expression Expand(Expression query)
         {
             var result = Visit(query);
+
+            if (result is GroupByNavigationExpansionExpression)
+            {
+                // This indicates that GroupBy was not condensed out of grouping operator.
+                throw new InvalidOperationException(CoreStrings.TranslationFailed(query.Print()));
+            }
+
             result = new PendingSelectorExpandingExpressionVisitor(this, _extensibilityHelper, applyIncludes: true).Visit(result);
             result = Reduce(result);
 
