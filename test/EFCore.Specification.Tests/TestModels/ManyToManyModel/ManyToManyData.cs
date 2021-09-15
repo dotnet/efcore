@@ -957,8 +957,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel
             return CreateInstance(
                 context?.Set<Dictionary<string, object>>("EntityOneEntityTwo"), (e, p) =>
                 {
-                    e["EntityOneId"] = context?.Entry(one).Property(e => e.Id).CurrentValue ?? one.Id;
-                    e["EntityTwoId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
+                    e["OneSkipSharedId"] = context?.Entry(one).Property(e => e.Id).CurrentValue ?? one.Id;
+                    e["TwoSkipSharedId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
                 });
         }
 

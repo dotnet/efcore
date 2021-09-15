@@ -53,22 +53,17 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithOne(e => e.ReferenceInverse)
                 .HasForeignKey<EntityTwo>(e => e.ReferenceInverseId);
 
-            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.TwoSkipShared)
                 .WithMany(e => e.OneSkipShared)
-                .UsingEntity<Dictionary<string, object>>(
-                    "EntityOneEntityTwo",
-                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("EntityTwoId"),
-                    l => l.HasOne<EntityOne>().WithMany().HasForeignKey("EntityOneId")).ToTable(tb => tb.IsTemporal());
+                .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
 
             // Nav:2 Payload:No Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.TwoSkip)
                 .WithMany(e => e.OneSkip)
-                .UsingEntity<JoinOneToTwo>(
-                    r => r.HasOne(e => e.Two).WithMany().HasForeignKey(e => e.TwoId),
-                    l => l.HasOne(e => e.One).WithMany().HasForeignKey(e => e.OneId)).ToTable(tb => tb.IsTemporal());
+                .UsingEntity<JoinOneToTwo>()
+                .ToTable(tb => tb.IsTemporal());
 
             // Nav:6 Payload:Yes Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
@@ -76,7 +71,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithMany(e => e.OneSkipPayloadFull)
                 .UsingEntity<JoinOneToThreePayloadFull>(
                     r => r.HasOne(x => x.Three).WithMany(e => e.JoinOnePayloadFull),
-                    l => l.HasOne(x => x.One).WithMany(e => e.JoinThreePayloadFull)).ToTable(tb => tb.IsTemporal());
+                    l => l.HasOne(x => x.One).WithMany(e => e.JoinThreePayloadFull))
+                .ToTable(tb => tb.IsTemporal());
 
             // Nav:4 Payload:Yes Join:Shared Extra:None
             modelBuilder.Entity<EntityOne>()
@@ -85,7 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinOneToThreePayloadFullShared",
                     r => r.HasOne<EntityThree>().WithMany(e => e.JoinOnePayloadFullShared).HasForeignKey("ThreeId"),
-                    l => l.HasOne<EntityOne>().WithMany(e => e.JoinThreePayloadFullShared).HasForeignKey("OneId")).ToTable(tb => tb.IsTemporal())
+                    l => l.HasOne<EntityOne>().WithMany(e => e.JoinThreePayloadFullShared).HasForeignKey("OneId"))
+                .ToTable(tb => tb.IsTemporal())
                 .IndexerProperty<string>("Payload");
 
             // Nav:6 Payload:Yes Join:Concrete Extra:Self-Ref
@@ -94,15 +91,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithMany(e => e.SelfSkipPayloadRight)
                 .UsingEntity<JoinOneSelfPayload>(
                     l => l.HasOne(x => x.Left).WithMany(x => x.JoinSelfPayloadLeft),
-                    r => r.HasOne(x => x.Right).WithMany(x => x.JoinSelfPayloadRight)).ToTable(tb => tb.IsTemporal());
+                    r => r.HasOne(x => x.Right).WithMany(x => x.JoinSelfPayloadRight))
+                .ToTable(tb => tb.IsTemporal());
 
             // Nav:2 Payload:No Join:Concrete Extra:Inheritance
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.BranchSkip)
                 .WithMany(e => e.OneSkip)
-                .UsingEntity<JoinOneToBranch>(
-                    r => r.HasOne<EntityBranch>().WithMany(),
-                    l => l.HasOne<EntityOne>().WithMany()).ToTable(tb => tb.IsTemporal());
+                .UsingEntity<JoinOneToBranch>()
+                .ToTable(tb => tb.IsTemporal());
 
             modelBuilder.Entity<EntityTwo>()
                 .HasOne(e => e.Reference)
@@ -120,28 +117,20 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithMany(e => e.TwoSkipFull)
                 .UsingEntity<JoinTwoToThree>(
                     r => r.HasOne(x => x.Three).WithMany(e => e.JoinTwoFull),
-                    l => l.HasOne(x => x.Two).WithMany(e => e.JoinThreeFull)).ToTable(tb => tb.IsTemporal());
+                    l => l.HasOne(x => x.Two).WithMany(e => e.JoinThreeFull))
+                .ToTable(tb => tb.IsTemporal());
 
             // Nav:2 Payload:No Join:Shared Extra:Self-ref
-            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityTwo>()
                 .HasMany(e => e.SelfSkipSharedLeft)
                 .WithMany(e => e.SelfSkipSharedRight)
-                .UsingEntity<Dictionary<string, object>>(
-                    "JoinTwoSelfShared",
-                    l => l.HasOne<EntityTwo>().WithMany().HasForeignKey("LeftId"),
-                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("RightId")).ToTable(tb => tb.IsTemporal());
+                .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
 
             // Nav:2 Payload:No Join:Shared Extra:CompositeKey
-            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityTwo>()
                 .HasMany(e => e.CompositeKeySkipShared)
                 .WithMany(e => e.TwoSkipShared)
-                .UsingEntity<Dictionary<string, object>>(
-                    "JoinTwoToCompositeKeyShared",
-                    r => r.HasOne<EntityCompositeKey>().WithMany().HasForeignKey("CompositeId1", "CompositeId2", "CompositeId3"),
-                    l => l.HasOne<EntityTwo>().WithMany().HasForeignKey("TwoId")).ToTable(tb => tb.IsTemporal())
-                .HasKey("TwoId", "CompositeId1", "CompositeId2", "CompositeId3");
+                .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
 
             // Nav:6 Payload:No Join:Concrete Extra:CompositeKey
             modelBuilder.Entity<EntityThree>()
@@ -155,26 +144,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                             e.CompositeId2,
                             e.CompositeId3
                         }).IsRequired(),
-                    r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired()).ToTable(tb => tb.IsTemporal());
+                    r => r.HasOne(x => x.Three).WithMany(x => x.JoinCompositeKeyFull).IsRequired())
+                .ToTable(tb => tb.IsTemporal());
 
             // Nav:2 Payload:No Join:Shared Extra:Inheritance
-            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityThree>().HasMany(e => e.RootSkipShared).WithMany(e => e.ThreeSkipShared)
-                .UsingEntity<Dictionary<string, object>>(
-                    "EntityRootEntityThree",
-                    r => r.HasOne<EntityRoot>().WithMany().HasForeignKey("EntityRootId"),
-                    l => l.HasOne<EntityThree>().WithMany().HasForeignKey("EntityThreeId")).ToTable(tb => tb.IsTemporal());
+                .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
 
             // Nav:2 Payload:No Join:Shared Extra:Inheritance,CompositeKey
-            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityCompositeKey>()
                 .HasMany(e => e.RootSkipShared)
                 .WithMany(e => e.CompositeKeySkipShared)
-                .UsingEntity<Dictionary<string, object>>(
-                    "JoinCompositeKeyToRootShared",
-                    r => r.HasOne<EntityRoot>().WithMany().HasForeignKey("RootId"),
-                    l => l.HasOne<EntityCompositeKey>().WithMany().HasForeignKey("CompositeId1", "CompositeId2", "CompositeId3")).ToTable(tb => tb.IsTemporal())
-                .HasKey("CompositeId1", "CompositeId2", "CompositeId3", "RootId");
+                .UsingEntity(t => t.ToTable(tb => tb.IsTemporal()));
 
             // Nav:6 Payload:No Join:Concrete Extra:Inheritance,CompositeKey
             modelBuilder.Entity<EntityCompositeKey>()
@@ -188,15 +169,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                             e.CompositeId1,
                             e.CompositeId2,
                             e.CompositeId3
-                        })).ToTable(tb => tb.IsTemporal())
-                .HasKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3,
-                        e.LeafId
-                    });
+                        }))
+                .ToTable(tb => tb.IsTemporal());
 
             modelBuilder.SharedTypeEntity<ProxyableSharedType>(
                 "PST", b =>
@@ -230,15 +204,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ("EntityRootEntityThree", "EntityRootEntityThreeHistory"),
 
                 ("JoinCompositeKeyToLeaf", "JoinCompositeKeyToLeafHistory"),
-                ("JoinCompositeKeyToRootShared", "JoinCompositeKeyToRootSharedHistory"),
+                ("EntityCompositeKeyEntityRoot", "EntityCompositeKeyEntityRootHistory"),
                 ("JoinOneSelfPayload", "JoinOneSelfPayloadHistory"),
                 ("JoinOneToBranch", "JoinOneToBranchHistory"),
                 ("JoinOneToThreePayloadFull", "JoinOneToThreePayloadFullHistory"),
                 ("JoinOneToThreePayloadFullShared", "JoinOneToThreePayloadFullSharedHistory"),
                 ("JoinOneToTwo", "JoinOneToTwoHistory"),
                 ("JoinThreeToCompositeKeyFull", "JoinThreeToCompositeKeyFullHistory"),
-                ("JoinTwoSelfShared", "JoinTwoSelfSharedHistory"),
-                ("JoinTwoToCompositeKeyShared", "JoinTwoToCompositeKeySharedHistory"),
+                ("EntityTwoEntityTwo", "EntityTwoEntityTwoHistory"),
+                ("EntityCompositeKeyEntityTwo", "EntityCompositeKeyEntityTwoHistory"),
                 ("JoinTwoToThree", "JoinTwoToThreeHistory"),
             };
 

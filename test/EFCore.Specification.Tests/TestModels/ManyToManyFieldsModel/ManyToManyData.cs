@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel
             context.Set<Dictionary<string, object>>("EntityOneEntityTwo").AddRange(CreateEntityOneEntityTwos(context));
             context.Set<Dictionary<string, object>>("JoinOneToThreePayloadFullShared")
                 .AddRange(CreateJoinOneToThreePayloadFullShareds(context));
-            context.Set<Dictionary<string, object>>("JoinTwoSelfShared").AddRange(CreateJoinTwoSelfShareds(context));
-            context.Set<Dictionary<string, object>>("JoinTwoToCompositeKeyShared").AddRange(CreateJoinTwoToCompositeKeyShareds(context));
+            context.Set<Dictionary<string, object>>("EntityTwoEntityTwo").AddRange(CreateEntityTwoEntityTwos(context));
+            context.Set<Dictionary<string, object>>("EntityCompositeKeyEntityTwo").AddRange(CreateEntityCompositeKeyEntityTwos(context));
             context.Set<Dictionary<string, object>>("EntityRootEntityThree").AddRange(CreateEntityRootEntityThrees(context));
-            context.Set<Dictionary<string, object>>("JoinCompositeKeyToRootShared").AddRange(CreateJoinCompositeKeyToRootShareds(context));
+            context.Set<Dictionary<string, object>>("EntityCompositeKeyEntityRoot").AddRange(CreateEntityCompositeKeyEntityRoots(context));
         }
 
         public IQueryable<TEntity> Set<TEntity>()
@@ -957,8 +957,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel
             return CreateInstance(
                 context?.Set<Dictionary<string, object>>("EntityOneEntityTwo"), (e, p) =>
                 {
-                    e["EntityOneId"] = context?.Entry(one).Property(e => e.Id).CurrentValue ?? one.Id;
-                    e["EntityTwoId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
+                    e["OneSkipSharedId"] = context?.Entry(one).Property(e => e.Id).CurrentValue ?? one.Id;
+                    e["TwoSkipSharedId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
                 });
         }
 
@@ -1020,108 +1020,108 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel
                     e["Payload"] = payload;
                 });
 
-        private Dictionary<string, object>[] CreateJoinTwoSelfShareds(ManyToManyContext context)
+        private Dictionary<string, object>[] CreateEntityTwoEntityTwos(ManyToManyContext context)
             => new[]
             {
-                CreateJoinTwoSelfShared(context, _twos[0], _twos[8]),
-                CreateJoinTwoSelfShared(context, _twos[0], _twos[9]),
-                CreateJoinTwoSelfShared(context, _twos[0], _twos[10]),
-                CreateJoinTwoSelfShared(context, _twos[0], _twos[17]),
-                CreateJoinTwoSelfShared(context, _twos[2], _twos[1]),
-                CreateJoinTwoSelfShared(context, _twos[2], _twos[4]),
-                CreateJoinTwoSelfShared(context, _twos[2], _twos[7]),
-                CreateJoinTwoSelfShared(context, _twos[2], _twos[17]),
-                CreateJoinTwoSelfShared(context, _twos[2], _twos[18]),
-                CreateJoinTwoSelfShared(context, _twos[3], _twos[10]),
-                CreateJoinTwoSelfShared(context, _twos[4], _twos[7]),
-                CreateJoinTwoSelfShared(context, _twos[5], _twos[17]),
-                CreateJoinTwoSelfShared(context, _twos[7], _twos[1]),
-                CreateJoinTwoSelfShared(context, _twos[7], _twos[13]),
-                CreateJoinTwoSelfShared(context, _twos[7], _twos[14]),
-                CreateJoinTwoSelfShared(context, _twos[7], _twos[19]),
-                CreateJoinTwoSelfShared(context, _twos[8], _twos[3]),
-                CreateJoinTwoSelfShared(context, _twos[8], _twos[13]),
-                CreateJoinTwoSelfShared(context, _twos[9], _twos[4]),
-                CreateJoinTwoSelfShared(context, _twos[11], _twos[12]),
-                CreateJoinTwoSelfShared(context, _twos[11], _twos[13]),
-                CreateJoinTwoSelfShared(context, _twos[12], _twos[13]),
-                CreateJoinTwoSelfShared(context, _twos[12], _twos[17]),
-                CreateJoinTwoSelfShared(context, _twos[12], _twos[18]),
-                CreateJoinTwoSelfShared(context, _twos[15], _twos[5]),
-                CreateJoinTwoSelfShared(context, _twos[16], _twos[8]),
-                CreateJoinTwoSelfShared(context, _twos[16], _twos[18]),
-                CreateJoinTwoSelfShared(context, _twos[16], _twos[19]),
-                CreateJoinTwoSelfShared(context, _twos[17], _twos[1]),
-                CreateJoinTwoSelfShared(context, _twos[17], _twos[4]),
-                CreateJoinTwoSelfShared(context, _twos[17], _twos[15]),
-                CreateJoinTwoSelfShared(context, _twos[17], _twos[16]),
-                CreateJoinTwoSelfShared(context, _twos[18], _twos[1]),
-                CreateJoinTwoSelfShared(context, _twos[19], _twos[3])
+                CreateEntityTwoEntityTwo(context, _twos[0], _twos[8]),
+                CreateEntityTwoEntityTwo(context, _twos[0], _twos[9]),
+                CreateEntityTwoEntityTwo(context, _twos[0], _twos[10]),
+                CreateEntityTwoEntityTwo(context, _twos[0], _twos[17]),
+                CreateEntityTwoEntityTwo(context, _twos[2], _twos[1]),
+                CreateEntityTwoEntityTwo(context, _twos[2], _twos[4]),
+                CreateEntityTwoEntityTwo(context, _twos[2], _twos[7]),
+                CreateEntityTwoEntityTwo(context, _twos[2], _twos[17]),
+                CreateEntityTwoEntityTwo(context, _twos[2], _twos[18]),
+                CreateEntityTwoEntityTwo(context, _twos[3], _twos[10]),
+                CreateEntityTwoEntityTwo(context, _twos[4], _twos[7]),
+                CreateEntityTwoEntityTwo(context, _twos[5], _twos[17]),
+                CreateEntityTwoEntityTwo(context, _twos[7], _twos[1]),
+                CreateEntityTwoEntityTwo(context, _twos[7], _twos[13]),
+                CreateEntityTwoEntityTwo(context, _twos[7], _twos[14]),
+                CreateEntityTwoEntityTwo(context, _twos[7], _twos[19]),
+                CreateEntityTwoEntityTwo(context, _twos[8], _twos[3]),
+                CreateEntityTwoEntityTwo(context, _twos[8], _twos[13]),
+                CreateEntityTwoEntityTwo(context, _twos[9], _twos[4]),
+                CreateEntityTwoEntityTwo(context, _twos[11], _twos[12]),
+                CreateEntityTwoEntityTwo(context, _twos[11], _twos[13]),
+                CreateEntityTwoEntityTwo(context, _twos[12], _twos[13]),
+                CreateEntityTwoEntityTwo(context, _twos[12], _twos[17]),
+                CreateEntityTwoEntityTwo(context, _twos[12], _twos[18]),
+                CreateEntityTwoEntityTwo(context, _twos[15], _twos[5]),
+                CreateEntityTwoEntityTwo(context, _twos[16], _twos[8]),
+                CreateEntityTwoEntityTwo(context, _twos[16], _twos[18]),
+                CreateEntityTwoEntityTwo(context, _twos[16], _twos[19]),
+                CreateEntityTwoEntityTwo(context, _twos[17], _twos[1]),
+                CreateEntityTwoEntityTwo(context, _twos[17], _twos[4]),
+                CreateEntityTwoEntityTwo(context, _twos[17], _twos[15]),
+                CreateEntityTwoEntityTwo(context, _twos[17], _twos[16]),
+                CreateEntityTwoEntityTwo(context, _twos[18], _twos[1]),
+                CreateEntityTwoEntityTwo(context, _twos[19], _twos[3])
             };
 
-        private static Dictionary<string, object> CreateJoinTwoSelfShared(
+        private static Dictionary<string, object> CreateEntityTwoEntityTwo(
             ManyToManyContext context,
             EntityTwo left,
             EntityTwo right)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinTwoSelfShared"), (e, p) =>
+                context?.Set<Dictionary<string, object>>("EntityTwoEntityTwo"), (e, p) =>
                 {
-                    e["LeftId"] = context?.Entry(left).Property(e => e.Id).CurrentValue ?? left.Id;
-                    e["RightId"] = context?.Entry(right).Property(e => e.Id).CurrentValue ?? right.Id;
+                    e["SelfSkipSharedLeftId"] = context?.Entry(left).Property(e => e.Id).CurrentValue ?? left.Id;
+                    e["SelfSkipSharedRightId"] = context?.Entry(right).Property(e => e.Id).CurrentValue ?? right.Id;
                 });
 
-        private Dictionary<string, object>[] CreateJoinTwoToCompositeKeyShareds(ManyToManyContext context)
+        private Dictionary<string, object>[] CreateEntityCompositeKeyEntityTwos(ManyToManyContext context)
             => new[]
             {
-                CreateJoinTwoToCompositeKeyShared(context, _twos[0], _compositeKeys[0]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[0], _compositeKeys[3]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[0], _compositeKeys[4]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[1], _compositeKeys[3]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[2], _compositeKeys[5]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[3], _compositeKeys[1]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[3], _compositeKeys[18]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[5], _compositeKeys[2]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[5], _compositeKeys[12]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[6], _compositeKeys[7]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[8], _compositeKeys[2]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[8], _compositeKeys[8]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[9], _compositeKeys[0]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[9], _compositeKeys[14]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[9], _compositeKeys[17]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[10], _compositeKeys[0]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[10], _compositeKeys[14]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[11], _compositeKeys[7]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[11], _compositeKeys[12]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[11], _compositeKeys[14]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[12], _compositeKeys[0]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[12], _compositeKeys[6]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[12], _compositeKeys[16]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[14], _compositeKeys[15]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[15], _compositeKeys[0]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[15], _compositeKeys[2]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[15], _compositeKeys[18]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[16], _compositeKeys[1]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[16], _compositeKeys[7]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[16], _compositeKeys[13]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[16], _compositeKeys[14]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[18], _compositeKeys[4]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[19], _compositeKeys[2]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[19], _compositeKeys[4]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[19], _compositeKeys[5]),
-                CreateJoinTwoToCompositeKeyShared(context, _twos[19], _compositeKeys[13])
+                CreateEntityCompositeKeyEntityTwo(context, _twos[0], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[0], _compositeKeys[3]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[0], _compositeKeys[4]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[1], _compositeKeys[3]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[2], _compositeKeys[5]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[3], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[3], _compositeKeys[18]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[5], _compositeKeys[2]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[5], _compositeKeys[12]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[6], _compositeKeys[7]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[8], _compositeKeys[2]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[8], _compositeKeys[8]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[9], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[9], _compositeKeys[14]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[9], _compositeKeys[17]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[10], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[10], _compositeKeys[14]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[11], _compositeKeys[7]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[11], _compositeKeys[12]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[11], _compositeKeys[14]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[12], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[12], _compositeKeys[6]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[12], _compositeKeys[16]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[14], _compositeKeys[15]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[15], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[15], _compositeKeys[2]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[15], _compositeKeys[18]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[16], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[16], _compositeKeys[7]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[16], _compositeKeys[13]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[16], _compositeKeys[14]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[18], _compositeKeys[4]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[19], _compositeKeys[2]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[19], _compositeKeys[4]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[19], _compositeKeys[5]),
+                CreateEntityCompositeKeyEntityTwo(context, _twos[19], _compositeKeys[13])
             };
 
-        private static Dictionary<string, object> CreateJoinTwoToCompositeKeyShared(
+        private static Dictionary<string, object> CreateEntityCompositeKeyEntityTwo(
             ManyToManyContext context,
             EntityTwo two,
             EntityCompositeKey composite)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinTwoToCompositeKeyShared"), (e, p) =>
+                context?.Set<Dictionary<string, object>>("EntityCompositeKeyEntityTwo"), (e, p) =>
                 {
-                    e["TwoId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
-                    e["CompositeId1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
-                    e["CompositeId2"] = composite.Key2;
-                    e["CompositeId3"] = composite.Key3;
+                    e["TwoSkipSharedId"] = context?.Entry(two).Property(e => e.Id).CurrentValue ?? two.Id;
+                    e["CompositeKeySkipSharedKey1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
+                    e["CompositeKeySkipSharedKey2"] = composite.Key2;
+                    e["CompositeKeySkipSharedKey3"] = composite.Key3;
                 });
 
         private Dictionary<string, object>[] CreateEntityRootEntityThrees(ManyToManyContext context)
@@ -1165,68 +1165,68 @@ namespace Microsoft.EntityFrameworkCore.TestModels.ManyToManyFieldsModel
             => CreateInstance(
                 context?.Set<Dictionary<string, object>>("EntityRootEntityThree"), (e, p) =>
                 {
-                    e["EntityThreeId"] = context?.Entry(three).Property(e => e.Id).CurrentValue ?? three.Id;
-                    e["EntityRootId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
+                    e["ThreeSkipSharedId"] = context?.Entry(three).Property(e => e.Id).CurrentValue ?? three.Id;
+                    e["RootSkipSharedId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
                 });
 
-        private Dictionary<string, object>[] CreateJoinCompositeKeyToRootShareds(ManyToManyContext context)
+        private Dictionary<string, object>[] CreateEntityCompositeKeyEntityRoots(ManyToManyContext context)
             => new[]
             {
-                CreateJoinCompositeKeyToRootShared(context, _roots[5], _compositeKeys[0]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[8], _compositeKeys[0]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[19], _compositeKeys[0]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[0], _compositeKeys[1]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[1], _compositeKeys[1]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[3], _compositeKeys[1]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[5], _compositeKeys[1]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[10], _compositeKeys[1]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[17], _compositeKeys[1]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[3], _compositeKeys[2]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[13], _compositeKeys[2]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[15], _compositeKeys[2]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[1], _compositeKeys[3]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[2], _compositeKeys[3]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[3], _compositeKeys[3]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[1], _compositeKeys[7]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[7], _compositeKeys[7]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[15], _compositeKeys[7]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[17], _compositeKeys[7]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[6], _compositeKeys[8]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[7], _compositeKeys[8]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[18], _compositeKeys[8]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[2], _compositeKeys[9]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[11], _compositeKeys[9]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[17], _compositeKeys[9]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[1], _compositeKeys[10]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[3], _compositeKeys[10]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[4], _compositeKeys[10]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[6], _compositeKeys[11]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[2], _compositeKeys[12]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[7], _compositeKeys[12]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[13], _compositeKeys[12]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[3], _compositeKeys[14]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[10], _compositeKeys[14]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[0], _compositeKeys[15]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[6], _compositeKeys[15]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[14], _compositeKeys[15]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[0], _compositeKeys[18]),
-                CreateJoinCompositeKeyToRootShared(context, _roots[5], _compositeKeys[19])
+                CreateEntityCompositeKeyEntityRoot(context, _roots[5], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[8], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[19], _compositeKeys[0]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[0], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[1], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[3], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[5], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[10], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[17], _compositeKeys[1]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[3], _compositeKeys[2]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[13], _compositeKeys[2]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[15], _compositeKeys[2]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[1], _compositeKeys[3]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[2], _compositeKeys[3]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[3], _compositeKeys[3]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[1], _compositeKeys[7]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[7], _compositeKeys[7]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[15], _compositeKeys[7]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[17], _compositeKeys[7]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[6], _compositeKeys[8]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[7], _compositeKeys[8]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[18], _compositeKeys[8]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[2], _compositeKeys[9]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[11], _compositeKeys[9]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[17], _compositeKeys[9]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[1], _compositeKeys[10]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[3], _compositeKeys[10]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[4], _compositeKeys[10]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[6], _compositeKeys[11]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[2], _compositeKeys[12]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[7], _compositeKeys[12]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[13], _compositeKeys[12]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[3], _compositeKeys[14]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[10], _compositeKeys[14]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[0], _compositeKeys[15]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[6], _compositeKeys[15]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[14], _compositeKeys[15]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[0], _compositeKeys[18]),
+                CreateEntityCompositeKeyEntityRoot(context, _roots[5], _compositeKeys[19])
             };
 
         private static ICollection<TEntity> CreateCollection<TEntity>(bool proxy)
             => proxy ? (ICollection<TEntity>)new ObservableCollection<TEntity>() : new List<TEntity>();
 
-        private static Dictionary<string, object> CreateJoinCompositeKeyToRootShared(
+        private static Dictionary<string, object> CreateEntityCompositeKeyEntityRoot(
             ManyToManyContext context,
             EntityRoot root,
             EntityCompositeKey composite)
             => CreateInstance(
-                context?.Set<Dictionary<string, object>>("JoinCompositeKeyToRootShared"), (e, p) =>
+                context?.Set<Dictionary<string, object>>("EntityCompositeKeyEntityRoot"), (e, p) =>
                 {
-                    e["RootId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
-                    e["CompositeId1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
-                    e["CompositeId2"] = composite.Key2;
-                    e["CompositeId3"] = composite.Key3;
+                    e["RootSkipSharedId"] = context?.Entry(root).Property(e => e.Id).CurrentValue ?? root.Id;
+                    e["CompositeKeySkipSharedKey1"] = context?.Entry(composite).Property(e => e.Key1).CurrentValue ?? composite.Key1;
+                    e["CompositeKeySkipSharedKey2"] = composite.Key2;
+                    e["CompositeKeySkipSharedKey3"] = composite.Key3;
                 });
 
         private static TEntity CreateInstance<TEntity>(DbSet<TEntity> set, Action<TEntity, bool> configureEntity)
