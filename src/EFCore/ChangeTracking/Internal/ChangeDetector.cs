@@ -150,12 +150,23 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         {
             _logger.DetectChangesStarting(stateManager.Context);
 
-            foreach (var entry in stateManager.ToListForState(
-                added: true, modified: true, deleted: true, unchanged: true, returnDeletedSharedIdentity: false))
+            foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
             {
-                if (entry.EntityState != EntityState.Detached)
+                switch (entry.EntityState)
                 {
-                    LocalDetectChanges(entry);
+                    case EntityState.Detached:
+                        break;
+                    case EntityState.Deleted:
+                        if (entry.SharedIdentityEntry != null)
+                        {
+                            continue;
+                        }
+
+                        LocalDetectChanges(entry);
+                        break;
+                    default:
+                        LocalDetectChanges(entry);
+                        break;
                 }
             }
 

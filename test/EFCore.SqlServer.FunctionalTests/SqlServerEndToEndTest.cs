@@ -860,8 +860,6 @@ namespace Microsoft.EntityFrameworkCore
                     EntitiesC = { new EntityC() }
                 };
 
-                context.ChangeTracker.DetectChanges();
-
                 context.SaveChanges();
 
                 expectedCId = entityA.EntityB.EntitiesC.Single().Id;

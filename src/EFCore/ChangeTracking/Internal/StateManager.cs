@@ -44,7 +44,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         private Dictionary<IKey, IIdentityMap>? _identityMaps;
         private bool _needsUnsubscribe;
         private IChangeDetector? _changeDetector;
-        private bool _changeDetectorInitialized;
 
         private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
         private readonly IInternalEntityEntrySubscriber _internalEntityEntrySubscriber;
@@ -82,7 +81,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             UpdateLogger = dependencies.UpdateLogger;
             _changeTrackingLogger = dependencies.ChangeTrackingLogger;
-            _changeDetectorInitialized = false;
         }
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -200,17 +198,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public IChangeDetector? ChangeDetector
+        public IChangeDetector ChangeDetector
         {
             get
             {
-                if (!_changeDetectorInitialized)
+                if (_changeDetector == null)
                 {
-                    _changeDetector = Context.ChangeTracker.AutoDetectChangesEnabled
-                        && !((IRuntimeModel)Context.Model).SkipDetectChanges
-                            ? Context.GetDependencies().ChangeDetector
-                            : null;
-                    _changeDetectorInitialized = true;
+                    _changeDetector = Context.GetDependencies().ChangeDetector;
                 }
 
                 return _changeDetector;
@@ -1052,7 +1046,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         continue;
                     }
 
-                    ChangeDetector?.DetectChanges(dependent);
+                    ChangeDetector.DetectChanges(dependent);
 
                     if (dependent.EntityState != EntityState.Deleted
                         && dependent.EntityState != EntityState.Detached

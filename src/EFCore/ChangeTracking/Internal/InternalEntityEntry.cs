@@ -261,7 +261,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         throw new InvalidOperationException(
                             CoreStrings.TempValuePersists(
                                 property.Name,
-                                EntityType.DisplayName(), newState));
+                                entityType.DisplayName(), newState));
                     }
                 }
             }
@@ -291,7 +291,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             if (newState == EntityState.Unchanged)
             {
                 _stateData.FlagAllProperties(
-                    EntityType.PropertyCount(), PropertyFlag.Modified,
+                    entityType.PropertyCount(), PropertyFlag.Modified,
                     flagged: false);
             }
 
@@ -334,7 +334,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     || newState == EntityState.Detached)
                 && HasConceptualNull)
             {
-                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Null, flagged: false);
+                _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Null, flagged: false);
             }
 
             if (oldState == EntityState.Detached
@@ -353,9 +353,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 StateManager.ChangedCount--;
             }
 
-            HandleSharedIdentityEntry(oldState, newState, entityType);
-
             FireStateChanged(oldState);
+
+            HandleSharedIdentityEntry(oldState, newState, entityType);
 
             if ((newState == EntityState.Deleted
                     || newState == EntityState.Detached)
@@ -368,7 +368,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void HandleSharedIdentityEntry(EntityState oldState, EntityState newState, IEntityType entityType)
         {
-            if (SharedIdentityEntry == null)
+            var sharedIdentityEntry = SharedIdentityEntry;
+            if (sharedIdentityEntry == null)
             {
                 return;
             }
@@ -376,12 +377,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             switch (newState)
             {
                 case EntityState.Unchanged:
-                    SharedIdentityEntry.SetEntityState(EntityState.Detached);
+                    sharedIdentityEntry.SetEntityState(EntityState.Detached);
                     break;
                 case EntityState.Added:
                 case EntityState.Modified:
-                    if (SharedIdentityEntry.EntityState == EntityState.Added
-                        || SharedIdentityEntry.EntityState == EntityState.Modified)
+                    if (sharedIdentityEntry.EntityState == EntityState.Added
+                        || sharedIdentityEntry.EntityState == EntityState.Modified)
                     {
                         if (StateManager.SensitiveLoggingEnabled)
                         {
@@ -398,45 +399,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     }
 
                     break;
-            }
-
-            if (oldState == EntityState.Detached
-                && (newState == EntityState.Added
-                    || newState == EntityState.Modified))
-            {
-                var commonType = entityType.FindClosestCommonParent(SharedIdentityEntry.EntityType)!;
-                if (commonType.UseEagerSnapshots())
-                {
-                    foreach (var property in commonType.GetProperties())
-                    {
-                        if (property.GetOriginalValueIndex() >= 0)
-                        {
-                            SetOriginalValue(property, SharedIdentityEntry.GetOriginalValue(property));
-                        }
-                    }
-
-                    var changeDetector = (StateManager as StateManager)?.ChangeDetector as ChangeDetector;
-
-                    foreach (var navigation in entityType.GetNavigations())
-                    {
-                        if (navigation.GetRelationshipIndex() >= 0)
-                        {
-                            SetRelationshipSnapshotValue(navigation, SharedIdentityEntry.GetRelationshipSnapshotValue(navigation));
-
-                            changeDetector?.DetectNavigationChange(this, navigation);
-                        }
-                    }
-
-                    foreach (var navigation in entityType.GetSkipNavigations())
-                    {
-                        if (navigation.GetRelationshipIndex() >= 0)
-                        {
-                            SetRelationshipSnapshotValue(navigation, SharedIdentityEntry.GetRelationshipSnapshotValue(navigation));
-
-                            changeDetector?.DetectNavigationChange(this, navigation);
-                        }
-                    }
-                }
             }
         }
 
@@ -1067,19 +1029,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             // If setting the original value results in the current value being different from the
             // original value, then mark the property as modified.
-            if (EntityState == EntityState.Unchanged
-                || (EntityState == EntityState.Modified
-                    && !IsModified(property)))
+            if ((EntityState == EntityState.Unchanged
+                || (EntityState == EntityState.Modified && !IsModified(property)))
+                && !_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
             {
-                var currentValue = this[propertyBase];
-                var propertyIndex = property.GetIndex();
-                if (!ValuesEqualFunc(property)(currentValue, value)
-                    && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Null)
-                    && !_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown))
-                {
-                    SetPropertyModified(property);
-                    //((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
-                }
+                ((StateManager as StateManager)?.ChangeDetector as ChangeDetector)?.DetectValueChange(this, property);
             }
         }
 
@@ -1094,42 +1048,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             EnsureRelationshipSnapshot();
 
             _relationshipsSnapshot.SetValue(propertyBase, value);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public void SetRelationshipSnapshotValue(INavigationBase navigation, object? value)
-        {
-            EnsureRelationshipSnapshot();
-
-            if (navigation.IsCollection)
-            {
-                var currentSnapshotCollection = (IEnumerable?)_relationshipsSnapshot.GetValue(this, navigation);
-                if (currentSnapshotCollection != null)
-                {
-                    foreach (var entity in currentSnapshotCollection.ToList<object>())
-                    {
-                        _relationshipsSnapshot.RemoveFromCollection(navigation, entity);
-                    }
-                }
-
-                var snapshotCollection = (IEnumerable?)value;
-                if (snapshotCollection != null)
-                {
-                    foreach (var entity in snapshotCollection)
-                    {
-                        _relationshipsSnapshot.AddToCollection(navigation, entity);
-                    }
-                }
-            }
-            else
-            {
-                _relationshipsSnapshot.SetValue(navigation, value);
-            }
         }
 
         /// <summary>

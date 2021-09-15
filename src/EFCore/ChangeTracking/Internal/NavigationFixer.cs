@@ -641,6 +641,32 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         ResetReferenceOrRemoveCollection(principalEntry, principalToDependent, entry, fromQuery: false);
                     }
                 }
+
+                foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
+                {
+                    Check.DebugAssert(
+                        skipNavigation.IsCollection,
+                        "Issue #21673. Non-collection skip navigations not supported.");
+
+                    if (StringComparer.Ordinal.Compare(skipNavigation.Name, skipNavigation.Inverse.Name) < 0)
+                    {
+                        // Only do this once for any given pair of skip navigations
+                        continue;
+                    }
+
+                    var principal = stateManager.FindPrincipal(entry, foreignKey);
+                    if (principal != null
+                        && principal.EntityState != EntityState.Deleted)
+                    {
+                        var otherPrincipal = stateManager.FindPrincipal(entry, skipNavigation.Inverse.ForeignKey);
+                        if (otherPrincipal != null
+                            && otherPrincipal.EntityState != EntityState.Deleted)
+                        {
+                            RemoveFromCollection(principal, skipNavigation, otherPrincipal);
+                            RemoveFromCollection(otherPrincipal, skipNavigation.Inverse, principal);
+                        }
+                    }
+                }
             }
 
             foreach (var foreignKey in entityType.GetReferencingForeignKeys())
@@ -660,10 +686,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         ConditionallyNullForeignKeyProperties(dependentEntry, entry, foreignKey);
                     }
 
+                    // TODO: Don't fixup deleted entries, #26074
                     if (dependentToPrincipal != null
-                        && (!foreignKey.IsOwnership
-                            || (entry.EntityState != EntityState.Deleted
-                                && entry.EntityState != EntityState.Detached))
+                        && !IsAmbiguous(dependentEntry)
                         && dependentEntry[dependentToPrincipal] == entry.Entity)
                     {
                         SetNavigation(dependentEntry, dependentToPrincipal, null, fromQuery: false);
@@ -709,15 +734,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 if (principalEntry != null)
                 {
                     var navigation = foreignKey.DependentToPrincipal;
-                    var existingPrincipal = navigation == null ? null : entry[navigation];
-                    if (existingPrincipal == null
-                        || fromQuery
-                        || existingPrincipal == principalEntry.Entity)
+                    if (CanOverrideCurrentValue(entry, navigation, principalEntry, fromQuery)
+                        && !IsAmbiguous(principalEntry))
                     {
-                        // Set navigation to principal based on FK properties
                         SetNavigation(entry, navigation, principalEntry, fromQuery);
-
-                        // Add this entity to principal's collection, or set inverse for 1:1
                         ToDependentFixup(entry, principalEntry, foreignKey, fromQuery);
                     }
                 }
@@ -735,16 +755,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         var dependentEntry = (InternalEntityEntry?)dependents.FirstOrDefault();
                         if (dependentEntry != null)
                         {
-                            if (fromQuery
-                                || (!foreignKey.IsOwnership
-                                    || (dependentEntry.EntityState != EntityState.Deleted
-                                        && dependentEntry.EntityState != EntityState.Detached))
-                                && (foreignKey.PrincipalToDependent == null
-                                    || entry[foreignKey.PrincipalToDependent] == null
-                                    || entry[foreignKey.PrincipalToDependent] == dependentEntry.Entity))
+                            var toDependent = foreignKey.PrincipalToDependent;
+                            if (CanOverrideCurrentValue(entry, toDependent, dependentEntry, fromQuery)
+                                    && !IsAmbiguous(dependentEntry))
                             {
-                                // Set navigations to and from principal entity that is indicated by FK
-                                SetNavigation(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
+                                SetNavigation(entry, toDependent, dependentEntry, fromQuery);
                                 SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
                             }
                         }
@@ -753,20 +768,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     {
                         foreach (InternalEntityEntry dependentEntry in dependents)
                         {
-                            if (!foreignKey.IsOwnership
-                                || (dependentEntry.EntityState != EntityState.Deleted
-                                    && dependentEntry.EntityState != EntityState.Detached))
+                            if (!IsAmbiguous(dependentEntry))
                             {
-                                // Add to collection on principal indicated by FK and set inverse navigation
-                                AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
                                 SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
-                            }
+                                AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
 
-                            if (dependentEntry.EntityState != EntityState.Deleted
-                                && dependentEntry.EntityState != EntityState.Detached)
-                            {
                                 foreach (var skipNavigation in foreignKey.GetReferencingSkipNavigations())
                                 {
+                                    Check.DebugAssert(
+                                        skipNavigation.IsCollection,
+                                        "Issue #21673. Non-collection skip navigations not supported.");
+
                                     var otherEntry = stateManager.FindPrincipal(dependentEntry, skipNavigation.Inverse.ForeignKey);
                                     if (otherEntry != null)
                                     {
@@ -902,6 +914,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 }
             }
         }
+
+        private static bool IsAmbiguous(InternalEntityEntry dependentEntry)
+            => (dependentEntry.EntityState == EntityState.Detached
+                || dependentEntry.EntityState == EntityState.Deleted)
+                && (dependentEntry.SharedIdentityEntry != null
+                    || dependentEntry.EntityType.HasSharedClrType
+                        && dependentEntry.StateManager.TryGetEntry(dependentEntry.Entity, throwOnNonUniqueness: false) != dependentEntry);
 
         private void DelayedFixup(
             InternalEntityEntry entry,
@@ -1318,6 +1337,18 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                 }
             }
+        }
+
+        private static bool CanOverrideCurrentValue(InternalEntityEntry entry, INavigationBase? navigation, InternalEntityEntry value, bool fromQuery)
+        {
+            if (fromQuery)
+            {
+                return true;
+            }
+
+            var existingValue = navigation == null ? null : entry[navigation];
+            return existingValue == null
+                || existingValue == value.Entity;
         }
 
         private void SetNavigation(InternalEntityEntry entry, INavigationBase? navigation, InternalEntityEntry? value, bool fromQuery)
