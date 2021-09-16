@@ -52,6 +52,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             = typeof(RelationalEntityTypeBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(RelationalEntityTypeBuilderExtensions.ToTable), typeof(EntityTypeBuilder), typeof(string));
 
+        private static readonly MethodInfo _entityTypeIsMemoryOptimizedMethodInfo
+            = typeof(SqlServerEntityTypeBuilderExtensions).GetRequiredRuntimeMethod(
+                nameof(SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized), typeof(EntityTypeBuilder), typeof(bool));
+
         private static readonly MethodInfo _propertyIsSparseMethodInfo
             = typeof(SqlServerPropertyBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerPropertyBuilderExtensions.IsSparse), typeof(PropertyBuilder), typeof(bool));
@@ -184,7 +188,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             IEntityType entityType,
             IDictionary<string, IAnnotation> annotations)
         {
-            var result = base.GenerateFluentApiCalls(entityType, annotations);
+            var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(entityType, annotations));
+
+            if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.MemoryOptimized) is bool isMemoryOptimized)
+            {
+                fragments.Add(isMemoryOptimized
+                    ? new(_entityTypeIsMemoryOptimizedMethodInfo)
+                    : new(_entityTypeIsMemoryOptimizedMethodInfo, false));
+            }
 
             if (annotations.TryGetValue(SqlServerAnnotationNames.IsTemporal, out var isTemporalAnnotation)
                 && isTemporalAnnotation.Value as bool? == true)
@@ -250,16 +261,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                                 "ttb",
                                 temporalTableBuilderCalls))));
 
+                fragments.Add(toTemporalTableCall);
+
                 annotations.Remove(SqlServerAnnotationNames.IsTemporal);
                 annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
                 annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
                 annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
                 annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
-
-                return result.Concat(new[] { toTemporalTableCall }).ToList();
             }
 
-            return result;
+            return fragments;
         }
 
         /// <summary>
