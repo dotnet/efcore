@@ -24,12 +24,13 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool added = false,
             bool modified = false,
             bool deleted = false,
-            bool unchanged = false)
+            bool unchanged = false,
+            bool returnDeletedSharedIdentity = false)
         {
             var list = new List<InternalEntityEntry>(
-                stateManager.GetCountForState(added, modified, deleted, unchanged));
+                stateManager.GetCountForState(added, modified, deleted, unchanged, returnDeletedSharedIdentity));
 
-            foreach (var entry in stateManager.GetEntriesForState(added, modified, deleted, unchanged))
+            foreach (var entry in stateManager.GetEntriesForState(added, modified, deleted, unchanged, returnDeletedSharedIdentity))
             {
                 list.Add(entry);
             }
@@ -45,6 +46,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public static IReadOnlyList<InternalEntityEntry> ToList(
             this IStateManager stateManager)
-            => stateManager.ToListForState(added: true, modified: true, deleted: true, unchanged: true);
+            => stateManager.ToListForState(added: true, modified: true, deleted: true, unchanged: true, returnDeletedSharedIdentity: true);
     }
 }

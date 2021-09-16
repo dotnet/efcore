@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? throwOnTypeMismatch
                         ? throw new InvalidOperationException(
                             CoreStrings.TrackingTypeMismatch(entry.EntityType.DisplayName(), entityType.DisplayName()))
-                        : (InternalEntityEntry?)null
+                        : null
                     : entry
                 : null;
 
@@ -496,8 +496,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool added = false,
             bool modified = false,
             bool deleted = false,
-            bool unchanged = false)
-            => _entityReferenceMap.GetCountForState(added, modified, deleted, unchanged);
+            bool unchanged = false,
+            bool countDeletedSharedIdentity = false)
+            => _entityReferenceMap.GetCountForState(added, modified, deleted, unchanged, countDeletedSharedIdentity);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -506,7 +507,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual int Count
-            => GetCountForState(added: true, modified: true, deleted: true, unchanged: true);
+            => GetCountForState(added: true, modified: true, deleted: true, unchanged: true, countDeletedSharedIdentity: true);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -518,8 +519,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             bool added = false,
             bool modified = false,
             bool deleted = false,
-            bool unchanged = false)
-            => _entityReferenceMap.GetEntriesForState(added, modified, deleted, unchanged);
+            bool unchanged = false,
+            bool returnDeletedSharedIdentity = false)
+            => _entityReferenceMap.GetEntriesForState(added, modified, deleted, unchanged, returnDeletedSharedIdentity);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -528,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual IEnumerable<InternalEntityEntry> Entries
-            => GetEntriesForState(added: true, modified: true, deleted: true, unchanged: true);
+            => GetEntriesForState(added: true, modified: true, deleted: true, unchanged: true, returnDeletedSharedIdentity: true);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

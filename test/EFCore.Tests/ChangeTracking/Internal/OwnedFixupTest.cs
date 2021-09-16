@@ -927,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
             Assert.Null(principal.Child1);
             Assert.Same(dependent2, principal.Child2);
             Assert.Equal(entityState, context.Entry(principal).State);
@@ -958,7 +958,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -1001,7 +1001,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
             Assert.Null(principal.Child2);
             Assert.Same(principal, dependent2.Parent);
             Assert.Same(dependent2, principal.Child1);
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -1112,7 +1112,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
             Assert.Null(principal.ChildCollection1);
             Assert.Contains(principal.ChildCollection2, e => ReferenceEquals(e, dependent2));
             Assert.Equal(entityState, context.Entry(principal).State);
@@ -1141,7 +1141,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -1219,7 +1219,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
             Assert.Null(principal.ChildCollection2);
             Assert.Same(principal, dependent2.Parent);
             Assert.Contains(principal.ChildCollection1, e => ReferenceEquals(e, dependent2));
@@ -1250,7 +1250,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 3 : 5, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -1647,7 +1647,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
             Assert.Same(dependent1, principal.Child2);
             Assert.Same(dependent2, principal.Child1);
             Assert.Equal(entityState, context.Entry(principal).State);
@@ -1706,7 +1706,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -1754,7 +1754,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
             Assert.Same(principal, dependent1.Parent);
             Assert.Same(dependent1, principal.Child2);
             Assert.Same(principal, dependent2.Parent);
@@ -1817,7 +1817,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -1914,7 +1914,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
             Assert.Contains(principal.ChildCollection2, e => ReferenceEquals(e, dependent1));
             Assert.Contains(principal.ChildCollection1, e => ReferenceEquals(e, dependent2));
             Assert.Equal(entityState, context.Entry(principal).State);
@@ -1969,7 +1969,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -2065,7 +2065,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
             Assert.Same(principal, dependent1.Parent);
             Assert.Contains(principal.ChildCollection2, e => ReferenceEquals(e, dependent1));
             Assert.Same(principal, dependent2.Parent);
@@ -2124,7 +2124,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(5, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 5 : 9, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -3569,7 +3569,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 6 : 10, context.ChangeTracker.Entries().Count());
             Assert.Null(principal1.Child1);
             Assert.Same(dependent2, principal1.Child2);
             Assert.Same(dependent1, principal2.Child1);
@@ -3631,7 +3631,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 6 : 10, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 
@@ -3863,7 +3863,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             context.ChangeTracker.DetectChanges();
 
-            Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 6 : 10, context.ChangeTracker.Entries().Count());
             Assert.Null(principal1.ChildCollection1);
             Assert.Contains(principal1.ChildCollection2, e => ReferenceEquals(e, dependent2));
             Assert.Contains(principal2.ChildCollection1, e => ReferenceEquals(e, dependent1));
@@ -3923,7 +3923,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 6 : 10, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 

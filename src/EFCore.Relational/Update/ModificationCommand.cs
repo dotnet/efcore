@@ -270,7 +270,9 @@ namespace Microsoft.EntityFrameworkCore.Update
 
                     if (entry.SharedIdentityEntry != null)
                     {
-                        var sharedTableMapping = GetTableMapping(entry.SharedIdentityEntry.EntityType);
+                        var sharedTableMapping = entry.EntityType != entry.SharedIdentityEntry.EntityType
+                            ? GetTableMapping(entry.SharedIdentityEntry.EntityType)
+                            : tableMapping;
                         if (sharedTableMapping != null)
                         {
                             InitializeSharedColumns(entry.SharedIdentityEntry, sharedTableMapping, updating, sharedTableColumnMap);
@@ -482,16 +484,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                         break;
                     case EntityState.Added:
                         _currentValue = entry.GetCurrentValue(property);
-
-                        var comparer = property.GetValueComparer();
-                        if (comparer == null)
-                        {
-                            _write = !Equals(_originalValue, _currentValue);
-                        }
-                        else
-                        {
-                            _write = !comparer.Equals(_originalValue, _currentValue);
-                        }
+                        _write = !property.GetValueComparer().Equals(_originalValue, _currentValue);
 
                         break;
                     case EntityState.Deleted:
@@ -512,7 +505,8 @@ namespace Microsoft.EntityFrameworkCore.Update
                 if (_write
                     && (entry.EntityState == EntityState.Unchanged
                         || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
-                        || (entry.EntityState == EntityState.Added && Equals(_originalValue, entry.GetCurrentValue(property)))))
+                        || (entry.EntityState == EntityState.Added
+                            && property.GetValueComparer().Equals(_originalValue, entry.GetCurrentValue(property)))))
                 {
                     entry.SetStoreGeneratedValue(property, _currentValue);
 

@@ -2018,12 +2018,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                             var sourceValue = sourceEntry.GetCurrentValue(sourceProperty);
                             var targetValue = entry.GetCurrentValue(targetProperty);
-                            var comparer = targetProperty.GetValueComparer()
-                                ?? sourceProperty.GetValueComparer();
+                            var comparer = targetProperty.GetValueComparer();
 
                             var modelValuesChanged
                                 = sourceProperty.ClrType.UnwrapNullableType() == targetProperty.ClrType.UnwrapNullableType()
-                                && comparer?.Equals(sourceValue, targetValue) == false;
+                                && comparer.Equals(sourceValue, targetValue) == false;
 
                             if (!modelValuesChanged)
                             {

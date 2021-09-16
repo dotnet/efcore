@@ -50,11 +50,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             }
 
             private static object? SnapshotValue(IProperty property, object? value)
-            {
-                var comparer = property.GetValueComparer();
-
-                return comparer == null ? value : comparer.Snapshot(value);
-            }
+                => property.GetValueComparer().Snapshot(value);
 
             public bool IsEmpty
                 => _values == null;

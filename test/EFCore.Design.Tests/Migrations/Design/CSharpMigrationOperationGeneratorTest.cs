@@ -3625,6 +3625,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 });
         }
 
+        [ConditionalFact]
+        public void AlterTableOperation_annotation_set_to_null()
+        {
+            var oldTable = new CreateTableOperation
+            {
+                Name = "Customer",
+            };
+            oldTable.AddAnnotation("MyAnnotation1", "Bar");
+            oldTable.AddAnnotation("MyAnnotation2", null);
+
+            var alterTable = new AlterTableOperation
+            {
+                Name = "NewCustomer",
+                OldTable = oldTable
+            };
+
+            alterTable.AddAnnotation("MyAnnotation1", null);
+            alterTable.AddAnnotation("MyAnnotation2", "Foo");
+
+            Test(
+                alterTable,
+                "mb.AlterTable("
+                + _eol
+                + "    name: \"NewCustomer\")"
+                + _eol
+                + "    .Annotation(\"MyAnnotation1\", null)"
+                + _eol
+                + "    .Annotation(\"MyAnnotation2\", \"Foo\")"
+                + _eol
+                + "    .OldAnnotation(\"MyAnnotation1\", \"Bar\")"
+                + _eol
+                + "    .OldAnnotation(\"MyAnnotation2\", null);",
+                operation =>
+                {
+                    Assert.Equal("NewCustomer", operation.Name);
+                    Assert.Null(operation.GetAnnotation("MyAnnotation1").Value);
+                    Assert.Equal("Foo", operation.GetAnnotation("MyAnnotation2").Value);
+                });
+        }
+
         private void Test<T>(T operation, string expectedCode, Action<T> assert)
             where T : MigrationOperation
         {

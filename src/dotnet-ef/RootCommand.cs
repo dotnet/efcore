@@ -184,6 +184,12 @@ namespace Microsoft.EntityFrameworkCore.Tools
             args.Add("--framework");
             args.Add(startupProject.TargetFramework!);
 
+            if (_configuration.HasValue())
+            {
+                args.Add("--configuration");
+                args.Add(_configuration.Value()!);
+            }
+
             if (string.Equals(project.Nullable, "enable", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(project.Nullable, "annotations", StringComparison.OrdinalIgnoreCase))
             {
@@ -279,9 +285,14 @@ namespace Microsoft.EntityFrameworkCore.Tools
             {
                 path = Directory.GetCurrentDirectory();
             }
-            else if (!Directory.Exists(path)) // It's not a directory
+            else
             {
-                return new List<string> { path };
+                path = Path.GetFullPath(path);
+
+                if (!Directory.Exists(path)) // It's not a directory
+                {
+                    return new List<string> { path };
+                }
             }
 
             var projectFiles = Directory.EnumerateFiles(path, "*.*proj", SearchOption.TopDirectoryOnly)

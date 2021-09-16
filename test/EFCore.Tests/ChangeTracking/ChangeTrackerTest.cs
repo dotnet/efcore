@@ -49,6 +49,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Add(new DependentGN { Id = dependentKeyValue, PrincipalGN = new PrincipalGN { Id = principalKeyValue} }).Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalTheory]
@@ -75,6 +77,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Add(new PrincipalGN { Id = principalKeyValue, DependentGN = new DependentGN { Id = dependentKeyValue} }).Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -97,6 +101,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new DependentGN { PrincipalGN = new PrincipalGN() }).Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -119,6 +125,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new DependentGN { PrincipalGN = new PrincipalGN { Id = 1 } }).Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(added4.PrincipalGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -141,6 +149,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new DependentGN { Id = 1, PrincipalGN = new PrincipalGN() }).Entity;
             Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.PrincipalGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -163,6 +173,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new DependentGN { Id = 1, PrincipalGN = new PrincipalGN { Id = 1 } }).Entity;
             Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(added4.PrincipalGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -185,6 +197,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new PrincipalGN { DependentGN = new DependentGN() }).Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -207,6 +221,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new PrincipalGN { Id = 1, DependentGN = new DependentGN() }).Entity;
             Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
             Assert.Equal(EntityState.Added, context.Entry(added4.DependentGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -229,6 +245,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new PrincipalGN { DependentGN = new DependentGN { Id = 1 } }).Entity;
             Assert.Equal(EntityState.Added, context.Entry(added4).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(added4.DependentGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]
@@ -251,6 +269,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             var added4 = context.Attach(new PrincipalGN { Id = 1, DependentGN = new DependentGN { Id = 1 } }).Entity;
             Assert.Equal(EntityState.Unchanged, context.Entry(added4).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(added4.DependentGN).State);
+
+            Assert.Equal(8, context.ChangeTracker.Entries().Count());
         }
 
         [ConditionalFact]

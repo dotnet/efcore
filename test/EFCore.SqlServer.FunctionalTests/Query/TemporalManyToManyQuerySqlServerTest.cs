@@ -151,9 +151,9 @@ WHERE (
 FROM [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 ORDER BY (
     SELECT COUNT_BIG(*)
-    FROM [JoinTwoSelfShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[LeftId] = [e0].[Id]
-    WHERE ([e].[Id] = [j].[RightId]) AND ([e0].[Name] IS NOT NULL AND ([e0].[Name] LIKE N'L%'))) DESC, [e].[Id]");
+    FROM [EntityTwoEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[SelfSkipSharedLeftId] = [e1].[Id]
+    WHERE ([e].[Id] = [e0].[SelfSkipSharedRightId]) AND ([e1].[Name] IS NOT NULL AND ([e1].[Name] LIKE N'L%'))) DESC, [e].[Id]");
         }
 
         public override async Task Skip_navigation_select_many_average(bool async)
@@ -164,10 +164,10 @@ ORDER BY (
                 @"SELECT AVG(CAST([t].[Key1] AS float))
 FROM [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN (
-    SELECT [e0].[Key1], [j].[TwoId]
-    FROM [JoinTwoToCompositeKeyShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
-) AS [t] ON [e].[Id] = [t].[TwoId]");
+    SELECT [e1].[Key1], [e0].[TwoSkipSharedId]
+    FROM [EntityCompositeKeyEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON (([e0].[CompositeKeySkipSharedKey1] = [e1].[Key1]) AND ([e0].[CompositeKeySkipSharedKey2] = [e1].[Key2])) AND ([e0].[CompositeKeySkipSharedKey3] = [e1].[Key3])
+) AS [t] ON [e].[Id] = [t].[TwoSkipSharedId]");
         }
 
         public override async Task Skip_navigation_select_many_max(bool async)
@@ -192,10 +192,10 @@ INNER JOIN (
                 @"SELECT MIN([t].[Id])
 FROM [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN (
-    SELECT [e1].[Id], [e0].[EntityThreeId]
+    SELECT [e1].[Id], [e0].[ThreeSkipSharedId]
     FROM [EntityRootEntityThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
-    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[EntityRootId] = [e1].[Id]
-) AS [t] ON [e].[Id] = [t].[EntityThreeId]");
+    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[RootSkipSharedId] = [e1].[Id]
+) AS [t] ON [e].[Id] = [t].[ThreeSkipSharedId]");
         }
 
         public override async Task Skip_navigation_select_many_sum(bool async)
@@ -206,10 +206,10 @@ INNER JOIN (
                 @"SELECT COALESCE(SUM([t].[Key1]), 0)
 FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN (
-    SELECT [e0].[Key1], [j].[RootId]
-    FROM [JoinCompositeKeyToRootShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
-) AS [t] ON [e].[Id] = [t].[RootId]");
+    SELECT [e1].[Key1], [e0].[RootSkipSharedId]
+    FROM [EntityCompositeKeyEntityRoot] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON (([e0].[CompositeKeySkipSharedKey1] = [e1].[Key1]) AND ([e0].[CompositeKeySkipSharedKey2] = [e1].[Key2])) AND ([e0].[CompositeKeySkipSharedKey3] = [e1].[Key3])
+) AS [t] ON [e].[Id] = [t].[RootSkipSharedId]");
         }
 
         public override async Task Skip_navigation_select_subquery_average(bool async)
@@ -364,15 +364,15 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
             await base.Skip_navigation_of_type(async);
 
             AssertSql(
-                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[Number], [t].[IsGreen], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId]
+                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[Number], [t].[IsGreen], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[RootSkipSharedId]
 FROM [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[Discriminator], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[Number], [e0].[IsGreen], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId]
-    FROM [JoinCompositeKeyToRootShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[RootId] = [e0].[Id]
-    WHERE [e0].[Discriminator] = N'EntityLeaf'
-) AS [t] ON (([e].[Key1] = [t].[CompositeId1]) AND ([e].[Key2] = [t].[CompositeId2])) AND ([e].[Key3] = [t].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId]");
+    SELECT [e1].[Id], [e1].[Discriminator], [e1].[Name], [e1].[PeriodEnd], [e1].[PeriodStart], [e1].[Number], [e1].[IsGreen], [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3], [e0].[RootSkipSharedId]
+    FROM [EntityCompositeKeyEntityRoot] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[RootSkipSharedId] = [e1].[Id]
+    WHERE [e1].[Discriminator] = N'EntityLeaf'
+) AS [t] ON (([e].[Key1] = [t].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t].[CompositeKeySkipSharedKey3])
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[RootSkipSharedId]");
         }
 
         public override async Task Join_with_skip_navigation(bool async)
@@ -383,11 +383,11 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[CompositeId1], [t].[CompositeI
                 @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[ReferenceInverseId], [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[ReferenceInverseId]
 FROM [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [e].[Id] = (
-    SELECT TOP(1) [e1].[Id]
-    FROM [JoinTwoSelfShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [j].[RightId] = [e1].[Id]
-    WHERE [e0].[Id] = [j].[LeftId]
-    ORDER BY [e1].[Id])");
+    SELECT TOP(1) [e2].[Id]
+    FROM [EntityTwoEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1]
+    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [e1].[SelfSkipSharedRightId] = [e2].[Id]
+    WHERE [e0].[Id] = [e1].[SelfSkipSharedLeftId]
+    ORDER BY [e2].[Id])");
         }
 
         public override async Task Left_join_with_skip_navigation(bool async)
@@ -398,16 +398,16 @@ INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [
                 @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart]
 FROM [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON (
-    SELECT TOP(1) [e1].[Id]
-    FROM [JoinTwoToCompositeKeyShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [j].[TwoId] = [e1].[Id]
-    WHERE (([e].[Key1] = [j].[CompositeId1]) AND ([e].[Key2] = [j].[CompositeId2])) AND ([e].[Key3] = [j].[CompositeId3])
-    ORDER BY [e1].[Id]) = (
     SELECT TOP(1) [e2].[Id]
-    FROM [JoinThreeToCompositeKeyFull] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j0]
-    INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [j0].[ThreeId] = [e2].[Id]
-    WHERE (([e0].[Key1] = [j0].[CompositeId1]) AND ([e0].[Key2] = [j0].[CompositeId2])) AND ([e0].[Key3] = [j0].[CompositeId3])
-    ORDER BY [e2].[Id])
+    FROM [EntityCompositeKeyEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1]
+    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [e1].[TwoSkipSharedId] = [e2].[Id]
+    WHERE (([e].[Key1] = [e1].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [e1].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [e1].[CompositeKeySkipSharedKey3])
+    ORDER BY [e2].[Id]) = (
+    SELECT TOP(1) [e3].[Id]
+    FROM [JoinThreeToCompositeKeyFull] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
+    INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e3] ON [j].[ThreeId] = [e3].[Id]
+    WHERE (([e0].[Key1] = [j].[CompositeId1]) AND ([e0].[Key2] = [j].[CompositeId2])) AND ([e0].[Key3] = [j].[CompositeId3])
+    ORDER BY [e3].[Id])
 ORDER BY [e].[Key1], [e0].[Key1], [e].[Key2], [e0].[Key2]");
         }
 
@@ -419,10 +419,10 @@ ORDER BY [e].[Key1], [e0].[Key1], [e].[Key2], [e0].[Key2]");
                 @"SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[ReferenceInverseId]
 FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN (
-    SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[PeriodEnd], [e1].[PeriodStart], [e1].[ReferenceInverseId], [e0].[EntityRootId]
+    SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[PeriodEnd], [e1].[PeriodStart], [e1].[ReferenceInverseId], [e0].[RootSkipSharedId]
     FROM [EntityRootEntityThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
-    INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[EntityThreeId] = [e1].[Id]
-) AS [t] ON [e].[Id] = [t].[EntityRootId]");
+    INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[ThreeSkipSharedId] = [e1].[Id]
+) AS [t] ON [e].[Id] = [t].[RootSkipSharedId]");
         }
 
         public override async Task Select_many_over_skip_navigation_where(bool async)
@@ -501,11 +501,11 @@ INNER JOIN (
                 @"SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[Number], [t].[IsGreen]
 FROM [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 INNER JOIN (
-    SELECT [e1].[Id], [e1].[Discriminator], [e1].[Name], [e1].[PeriodEnd], [e1].[PeriodStart], [e1].[Number], [e1].[IsGreen], [e0].[EntityThreeId]
+    SELECT [e1].[Id], [e1].[Discriminator], [e1].[Name], [e1].[PeriodEnd], [e1].[PeriodStart], [e1].[Number], [e1].[IsGreen], [e0].[ThreeSkipSharedId]
     FROM [EntityRootEntityThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
-    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[EntityRootId] = [e1].[Id]
+    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[RootSkipSharedId] = [e1].[Id]
     WHERE [e1].[Discriminator] IN (N'EntityBranch', N'EntityLeaf')
-) AS [t] ON [e].[Id] = [t].[EntityThreeId]");
+) AS [t] ON [e].[Id] = [t].[ThreeSkipSharedId]");
         }
 
         public override async Task Select_many_over_skip_navigation_cast(bool async)
@@ -546,7 +546,7 @@ ORDER BY [e].[Id], [t].[LeftId], [t].[RightId]");
             await base.Select_skip_navigation_multiple(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[ReferenceInverseId], [t0].[LeftId], [t0].[RightId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[PeriodEnd], [t1].[PeriodStart], [t1].[TwoId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3]
+                @"SELECT [e].[Id], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[ReferenceInverseId], [t0].[SelfSkipSharedLeftId], [t0].[SelfSkipSharedRightId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[PeriodEnd], [t1].[PeriodStart], [t1].[TwoSkipSharedId], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3]
 FROM [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
     SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[ReferenceInverseId], [j].[ThreeId], [j].[TwoId]
@@ -554,16 +554,16 @@ LEFT JOIN (
     INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[ThreeId] = [e0].[Id]
 ) AS [t] ON [e].[Id] = [t].[TwoId]
 LEFT JOIN (
-    SELECT [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[PeriodEnd], [e1].[PeriodStart], [e1].[ReferenceInverseId], [j0].[LeftId], [j0].[RightId]
-    FROM [JoinTwoSelfShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j0]
-    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [j0].[LeftId] = [e1].[Id]
-) AS [t0] ON [e].[Id] = [t0].[RightId]
+    SELECT [e2].[Id], [e2].[CollectionInverseId], [e2].[ExtraId], [e2].[Name], [e2].[PeriodEnd], [e2].[PeriodStart], [e2].[ReferenceInverseId], [e1].[SelfSkipSharedLeftId], [e1].[SelfSkipSharedRightId]
+    FROM [EntityTwoEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1]
+    INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [e1].[SelfSkipSharedLeftId] = [e2].[Id]
+) AS [t0] ON [e].[Id] = [t0].[SelfSkipSharedRightId]
 LEFT JOIN (
-    SELECT [e2].[Key1], [e2].[Key2], [e2].[Key3], [e2].[Name], [e2].[PeriodEnd], [e2].[PeriodStart], [j1].[TwoId], [j1].[CompositeId1], [j1].[CompositeId2], [j1].[CompositeId3]
-    FROM [JoinTwoToCompositeKeyShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j1]
-    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON (([j1].[CompositeId1] = [e2].[Key1]) AND ([j1].[CompositeId2] = [e2].[Key2])) AND ([j1].[CompositeId3] = [e2].[Key3])
-) AS [t1] ON [e].[Id] = [t1].[TwoId]
-ORDER BY [e].[Id], [t].[ThreeId], [t].[TwoId], [t].[Id], [t0].[LeftId], [t0].[RightId], [t0].[Id], [t1].[TwoId], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Key1], [t1].[Key2]");
+    SELECT [e4].[Key1], [e4].[Key2], [e4].[Key3], [e4].[Name], [e4].[PeriodEnd], [e4].[PeriodStart], [e3].[TwoSkipSharedId], [e3].[CompositeKeySkipSharedKey1], [e3].[CompositeKeySkipSharedKey2], [e3].[CompositeKeySkipSharedKey3]
+    FROM [EntityCompositeKeyEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e3]
+    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e4] ON (([e3].[CompositeKeySkipSharedKey1] = [e4].[Key1]) AND ([e3].[CompositeKeySkipSharedKey2] = [e4].[Key2])) AND ([e3].[CompositeKeySkipSharedKey3] = [e4].[Key3])
+) AS [t1] ON [e].[Id] = [t1].[TwoSkipSharedId]
+ORDER BY [e].[Id], [t].[ThreeId], [t].[TwoId], [t].[Id], [t0].[SelfSkipSharedLeftId], [t0].[SelfSkipSharedRightId], [t0].[Id], [t1].[TwoSkipSharedId], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3], [t1].[Key1], [t1].[Key2]");
         }
 
         public override async Task Select_skip_navigation_first_or_default(bool async)
@@ -590,14 +590,14 @@ ORDER BY [e].[Id]");
             await base.Include_skip_navigation(async);
 
             AssertSql(
-                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[Number], [t].[IsGreen]
+                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[RootSkipSharedId], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[Number], [t].[IsGreen]
 FROM [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Id], [e0].[Discriminator], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [e0].[Number], [e0].[IsGreen]
-    FROM [JoinCompositeKeyToRootShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[RootId] = [e0].[Id]
-) AS [t] ON (([e].[Key1] = [t].[CompositeId1]) AND ([e].[Key2] = [t].[CompositeId2])) AND ([e].[Key3] = [t].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[RootId]");
+    SELECT [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3], [e0].[RootSkipSharedId], [e0].[PeriodEnd], [e0].[PeriodStart], [e1].[Id], [e1].[Discriminator], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[Number], [e1].[IsGreen]
+    FROM [EntityCompositeKeyEntityRoot] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+    INNER JOIN [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[RootSkipSharedId] = [e1].[Id]
+) AS [t] ON (([e].[Key1] = [t].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t].[CompositeKeySkipSharedKey3])
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[RootSkipSharedId]");
         }
 
         public override async Task Include_skip_navigation_then_reference(bool async)
@@ -733,18 +733,18 @@ ORDER BY [e].[Id], [t].[Id], [t].[ThreeId]");
             await base.Filtered_include_skip_navigation_order_by_skip(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[ReferenceInverseId], [t0].[LeftId], [t0].[RightId], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[ReferenceInverseId]
+                @"SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[ReferenceInverseId], [t0].[SelfSkipSharedLeftId], [t0].[SelfSkipSharedRightId], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[ReferenceInverseId]
 FROM [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [t].[LeftId], [t].[RightId], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[ReferenceInverseId]
+    SELECT [t].[SelfSkipSharedLeftId], [t].[SelfSkipSharedRightId], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[ReferenceInverseId]
     FROM (
-        SELECT [j].[LeftId], [j].[RightId], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[LeftId] ORDER BY [e0].[Id]) AS [row]
-        FROM [JoinTwoSelfShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-        INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[RightId] = [e0].[Id]
+        SELECT [e0].[SelfSkipSharedLeftId], [e0].[SelfSkipSharedRightId], [e0].[PeriodEnd], [e0].[PeriodStart], [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [e0].[SelfSkipSharedLeftId] ORDER BY [e1].[Id]) AS [row]
+        FROM [EntityTwoEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+        INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[SelfSkipSharedRightId] = [e1].[Id]
     ) AS [t]
     WHERE 2 < [t].[row]
-) AS [t0] ON [e].[Id] = [t0].[LeftId]
-ORDER BY [e].[Id], [t0].[LeftId], [t0].[Id]");
+) AS [t0] ON [e].[Id] = [t0].[SelfSkipSharedLeftId]
+ORDER BY [e].[Id], [t0].[SelfSkipSharedLeftId], [t0].[Id]");
         }
 
         public override async Task Filtered_include_skip_navigation_order_by_take(bool async)
@@ -752,18 +752,18 @@ ORDER BY [e].[Id], [t0].[LeftId], [t0].[Id]");
             await base.Filtered_include_skip_navigation_order_by_take(async);
 
             AssertSql(
-                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [t0].[TwoId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[ReferenceInverseId]
+                @"SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[ReferenceInverseId]
 FROM [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [t].[TwoId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[ReferenceInverseId]
+    SELECT [t].[TwoSkipSharedId], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[ReferenceInverseId]
     FROM (
-        SELECT [j].[TwoId], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [e0].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3] ORDER BY [e0].[Id]) AS [row]
-        FROM [JoinTwoToCompositeKeyShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-        INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[TwoId] = [e0].[Id]
+        SELECT [e0].[TwoSkipSharedId], [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3], [e0].[PeriodEnd], [e0].[PeriodStart], [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3] ORDER BY [e1].[Id]) AS [row]
+        FROM [EntityCompositeKeyEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+        INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
     ) AS [t]
     WHERE [t].[row] <= 2
-) AS [t0] ON (([e].[Key1] = [t0].[CompositeId1]) AND ([e].[Key2] = [t0].[CompositeId2])) AND ([e].[Key3] = [t0].[CompositeId3])
-ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id]");
+) AS [t0] ON (([e].[Key1] = [t0].[CompositeKeySkipSharedKey1]) AND ([e].[Key2] = [t0].[CompositeKeySkipSharedKey2])) AND ([e].[Key3] = [t0].[CompositeKeySkipSharedKey3])
+ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Id]");
         }
 
         public override async Task Filtered_include_skip_navigation_order_by_skip_take(bool async)
@@ -790,20 +790,20 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
             await base.Filtered_then_include_skip_navigation_where(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Number], [e].[IsGreen], [t0].[EntityRootId], [t0].[EntityThreeId], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[ReferenceInverseId], [t0].[OneId], [t0].[ThreeId], [t0].[Payload], [t0].[PeriodEnd1], [t0].[PeriodStart1], [t0].[Id0], [t0].[Name0], [t0].[PeriodEnd00], [t0].[PeriodStart00]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Number], [e].[IsGreen], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[ReferenceInverseId], [t0].[OneId], [t0].[ThreeId], [t0].[Payload], [t0].[PeriodEnd1], [t0].[PeriodStart1], [t0].[Id0], [t0].[Name0], [t0].[PeriodEnd00], [t0].[PeriodStart00]
 FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [e0].[EntityRootId], [e0].[EntityThreeId], [e0].[PeriodEnd], [e0].[PeriodStart], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[ReferenceInverseId], [t].[OneId], [t].[ThreeId], [t].[Payload], [t].[PeriodEnd] AS [PeriodEnd1], [t].[PeriodStart] AS [PeriodStart1], [t].[Id] AS [Id0], [t].[Name] AS [Name0], [t].[PeriodEnd0] AS [PeriodEnd00], [t].[PeriodStart0] AS [PeriodStart00]
+    SELECT [e0].[RootSkipSharedId], [e0].[ThreeSkipSharedId], [e0].[PeriodEnd], [e0].[PeriodStart], [e1].[Id], [e1].[CollectionInverseId], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[ReferenceInverseId], [t].[OneId], [t].[ThreeId], [t].[Payload], [t].[PeriodEnd] AS [PeriodEnd1], [t].[PeriodStart] AS [PeriodStart1], [t].[Id] AS [Id0], [t].[Name] AS [Name0], [t].[PeriodEnd0] AS [PeriodEnd00], [t].[PeriodStart0] AS [PeriodStart00]
     FROM [EntityRootEntityThree] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
-    INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[EntityThreeId] = [e1].[Id]
+    INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[ThreeSkipSharedId] = [e1].[Id]
     LEFT JOIN (
         SELECT [j].[OneId], [j].[ThreeId], [j].[Payload], [j].[PeriodEnd], [j].[PeriodStart], [e2].[Id], [e2].[Name], [e2].[PeriodEnd] AS [PeriodEnd0], [e2].[PeriodStart] AS [PeriodStart0]
         FROM [JoinOneToThreePayloadFullShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
         INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [j].[OneId] = [e2].[Id]
         WHERE [e2].[Id] < 10
     ) AS [t] ON [e1].[Id] = [t].[ThreeId]
-) AS [t0] ON [e].[Id] = [t0].[EntityRootId]
-ORDER BY [e].[Id], [t0].[EntityRootId], [t0].[EntityThreeId], [t0].[Id], [t0].[OneId], [t0].[ThreeId]");
+) AS [t0] ON [e].[Id] = [t0].[RootSkipSharedId]
+ORDER BY [e].[Id], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId], [t0].[Id], [t0].[OneId], [t0].[ThreeId]");
         }
 
         public override async Task Filtered_then_include_skip_navigation_order_by_skip_take(bool async)
@@ -811,23 +811,23 @@ ORDER BY [e].[Id], [t0].[EntityRootId], [t0].[EntityThreeId], [t0].[Id], [t0].[O
             await base.Filtered_then_include_skip_navigation_order_by_skip_take(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Number], [e].[IsGreen], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[PeriodEnd], [t1].[PeriodStart], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[PeriodEnd0], [t1].[PeriodStart0], [t1].[Id], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[PeriodEnd1], [t1].[PeriodStart1], [t1].[ThreeId], [t1].[Id0], [t1].[CollectionInverseId], [t1].[Name0], [t1].[PeriodEnd00], [t1].[PeriodStart00], [t1].[ReferenceInverseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Number], [e].[IsGreen], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3], [t1].[RootSkipSharedId], [t1].[PeriodEnd], [t1].[PeriodStart], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[PeriodEnd0], [t1].[PeriodStart0], [t1].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[PeriodEnd1], [t1].[PeriodStart1], [t1].[ThreeId], [t1].[Id0], [t1].[CollectionInverseId], [t1].[Name0], [t1].[PeriodEnd00], [t1].[PeriodStart00], [t1].[ReferenceInverseId]
 FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[RootId], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [t0].[Id], [t0].[CompositeId1] AS [CompositeId10], [t0].[CompositeId2] AS [CompositeId20], [t0].[CompositeId3] AS [CompositeId30], [t0].[PeriodEnd] AS [PeriodEnd1], [t0].[PeriodStart] AS [PeriodStart1], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[PeriodEnd0] AS [PeriodEnd00], [t0].[PeriodStart0] AS [PeriodStart00], [t0].[ReferenceInverseId]
-    FROM [JoinCompositeKeyToRootShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
-    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
+    SELECT [e0].[CompositeKeySkipSharedKey1], [e0].[CompositeKeySkipSharedKey2], [e0].[CompositeKeySkipSharedKey3], [e0].[RootSkipSharedId], [e0].[PeriodEnd], [e0].[PeriodStart], [e1].[Key1], [e1].[Key2], [e1].[Key3], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [t0].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[PeriodEnd] AS [PeriodEnd1], [t0].[PeriodStart] AS [PeriodStart1], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name] AS [Name0], [t0].[PeriodEnd0] AS [PeriodEnd00], [t0].[PeriodStart0] AS [PeriodStart00], [t0].[ReferenceInverseId]
+    FROM [EntityCompositeKeyEntityRoot] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
+    INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON (([e0].[CompositeKeySkipSharedKey1] = [e1].[Key1]) AND ([e0].[CompositeKeySkipSharedKey2] = [e1].[Key2])) AND ([e0].[CompositeKeySkipSharedKey3] = [e1].[Key3])
     LEFT JOIN (
         SELECT [t].[Id], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[PeriodEnd], [t].[PeriodStart], [t].[ThreeId], [t].[Id0], [t].[CollectionInverseId], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[ReferenceInverseId]
         FROM (
-            SELECT [j0].[Id], [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3], [j0].[PeriodEnd], [j0].[PeriodStart], [j0].[ThreeId], [e1].[Id] AS [Id0], [e1].[CollectionInverseId], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3] ORDER BY [e1].[Id]) AS [row]
-            FROM [JoinThreeToCompositeKeyFull] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j0]
-            INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [j0].[ThreeId] = [e1].[Id]
+            SELECT [j].[Id], [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[PeriodEnd], [j].[PeriodStart], [j].[ThreeId], [e2].[Id] AS [Id0], [e2].[CollectionInverseId], [e2].[Name], [e2].[PeriodEnd] AS [PeriodEnd0], [e2].[PeriodStart] AS [PeriodStart0], [e2].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3] ORDER BY [e2].[Id]) AS [row]
+            FROM [JoinThreeToCompositeKeyFull] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
+            INNER JOIN [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [j].[ThreeId] = [e2].[Id]
         ) AS [t]
         WHERE (1 < [t].[row]) AND ([t].[row] <= 3)
-    ) AS [t0] ON (([e0].[Key1] = [t0].[CompositeId1]) AND ([e0].[Key2] = [t0].[CompositeId2])) AND ([e0].[Key3] = [t0].[CompositeId3])
-) AS [t1] ON [e].[Id] = [t1].[RootId]
-ORDER BY [e].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[RootId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[CompositeId10], [t1].[CompositeId20], [t1].[CompositeId30], [t1].[Id0]");
+    ) AS [t0] ON (([e1].[Key1] = [t0].[CompositeId1]) AND ([e1].[Key2] = [t0].[CompositeId2])) AND ([e1].[Key3] = [t0].[CompositeId3])
+) AS [t1] ON [e].[Id] = [t1].[RootSkipSharedId]
+ORDER BY [e].[Id], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3], [t1].[RootSkipSharedId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3], [t1].[Id0]");
         }
 
         public override async Task Filtered_include_skip_navigation_where_then_include_skip_navigation(bool async)
@@ -835,21 +835,21 @@ ORDER BY [e].[Id], [t1].[CompositeId1], [t1].[CompositeId2], [t1].[CompositeId3]
             await base.Filtered_include_skip_navigation_where_then_include_skip_navigation(async);
 
             AssertSql(
-                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Number], [e].[IsGreen], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[LeafId], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[TwoId], [t0].[CompositeId10], [t0].[CompositeId20], [t0].[CompositeId30], [t0].[PeriodEnd1], [t0].[PeriodStart1], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[PeriodEnd00], [t0].[PeriodStart00], [t0].[ReferenceInverseId]
+                @"SELECT [e].[Id], [e].[Discriminator], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Number], [e].[IsGreen], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[LeafId], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[PeriodEnd1], [t0].[PeriodStart1], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[PeriodEnd00], [t0].[PeriodStart00], [t0].[ReferenceInverseId]
 FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[LeafId], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [t].[TwoId], [t].[CompositeId1] AS [CompositeId10], [t].[CompositeId2] AS [CompositeId20], [t].[CompositeId3] AS [CompositeId30], [t].[PeriodEnd] AS [PeriodEnd1], [t].[PeriodStart] AS [PeriodStart1], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name] AS [Name0], [t].[PeriodEnd0] AS [PeriodEnd00], [t].[PeriodStart0] AS [PeriodStart00], [t].[ReferenceInverseId]
+    SELECT [j].[CompositeId1], [j].[CompositeId2], [j].[CompositeId3], [j].[LeafId], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [t].[TwoSkipSharedId], [t].[CompositeKeySkipSharedKey1], [t].[CompositeKeySkipSharedKey2], [t].[CompositeKeySkipSharedKey3], [t].[PeriodEnd] AS [PeriodEnd1], [t].[PeriodStart] AS [PeriodStart1], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name] AS [Name0], [t].[PeriodEnd0] AS [PeriodEnd00], [t].[PeriodStart0] AS [PeriodStart00], [t].[ReferenceInverseId]
     FROM [JoinCompositeKeyToLeaf] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN [EntityCompositeKeys] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON (([j].[CompositeId1] = [e0].[Key1]) AND ([j].[CompositeId2] = [e0].[Key2])) AND ([j].[CompositeId3] = [e0].[Key3])
     LEFT JOIN (
-        SELECT [j0].[TwoId], [j0].[CompositeId1], [j0].[CompositeId2], [j0].[CompositeId3], [j0].[PeriodEnd], [j0].[PeriodStart], [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[ReferenceInverseId]
-        FROM [JoinTwoToCompositeKeyShared] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j0]
-        INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [j0].[TwoId] = [e1].[Id]
-    ) AS [t] ON (([e0].[Key1] = [t].[CompositeId1]) AND ([e0].[Key2] = [t].[CompositeId2])) AND ([e0].[Key3] = [t].[CompositeId3])
+        SELECT [e1].[TwoSkipSharedId], [e1].[CompositeKeySkipSharedKey1], [e1].[CompositeKeySkipSharedKey2], [e1].[CompositeKeySkipSharedKey3], [e1].[PeriodEnd], [e1].[PeriodStart], [e2].[Id], [e2].[CollectionInverseId], [e2].[ExtraId], [e2].[Name], [e2].[PeriodEnd] AS [PeriodEnd0], [e2].[PeriodStart] AS [PeriodStart0], [e2].[ReferenceInverseId]
+        FROM [EntityCompositeKeyEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1]
+        INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2] ON [e1].[TwoSkipSharedId] = [e2].[Id]
+    ) AS [t] ON (([e0].[Key1] = [t].[CompositeKeySkipSharedKey1]) AND ([e0].[Key2] = [t].[CompositeKeySkipSharedKey2])) AND ([e0].[Key3] = [t].[CompositeKeySkipSharedKey3])
     WHERE [e0].[Key1] < 5
 ) AS [t0] ON [e].[Id] = [t0].[LeafId]
 WHERE [e].[Discriminator] = N'EntityLeaf'
-ORDER BY [e].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[LeafId], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[TwoId], [t0].[CompositeId10], [t0].[CompositeId20], [t0].[CompositeId30]");
+ORDER BY [e].[Id], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[LeafId], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]");
         }
 
         public override async Task Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(bool async)

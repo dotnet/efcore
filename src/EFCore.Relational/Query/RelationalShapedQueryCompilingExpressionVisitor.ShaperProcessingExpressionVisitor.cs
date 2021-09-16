@@ -1877,23 +1877,16 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
             {
-                if (valueComparers != null)
+                // Ignoring size check on all for perf as they should be same unless bug in code.
+                for (var i = 0; i < left.Length; i++)
                 {
-                    // Ignoring size check on all for perf as they should be same unless bug in code.
-                    for (var i = 0; i < left.Length; i++)
+                    if (!valueComparers[i].Equals(left[i], right[i]))
                     {
-                        if (valueComparers[i] != null
-                            ? !valueComparers[i].Equals(left[i], right[i])
-                            : !Equals(left[i], right[i]))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
-
-                    return true;
                 }
 
-                return StructuralComparisons.StructuralEqualityComparer.Equals(left, right);
+                return true;
             }
 
             private sealed class CollectionShaperFindingExpressionVisitor : ExpressionVisitor

@@ -165,10 +165,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
                         ? "--self-contained"
                         : "--no-self-contained");
 
-                if (_configuration!.HasValue())
+                var configuration = Configuration!.Value();
+                if (string.Equals(configuration, "Debug", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(configuration, "Release", StringComparison.OrdinalIgnoreCase))
                 {
                     publishArgs.Add("--configuration");
-                    publishArgs.Add(_configuration!.Value()!);
+                    publishArgs.Add(configuration!);
                 }
 
                 var exitCode = Exe.Run("dotnet", publishArgs, directory, interceptOutput: true);

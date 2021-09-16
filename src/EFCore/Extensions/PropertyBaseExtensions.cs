@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     when throwing exceptions about keys, indexes, etc. that use the properties.
         /// </summary>
         /// <param name="properties"> The properties to format. </param>
-        /// <param name="includeTypes"> If true, then type names are included in the string. The default is <see langword="false" />.</param>
+        /// <param name="includeTypes"> If true, then type names are included in the string. The default is <see langword="false" />. </param>
         /// <returns> The string representation. </returns>
         public static string Format(this IEnumerable<IReadOnlyPropertyBase> properties, bool includeTypes = false)
             => "{"

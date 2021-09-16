@@ -1391,13 +1391,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static Func<object?, object?, bool> ValuesEqualFunc(IProperty property)
-        {
-            var comparer = property.GetValueComparer();
-
-            return comparer != null
-                ? (Func<object?, object?, bool>)((l, r) => comparer.Equals(l, r))
-                : (l, r) => Equals(l, r);
-        }
+            => property.GetValueComparer().Equals;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                     ? (isGenerated ? storeGenTargetState : targetState)
                     : EntityState.Added, // Key can only be not-set if it is store-generated
                 acceptChanges: true,
-                forceStateWhenUnknownKey: force ? (EntityState?)targetState : null);
+                forceStateWhenUnknownKey: force ? targetState : null);
 
             return true;
         }
