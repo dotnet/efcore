@@ -2847,6 +2847,33 @@ ORDER BY [t].[CustomerID]");
             //AssertSql(" ");
         }
 
+        public override async Task Complex_query_with_group_by_in_subquery5(bool async)
+        {
+            await base.Complex_query_with_group_by_in_subquery5(async);
+
+            AssertSql(
+                @"SELECT [t].[c], [t].[ProductID], [t0].[CustomerID], [t0].[City]
+FROM (
+    SELECT COALESCE(SUM([o].[ProductID] + ([o].[OrderID] * 1000)), 0) AS [c], [o].[ProductID]
+    FROM [Order Details] AS [o]
+    INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    WHERE [c].[CustomerID] = N'ALFKI'
+    GROUP BY [o].[ProductID]
+) AS [t]
+OUTER APPLY (
+    SELECT [c0].[CustomerID], [c0].[City]
+    FROM [Customers] AS [c0]
+    WHERE CAST(LEN([c0].[CustomerID]) AS int) < (
+        SELECT MIN([o1].[OrderID] / 100)
+        FROM [Order Details] AS [o1]
+        INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
+        LEFT JOIN [Customers] AS [c1] ON [o2].[CustomerID] = [c1].[CustomerID]
+        WHERE ([c1].[CustomerID] = N'ALFKI') AND ([t].[ProductID] = [o1].[ProductID]))
+) AS [t0]
+ORDER BY [t].[ProductID], [t0].[CustomerID]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

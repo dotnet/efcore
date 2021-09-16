@@ -3302,6 +3302,31 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
+        public virtual Task Complex_query_with_group_by_in_subquery5(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from od in ss.Set<OrderDetail>()
+                      where od.Order.Customer.CustomerID == "ALFKI"
+                      group od by od.ProductID into grouping
+                      select new
+                      {
+                          Sum = grouping.Sum(x => x.ProductID + x.OrderID * 1000),
+                          Subquery = (from c in ss.Set<Customer>()
+                                      where c.CustomerID.Length < grouping.Min(x => x.OrderID / 100)
+                                      orderby c.CustomerID
+                                      select new { c.CustomerID, c.City }).ToList()
+                      },
+                elementSorter: e => e.Sum,
+                elementAsserter: (e, a) =>
+                {
+                    AssertEqual(e.Sum, a.Sum);
+                    AssertCollection(e.Subquery, a.Subquery, elementSorter: ee => ee.CustomerID);
+                });
+        }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_scalar_subquery(bool async)
         {
             return AssertQuery(
