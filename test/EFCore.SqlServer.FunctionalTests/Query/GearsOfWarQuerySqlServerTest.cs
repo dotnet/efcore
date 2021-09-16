@@ -8198,6 +8198,31 @@ LEFT JOIN [Factions] AS [f] ON [l].[Name] = [f].[CommanderName]
 LEFT JOIN [LocustHighCommands] AS [l0] ON [l].[HighCommandId] = [l0].[Id]");
         }
 
+        public override async Task Join_entity_with_itself_grouped_by_key_followed_by_include_skip_take(bool async)
+        {
+            await base.Join_entity_with_itself_grouped_by_key_followed_by_include_skip_take(async);
+
+            AssertSql(
+                @"@__p_0='0'
+@__p_1='10'
+
+SELECT [t0].[Nickname], [t0].[SquadId], [t0].[AssignedCityName], [t0].[CityOfBirthName], [t0].[Discriminator], [t0].[FullName], [t0].[HasSoulPatch], [t0].[LeaderNickname], [t0].[LeaderSquadId], [t0].[Rank], [t0].[HasSoulPatch0], [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM (
+    SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [t].[HasSoulPatch] AS [HasSoulPatch0]
+    FROM [Gears] AS [g]
+    INNER JOIN (
+        SELECT MIN(CAST(LEN([g0].[Nickname]) AS int)) AS [c], [g0].[HasSoulPatch]
+        FROM [Gears] AS [g0]
+        WHERE [g0].[Nickname] <> N'Dom'
+        GROUP BY [g0].[HasSoulPatch]
+    ) AS [t] ON CAST(LEN([g].[Nickname]) AS int) = [t].[c]
+    ORDER BY [g].[Nickname]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+) AS [t0]
+LEFT JOIN [Weapons] AS [w] ON [t0].[FullName] = [w].[OwnerFullName]
+ORDER BY [t0].[Nickname], [t0].[SquadId], [t0].[HasSoulPatch0]");
+        }
+
         private void AssertSql(params string[] expected)
             => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
     }
