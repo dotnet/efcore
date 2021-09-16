@@ -231,7 +231,10 @@ namespace Microsoft.EntityFrameworkCore
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
             if (annotation != null)
             {
-                return (long?)annotation.Value;
+                // Support pre-6.0 IdentitySeed annotations, which contained an int rather than a long
+                return annotation.Value is int intValue
+                    ? intValue
+                    : (long?)annotation.Value;
             }
 
             var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);

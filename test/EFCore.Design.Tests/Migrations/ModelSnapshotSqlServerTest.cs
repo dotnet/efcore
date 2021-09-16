@@ -3794,6 +3794,37 @@ namespace RootNamespace
                 o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId").GetColumnOrder()));
         }
 
+        [ConditionalFact]
+        public virtual void SQLServer_legacy_identity_seed_int_annotation()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithTwoProperties>().Property(e => e.Id)
+                        .HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8);
+                    builder.Ignore<EntityWithOneProperty>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 8L, 1);
+
+                    b.Property<int>(""AlternateId"")
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithTwoProperties"");
+                });"),
+                o => Assert.Equal(8L, o.GetEntityTypes().First().FindProperty("Id").GetIdentitySeed()));
+        }
+
         #endregion
 
         #region HasKey

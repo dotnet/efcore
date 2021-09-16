@@ -334,9 +334,23 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             switch (strategy)
             {
                 case SqlServerValueGenerationStrategy.IdentityColumn:
-                    var seed = GetAndRemove<long?>(annotations, SqlServerAnnotationNames.IdentitySeed)
-                        ?? model.FindAnnotation(SqlServerAnnotationNames.IdentitySeed)?.Value as long?
-                        ?? 1;
+                    // Support pre-6.0 IdentitySeed annotations, which contained an int rather than a long
+                    if (annotations.TryGetValue(SqlServerAnnotationNames.IdentitySeed, out var seedAnnotation)
+                        && seedAnnotation.Value != null)
+                    {
+                        annotations.Remove(SqlServerAnnotationNames.IdentitySeed);
+                    }
+                    else
+                    {
+                        seedAnnotation = model.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
+                    }
+
+                    var seed = seedAnnotation is null
+                        ? 1
+                        : seedAnnotation.Value is int intValue
+                            ? intValue
+                            : (long?)seedAnnotation.Value ?? 1;
+
                     var increment = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentityIncrement)
                         ?? model.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.Value as int?
                         ?? 1;
