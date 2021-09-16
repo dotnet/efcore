@@ -231,7 +231,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       select new { Id = g.Key.Id, Sum = g.Sum(x => x.Id), Count = g.Count() });
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #19929")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Simple_1_from_LINQ_101(bool async)
         {
@@ -247,7 +247,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #19929")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Simple_2_from_LINQ_101(bool async)
         {
@@ -263,7 +263,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #19929")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Simple_3_from_LINQ_101(bool async)
         {
@@ -279,7 +279,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #19929")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task GroupBy_Nested_from_LINQ_101(bool async)
         {
@@ -308,7 +308,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Translation of 'Select' which contains grouping parameter without composition is not supported.")]
+        [ConditionalTheory (Skip = "Issue #19929")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Any_Grouped_from_LINQ_101(bool async)
         {
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Translation of 'Select' which contains grouping parameter without composition is not supported.")]
+        [ConditionalTheory (Skip = "Issue #19929")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task All_Grouped_from_LINQ_101(bool async)
         {
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Count_Grouped_from_LINQ_101(bool async)
         {
@@ -358,7 +358,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task LongCount_Grouped_from_LINQ_101(bool async)
         {
@@ -374,7 +374,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Sum_Grouped_from_LINQ_101(bool async)
         {
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Min_Grouped_from_LINQ_101(bool async)
         {
@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #18923")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Min_Elements_from_LINQ_101(bool async)
         {
@@ -423,7 +423,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_Grouped_from_LINQ_101(bool async)
         {
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #18923")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_Elements_from_LINQ_101(bool async)
         {
@@ -456,7 +456,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Average_Grouped_from_LINQ_101(bool async)
         {
@@ -469,10 +469,18 @@ namespace Microsoft.EntityFrameworkCore.Query
                       {
                           Category = g.Key,
                           AveragePrice = g.Average(p => p.UnitPrice)
+                      },
+                ss => from p in ss.Set<ProductForLinq>()
+                      group p by p.Category
+                      into g
+                      select new
+                      {
+                          Category = g.Key,
+                          AveragePrice = Math.Round(g.Average(p => p.UnitPrice) - 0.0000005m, 6)
                       });
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #19930")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Group_Join_from_LINQ_101(bool async)
         {
@@ -487,7 +495,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Cross_Join_with_Group_Join_from_LINQ_101(bool async)
         {
@@ -500,10 +508,27 @@ namespace Microsoft.EntityFrameworkCore.Query
                       {
                           Customer = c,
                           o.Id
-                      });
+                      },
+                ss => from c in ss.Set<CustomerForLinq>()
+                      join o in ss.Set<OrderForLinq>() on c.Id equals o.Customer.Id into ps
+                      from o in ps
+                      select new
+                      {
+                          Customer = c,
+                          o.Id
+                      },
+                r => (r.Id, r.Customer.Id),
+                (l, r) =>
+                {
+                    Assert.Equal(l.Id, r.Id);
+                    Assert.Equal(l.Customer.Id, r.Customer.Id);
+                    Assert.Equal(l.Customer.Region, r.Customer.Region);
+                    Assert.Equal(l.Customer.CompanyName, r.Customer.CompanyName);
+                },
+                entryCount: 4);
         }
 
-        [ConditionalTheory (Skip = "Expected 7; Actual 0")]
+        [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Left_Outer_Join_with_Group_Join_from_LINQ_101(bool async)
         {
@@ -516,7 +541,24 @@ namespace Microsoft.EntityFrameworkCore.Query
                       {
                           Customer = c,
                           OrderId = o == null ? -1 : o.Id
-                      });
+                      },
+                ss => from c in ss.Set<CustomerForLinq>()
+                      join o in ss.Set<OrderForLinq>() on c.Id equals o.Customer.Id into ps
+                      from o in ps.DefaultIfEmpty()
+                      select new
+                      {
+                          Customer = c,
+                          OrderId = o == null ? -1 : o.Id
+                      },
+                r => (r.OrderId, r.Customer.Id),
+                (l, r) =>
+                {
+                    Assert.Equal(l.OrderId, r.OrderId);
+                    Assert.Equal(l.Customer.Id, r.Customer.Id);
+                    Assert.Equal(l.Customer.Region, r.Customer.Region);
+                    Assert.Equal(l.Customer.CompanyName, r.Customer.CompanyName);
+                },
+                entryCount: 4);
         }
 
         protected ArubaContext CreateContext()
@@ -543,51 +585,31 @@ namespace Microsoft.EntityFrameworkCore.Query
                     });
 
                 modelBuilder.Entity<NumberForLinq>();
-                modelBuilder.Entity<ProductForLinq>().Property(e => e.UnitPrice).HasPrecision(18, 2);
+                modelBuilder.Entity<ProductForLinq>().Property(e => e.UnitPrice).HasPrecision(18, 6);
                 modelBuilder.Entity<FeaturedProductForLinq>();
-                modelBuilder.Entity<CustomerForLinq>();
-                modelBuilder.Entity<OrderForLinq>().Property(e => e.Total).HasPrecision(18, 2);
+                modelBuilder.Entity<CustomerForLinq>().Property(e => e.Id).ValueGeneratedNever();
+
+                modelBuilder.Entity<OrderForLinq>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).ValueGeneratedNever();
+                        b.Property(e => e.Total).HasPrecision(18, 6);
+                    });
             }
 
             protected override void Seed(ArubaContext context)
             {
-                var data = new ArubaData();
-                context.AddRange(data.ArubaOwners);
-                context.AddRange(data.NumbersForLinq);
-                context.SaveChanges();
+                new ArubaData(context);
             }
 
             public virtual ISetSource GetExpectedData()
                 => new ArubaData();
 
             public IReadOnlyDictionary<Type, object> GetEntitySorters()
-                => new Dictionary<Type, Func<object, object>>
-                {
-                    { typeof(ArubaOwner), e => ((ArubaOwner)e)?.Id }
-                }.ToDictionary(e => e.Key, e => (object)e.Value);
+                => new Dictionary<Type, object>();
 
-        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-            => new Dictionary<Type, Action<object, object>>
-            {
-                {
-                    typeof(ArubaOwner), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-
-                        if (a != null)
-                        {
-                            var ee = (ArubaOwner)e;
-                            var aa = (ArubaOwner)a;
-
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee.FirstName, aa.FirstName);
-                            Assert.Equal(ee.LastName, aa.LastName);
-                            Assert.Equal(ee.Alias, aa.Alias);
-                        }
-                    }
-                }
-            }.ToDictionary(e => e.Key, e => (object)e.Value);
-
+            public IReadOnlyDictionary<Type, object> GetEntityAsserters()
+                => new Dictionary<Type, object>();
         }
 
         public class ArubaContext : PoolableDbContext
@@ -660,13 +682,23 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IReadOnlyList<CustomerForLinq> CustomersForLinq { get; }
             public IReadOnlyList<OrderForLinq> OrdersForLinq { get; }
 
-            public ArubaData()
+            public ArubaData(ArubaContext context = null)
             {
                 ArubaOwners = CreateArubaOwners();
                 NumbersForLinq = CreateNumbersForLinq();
                 ProductsForLinq = CreateProductsForLinq();
                 CustomersForLinq = CreateCustomersForLinq();
                 OrdersForLinq = CreateOrdersForLinq(CustomersForLinq);
+
+                if (context != null)
+                {
+                    context.AddRange(ArubaOwners = CreateArubaOwners());
+                    context.AddRange(NumbersForLinq = CreateNumbersForLinq());
+                    context.AddRange(ProductsForLinq = CreateProductsForLinq());
+                    context.AddRange(CustomersForLinq = CreateCustomersForLinq());
+                    context.AddRange(OrdersForLinq = CreateOrdersForLinq(CustomersForLinq));
+                    context.SaveChanges();
+                }
             }
 
             public IQueryable<TEntity> Set<TEntity>()
@@ -872,21 +904,25 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new()
                     {
+                        Id = 1,
                         Region = "WA",
                         CompanyName = "Microsoft"
                     },
                     new()
                     {
+                        Id = 2,
                         Region = "WA",
                         CompanyName = "NewMonics"
                     },
                     new()
                     {
+                        Id = 3,
                         Region = "OR",
                         CompanyName = "NewMonics"
                     },
                     new()
                     {
+                        Id = 4,
                         Region = "CA",
                         CompanyName = "Microsoft"
                     }
@@ -898,42 +934,49 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     new()
                     {
+                        Id = 1,
                         Total = 111M,
                         OrderDate = new DateTime(1997, 9, 3),
                         Customer = customers[0]
                     },
                     new()
                     {
+                        Id = 2,
                         Total = 222M,
                         OrderDate = new DateTime(2006, 9, 3),
                         Customer = customers[1]
                     },
                     new()
                     {
+                        Id = 3,
                         Total = 333M,
                         OrderDate = new DateTime(1999, 9, 3),
                         Customer = customers[0]
                     },
                     new()
                     {
+                        Id = 4,
                         Total = 444M,
                         OrderDate = new DateTime(2010, 9, 3),
                         Customer = customers[1]
                     },
                     new()
                     {
+                        Id = 5,
                         Total = 2555M,
                         OrderDate = new DateTime(2009, 9, 3),
                         Customer = customers[2]
                     },
                     new()
                     {
+                        Id = 6,
                         Total = 6555M,
                         OrderDate = new DateTime(1976, 9, 3),
                         Customer = customers[3]
                     },
                     new()
                     {
+                        Id = 7,
                         Total = 555M,
                         OrderDate = new DateTime(1985, 9, 3),
                         Customer = customers[2]

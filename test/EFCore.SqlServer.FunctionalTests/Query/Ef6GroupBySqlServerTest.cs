@@ -256,7 +256,7 @@ GROUP BY [a].[FirstName]");
             // )  AS [Distinct1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_doesnt_produce_a_groupby_statement(bool async)
         {
             await base.Grouping_by_all_columns_doesnt_produce_a_groupby_statement(async);
@@ -291,7 +291,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     FROM [dbo].[ArubaOwners] AS [Extent1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_2(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_2(async);
@@ -308,7 +308,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     FROM [dbo].[ArubaOwners] AS [Extent1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_3(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_3(async);
@@ -325,7 +325,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     FROM [dbo].[ArubaOwners] AS [Extent1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_4(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_4(async);
@@ -348,7 +348,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     )  AS [GroupBy1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_5(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_5(async);
@@ -371,7 +371,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     )  AS [GroupBy1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_6(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_6(async);
@@ -395,7 +395,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     )  AS [GroupBy1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_7(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_7(async);
@@ -412,7 +412,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     FROM [dbo].[ArubaOwners] AS [Extent1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_8(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_8(async);
@@ -435,7 +435,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     )  AS [GroupBy1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_9(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_9(async);
@@ -459,7 +459,7 @@ GROUP BY [a].[Id], [a].[FirstName], [a].[LastName], [a].[Alias]");
             //     )  AS [GroupBy1]";
         }
 
-        [ConditionalTheory (Skip = "Could not be translated.")]
+        [ConditionalTheory (Skip = "Issue #17653")]
         public override async Task Grouping_by_all_columns_with_aggregate_function_works_10(bool async)
         {
             await base.Grouping_by_all_columns_with_aggregate_function_works_10(async);
