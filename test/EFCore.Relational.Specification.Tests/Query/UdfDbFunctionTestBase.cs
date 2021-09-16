@@ -1423,7 +1423,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             };
 
                 Assert.Equal(
-                    RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin,
+                    RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
                     Assert.Throws<InvalidOperationException>(() => query.ToList()).Message);
             }
         }
@@ -1544,7 +1544,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                                Prods = context.GetTopTwoSellingProducts().ToList(),
                            }).ToList()).Message;
 
-                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
+            }
+        }
+
+        [ConditionalFact(Skip = "issue #26078")]
+        public virtual void QF_Select_Direct_In_Anonymous_distinct()
+        {
+            using (var context = CreateContext())
+            {
+                var query = (from c in context.Customers
+                             select new
+                             {
+                                 c.Id,
+                                 Prods = context.GetTopTwoSellingProducts().Distinct().ToList(),
+                             }).ToList();
             }
         }
 
@@ -1638,7 +1652,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                }).ToList()
                            }).ToList()).Message;
 
-                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
             }
         }
 
@@ -1656,7 +1670,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == 249).Select(p => p.ProductId).ToList()
                            }).ToList()).Message;
 
-                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
             }
         }
 
@@ -1673,7 +1687,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                Prods = context.GetTopTwoSellingProducts().Select(p => p.ProductId).ToList(),
                            }).ToList()).Message;
 
-                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
             }
         }
 
@@ -1691,7 +1705,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                                Prods = context.GetTopTwoSellingProducts().Where(p => p.AmountSold == amount).Select(p => p.ProductId).ToList(),
                            }).ToList()).Message;
 
-                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+                Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
             }
         }
 

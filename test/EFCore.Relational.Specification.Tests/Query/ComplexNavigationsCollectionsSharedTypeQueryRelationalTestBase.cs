@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         public override async Task SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(bool async)
         {
             Assert.Equal(
-                RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin,
+                RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin,
                 (await Assert.ThrowsAsync<InvalidOperationException>(
                     () => base.SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(async))).Message);
         }
