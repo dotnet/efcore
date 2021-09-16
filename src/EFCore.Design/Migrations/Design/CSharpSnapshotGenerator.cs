@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -614,28 +615,32 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(key, nameof(key));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            stringBuilder
-                .AppendLine()
+            var keyBuilderName = new StringBuilder()
                 .Append(entityTypeBuilderName)
                 .Append(primary ? ".HasKey(" : ".HasAlternateKey(")
                 .Append(string.Join(", ", key.Properties.Select(p => Code.Literal(p.Name))))
-                .Append(")");
+                .Append(")")
+                .ToString();
+
+            stringBuilder
+                .AppendLine()
+                .Append(keyBuilderName);
 
             // Note that GenerateAnnotations below does the corresponding decrement
             stringBuilder.IncrementIndent();
 
-            GenerateKeyAnnotations(entityTypeBuilderName, key, stringBuilder);
+            GenerateKeyAnnotations(keyBuilderName, key, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on a key.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
+        /// <param name="keyBuilderName"> The name of the builder variable. </param>
         /// <param name="key"> The key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
-        protected virtual void GenerateKeyAnnotations(string entityTypeBuilderName, IKey key, IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateKeyAnnotations(string keyBuilderName, IKey key, IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
+            Check.NotNull(keyBuilderName, nameof(keyBuilderName));
             Check.NotNull(key, nameof(key));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -643,7 +648,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(key.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            GenerateAnnotations(entityTypeBuilderName, key, stringBuilder, annotations, inChainedCall: true);
+            GenerateAnnotations(keyBuilderName, key, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
@@ -1056,9 +1061,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
+            var foreignKeyBuilderNameStringBuilder = new StringBuilder();
+
             if (!foreignKey.IsOwnership)
             {
-                stringBuilder
+                foreignKeyBuilderNameStringBuilder
                     .Append(entityTypeBuilderName)
                     .Append(".HasOne(")
                     .Append(Code.Literal(foreignKey.PrincipalEntityType.Name))
@@ -1070,19 +1077,23 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             }
             else
             {
-                stringBuilder
+                foreignKeyBuilderNameStringBuilder
                     .Append(entityTypeBuilderName)
                     .Append(".WithOwner(");
 
                 if (foreignKey.DependentToPrincipal != null)
                 {
-                    stringBuilder
+                    foreignKeyBuilderNameStringBuilder
                         .Append(Code.Literal(foreignKey.DependentToPrincipal.Name));
                 }
             }
 
+            foreignKeyBuilderNameStringBuilder.Append(")");
+
+            var foreignKeyBuilderName = foreignKeyBuilderNameStringBuilder.ToString();
+
             stringBuilder
-                .Append(")")
+                .Append(foreignKeyBuilderName)
                 .AppendLine();
 
             // Note that GenerateAnnotations below does the corresponding decrement
@@ -1170,21 +1181,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
             }
 
-            GenerateForeignKeyAnnotations(entityTypeBuilderName, foreignKey, stringBuilder);
+            GenerateForeignKeyAnnotations(foreignKeyBuilderName, foreignKey, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on a foreign key.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
+        /// <param name="foreignKeyBuilderName"> The name of the builder variable. </param>
         /// <param name="foreignKey"> The foreign key. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateForeignKeyAnnotations(
-            string entityTypeBuilderName,
+            string foreignKeyBuilderName,
             IForeignKey foreignKey,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
+            Check.NotNull(foreignKeyBuilderName, nameof(foreignKeyBuilderName));
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -1192,7 +1203,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(foreignKey.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            GenerateAnnotations(entityTypeBuilderName, foreignKey, stringBuilder, annotations, inChainedCall: true);
+            GenerateAnnotations(foreignKeyBuilderName, foreignKey, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
@@ -1269,11 +1280,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            stringBuilder
-                .Append(entityTypeBuilderName)
-                .Append(".Navigation(")
-                .Append(Code.Literal(navigation.Name))
-                .Append(")");
+            var navigationBuilderName = $"{entityTypeBuilderName}.Navigation({Code.Literal(navigation.Name)})";
+
+            stringBuilder.Append(navigationBuilderName);
 
             // Note that GenerateAnnotations below does the corresponding decrement
             stringBuilder.IncrementIndent();
@@ -1287,21 +1296,21 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .Append(".IsRequired()");
             }
 
-            GenerateNavigationAnnotations(entityTypeBuilderName, navigation, stringBuilder);
+            GenerateNavigationAnnotations(navigationBuilderName, navigation, stringBuilder);
         }
 
         /// <summary>
         ///     Generates code for the annotations on a navigation.
         /// </summary>
-        /// <param name="entityTypeBuilderName"> The name of the builder variable. </param>
+        /// <param name="navigationBuilderName"> The name of the builder variable. </param>
         /// <param name="navigation"> The navigation. </param>
         /// <param name="stringBuilder"> The builder code is added to. </param>
         protected virtual void GenerateNavigationAnnotations(
-            string entityTypeBuilderName,
+            string navigationBuilderName,
             INavigation navigation,
             IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(entityTypeBuilderName, nameof(entityTypeBuilderName));
+            Check.NotNull(navigationBuilderName, nameof(navigationBuilderName));
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -1309,7 +1318,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 .FilterIgnoredAnnotations(navigation.GetAnnotations())
                 .ToDictionary(a => a.Name, a => a);
 
-            GenerateAnnotations(entityTypeBuilderName, navigation, stringBuilder, annotations, inChainedCall: true);
+            GenerateAnnotations(navigationBuilderName, navigation, stringBuilder, annotations, inChainedCall: true);
         }
 
         /// <summary>
