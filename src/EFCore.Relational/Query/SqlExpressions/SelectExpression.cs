@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
@@ -1126,7 +1127,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Applies grouping from given key selector.
         /// </summary>
         /// <param name="keySelector"> An key selector expression for the GROUP BY. </param>
-        public Expression ApplyGrouping(Expression keySelector)
+        public void ApplyGrouping(Expression keySelector)
         {
             Check.NotNull(keySelector, nameof(keySelector));
 
@@ -1134,7 +1135,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
 
             var groupByTerms = new List<SqlExpression>();
             var groupByAliases = new List<string?>();
-            AppendGroupBy(keySelector, groupByTerms, groupByAliases, "Key");
+            PopulateGroupByTerms(keySelector, groupByTerms, groupByAliases, "Key");
 
             if (groupByTerms.Any(e => e is SqlConstantExpression || e is SqlParameterExpression || e is ScalarSubqueryExpression))
             {
@@ -1163,19 +1164,86 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                     _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
                 }
             }
-
-            return keySelector;
         }
 
         /// <summary>
-        ///     Clears existing group by terms.
+        ///     Applies grouping from given key selector and generate <see cref="GroupByShaperExpression"/> to shape results.
         /// </summary>
-        public void ClearGroupBy()
+        /// <param name="keySelector"> An key selector expression for the GROUP BY. </param>
+        /// <param name="shaperExpression"> The shaper expression for current query. </param>
+        /// <param name="sqlExpressionFactory"> The sql expression factory to use. </param>
+        /// <returns> A <see cref="GroupByShaperExpression"/> which represents the result of the grouping operation. </returns>
+        public GroupByShaperExpression ApplyGrouping(Expression keySelector, Expression shaperExpression, ISqlExpressionFactory sqlExpressionFactory)
         {
-            _groupBy.Clear();
+            Check.NotNull(keySelector, nameof(keySelector));
+            Check.NotNull(shaperExpression, nameof(shaperExpression));
+            Check.NotNull(sqlExpressionFactory, nameof(sqlExpressionFactory));
+
+            ClearOrdering();
+
+            var keySelectorToAdd = keySelector;
+            var emptyKey = keySelector is NewExpression newExpression
+                && newExpression.Arguments.Count == 0;
+            if (emptyKey)
+            {
+                keySelectorToAdd = sqlExpressionFactory.ApplyDefaultTypeMapping(sqlExpressionFactory.Constant(1));
+            }
+
+            var groupByTerms = new List<SqlExpression>();
+            var groupByAliases = new List<string?>();
+            PopulateGroupByTerms(keySelectorToAdd, groupByTerms, groupByAliases, "Key");
+
+            if (groupByTerms.Any(e => e is SqlConstantExpression || e is SqlParameterExpression || e is ScalarSubqueryExpression))
+            {
+                // emptyKey will always hit this path.
+                var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
+                var newGroupByTerms = new List<SqlExpression>(groupByTerms.Count);
+                var subquery = (SelectExpression)_tables[0];
+                var subqueryTableReference = _tableReferences[0];
+                for (var i = 0; i < groupByTerms.Count; i++)
+                {
+                    var item = groupByTerms[i];
+                    var newItem = subquery._projection.Any(e => e.Expression.Equals(item))
+                        ? sqlRemappingVisitor.Remap(item)
+                        : subquery.GenerateOuterColumn(subqueryTableReference, item, groupByAliases[i] ?? "Key");
+                    newGroupByTerms.Add(newItem);
+                }
+                if (!emptyKey)
+                {
+                    // If non-empty key then we need to regenerate the key selector
+                    keySelector = new ReplacingExpressionVisitor(groupByTerms, newGroupByTerms).Visit(keySelector);
+                }
+                groupByTerms = newGroupByTerms;
+            }
+
+            _groupBy.AddRange(groupByTerms);
+
+            // We generate the cloned expression before changing identifier for this SelectExpression
+            // because we are going to erase grouping for cloned expression.
+            var clonedSelectExpression = Clone();
+            var correlationPredicate = groupByTerms.Zip(clonedSelectExpression._groupBy)
+                .Select(e => sqlExpressionFactory.Equal(e.First, e.Second))
+                .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
+            clonedSelectExpression._groupBy.Clear();
+            clonedSelectExpression.ApplyPredicate(correlationPredicate);
+
+            if (!_identifier.All(e => _groupBy.Contains(e.Column)))
+            {
+                _identifier.Clear();
+                if (_groupBy.All(e => e is ColumnExpression))
+                {
+                    _identifier.AddRange(_groupBy.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                }
+            }
+
+            return new GroupByShaperExpression(
+                keySelector,
+                new ShapedQueryExpression(
+                    clonedSelectExpression,
+                    new QueryExpressionReplacingExpressionVisitor(this, clonedSelectExpression).Visit(shaperExpression)));
         }
 
-        private void AppendGroupBy(Expression keySelector, List<SqlExpression> groupByTerms, List<string?> groupByAliases, string? name)
+        private void PopulateGroupByTerms(Expression keySelector, List<SqlExpression> groupByTerms, List<string?> groupByAliases, string? name)
         {
             Check.NotNull(keySelector, nameof(keySelector));
 
@@ -1189,23 +1257,23 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                 case NewExpression newExpression:
                     for (var i = 0; i < newExpression.Arguments.Count; i++)
                     {
-                        AppendGroupBy(newExpression.Arguments[i], groupByTerms, groupByAliases, newExpression.Members?[i].Name);
+                        PopulateGroupByTerms(newExpression.Arguments[i], groupByTerms, groupByAliases, newExpression.Members?[i].Name);
                     }
                     break;
 
                 case MemberInitExpression memberInitExpression:
-                    AppendGroupBy(memberInitExpression.NewExpression, groupByTerms, groupByAliases, null);
+                    PopulateGroupByTerms(memberInitExpression.NewExpression, groupByTerms, groupByAliases, null);
                     foreach (var argument in memberInitExpression.Bindings)
                     {
                         var memberAssignment = (MemberAssignment)argument;
-                        AppendGroupBy(memberAssignment.Expression, groupByTerms, groupByAliases, memberAssignment.Member.Name);
+                        PopulateGroupByTerms(memberAssignment.Expression, groupByTerms, groupByAliases, memberAssignment.Member.Name);
                     }
                     break;
 
                 case UnaryExpression unaryExpression
                     when unaryExpression.NodeType == ExpressionType.Convert
                     || unaryExpression.NodeType == ExpressionType.ConvertChecked:
-                    AppendGroupBy(unaryExpression.Operand, groupByTerms, groupByAliases, name);
+                    PopulateGroupByTerms(unaryExpression.Operand, groupByTerms, groupByAliases, name);
                     break;
 
                 default:

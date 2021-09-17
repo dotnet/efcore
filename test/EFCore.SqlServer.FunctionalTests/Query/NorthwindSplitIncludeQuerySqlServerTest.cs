@@ -1477,7 +1477,7 @@ LEFT JOIN (
             await base.Include_collection_Join_GroupBy_Select(async);
 
             AssertSql(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID]
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -1486,18 +1486,18 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
+        SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         INNER JOIN [Order Details] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         WHERE [o1].[OrderID] = 10248
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]",
+ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]",
                 //
-                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID]
+                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -1506,9 +1506,9 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID]
+    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o1].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
+        SELECT [o1].[OrderID], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         INNER JOIN [Order Details] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         WHERE [o1].[OrderID] = 10248
@@ -1516,7 +1516,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
 INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]");
+ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]");
         }
 
         public override async Task Include_reference_Join_GroupBy_Select(bool async)
@@ -1550,7 +1550,7 @@ LEFT JOIN (
             await base.Join_Include_collection_GroupBy_Select(async);
 
             AssertSql(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID]
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -1559,18 +1559,18 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
+        SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         WHERE [o1].[OrderID] = 10248
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]",
+ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]",
                 //
-                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID]
+                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -1579,9 +1579,9 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID]
+    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o2].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
+        SELECT [o2].[OrderID], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         WHERE [o1].[OrderID] = 10248
@@ -1589,7 +1589,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
 INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]");
+ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]");
         }
 
         public override async Task Join_Include_reference_GroupBy_Select(bool async)
@@ -1621,7 +1621,7 @@ LEFT JOIN (
             await base.Include_collection_SelectMany_GroupBy_Select(async);
 
             AssertSql(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID]
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -1630,18 +1630,18 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
+        SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         CROSS JOIN [Order Details] AS [o2]
         WHERE [o1].[OrderID] = 10248
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]",
+ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]",
                 //
-                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID]
+                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -1650,9 +1650,9 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID]
+    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o1].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
+        SELECT [o1].[OrderID], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         CROSS JOIN [Order Details] AS [o2]
         WHERE [o1].[OrderID] = 10248
@@ -1660,7 +1660,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
 INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]");
+ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]");
         }
 
         public override async Task Include_reference_SelectMany_GroupBy_Select(bool async)
@@ -1694,7 +1694,7 @@ LEFT JOIN (
             await base.SelectMany_Include_collection_GroupBy_Select(async);
 
             AssertSql(
-                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID]
+                @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -1703,18 +1703,18 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
+        SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         CROSS JOIN [Orders] AS [o2]
         WHERE [o1].[OrderID] = 10248
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]",
+ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]",
                 //
-                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID]
+                @"SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -1723,9 +1723,9 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID]
+    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
     FROM (
-        SELECT [o2].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
+        SELECT [o2].[OrderID], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         CROSS JOIN [Orders] AS [o2]
         WHERE [o1].[OrderID] = 10248
@@ -1733,7 +1733,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
 INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]");
+ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]");
         }
 
         public override async Task SelectMany_Include_reference_GroupBy_Select(bool async)

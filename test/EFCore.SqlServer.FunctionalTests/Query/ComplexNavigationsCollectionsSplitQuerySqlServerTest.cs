@@ -2228,9 +2228,9 @@ LEFT JOIN (
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
-ORDER BY [t].[Name], [t0].[Name]",
+ORDER BY [t].[Name], [t0].[Id]",
                 //
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id], [t].[Name], [t0].[Name]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id], [t].[Name], [t0].[Id]
 FROM (
     SELECT [l].[Name]
     FROM [LevelOne] AS [l]
@@ -2245,7 +2245,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 INNER JOIN [LevelTwo] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
-ORDER BY [t].[Name], [t0].[Name]");
+ORDER BY [t].[Name], [t0].[Id]");
         }
 
         public override async Task Include_collection_with_groupby_in_subquery_and_filter_before_groupby(bool async)
@@ -2269,9 +2269,9 @@ LEFT JOIN (
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
-ORDER BY [t].[Name], [t0].[Name]",
+ORDER BY [t].[Name], [t0].[Id]",
                 //
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id], [t].[Name], [t0].[Name]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id], [t].[Name], [t0].[Id]
 FROM (
     SELECT [l].[Name]
     FROM [LevelOne] AS [l]
@@ -2288,7 +2288,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 INNER JOIN [LevelTwo] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
-ORDER BY [t].[Name], [t0].[Name]");
+ORDER BY [t].[Name], [t0].[Id]");
         }
 
         public override async Task Include_collection_with_groupby_in_subquery_and_filter_after_groupby(bool async)
@@ -2311,9 +2311,9 @@ LEFT JOIN (
     ) AS [t1]
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
-ORDER BY [t].[Name], [t0].[Name]",
+ORDER BY [t].[Name], [t0].[Id]",
                 //
-                @"SELECT [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id], [t].[Name], [t0].[Name]
+                @"SELECT [l1].[Id], [l1].[Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Optional_Self_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToMany_Required_Self_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id], [l1].[OneToOne_Optional_Self2Id], [t].[Name], [t0].[Id]
 FROM (
     SELECT [l].[Name]
     FROM [LevelOne] AS [l]
@@ -2329,7 +2329,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 INNER JOIN [LevelTwo] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
-ORDER BY [t].[Name], [t0].[Name]");
+ORDER BY [t].[Name], [t0].[Id]");
         }
 
         public override async Task Include_reference_collection_order_by_reference_navigation(bool async)
@@ -3111,7 +3111,7 @@ INNER JOIN (
     ) AS [t1]
     WHERE (1 < [t1].[row]) AND ([t1].[row] <= 6)
 ) AS [t0] ON [t].[Date] = [t0].[Date]
-ORDER BY [t].[Date], [t0].[Date], [t0].[Name]");
+ORDER BY [t].[Date], [t0].[Date], [t0].[Name], [t0].[Id]");
         }
 
         public override async Task Skip_Take_on_grouping_element_with_reference_include(bool async)

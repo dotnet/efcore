@@ -661,7 +661,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 LEFT JOIN [LevelTwo] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
-ORDER BY [t].[Name], [t0].[Name]");
+ORDER BY [t].[Name], [t0].[Id]");
         }
 
         public override async Task Include_collection_with_groupby_in_subquery_and_filter_before_groupby(bool async)
@@ -686,7 +686,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 LEFT JOIN [LevelTwo] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
-ORDER BY [t].[Name], [t0].[Name]");
+ORDER BY [t].[Name], [t0].[Id]");
         }
 
         public override async Task Include_collection_with_groupby_in_subquery_and_filter_after_groupby(bool async)
@@ -710,7 +710,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 LEFT JOIN [LevelTwo] AS [l1] ON [t0].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
-ORDER BY [t].[Name], [t0].[Name]");
+ORDER BY [t].[Name], [t0].[Id]");
         }
 
         public override async Task Include_reference_collection_order_by_reference_navigation(bool async)
@@ -2000,16 +2000,16 @@ ORDER BY [t].[Date], [t0].[Date], [t0].[Name]");
             await base.Skip_Take_on_grouping_element_into_non_entity(async);
 
             AssertSql(
-                @"SELECT [t].[Date], [t0].[Name], [t0].[Date]
+                @"SELECT [t].[Date], [t0].[Name], [t0].[Id]
 FROM (
     SELECT [l].[Date]
     FROM [LevelOne] AS [l]
     GROUP BY [l].[Date]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[Name], [t1].[Date]
+    SELECT [t1].[Name], [t1].[Id], [t1].[Date]
     FROM (
-        SELECT [l0].[Name], [l0].[Date], ROW_NUMBER() OVER(PARTITION BY [l0].[Date] ORDER BY [l0].[Name]) AS [row]
+        SELECT [l0].[Name], [l0].[Id], [l0].[Date], ROW_NUMBER() OVER(PARTITION BY [l0].[Date] ORDER BY [l0].[Name]) AS [row]
         FROM [LevelOne] AS [l0]
     ) AS [t1]
     WHERE (1 < [t1].[row]) AND ([t1].[row] <= 6)
@@ -2039,7 +2039,7 @@ OUTER APPLY (
     ) AS [t1]
     LEFT JOIN [LevelTwo] AS [l0] ON [t1].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ) AS [t0]
-ORDER BY [t].[Date], [t0].[Name], [t0].[Date]");
+ORDER BY [t].[Date], [t0].[Name], [t0].[Id]");
         }
 
         public override async Task Skip_Take_on_grouping_element_with_reference_include(bool async)
@@ -2064,7 +2064,7 @@ OUTER APPLY (
     ) AS [t1]
     LEFT JOIN [LevelTwo] AS [l0] ON [t1].[Id] = [l0].[Level1_Optional_Id]
 ) AS [t0]
-ORDER BY [t].[Date], [t0].[Name], [t0].[Date]");
+ORDER BY [t].[Date], [t0].[Name], [t0].[Id]");
         }
 
         public override async Task Skip_Take_on_grouping_element_inside_collection_projection(bool async)
