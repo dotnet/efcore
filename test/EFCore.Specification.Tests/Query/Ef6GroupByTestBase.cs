@@ -406,7 +406,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Issue #18923")]
+        [ConditionalTheory (Skip = "Issue #23206")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Min_Elements_from_LINQ_101(bool async)
         {
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                       });
         }
 
-        [ConditionalTheory (Skip = "Issue #18923")]
+        [ConditionalTheory (Skip = "Issue #23206")]
         [MemberData(nameof(IsAsyncData))]
         public virtual Task Max_Elements_from_LINQ_101(bool async)
         {
@@ -534,7 +534,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         {
             return AssertQuery(
                 async,
-                ss => from c in ss.Set<CustomerForLinq>()
+                ss => from c in ss.Set<CustomerForLinq>().Include(e => e.Orders)
                       join o in ss.Set<OrderForLinq>() on c equals o.Customer into ps
                       from o in ps.DefaultIfEmpty()
                       select new
@@ -554,11 +554,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 (l, r) =>
                 {
                     Assert.Equal(l.OrderId, r.OrderId);
-                    Assert.Equal(l.Customer.Id, r.Customer.Id);
-                    Assert.Equal(l.Customer.Region, r.Customer.Region);
-                    Assert.Equal(l.Customer.CompanyName, r.Customer.CompanyName);
+                    AssertEqual(l.Customer, r.Customer);
                 },
-                entryCount: 4);
+                entryCount: 11);
         }
 
         protected ArubaContext CreateContext()
@@ -570,7 +568,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public abstract class Ef6GroupByFixtureBase : SharedStoreFixtureBase<ArubaContext>, IQueryFixtureBase
         {
-            protected override string StoreName { get; } = "Ef6GroupByTest";
+            protected override string StoreName
+                => "Ef6GroupByTest";
 
             public Func<DbContext> GetContextCreator()
                 => () => CreateContext();
@@ -606,10 +605,48 @@ namespace Microsoft.EntityFrameworkCore.Query
                 => new ArubaData();
 
             public IReadOnlyDictionary<Type, object> GetEntitySorters()
-                => new Dictionary<Type, object>();
+                => new Dictionary<Type, Func<object, object>>
+                {
+                    { typeof(CustomerForLinq), e => ((CustomerForLinq)e)?.Id },
+                    { typeof(OrderForLinq), e => ((OrderForLinq)e)?.Id },
+                }.ToDictionary(e => e.Key, e => (object)e.Value);
 
             public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-                => new Dictionary<Type, object>();
+                => new Dictionary<Type, Action<object, object>>
+                {
+                    {
+                        typeof(CustomerForLinq), (e, a) =>
+                        {
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                var ee = (CustomerForLinq)e;
+                                var aa = (CustomerForLinq)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.Region, aa.Region);
+                                Assert.Equal(ee.CompanyName, aa.CompanyName);
+                            }
+                        }
+                    },
+                    {
+                        typeof(OrderForLinq), (e, a) =>
+                        {
+                            Assert.Equal(e == null, a == null);
+
+                            if (a != null)
+                            {
+                                var ee = (OrderForLinq)e;
+                                var aa = (OrderForLinq)a;
+
+                                Assert.Equal(ee.Id, aa.Id);
+                                Assert.Equal(ee.Total, aa.Total);
+                                Assert.Equal(ee.OrderDate, aa.OrderDate);
+                            }
+                        }
+                    }
+                }.ToDictionary(e => e.Key, e => (object)e.Value);
         }
 
         public class ArubaContext : PoolableDbContext
@@ -630,10 +667,6 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         public class NumberForLinq
         {
-            public NumberForLinq()
-            {
-            }
-
             public NumberForLinq(int value, string name)
             {
                 Value = value;
@@ -663,7 +696,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             public int Id { get; set; }
             public string Region { get; set; }
             public string CompanyName { get; set; }
-            public ICollection<OrderForLinq> Orders { get; set; }
+            public ICollection<OrderForLinq> Orders { get; } = new List<OrderForLinq>();
         }
 
         public class OrderForLinq
@@ -692,11 +725,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 if (context != null)
                 {
-                    context.AddRange(ArubaOwners = CreateArubaOwners());
-                    context.AddRange(NumbersForLinq = CreateNumbersForLinq());
-                    context.AddRange(ProductsForLinq = CreateProductsForLinq());
-                    context.AddRange(CustomersForLinq = CreateCustomersForLinq());
-                    context.AddRange(OrdersForLinq = CreateOrdersForLinq(CustomersForLinq));
+                    context.AddRange(ArubaOwners);
+                    context.AddRange(NumbersForLinq);
+                    context.AddRange(ProductsForLinq);
+                    context.AddRange(CustomersForLinq);
+                    context.AddRange(OrdersForLinq);
                     context.SaveChanges();
                 }
             }
@@ -928,9 +961,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     }
                 };
 
-
             private static IReadOnlyList<OrderForLinq> CreateOrdersForLinq(IReadOnlyList<CustomerForLinq> customers)
-                => new List<OrderForLinq>
+            {
+                var orders = new List<OrderForLinq>
                 {
                     new()
                     {
@@ -982,6 +1015,14 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Customer = customers[2]
                     },
                 };
+
+                foreach (var order in orders)
+                {
+                    order.Customer.Orders.Add(order);
+                }
+
+                return orders;
+            }
 
             private static ArubaOwner[] CreateArubaOwners()
             {

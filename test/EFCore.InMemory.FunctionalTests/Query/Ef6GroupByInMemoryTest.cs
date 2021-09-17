@@ -31,44 +31,64 @@ namespace Microsoft.EntityFrameworkCore.Query
         }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_doesnt_produce_a_groupby_statement(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_doesnt_produce_a_groupby_statement(bool async)
+        {
+            await base.Grouping_by_all_columns_doesnt_produce_a_groupby_statement(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_2(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_2(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_2(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_3(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_3(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_3(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_4(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_4(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_4(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_5(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_5(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_5(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_6(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_6(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_6(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_7(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_7(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_7(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_8(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_8(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_8(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_9(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_9(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_9(async);
+        }
 
         [ConditionalTheory (Skip = "Issue #17653")]
-        public override Task Grouping_by_all_columns_with_aggregate_function_works_10(bool async)
-            => Task.CompletedTask;
+        public override async Task Grouping_by_all_columns_with_aggregate_function_works_10(bool async)
+        {
+            await base.Grouping_by_all_columns_with_aggregate_function_works_10(async);
+        }
 
         public class Ef6GroupByInMemoryFixture : Ef6GroupByFixtureBase
         {
