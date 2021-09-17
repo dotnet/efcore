@@ -217,7 +217,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     a parent of the other, that parent is returned. Returns <see langword="null" /> if the two entity types aren't
         ///     in the same hierarchy.
         /// </summary>
-        /// <param name="otherEntityType"> Another entity type.</param>
+        /// <param name="otherEntityType"> Another entity type. </param>
         /// <returns>
         ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
         ///     or <see langword="null" /> if they have not common parent.
@@ -225,6 +225,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         IReadOnlyEntityType? FindClosestCommonParent(IReadOnlyEntityType otherEntityType)
         {
             Check.NotNull(otherEntityType, nameof(otherEntityType));
+
+            var leastDerived = LeastDerivedType(otherEntityType);
+            if (leastDerived != null)
+            {
+                return leastDerived;
+            }
 
             return GetAllBaseTypesInclusiveAscending()
                 .FirstOrDefault(i => otherEntityType.GetAllBaseTypesInclusiveAscending().Any(j => j == i));

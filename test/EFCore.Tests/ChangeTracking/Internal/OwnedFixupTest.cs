@@ -1778,7 +1778,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child2) + "#" + nameof(Child),
                 dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent2Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Same(subDependent1, dependent1.SubChild);
@@ -2078,7 +2078,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection1) + "#" + nameof(Child),
                 newDependentEntry1.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry1.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Equal(principal.Id, newDependentEntry2.Property("ParentId").CurrentValue);
@@ -2087,7 +2087,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.ChildCollection2) + "#" + nameof(Child),
                 newDependentEntry2.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 newDependentEntry2.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Contains(dependent1.SubChildCollection, e => ReferenceEquals(e, subDependent1));
@@ -3680,19 +3680,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             principal2.Child1 = dependent1;
             principal1.Child2 = dependent2;
 
-            if (entityState != EntityState.Added)
-            {
-                Assert.Equal(
-                    CoreStrings.KeyReadOnly("ParentId", "Parent.Child2#Child"),
-                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges()).Message);
-                return;
-            }
-
             context.ChangeTracker.DetectChanges();
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 6 : 10, context.ChangeTracker.Entries().Count());
             Assert.Null(principal1.Child1);
             Assert.Same(dependent2, principal1.Child2);
             Assert.Same(dependent1, principal2.Child1);
@@ -3709,7 +3701,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child2) + "#" + nameof(Child),
                 dependent1Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             var dependent2Entry = context.Entry(principal2).Reference(p => p.Child1).TargetEntry;
@@ -3719,7 +3711,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 typeof(Parent).ShortDisplayName() + "." + nameof(Parent.Child1) + "#" + nameof(Child),
                 dependent2Entry.Metadata.DisplayName());
             Assert.Equal(
-                entityState == EntityState.Added ? null : (EntityState?)EntityState.Deleted,
+                entityState == EntityState.Added ? null : EntityState.Deleted,
                 dependent1Entry.GetInfrastructure().SharedIdentityEntry?.EntityState);
 
             Assert.Same(subDependent1, dependent1.SubChild);
@@ -3758,7 +3750,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
             Assert.True(context.ChangeTracker.HasChanges());
 
-            Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            Assert.Equal(entityState == EntityState.Added ? 6 : 10, context.ChangeTracker.Entries().Count());
 
             context.ChangeTracker.AcceptAllChanges();
 

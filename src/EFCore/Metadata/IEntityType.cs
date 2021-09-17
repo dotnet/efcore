@@ -107,6 +107,30 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IKey? FindKey(IReadOnlyProperty property) => FindKey(new[] { property });
 
         /// <summary>
+        ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
+        ///     a parent of the other, that parent is returned. Returns <see langword="null" /> if the two entity types aren't
+        ///     in the same hierarchy.
+        /// </summary>
+        /// <param name="otherEntityType"> Another entity type.</param>
+        /// <returns>
+        ///     The closest common parent of this entity type and <paramref name="otherEntityType" />,
+        ///     or <see langword="null" /> if they have not common parent.
+        /// </returns>
+        IEntityType? FindClosestCommonParent(IEntityType otherEntityType)
+            => (IEntityType?)((IReadOnlyEntityType)this).FindClosestCommonParent(otherEntityType);
+
+        /// <summary>
+        ///     Gets the least derived type between the specified two.
+        /// </summary>
+        /// <param name="otherEntityType"> The other entity type to compare with. </param>
+        /// <returns>
+        ///     The least derived type between the specified two.
+        ///     If the given entity types are not related, then <see langword="null" /> is returned.
+        /// </returns>
+        IEntityType? LeastDerivedType(IEntityType otherEntityType)
+            => (IEntityType?)((IReadOnlyEntityType)this).LeastDerivedType(otherEntityType);
+
+        /// <summary>
         ///     Gets primary key for this entity type. Returns <see langword="null" /> if no primary key is defined.
         /// </summary>
         /// <returns> The primary key, or <see langword="null" /> if none is defined. </returns>
