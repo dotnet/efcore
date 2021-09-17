@@ -1171,6 +1171,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class KeylessCollectionNavigation
         {
             public List<Store>? Stores { get; set; }
+            [NotMapped]
+            public KeylessReferenceNavigation? Reference { get; set; }
+        }
+
+        protected class KeylessReferenceNavigation
+        {
+            public List<KeylessCollectionNavigation>? Collection { get; set; }
         }
     }
 }

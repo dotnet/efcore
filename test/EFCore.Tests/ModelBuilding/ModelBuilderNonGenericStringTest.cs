@@ -45,6 +45,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
                 => new NonGenericStringTestModelBuilder(testHelpers, configure);
+
+            public override void WithMany_pointing_to_keyless_entity_throws()
+            {
+                // Test throws exception before reaching the first exception due to entity type being property bag entity
+            }
         }
 
         public class NonGenericStringManyToOneType : ManyToOneTestBase

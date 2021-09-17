@@ -2697,6 +2697,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     Assert.Throws<InvalidOperationException>(
                         () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey().HasMany(e => e.Stores)).Message);
             }
+
+            [ConditionalFact]
+            public virtual void WithMany_pointing_to_keyless_entity_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                Assert.Equal(
+                    CoreStrings.NavigationToKeylessType(
+                            nameof(KeylessReferenceNavigation.Collection),
+                            nameof(KeylessCollectionNavigation)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey()
+                        .HasOne(e => e.Reference).WithMany(e => e.Collection)).Message);
+            }
         }
     }
 }
