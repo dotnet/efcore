@@ -770,14 +770,15 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (tableName != null
                     || tableNameAnnotation != null)
                 {
-                    var schemaAnnotation = annotations.Find(RelationalAnnotationNames.Schema);
                     stringBuilder
                         .AppendLine()
                         .Append(entityTypeBuilderName)
                         .Append(".ToTable(");
 
+                    var schemaAnnotation = annotations.Find(RelationalAnnotationNames.Schema);
+                    var schema = (string?)schemaAnnotation?.Value ?? entityType.GetSchema();
                     if (tableName == null
-                        && (schemaAnnotation == null || schemaAnnotation.Value == null))
+                        && (schemaAnnotation == null || schema == null))
                     {
                         stringBuilder.Append("(string)");
                     }
@@ -790,19 +791,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     }
 
                     var isExcludedAnnotation = annotations.Find(RelationalAnnotationNames.IsTableExcludedFromMigrations);
-                    if (schemaAnnotation != null
-                        && (tableName != null || schemaAnnotation.Value != null))
+                    if (schema != null
+                        || (schemaAnnotation != null && tableName != null))
                     {
                         stringBuilder
                             .Append(", ");
 
-                        if (schemaAnnotation.Value == null
+                        if (schema == null
                             && ((bool?)isExcludedAnnotation?.Value) != true)
                         {
                             stringBuilder.Append("(string)");
                         }
 
-                        stringBuilder.Append(Code.UnknownLiteral(schemaAnnotation.Value));
+                        stringBuilder.Append(Code.UnknownLiteral(schema));
                     }
 
                     if (isExcludedAnnotation != null)

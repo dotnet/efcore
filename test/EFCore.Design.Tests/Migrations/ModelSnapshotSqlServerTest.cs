@@ -1328,8 +1328,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     builder
                         .Entity<ManyToManyLeft>()
+                        .ToTable("ManyToManyLeft", "schema")
                         .HasMany(l => l.Rights)
                         .WithMany(r => r.Lefts);
+
+                    builder
+                        .Entity<ManyToManyRight>()
+                        .ToTable("ManyToManyRight", "schema");
                 },
                 AddBoilerPlate(
                     GetHeading()
@@ -1346,7 +1351,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasIndex(""RightsId"");
 
-                    b.ToTable(""ManyToManyLeftManyToManyRight"");
+                    b.ToTable(""ManyToManyLeftManyToManyRight"", ""schema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", b =>
@@ -1362,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""ManyToManyLeft"");
+                    b.ToTable(""ManyToManyLeft"", ""schema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", b =>
@@ -1378,7 +1383,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""ManyToManyRight"");
+                    b.ToTable(""ManyToManyRight"", ""schema"");
                 });
 
             modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
@@ -1459,6 +1464,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     Assert.Equal("RightsId", p.Name);
                                 });
                         });
+
+                    Assert.Equal("ManyToManyLeftManyToManyRight", joinEntity.GetTableName());
+                    Assert.Equal("schema", joinEntity.GetSchema());
                 });
         }
 
