@@ -1162,5 +1162,16 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         protected class DreJr : Dre
         {
         }
+
+        protected class Store
+        {
+            public int StoreId { get; set; }
+        }
+
+        protected class Discount
+        {
+            public int? StoreId { get; set; }
+            public Store? Store { get; set; }
+        }
     }
 }
