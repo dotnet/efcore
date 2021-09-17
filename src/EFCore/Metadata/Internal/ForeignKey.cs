@@ -455,18 +455,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             EnsureMutable();
 
             var name = propertyIdentity?.Name;
-            if (pointsToPrincipal
-                && PrincipalEntityType.IsKeyless)
+            if (name != null)
             {
-                throw new InvalidOperationException(
-                    CoreStrings.NavigationToKeylessType(name, PrincipalEntityType.DisplayName()));
-            }
+                if (pointsToPrincipal
+                    && PrincipalEntityType.IsKeyless)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationToKeylessType(name, PrincipalEntityType.DisplayName()));
+                }
 
-            if (!pointsToPrincipal
-                && DeclaringEntityType.IsKeyless)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.NavigationToKeylessType(name, DeclaringEntityType.DisplayName()));
+                if (!pointsToPrincipal
+                    && DeclaringEntityType.IsKeyless)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationToKeylessType(name, DeclaringEntityType.DisplayName()));
+                }
             }
 
             var oldNavigation = pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;

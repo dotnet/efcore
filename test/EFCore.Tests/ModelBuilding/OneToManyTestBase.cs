@@ -2683,6 +2683,31 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.NonConfiguredNavigationToSharedType("Navigation", nameof(CollectionNavigationToSharedType)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
+
+            [ConditionalFact]
+            public virtual void Reference_navigation_from_keyless_entity_type_works()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                modelBuilder.Entity<Discount>(entity =>
+                {
+                    entity.HasNoKey();
+
+                    entity.HasOne(d => d.Store).WithMany();
+                });
+
+                var model = modelBuilder.FinalizeModel();
+
+                Assert.Collection(model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal(typeof(Discount).DisplayName(), e.Name);
+                        var fk = Assert.Single(e.GetForeignKeys());
+                        Assert.False(fk.IsUnique);
+                        Assert.Equal(nameof(Discount.Store), fk.DependentToPrincipal.Name);
+                    },
+                    e => Assert.Equal(typeof(Store).DisplayName(), e.Name));
+            }
         }
     }
 }
