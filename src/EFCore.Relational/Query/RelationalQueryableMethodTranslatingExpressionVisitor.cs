@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -464,29 +463,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 source = TranslateSelect(source, elementSelector);
             }
 
-            if (translatedKey is NewExpression newExpression
-                && newExpression.Arguments.Count == 0)
-            {
-                selectExpression.ApplyGrouping(_sqlExpressionFactory.ApplyDefaultTypeMapping(_sqlExpressionFactory.Constant(1)));
-            }
-            else
-            {
-                translatedKey = selectExpression.ApplyGrouping(translatedKey);
-            }
-            var clonedSelectExpression = selectExpression.Clone();
-            // If the grouping key is empty then there may not be any group by terms.
-            var correlationPredicate = selectExpression.GroupBy.Zip(clonedSelectExpression.GroupBy)
-                .Select(e => _sqlExpressionFactory.Equal(e.First, e.Second))
-                .Aggregate((l, r) => _sqlExpressionFactory.AndAlso(l, r));
-            clonedSelectExpression.ClearGroupBy();
-            clonedSelectExpression.ApplyPredicate(correlationPredicate);
-
-            var groupByShaper = new GroupByShaperExpression(
-                translatedKey,
-                new ShapedQueryExpression(
-                    clonedSelectExpression,
-                    new QueryExpressionReplacingExpressionVisitor(selectExpression, clonedSelectExpression).Visit(source.ShaperExpression)));
-
+            var groupByShaper = selectExpression.ApplyGrouping(translatedKey, source.ShaperExpression, _sqlExpressionFactory);
             if (resultSelector == null)
             {
                 return source.UpdateShaperExpression(groupByShaper);
@@ -1695,31 +1672,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     terms.Add(predicate);
                 }
-            }
-        }
-
-        private sealed class QueryExpressionReplacingExpressionVisitor : ExpressionVisitor
-        {
-            private readonly Expression _oldQuery;
-            private readonly Expression _newQuery;
-
-            public QueryExpressionReplacingExpressionVisitor(Expression oldQuery, Expression newQuery)
-            {
-                _oldQuery = oldQuery;
-                _newQuery = newQuery;
-            }
-
-            [return: NotNullIfNotNull("expression")]
-            public override Expression? Visit(Expression? expression)
-            {
-                return expression is ProjectionBindingExpression projectionBindingExpression
-                    && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldQuery)
-                    ? projectionBindingExpression.ProjectionMember != null
-                        ? new ProjectionBindingExpression(
-                            _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
-                        : new ProjectionBindingExpression(
-                            _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
-                    : base.Visit(expression);
             }
         }
     }

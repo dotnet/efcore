@@ -1011,6 +1011,12 @@ namespace Microsoft.EntityFrameworkCore
         public abstract class ManyToManyFieldsLoadFixtureBase : ManyToManyFieldsQueryFixtureBase
         {
             protected override string StoreName { get; } = "ManyToManyFieldsLoadTest";
+
+            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+                => base.AddOptions(builder).ConfigureWarnings(
+                        c => c
+                            .Log(CoreEventId.ShadowForeignKeyPropertyCreated))
+                    .EnableDetailedErrors();
         }
     }
 }

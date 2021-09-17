@@ -1893,7 +1893,7 @@ FROM (
 LEFT JOIN (
     SELECT [t1].[EmployeeID], [t1].[City], [t1].[Country], [t1].[FirstName], [t1].[ReportsTo], [t1].[Title]
     FROM (
-        SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title], ROW_NUMBER() OVER(PARTITION BY [e0].[Title] ORDER BY [e0].[Title]) AS [row]
+        SELECT [e0].[EmployeeID], [e0].[City], [e0].[Country], [e0].[FirstName], [e0].[ReportsTo], [e0].[Title], ROW_NUMBER() OVER(PARTITION BY [e0].[Title] ORDER BY [e0].[EmployeeID]) AS [row]
         FROM [Employees] AS [e0]
         WHERE ([e0].[Title] = N'Sales Representative') AND ([e0].[EmployeeID] = 1)
     ) AS [t1]
@@ -1914,6 +1914,74 @@ FROM [Employees] AS [e]
 WHERE [e].[EmployeeID] = 1
 GROUP BY [e].[EmployeeID]");
         }
+
+        public override async Task GroupBy_select_grouping_list(bool async)
+        {
+            await base.GroupBy_select_grouping_list(async);
+
+            AssertSql(
+                @"SELECT [t].[City], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT [c].[City]
+    FROM [Customers] AS [c]
+    GROUP BY [c].[City]
+) AS [t]
+LEFT JOIN [Customers] AS [c0] ON [t].[City] = [c0].[City]
+ORDER BY [t].[City]");
+        }
+
+        public override async Task GroupBy_select_grouping_array(bool async)
+        {
+            await base.GroupBy_select_grouping_array(async);
+
+            AssertSql(
+                @"SELECT [t].[City], [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+FROM (
+    SELECT [c].[City]
+    FROM [Customers] AS [c]
+    GROUP BY [c].[City]
+) AS [t]
+LEFT JOIN [Customers] AS [c0] ON [t].[City] = [c0].[City]
+ORDER BY [t].[City]");
+        }
+
+        public override async Task GroupBy_select_grouping_composed_list(bool async)
+        {
+            await base.GroupBy_select_grouping_composed_list(async);
+
+            AssertSql(
+                @"SELECT [t].[City], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM (
+    SELECT [c].[City]
+    FROM [Customers] AS [c]
+    GROUP BY [c].[City]
+) AS [t]
+LEFT JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'A%'
+) AS [t0] ON ([t].[City] = [t0].[City]) OR ([t].[City] IS NULL AND [t0].[City] IS NULL)
+ORDER BY [t].[City]");
+        }
+
+        public override async Task GroupBy_select_grouping_composed_list_2(bool async)
+        {
+            await base.GroupBy_select_grouping_composed_list_2(async);
+
+            AssertSql(
+                @"SELECT [t].[City], [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+FROM (
+    SELECT [c].[City]
+    FROM [Customers] AS [c]
+    GROUP BY [c].[City]
+) AS [t]
+LEFT JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+) AS [t0] ON [t].[City] = [t0].[City]
+ORDER BY [t].[City], [t0].[CustomerID]");
+        }
+
 
         public override async Task Select_GroupBy_SelectMany(bool async)
         {
@@ -2777,6 +2845,33 @@ ORDER BY [t].[CustomerID]");
             await base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async);
 
             //AssertSql(" ");
+        }
+
+        public override async Task Complex_query_with_group_by_in_subquery5(bool async)
+        {
+            await base.Complex_query_with_group_by_in_subquery5(async);
+
+            AssertSql(
+                @"SELECT [t].[c], [t].[ProductID], [t0].[CustomerID], [t0].[City]
+FROM (
+    SELECT COALESCE(SUM([o].[ProductID] + ([o].[OrderID] * 1000)), 0) AS [c], [o].[ProductID]
+    FROM [Order Details] AS [o]
+    INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+    LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+    WHERE [c].[CustomerID] = N'ALFKI'
+    GROUP BY [o].[ProductID]
+) AS [t]
+OUTER APPLY (
+    SELECT [c0].[CustomerID], [c0].[City]
+    FROM [Customers] AS [c0]
+    WHERE CAST(LEN([c0].[CustomerID]) AS int) < (
+        SELECT MIN([o1].[OrderID] / 100)
+        FROM [Order Details] AS [o1]
+        INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
+        LEFT JOIN [Customers] AS [c1] ON [o2].[CustomerID] = [c1].[CustomerID]
+        WHERE ([c1].[CustomerID] = N'ALFKI') AND ([t].[ProductID] = [o1].[ProductID]))
+) AS [t0]
+ORDER BY [t].[ProductID], [t0].[CustomerID]");
         }
 
         private void AssertSql(params string[] expected)

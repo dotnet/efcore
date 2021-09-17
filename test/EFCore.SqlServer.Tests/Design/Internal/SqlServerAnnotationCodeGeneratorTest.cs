@@ -323,6 +323,29 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             Assert.Equal("'foo'", Assert.Single(result.Arguments));
         }
 
+        [ConditionalFact]
+        public void GenerateFluentApi_IEntityType_works_when_IsMemoryOptimized()
+        {
+            var generator = CreateGenerator();
+
+            var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+            modelBuilder.Entity(
+                "Post",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.IsMemoryOptimized();
+                });
+            var entityType = (IEntityType)modelBuilder.Model.FindEntityType("Post");
+
+            var result = generator.GenerateFluentApiCalls(entityType, entityType.GetAnnotations().ToDictionary(a => a.Name, a => a))
+                .Single();
+
+            Assert.Equal(nameof(SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized), result.Method);
+
+            Assert.Equal(0, result.Arguments.Count);
+        }
+
         private SqlServerAnnotationCodeGenerator CreateGenerator()
             => new(
                 new AnnotationCodeGeneratorDependencies(

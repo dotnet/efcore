@@ -1195,7 +1195,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
             {
                 if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+                    && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+                        || methodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToList
+                        || methodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToArray)
                     && methodCallExpression.Arguments[0] == _parameterExpression)
                 {
                     var currentTree = _cloningExpressionVisitor.Clone(_navigationExpansionExpression.CurrentTree);

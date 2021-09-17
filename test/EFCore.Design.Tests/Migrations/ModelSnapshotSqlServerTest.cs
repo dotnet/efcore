@@ -875,6 +875,37 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
+        public virtual void EntityType_Fluent_APIs_are_properly_generated()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>().IsMemoryOptimized();
+                    builder.Ignore<EntityWithTwoProperties>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.HasKey(""Id"");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey(""Id""), false);
+
+                    b.ToTable(""EntityWithOneProperty"");
+
+                    SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized(b);
+                });"),
+                o => Assert.True(o.GetEntityTypes().Single().IsMemoryOptimized()));
+        }
+
+        [ConditionalFact]
         public virtual void BaseType_is_stored_in_snapshot()
         {
             Test(
@@ -3834,6 +3865,35 @@ namespace RootNamespace
         }
 
         [ConditionalFact]
+        public virtual void Key_Fluent_APIs_are_properly_generated()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>().HasKey(t => t.Id).IsClustered();
+                    builder.Ignore<EntityWithTwoProperties>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.HasKey(""Id"");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey(""Id""));
+
+                    b.ToTable(""EntityWithOneProperty"");
+                });"),
+                o => Assert.True(o.GetEntityTypes().First().GetKeys().Single(k => k.IsPrimaryKey()).IsClustered()));
+        }
+
+        [ConditionalFact]
         public virtual void Key_name_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
@@ -3944,6 +4004,40 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]));
+        }
+
+        [ConditionalFact]
+        public virtual void Index_Fluent_APIs_are_properly_generated()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithTwoProperties>().HasIndex(t => t.AlternateId).IsClustered();
+                    builder.Ignore<EntityWithOneProperty>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 1L, 1);
+
+                    b.Property<int>(""AlternateId"")
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""Id"");
+
+                    b.HasIndex(""AlternateId"");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex(""AlternateId""));
+
+                    b.ToTable(""EntityWithTwoProperties"");
+                });"),
+                o => Assert.True(o.GetEntityTypes().Single().GetIndexes().Single().IsClustered()));
         }
 
         [ConditionalFact]

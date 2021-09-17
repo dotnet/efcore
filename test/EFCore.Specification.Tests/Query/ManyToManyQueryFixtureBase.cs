@@ -188,22 +188,15 @@ namespace Microsoft.EntityFrameworkCore.Query
                 .WithOne(e => e.ReferenceInverse)
                 .HasForeignKey<EntityTwo>(e => e.ReferenceInverseId);
 
-            // TODO: Remove UsingEntity
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.TwoSkipShared)
-                .WithMany(e => e.OneSkipShared)
-                .UsingEntity<Dictionary<string, object>>(
-                    "EntityOneEntityTwo",
-                    r => r.HasOne<EntityTwo>().WithMany().HasForeignKey("EntityTwoId"),
-                    l => l.HasOne<EntityOne>().WithMany().HasForeignKey("EntityOneId"));
+                .WithMany(e => e.OneSkipShared);
 
             // Nav:2 Payload:No Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.TwoSkip)
                 .WithMany(e => e.OneSkip)
-                .UsingEntity<JoinOneToTwo>(
-                    r => r.HasOne(e => e.Two).WithMany().HasForeignKey(e => e.TwoId),
-                    l => l.HasOne(e => e.One).WithMany().HasForeignKey(e => e.OneId));
+                .UsingEntity<JoinOneToTwo>();
 
             // Nav:6 Payload:Yes Join:Concrete Extra:None
             modelBuilder.Entity<EntityOne>()
@@ -235,9 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             modelBuilder.Entity<EntityOne>()
                 .HasMany(e => e.BranchSkip)
                 .WithMany(e => e.OneSkip)
-                .UsingEntity<JoinOneToBranch>(
-                    r => r.HasOne<EntityBranch>().WithMany(),
-                    l => l.HasOne<EntityOne>().WithMany());
+                .UsingEntity<JoinOneToBranch>();
 
             modelBuilder.Entity<EntityTwo>()
                 .HasOne(e => e.Reference)
@@ -303,15 +294,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             e.CompositeId1,
                             e.CompositeId2,
                             e.CompositeId3
-                        }))
-                .HasKey(
-                    e => new
-                    {
-                        e.CompositeId1,
-                        e.CompositeId2,
-                        e.CompositeId3,
-                        e.LeafId
-                    });
+                        }));
 
             modelBuilder.SharedTypeEntity<ProxyableSharedType>(
                 "PST", b =>

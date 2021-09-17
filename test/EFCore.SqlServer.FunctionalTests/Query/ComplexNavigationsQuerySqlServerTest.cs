@@ -2611,7 +2611,7 @@ LEFT JOIN (
     WHERE [t1].[row] <= 1
 ) AS [t0] ON [t].[Name] = [t0].[Name]
 LEFT JOIN [LevelThree] AS [l2] ON [t0].[Id0] = [l2].[OneToMany_Optional_Inverse3Id]
-ORDER BY [t].[Name], [t0].[Name], [t0].[Id0]");
+ORDER BY [t].[Name], [t0].[Id], [t0].[Id0]");
         }
 
         public override async Task String_include_multiple_derived_navigation_with_same_name_and_same_type(bool async)
