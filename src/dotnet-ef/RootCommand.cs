@@ -124,6 +124,13 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         Resources.NETCoreApp1StartupProject(startupProject.ProjectName, targetFramework.Version));
                 }
 
+                var targetPlatformIdentifier = startupProject.TargetPlatformIdentifier!;
+                if (targetPlatformIdentifier.Length != 0
+                    && !string.Equals(targetPlatformIdentifier, "Windows", StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new CommandException(Resources.UnsupportedPlatform(startupProject.ProjectName, targetPlatformIdentifier));
+                }
+
                 executable = "dotnet";
                 args.Add("exec");
                 args.Add("--depsfile");

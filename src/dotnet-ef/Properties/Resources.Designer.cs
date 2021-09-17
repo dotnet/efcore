@@ -442,12 +442,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("TablesDescription");
 
         /// <summary>
-        ///     Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework.
+        ///     Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework. See https://aka.ms/efcore-docs-cli-tfms for more information.
         /// </summary>
         public static string UnsupportedFramework(object? startupProject, object? targetFramework)
             => string.Format(
                 GetString("UnsupportedFramework", nameof(startupProject), nameof(targetFramework)),
                 startupProject, targetFramework);
+
+        /// <summary>
+        ///     Startup project '{startupProject}' targets platform '{targetPlatform}'. The Entity Framework Core .NET Command-line Tools don't support this platform. See https://aka.ms/efcore-docs-cli-tfms for more information.
+        /// </summary>
+        public static string UnsupportedPlatform(object? startupProject, object? targetPlatform)
+            => string.Format(
+                GetString("UnsupportedPlatform", nameof(startupProject), nameof(targetPlatform)),
+                startupProject, targetPlatform);
 
         /// <summary>
         ///     Use table and column names directly from the database.

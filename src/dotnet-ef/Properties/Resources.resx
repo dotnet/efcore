@@ -325,7 +325,10 @@
     <value>The tables to generate entity types for.</value>
   </data>
   <data name="UnsupportedFramework" xml:space="preserve">
-    <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework.</value>
+    <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework. See https://aka.ms/efcore-docs-cli-tfms for more information.</value>
+  </data>
+  <data name="UnsupportedPlatform" xml:space="preserve">
+    <value>Startup project '{startupProject}' targets platform '{targetPlatform}'. The Entity Framework Core .NET Command-line Tools don't support this platform. See https://aka.ms/efcore-docs-cli-tfms for more information.</value>
   </data>
   <data name="UseDatabaseNamesDescription" xml:space="preserve">
     <value>Use table and column names directly from the database.</value>
