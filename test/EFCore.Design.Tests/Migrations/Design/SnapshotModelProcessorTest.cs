@@ -1084,8 +1084,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 modelBuilder
                     .HasAnnotation("ProductVersion", "3.0.0")
                     .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
-                    .HasAnnotation("SqlServer:IdentitySeed", 1);
+                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                 modelBuilder.Entity(
                     "Ownership.OwningType1", b =>
@@ -1093,8 +1092,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                         b.Property<int>("Id")
                             .ValueGeneratedOnAdd()
                             .HasColumnType("int")
-                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn)
-                            .HasAnnotation("SqlServer:IdentitySeed", 1);
+                            .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                         b.HasKey("Id");
 
