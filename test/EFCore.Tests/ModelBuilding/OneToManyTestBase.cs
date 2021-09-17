@@ -2683,6 +2683,20 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     CoreStrings.NonConfiguredNavigationToSharedType("Navigation", nameof(CollectionNavigationToSharedType)),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
             }
+
+            [ConditionalFact]
+            public virtual void WithMany_call_on_keyless_entity_throws()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                Assert.Equal(
+                    CoreStrings.PrincipalKeylessType(
+                            nameof(KeylessCollectionNavigation),
+                            nameof(KeylessCollectionNavigation) + "." + nameof(KeylessCollectionNavigation.Stores),
+                            nameof(Store)),
+                    Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<KeylessCollectionNavigation>().HasNoKey().HasMany(e => e.Stores)).Message);
+            }
         }
     }
 }
