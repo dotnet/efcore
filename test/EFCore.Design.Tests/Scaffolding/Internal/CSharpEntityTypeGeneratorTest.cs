@@ -2090,8 +2090,8 @@ namespace TestNamespace
                     .WithMany(p => p.Blogs)
                     .UsingEntity<Dictionary<string, object>>(
                         ""BlogPost"",
-                        l => l.HasOne<Post>().WithMany().HasForeignKey(""BlogsId""),
-                        r => r.HasOne<Blog>().WithMany().HasForeignKey(""PostsId""),
+                        l => l.HasOne<Post>().WithMany().HasForeignKey(""PostsId""),
+                        r => r.HasOne<Blog>().WithMany().HasForeignKey(""BlogsId""),
                         j =>
                         {
                             j.HasKey(""BlogsId"", ""PostsId"");
@@ -2139,6 +2139,141 @@ namespace TestNamespace
     public partial class Post
     {
         public int Id { get; set; }
+
+        public virtual ICollection<Blog> Blogs { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
+
+                    Assert.Equal(2, code.AdditionalFiles.Count);
+                },
+                model =>
+                {
+                    var blogType = model.FindEntityType("TestNamespace.Blog");
+                    Assert.Empty(blogType.GetNavigations());
+                    var postsNavigation = Assert.Single(blogType.GetSkipNavigations());
+                    Assert.Equal("Posts", postsNavigation.Name);
+
+                    var postType = model.FindEntityType("TestNamespace.Post");
+                    Assert.Empty(postType.GetNavigations());
+                    var blogsNavigation = Assert.Single(postType.GetSkipNavigations());
+                    Assert.Equal("Blogs", blogsNavigation.Name);
+
+                    Assert.Equal(postsNavigation, blogsNavigation.Inverse);
+                    Assert.Equal(blogsNavigation, postsNavigation.Inverse);
+
+                    var joinEntityType = blogsNavigation.ForeignKey.DeclaringEntityType;
+                    Assert.Equal("BlogPost", joinEntityType.Name);
+                    Assert.Equal(typeof(Dictionary<string, object>), joinEntityType.ClrType);
+                    Assert.Single(joinEntityType.GetIndexes());
+                    Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+                });
+        }
+
+        [ConditionalFact]
+        public void Scaffold_skip_navigations_different_key_type()
+        {
+            Test(
+                modelBuilder => modelBuilder
+                    .Entity("Blog",
+                        x => x.Property<int>("Id"))
+                    .Entity("Post",
+                        x => x.Property<string>("Id"))
+                    .Entity("BlogPost", _ => { })
+                    .Entity("Blog")
+                        .HasMany("Post", "Posts")
+                        .WithMany("Blogs")
+                        .UsingEntity("BlogPost"),
+                new ModelCodeGenerationOptions { UseDataAnnotations = false },
+                code =>
+                {
+                    AssertFileContents(@"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace TestNamespace
+{
+    public partial class TestDbContext : DbContext
+    {
+        public TestDbContext()
+        {
+        }
+
+        public TestDbContext(DbContextOptions<TestDbContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Blog> Blog { get; set; }
+        public virtual DbSet<Post> Post { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning "
+                        + DesignStrings.SensitiveInformationWarning
+                        + @"
+                optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Blog>(entity =>
+            {
+                entity.Property(e => e.Id).UseIdentityColumn();
+
+                entity.HasMany(d => d.Posts)
+                    .WithMany(p => p.Blogs)
+                    .UsingEntity<Dictionary<string, object>>(
+                        ""BlogPost"",
+                        l => l.HasOne<Post>().WithMany().HasForeignKey(""PostsId""),
+                        r => r.HasOne<Blog>().WithMany().HasForeignKey(""BlogsId""),
+                        j =>
+                        {
+                            j.HasKey(""BlogsId"", ""PostsId"");
+
+                            j.ToTable(""BlogPost"");
+
+                            j.HasIndex(new[] { ""PostsId"" }, ""IX_BlogPost_PostsId"");
+                        });
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}
+",
+                        code.ContextFile);
+
+                    AssertFileContents(@"using System;
+using System.Collections.Generic;
+
+namespace TestNamespace
+{
+    public partial class Blog
+    {
+        public int Id { get; set; }
+
+        public virtual ICollection<Post> Posts { get; set; }
+    }
+}
+",
+                        code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
+
+                    AssertFileContents(@"using System;
+using System.Collections.Generic;
+
+namespace TestNamespace
+{
+    public partial class Post
+    {
+        public string Id { get; set; }
 
         public virtual ICollection<Blog> Blogs { get; set; }
     }
@@ -2230,8 +2365,8 @@ namespace TestNamespace
                     .WithMany(p => p.Blogs)
                     .UsingEntity<Dictionary<string, object>>(
                         ""BlogPost"",
-                        l => l.HasOne<Post>().WithMany().HasForeignKey(""BlogsId""),
-                        r => r.HasOne<Blog>().WithMany().HasForeignKey(""PostsId""),
+                        l => l.HasOne<Post>().WithMany().HasForeignKey(""PostsId""),
+                        r => r.HasOne<Blog>().WithMany().HasForeignKey(""BlogsId""),
                         j =>
                         {
                             j.HasKey(""BlogsId"", ""PostsId"");

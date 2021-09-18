@@ -793,8 +793,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         _builder.AppendLine($"{_code.Literal(joinEntityType.Name)},");
                         var lines = new List<string>();
 
-                        GenerateForeignKeyConfigurationLines(skipNavigation.ForeignKey, skipNavigation.TargetEntityType.Name, "l");
-                        GenerateForeignKeyConfigurationLines(inverse.ForeignKey, inverse.TargetEntityType.Name, "r");
+                        GenerateForeignKeyConfigurationLines(inverse.ForeignKey, inverse.ForeignKey.PrincipalEntityType.Name, "l");
+                        GenerateForeignKeyConfigurationLines(skipNavigation.ForeignKey, skipNavigation.ForeignKey.PrincipalEntityType.Name, "r");
                         _builder.AppendLine("j =>");
                         _builder.AppendLine("{");
 
