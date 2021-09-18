@@ -127,9 +127,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The default identity seed. </returns>
         public static long GetIdentitySeed(this IReadOnlyModel model)
-            => model is RuntimeModel
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (long?)model[SqlServerAnnotationNames.IdentitySeed] ?? 1;
+        {
+            if (model is RuntimeModel)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
+            // Support pre-6.0 IdentitySeed annotations, which contained an int rather than a long
+            var annotation = model.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
+            return annotation is null || annotation.Value is null
+                ? 1
+                : annotation.Value is int intValue
+                    ? intValue
+                    : (long)annotation.Value;
+        }
 
         /// <summary>
         ///     Sets the default identity seed.

@@ -3795,7 +3795,20 @@ namespace RootNamespace
         }
 
         [ConditionalFact]
-        public virtual void SQLServer_legacy_identity_seed_int_annotation()
+        public virtual void SQLServer_model_legacy_identity_seed_int_annotation()
+        {
+            Test(
+                builder => builder.HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8),
+                AddBoilerPlate(
+                    @"
+            modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L, 1);"),
+                o => Assert.Equal(8L, o.GetIdentitySeed()));
+        }
+
+        [ConditionalFact]
+        public virtual void SQLServer_property_legacy_identity_seed_int_annotation()
         {
             Test(
                 builder =>
