@@ -102,7 +102,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public static IEnumerable<IReadOnlyNavigation> FindNavigationsTo(
-            this IReadOnlyForeignKey foreignKey, IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey,
+            IReadOnlyEntityType entityType)
         {
             if (foreignKey.DeclaringEntityType != entityType
                 && foreignKey.PrincipalEntityType != entityType)
@@ -209,7 +210,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         [Obsolete]
         public static IReadOnlyEntityType ResolveEntityTypeInHierarchy(
-            this IReadOnlyForeignKey foreignKey, IReadOnlyEntityType entityType)
+            this IReadOnlyForeignKey foreignKey,
+            IReadOnlyEntityType entityType)
         {
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))

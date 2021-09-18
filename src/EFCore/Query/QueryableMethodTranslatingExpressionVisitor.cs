@@ -164,9 +164,10 @@ namespace Microsoft.EntityFrameworkCore.Query
                             var source2 = Visit(methodCallExpression.Arguments[1]);
                             if (source2 is ShapedQueryExpression innerShapedQueryExpression)
                             {
-                                return CheckTranslated(TranslateConcat(
-                                    shapedQueryExpression,
-                                    innerShapedQueryExpression));
+                                return CheckTranslated(
+                                    TranslateConcat(
+                                        shapedQueryExpression,
+                                        innerShapedQueryExpression));
                             }
 
                             break;

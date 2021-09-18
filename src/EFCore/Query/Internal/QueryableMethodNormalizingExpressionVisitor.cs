@@ -345,8 +345,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         if (innerQueryableElementType == null
                             || innerQueryableElementType != genericType)
                         {
-                            while (innerArgument is UnaryExpression {
-                                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs } unaryExpression
+                            while (innerArgument is UnaryExpression
+                                {
+                                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                                } unaryExpression
                                 && unaryExpression.Type.TryGetElementType(typeof(IEnumerable<>)) != null)
                             {
                                 innerArgument = unaryExpression.Operand;

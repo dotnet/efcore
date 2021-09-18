@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Returns a value indicating whether the given CLR member should be ignored.
         /// </summary>
         /// <param name="memberInfo"> The member. </param>
-        /// <returns> <see langword="true"/> if the member should be ignored. </returns>
+        /// <returns> <see langword="true" /> if the member should be ignored. </returns>
         protected virtual bool ShouldIgnore(MemberInfo memberInfo)
             => true;
     }

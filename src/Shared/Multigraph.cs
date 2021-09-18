@@ -200,8 +200,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
                         // Find a vertex in the unsorted portion of the graph that has edges to the candidate
                         var incomingNeighbor = GetIncomingNeighbors(candidateVertex)
-                            .First(neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
-                                && neighborPredecessors > 0);
+                            .First(
+                                neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
+                                    && neighborPredecessors > 0);
 
                         if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                         {
@@ -374,8 +375,9 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
                         // Find a vertex in the unsorted portion of the graph that has edges to the candidate
                         var incomingNeighbor = GetIncomingNeighbors(candidateVertex)
-                            .First(neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
-                                && neighborPredecessors > 0);
+                            .First(
+                                neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
+                                    && neighborPredecessors > 0);
 
                         if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                         {

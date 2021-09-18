@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception that caused this event. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> for the async result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task SaveChangesFailedAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -199,8 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var p = (ContextInitializedEventData)payload;
             var modelVersion = p.ContextOptions.FindExtension<CoreOptionsExtension>()?.Model?.GetProductVersion() ?? "";
             return d.GenerateMessage(
-                    modelVersion,
-                    ProductInfo.GetVersion());
+                modelVersion,
+                ProductInfo.GetVersion());
         }
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="exception"> The exception that caused this event. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> for the async result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task OptimisticConcurrencyExceptionAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -927,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 GetProviderVersion(p.Context),
                 p.ContextOptions.BuildOptionsFragment());
         }
-        
+
         private static string? GetProviderVersion(DbContext context)
             => context.GetService<IEnumerable<IDatabaseProvider>>().FirstOrDefault()?.Version;
 
@@ -3148,7 +3148,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.EntityEntry.Metadata.FindPrimaryKey()!.Properties),
                 p.State,
                 p.ParentEntityEntry.Metadata.ShortName(),
-                p.ParentEntityEntry.GetInfrastructure().BuildCurrentValuesString(p.ParentEntityEntry.Metadata.FindPrimaryKey()!.Properties));
+                p.ParentEntityEntry.GetInfrastructure()
+                    .BuildCurrentValuesString(p.ParentEntityEntry.Metadata.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>
@@ -3288,7 +3289,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="context"> The context being used. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The, possibly intercepted, result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<InterceptionResult<int>> SaveChangesStartingAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,
@@ -3375,7 +3376,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="entitiesSavedCount"> The number of entities saved. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The, possibly intercepted, result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<int> SaveChangesCompletedAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
             DbContext context,

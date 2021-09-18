@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         new IEntityType? BaseType { get; }
 
         /// <summary>
-        ///     Gets the <see cref="InstantiationBinding"/> for the preferred constructor.
+        ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor.
         /// </summary>
         InstantiationBinding? ConstructorBinding { get; }
 
@@ -101,10 +101,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given property. Returns <see langword="null" /> if no key is defined
         ///     for the given property.
-        ///     /// </summary>
+        ///     ///
+        /// </summary>
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
-        new IKey? FindKey(IReadOnlyProperty property) => FindKey(new[] { property });
+        new IKey? FindKey(IReadOnlyProperty property)
+            => FindKey(new[] { property });
 
         /// <summary>
         ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
@@ -549,7 +551,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Returns the properties that need a value to be generated when the entity entry transitions to the
-        ///     <see cref="EntityState.Added"/> state.
+        ///     <see cref="EntityState.Added" /> state.
         /// </summary>
         /// <returns> The properties that need a value to be generated on add.</returns>
         IEnumerable<IProperty> GetValueGeneratingProperties();

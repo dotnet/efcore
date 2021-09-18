@@ -82,6 +82,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             UpdateLogger = dependencies.UpdateLogger;
             _changeTrackingLogger = dependencies.ChangeTrackingLogger;
         }
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -731,7 +732,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public virtual void CompleteAttachGraph()
             => Dependencies.NavigationFixer.CompleteAttachGraph();
-        
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1175,9 +1176,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
             => !Context.Database.AutoTransactionsEnabled
                 ? SaveChanges(this, acceptAllChangesOnSuccess)
-                : Dependencies.ExecutionStrategy.Execute((StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
-                static (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
-                null);
+                : Dependencies.ExecutionStrategy.Execute(
+                    (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
+                    static (_, t) => SaveChanges(t.StateManager, t.AcceptAllChangesOnSuccess),
+                    null);
 
         private static int SaveChanges(StateManager stateManager, bool acceptAllChangesOnSuccess)
         {

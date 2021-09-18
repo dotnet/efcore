@@ -34,20 +34,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the name of the defining navigation.
         /// </summary>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        string? DefiningNavigationName => null;
+        string? DefiningNavigationName
+            => null;
 
         /// <summary>
         ///     Gets the defining entity type.
         /// </summary>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        IReadOnlyEntityType? DefiningEntityType => null;
+        IReadOnlyEntityType? DefiningEntityType
+            => null;
 
         /// <summary>
         ///     Gets a value indicating whether this entity type has a defining navigation.
         /// </summary>
         /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        bool HasDefiningNavigation() => HasSharedClrType;
+        bool HasDefiningNavigation()
+            => HasSharedClrType;
 
         /// <summary>
         ///     Gets the change tracking strategy being used for this entity type. This strategy indicates how the
@@ -173,7 +176,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
-        IReadOnlyEntityType GetRootType() => BaseType?.GetRootType() ?? this;
+        IReadOnlyEntityType GetRootType()
+            => BaseType?.GetRootType() ?? this;
 
         /// <summary>
         ///     Determines if this entity type derives from (or is the same as) a given entity type.
@@ -420,7 +424,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns> <see langword="true" /> if this entity type is owned by another entity type. </returns>
         [DebuggerStepThrough]
-        bool IsOwned() => GetForeignKeys().Any(fk => fk.IsOwnership);
+        bool IsOwned()
+            => GetForeignKeys().Any(fk => fk.IsOwnership);
 
         /// <summary>
         ///     Gets a value indicating whether given entity type is in ownership path for this entity type.
@@ -598,7 +603,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="property"> The property to find the index on. </param>
         /// <returns> The index, or <see langword="null" /> if none is found. </returns>
-        IReadOnlyIndex? FindIndex(IReadOnlyProperty property) => FindIndex(new[] { property });
+        IReadOnlyIndex? FindIndex(IReadOnlyProperty property)
+            => FindIndex(new[] { property });
 
         /// <summary>
         ///     <para>

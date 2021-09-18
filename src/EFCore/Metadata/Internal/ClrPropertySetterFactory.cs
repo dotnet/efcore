@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return propertyType.IsNullableType()
                 && propertyType.UnwrapNullableType().IsEnum
                     ? new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setter)
-                    : (IClrPropertySetter)new ClrPropertySetter<TEntity, TValue>(setter);
+                    : new ClrPropertySetter<TEntity, TValue>(setter);
 
             Expression CreateMemberAssignment(Expression parameter)
             {

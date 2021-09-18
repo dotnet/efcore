@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
-    ///     Service which helps with various aspects of navigation expansion extensibility. 
+    ///     Service which helps with various aspects of navigation expansion extensibility.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
@@ -15,9 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Query
     public interface INavigationExpansionExtensibilityHelper
     {
         /// <summary>
-        ///     Creates a new <see cref="QueryRootExpression"/>.
+        ///     Creates a new <see cref="QueryRootExpression" />.
         /// </summary>
-        /// <param name="entityType">Entity type of the new <see cref="QueryRootExpression"/>.</param>
+        /// <param name="entityType">Entity type of the new <see cref="QueryRootExpression" />.</param>
         /// <param name="source">Source expression.</param>
         QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source);
 

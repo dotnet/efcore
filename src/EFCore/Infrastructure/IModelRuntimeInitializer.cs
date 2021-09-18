@@ -35,8 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to initialize. </param>
         /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
         /// <param name="validationLogger">
-        ///     The validation logger. If <see langword="null"/> is provided validation will not be performed.
-        ///     </param>
+        ///     The validation logger. If <see langword="null" /> is provided validation will not be performed.
+        /// </param>
         /// <returns> The initialized model. </returns>
         IModel Initialize(
             IModel model,

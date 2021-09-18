@@ -255,8 +255,11 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         private sealed class NotTranslatedExpressionType : Expression
         {
-            public override Type Type => typeof(object);
-            public override ExpressionType NodeType => ExpressionType.Extension;
+            public override Type Type
+                => typeof(object);
+
+            public override ExpressionType NodeType
+                => ExpressionType.Extension;
         }
     }
 }

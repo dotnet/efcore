@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected static new Expression<Func<TEnum, string>> ToString()
+        protected new static Expression<Func<TEnum, string>> ToString()
             => v => v.ToString()!;
 
         /// <summary>

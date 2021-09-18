@@ -400,19 +400,19 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
                 yield return _converters.GetOrAdd(
                     (underlyingModelType, typeof(byte[])),
                     k =>
-                    {
-                        var toNumber = GetDefaultValueConverterInfo(
-                            typeof(EnumToNumberConverter<,>).MakeGenericType(k.ModelClrType, k.ModelClrType.GetEnumUnderlyingType()));
+                        {
+                            var toNumber = GetDefaultValueConverterInfo(
+                                typeof(EnumToNumberConverter<,>).MakeGenericType(k.ModelClrType, k.ModelClrType.GetEnumUnderlyingType()));
 
-                        var toBytes = GetDefaultValueConverterInfo(
-                            typeof(NumberToBytesConverter<>).MakeGenericType(k.ModelClrType.GetEnumUnderlyingType()));
+                            var toBytes = GetDefaultValueConverterInfo(
+                                typeof(NumberToBytesConverter<>).MakeGenericType(k.ModelClrType.GetEnumUnderlyingType()));
 
-                        return new ValueConverterInfo(
-                            underlyingModelType,
-                            typeof(byte[]),
-                            i => toNumber.Create().ComposeWith(toBytes.Create()),
-                            toBytes.MappingHints);
-                    });
+                            return new ValueConverterInfo(
+                                underlyingModelType,
+                                typeof(byte[]),
+                                i => toNumber.Create().ComposeWith(toBytes.Create()),
+                                toBytes.MappingHints);
+                        });
             }
         }
 

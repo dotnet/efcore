@@ -82,17 +82,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [EntityFrameworkInternal]
         public virtual DebugView DebugView
             => new(
-                () => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyNavigation)this).ToDebugString(),
                 () => ((IReadOnlyNavigation)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IReadOnlyForeignKey IReadOnlyNavigation.ForeignKey
         {
             [DebuggerStepThrough]
             get => ForeignKey;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IClrCollectionAccessor? INavigationBase.GetCollectionAccessor()
             => NonCapturingLazyInitializer.EnsureInitialized(
@@ -100,9 +100,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ref _collectionAccessorInitialized,
                 this,
                 static navigation =>
-                {
-                    navigation.EnsureReadOnly();
-                    return new ClrCollectionAccessorFactory().Create(navigation);
-                });
+                    {
+                        navigation.EnsureReadOnly();
+                        return new ClrCollectionAccessorFactory().Create(navigation);
+                    });
     }
 }

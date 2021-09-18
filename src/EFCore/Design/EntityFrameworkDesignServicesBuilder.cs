@@ -46,7 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// </summary>
         [EntityFrameworkInternal]
         public static readonly IDictionary<Type, ServiceCharacteristics> Services
-            = new Dictionary<Type, ServiceCharacteristics>{
+            = new Dictionary<Type, ServiceCharacteristics>
+            {
                 { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(IDiagnosticsLogger<>), new ServiceCharacteristics(ServiceLifetime.Singleton) },
                 { typeof(ICSharpRuntimeAnnotationCodeGenerator), new ServiceCharacteristics(ServiceLifetime.Singleton) }
@@ -66,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Design
         ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
         /// <param name="serviceType"> The type that defines the service API. </param>
-        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null"/> if it's not an EF service. </returns>
+        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null" /> if it's not an EF service. </returns>
         protected override ServiceCharacteristics? TryGetServiceCharacteristics(Type serviceType)
             => Services.TryGetValue(serviceType, out var characteristics)
                 ? characteristics

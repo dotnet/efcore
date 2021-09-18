@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
                                 Expression.IsFalse(yNull),
                                 Expression.Call(
                                     x,
-                                    typeof(TGeometry).GetRequiredRuntimeMethod("EqualsExact", new[] { typeof(TGeometry) }),
+                                    typeof(TGeometry).GetRequiredRuntimeMethod("EqualsExact", typeof(TGeometry)),
                                     y))))),
                 left,
                 right);

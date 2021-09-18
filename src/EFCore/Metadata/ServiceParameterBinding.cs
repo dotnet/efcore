@@ -72,16 +72,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual Func<MaterializationContext, IEntityType, object, object> ServiceDelegate
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _serviceDelegate, this, static b =>
-                {
-                    var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
-                    var entityTypeParam = Expression.Parameter(typeof(IEntityType));
-                    var entityParam = Expression.Parameter(typeof(object));
+                    {
+                        var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
+                        var entityTypeParam = Expression.Parameter(typeof(IEntityType));
+                        var entityParam = Expression.Parameter(typeof(object));
 
-                    return Expression.Lambda<Func<MaterializationContext, IEntityType, object, object>>(
-                        b.BindToParameter(materializationContextParam, entityTypeParam),
-                        materializationContextParam,
-                        entityTypeParam,
-                        entityParam).Compile();
-                });
+                        return Expression.Lambda<Func<MaterializationContext, IEntityType, object, object>>(
+                            b.BindToParameter(materializationContextParam, entityTypeParam),
+                            materializationContextParam,
+                            entityTypeParam,
+                            entityParam).Compile();
+                    });
     }
 }

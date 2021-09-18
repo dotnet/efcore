@@ -108,7 +108,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IReadOnlySkipNavigation)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlySkipNavigation)this).ToDebugString(),
                 () => ((IReadOnlySkipNavigation)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <inheritdoc />
@@ -160,18 +160,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 ref _collectionAccessorInitialized,
                 this,
                 static navigation =>
-                {
-                    navigation.EnsureReadOnly();
-                    return new ClrCollectionAccessorFactory().Create(navigation);
-                });
+                    {
+                        navigation.EnsureReadOnly();
+                        return new ClrCollectionAccessorFactory().Create(navigation);
+                    });
 
         /// <inheritdoc />
         ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _manyToManyLoader, this, static navigation =>
-                {
-                    navigation.EnsureReadOnly();
-                    return new ManyToManyLoaderFactory().Create(navigation);
-                });
+                    {
+                        navigation.EnsureReadOnly();
+                        return new ManyToManyLoaderFactory().Create(navigation);
+                    });
     }
 }

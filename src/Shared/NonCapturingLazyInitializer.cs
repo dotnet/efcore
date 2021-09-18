@@ -124,7 +124,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
             valueFactory(param);
 
             var tmp2 = Volatile.Read(ref target);
-            Check.DebugAssert(target != null && tmp2 != null,
+            Check.DebugAssert(
+                target != null && tmp2 != null,
                 $"{nameof(valueFactory)} did not initialize {nameof(target)} in {nameof(EnsureInitialized)}");
             return tmp2;
         }

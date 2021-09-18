@@ -48,7 +48,7 @@ namespace System
 
         public static bool IsValidEntityType(this Type type)
             => type.IsClass
-            && !type.IsArray;
+                && !type.IsArray;
 
         public static bool IsPropertyBagType(this Type type)
         {
@@ -171,7 +171,7 @@ namespace System
                 ?? throw new InvalidOperationException($"Could not find field '{name}' on type '{type}'");
 
         public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name)
-            => type.GetTypeInfo().GetDeclaredMethod(name) 
+            => type.GetTypeInfo().GetDeclaredMethod(name)
                 ?? throw new InvalidOperationException($"Could not find method '{name}' on type '{type}'");
 
         public static MethodInfo GetRequiredDeclaredMethod(this Type type, string name, Func<MethodInfo, bool> methodSelector)
@@ -557,7 +557,12 @@ namespace System
         }
 
         private static void ProcessGenericType(
-            StringBuilder builder, Type type, Type[] genericArguments, int length, bool fullName, bool compilable)
+            StringBuilder builder,
+            Type type,
+            Type[] genericArguments,
+            int length,
+            bool fullName,
+            bool compilable)
         {
             if (type.IsConstructedGenericType
                 && type.GetGenericTypeDefinition() == typeof(Nullable<>))

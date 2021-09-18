@@ -82,63 +82,66 @@ namespace Microsoft.EntityFrameworkCore.Storage
             return resolvedMapping;
         }
 
-        private CoreTypeMapping? FindMappingWithConversion(TypeMappingInfo mappingInfo, Type? providerClrType, ValueConverter? customConverter)
+        private CoreTypeMapping? FindMappingWithConversion(
+            TypeMappingInfo mappingInfo,
+            Type? providerClrType,
+            ValueConverter? customConverter)
             => _explicitMappings.GetOrAdd(
                 (mappingInfo, providerClrType, customConverter),
                 k =>
-                {
-                    var (info, providerType, converter) = k;
-                    var mapping = providerType == null
-                        || providerType == info.ClrType
-                            ? FindMapping(info)
-                            : null;
-
-                    if (mapping == null)
                     {
-                        var sourceType = info.ClrType;
-                        if (sourceType != null)
+                        var (info, providerType, converter) = k;
+                        var mapping = providerType == null
+                            || providerType == info.ClrType
+                                ? FindMapping(info)
+                                : null;
+
+                        if (mapping == null)
                         {
-                            foreach (var converterInfo in Dependencies
-                                .ValueConverterSelector
-                                .Select(sourceType, providerType))
+                            var sourceType = info.ClrType;
+                            if (sourceType != null)
                             {
-                                var mappingInfoUsed = info.WithConverter(converterInfo);
-                                mapping = FindMapping(mappingInfoUsed);
-
-                                if (mapping == null
-                                    && providerType != null)
+                                foreach (var converterInfo in Dependencies
+                                    .ValueConverterSelector
+                                    .Select(sourceType, providerType))
                                 {
-                                    foreach (var secondConverterInfo in Dependencies
-                                        .ValueConverterSelector
-                                        .Select(providerType))
-                                    {
-                                        mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
+                                    var mappingInfoUsed = info.WithConverter(converterInfo);
+                                    mapping = FindMapping(mappingInfoUsed);
 
-                                        if (mapping != null)
+                                    if (mapping == null
+                                        && providerType != null)
+                                    {
+                                        foreach (var secondConverterInfo in Dependencies
+                                            .ValueConverterSelector
+                                            .Select(providerType))
                                         {
-                                            mapping = mapping.Clone(secondConverterInfo.Create());
-                                            break;
+                                            mapping = FindMapping(mappingInfoUsed.WithConverter(secondConverterInfo));
+
+                                            if (mapping != null)
+                                            {
+                                                mapping = mapping.Clone(secondConverterInfo.Create());
+                                                break;
+                                            }
                                         }
                                     }
-                                }
 
-                                if (mapping != null)
-                                {
-                                    mapping = mapping.Clone(converterInfo.Create());
-                                    break;
+                                    if (mapping != null)
+                                    {
+                                        mapping = mapping.Clone(converterInfo.Create());
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if (mapping != null
-                        && converter != null)
-                    {
-                        mapping = mapping.Clone(converter);
-                    }
+                        if (mapping != null
+                            && converter != null)
+                        {
+                            mapping = mapping.Clone(converter);
+                        }
 
-                    return mapping;
-                });
+                        return mapping;
+                    });
 
         /// <summary>
         ///     <para>

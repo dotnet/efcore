@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> The value to be assigned to a property. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async ValueTask<TValue> NextAsync<TValue>(
             Func<CancellationToken, Task<long>> getNewLowValue,
             CancellationToken cancellationToken = default)
@@ -168,6 +168,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Releases the allocated resources for this instance.
         /// </summary>
-        public virtual void Dispose() => _semaphoreSlim.Dispose();
+        public virtual void Dispose()
+            => _semaphoreSlim.Dispose();
     }
 }

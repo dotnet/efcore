@@ -117,6 +117,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 {
                     return default!;
                 }
+
                 values[index++] = value;
             }
 

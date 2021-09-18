@@ -1158,7 +1158,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for properties of this entity type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
+        public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> UsePropertyAccessMode(
+            PropertyAccessMode propertyAccessMode)
             => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.UsePropertyAccessMode(propertyAccessMode);
 
         /// <summary>

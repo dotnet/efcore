@@ -114,13 +114,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
 #pragma warning disable CS8766 // Nullability of reference types in return type doesn't match implicitly implemented member (possibly because of nullability attributes).
             get => IsReadOnly
-                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _parameterBinding, (IServiceProperty)this, static property =>
-                    {
-                        var entityType = property.DeclaringEntityType;
-                        var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories.FindFactory(property.ClrType, property.Name)!;
-                        return (ServiceParameterBinding)factory.Bind(entityType, property.ClrType, property.Name);
-                    })
-                    : _parameterBinding;
+                ? NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _parameterBinding, (IServiceProperty)this, static property =>
+                        {
+                            var entityType = property.DeclaringEntityType;
+                            var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories
+                                .FindFactory(property.ClrType, property.Name)!;
+                            return (ServiceParameterBinding)factory.Bind(entityType, property.ClrType, property.Name);
+                        })
+                : _parameterBinding;
 #pragma warning restore CS8766 // Nullability of reference types in return type doesn't match implicitly implemented member (possibly because of nullability attributes).
             set => SetParameterBinding(value, ConfigurationSource.Explicit);
         }
@@ -185,7 +187,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IServiceProperty)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IServiceProperty)this).ToDebugString(),
                 () => ((IServiceProperty)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <summary>

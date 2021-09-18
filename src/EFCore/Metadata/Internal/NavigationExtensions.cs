@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         {
             var memberInfo = navigation?.GetIdentifyingMemberInfo();
             return memberInfo == null
-                           ? MemberIdentity.Create(navigation?.Name)
-                           : MemberIdentity.Create(memberInfo);
+                ? MemberIdentity.Create(navigation?.Name)
+                : MemberIdentity.Create(memberInfo);
         }
     }
 }

@@ -71,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains <see langword="true" /> if the source sequence contains any elements; otherwise, <see langword="false" />.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<bool> AnyAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<bool> AnyAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -143,7 +143,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<bool> AllAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the number of elements in the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int> CountAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -215,7 +215,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int> CountAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the number of elements in the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<long> LongCountAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -284,7 +284,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<long> LongCountAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -322,7 +322,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> FirstAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -368,7 +368,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> FirstAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -402,7 +402,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> is empty; otherwise, the first element in <paramref name="source" />.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource?> FirstOrDefaultAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource?> FirstOrDefaultAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -448,7 +448,8 @@ namespace Microsoft.EntityFrameworkCore
             Check.NotNull(source, nameof(source));
             Check.NotNull(predicate, nameof(predicate));
 
-            return ExecuteAsync<TSource, Task<TSource?>>(QueryableMethods.FirstOrDefaultWithPredicate, source, predicate, cancellationToken);
+            return ExecuteAsync<TSource, Task<TSource?>>(
+                QueryableMethods.FirstOrDefaultWithPredicate, source, predicate, cancellationToken);
         }
 
         #endregion
@@ -477,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> LastAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -523,7 +524,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> LastAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -557,7 +558,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> is empty; otherwise, the last element in <paramref name="source" />.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource?> LastOrDefaultAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -594,7 +595,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="predicate" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource?> LastOrDefaultAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -643,7 +644,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> SingleAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -696,7 +697,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         <paramref name="source" /> contains no elements.
         ///     </para>
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> SingleAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -733,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains more than one element. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource?> SingleOrDefaultAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -773,7 +774,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="InvalidOperationException">
         ///     More than one element satisfies the condition in <paramref name="predicate" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource?> SingleOrDefaultAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, bool>> predicate,
@@ -812,7 +813,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> MinAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -850,7 +851,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TResult> MinAsync<TSource, TResult>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, TResult>> selector,
@@ -888,7 +889,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TSource> MaxAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -926,7 +927,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<TResult> MaxAsync<TSource, TResult>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, TResult>> selector,
@@ -962,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal> SumAsync(
             this IQueryable<decimal> source,
             CancellationToken cancellationToken = default)
@@ -992,7 +993,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal?> SumAsync(
             this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default)
@@ -1027,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, decimal>> selector,
@@ -1064,7 +1065,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal?> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, decimal?>> selector,
@@ -1097,7 +1098,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int> SumAsync(
             this IQueryable<int> source,
             CancellationToken cancellationToken = default)
@@ -1127,7 +1128,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int?> SumAsync(
             this IQueryable<int?> source,
             CancellationToken cancellationToken = default)
@@ -1161,7 +1162,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, int>> selector,
@@ -1197,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int?> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, int?>> selector,
@@ -1230,7 +1231,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<long> SumAsync(
             this IQueryable<long> source,
             CancellationToken cancellationToken = default)
@@ -1260,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<long?> SumAsync(
             this IQueryable<long?> source,
             CancellationToken cancellationToken = default)
@@ -1294,7 +1295,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<long> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, long>> selector,
@@ -1331,7 +1332,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<long?> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, long?>> selector,
@@ -1364,7 +1365,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> SumAsync(
             this IQueryable<double> source,
             CancellationToken cancellationToken = default)
@@ -1394,7 +1395,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> SumAsync(
             this IQueryable<double?> source,
             CancellationToken cancellationToken = default)
@@ -1428,7 +1429,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, double>> selector,
@@ -1465,7 +1466,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, double?>> selector,
@@ -1498,7 +1499,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float> SumAsync(
             this IQueryable<float> source,
             CancellationToken cancellationToken = default)
@@ -1528,7 +1529,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the sum of the values in the sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float?> SumAsync(
             this IQueryable<float?> source,
             CancellationToken cancellationToken = default)
@@ -1562,7 +1563,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, float>> selector,
@@ -1599,7 +1600,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float?> SumAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, float?>> selector,
@@ -1637,7 +1638,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal> AverageAsync(
             this IQueryable<decimal> source,
             CancellationToken cancellationToken = default)
@@ -1668,7 +1669,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal?> AverageAsync(
             this IQueryable<decimal?> source,
             CancellationToken cancellationToken = default)
@@ -1705,7 +1706,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, decimal>> selector,
@@ -1743,7 +1744,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<decimal?> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, decimal?>> selector,
@@ -1777,7 +1778,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> AverageAsync(
             this IQueryable<int> source,
             CancellationToken cancellationToken = default)
@@ -1807,7 +1808,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> AverageAsync(
             this IQueryable<int?> source,
             CancellationToken cancellationToken = default)
@@ -1843,7 +1844,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, int>> selector,
@@ -1881,7 +1882,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, int?>> selector,
@@ -1915,7 +1916,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> AverageAsync(
             this IQueryable<long> source,
             CancellationToken cancellationToken = default)
@@ -1945,7 +1946,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> AverageAsync(
             this IQueryable<long?> source,
             CancellationToken cancellationToken = default)
@@ -1981,7 +1982,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, long>> selector,
@@ -2019,7 +2020,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, long?>> selector,
@@ -2053,7 +2054,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> AverageAsync(
             this IQueryable<double> source,
             CancellationToken cancellationToken = default)
@@ -2084,7 +2085,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> AverageAsync(
             this IQueryable<double?> source,
             CancellationToken cancellationToken = default)
@@ -2121,7 +2122,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, double>> selector,
@@ -2159,7 +2160,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<double?> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, double?>> selector,
@@ -2193,7 +2194,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float> AverageAsync(
             this IQueryable<float> source,
             CancellationToken cancellationToken = default)
@@ -2223,7 +2224,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains the average of the sequence of values.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float?> AverageAsync(
             this IQueryable<float?> source,
             CancellationToken cancellationToken = default)
@@ -2260,7 +2261,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
         /// <exception cref="InvalidOperationException"> <paramref name="source" /> contains no elements. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, float>> selector,
@@ -2298,7 +2299,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<float?> AverageAsync<TSource>(
             this IQueryable<TSource> source,
             Expression<Func<TSource, float?>> selector,
@@ -2338,7 +2339,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see langword="false" />.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<bool> ContainsAsync<TSource>(
             this IQueryable<TSource> source,
             TSource item,
@@ -2379,7 +2380,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains a <see cref="List{T}" /> that contains elements from the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task<List<TSource>> ToListAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -2414,7 +2415,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The task result contains an array that contains elements from the input sequence.
         /// </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task<TSource[]> ToArrayAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -2532,11 +2533,11 @@ namespace Microsoft.EntityFrameworkCore
                 .Where(mi => mi.GetGenericArguments().Count() == 3)
                 .Single(
                     mi =>
-                    {
-                        var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
-                        return typeInfo.IsGenericType
-                            && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
-                    });
+                        {
+                            var typeInfo = mi.GetParameters()[0].ParameterType.GenericTypeArguments[1];
+                            return typeInfo.IsGenericType
+                                && typeInfo.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+                        });
 
         internal static readonly MethodInfo ThenIncludeAfterReferenceMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
@@ -2992,15 +2993,18 @@ namespace Microsoft.EntityFrameworkCore
 
         internal static readonly MethodInfo TagWithMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetRequiredDeclaredMethod(nameof(TagWith), mi => mi.GetParameters().Length == 2
-                    && mi.GetParameters().Select(p => p.ParameterType)
-                        .SequenceEqual(new Type[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string) }));
+                .GetRequiredDeclaredMethod(
+                    nameof(TagWith), mi => mi.GetParameters().Length == 2
+                        && mi.GetParameters().Select(p => p.ParameterType)
+                            .SequenceEqual(new[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string) }));
 
         internal static readonly MethodInfo TagWithCallSiteMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
-                .GetRequiredDeclaredMethod(nameof(TagWithCallSite), mi => mi.GetParameters().Length == 3
-                    && mi.GetParameters().Select(p => p.ParameterType)
-                        .SequenceEqual(new Type[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string), typeof(int) }));
+                .GetRequiredDeclaredMethod(
+                    nameof(TagWithCallSite), mi => mi.GetParameters().Length == 3
+                        && mi.GetParameters().Select(p => p.ParameterType)
+                            .SequenceEqual(
+                                new[] { typeof(IQueryable<>).MakeGenericType(mi.GetGenericArguments()), typeof(string), typeof(int) }));
 
         /// <summary>
         ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations
@@ -3052,8 +3056,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static IQueryable<T> TagWithCallSite<T>(
             this IQueryable<T> source,
-            [NotParameterized][CallerFilePath] string? filePath = null,
-            [NotParameterized][CallerLineNumber] int lineNumber = 0)
+            [NotParameterized] [CallerFilePath] string? filePath = null,
+            [NotParameterized] [CallerLineNumber] int lineNumber = 0)
         {
             Check.NotNull(source, nameof(source));
 
@@ -3112,7 +3116,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="source" /> is <see langword="null" />. </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task LoadAsync<TSource>(
             this IQueryable<TSource> source,
             CancellationToken cancellationToken = default)
@@ -3158,7 +3162,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -3194,7 +3198,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TSource, TKey>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -3233,7 +3237,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> or <paramref name="elementSelector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -3273,7 +3277,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="keySelector" /> or <paramref name="elementSelector" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task<Dictionary<TKey, TElement>> ToDictionaryAsync<TSource, TKey, TElement>(
             this IQueryable<TSource> source,
             Func<TSource, TKey> keySelector,
@@ -3320,7 +3324,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <exception cref="ArgumentNullException">
         ///     <paramref name="source" /> or <paramref name="action" /> is <see langword="null" />.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task ForEachAsync<T>(
             this IQueryable<T> source,
             Action<T> action,

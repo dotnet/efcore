@@ -191,9 +191,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private static void MarkKeyUnknown(
-            InternalEntityEntry entry, 
-            bool includePrimaryKey, 
-            IProperty property, 
+            InternalEntityEntry entry,
+            bool includePrimaryKey,
+            IProperty property,
             ValueGenerator valueGenerator)
         {
             if (includePrimaryKey

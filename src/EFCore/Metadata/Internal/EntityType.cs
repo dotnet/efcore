@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -345,11 +344,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 if (IsOwned() != newBaseType.IsOwned())
                 {
-                    throw new InvalidOperationException(CoreStrings.DerivedEntityOwnershipMismatch(
-                        newBaseType.DisplayName(),
-                        DisplayName(),
-                        IsOwned() ? DisplayName() : newBaseType.DisplayName(),
-                        !IsOwned() ? DisplayName() : newBaseType.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.DerivedEntityOwnershipMismatch(
+                            newBaseType.DisplayName(),
+                            DisplayName(),
+                            IsOwned() ? DisplayName() : newBaseType.DisplayName(),
+                            !IsOwned() ? DisplayName() : newBaseType.DisplayName()));
                 }
 
                 var conflictingMember = newBaseType.GetMembers()
@@ -580,6 +580,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 .Concat(FindSkipNavigationsInHierarchy(name));
 
         #region Primary and Candidate Keys
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -950,9 +951,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual IEnumerable<Key> GetKeys()
             => _baseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
+
         #endregion
 
         #region Foreign Keys
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1424,9 +1427,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => DeclaredReferencingForeignKeys ?? Enumerable.Empty<ForeignKey>();
 
         private SortedSet<ForeignKey>? DeclaredReferencingForeignKeys { get; set; }
+
         #endregion
 
         #region Navigations
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1951,9 +1956,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredReferencingSkipNavigations());
 
         private SortedSet<SkipNavigation>? DeclaredReferencingSkipNavigations { get; set; }
+
         #endregion
 
         #region Indexes
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -2297,9 +2304,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     ? _baseType.GetIndexes()
                     : _baseType.GetIndexes().Concat(GetDeclaredIndexes())
                 : GetDeclaredIndexes();
+
         #endregion
 
         #region Properties
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -2647,10 +2656,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual PropertyCounts Counts
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _counts, this, static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-                    return entityType.CalculateCounts();
-                });
+                    {
+                        entityType.EnsureReadOnly();
+                        return entityType.CalculateCounts();
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2662,10 +2671,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _relationshipSnapshotFactory, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-                    return new RelationshipSnapshotFactoryFactory().Create(entityType);
-                });
+                    {
+                        entityType.EnsureReadOnly();
+                        return new RelationshipSnapshotFactoryFactory().Create(entityType);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2677,10 +2686,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _originalValuesFactory, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-                    return new OriginalValuesFactoryFactory().Create(entityType);
-                });
+                    {
+                        entityType.EnsureReadOnly();
+                        return new OriginalValuesFactoryFactory().Create(entityType);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2692,10 +2701,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _storeGeneratedValuesFactory, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-                    return new StoreGeneratedValuesFactoryFactory().CreateEmpty(entityType);
-                });
+                    {
+                        entityType.EnsureReadOnly();
+                        return new StoreGeneratedValuesFactoryFactory().CreateEmpty(entityType);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2707,10 +2716,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _temporaryValuesFactory, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-                    return new TemporaryValuesFactoryFactory().Create(entityType);
-                });
+                    {
+                        entityType.EnsureReadOnly();
+                        return new TemporaryValuesFactoryFactory().Create(entityType);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2722,10 +2731,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _shadowValuesFactory, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-                    return new ShadowValuesFactoryFactory().Create(entityType);
-                });
+                    {
+                        entityType.EnsureReadOnly();
+                        return new ShadowValuesFactoryFactory().Create(entityType);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2737,10 +2746,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _emptyShadowValuesFactory, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-                    return new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType);
-                });
+                    {
+                        entityType.EnsureReadOnly();
+                        return new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2752,28 +2761,28 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _instanceFactory, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
-
-                    var binding = entityType.ServiceOnlyConstructorBinding;
-                    if (binding == null)
                     {
-                        var _ = entityType.ConstructorBinding;
-                        binding = entityType.ServiceOnlyConstructorBinding;
+                        entityType.EnsureReadOnly();
+
+                        var binding = entityType.ServiceOnlyConstructorBinding;
                         if (binding == null)
                         {
-                            throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+                            var _ = entityType.ConstructorBinding;
+                            binding = entityType.ServiceOnlyConstructorBinding;
+                            if (binding == null)
+                            {
+                                throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+                            }
                         }
-                    }
 
-                    var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
+                        var contextParam = Expression.Parameter(typeof(MaterializationContext), "mc");
 
-                    return Expression.Lambda<Func<MaterializationContext, object>>(
-                            binding.CreateConstructorExpression(
-                                new ParameterBindingInfo(entityType, contextParam)),
-                            contextParam)
-                        .Compile();
-                });
+                        return Expression.Lambda<Func<MaterializationContext, object>>(
+                                binding.CreateConstructorExpression(
+                                    new ParameterBindingInfo(entityType, contextParam)),
+                                contextParam)
+                            .Compile();
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2785,11 +2794,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _foreignKeyProperties, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
+                    {
+                        entityType.EnsureReadOnly();
 
-                    return entityType.GetProperties().Where(p => p.IsForeignKey()).ToArray();
-                });
+                        return entityType.GetProperties().Where(p => p.IsForeignKey()).ToArray();
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2801,14 +2810,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _valueGeneratingProperties, this,
                 static entityType =>
-                {
-                    entityType.EnsureReadOnly();
+                    {
+                        entityType.EnsureReadOnly();
 
-                    return entityType.GetProperties().Where(p => p.RequiresValueGenerator()).ToArray();
-                });
+                        return entityType.GetProperties().Where(p => p.RequiresValueGenerator()).ToArray();
+                    });
+
         #endregion
 
         #region Service properties
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -2992,9 +3003,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => _directlyDerivedTypes.Count == 0
                 ? Enumerable.Empty<ServiceProperty>()
                 : GetDerivedTypes().SelectMany(et => et.GetDeclaredServiceProperties());
+
         #endregion
 
         #region Ignore
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -3016,9 +3029,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public override string? OnTypeMemberIgnored(string name)
             => Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
+
         #endregion
 
         #region Data
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -3154,9 +3169,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 _data.Add(entity);
             }
         }
+
         #endregion
 
         #region Other
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -3193,7 +3210,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             _changeTrackingStrategy = changeTrackingStrategy;
 
             _changeTrackingStrategyConfigurationSource = _changeTrackingStrategy == null
-                ? (ConfigurationSource?)null
+                ? null
                 : configurationSource.Max(_changeTrackingStrategyConfigurationSource);
 
             return changeTrackingStrategy;
@@ -3430,17 +3447,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InstantiationBinding? ConstructorBinding
         {
-            get
-                => IsReadOnly && !ClrType.IsAbstract
-                    ? NonCapturingLazyInitializer.EnsureInitialized(
-                        ref _constructorBinding, this, static entityType =>
+            get => IsReadOnly && !ClrType.IsAbstract
+                ? NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _constructorBinding, this, static entityType =>
                         {
                             ((IModel)entityType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
                                 (IReadOnlyEntityType)entityType,
                                 out entityType._constructorBinding,
                                 out entityType._serviceOnlyConstructorBinding);
                         })
-                    : _constructorBinding;
+                : _constructorBinding;
 
             set => SetConstructorBinding(value, ConfigurationSource.Explicit);
         }
@@ -3533,9 +3549,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         private void UpdateServiceOnlyConstructorBindingConfigurationSource(ConfigurationSource configurationSource)
             => _serviceOnlyConstructorBindingConfigurationSource =
                 configurationSource.Max(_serviceOnlyConstructorBindingConfigurationSource);
+
         #endregion
 
         #region Explicit interface implementations
+
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
         ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -4046,7 +4064,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 (EntityType)principalEntityType,
                 setComponentConfigurationSource
                     ? fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention
-                    : (ConfigurationSource?)null,
+                    : null,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -5259,6 +5277,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         [DebuggerStepThrough]
         IConventionServiceProperty? IConventionEntityType.RemoveServiceProperty(string name)
             => RemoveServiceProperty(name);
+
         #endregion
 
         private static IEnumerable<T> ToEnumerable<T>(T? element)
@@ -5393,14 +5412,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             }
 
             private InstantiationBinding? Create(InstantiationBinding? instantiationBinding, EntityType entityType)
-                => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
+                => instantiationBinding?.With(
+                    instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
 
             private ParameterBinding Create(ParameterBinding parameterBinding, EntityType entityType)
-                => parameterBinding.With(parameterBinding.ConsumedProperties.Select(property =>
-                (entityType.FindProperty(property.Name)
-                    ?? entityType.FindServiceProperty(property.Name)
-                    ?? entityType.FindNavigation(property.Name)
-                    ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
+                => parameterBinding.With(
+                    parameterBinding.ConsumedProperties.Select(
+                        property =>
+                            (entityType.FindProperty(property.Name)
+                                ?? entityType.FindServiceProperty(property.Name)
+                                ?? entityType.FindNavigation(property.Name)
+                                ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
         }
 
         /// <summary>
@@ -5411,7 +5433,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlyEntityType)this).ToDebugString(),
                 () => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
     }
 }

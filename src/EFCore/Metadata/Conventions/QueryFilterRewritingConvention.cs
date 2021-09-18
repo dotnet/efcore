@@ -142,12 +142,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         //if the same name exists in your entity types we will show you the full namespace of the type
                         if (!string.IsNullOrEmpty(findSameTypeName))
                         {
-                            throw new InvalidOperationException(CoreStrings.InvalidSetSameTypeWithDifferentNamespace(entityClrType.DisplayName(), findSameTypeName));
+                            throw new InvalidOperationException(
+                                CoreStrings.InvalidSetSameTypeWithDifferentNamespace(entityClrType.DisplayName(), findSameTypeName));
                         }
-                        else
-                        {
-                            throw new InvalidOperationException(CoreStrings.InvalidSetType(entityClrType.ShortDisplayName()));
-                        }
+
+                        throw new InvalidOperationException(CoreStrings.InvalidSetType(entityClrType.ShortDisplayName()));
                     }
 
                     if (entityType.IsOwned())

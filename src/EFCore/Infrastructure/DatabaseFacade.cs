@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is created,
         ///     <see langword="false" /> if it already existed.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.EnsureCreatedAsync(cancellationToken);
 
@@ -196,7 +196,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous save operation. The task result contains <see langword="true" /> if the database is deleted,
         ///     <see langword="false" /> if it did not exist.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.EnsureDeletedAsync(cancellationToken);
 
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> <see langword="true" /> if the database is available; <see langword="false" /> otherwise. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<bool> CanConnectAsync(CancellationToken cancellationToken = default)
             => Dependencies.DatabaseCreator.CanConnectAsync(cancellationToken);
 
@@ -289,7 +289,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.BeginTransactionAsync(cancellationToken);
 
@@ -316,7 +316,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.CommitTransactionAsync(cancellationToken);
 
@@ -346,7 +346,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </remarks>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
             => Dependencies.TransactionManager.RollbackTransactionAsync(cancellationToken);
 
@@ -417,7 +417,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     <para>
         ///         The default value is <see langword="true" />, meaning that <see cref="DbContext.SaveChanges()" /> will create a
         ///         transaction savepoint within a manually-started transaction. Regardless of this property, savepoints are only created
-        ///         if the data provider supports them; see <see cref="IDbContextTransaction.SupportsSavepoints"/>.
+        ///         if the data provider supports them; see <see cref="IDbContextTransaction.SupportsSavepoints" />.
         ///     </para>
         ///     <para>
         ///         Setting this value to <see langword="false" /> should only be done with caution since the database could be left in a

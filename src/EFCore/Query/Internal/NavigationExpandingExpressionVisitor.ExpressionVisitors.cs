@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         private class ExpandingExpressionVisitor : ExpressionVisitor
         {
             private static readonly MethodInfo _objectEqualsMethodInfo
-                = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) });
+                = typeof(object).GetRequiredRuntimeMethod(nameof(object.Equals), typeof(object), typeof(object));
 
             private readonly NavigationExpandingExpressionVisitor _navigationExpandingExpressionVisitor;
             private readonly NavigationExpansionExpression _source;
@@ -422,11 +422,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             ? newArrayExpression.Expressions
                                 .Select(
                                     e =>
-                                    {
-                                        var left = (e as UnaryExpression)?.Operand ?? e;
+                                        {
+                                            var left = (e as UnaryExpression)?.Operand ?? e;
 
-                                        return Expression.NotEqual(left, Expression.Constant(null, left.Type));
-                                    })
+                                            return Expression.NotEqual(left, Expression.Constant(null, left.Type));
+                                        })
                                 .Aggregate((l, r) => Expression.AndAlso(l, r))
                             : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
                         Expression.Call(_objectEqualsMethodInfo, AddConvertToObject(outerKey), AddConvertToObject(innerKey)));
@@ -543,7 +543,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
                 return base.VisitBinary(binaryExpression);
 
-                bool IsEntityReference(Expression expression) => TryGetEntityType(expression) != null;
+                bool IsEntityReference(Expression expression)
+                    => TryGetEntityType(expression) != null;
             }
 
             protected override Expression VisitExtension(Expression extensionExpression)
@@ -822,7 +823,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             && subquery is MethodCallExpression joinMethodCallExpression
                             && joinMethodCallExpression.Method.IsGenericMethod
                             && joinMethodCallExpression.Method.GetGenericMethodDefinition()
-                                == (skipNavigation.Inverse.ForeignKey.IsRequired ? QueryableMethods.Join : QueryableExtensions.LeftJoinMethodInfo)
+                            == (skipNavigation.Inverse.ForeignKey.IsRequired
+                                ? QueryableMethods.Join
+                                : QueryableExtensions.LeftJoinMethodInfo)
                             && joinMethodCallExpression.Arguments[4] is UnaryExpression unaryExpression
                             && unaryExpression.NodeType == ExpressionType.Quote
                             && unaryExpression.Operand is LambdaExpression resultSelectorLambda
@@ -1114,7 +1117,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 return (NavigationTreeNode)Visit(navigationTreeNode);
             }
 
-            public IReadOnlyDictionary<NavigationTreeNode, NavigationTreeNode> ClonedNodesMap => _clonedMap;
+            public IReadOnlyDictionary<NavigationTreeNode, NavigationTreeNode> ClonedNodesMap
+                => _clonedMap;
 
             [return: NotNullIfNotNull("expression")]
             public override Expression? Visit(Expression? expression)
@@ -1164,8 +1168,10 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 _parameterExpression = parameterExpression;
                 _navigationExpansionExpression = (NavigationExpansionExpression)groupByNavigationExpansionExpression.GroupingEnumerable;
-                _keyAccessExpression = Expression.MakeMemberAccess(groupByNavigationExpansionExpression.CurrentParameter,
-                    groupByNavigationExpansionExpression.CurrentParameter.Type.GetRequiredDeclaredProperty(nameof(IGrouping<int, int>.Key)));
+                _keyAccessExpression = Expression.MakeMemberAccess(
+                    groupByNavigationExpansionExpression.CurrentParameter,
+                    groupByNavigationExpansionExpression.CurrentParameter.Type.GetRequiredDeclaredProperty(
+                        nameof(IGrouping<int, int>.Key)));
                 _keyMemberInfo = parameterExpression.Type.GetRequiredDeclaredProperty(nameof(IGrouping<int, int>.Key));
                 _cloningExpressionVisitor = new CloningExpressionVisitor();
             }
@@ -1206,8 +1212,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         _navigationExpansionExpression.Source,
                         currentTree,
                         new ReplacingExpressionVisitor(
-                            _cloningExpressionVisitor.ClonedNodesMap.Keys.ToList(),
-                            _cloningExpressionVisitor.ClonedNodesMap.Values.ToList())
+                                _cloningExpressionVisitor.ClonedNodesMap.Keys.ToList(),
+                                _cloningExpressionVisitor.ClonedNodesMap.Values.ToList())
                             .Visit(_navigationExpansionExpression.PendingSelector),
                         _navigationExpansionExpression.CurrentParameter.Name!);
 
@@ -1221,8 +1227,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 return memberExpression.Member == _keyMemberInfo
                     && memberExpression.Expression == _parameterExpression
-                    ? _keyAccessExpression!
-                    : base.VisitMember(memberExpression);
+                        ? _keyAccessExpression!
+                        : base.VisitMember(memberExpression);
             }
         }
 
@@ -1329,7 +1335,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 switch (expression)
                 {
                     case MemberExpression memberExpression
-                    when memberExpression.Expression != null:
+                        when memberExpression.Expression != null:
                         var innerExpression = ProcessNavigationPath(memberExpression.Expression);
                         if (innerExpression is NavigationDataExpression navigationDataExpression
                             && navigationDataExpression.EntityType != null)

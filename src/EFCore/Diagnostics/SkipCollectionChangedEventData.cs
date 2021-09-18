@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     The navigation.
         /// </summary>
-        public new virtual ISkipNavigation Navigation => (ISkipNavigation)base.Navigation;
+        public new virtual ISkipNavigation Navigation
+            => (ISkipNavigation)base.Navigation;
 
         /// <summary>
         ///     The entities added to the collection.

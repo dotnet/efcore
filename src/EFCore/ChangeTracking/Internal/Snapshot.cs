@@ -89,39 +89,39 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public static Type CreateSnapshotType(Type[] types)
             => types.Length switch
-        {
-            1 => typeof(Snapshot<>).MakeGenericType(types),
-            2 => typeof(Snapshot<,>).MakeGenericType(types),
-            3 => typeof(Snapshot<,,>).MakeGenericType(types),
-            4 => typeof(Snapshot<,,,>).MakeGenericType(types),
-            5 => typeof(Snapshot<,,,,>).MakeGenericType(types),
-            6 => typeof(Snapshot<,,,,,>).MakeGenericType(types),
-            7 => typeof(Snapshot<,,,,,,>).MakeGenericType(types),
-            8 => typeof(Snapshot<,,,,,,,>).MakeGenericType(types),
-            9 => typeof(Snapshot<,,,,,,,,>).MakeGenericType(types),
-            10 => typeof(Snapshot<,,,,,,,,,>).MakeGenericType(types),
-            11 => typeof(Snapshot<,,,,,,,,,,>).MakeGenericType(types),
-            12 => typeof(Snapshot<,,,,,,,,,,,>).MakeGenericType(types),
-            13 => typeof(Snapshot<,,,,,,,,,,,,>).MakeGenericType(types),
-            14 => typeof(Snapshot<,,,,,,,,,,,,,>).MakeGenericType(types),
-            15 => typeof(Snapshot<,,,,,,,,,,,,,,>).MakeGenericType(types),
-            16 => typeof(Snapshot<,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            17 => typeof(Snapshot<,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            18 => typeof(Snapshot<,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            19 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            20 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            21 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            22 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            23 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            24 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            25 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            26 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            27 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            28 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            29 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            30 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
-            _ => throw new IndexOutOfRangeException(),
-        };
+            {
+                1 => typeof(Snapshot<>).MakeGenericType(types),
+                2 => typeof(Snapshot<,>).MakeGenericType(types),
+                3 => typeof(Snapshot<,,>).MakeGenericType(types),
+                4 => typeof(Snapshot<,,,>).MakeGenericType(types),
+                5 => typeof(Snapshot<,,,,>).MakeGenericType(types),
+                6 => typeof(Snapshot<,,,,,>).MakeGenericType(types),
+                7 => typeof(Snapshot<,,,,,,>).MakeGenericType(types),
+                8 => typeof(Snapshot<,,,,,,,>).MakeGenericType(types),
+                9 => typeof(Snapshot<,,,,,,,,>).MakeGenericType(types),
+                10 => typeof(Snapshot<,,,,,,,,,>).MakeGenericType(types),
+                11 => typeof(Snapshot<,,,,,,,,,,>).MakeGenericType(types),
+                12 => typeof(Snapshot<,,,,,,,,,,,>).MakeGenericType(types),
+                13 => typeof(Snapshot<,,,,,,,,,,,,>).MakeGenericType(types),
+                14 => typeof(Snapshot<,,,,,,,,,,,,,>).MakeGenericType(types),
+                15 => typeof(Snapshot<,,,,,,,,,,,,,,>).MakeGenericType(types),
+                16 => typeof(Snapshot<,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                17 => typeof(Snapshot<,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                18 => typeof(Snapshot<,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                19 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                20 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                21 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                22 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                23 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                24 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                25 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                26 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                27 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                28 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                29 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                30 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
+                _ => throw new IndexOutOfRangeException(),
+            };
     }
 
     /// <summary>
@@ -5050,15 +5050,15 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         public object? this[int index]
         {
             get => index switch
-                {
-                    0 => _value0,
-                    _ => throw new IndexOutOfRangeException(),
-                };
+            {
+                0 => _value0,
+                _ => throw new IndexOutOfRangeException(),
+            };
             set => _value0 = index switch
-                {
-                    0 => (T0)value!,
-                    _ => throw new IndexOutOfRangeException(),
-                };
+            {
+                0 => (T0)value!,
+                _ => throw new IndexOutOfRangeException(),
+            };
         }
     }
 }

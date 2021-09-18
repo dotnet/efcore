@@ -127,7 +127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
-           string? navigationName = null)
+            string? navigationName = null)
             => new(
                 DeclaringEntityType,
                 RelatedEntityType,

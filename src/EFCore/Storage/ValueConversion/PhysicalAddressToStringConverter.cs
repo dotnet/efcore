@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         public static ValueConverterInfo DefaultInfo { get; }
             = new(typeof(PhysicalAddress), typeof(string), i => new PhysicalAddressToStringConverter(i.MappingHints), _defaultHints);
 
-        private static new Expression<Func<PhysicalAddress?, string?>> ToString()
+        private new static Expression<Func<PhysicalAddress?, string?>> ToString()
             => v => v == null ? default! : v.ToString();
 
         private static Expression<Func<string?, PhysicalAddress?>> ToPhysicalAddress()

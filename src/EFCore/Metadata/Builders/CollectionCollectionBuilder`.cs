@@ -350,14 +350,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
             Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TLeftEntity, TJoinEntity>>? configureRight,
             Func<EntityTypeBuilder<TJoinEntity>, ReferenceCollectionBuilder<TRightEntity, TJoinEntity>>? configureLeft)
             where TJoinEntity : class
-            => new(UsingEntity(
-                joinEntityName,
-                typeof(TJoinEntity),
-                configureRight != null
-                    ? e => configureRight(new(e)).Metadata
-                    : null,
-                configureLeft != null
-                    ? e => configureLeft(new(e)).Metadata
-                    : null));
+            => new(
+                UsingEntity(
+                    joinEntityName,
+                    typeof(TJoinEntity),
+                    configureRight != null
+                        ? e => configureRight(new(e)).Metadata
+                        : null,
+                    configureLeft != null
+                        ? e => configureLeft(new(e)).Metadata
+                        : null));
     }
 }

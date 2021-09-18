@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         public IndentedStringBuilder MethodBuilder { get; init; }
 
         /// <summary>
-        ///     A collection of namespaces for <see langword="using"/> generation.
+        ///     A collection of namespaces for <see langword="using" /> generation.
         /// </summary>
         public ISet<string> Namespaces { get; init; }
 

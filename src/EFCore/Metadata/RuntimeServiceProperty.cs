@@ -57,12 +57,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         public virtual ServiceParameterBinding ParameterBinding
         {
-            get => NonCapturingLazyInitializer.EnsureInitialized(ref _parameterBinding, (IServiceProperty)this, static property =>
-                {
-                    var entityType = property.DeclaringEntityType;
-                    var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories.FindFactory(property.ClrType, property.Name)!;
-                    return (ServiceParameterBinding)factory.Bind(entityType, property.ClrType, property.Name);
-                });
+            get => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _parameterBinding, (IServiceProperty)this, static property =>
+                    {
+                        var entityType = property.DeclaringEntityType;
+                        var factory = entityType.Model.GetModelDependencies().ParameterBindingFactories
+                            .FindFactory(property.ClrType, property.Name)!;
+                        return (ServiceParameterBinding)factory.Bind(entityType, property.ClrType, property.Name);
+                    });
 
             [DebuggerStepThrough]
             set => _parameterBinding = value;
@@ -84,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [EntityFrameworkInternal]
         public virtual DebugView DebugView
             => new(
-                () => ((IServiceProperty)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IServiceProperty)this).ToDebugString(),
                 () => ((IServiceProperty)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <inheritdoc />

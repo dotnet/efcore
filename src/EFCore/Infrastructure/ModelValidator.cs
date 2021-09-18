@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="targetType"> The target CLR type. </param>
         /// <param name="conventionModel"> The model. </param>
-        /// <returns> <see langword="true"/> if the given CLR type corresponds to an owned entity type. </returns>
+        /// <returns> <see langword="true" /> if the given CLR type corresponds to an owned entity type. </returns>
         protected virtual bool IsOwned(Type targetType, IConventionModel conventionModel)
             => conventionModel.FindIsOwnedConfigurationSource(targetType) != null
                 || conventionModel.FindEntityTypes(targetType).Any(t => t.IsOwned());
@@ -705,10 +705,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var ownerships = entityType.GetForeignKeys().Where(fk => fk.IsOwnership).ToList();
                 if (ownerships.Count > 1)
                 {
-                    throw new InvalidOperationException(CoreStrings.MultipleOwnerships(
-                        entityType.DisplayName(),
-                        string.Join(", ",
-                            ownerships.Select(o => $"'{o.PrincipalEntityType.DisplayName()}.{o.PrincipalToDependent?.Name}'"))));
+                    throw new InvalidOperationException(
+                        CoreStrings.MultipleOwnerships(
+                            entityType.DisplayName(),
+                            string.Join(
+                                ", ",
+                                ownerships.Select(o => $"'{o.PrincipalEntityType.DisplayName()}.{o.PrincipalToDependent?.Name}'"))));
                 }
 
                 if (ownerships.Count == 1)
@@ -819,8 +821,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             static bool ContainedInForeignKeyForAllConcreteTypes(IEntityType entityType, IProperty property)
                 => entityType.ClrType.IsAbstract
                     && entityType.GetDerivedTypes().Where(t => !t.ClrType.IsAbstract)
-                        .All(d => d.GetForeignKeys()
-                            .Any(fk => fk.Properties.Contains(property)));
+                        .All(
+                            d => d.GetForeignKeys()
+                                .Any(fk => fk.Properties.Contains(property)));
         }
 
         /// <summary>
@@ -1003,6 +1006,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                     {
                         throw new InvalidOperationException(CoreStrings.SeedKeylessEntity(entityType.DisplayName()));
                     }
+
                     continue;
                 }
 
@@ -1111,7 +1115,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             CoreStrings.SeedDatumDuplicate(
                                 entityType.DisplayName(), key.Properties.Format()));
                     }
-
 
                     entry = new InternalEntityEntry(null!, entityType, seedDatum);
                     identityMap.Add(keyValues, entry);
