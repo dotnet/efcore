@@ -1179,5 +1179,11 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
         {
             public List<KeylessCollectionNavigation>? Collection { get; set; }
         }
+
+        protected class Discount
+        {
+            public int? StoreId { get; set; }
+            public Store? Store { get; set; }
+        }
     }
 }

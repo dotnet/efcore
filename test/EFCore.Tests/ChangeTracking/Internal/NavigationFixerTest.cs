@@ -791,7 +791,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             var fixer = CreateNavigationFixer(contextServices);
 
             entry1.SetEntityState(EntityState.Added);
-            entry1.SetEntityState(EntityState.Added);
+            entry2.SetEntityState(EntityState.Added);
             entry3.SetEntityState(EntityState.Added);
 
             Assert.Same(entity2, entity1.AlternateProduct);
