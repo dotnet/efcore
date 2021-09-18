@@ -210,10 +210,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The identity seed. </returns>
         public static long? GetIdentitySeed(this IReadOnlyProperty property)
-            => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (long?)property[SqlServerAnnotationNames.IdentitySeed]
-                ?? property.DeclaringEntityType.Model.GetIdentitySeed();
+        {
+            if (property is RuntimeProperty)
+            {
+                throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+            }
+
+            // Support pre-6.0 IdentitySeed annotations, which contained an int rather than a long
+            var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
+            return annotation is null
+                ? null
+                : annotation.Value is int intValue
+                    ? intValue
+                    : (long?)annotation.Value;
+        }
 
         /// <summary>
         ///     Returns the identity seed.
@@ -229,9 +239,12 @@ namespace Microsoft.EntityFrameworkCore
             }
 
             var annotation = property.FindAnnotation(SqlServerAnnotationNames.IdentitySeed);
-            if (annotation != null)
+            if (annotation is not null)
             {
-                return (long?)annotation.Value;
+                // Support pre-6.0 IdentitySeed annotations, which contained an int rather than a long
+                return annotation.Value is int intValue
+                    ? intValue
+                    : (long?)annotation.Value;
             }
 
             var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
