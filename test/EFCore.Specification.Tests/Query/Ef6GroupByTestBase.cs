@@ -559,6 +559,342 @@ namespace Microsoft.EntityFrameworkCore.Query
                 entryCount: 11);
         }
 
+        [ConditionalTheory] // From #12088
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_1(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .Include(e => e.Shoes)
+                    .GroupBy(e => e.FirstName)
+                    .Select(
+                        g => g.OrderBy(e => e.FirstName)
+                            .ThenBy(e => e.LastName)
+                            .FirstOrDefault()),
+                entryCount: 9);
+        }
+
+        [ConditionalTheory] // From #16648
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_2(bool async)
+        {
+            return AssertFirst(
+                async,
+                ss => ss.Set<Person>()
+                    .Select(
+                        p => new
+                        {
+                            p.FirstName,
+                            FullName = p.FirstName + " " + p.MiddleInitial + " " + p.LastName
+                        })
+                    .GroupBy(p => p.FirstName)
+                    .OrderBy(e => e.Key)
+                    .Select(g => g.First()));
+        }
+
+        [ConditionalTheory (Skip = "Issue #26104")] // From #12640
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_3(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .Where(e => e.MiddleInitial == "Q" && e.Age == 20)
+                    .GroupBy(e => e.LastName)
+                    .Select(g => g.First().LastName)
+                    .OrderBy(e => e.Length),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory] // From #18037
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_4(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from person in ss.Set<Person>()
+                      join shoes in ss.Set<Shoes>() on person.Age equals shoes.Age
+                      group shoes by shoes.Style
+                      into people
+                      select new
+                      {
+                          people.Key,
+                          Style = people.Select(p => p.Style).FirstOrDefault(),
+                          Count = people.Count()
+                      });
+        }
+
+        [ConditionalTheory (Skip = "Issue #26104")] // From #12601
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_5(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .GroupBy(e => e.FirstName)
+                    .Select(g => g.First().LastName)
+                    .OrderBy(e => e),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory (Skip = "Issue #26104")] // From #12600
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_6(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .Where(e => e.Age == 20)
+                    .GroupBy(e => e.Id)
+                    .Select(g => g.First().MiddleInitial)
+                    .OrderBy(e => e),
+                assertOrder: true);
+        }
+
+        [ConditionalTheory] // From #25460
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_7(bool async)
+        {
+            var size = 11;
+
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .Where(
+                        p => p.Feet.Size == size
+                            && p.MiddleInitial != null
+                            && p.Feet.Id != 1)
+                    .GroupBy(
+                        p => new
+                        {
+                            p.Feet.Size,
+                            p.Feet.Person.LastName
+                        })
+                    .Select(
+                        g => new
+                        {
+                            g.Key.LastName,
+                            g.Key.Size,
+                            Min = g.Min(p => p.Feet.Size),
+                        }));
+        }
+        
+        
+        [ConditionalTheory] // From #24869
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_8(bool async)
+        {
+            return AssertCount(
+                async,
+                ss => ss.Set<Person>()
+                    .Include(x => x.Shoes)
+                    .Include(x => x.Feet)
+                    .GroupBy(
+                        x => new
+                        {
+                            x.Feet.Id,
+                            x.Feet.Size
+                        })
+                    .Select(
+                        x => new
+                        {
+                            Key = x.Key.Id + x.Key.Size,
+                            Count = x.Count(),
+                            Sum = x.Sum(el => el.Id),
+                            SumOver60 = x.Sum(el => el.Id) / (decimal)60,
+                            TotalCallOutCharges = x.Sum(el => el.Feet.Size == 11 ? 1 : 0)
+                        }));
+        }
+
+        [ConditionalTheory] // From #24591
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_9(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .GroupBy(n => n.FirstName)
+                    .Select(g => new 
+                    {
+                        Feet = g.Key,
+                        Total = g.Sum(n => n.Feet.Size) 
+                    }));
+        }
+
+        [ConditionalTheory] // From #24695
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_10(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => from Person person1
+                          in from Person person2
+                                 in ss.Set<Person>()
+                             select person2
+                      join Shoes shoes
+                          in ss.Set<Shoes>()
+                          on person1.Age equals shoes.Age
+                      group shoes by
+                          new
+                          {
+                              person1.Id,
+                              shoes.Style,
+                              shoes.Age
+                          }
+                      into temp
+                      orderby temp.Key.Id, temp.Key.Style, temp.Key.Age
+                      select
+                          new
+                          {
+                              temp.Key.Id,
+                              temp.Key.Age,
+                              temp.Key.Style,
+                              Values = from t
+                                           in temp
+                                       select
+                                           new
+                                           {
+                                               t.Id,
+                                               t.Style,
+                                               t.Age
+                                           }
+                          },
+                r => r.Id,
+                (l, r) =>
+                    {
+                        Assert.Equal(l.Id, r.Id);
+                        Assert.Equal(l.Age, r.Age);
+                        Assert.Equal(l.Style, r.Style);
+                        Assert.Equal(l.Values, r.Values);
+                    });
+        }
+
+        [ConditionalTheory] // From #19506
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_11(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .GroupBy(i => i.LastName)
+                    .Select(
+                        g => new
+                        {
+                            LastName = g.Key,
+                            Count = g.Count(),
+                            First = g.OrderBy(e => e.Id).FirstOrDefault(),
+                            Take = g.OrderBy(e => e.Id).Take(2)
+                        })
+                    .OrderByDescending(e => e.LastName)
+                    .Select(e => e),
+                r => (r.First.FirstName, r.First.MiddleInitial, r.First.LastName),
+                (l, r) =>
+                    {
+                        Assert.Equal(l.LastName, r.LastName);
+                        Assert.Equal(l.Count, r.Count);
+                        AssertEqual(l.First, r.First);
+
+                        var lTake = l.Take.ToList();
+                        var rTake = r.Take.ToList();
+                        
+                        Assert.Equal(lTake.Count, rTake.Count);
+                        for (var i = 0; i < lTake.Count; i++)
+                        {
+                            AssertEqual(lTake[i], rTake[i]);
+                        }
+                    },
+                assertOrder: false,
+                entryCount: 8);
+        }
+
+        [ConditionalTheory] // From #13805
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_12(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .Include(e => e.Shoes)
+                    .OrderBy(e => e.FirstName)
+                    .ThenBy(e => e.LastName)
+                    .GroupBy(e => e.FirstName)
+                    .Select(g => new { Name = g.Key, People = g.OrderBy(e => e.Id).ToList() }),
+                r => (r.Name, r.People.Count),
+                (l, r) =>
+                    {
+                        Assert.Equal(l.Name, r.Name);
+                        Assert.Equal(l.People.Count, r.People.Count);
+                        for (var i = 0; i < l.People.Count; i++)
+                        {
+                            AssertEqual(l.People[i], r.People[i]);
+                        }
+                    },
+                entryCount: 36);
+        }
+
+        [ConditionalTheory] // From #12088
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_13(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .GroupBy(m => new { m.FirstName, m.MiddleInitial })
+                    .Select(
+                        am => new
+                        {
+                            am.Key,
+                            Items = am.OrderBy(e => e.Id).ToList()
+                        }),
+                r => (r.Key.FirstName, r.Key.MiddleInitial),
+                (l, r) =>
+                    {
+                        Assert.Equal(l.Key, r.Key);
+                        Assert.Equal(l.Items.Count, r.Items.Count);
+                        for (var i = 0; i < l.Items.Count; i++)
+                        {
+                            AssertEqual(l.Items[i], r.Items[i]);
+                        }
+                    },
+                entryCount: 12);
+        }
+
+        [ConditionalTheory (Skip = "Could not be translated")] // From #12088
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_14(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .GroupBy(bp => bp.Feet)
+                    .SelectMany(g => g.OrderByDescending(bp => bp.Id).Take(1).DefaultIfEmpty()));
+        }
+
+        [ConditionalTheory (Skip = "Could not be translated")] // From #12088
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_15(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .GroupBy(bp => bp.Feet)
+                    .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()));
+        }
+
+        [ConditionalTheory (Skip = "Could not be translated")] // From #12573
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Whats_new_2021_sample_16(bool async)
+        {
+            return AssertQuery(
+                async,
+                ss => ss.Set<Person>()
+                    .GroupBy(c => c.LastName)
+                    .Select(g => g.OrderBy(c => c.FirstName).First())
+                    .GroupBy(c => c.MiddleInitial)
+                    .Select(g => g));
+        }
+
         protected ArubaContext CreateContext()
             => Fixture.CreateContext();
 
@@ -594,6 +930,16 @@ namespace Microsoft.EntityFrameworkCore.Query
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.Property(e => e.Total).HasPrecision(18, 6);
                     });
+
+                modelBuilder.Entity<Person>().Property(e => e.Id).ValueGeneratedNever();
+                modelBuilder.Entity<Shoes>().Property(e => e.Id).ValueGeneratedNever();
+
+                modelBuilder.Entity<Feet>(
+                    b =>
+                        {
+                            b.Property(e => e.Id).ValueGeneratedNever();
+                            b.HasOne(e => e.Person).WithOne(e => e.Feet).HasForeignKey<Feet>();
+                        });
             }
 
             protected override void Seed(ArubaContext context)
@@ -609,6 +955,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     { typeof(CustomerForLinq), e => ((CustomerForLinq)e)?.Id },
                     { typeof(OrderForLinq), e => ((OrderForLinq)e)?.Id },
+                    { typeof(Person), e => ((Person)e)?.Id },
+                    { typeof(Shoes), e => ((Shoes)e)?.Id },
+                    { typeof(Feet), e => ((Feet)e)?.Id }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
 
             public IReadOnlyDictionary<Type, object> GetEntityAsserters()
@@ -645,6 +994,55 @@ namespace Microsoft.EntityFrameworkCore.Query
                                 Assert.Equal(ee.OrderDate, aa.OrderDate);
                             }
                         }
+                    },
+                    {
+                        typeof(Person), (e, a) =>
+                            {
+                                Assert.Equal(e == null, a == null);
+
+                                if (a != null)
+                                {
+                                    var ee = (Person)e;
+                                    var aa = (Person)a;
+
+                                    Assert.Equal(ee.Id, aa.Id);
+                                    Assert.Equal(ee.Age, aa.Age);
+                                    Assert.Equal(ee.FirstName, aa.FirstName);
+                                    Assert.Equal(ee.MiddleInitial, aa.MiddleInitial);
+                                    Assert.Equal(ee.LastName, aa.LastName);
+                                }
+                            }
+                    },
+                    {
+                        typeof(Shoes), (e, a) =>
+                            {
+                                Assert.Equal(e == null, a == null);
+
+                                if (a != null)
+                                {
+                                    var ee = (Shoes)e;
+                                    var aa = (Shoes)a;
+
+                                    Assert.Equal(ee.Id, aa.Id);
+                                    Assert.Equal(ee.Age, aa.Age);
+                                    Assert.Equal(ee.Style, aa.Style);
+                                }
+                            }
+                    },
+                    {
+                        typeof(Feet), (e, a) =>
+                            {
+                                Assert.Equal(e == null, a == null);
+
+                                if (a != null)
+                                {
+                                    var ee = (Feet)e;
+                                    var aa = (Feet)a;
+
+                                    Assert.Equal(ee.Id, aa.Id);
+                                    Assert.Equal(ee.Size, aa.Size);
+                                }
+                            }
                     }
                 }.ToDictionary(e => e.Key, e => (object)e.Value);
         }
@@ -707,6 +1105,32 @@ namespace Microsoft.EntityFrameworkCore.Query
             public CustomerForLinq Customer { get; set; }
         }
 
+        public class Person
+        {
+            public int Id { get; set; }
+            public int Age { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string MiddleInitial { get; set; }
+            public Feet Feet { get; set; }
+            public ICollection<Shoes> Shoes { get; } = new List<Shoes>();
+        }
+
+        public class Shoes
+        {
+            public int Id { get; set; }
+            public int Age { get; set; }
+            public string Style { get; set; }
+            public Person Person { get; set; }
+        }
+
+        public class Feet
+        {
+            public int Id { get; set; }
+            public int Size { get; set; }
+            public Person Person { get; set; }
+        }
+
         public class ArubaData : ISetSource
         {
             public IReadOnlyList<ArubaOwner> ArubaOwners { get; }
@@ -714,6 +1138,9 @@ namespace Microsoft.EntityFrameworkCore.Query
             public IReadOnlyList<ProductForLinq> ProductsForLinq { get; }
             public IReadOnlyList<CustomerForLinq> CustomersForLinq { get; }
             public IReadOnlyList<OrderForLinq> OrdersForLinq { get; }
+            public IReadOnlyList<Person> People { get; }
+            public IReadOnlyList<Feet> Feet { get; }
+            public IReadOnlyList<Shoes> Shoes { get; }
 
             public ArubaData(ArubaContext context = null)
             {
@@ -722,6 +1149,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                 ProductsForLinq = CreateProductsForLinq();
                 CustomersForLinq = CreateCustomersForLinq();
                 OrdersForLinq = CreateOrdersForLinq(CustomersForLinq);
+                People = CreatePeople();
+                Feet = CreateFeet(People);
+                Shoes = CreateShoes(People);
 
                 if (context != null)
                 {
@@ -730,6 +1160,9 @@ namespace Microsoft.EntityFrameworkCore.Query
                     context.AddRange(ProductsForLinq);
                     context.AddRange(CustomersForLinq);
                     context.AddRange(OrdersForLinq);
+                    context.AddRange(People);
+                    context.AddRange(Feet);
+                    context.AddRange(Shoes);
                     context.SaveChanges();
                 }
             }
@@ -760,6 +1193,21 @@ namespace Microsoft.EntityFrameworkCore.Query
                 if (typeof(TEntity) == typeof(OrderForLinq))
                 {
                     return (IQueryable<TEntity>)OrdersForLinq.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(Person))
+                {
+                    return (IQueryable<TEntity>)People.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(Shoes))
+                {
+                    return (IQueryable<TEntity>)Shoes.AsQueryable();
+                }
+
+                if (typeof(TEntity) == typeof(Feet))
+                {
+                    return (IQueryable<TEntity>)Feet.AsQueryable();
                 }
 
                 throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));
@@ -1041,6 +1489,151 @@ namespace Microsoft.EntityFrameworkCore.Query
 
                 return owners;
             }
+
+            private static IReadOnlyList<Person> CreatePeople()
+            {
+                var people = new List<Person>
+                {
+                    new()
+                    {
+                        Id = 1,
+                        FirstName = "Jim",
+                        MiddleInitial = "A",
+                        LastName = "Bob",
+                        Age = 20,
+                        Feet = new Feet { Id = 1, Size = 11 },
+                        Shoes = { new() { Id = 1, Style = "Sneakers", Age = 19 }, new() { Id = 2, Style = "Dress", Age = 20 } }
+                    },
+                    new()
+                    {
+                        Id = 2,
+                        FirstName = "Tom",
+                        MiddleInitial = "A",
+                        LastName = "Bob",
+                        Age = 20,
+                        Feet = new Feet { Id = 2, Size = 12 },
+                        Shoes = { new() { Id = 3, Style = "Sneakers", Age = 21 }, new() { Id = 4, Style = "Dress", Age = 19 } }
+                    },
+                    new()
+                    {
+                        Id = 3,
+                        FirstName = "Ben",
+                        MiddleInitial = "Q",
+                        LastName = "Bob",
+                        Age = 20,
+                        Feet = new Feet { Id = 3, Size = 12 },
+                        Shoes = { new() { Id = 5, Style = "Sneakers", Age = 20 }, new() { Id = 6, Style = "Dress", Age = 21 } }
+                    },
+                    new()
+                    {
+                        Id = 4,
+                        FirstName = "Jim",
+                        MiddleInitial = "Q",
+                        LastName = "Jon",
+                        Age = 20,
+                        Feet = new Feet { Id = 4, Size = 11 },
+                        Shoes = { new() { Id = 7, Style = "Sneakers", Age = 19 }, new() { Id = 8, Style = "Dress", Age = 20 } }
+                    },
+                    new()
+                    {
+                        Id = 5,
+                        FirstName = "Tom",
+                        MiddleInitial = "A",
+                        LastName = "Jon",
+                        Age = 21,
+                        Feet = new Feet { Id = 5, Size = 11 },
+                        Shoes = { new() { Id = 9, Style = "Sneakers", Age = 21 }, new() { Id = 10, Style = "Dress", Age = 19 } }
+                    },
+                    new()
+                    {
+                        Id = 6,
+                        FirstName = "Ben",
+                        MiddleInitial = "A",
+                        LastName = "Jon",
+                        Age = 21,
+                        Feet = new Feet { Id = 6, Size = 12 },
+                        Shoes = { new() { Id = 11, Style = "Sneakers", Age = 20 }, new() { Id = 12, Style = "Dress", Age = 21 } }
+                    },
+                    new()
+                    {
+                        Id = 7,
+                        FirstName = "Jim",
+                        MiddleInitial = "Q",
+                        LastName = "Don",
+                        Age = 21,
+                        Feet = new Feet { Id = 7, Size = 12 },
+                        Shoes = { new() { Id = 13, Style = "Sneakers", Age = 19 }, new() { Id = 14, Style = "Dress", Age = 20 } }
+                    },
+                    new()
+                    {
+                        Id = 8,
+                        FirstName = "Tom",
+                        MiddleInitial = "Q",
+                        LastName = "Don",
+                        Age = 21,
+                        Feet = new Feet { Id = 8, Size = 11 },
+                        Shoes = { new() { Id = 15, Style = "Sneakers", Age = 21 }, new() { Id = 16, Style = "Dress", Age = 19 } }
+                    },
+                    new()
+                    {
+                        Id = 9,
+                        FirstName = "Ben",
+                        MiddleInitial = "A",
+                        LastName = "Don",
+                        Age = 21,
+                        Feet = new Feet { Id = 9, Size = 11 },
+                        Shoes = { new() { Id = 17, Style = "Sneakers", Age = 20 }, new() { Id = 18, Style = "Dress", Age = 21 } }
+                    },
+                    new()
+                    {
+                        Id = 10,
+                        FirstName = "Jim",
+                        MiddleInitial = "A",
+                        LastName = "Zee",
+                        Age = 21,
+                        Feet = new Feet { Id = 10, Size = 12 },
+                        Shoes = { new() { Id = 19, Style = "Sneakers", Age = 19 }, new() { Id = 20, Style = "Dress", Age = 20 } }
+                    },
+                    new()
+                    {
+                        Id = 11,
+                        FirstName = "Tom",
+                        MiddleInitial = "Q",
+                        LastName = "Zee",
+                        Age = 21,
+                        Feet = new Feet { Id = 11, Size = 12 },
+                        Shoes = { new() { Id = 21, Style = "Sneakers", Age = 21 }, new() { Id = 22, Style = "Dress", Age = 19 } }
+                    },
+                    new()
+                    {
+                        Id = 12,
+                        FirstName = "Ben",
+                        MiddleInitial = "Q",
+                        LastName = "Zee",
+                        Age = 21,
+                        Feet = new Feet { Id = 12, Size = 11 },
+                        Shoes = { new() { Id = 23, Style = "Sneakers", Age = 20 }, new() { Id = 24, Style = "Dress", Age = 21 } }
+                    }
+                };
+
+                foreach (var person in people)
+                {
+                    person.Feet.Person = person;
+
+                    foreach (var shoes in person.Shoes)
+                    {
+                        shoes.Person = person;
+                    }
+                }
+
+                return people;
+            }
+
+            private static IReadOnlyList<Feet> CreateFeet(IReadOnlyList<Person> people)
+                => people.Select(e => e.Feet).ToList();
+
+            private static IReadOnlyList<Shoes> CreateShoes(IReadOnlyList<Person> people)
+                => people.SelectMany(e => e.Shoes).ToList();
         }
    }
 }
