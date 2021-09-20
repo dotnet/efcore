@@ -13,12 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 {
     /// <summary>
     ///     A convention that ensures that the check constraints on the derived types are compatible with
-    ///     the check constraints on the base type.
+    ///     the check constraints on the base type. And also ensures that the declaring type is current.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
     /// </remarks>
-    public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention
+    public class CheckConstraintConvention : IEntityTypeBaseTypeChangedConvention, IEntityTypeAddedConvention
     {
         /// <summary>
         ///     Creates a new instance of <see cref="CheckConstraintConvention" />.
@@ -42,6 +42,50 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
         protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
+
+        /// <summary>
+        ///     Called after an entity type is added to the model.
+        /// </summary>
+        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
+        /// <param name="context"> Additional information associated with convention execution. </param>
+        public virtual void ProcessEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+        {
+            var entityType = entityTypeBuilder.Metadata;
+            if (!entityType.HasSharedClrType)
+            {
+                return;
+            }
+
+            List<IConventionCheckConstraint>? constraintsToReattach = null;
+            foreach (var checkConstraint in entityType.GetCheckConstraints())
+            {
+                if (checkConstraint.EntityType == entityType)
+                {
+                    continue;
+                }
+
+                if (constraintsToReattach == null)
+                {
+                    constraintsToReattach = new();
+                }
+
+                constraintsToReattach.Add(checkConstraint);
+            }
+
+            if (constraintsToReattach == null)
+            {
+                return;
+            }
+
+            foreach (var checkConstraint in constraintsToReattach)
+            {
+                var removedCheckConstraint = entityType.RemoveCheckConstraint(checkConstraint.ModelName);
+                if (removedCheckConstraint != null)
+                {
+                    CheckConstraint.Attach(entityType, removedCheckConstraint);
+                }
+            }
+        }
 
         /// <summary>
         ///     Called after the base type of an entity type changes.
