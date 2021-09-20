@@ -83,6 +83,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal
             public override bool IsDatabaseProvider
                 => true;
 
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => other is ExtensionInfo;
+
             public override string LogFragment
             {
                 get
