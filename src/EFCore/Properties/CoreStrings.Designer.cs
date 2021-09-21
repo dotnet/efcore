@@ -352,7 +352,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, derivedType);
 
         /// <summary>
-        ///     The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'. See https://aka.ms/efcore-docs-owned for more information.
+        ///     The entity type '{entityType}' cannot be configured as owned because it has already been configured as a non-owned. If you want to override previous configuration first remove the entity type from the model by calling 'Ignore'.  See https://aka.ms/efcore-docs-owned for more information.
         /// </summary>
         public static string ClashingNonOwnedEntityType(object? entityType)
             => string.Format(
@@ -1546,11 +1546,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type);
 
         /// <summary>
-        ///     The navigation '{entityType}.{navigation}' cannot be used for both sides of a many-to-many relationship. Many-to-many relationships must use different navigation properties for either end of the relationship.
+        ///     The navigation '{entityType}.{navigation}' cannot be used for both sides of a many-to-many relationship. Many-to-many relationships must use two distinct navigation properties.
         /// </summary>
         public static string ManyToManyOneNav(object? entityType, object? navigation)
             => string.Format(
-                GetString("ManyToManyOneNav", "entityType", "navigation"),
+                GetString("ManyToManyOneNav", nameof(entityType), nameof(navigation)),
                 entityType, navigation);
 
         /// <summary>
@@ -1562,7 +1562,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 field, property, entityType);
 
         /// <summary>
-        ///     Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Provide a navigation in the 'HasMany' call in 'OnModelCreating'.
+        ///     Unable to set up a many-to-many relationship between the entity types '{principalEntityType}' and '{declaringEntityType}' because one of the navigations was not specified. Provide a navigation in the 'HasMany' call in 'OnModelCreating'. Consider adding a private property for this.
         /// </summary>
         public static string MissingInverseManyToManyNavigation(object? principalEntityType, object? declaringEntityType)
             => string.Format(
@@ -2602,6 +2602,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ShadowEntity", nameof(entityType)),
                 entityType);
+
+        /// <summary>
+        ///     Unable to set up a many-to-many relationship between '{leftEntityType}.{leftNavigation}' and '{rightEntityType}.{rightNavigation}' because one or both of the navigations don't have a corresponding CLR property. Consider adding a corresponding private property to the entity CLR type.
+        /// </summary>
+        public static string ShadowManyToManyNavigation(object? leftEntityType, object? leftNavigation, object? rightEntityType, object? rightNavigation)
+            => string.Format(
+                GetString("ShadowManyToManyNavigation", nameof(leftEntityType), nameof(leftNavigation), nameof(rightEntityType), nameof(rightNavigation)),
+                leftEntityType, leftNavigation, rightEntityType, rightNavigation);
 
         /// <summary>
         ///     The shared-type entity type '{entityType}' cannot have a base type.
