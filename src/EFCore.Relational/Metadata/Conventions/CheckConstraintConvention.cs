@@ -64,10 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                if (constraintsToReattach == null)
-                {
-                    constraintsToReattach = new();
-                }
+                constraintsToReattach ??= new();
 
                 constraintsToReattach.Add(checkConstraint);
             }
