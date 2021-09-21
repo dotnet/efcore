@@ -1234,6 +1234,14 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
     elseif ($targetFramework -eq '.NETCoreApp')
     {
+        $targetPlatformIdentifier = GetCpsProperty $startupProject 'TargetPlatformIdentifier'
+        if ($targetPlatformIdentifier -and $targetPlatformIdentifier -ne 'Windows')
+        {
+            throw "Startup project '$($startupProject.ProjectName)' targets platform '$targetPlatformIdentifier'. The Entity Framework " +
+                'Core Package Manager Console Tools don''t support this platform. See https://aka.ms/efcore-docs-pmc-tfms for more ' +
+                'information.'
+        }
+
         $exePath = (Get-Command 'dotnet').Path
 
         $startupTargetName = GetProperty $startupProject.Properties 'AssemblyName'
@@ -1279,8 +1287,8 @@ function EF($project, $startupProject, $params, $applicationArgs, [switch] $skip
     }
     else
     {
-        throw "Startup project '$($startupProject.ProjectName)' targets framework '$targetFramework'. " +
-            'The Entity Framework Core Package Manager Console Tools don''t support this framework.'
+        throw "Startup project '$($startupProject.ProjectName)' targets framework '$targetFramework'. The Entity Framework Core Package " +
+            'Manager Console Tools don''t support this framework. See https://aka.ms/efcore-docs-pmc-tfms for more information.'
     }
 
     $projectDir = GetProperty $project.Properties 'FullPath'

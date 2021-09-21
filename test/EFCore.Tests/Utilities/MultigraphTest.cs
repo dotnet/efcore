@@ -139,9 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             graph.AddEdge(vertexOne, vertexTwo, edgeOne);
             graph.AddEdge(vertexOne, vertexTwo, edgeTwo);
 
-            Assert.Equal(2, graph.Edges.Count());
-            Assert.Equal(2, graph.Edges.Intersect(new[] { edgeOne, edgeTwo }).Count());
-
             Assert.Empty(graph.GetEdges(vertexTwo, vertexOne));
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Count());
             Assert.Equal(2, graph.GetEdges(vertexOne, vertexTwo).Intersect(new[] { edgeOne, edgeTwo }).Count());

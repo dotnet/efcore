@@ -67,19 +67,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
             conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
             conventionSet.PropertyAddedConventions.Add(relationalCommentAttributeConvention);
 
+            var checkConstraintConvention = new CheckConstraintConvention(Dependencies, RelationalDependencies);
             var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
             conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
             conventionSet.EntityTypeAddedConventions.Add(
                 new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
             conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
+            conventionSet.EntityTypeAddedConventions.Add(checkConstraintConvention);
 
             ValueGenerationConvention valueGenerationConvention =
                 new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);
             ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
-            ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, valueGenerationConvention);
-            ReplaceConvention(conventionSet.ForeignKeyOwnershipChangedConventions, valueGenerationConvention);
             conventionSet.EntityTypeBaseTypeChangedConventions.Add(tableNameFromDbSetConvention);
-            conventionSet.EntityTypeBaseTypeChangedConventions.Add(new CheckConstraintConvention(Dependencies, RelationalDependencies));
+            conventionSet.EntityTypeBaseTypeChangedConventions.Add(checkConstraintConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, valueGenerationConvention);
+
+            ReplaceConvention(conventionSet.ForeignKeyOwnershipChangedConventions, valueGenerationConvention);
 
             conventionSet.EntityTypeAnnotationChangedConventions.Add((RelationalValueGenerationConvention)valueGenerationConvention);
 

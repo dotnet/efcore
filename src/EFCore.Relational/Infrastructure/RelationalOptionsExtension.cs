@@ -446,7 +446,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             /// <param name="other"> The other extension. </param>
             /// <returns> A value indicating whether all of the options that require a new service provider are the same. </returns>
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
-                => true;
+                => other is RelationalExtensionInfo;
 
             /// <summary>
             ///     A message fragment for logging typically containing information about

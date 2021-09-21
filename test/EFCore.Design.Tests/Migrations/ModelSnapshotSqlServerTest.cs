@@ -1328,8 +1328,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     builder
                         .Entity<ManyToManyLeft>()
+                        .ToTable("ManyToManyLeft", "schema")
                         .HasMany(l => l.Rights)
                         .WithMany(r => r.Lefts);
+
+                    builder
+                        .Entity<ManyToManyRight>()
+                        .ToTable("ManyToManyRight", "schema");
                 },
                 AddBoilerPlate(
                     GetHeading()
@@ -1346,7 +1351,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasIndex(""RightsId"");
 
-                    b.ToTable(""ManyToManyLeftManyToManyRight"");
+                    b.ToTable(""ManyToManyLeftManyToManyRight"", ""schema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", b =>
@@ -1362,7 +1367,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""ManyToManyLeft"");
+                    b.ToTable(""ManyToManyLeft"", ""schema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight"", b =>
@@ -1378,7 +1383,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""ManyToManyRight"");
+                    b.ToTable(""ManyToManyRight"", ""schema"");
                 });
 
             modelBuilder.Entity(""ManyToManyLeftManyToManyRight"", b =>
@@ -1459,6 +1464,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                     Assert.Equal("RightsId", p.Name);
                                 });
                         });
+
+                    Assert.Equal("ManyToManyLeftManyToManyRight", joinEntity.GetTableName());
+                    Assert.Equal("schema", joinEntity.GetSchema());
                 });
         }
 
@@ -3823,6 +3831,50 @@ namespace RootNamespace
                     b.ToTable(""EntityWithTwoProperties"");
                 });"),
                 o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId").GetColumnOrder()));
+        }
+
+        [ConditionalFact]
+        public virtual void SQLServer_model_legacy_identity_seed_int_annotation()
+        {
+            Test(
+                builder => builder.HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8),
+                AddBoilerPlate(
+                    @"
+            modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L, 1);"),
+                o => Assert.Equal(8L, o.GetIdentitySeed()));
+        }
+
+        [ConditionalFact]
+        public virtual void SQLServer_property_legacy_identity_seed_int_annotation()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithTwoProperties>().Property(e => e.Id)
+                        .HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8);
+                    builder.Ignore<EntityWithOneProperty>();
+                },
+                AddBoilerPlate(
+                    GetHeading()
+                    + @"
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""), 8L, 1);
+
+                    b.Property<int>(""AlternateId"")
+                        .HasColumnType(""int"");
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithTwoProperties"");
+                });"),
+                o => Assert.Equal(8L, o.GetEntityTypes().First().FindProperty("Id").GetIdentitySeed()));
         }
 
         #endregion

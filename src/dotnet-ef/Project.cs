@@ -41,6 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
         public string? TargetFrameworkMoniker { get; set; }
         public string? Nullable { get; set; }
         public string? TargetFramework { get; set; }
+        public string? TargetPlatformIdentifier { get; set; }
 
         public static Project FromFile(
             string file,
@@ -137,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 TargetFileName = metadata["TargetFileName"],
                 TargetFrameworkMoniker = metadata["TargetFrameworkMoniker"],
                 Nullable = metadata["Nullable"],
-                TargetFramework = metadata["TargetFramework"]
+                TargetFramework = metadata["TargetFramework"],
+                TargetPlatformIdentifier = metadata["TargetPlatformIdentifier"]
             };
         }
 

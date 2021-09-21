@@ -14,19 +14,16 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         where TVertex : notnull
     {
         private readonly HashSet<TVertex> _vertices = new();
-        private readonly Dictionary<TVertex, Dictionary<TVertex, List<TEdge>>> _successorMap = new();
+        private readonly Dictionary<TVertex, Dictionary<TVertex, object?>> _successorMap = new();
         private readonly Dictionary<TVertex, HashSet<TVertex>> _predecessorMap = new();
-
-        public IEnumerable<TEdge> Edges
-            => _successorMap.Values.SelectMany(s => s.Values).SelectMany(e => e).Distinct();
 
         public IEnumerable<TEdge> GetEdges(TVertex from, TVertex to)
         {
             if (_successorMap.TryGetValue(from, out var successorSet))
             {
-                if (successorSet.TryGetValue(to, out var edgeList))
+                if (successorSet.TryGetValue(to, out var edges))
                 {
-                    return edgeList;
+                    return edges is IEnumerable<TEdge> edgeList ? edgeList : (new TEdge[] { (TEdge)edges!  });
                 }
             }
 
@@ -55,17 +52,23 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             if (!_successorMap.TryGetValue(from, out var successorEdges))
             {
-                successorEdges = new Dictionary<TVertex, List<TEdge>>();
+                successorEdges = new Dictionary<TVertex, object?>();
                 _successorMap.Add(from, successorEdges);
             }
 
-            if (!successorEdges.TryGetValue(to, out var edgeList))
+            if (successorEdges.TryGetValue(to, out var edges))
             {
-                edgeList = new List<TEdge>();
-                successorEdges.Add(to, edgeList);
+                if (edges is not List<TEdge> edgeList)
+                {
+                    edgeList = new List<TEdge> { (TEdge)edges! };
+                    successorEdges[to] = edgeList;
+                }
+                edgeList.Add(edge);
             }
-
-            edgeList.Add(edge);
+            else
+            {
+                successorEdges.Add(to, edge);
+            }
 
             if (!_predecessorMap.TryGetValue(to, out var predecessors))
             {
@@ -76,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             predecessors.Add(from);
         }
 
-        public void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> edges)
+        public void AddEdges(TVertex from, TVertex to, IEnumerable<TEdge> newEdges)
         {
 #if DEBUG
             if (!_vertices.Contains(from))
@@ -92,17 +95,24 @@ namespace Microsoft.EntityFrameworkCore.Utilities
 
             if (!_successorMap.TryGetValue(from, out var successorEdges))
             {
-                successorEdges = new Dictionary<TVertex, List<TEdge>>();
+                successorEdges = new Dictionary<TVertex, object?>();
                 _successorMap.Add(from, successorEdges);
             }
 
-            if (!successorEdges.TryGetValue(to, out var edgeList))
+            if (successorEdges.TryGetValue(to, out var edges))
             {
-                edgeList = new List<TEdge>();
+                if (edges is not List<TEdge> edgeList)
+                {
+                    edgeList = new List<TEdge> { (TEdge)edges! };
+                    successorEdges[to] = edgeList;
+                }
+                edgeList.AddRange(newEdges);
+            }
+            else
+            {
+                var edgeList = newEdges.ToList();
                 successorEdges.Add(to, edgeList);
             }
-
-            edgeList.AddRange(edges);
 
             if (!_predecessorMap.TryGetValue(to, out var predecessors))
             {
@@ -193,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                             .First(neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
                                 && neighborPredecessors > 0);
 
-                        if (tryBreakEdge(incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
+                        if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                         {
                             _successorMap[incomingNeighbor].Remove(candidateVertex);
                             _predecessorMap[candidateVertex].Remove(incomingNeighbor);
@@ -367,7 +377,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                             .First(neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
                                 && neighborPredecessors > 0);
 
-                        if (tryBreakEdge(incomingNeighbor, candidateVertex, _successorMap[incomingNeighbor][candidateVertex]))
+                        if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                         {
                             _successorMap[incomingNeighbor].Remove(candidateVertex);
                             _predecessorMap[candidateVertex].Remove(incomingNeighbor);

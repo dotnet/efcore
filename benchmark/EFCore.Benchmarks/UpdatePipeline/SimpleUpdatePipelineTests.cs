@@ -36,11 +36,11 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
             {
                 _fixture = CreateFixture();
                 _fixture.Initialize(0, 1000, 0, 0);
+                _context = _fixture.CreateContext(disableBatching: Batching);
             }
 
             public virtual void InitializeContext()
             {
-                _context = _fixture.CreateContext(disableBatching: Batching);
                 _transaction = _context.Database.BeginTransaction();
             }
 
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.UpdatePipeline
                 }
 
                 _transaction.Dispose();
-                _context.Dispose();
+                _context.ChangeTracker.Clear();
             }
 
             [Benchmark]
