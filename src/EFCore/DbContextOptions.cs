@@ -22,27 +22,56 @@ namespace Microsoft.EntityFrameworkCore
     /// </remarks>
     public abstract class DbContextOptions : IDbContextOptions
     {
+        private readonly ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> _extensionsMap;
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContextOptions" /> class. You normally override
-        ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> or use a <see cref="DbContextOptionsBuilder" />
-        ///     to create instances of this class and it is not designed to be directly constructed in your application code.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        /// <param name="extensions"> The extensions that store the configured options. </param>
+        [EntityFrameworkInternal]
+        protected DbContextOptions()
+        {
+            _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance);
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
         protected DbContextOptions(
             IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
         {
             Check.NotNull(extensions, nameof(extensions));
 
-            _extensionsMap = extensions as ImmutableSortedDictionary<Type, IDbContextOptionsExtension>
-                ?? ImmutableSortedDictionary.Create<Type, IDbContextOptionsExtension>(TypeFullNameComparer.Instance)
-                    .AddRange(extensions);
+            _extensionsMap = ImmutableSortedDictionary.Create<Type, (IDbContextOptionsExtension, int)>(TypeFullNameComparer.Instance)
+                .AddRange(extensions.Select((p, i) => new KeyValuePair<Type, (IDbContextOptionsExtension, int)>(p.Key, (p.Value, i))));
+        }
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        protected DbContextOptions(
+            ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> extensions)
+        {
+            Check.NotNull(extensions, nameof(extensions));
+
+            _extensionsMap = extensions;
         }
 
         /// <summary>
         ///     Gets the extensions that store the configured options.
         /// </summary>
         public virtual IEnumerable<IDbContextOptionsExtension> Extensions
-            => ExtensionsMap.Values;
+            => _extensionsMap.Values.OrderBy(v => v.Ordinal).Select(v => v.Extension);
 
         /// <summary>
         ///     Gets the extension of the specified type. Returns <see langword="null" /> if no extension of the specified type is configured.
@@ -51,7 +80,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The extension, or <see langword="null" /> if none was found. </returns>
         public virtual TExtension? FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
-            => ExtensionsMap.TryGetValue(typeof(TExtension), out var extension) ? (TExtension)extension : null;
+            => _extensionsMap.TryGetValue(typeof(TExtension), out var value) ? (TExtension)value.Extension : null;
 
         /// <summary>
         ///     Gets the extension of the specified type. Throws if no extension of the specified type is configured.
@@ -80,12 +109,14 @@ namespace Microsoft.EntityFrameworkCore
         public abstract DbContextOptions WithExtension<TExtension>(TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
 
-        private readonly ImmutableSortedDictionary<Type, IDbContextOptionsExtension> _extensionsMap;
-
         /// <summary>
-        ///     Gets the extensions that store the configured options.
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        protected virtual IImmutableDictionary<Type, IDbContextOptionsExtension> ExtensionsMap
+        [EntityFrameworkInternal]
+        protected virtual ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> ExtensionsMap
             => _extensionsMap;
 
         /// <summary>
@@ -121,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual bool Equals(DbContextOptions other)
             => _extensionsMap.Count == other._extensionsMap.Count
                 && _extensionsMap.Zip(other._extensionsMap)
-                    .All(p => p.First.Value.Info.ShouldUseSameServiceProvider(p.Second.Value.Info));
+                    .All(p => p.First.Value.Ordinal == p.Second.Value.Ordinal
+                        && p.First.Value.Extension.Info.ShouldUseSameServiceProvider(p.Second.Value.Extension.Info));
 
         /// <inheritdoc />
         public override int GetHashCode()
@@ -131,7 +163,7 @@ namespace Microsoft.EntityFrameworkCore
             foreach (var dbContextOptionsExtension in _extensionsMap)
             {
                 hashCode.Add(dbContextOptionsExtension.Key);
-                hashCode.Add(dbContextOptionsExtension.Value.Info.GetServiceProviderHashCode());
+                hashCode.Add(dbContextOptionsExtension.Value.Extension.Info.GetServiceProviderHashCode());
             }
 
             return hashCode.ToHashCode();
