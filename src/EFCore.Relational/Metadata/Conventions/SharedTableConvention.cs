@@ -215,8 +215,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                         && otherProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                        && property.ValueGenerated == ValueGenerated.Never
-                        && otherProperty.ValueGenerated == ValueGenerated.Never)
+                        && (property.ValueGenerated == ValueGenerated.Never
+                            || property.ValueGenerated == ValueGenerated.OnUpdateSometimes)
+                        && (otherProperty.ValueGenerated == ValueGenerated.Never
+                            || otherProperty.ValueGenerated == ValueGenerated.OnUpdateSometimes))
                     {
                         // Handle this with a default value convention #9329
                         property.Builder.ValueGenerated(ValueGenerated.OnUpdateSometimes);

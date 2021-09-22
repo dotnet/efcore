@@ -510,15 +510,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             public virtual void Owned_types_use_table_splitting_by_default()
             {
                 var modelBuilder = CreateModelBuilder();
-                var model = modelBuilder.Model;
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel)
-                    .Ignore(l => l.Book)
-                    .OwnsOne(l => l.AnotherBookLabel)
-                    .Ignore(l => l.Book)
-                    .OwnsOne(s => s.SpecialBookLabel)
-                    .Ignore(l => l.Book)
-                    .Ignore(l => l.BookLabel);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel,
+                    b =>
+                    {
+                        b.Ignore(l => l.Book);
+                        b.OwnsOne(l => l.AnotherBookLabel,
+                            ab =>
+                            {
+                                ab.Property(l => l.BookId).HasColumnName("BookId2");
+                                ab.Ignore(l => l.Book);
+                                ab.OwnsOne(s => s.SpecialBookLabel,
+                                    s =>
+                                    {
+                                        s.Property(l => l.BookId).HasColumnName("BookId2");
+                                        s.Ignore(l => l.Book);
+                                        s.Ignore(l => l.BookLabel);
+                                    });
+                            });
+                    });
 
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label)
                     .Ignore(l => l.Book)
@@ -534,12 +544,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     .Ignore(l => l.Book)
                     .Ignore(l => l.BookLabel);
 
-                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel)
-                    .OwnsOne(l => l.SpecialBookLabel)
-                    .Ignore(l => l.Book)
-                    .OwnsOne(s => s.AnotherBookLabel)
-                    .Ignore(l => l.Book);
+                modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel,
+                    b =>
+                    {
+                        b.Ignore(l => l.Book);
+                        b.OwnsOne(l => l.SpecialBookLabel,
+                            ab =>
+                            {
+                                ab.Property(l => l.BookId).HasColumnName("BookId2");
+                                ab.Ignore(l => l.Book);
+                                ab.OwnsOne(s => s.AnotherBookLabel,
+                                    s =>
+                                    {
+                                        s.Property(l => l.BookId).HasColumnName("BookId2");
+                                        s.Ignore(l => l.Book);
+                                    });
+                            });
+                    });
 
+                IModel model = (IModel)modelBuilder.Model;
                 var book = model.FindEntityType(typeof(Book));
                 var bookOwnership1 = book.FindNavigation(nameof(Book.Label)).ForeignKey;
                 var bookOwnership2 = book.FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
@@ -580,7 +603,7 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 modelBuilder.Entity<Book>().OwnsOne(b => b.Label).ToTable("Label");
                 modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).ToTable("AlternateLabel");
 
-                modelBuilder.FinalizeModel();
+                model = modelBuilder.FinalizeModel();
 
                 Assert.Equal(
                     nameof(BookLabel.Id),
@@ -590,6 +613,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                     nameof(BookLabel.AnotherBookLabel) + "_" + nameof(BookLabel.Id),
                     bookLabel2Ownership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))
                         .GetColumnName(StoreObjectIdentifier.Table("AlternateLabel", null)));
+
+                var alternateTable = model.GetRelationalModel().FindTable("AlternateLabel", null);
+                var bookId = alternateTable.FindColumn("BookId2");
+
+                Assert.Equal(4, bookId.PropertyMappings.Count());
+                Assert.All(bookId.PropertyMappings, m => Assert.Equal(ValueGenerated.OnUpdateSometimes, m.Property.ValueGenerated));
             }
 
             [ConditionalFact]
