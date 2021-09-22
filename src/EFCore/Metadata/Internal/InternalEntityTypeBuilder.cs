@@ -226,10 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                if (Metadata.GetIsKeylessConfigurationSource() != ConfigurationSource.Explicit)
-                {
-                    Metadata.SetIsKeyless(false, configurationSource.Value);
-                }
+                Metadata.SetIsKeyless(false, configurationSource.Value);
 
                 var containingForeignKeys = actualProperties
                     .SelectMany(p => p.GetContainingForeignKeys().Where(k => k.DeclaringEntityType != Metadata))
