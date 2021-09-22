@@ -223,7 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 entityType.GetDiscriminatorPropertyName(),
                 entityType.GetChangeTrackingStrategy(),
                 entityType.FindIndexerPropertyInfo(),
-                entityType.IsPropertyBag);
+                entityType.IsPropertyBag,
+                entityType.GetDiscriminatorValue());
 
         private ParameterBinding Create(ParameterBinding parameterBinding, RuntimeEntityType entityType)
             => parameterBinding.With(parameterBinding.ConsumedProperties.Select(property =>
@@ -256,7 +257,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
                         && annotation.Key != CoreAnnotationNames.QueryFilter
                         && annotation.Key != CoreAnnotationNames.DefiningQuery
-                        && annotation.Key != CoreAnnotationNames.DiscriminatorValue
                         && annotation.Key != CoreAnnotationNames.DiscriminatorMappingComplete)
                     {
                         annotations.Remove(annotation.Key);

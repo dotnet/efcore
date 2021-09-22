@@ -59,6 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private InstantiationBinding? _serviceOnlyConstructorBinding;
         private readonly PropertyInfo? _indexerPropertyInfo;
         private readonly bool _isPropertyBag;
+        private readonly object? _discriminatorValue;
 
         // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts? _counts;
@@ -89,7 +90,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             string? discriminatorProperty,
             ChangeTrackingStrategy changeTrackingStrategy,
             PropertyInfo? indexerPropertyInfo,
-            bool propertyBag)
+            bool propertyBag,
+            object? discriminatorValue)
         {
             Name = name;
             _clrType = type;
@@ -104,6 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             _indexerPropertyInfo = indexerPropertyInfo;
             _isPropertyBag = propertyBag;
             SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
+            _discriminatorValue = discriminatorValue;
 
             _properties = new SortedDictionary<string, RuntimeProperty>(new PropertyNameComparer(this));
         }
@@ -859,6 +862,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
         }
+
+        /// <inheritdoc/>
+        [DebuggerStepThrough]
+        object? IReadOnlyEntityType.GetDiscriminatorValue()
+            => _discriminatorValue;
 
         /// <inheritdoc/>
         bool IReadOnlyTypeBase.HasSharedClrType

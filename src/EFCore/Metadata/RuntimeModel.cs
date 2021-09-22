@@ -69,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
         ///     and a method that can be used to determine whether a given indexer property contains a value.
         /// </param>
+        /// <param name="discriminatorValue">the discriminator value for this entity type.</param>
         /// <returns> The new entity type. </returns>
         public virtual RuntimeEntityType AddEntityType(
             string name,
@@ -78,7 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             string? discriminatorProperty = null,
             ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
             PropertyInfo? indexerPropertyInfo = null,
-            bool propertyBag = false)
+            bool propertyBag = false,
+            object? discriminatorValue = null)
         {
             var entityType = new RuntimeEntityType(
                 name,
@@ -89,7 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 discriminatorProperty,
                 changeTrackingStrategy,
                 indexerPropertyInfo,
-                propertyBag);
+                propertyBag,
+                discriminatorValue);
 
             if (sharedClrType)
             {

@@ -17,6 +17,6 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     {
         /// <inheritdoc />
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
-            => new DiscriminatorValueGenerator(entityType.GetDiscriminatorValue()!);
+            => new DiscriminatorValueGenerator();
     }
 }

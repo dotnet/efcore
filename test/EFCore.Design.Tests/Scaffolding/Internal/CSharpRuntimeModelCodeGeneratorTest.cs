@@ -652,7 +652,8 @@ namespace Internal
                 ""Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity.IdentityUser"",
                 typeof(IdentityUser),
                 baseEntityType,
-                discriminatorProperty: ""Discriminator"");
+                discriminatorProperty: ""Discriminator"",
+                discriminatorValue: ""IdentityUser"");
 
             var id = runtimeEntityType.AddProperty(
                 ""Id"",
@@ -769,7 +770,6 @@ namespace Internal
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", ""IdentityUser"");
 
             Customize(runtimeEntityType);
         }
@@ -801,14 +801,14 @@ namespace Internal
                 ""Microsoft.EntityFrameworkCore.Scaffolding.Internal.IdentityUser"",
                 typeof(IdentityUser),
                 baseEntityType,
-                discriminatorProperty: ""Discriminator"");
+                discriminatorProperty: ""Discriminator"",
+                discriminatorValue: ""DerivedIdentityUser"");
 
             return runtimeEntityType;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", ""DerivedIdentityUser"");
 
             Customize(runtimeEntityType);
         }
@@ -958,7 +958,8 @@ namespace TestNamespace
                 ""Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentBase<byte?>"",
                 typeof(CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>),
                 baseEntityType,
-                discriminatorProperty: ""EnumDiscriminator"");
+                discriminatorProperty: ""EnumDiscriminator"",
+                discriminatorValue: CSharpMigrationsGeneratorTest.Enum1.One);
 
             var principalId = runtimeEntityType.AddProperty(
                 ""PrincipalId"",
@@ -1040,7 +1041,6 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", CSharpMigrationsGeneratorTest.Enum1.One);
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
             runtimeEntityType.AddAnnotation(""Relational:Schema"", null);
             runtimeEntityType.AddAnnotation(""Relational:SqlQuery"", null);
@@ -1480,7 +1480,8 @@ namespace TestNamespace
                 ""Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentDerived<byte?>"",
                 typeof(CSharpRuntimeModelCodeGeneratorTest.DependentDerived<byte?>),
                 baseEntityType,
-                discriminatorProperty: ""EnumDiscriminator"");
+                discriminatorProperty: ""EnumDiscriminator"",
+                discriminatorValue: CSharpMigrationsGeneratorTest.Enum1.Two);
 
             var data = runtimeEntityType.AddProperty(
                 ""Data"",
@@ -1505,7 +1506,6 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
-            runtimeEntityType.AddAnnotation(""DiscriminatorValue"", CSharpMigrationsGeneratorTest.Enum1.Two);
             runtimeEntityType.AddAnnotation(""Relational:FunctionName"", null);
             runtimeEntityType.AddAnnotation(""Relational:Schema"", null);
             runtimeEntityType.AddAnnotation(""Relational:SqlQuery"", null);
