@@ -64,6 +64,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
             = typeof(SqlServerPropertyBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerPropertyBuilderExtensions.UseIdentityColumn), typeof(PropertyBuilder), typeof(long), typeof(int));
 
+        private static readonly MethodInfo _propertyUseHiLoMethodInfo
+            = typeof(SqlServerPropertyBuilderExtensions).GetRequiredRuntimeMethod(
+                nameof(SqlServerPropertyBuilderExtensions.UseHiLo), typeof(PropertyBuilder), typeof(string), typeof(string));
+
         private static readonly MethodInfo _indexIsClusteredMethodInfo
             = typeof(SqlServerIndexBuilderExtensions).GetRequiredRuntimeMethod(
                 nameof(SqlServerIndexBuilderExtensions.IsClustered), typeof(IndexBuilder), typeof(bool));
@@ -374,7 +378,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                     var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName);
                     var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceSchema);
                     return new(
-                        _modelUseHiLoMethodInfo,
+                        onModel ? _modelUseHiLoMethodInfo : _propertyUseHiLoMethodInfo,
                         (name, schema) switch
                         {
                             (null, null) => Array.Empty<object>(),
