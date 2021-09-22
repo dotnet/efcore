@@ -658,6 +658,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .Append(_code.Literal(true));
             }
 
+            var discriminatorValue = entityType.GetDiscriminatorValue();
+            if (discriminatorValue != null)
+            {
+                AddNamespace(discriminatorValue.GetType(), parameters.Namespaces);
+
+                mainBuilder.AppendLine(",")
+                    .Append("discriminatorValue: ")
+                    .Append(_code.UnknownLiteral(discriminatorValue));
+            }
+
             mainBuilder
                 .AppendLine(");")
                 .AppendLine()

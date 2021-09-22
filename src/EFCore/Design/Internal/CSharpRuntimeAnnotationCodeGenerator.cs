@@ -67,7 +67,6 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 foreach (var annotation in annotations)
                 {
                     if (CoreAnnotationNames.AllNames.Contains(annotation.Key)
-                        && annotation.Key != CoreAnnotationNames.DiscriminatorValue
                         && annotation.Key != CoreAnnotationNames.DiscriminatorMappingComplete)
                     {
                         annotations.Remove(annotation.Key);

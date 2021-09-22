@@ -160,10 +160,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         }
 
         private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
-            => _valueGeneratorSelector.Select(
-                property, property.IsKey()
-                    ? property.DeclaringEntityType
-                    : entry.EntityType);
+            => _valueGeneratorSelector.Select(property, property.DeclaringEntityType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
