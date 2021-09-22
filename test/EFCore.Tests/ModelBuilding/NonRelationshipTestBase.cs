@@ -125,13 +125,14 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
             }
 
             [ConditionalFact]
-            public virtual void Can_set_entity_key_from_clr_property_when_property_ignored()
+            public virtual void Can_set_entity_key_from_clr_property_when_property_ignored_on_keyless()
             {
                 var modelBuilder = CreateModelBuilder();
 
                 modelBuilder.Entity<Customer>(
                     b =>
                     {
+                        b.HasNoKey();
                         b.Ignore(Customer.IdProperty.Name);
                         b.HasKey(e => e.Id);
                     });
