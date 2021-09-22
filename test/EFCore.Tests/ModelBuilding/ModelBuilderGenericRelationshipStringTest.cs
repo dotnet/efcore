@@ -28,6 +28,12 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding
                 => new GenericStringTestModelBuilder(testHelpers, configure);
         }
 
+        public class GenericManyToManyString : ManyToManyTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
+                => new GenericStringTestModelBuilder(testHelpers, configure);
+        }
+
         public class GenericOneToOneString : OneToOneTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
