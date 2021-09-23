@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Update;
 
-
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 {
     /// <summary>
@@ -41,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                 = comparer != null
                     ? new NoNullsCustomEqualityComparer(comparer)
                     : typeof(IStructuralEquatable).IsAssignableFrom(typeof(TKey))
-                        ? (IEqualityComparer<TKey>)new NoNullsStructuralEqualityComparer()
+                        ? new NoNullsStructuralEqualityComparer()
                         : EqualityComparer<TKey>.Default;
         }
 

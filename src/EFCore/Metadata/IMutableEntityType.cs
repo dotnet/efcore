@@ -42,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets the defining entity type.
         /// </summary>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
-        new IMutableEntityType? DefiningEntityType => null;
+        new IMutableEntityType? DefiningEntityType
+            => null;
 
         /// <summary>
         ///     Adds seed data to this entity type. It is used to generate data motion migrations.
@@ -233,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="property"> The property that the key is defined on. </param>
         /// <returns> The key, or null if none is defined. </returns>
         new IMutableKey? FindKey(IReadOnlyProperty property)
-             => FindKey(new[] { property });
+            => FindKey(new[] { property });
 
         /// <summary>
         ///     Gets the primary or alternate key that is defined on the given properties.

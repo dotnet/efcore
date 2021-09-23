@@ -122,7 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         protected virtual string GenerateJoinTypeName(IConventionSkipNavigation skipNavigation)
         {
             var inverseSkipNavigation = skipNavigation.Inverse;
-            Check.DebugAssert(inverseSkipNavigation?.Inverse == skipNavigation,
+            Check.DebugAssert(
+                inverseSkipNavigation?.Inverse == skipNavigation,
                 "Inverse's inverse should be the original skip navigation");
 
             var declaringEntityType = skipNavigation.DeclaringEntityType;
@@ -175,13 +176,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionEntityTypeBuilder joinEntityTypeBuilder)
         {
             var foreignKey = ((InternalEntityTypeBuilder)joinEntityTypeBuilder)
-                  .HasRelationship(
-                      (EntityType)skipNavigation.DeclaringEntityType,
-                      ConfigurationSource.Convention,
-                      required: true,
-                      skipNavigation.Inverse!.Name)!
-                  .IsUnique(false, ConfigurationSource.Convention)!
-                  .Metadata;
+                .HasRelationship(
+                    (EntityType)skipNavigation.DeclaringEntityType,
+                    ConfigurationSource.Convention,
+                    required: true,
+                    skipNavigation.Inverse!.Name)!
+                .IsUnique(false, ConfigurationSource.Convention)!
+                .Metadata;
 
             skipNavigation.Builder.HasForeignKey(foreignKey);
 

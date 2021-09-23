@@ -162,7 +162,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             if (navigation != null)
             {
                 return navigation.IsCollection
-                    ? (MemberEntry)new CollectionEntry(InternalEntry, propertyName)
+                    ? new CollectionEntry(InternalEntry, propertyName)
                     : new ReferenceEntry(InternalEntry, propertyName);
             }
 
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
             if (navigation != null)
             {
                 return navigation.IsCollection
-                    ? (NavigationEntry)new CollectionEntry(InternalEntry, propertyName)
+                    ? new CollectionEntry(InternalEntry, propertyName)
                     : new ReferenceEntry(InternalEntry, propertyName);
             }
 
@@ -399,7 +399,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     <para>
         ///         Queries the database for copies of the values of the tracked entity as they currently
-        ///         exist in the database. If the entity is not found in the database, then <see langword="null"/> is returned.
+        ///         exist in the database. If the entity is not found in the database, then <see langword="null" /> is returned.
         ///     </para>
         ///     <para>
         ///         Note that changing the values in the returned dictionary will not update the values
@@ -409,7 +409,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <returns> The store values, or <see langword="null"/> if the entity does not exist in the database. </returns>
+        /// <returns> The store values, or <see langword="null" /> if the entity does not exist in the database. </returns>
         public virtual PropertyValues? GetDatabaseValues()
         {
             var values = Finder.GetDatabaseValues(InternalEntry);
@@ -439,7 +439,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     A task that represents the asynchronous operation. The task result contains the store values,
         ///     or <see langword="null" /> if the entity does not exist in the database.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<PropertyValues?> GetDatabaseValuesAsync(CancellationToken cancellationToken = default)
         {
             var values = await Finder.GetDatabaseValuesAsync(InternalEntry, cancellationToken).ConfigureAwait(false);
@@ -482,7 +482,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </remarks>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
             => Reload(await GetDatabaseValuesAsync(cancellationToken).ConfigureAwait(false));
 
@@ -530,7 +530,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         public virtual DebugView DebugView
             => new(
                 () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.ShortDefault),
-                () => InternalEntry.ToDebugString(ChangeTrackerDebugStringOptions.LongDefault));
+                () => InternalEntry.ToDebugString());
 
         #region Hidden System.Object members
 

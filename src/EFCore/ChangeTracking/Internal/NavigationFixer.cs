@@ -340,8 +340,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                         if (navigationBase is ISkipNavigation skipNavigation)
                         {
-                            FindOrCreateJoinEntry((
-                                entry, newTargetEntry, skipNavigation, FromQuery: false, SetModified: true));
+                            FindOrCreateJoinEntry(
+                                (entry, newTargetEntry, skipNavigation, FromQuery: false, SetModified: true));
 
                             Check.DebugAssert(
                                 skipNavigation.Inverse.IsCollection,
@@ -757,7 +757,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         {
                             var toDependent = foreignKey.PrincipalToDependent;
                             if (CanOverrideCurrentValue(entry, toDependent, dependentEntry, fromQuery)
-                                    && !IsAmbiguous(dependentEntry))
+                                && !IsAmbiguous(dependentEntry))
                             {
                                 SetNavigation(entry, toDependent, dependentEntry, fromQuery);
                                 SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
@@ -917,10 +917,10 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private static bool IsAmbiguous(InternalEntityEntry dependentEntry)
             => (dependentEntry.EntityState == EntityState.Detached
-                || dependentEntry.EntityState == EntityState.Deleted)
+                    || dependentEntry.EntityState == EntityState.Deleted)
                 && (dependentEntry.SharedIdentityEntry != null
                     || dependentEntry.EntityType.HasSharedClrType
-                        && dependentEntry.StateManager.TryGetEntry(dependentEntry.Entity, throwOnNonUniqueness: false) != dependentEntry);
+                    && dependentEntry.StateManager.TryGetEntry(dependentEntry.Entity, throwOnNonUniqueness: false) != dependentEntry);
 
         private void DelayedFixup(
             InternalEntityEntry entry,
@@ -990,16 +990,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
         private void FindOrCreateJoinEntry(
             (InternalEntityEntry Entry,
-            InternalEntityEntry OtherEntry,
-            ISkipNavigation SkipNavigation,
-            bool FromQuery,
-            bool SetModified) arguments)
+                InternalEntityEntry OtherEntry,
+                ISkipNavigation SkipNavigation,
+                bool FromQuery,
+                bool SetModified) arguments)
         {
             var joinEntry = FindJoinEntry(arguments.Entry, arguments.OtherEntry, arguments.SkipNavigation);
             if (joinEntry != null)
             {
-                SetForeignKeyProperties(joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
-                SetForeignKeyProperties(joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified,
+                    arguments.FromQuery);
             }
             else if (!_inAttachGraph)
             {
@@ -1009,8 +1012,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
 
                 joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
 
-                SetForeignKeyProperties(joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
-                SetForeignKeyProperties(joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.Entry, arguments.SkipNavigation.ForeignKey, arguments.SetModified, arguments.FromQuery);
+                SetForeignKeyProperties(
+                    joinEntry, arguments.OtherEntry, arguments.SkipNavigation.Inverse.ForeignKey, arguments.SetModified,
+                    arguments.FromQuery);
 
                 joinEntry.SetEntityState(
                     arguments.SetModified
@@ -1022,7 +1028,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
             else
             {
                 _danglingJoinEntities ??= new List<Action>();
-            
+
                 _danglingJoinEntities.Add(() => FindOrCreateJoinEntry(arguments));
             }
         }
@@ -1332,14 +1338,19 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
                         break;
                     case EntityState.Unchanged:
                     case EntityState.Modified:
-                        dependentEntry.SetEntityState(dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
+                        dependentEntry.SetEntityState(
+                            dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
                         DeleteFixup(dependentEntry);
                         break;
                 }
             }
         }
 
-        private static bool CanOverrideCurrentValue(InternalEntityEntry entry, INavigationBase? navigation, InternalEntityEntry value, bool fromQuery)
+        private static bool CanOverrideCurrentValue(
+            InternalEntityEntry entry,
+            INavigationBase? navigation,
+            InternalEntityEntry value,
+            bool fromQuery)
         {
             if (fromQuery)
             {

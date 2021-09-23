@@ -197,7 +197,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 && ShouldHaveGeneratedProperty(property.FindContainingPrimaryKey())
                 && CanBeGenerated(property)
                     ? ValueGenerated.OnAdd
-                    : (ValueGenerated?)null;
+                    : null;
 
         private static bool ShouldHaveGeneratedProperty(IReadOnlyKey? key)
             => key != null

@@ -358,10 +358,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ref _collectionAccessorInitialized,
                 this,
                 static navigation =>
-                {
-                    navigation.EnsureReadOnly();
-                    return new ClrCollectionAccessorFactory().Create(navigation);
-                });
+                    {
+                        navigation.EnsureReadOnly();
+                        return new ClrCollectionAccessorFactory().Create(navigation);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -372,10 +372,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual ICollectionLoader ManyToManyLoader
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _manyToManyLoader, this, static navigation =>
-                {
-                    navigation.EnsureReadOnly();
-                    return new ManyToManyLoaderFactory().Create(navigation);
-                });
+                    {
+                        navigation.EnsureReadOnly();
+                        return new ManyToManyLoaderFactory().Create(navigation);
+                    });
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -395,7 +395,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IReadOnlySkipNavigation)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IReadOnlySkipNavigation)this).ToDebugString(),
                 () => ((IReadOnlySkipNavigation)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <inheritdoc />

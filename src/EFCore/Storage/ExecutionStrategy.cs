@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <exception cref="RetryLimitExceededException">
         ///     The operation has not succeeded after the configured number of retries.
         /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<TResult> ExecuteAsync<TState, TResult>(
             TState state,
             Func<DbContext, TState, CancellationToken, Task<TResult>> operation,
@@ -322,7 +322,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             // In order to avoid infinite recursive generics, wrap operation with ExecutionResult
             var result = await ExecuteImplementationAsync(
-                async (context, state, cancellationToken) => new ExecutionResult<TResult>(true, await operation(context, state, cancellationToken).ConfigureAwait(false)),
+                async (context, state, cancellationToken) => new ExecutionResult<TResult>(
+                    true, await operation(context, state, cancellationToken).ConfigureAwait(false)),
                 verifySucceeded,
                 state,
                 cancellationToken).ConfigureAwait(false);
@@ -397,11 +398,12 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </remarks>
         protected virtual void OnFirstExecution()
         {
-            if (RetriesOnFailure &&
-                (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
-                 || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
-                 || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies.TransactionManager as
-                     ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null))
+            if (RetriesOnFailure
+                && (Dependencies.CurrentContext.Context.Database.CurrentTransaction is not null
+                    || Dependencies.CurrentContext.Context.Database.GetEnlistedTransaction() is not null
+                    || (((IDatabaseFacadeDependenciesAccessor)Dependencies.CurrentContext.Context.Database).Dependencies
+                        .TransactionManager as
+                        ITransactionEnlistmentManager)?.CurrentAmbientTransaction is not null))
             {
                 throw new InvalidOperationException(
                     CoreStrings.ExecutionStrategyExistingTransaction(
@@ -504,7 +506,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Func<Exception, TResult> exceptionHandler)
             => exception is DbUpdateException dbUpdateException
                 && dbUpdateException.InnerException != null
-                ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
-                : exceptionHandler(exception);
+                    ? CallOnWrappedException(dbUpdateException.InnerException, exceptionHandler)
+                    : exceptionHandler(exception);
     }
 }

@@ -152,8 +152,9 @@ namespace Microsoft.EntityFrameworkCore
         protected virtual bool Equals(DbContextOptions other)
             => _extensionsMap.Count == other._extensionsMap.Count
                 && _extensionsMap.Zip(other._extensionsMap)
-                    .All(p => p.First.Value.Ordinal == p.Second.Value.Ordinal
-                        && p.First.Value.Extension.Info.ShouldUseSameServiceProvider(p.Second.Value.Extension.Info));
+                    .All(
+                        p => p.First.Value.Ordinal == p.Second.Value.Ordinal
+                            && p.First.Value.Extension.Info.ShouldUseSameServiceProvider(p.Second.Value.Extension.Info));
 
         /// <inheritdoc />
         public override int GetHashCode()

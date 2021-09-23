@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         This overload allows the minimum level of logging and the log formatting to be controlled.
         ///         Use the
         ///         <see
-        ///             cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+        ///             cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only specific events.
         ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
         ///         overload to log only events in specific categories.
@@ -251,20 +251,20 @@ namespace Microsoft.EntityFrameworkCore
                 return LogTo(
                     action,
                     (eventId, level) =>
-                    {
-                        if (level >= minimumLevel)
                         {
-                            for (var i = 0; i < categoriesArray.Length; i++)
+                            if (level >= minimumLevel)
                             {
-                                if (eventId.Name!.StartsWith(categoriesArray[i], StringComparison.OrdinalIgnoreCase))
+                                for (var i = 0; i < categoriesArray.Length; i++)
                                 {
-                                    return true;
+                                    if (eventId.Name!.StartsWith(categoriesArray[i], StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return true;
+                                    }
                                 }
                             }
-                        }
 
-                        return false;
-                    },
+                            return false;
+                        },
                     options);
             }
 

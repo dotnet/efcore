@@ -181,8 +181,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             }
             else if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
                 && (foreignKey.PrincipalEntityType.FindOwnership() != null
-                        && foreignKey.PrincipalToDependent != null
-                        && foreignKey.DependentToPrincipal == null))
+                    && foreignKey.PrincipalToDependent != null
+                    && foreignKey.DependentToPrincipal == null))
             {
                 var invertedRelationshipBuilder = relationshipBuilder.HasEntityTypes(
                     foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
@@ -729,7 +729,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             foreach (var foreignKey in foreignKeys)
             {
                 if ((foreignKey.IsUnique
-                    && foreignKey.DeclaringEntityType.BaseType == null)
+                        && foreignKey.DeclaringEntityType.BaseType == null)
                     || !foreignKey.IsInModel)
                 {
                     continue;

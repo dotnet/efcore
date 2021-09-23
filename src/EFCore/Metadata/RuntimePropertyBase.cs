@@ -67,78 +67,79 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         protected abstract Type ClrType { get; }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         PropertyInfo? IReadOnlyPropertyBase.PropertyInfo
         {
             [DebuggerStepThrough]
             get => _propertyInfo;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         FieldInfo? IReadOnlyPropertyBase.FieldInfo
         {
             [DebuggerStepThrough]
             get => _fieldInfo;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         PropertyAccessMode IReadOnlyPropertyBase.GetPropertyAccessMode()
             => _propertyAccessMode;
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
         {
             [DebuggerStepThrough]
             get => DeclaringEntityType;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IClrPropertySetter IRuntimePropertyBase.Setter
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _setter, this, static property => new ClrPropertySetterFactory().Create(property));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         IClrPropertySetter IRuntimePropertyBase.MaterializationSetter
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _materializationSetter, this, static property =>
-                new ClrPropertyMaterializationSetterFactory().Create(property));
+                    new ClrPropertyMaterializationSetterFactory().Create(property));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         PropertyAccessors IRuntimePropertyBase.Accessors
-            => NonCapturingLazyInitializer.EnsureInitialized(ref _accessors, this, static property =>
-            new PropertyAccessorsFactory().Create(property));
+            => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _accessors, this, static property =>
+                    new PropertyAccessorsFactory().Create(property));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         PropertyIndexes IRuntimePropertyBase.PropertyIndexes
         {
             get => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _indexes, this,
                 static property =>
-                {
-                    var _ = ((IRuntimeEntityType)property.DeclaringEntityType).Counts;
-                });
+                    {
+                        var _ = ((IRuntimeEntityType)property.DeclaringEntityType).Counts;
+                    });
             set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         Type IReadOnlyPropertyBase.ClrType
         {
             [DebuggerStepThrough]
             get => ClrType;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IClrPropertyGetter IPropertyBase.GetGetter()
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _getter, this, static property => new ClrPropertyGetterFactory().Create(property));
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [DebuggerStepThrough]
         IComparer<IUpdateEntry> IPropertyBase.GetCurrentValueComparer()
             => NonCapturingLazyInitializer.EnsureInitialized(
                 ref _currentValueComparer, this, static property =>
-                new CurrentValueComparerFactory().Create(property));
+                    new CurrentValueComparerFactory().Create(property));
     }
 }

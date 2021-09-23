@@ -370,18 +370,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             return HasValueGenerator(
                 (_, __)
                     =>
-                {
-                    try
                     {
-                        return (ValueGenerator)Activator.CreateInstance(valueGeneratorType)!;
-                    }
-                    catch (Exception e)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.CannotCreateValueGenerator(
-                                valueGeneratorType.ShortDisplayName(), nameof(PropertyBuilder.HasValueGenerator)), e);
-                    }
-                }, configurationSource);
+                        try
+                        {
+                            return (ValueGenerator)Activator.CreateInstance(valueGeneratorType)!;
+                        }
+                        catch (Exception e)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.CannotCreateValueGenerator(
+                                    valueGeneratorType.ShortDisplayName(), nameof(PropertyBuilder.HasValueGenerator)), e);
+                        }
+                    }, configurationSource);
         }
 
         /// <summary>
@@ -479,10 +479,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             ValueConverter? converter,
             ConfigurationSource? configurationSource)
             => (configurationSource == ConfigurationSource.Explicit
-                || (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
-                    && Metadata.CheckValueConverter(converter) == null)
-                || (Metadata[CoreAnnotationNames.ValueConverterType] == null
-                    && (ValueConverter?)Metadata[CoreAnnotationNames.ValueConverter] == converter))
+                    || (configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
+                        && Metadata.CheckValueConverter(converter) == null)
+                    || (Metadata[CoreAnnotationNames.ValueConverterType] == null
+                        && (ValueConverter?)Metadata[CoreAnnotationNames.ValueConverter] == converter))
                 && configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource());
 
         /// <summary>
@@ -512,7 +512,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetConversion(Type? providerClrType, ConfigurationSource? configurationSource)
             => (configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource())
-                || Metadata.GetProviderClrType() == providerClrType)
+                    || Metadata.GetProviderClrType() == providerClrType)
                 && configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource());
 
         /// <summary>
@@ -651,8 +651,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual bool CanSetValueComparer(Type? comparerType, ConfigurationSource? configurationSource)
             => configurationSource.Overrides(Metadata.GetValueComparerConfigurationSource())
-            || (Metadata[CoreAnnotationNames.ValueComparer] == null
-                && (Type?)Metadata[CoreAnnotationNames.ValueComparerType] == comparerType);
+                || (Metadata[CoreAnnotationNames.ValueComparer] == null
+                    && (Type?)Metadata[CoreAnnotationNames.ValueComparerType] == comparerType);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -703,7 +703,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 var identifyingMemberInfo = Metadata.GetIdentifyingMemberInfo();
 
-                newPropertyBuilder =  Metadata.IsIndexerProperty()
+                newPropertyBuilder = Metadata.IsIndexerProperty()
                     ? entityTypeBuilder.IndexerProperty(Metadata.ClrType, Metadata.Name, configurationSource)
                     : identifyingMemberInfo == null
                         ? entityTypeBuilder.Property(
@@ -1096,8 +1096,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueGeneratorFactory(Type? valueGeneratorFactoryType, bool fromDataAnnotation)
-            => HasValueGeneratorFactory(valueGeneratorFactoryType,
+        IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueGeneratorFactory(
+            Type? valueGeneratorFactoryType,
+            bool fromDataAnnotation)
+            => HasValueGeneratorFactory(
+                valueGeneratorFactoryType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>
@@ -1107,7 +1110,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         bool IConventionPropertyBuilder.CanSetValueGeneratorFactory(Type? valueGeneratorFactoryType, bool fromDataAnnotation)
-            => CanSetValueGeneratorFactory(valueGeneratorFactoryType,
+            => CanSetValueGeneratorFactory(
+                valueGeneratorFactoryType,
                 fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
         /// <summary>

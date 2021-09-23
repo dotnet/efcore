@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -15,22 +14,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public partial class ModelConfiguration
+    public class ModelConfiguration
     {
         private readonly Dictionary<Type, PropertyConfiguration> _properties = new();
         private readonly Dictionary<Type, PropertyConfiguration> _typeMappings = new();
         private readonly HashSet<Type> _ignoredTypes = new();
         private readonly Dictionary<Type, TypeConfigurationType?> _configurationTypes = new();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public ModelConfiguration()
-        {
-        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -104,7 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private TypeConfigurationType? GetConfigurationType(
-            Type type, TypeConfigurationType? previousConfiguration, ref Type? previousType, bool getBaseTypes = true)
+            Type type,
+            TypeConfigurationType? previousConfiguration,
+            ref Type? previousType,
+            bool getBaseTypes = true)
         {
             if (_configurationTypes.TryGetValue(type, out var configurationType))
             {
@@ -171,15 +163,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         }
 
         private static void EnsureCompatible(
-            TypeConfigurationType configurationType, Type type,
-            TypeConfigurationType? previousConfiguration, Type? previousType)
+            TypeConfigurationType configurationType,
+            Type type,
+            TypeConfigurationType? previousConfiguration,
+            Type? previousType)
         {
             if (previousConfiguration != null
                 && previousConfiguration.Value != configurationType)
             {
-                throw new InvalidOperationException(CoreStrings.TypeConfigurationConflict(
-                    type.DisplayName(fullName: false), configurationType,
-                    previousType?.DisplayName(fullName: false), previousConfiguration.Value));
+                throw new InvalidOperationException(
+                    CoreStrings.TypeConfigurationConflict(
+                        type.DisplayName(fullName: false), configurationType,
+                        previousType?.DisplayName(fullName: false), previousConfiguration.Value));
             }
         }
 
@@ -251,8 +246,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyConfiguration? FindProperty(Type type)
             => _properties.TryGetValue(type, out var property)
-            ? property
-            : null;
+                ? property
+                : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -300,8 +295,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual PropertyConfiguration? FindTypeMapping(Type type)
             => _typeMappings.TryGetValue(type, out var property)
-            ? property
-            : null;
+                ? property
+                : null;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

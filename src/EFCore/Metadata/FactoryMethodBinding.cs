@@ -98,7 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> A copy with replaced parameter bindings. </returns>
         public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
             => _factoryInstance == null
-            ? new FactoryMethodBinding(_factoryMethod, parameterBindings, RuntimeType)
-            : new FactoryMethodBinding(_factoryInstance, _factoryMethod, parameterBindings, RuntimeType);
+                ? new FactoryMethodBinding(_factoryMethod, parameterBindings, RuntimeType)
+                : new FactoryMethodBinding(_factoryInstance, _factoryMethod, parameterBindings, RuntimeType);
     }
 }

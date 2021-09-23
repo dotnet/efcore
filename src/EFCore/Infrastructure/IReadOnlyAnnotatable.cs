@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="annotationName"> The key of the annotation to find. </param>
         /// <returns> The annotation with the specified name. </returns>
         IAnnotation GetAnnotation(string annotationName)
-            => Annotatable.GetAnnotation(this, annotationName);
+            => AnnotatableBase.GetAnnotation(this, annotationName);
 
         /// <summary>
         ///     Gets the debug string for all annotations declared on the object.

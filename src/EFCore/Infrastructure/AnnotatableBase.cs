@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///         Runtime annotations cannot be changed when the object is not read-only.
         ///     </para>
         /// </summary>
-        public virtual bool IsReadOnly => false;
+        public virtual bool IsReadOnly
+            => false;
 
         /// <summary>
         ///     Throws if the model is not read-only.
@@ -286,8 +287,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         public virtual IEnumerable<Annotation> GetRuntimeAnnotations()
             => _runtimeAnnotations == null
-            ? Enumerable.Empty<Annotation>()
-            : _runtimeAnnotations.OrderBy(p => p.Key).Select(p => p.Value);
+                ? Enumerable.Empty<Annotation>()
+                : _runtimeAnnotations.OrderBy(p => p.Key).Select(p => p.Value);
 
         /// <summary>
         ///     Adds a runtime annotation to this object. Throws if an annotation with the specified name already exists.
@@ -341,7 +342,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         public virtual Annotation SetRuntimeAnnotation(string name, object? value)
-            => GetOrCreateRuntimeAnnotations().AddOrUpdate(name,
+            => GetOrCreateRuntimeAnnotations().AddOrUpdate(
+                name,
                 static (n, a) => a.Annotatable.CreateRuntimeAnnotation(n, a.Value),
                 static (n, oldAnnotation, a) =>
                     !Equals(oldAnnotation.Value, a.Value) ? a.Annotatable.CreateRuntimeAnnotation(n, a.Value) : oldAnnotation,
@@ -429,14 +431,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly created annotation. </returns>
         protected virtual Annotation CreateRuntimeAnnotation(string name, object? value)
-            => new (name, value);
+            => new(name, value);
 
         private ConcurrentDictionary<string, Annotation> GetOrCreateRuntimeAnnotations()
         {
             EnsureReadOnly();
 
             return NonCapturingLazyInitializer.EnsureInitialized(
-                        ref _runtimeAnnotations, (object?)null, static _ => new ConcurrentDictionary<string, Annotation>());
+                ref _runtimeAnnotations, (object?)null, static _ => new ConcurrentDictionary<string, Annotation>());
         }
 
         /// <inheritdoc />

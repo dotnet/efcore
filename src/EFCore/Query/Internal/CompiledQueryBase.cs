@@ -91,12 +91,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                 context,
                 _queryExpression,
                 static (t, c, q) =>
-                {
-                    var queryCompiler = c.GetService<IQueryCompiler>();
-                    var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
+                    {
+                        var queryCompiler = c.GetService<IQueryCompiler>();
+                        var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
 
-                    return t.CreateCompiledQuery(queryCompiler, expression);
-                });
+                        return t.CreateCompiledQuery(queryCompiler, expression);
+                    });
 
         private sealed class QueryExpressionRewriter : ExpressionVisitor
         {

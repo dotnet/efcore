@@ -320,7 +320,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             private static readonly MethodInfo _startTrackingMethodInfo
                 = typeof(QueryContext).GetRequiredMethod(
-                    nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ValueBuffer) });
+                    nameof(QueryContext.StartTracking), typeof(IEntityType), typeof(object), typeof(ValueBuffer));
 
             private readonly IEntityMaterializerSource _entityMaterializerSource;
             private readonly QueryTrackingBehavior _queryTrackingBehavior;

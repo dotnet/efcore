@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore
@@ -44,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         private DbContextOptions(
-           ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> extensions)
+            ImmutableSortedDictionary<Type, (IDbContextOptionsExtension Extension, int Ordinal)> extensions)
             : base(extensions)
         {
         }
@@ -58,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore
             var ordinal = ExtensionsMap.Count;
             if (ExtensionsMap.TryGetValue(type, out var existingValue))
             {
-                 ordinal = existingValue.Ordinal;
+                ordinal = existingValue.Ordinal;
             }
 
             return new DbContextOptions<TContext>(ExtensionsMap.SetItem(type, (extension, ordinal)));

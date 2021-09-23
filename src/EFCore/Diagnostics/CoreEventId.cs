@@ -296,7 +296,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
         /// <summary>
         ///     <para>
-        ///         The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before `Distinct` and after ordering then ordering will be used for it.
+        ///         The query uses the 'Distinct' operator after applying an ordering. If there are any row limiting operation used before `Distinct`
+        ///         and after ordering then ordering will be used for it.
         ///         Ordering(s) will be erased after `Distinct` and results afterwards would be unordered.
         ///     </para>
         ///     <para>

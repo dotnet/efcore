@@ -120,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </typeparam>
+        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </typeparam>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual TypeMappingConfigurationBuilder HasConversion<TConversion>()
             => HasConversion(typeof(TConversion));
@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter"/>. </param>
+        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual TypeMappingConfigurationBuilder HasConversion(Type conversionType)
         {

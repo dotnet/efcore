@@ -69,7 +69,8 @@ namespace Microsoft.EntityFrameworkCore.Internal
 
             static (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo) BuildServiceProvider(
                 IDbContextOptions options,
-                ConcurrentDictionary<IDbContextOptions, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)> configurations)
+                ConcurrentDictionary<IDbContextOptions, (IServiceProvider ServiceProvider, IDictionary<string, string> DebugInfo)>
+                    configurations)
             {
                 ValidateOptions(options);
 

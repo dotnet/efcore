@@ -55,7 +55,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext">DbContext lifetime, configuration, and initialization</see>,
-    ///         <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, 
+    ///         <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>,
     ///         <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>, and
     ///         <see href="https://aka.ms/efcore-docs-saving-data">Saving data with EF Core</see> for more information.
     ///     </para>
@@ -323,7 +323,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> and 
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> and
         ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information.
         /// </remarks>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
@@ -342,7 +342,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     </para>
         /// </summary>
         /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, 
+        ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>,
         ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>, and
         ///     <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see>  for more information.
         /// </remarks>
@@ -487,7 +487,7 @@ namespace Microsoft.EntityFrameworkCore
 
         /// <summary>
         ///     Override this method to set defaults and configure conventions before they run. This method is invoked before
-        ///     <see cref="OnModelCreating"/>.
+        ///     <see cref="OnModelCreating" />.
         /// </summary>
         /// <remarks>
         ///     If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)" />)
@@ -2141,6 +2141,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         #region Hidden System.Object members
+
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
@@ -2165,6 +2166,7 @@ namespace Microsoft.EntityFrameworkCore
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();
+
         #endregion
     }
 }

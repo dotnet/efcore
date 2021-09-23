@@ -112,14 +112,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     entityType = Metadata.FindEntityType(clrType);
                     if (entityType != null)
                     {
-                        Check.DebugAssert(entityType.Name != type.Name || !entityType.HasSharedClrType,
+                        Check.DebugAssert(
+                            entityType.Name != type.Name || !entityType.HasSharedClrType,
                             "Shared type entity types shouldn't be named the same as non-shared");
 
                         if (!configurationSource.OverridesStrictly(entityType.GetConfigurationSource())
                             && !entityType.IsOwned())
                         {
                             return configurationSource == ConfigurationSource.Explicit
-                                ? throw new InvalidOperationException(CoreStrings.ClashingNonSharedType(type.Name, clrType.ShortDisplayName()))
+                                ? throw new InvalidOperationException(
+                                    CoreStrings.ClashingNonSharedType(type.Name, clrType.ShortDisplayName()))
                                 : null;
                         }
 
@@ -224,6 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                             {
                                 return null;
                             }
+
                             break;
                         }
                     }

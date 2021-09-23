@@ -143,7 +143,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         public virtual IEntityType EntityType
         {
-            [DebuggerStepThrough] get => InternalEntry.EntityType;
+            [DebuggerStepThrough]
+            get => InternalEntry.EntityType;
         }
 
         /// <summary>

@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             return Expression.Lambda<Func<IUpdateEntry, TProperty>>(
                     originalValuesIndex >= 0
-                        ? (Expression)Expression.Call(
+                        ? Expression.Call(
                             entryParameter,
                             InternalEntityEntry.ReadOriginalValueMethod.MakeGenericMethod(typeof(TProperty)),
                             Expression.Constant(property),

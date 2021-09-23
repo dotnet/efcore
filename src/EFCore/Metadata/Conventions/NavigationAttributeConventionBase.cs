@@ -296,7 +296,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
 
         private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionEntityType entityType)
             => Dependencies.MemberClassifier.GetNavigationCandidates(entityType)
-                .TryGetValue(propertyInfo, out var target)
+                    .TryGetValue(propertyInfo, out var target)
                 && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                     ? target.Type
                     : null;

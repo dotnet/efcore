@@ -101,15 +101,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             model = model.GetOrAddRuntimeAnnotationValue(
                 CoreAnnotationNames.ReadOnlyModel,
                 static model =>
-                {
-                    if (model is Model mutableModel)
                     {
-                        // This assumes OnModelFinalized is thread-safe
-                        model = mutableModel.OnModelFinalized();
-                    }
+                        if (model is Model mutableModel)
+                        {
+                            // This assumes OnModelFinalized is thread-safe
+                            model = mutableModel.OnModelFinalized();
+                        }
 
-                    return model!;
-                },
+                        return model!;
+                    },
                 model);
 
             return model;
@@ -121,8 +121,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="model"> The model to initialize. </param>
         /// <param name="designTime"> Whether the model should contain design-time configuration. </param>
         /// <param name="prevalidation">
-        ///     <see langword="true"/> indicates that only pre-validation initialization should be performed;
-        ///     <see langword="false"/> indicates that only post-validation initialization should be performed.
+        ///     <see langword="true" /> indicates that only pre-validation initialization should be performed;
+        ///     <see langword="false" /> indicates that only post-validation initialization should be performed.
         /// </param>
         protected virtual void InitializeModel(IModel model, bool designTime, bool prevalidation)
         {
