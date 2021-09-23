@@ -591,7 +591,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
                             if (_identifier.Count == 0
                                 || innerSelectExpression._identifier.Count == 0)
                             {
-                                throw new InvalidOperationException(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin);
+                                throw new InvalidOperationException(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin);
                             }
 
                             var innerShaperExpression = shapedQueryExpression.ShaperExpression;

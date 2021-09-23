@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Collection_projection_after_set_operation_fails_if_distinct(async))).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
 
         public override async Task Collection_projection_before_set_operation_fails(bool async)

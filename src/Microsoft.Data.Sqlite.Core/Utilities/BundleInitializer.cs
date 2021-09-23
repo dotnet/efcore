@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
 using static SQLitePCL.raw;
 
@@ -34,12 +35,12 @@ namespace Microsoft.Data.Sqlite.Utilities
                 var rc = sqlite3_win32_set_directory(
                     SQLITE_WIN32_DATA_DIRECTORY_TYPE,
                     ApplicationDataHelper.LocalFolderPath);
-                SqliteException.ThrowExceptionForRC(rc, db: null);
+                Debug.Assert(rc == SQLITE_OK);
 
                 rc = sqlite3_win32_set_directory(
                     SQLITE_WIN32_TEMP_DIRECTORY_TYPE,
                     ApplicationDataHelper.TemporaryFolderPath);
-                SqliteException.ThrowExceptionForRC(rc, db: null);
+                Debug.Assert(rc == SQLITE_OK);
             }
         }
     }

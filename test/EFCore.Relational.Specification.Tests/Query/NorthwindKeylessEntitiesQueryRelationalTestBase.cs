@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                             OrderDetailIds = ss.Set<Customer>().Where(c => c.City == cq.City).ToList()
                         }).OrderBy(x => x.City).Take(2)))).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
 
         [ConditionalTheory]
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         Collection = ss.Set<CustomerQuery>().Where(cq => cq.City == c.City).ToList(),
                     })))).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
 
         [ConditionalTheory]
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.KeylessEntity_with_included_navs_multi_level(async))).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
 
         [ConditionalTheory]
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             var message = (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.KeylessEntity_with_defining_query_and_correlated_collection(async))).Message;
 
-            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyOuterElementOfCollectionJoin, message);
+            Assert.Equal(RelationalStrings.InsufficientInformationToIdentifyElementOfCollectionJoin, message);
         }
 
         protected override QueryAsserter CreateQueryAsserter(TFixture fixture)

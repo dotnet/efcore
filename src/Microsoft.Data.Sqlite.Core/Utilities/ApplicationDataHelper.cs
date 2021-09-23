@@ -26,6 +26,7 @@ namespace Microsoft.Data.Sqlite.Utilities
             try
             {
                 return Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                    ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET")
                     ?.GetRuntimeProperty("Current")!.GetValue(null);
             }
             catch

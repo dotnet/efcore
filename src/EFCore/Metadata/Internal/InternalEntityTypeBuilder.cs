@@ -226,10 +226,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     return null;
                 }
 
-                if (Metadata.GetIsKeylessConfigurationSource() != ConfigurationSource.Explicit)
-                {
-                    Metadata.SetIsKeyless(false, configurationSource.Value);
-                }
+                Metadata.SetIsKeyless(false, configurationSource.Value);
 
                 var containingForeignKeys = actualProperties
                     .SelectMany(p => p.GetContainingForeignKeys().Where(k => k.DeclaringEntityType != Metadata))
@@ -2831,13 +2828,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     Metadata, null, navigationToTarget, !setTargetAsPrincipal, configurationSource, required);
             }
 
+            if (setTargetAsPrincipal == null
+                && targetEntityType.IsKeyless)
+            {
+                setTargetAsPrincipal = false;
+            }
+
             if (configurationSource == ConfigurationSource.Explicit
                 && setTargetAsPrincipal.HasValue)
             {
                 if (setTargetAsPrincipal.Value)
                 {
-                    if (targetEntityType.IsKeyless
-                        && targetEntityType.GetIsKeylessConfigurationSource() == ConfigurationSource.Explicit)
+                    if (targetEntityType.IsKeyless)
                     {
                         throw new InvalidOperationException(CoreStrings.PrincipalKeylessType(
                             targetEntityType.DisplayName(),
@@ -2853,8 +2855,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 }
                 else
                 {
-                    if (Metadata.IsKeyless
-                        && Metadata.GetIsKeylessConfigurationSource() == ConfigurationSource.Explicit)
+                    if (Metadata.IsKeyless)
                     {
                         throw new InvalidOperationException(CoreStrings.PrincipalKeylessType(
                             Metadata.DisplayName(),

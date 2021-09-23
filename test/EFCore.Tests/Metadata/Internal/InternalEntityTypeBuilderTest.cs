@@ -1332,10 +1332,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Assert.Equal(ConfigurationSource.Explicit, entityType.GetIsKeylessConfigurationSource());
             Assert.Empty(entityType.GetKeys());
 
-            Assert.Equal(
-                CoreStrings.KeylessTypeWithKey("{'CustomerId'}", nameof(Order)),
-                Assert.Throws<InvalidOperationException>(
-                    () => entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit)).Message);
+            Assert.NotNull(entityBuilder.HasKey(new[] { Order.CustomerIdProperty.Name }, ConfigurationSource.Explicit));
         }
 
         [ConditionalFact]

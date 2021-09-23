@@ -169,6 +169,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations).Single();
 
             Assert.Equal("UseIdentityColumns", result.Method);
+            Assert.Equal("SqlServerModelBuilderExtensions", result.DeclaringType);
 
             Assert.Collection(
                 result.Arguments,
@@ -188,6 +189,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
 
             Assert.Equal("UseIdentityColumn", result.Method);
+            Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
 
             Assert.Collection(
                 result.Arguments,
@@ -207,6 +209,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
 
             Assert.Equal("UseIdentityColumn", result.Method);
+            Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
 
             Assert.Collection(
                 result.Arguments,
@@ -225,6 +228,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations).Single();
 
             Assert.Equal("UseHiLo", result.Method);
+            Assert.Equal("SqlServerModelBuilderExtensions", result.DeclaringType);
 
             Assert.Collection(
                 result.Arguments,
@@ -244,6 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
 
             Assert.Equal("UseHiLo", result.Method);
+            Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
 
             Assert.Collection(
                 result.Arguments,

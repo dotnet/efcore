@@ -690,10 +690,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 valuesCount, columnsCount, table);
 
         /// <summary>
-        ///     Unable to translate a collection subquery in a projection since the parent query doesn't project the key columns of all tables required to generate results on the client side. This can happen when trying to correlate on keyless entity or when using 'Distinct' or 'GroupBy' operations without projecting all of the key columns.
+        ///     Unable to translate a collection subquery in a projection since either parent or the subquery doesn't project necessary information required to uniquely identify it and correctly generate results on the client side. This can happen when trying to correlate on keyless entity type. This can also happen for some cases of projection before 'Distinct' or some shapes of grouping key in case of 'GroupBy'. These should either contain all key properties of the entity that the operation is applied on, or only contain simple property access expressions.
         /// </summary>
-        public static string InsufficientInformationToIdentifyOuterElementOfCollectionJoin
-            => GetString("InsufficientInformationToIdentifyOuterElementOfCollectionJoin");
+        public static string InsufficientInformationToIdentifyElementOfCollectionJoin
+            => GetString("InsufficientInformationToIdentifyElementOfCollectionJoin");
 
         /// <summary>
         ///     The specified 'CommandTimeout' value '{value}' is not valid. It must be a positive number.

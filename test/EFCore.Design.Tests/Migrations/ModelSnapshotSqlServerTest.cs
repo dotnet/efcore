@@ -310,6 +310,46 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         [ConditionalFact]
+        public virtual void Model_Fluent_APIs_are_properly_generated()
+        {
+            Test(
+                builder =>
+                {
+                    builder.UseHiLo();
+                    builder.Entity<EntityWithOneProperty>();
+                    builder.Ignore<EntityWithTwoProperties>();
+                },
+                AddBoilerPlate(
+                    @"
+            modelBuilder.HasAnnotation(""Relational:MaxIdentifierLength"", 128);
+
+            SqlServerModelBuilderExtensions.UseHiLo(modelBuilder, ""EntityFrameworkHiLoSequence"");
+
+            modelBuilder.HasSequence(""EntityFrameworkHiLoSequence"")
+                .IncrementsBy(10);
+
+            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty"", b =>
+                {
+                    b.Property<int>(""Id"")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType(""int"");
+
+                    SqlServerPropertyBuilderExtensions.UseHiLo(b.Property<int>(""Id""));
+
+                    b.HasKey(""Id"");
+
+                    b.ToTable(""EntityWithOneProperty"");
+                });"),
+                o =>
+                {
+                    Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, o.GetValueGenerationStrategy());
+                    Assert.Equal(
+                        SqlServerValueGenerationStrategy.SequenceHiLo,
+                        o.GetEntityTypes().Single().GetProperty("Id").GetValueGenerationStrategy());
+                });
+        }
+
+        [ConditionalFact]
         public virtual void Model_default_schema_annotation_is_stored_in_snapshot_as_fluent_api()
         {
             Test(
