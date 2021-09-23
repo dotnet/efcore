@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Xunit;
@@ -275,11 +276,51 @@ namespace Microsoft.EntityFrameworkCore.Storage
             Test_GenerateSqlLiteral_helper(GetMapping("varchar(max)"), "Text", "'Text'");
         }
 
+        [ConditionalFact]
+        public virtual void DateOnly_code_literal_generated_correctly()
+        {
+            var typeMapping = new DateOnlyTypeMapping("date", DbType.Date);
+
+            Test_GenerateCodeLiteral_helper(typeMapping, new DateOnly(2020, 3, 5), "new DateOnly(2020, 3, 5)");
+        }
+
+        [ConditionalFact]
+        public virtual void TimeOnly_code_literal_generated_correctly()
+        {
+            var typeMapping = new TimeOnlyTypeMapping("time", DbType.Time);
+
+            Test_GenerateCodeLiteral_helper(typeMapping, new TimeOnly(12, 30, 10), "new TimeOnly(12, 30, 10)");
+            Test_GenerateCodeLiteral_helper(typeMapping, new TimeOnly(12, 30, 10, 500), "new TimeOnly(12, 30, 10, 500)");
+
+            Test_GenerateCodeLiteral_helper(
+                typeMapping,
+                new TimeOnly(12, 30, 10).Add(TimeSpan.FromTicks(10)),
+                "new TimeOnly(12, 30, 10).Add(TimeSpan.FromTicks(10))");
+            Test_GenerateCodeLiteral_helper(
+                typeMapping,
+                new TimeOnly(12, 30, 10, 500).Add(TimeSpan.FromTicks(10)),
+                "new TimeOnly(12, 30, 10, 500).Add(TimeSpan.FromTicks(10))");
+        }
+
         public static RelationalTypeMapping GetMapping(string type)
             => new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
                 .FindMapping(type);
+
+        protected virtual void Test_GenerateCodeLiteral_helper(
+            RelationalTypeMapping typeMapping,
+            object value,
+            string expectedCode)
+        {
+            var typeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+            var csharpHelper = new CSharpHelper(typeMappingSource);
+
+            Assert.Equal(expectedCode, csharpHelper.UnknownLiteral(value));
+        }
 
         private class FakeType : Type
         {
