@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="System.Collections.Immutable" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="System.Collections.Immutable" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
-    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="6.0.0-rc.2.21472.16">
+    <Dependency Name="System.Diagnostics.DiagnosticSource" Version="6.0.0-rc.2.21473.6">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>5b0c346c5f98df64b80623af3ec3eca1e35331dc</Sha>
+      <Sha>fc5eb7e72f3b6fff45ce9570c7714a40dc687f3b</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
