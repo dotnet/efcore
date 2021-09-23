@@ -81,31 +81,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <inheritdoc />
         IReadOnlyList<IReadOnlyProperty> IReadOnlyIndex.Properties
         {
-            [DebuggerStepThrough] get => Properties;
+            [DebuggerStepThrough]
+            get => Properties;
         }
 
         /// <inheritdoc />
         IReadOnlyEntityType IReadOnlyIndex.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <inheritdoc />
         IReadOnlyList<IProperty> IIndex.Properties
         {
-            [DebuggerStepThrough] get => Properties;
+            [DebuggerStepThrough]
+            get => Properties;
         }
 
         /// <inheritdoc />
         IEntityType IIndex.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <inheritdoc />
         bool IReadOnlyIndex.IsUnique
         {
-            [DebuggerStepThrough] get => _isUnique;
+            [DebuggerStepThrough]
+            get => _isUnique;
         }
 
         /// <inheritdoc />

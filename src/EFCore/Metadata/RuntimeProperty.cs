@@ -262,7 +262,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <inheritdoc />
         IReadOnlyEntityType IReadOnlyProperty.DeclaringEntityType
         {
-            [DebuggerStepThrough] get => DeclaringEntityType;
+            [DebuggerStepThrough]
+            get => DeclaringEntityType;
         }
 
         /// <inheritdoc />

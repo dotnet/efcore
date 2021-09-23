@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             {
                 if (successorSet.TryGetValue(to, out var edges))
                 {
-                    return edges is IEnumerable<TEdge> edgeList ? edgeList : (new TEdge[] { (TEdge)edges!  });
+                    return edges is IEnumerable<TEdge> edgeList ? edgeList : (new TEdge[] { (TEdge)edges! });
                 }
             }
 

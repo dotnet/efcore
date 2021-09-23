@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
     {
         [ContractAnnotation("value:null => halt")]
         [return: NotNull]
-        public static T NotNull<T>([NoEnumeration] [AllowNull] [NotNull] T value, [InvokerParameterName] string parameterName)
+        public static T NotNull<T>([NoEnumeration][AllowNull][NotNull] T value, [InvokerParameterName] string parameterName)
         {
             if (value is null)
             {

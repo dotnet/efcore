@@ -257,7 +257,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     new RelationshipCandidate(
                         candidateTargetEntityTypeBuilder, navigations, inverseNavigationCandidates, shouldBeOwnership);
 
-                Continue: ;
+                Continue:;
             }
 
             return UpdateTargetEntityTypes(entityTypeBuilder, relationshipCandidates);

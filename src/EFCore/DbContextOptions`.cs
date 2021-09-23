@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore
             var ordinal = ExtensionsMap.Count;
             if (ExtensionsMap.TryGetValue(type, out var existingValue))
             {
-                 ordinal = existingValue.Ordinal;
+                ordinal = existingValue.Ordinal;
             }
 
             return new DbContextOptions<TContext>(ExtensionsMap.SetItem(type, (extension, ordinal)));

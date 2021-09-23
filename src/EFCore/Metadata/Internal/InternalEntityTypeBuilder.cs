@@ -1015,11 +1015,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     .All(
                         m => configurationSource.Overrides(m.GetConfigurationSource())
                             && m.GetConfigurationSource() != ConfigurationSource.Explicit)
-                && Metadata.FindServicePropertiesInHierarchy(propertyName)
-                    .All(
-                        m => (configurationSource.Overrides(m.GetConfigurationSource())
-                                && m.GetConfigurationSource() != ConfigurationSource.Explicit)
-                            || memberInfo.IsOverridenBy(m.GetIdentifyingMemberInfo()));
+                && Metadata.FindServicePropertiesInHierarchy(propertyName).All(
+                    m => (configurationSource.Overrides(m.GetConfigurationSource())
+                            && m.GetConfigurationSource() != ConfigurationSource.Explicit)
+                        || memberInfo.IsOverridenBy(m.GetIdentifyingMemberInfo()));
         }
 
         private static InternalServicePropertyBuilder? DetachServiceProperty(ServiceProperty? serviceProperty)

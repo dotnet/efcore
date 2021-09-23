@@ -5049,11 +5049,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         /// </summary>
         public object? this[int index]
         {
-            get => index switch
-            {
-                0 => _value0,
-                _ => throw new IndexOutOfRangeException(),
-            };
+            get => index == 0 ? _value0 : throw new IndexOutOfRangeException();
             set => _value0 = index switch
             {
                 0 => (T0)value!,

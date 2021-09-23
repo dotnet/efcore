@@ -137,12 +137,13 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 };
 
                 _totalQueriesCounter ??= new PollingCounter("total-queries", this, () => Interlocked.Read(ref _totalQueries))
-                    { DisplayName = "Queries (Total)" };
+                { DisplayName = "Queries (Total)" };
 
                 _queriesPerSecondCounter ??= new IncrementingPollingCounter(
                     "queries-per-second",
                     this,
-                    () => Interlocked.Read(ref _totalQueries)) { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                    () => Interlocked.Read(ref _totalQueries))
+                { DisplayName = "Queries", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _totalSaveChangesCounter ??= new PollingCounter("total-save-changes", this, () => Interlocked.Read(ref _totalSaveChanges))
                 {
@@ -153,39 +154,42 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         "save-changes-per-second",
                         this,
                         () => Interlocked.Read(ref _totalSaveChanges))
-                    { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
+                { DisplayName = "SaveChanges", DisplayRateTimeScale = TimeSpan.FromSeconds(1) };
 
                 _compiledQueryCacheHitRateCounter ??= new PollingCounter(
                     "compiled-query-cache-hit-rate",
                     this,
-                    () => _compiledQueryCacheInfo.CalculateAndReset()) { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
+                    () => _compiledQueryCacheInfo.CalculateAndReset())
+                { DisplayName = "Query Cache Hit Rate", DisplayUnits = "%" };
 
                 _totalExecutionStrategyOperationFailuresCounter ??= new PollingCounter(
                         "total-execution-strategy-operation-failures",
                         this,
                         () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
-                    { DisplayName = "Execution Strategy Operation Failures (Total)" };
+                { DisplayName = "Execution Strategy Operation Failures (Total)" };
 
                 _executionStrategyOperationFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "execution-strategy-operation-failures-per-second",
                     this,
                     () => Interlocked.Read(ref _totalExecutionStrategyOperationFailures))
                 {
-                    DisplayName = "Execution Strategy Operation Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Execution Strategy Operation Failures",
+                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
 
                 _totalOptimisticConcurrencyFailuresCounter ??= new PollingCounter(
                         "total-optimistic-concurrency-failures",
                         this,
                         () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
-                    { DisplayName = "Optimistic Concurrency Failures (Total)" };
+                { DisplayName = "Optimistic Concurrency Failures (Total)" };
 
                 _optimisticConcurrencyFailuresPerSecondCounter ??= new IncrementingPollingCounter(
                     "optimistic-concurrency-failures-per-second",
                     this,
                     () => Interlocked.Read(ref _totalOptimisticConcurrencyFailures))
                 {
-                    DisplayName = "Optimistic Concurrency Failures", DisplayRateTimeScale = TimeSpan.FromSeconds(1)
+                    DisplayName = "Optimistic Concurrency Failures",
+                    DisplayRateTimeScale = TimeSpan.FromSeconds(1)
                 };
             }
         }

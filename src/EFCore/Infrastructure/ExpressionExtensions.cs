@@ -366,10 +366,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="makeNullable"> A value indicating if the value can be nullable. </param>
         /// <returns> An expression to access EF property on given expression. </returns>
         public static Expression CreateEFPropertyExpression(
-                this Expression target,
-                IPropertyBase property,
-                bool makeNullable = true)
-            // No shadow entities in runtime
+            this Expression target,
+            IPropertyBase property,
+            bool makeNullable = true) // No shadow entities in runtime
             => CreateEFPropertyExpression(target, property.DeclaringType.ClrType, property.ClrType, property.Name, makeNullable);
 
         private static Expression CreateEFPropertyExpression(

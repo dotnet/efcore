@@ -93,8 +93,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual FieldInfo? FieldInfo
         {
-            [DebuggerStepThrough] get => _fieldInfo;
-            [DebuggerStepThrough] set => SetFieldInfo(value, ConfigurationSource.Explicit);
+            [DebuggerStepThrough]
+            get => _fieldInfo;
+            [DebuggerStepThrough]
+            set => SetFieldInfo(value, ConfigurationSource.Explicit);
         }
 
         /// <summary>
@@ -463,7 +465,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
         {
-            [DebuggerStepThrough] get => DeclaringType;
+            [DebuggerStepThrough]
+            get => DeclaringType;
         }
 
         /// <summary>
@@ -474,7 +477,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IMutableTypeBase IMutablePropertyBase.DeclaringType
         {
-            [DebuggerStepThrough] get => DeclaringType;
+            [DebuggerStepThrough]
+            get => DeclaringType;
         }
 
         /// <summary>
@@ -485,7 +489,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionTypeBase IConventionPropertyBase.DeclaringType
         {
-            [DebuggerStepThrough] get => DeclaringType;
+            [DebuggerStepThrough]
+            get => DeclaringType;
         }
 
         /// <summary>

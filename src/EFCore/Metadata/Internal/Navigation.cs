@@ -75,7 +75,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalNavigationBuilder Builder
         {
-            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+            [DebuggerStepThrough]
+            get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -350,7 +351,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IReadOnlyForeignKey IReadOnlyNavigation.ForeignKey
         {
-            [DebuggerStepThrough] get => ForeignKey;
+            [DebuggerStepThrough]
+            get => ForeignKey;
         }
 
         [DebuggerStepThrough]
@@ -371,7 +373,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
         IConventionNavigationBuilder IConventionNavigation.Builder
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
@@ -382,7 +385,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         IConventionAnnotatableBuilder IConventionAnnotatable.Builder
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>
