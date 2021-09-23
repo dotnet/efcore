@@ -169,6 +169,12 @@ namespace Microsoft.EntityFrameworkCore.Query
             public static string GetSqlFragmentStatic()
                 => throw new NotImplementedException();
 
+            public static bool IsABC(string name)
+                => throw new NotImplementedException();
+
+            public static bool IsOrIsNotABC(string name)
+                => throw new NotImplementedException();
+
             public long MyCustomLengthInstance(string s)
                 => throw new Exception();
 
@@ -302,6 +308,26 @@ namespace Microsoft.EntityFrameworkCore.Query
                 modelBuilder.HasDbFunction(
                         typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), new[] { typeof(string) }))
                     .IsNullable(false);
+
+                var abc = new string[] { "A", "B", "C" };
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), new[] { typeof(string) }))
+                    .HasTranslation(args => new InExpression(
+                        args.First(),
+                        new SqlConstantExpression(Expression.Constant(abc), typeMapping: null),// args.First().TypeMapping),
+                        negated: false,
+                        typeMapping: null));
+
+                var trueFalse = new bool[] { true, false };
+                modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), new[] { typeof(string) }))
+                    .HasTranslation(args => new InExpression(
+                        new InExpression(
+                            args.First(),
+                            new SqlConstantExpression(Expression.Constant(abc), args.First().TypeMapping),
+                            negated: false,
+                            typeMapping: null),
+                        new SqlConstantExpression(Expression.Constant(trueFalse), typeMapping: null),
+                        negated: false,
+                        typeMapping: null));
 
                 //Instance
                 modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(CustomerOrderCountInstance)))
@@ -990,6 +1016,24 @@ namespace Microsoft.EntityFrameworkCore.Query
             var len = context.Customers.Count(c => c.LastName == UDFSqlContext.GetSqlFragmentStatic());
 
             Assert.Equal(1, len);
+        }
+
+        [ConditionalFact]
+        public virtual void Scalar_Function_with_InExpression_translation()
+        {
+            using var context = CreateContext();
+            var query = context.Customers.Where(c => UDFSqlContext.IsABC(c.FirstName.Substring(0, 1))).ToList();
+
+            Assert.Equal(4, query.Count);
+        }
+
+        [ConditionalFact]
+        public virtual void Scalar_Function_with_nested_InExpression_translation()
+        {
+            using var context = CreateContext();
+            var query = context.Customers.Where(c => UDFSqlContext.IsOrIsNotABC(c.FirstName.Substring(0, 1))).ToList();
+
+            Assert.Equal(4, query.Count);
         }
 
         #endregion
