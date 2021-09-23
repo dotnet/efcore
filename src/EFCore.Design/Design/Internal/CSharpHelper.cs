@@ -130,6 +130,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 { typeof(byte), (c, v) => c.Literal((byte)v) },
                 { typeof(byte[]), (c, v) => c.Literal((byte[])v) },
                 { typeof(char), (c, v) => c.Literal((char)v) },
+                { typeof(DateOnly), (c, v) => c.Literal((DateOnly)v) },
                 { typeof(DateTime), (c, v) => c.Literal((DateTime)v) },
                 { typeof(DateTimeOffset), (c, v) => c.Literal((DateTimeOffset)v) },
                 { typeof(decimal), (c, v) => c.Literal((decimal)v) },
@@ -144,6 +145,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                 { typeof(sbyte), (c, v) => c.Literal((sbyte)v) },
                 { typeof(short), (c, v) => c.Literal((short)v) },
                 { typeof(string), (c, v) => c.Literal((string)v) },
+                { typeof(TimeOnly), (c, v) => c.Literal((TimeOnly)v) },
                 { typeof(TimeSpan), (c, v) => c.Literal((TimeSpan)v) },
                 { typeof(uint), (c, v) => c.Literal((uint)v) },
                 { typeof(ulong), (c, v) => c.Literal((ulong)v) },
@@ -364,6 +366,20 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
+        public virtual string Literal(DateOnly value)
+            => string.Format(
+                    CultureInfo.InvariantCulture,
+                    "new DateOnly({0}, {1}, {2})",
+                    value.Year,
+                    value.Month,
+                    value.Day);
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
         public virtual string Literal(DateTime value)
             => string.Format(
                     CultureInfo.InvariantCulture,
@@ -489,6 +505,32 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
         /// </summary>
         public virtual string Literal(short value)
             => "(short)" + value;
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public virtual string Literal(TimeOnly value)
+        {
+            var result = value.Millisecond == 0
+                ? string.Format(
+                    CultureInfo.InvariantCulture, "new TimeOnly({0}, {1}, {2})", value.Hour, value.Minute, value.Second)
+                : string.Format(
+                    CultureInfo.InvariantCulture, "new TimeOnly({0}, {1}, {2}, {3})", value.Hour, value.Minute, value.Second,
+                    value.Millisecond);
+
+            if (value.Ticks % 10000 > 0)
+            {
+                result += string.Format(
+                    CultureInfo.InvariantCulture,
+                    ".Add(TimeSpan.FromTicks({0}))",
+                    value.Ticks % 10000);
+            }
+
+            return result;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
