@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
             {
                 if (successorSet.TryGetValue(to, out var edges))
                 {
-                    return edges is IEnumerable<TEdge> edgeList ? edgeList : (new TEdge[] { (TEdge)edges! });
+                    return edges is IEnumerable<TEdge> edgeList ? edgeList : (new[] { (TEdge)edges! });
                 }
             }
 
@@ -63,6 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     edgeList = new List<TEdge> { (TEdge)edges! };
                     successorEdges[to] = edgeList;
                 }
+
                 edgeList.Add(edge);
             }
             else
@@ -106,6 +107,7 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                     edgeList = new List<TEdge> { (TEdge)edges! };
                     successorEdges[to] = edgeList;
                 }
+
                 edgeList.AddRange(newEdges);
             }
             else

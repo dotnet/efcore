@@ -3056,8 +3056,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </exception>
         public static IQueryable<T> TagWithCallSite<T>(
             this IQueryable<T> source,
-            [NotParameterized][CallerFilePath] string? filePath = null,
-            [NotParameterized][CallerLineNumber] int lineNumber = 0)
+            [NotParameterized] [CallerFilePath] string? filePath = null,
+            [NotParameterized] [CallerLineNumber] int lineNumber = 0)
         {
             Check.NotNull(source, nameof(source));
 
