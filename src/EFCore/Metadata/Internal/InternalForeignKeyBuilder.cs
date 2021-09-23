@@ -2274,6 +2274,21 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             Check.NotNull(principalEntityTypeBuilder, nameof(principalEntityTypeBuilder));
             Check.NotNull(dependentEntityTypeBuilder, nameof(dependentEntityTypeBuilder));
 
+            if (configurationSource == ConfigurationSource.Explicit
+                && principalEntityTypeBuilder.Metadata.IsKeyless)
+            {
+                throw new InvalidOperationException(CoreStrings.PrincipalKeylessType(
+                    principalEntityTypeBuilder.Metadata.DisplayName(),
+                    principalEntityTypeBuilder.Metadata.DisplayName()
+                    + (navigationToDependent?.Name == null
+                        ? ""
+                        : "." + navigationToDependent.Value.Name),
+                    dependentEntityTypeBuilder.Metadata.DisplayName()
+                    + (navigationToPrincipal?.Name == null
+                        ? ""
+                        : "." + navigationToPrincipal.Value.Name)));
+            }
+
             Check.DebugAssert(
                 navigationToPrincipal?.Name == null
                 || navigationToPrincipal.Value.MemberInfo != null

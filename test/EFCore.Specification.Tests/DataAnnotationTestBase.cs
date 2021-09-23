@@ -816,6 +816,21 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Empty(Fixture.ListLoggerFactory.Log);
         }
 
+        [ConditionalFact]
+        public virtual void Fluent_API_relationship_throws_for_Keyless_attribute()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entity = modelBuilder.Entity<KeyFluentApiAndKeylessAttribute>();
+
+            Assert.Equal(CoreStrings.PrincipalKeylessType(
+                nameof(KeyFluentApiAndKeylessAttribute), nameof(KeyFluentApiAndKeylessAttribute), nameof(CompositeKeyAttribute)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    modelBuilder.Entity<CompositeKeyAttribute>()
+                .HasOne<KeyFluentApiAndKeylessAttribute>()
+                .WithOne()
+                .HasForeignKey<CompositeKeyAttribute>("fk")).Message);
+        }
+
         private class CompositeKeyAttribute
         {
             [Key]
