@@ -237,7 +237,7 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
                         new ContextParameterBinding(typeof(DbContext)),
                         new EntityTypeParameterBinding(),
                         new DependencyInjectionParameterBinding(
-                            typeof(ILazyLoader), typeof(ILazyLoader), new[] { (IPropertyBase)serviceProperty }),
+                            typeof(ILazyLoader), typeof(ILazyLoader), (IPropertyBase)serviceProperty),
                         new ObjectArrayParameterBinding(binding.ParameterBindings)
                     },
                     proxyType);

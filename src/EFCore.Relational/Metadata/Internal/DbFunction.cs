@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -163,7 +162,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual InternalDbFunctionBuilder Builder
         {
-            [DebuggerStepThrough] get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+            [DebuggerStepThrough]
+            get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
         }
 
         /// <summary>
@@ -187,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Indicates whether the function is read-only.
         /// </summary>
-        public override bool IsReadOnly => ((Annotatable)Model).IsReadOnly;
+        public override bool IsReadOnly
+            => ((Annotatable)Model).IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -545,15 +546,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual RelationalTypeMapping? TypeMapping
         {
             get => IsReadOnly && IsScalar
-                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
+                ? NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _typeMapping, this, static dbFunction =>
                         {
                             var relationalTypeMappingSource =
                                 (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
                             return !string.IsNullOrEmpty(dbFunction._storeType)
-                                        ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
-                                        : relationalTypeMappingSource.FindMapping(dbFunction.ReturnType, (IModel)dbFunction.Model)!;
+                                ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                                : relationalTypeMappingSource.FindMapping(dbFunction.ReturnType, (IModel)dbFunction.Model)!;
                         })
-                    : _typeMapping;
+                : _typeMapping;
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
         }
 

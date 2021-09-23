@@ -6,21 +6,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
-    /// <summary>
-    ///     <para>
-    ///         Event IDs for Cosmos events that correspond to messages logged to an <see cref="ILogger" />
-    ///         and events sent to a <see cref="DiagnosticSource" />.
-    ///     </para>
-    ///     <para>
-    ///         These IDs are also used with <see cref="WarningsConfigurationBuilder" /> to configure the
-    ///         behavior of warnings.
-    ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
-    /// </remarks>
-    public static class CosmosEventId
+        /// <summary>
+        ///     <para>
+        ///         Event IDs for Cosmos events that correspond to messages logged to an <see cref="ILogger" />
+        ///         and events sent to a <see cref="DiagnosticSource" />.
+        ///     </para>
+        ///     <para>
+        ///         These IDs are also used with <see cref="WarningsConfigurationBuilder" /> to configure the
+        ///         behavior of warnings.
+        ///     </para>
+        /// </summary>
+        /// <remarks>
+        ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
+        ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
+        /// </remarks>
+        public static class CosmosEventId
     {
         // Warning: These values must not change between releases.
         // Only add new values to the end of sections, never in the middle.
@@ -67,7 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutingReadItem
-                = new((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
+            = new((int)Id.ExecutingReadItem, _commandPrefix + Id.ExecutingReadItem);
 
         /// <summary>
         ///     <para>
@@ -81,7 +81,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutedReadNext
-                = new((int)Id.ExecutedReadNext, _commandPrefix + Id.ExecutedReadNext);
+            = new((int)Id.ExecutedReadNext, _commandPrefix + Id.ExecutedReadNext);
 
         /// <summary>
         ///     <para>
@@ -95,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutedReadItem
-                = new((int)Id.ExecutedReadItem, _commandPrefix + Id.ExecutedReadItem);
+            = new((int)Id.ExecutedReadItem, _commandPrefix + Id.ExecutedReadItem);
 
         /// <summary>
         ///     <para>
@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutedCreateItem
-                = new((int)Id.ExecutedCreateItem, _commandPrefix + Id.ExecutedCreateItem);
+            = new((int)Id.ExecutedCreateItem, _commandPrefix + Id.ExecutedCreateItem);
 
         /// <summary>
         ///     <para>
@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutedReplaceItem
-                = new((int)Id.ExecutedReplaceItem, _commandPrefix + Id.ExecutedReplaceItem);
+            = new((int)Id.ExecutedReplaceItem, _commandPrefix + Id.ExecutedReplaceItem);
 
         /// <summary>
         ///     <para>
@@ -137,6 +137,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     </para>
         /// </summary>
         public static readonly EventId ExecutedDeleteItem
-                = new((int)Id.ExecutedDeleteItem, _commandPrefix + Id.ExecutedDeleteItem);
+            = new((int)Id.ExecutedDeleteItem, _commandPrefix + Id.ExecutedDeleteItem);
     }
 }

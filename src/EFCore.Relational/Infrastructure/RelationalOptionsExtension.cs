@@ -390,16 +390,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         }
 
         /// <summary>
-        ///     Adds default <see cref="WarningBehavior"/> for relational events.
+        ///     Adds default <see cref="WarningBehavior" /> for relational events.
         /// </summary>
         /// <param name="coreOptionsExtension"> The core options extension. </param>
         /// <returns> The new core options extension. </returns>
         public static CoreOptionsExtension WithDefaultWarningConfiguration(CoreOptionsExtension coreOptionsExtension)
-            => coreOptionsExtension.WithWarningsConfiguration(coreOptionsExtension.WarningsConfiguration
-                .TryWithExplicit(RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw)
-                .TryWithExplicit(RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable, WarningBehavior.Throw)
-                .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
-                .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw));
+            => coreOptionsExtension.WithWarningsConfiguration(
+                coreOptionsExtension.WarningsConfiguration
+                    .TryWithExplicit(RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw)
+                    .TryWithExplicit(RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable, WarningBehavior.Throw)
+                    .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
+                    .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw));
 
         /// <summary>
         ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.
@@ -440,7 +441,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 => 0;
 
             /// <summary>
-            ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode"/>
+            ///     Returns a value indicating whether all of the options used in <see cref="GetServiceProviderHashCode" />
             ///     are the same as in the given extension.
             /// </summary>
             /// <param name="other"> The other extension. </param>

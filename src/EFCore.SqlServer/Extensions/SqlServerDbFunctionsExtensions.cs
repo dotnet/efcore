@@ -1196,8 +1196,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute,
         ///     second, fractions, hourOffset, minuteOffset and precision.
-        ///     Corresponds to the SQL Server's <c>DATETIMEOFFSETFROMPARTS(year, month, day, hour, minute, seconds, fractions, hour_offset,
-        ///     minute_offset, precision)</c>.
+        ///     Corresponds to the SQL Server's
+        ///     <c>
+        ///         DATETIMEOFFSETFROMPARTS(year, month, day, hour, minute, seconds, fractions, hour_offset,
+        ///         minute_offset, precision)
+        ///     </c>
+        ///     .
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and

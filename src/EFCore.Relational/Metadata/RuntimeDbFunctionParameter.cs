@@ -68,12 +68,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <returns> The type mapping. </returns>
         public virtual RelationalTypeMapping? TypeMapping
         {
-            get => NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static parameter =>
-            {
-                var relationalTypeMappingSource =
-                    (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
-                return relationalTypeMappingSource.FindMapping(parameter._storeType)!;
-            });
+            get => NonCapturingLazyInitializer.EnsureInitialized(
+                ref _typeMapping, this, static parameter =>
+                    {
+                        var relationalTypeMappingSource =
+                            (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
+                        return relationalTypeMappingSource.FindMapping(parameter._storeType)!;
+                    });
 
             set => _typeMapping = value;
         }
@@ -94,7 +95,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [EntityFrameworkInternal]
         public virtual DebugView DebugView
             => new(
-                () => ((IDbFunctionParameter)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IDbFunctionParameter)this).ToDebugString(),
                 () => ((IDbFunctionParameter)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <inheritdoc />

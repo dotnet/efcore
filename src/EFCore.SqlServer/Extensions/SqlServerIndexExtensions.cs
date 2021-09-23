@@ -26,9 +26,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is clustered. </returns>
         public static bool? IsClustered(this IReadOnlyIndex index)
-            => index is RuntimeIndex
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (bool?)index[SqlServerAnnotationNames.Clustered];
+            => (index is RuntimeIndex)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (bool?)index[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
         ///     Returns a value indicating whether the index is clustered.
@@ -97,9 +97,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The included property names, or <see langword="null" /> if they have not been specified. </returns>
         public static IReadOnlyList<string>? GetIncludeProperties(this IReadOnlyIndex index)
-            => index is RuntimeIndex
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string[]?)index[SqlServerAnnotationNames.Include];
+            => (index is RuntimeIndex)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string[]?)index[SqlServerAnnotationNames.Include];
 
         /// <summary>
         ///     Returns included property names, or <see langword="null" /> if they have not been specified.
@@ -168,9 +168,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> <see langword="true" /> if the index is online. </returns>
         public static bool? IsCreatedOnline(this IReadOnlyIndex index)
-            => index is RuntimeIndex
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (bool?)index[SqlServerAnnotationNames.CreatedOnline];
+            => (index is RuntimeIndex)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (bool?)index[SqlServerAnnotationNames.CreatedOnline];
 
         /// <summary>
         ///     Returns a value indicating whether the index is online.
@@ -239,9 +239,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="index"> The index. </param>
         /// <returns> The fill factor that the index uses </returns>
         public static int? GetFillFactor(this IReadOnlyIndex index)
-            => index is RuntimeIndex
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)index[SqlServerAnnotationNames.FillFactor];
+            => (index is RuntimeIndex)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (int?)index[SqlServerAnnotationNames.FillFactor];
 
         /// <summary>
         ///     Returns the fill factor that the index uses.

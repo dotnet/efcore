@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (IFunctionMapping)TableMapping;
 
         /// <inheritdoc />
-        public override RelationalTypeMapping TypeMapping => Property.FindRelationalTypeMapping(
-            StoreObjectIdentifier.DbFunction(FunctionMapping.DbFunction.Name))!;
+        public override RelationalTypeMapping TypeMapping
+            => Property.FindRelationalTypeMapping(
+                StoreObjectIdentifier.DbFunction(FunctionMapping.DbFunction.Name))!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

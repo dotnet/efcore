@@ -67,8 +67,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
 
             for (var i = 0; i < Values.GetLength(0); i++)
             {
-                var modificationCommand = modificationCommandFactory.CreateModificationCommand(new ModificationCommandParameters(
-                    Table, Schema, sensitiveLoggingEnabled: false));
+                var modificationCommand = modificationCommandFactory.CreateModificationCommand(
+                    new ModificationCommandParameters(
+                        Table, Schema, sensitiveLoggingEnabled: false));
 
                 for (var j = 0; j < Columns.Length; j++)
                 {

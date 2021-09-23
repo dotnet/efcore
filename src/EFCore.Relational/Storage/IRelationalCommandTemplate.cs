@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets the parameters to be copied to the destination command.
         /// </summary>
         IReadOnlyList<IRelationalParameter> Parameters { get; }
-        
+
         /// <summary>
         ///     <para>
         ///         Called by the execute methods to create a <see cref="DbCommand" /> for the given <see cref="DbConnection" />

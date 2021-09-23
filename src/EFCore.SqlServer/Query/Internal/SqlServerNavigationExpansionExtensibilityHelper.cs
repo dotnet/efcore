@@ -39,7 +39,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             {
                 if (!entityType.GetRootType().IsTemporal())
                 {
-                    throw new InvalidOperationException(SqlServerStrings.TemporalNavigationExpansionBetweenTemporalAndNonTemporal(entityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        SqlServerStrings.TemporalNavigationExpansionBetweenTemporalAndNonTemporal(entityType.DisplayName()));
                 }
 
                 if (source is TemporalAsOfQueryRootExpression asOf)
@@ -101,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
                 throw new InvalidOperationException(SqlServerStrings.TemporalSetOperationOnMismatchedSources(entityType!.DisplayName()));
             }
-            
+
             return true;
         }
     }

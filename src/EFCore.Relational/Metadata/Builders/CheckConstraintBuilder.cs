@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <inheritdoc />
         IConventionCheckConstraintBuilder IInfrastructure<IConventionCheckConstraintBuilder>.Instance
         {
-            [DebuggerStepThrough] get => Builder;
+            [DebuggerStepThrough]
+            get => Builder;
         }
 
         /// <summary>

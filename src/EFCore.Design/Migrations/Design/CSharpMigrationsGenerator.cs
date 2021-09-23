@@ -139,7 +139,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     .AppendLine("}");
             }
 
-
             return builder.ToString();
         }
 

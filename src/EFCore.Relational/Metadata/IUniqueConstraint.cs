@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Gets a value indicating whether this constraint is the primary key.
         /// </summary>
         /// <returns> <see langword="true" /> if the constraint is the primary key </returns>
-         bool GetIsPrimaryKey()
+        bool GetIsPrimaryKey()
             => Table.PrimaryKey == this;
 
         /// <summary>

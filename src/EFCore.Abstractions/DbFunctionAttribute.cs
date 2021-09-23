@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     The name of the function in the database.
         /// </summary>
-        [CA.DisallowNull]
+        [CA.DisallowNullAttribute]
         public virtual string? Name
         {
             get => _name;

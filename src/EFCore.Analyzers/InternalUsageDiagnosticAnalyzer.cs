@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore
                     var location = declaringSyntax.GetSyntax() switch
                     {
                         CSharpSyntax.ClassDeclarationSyntax s when s.BaseList?.Types.Count > 0
-                        => s.BaseList.Types[0].GetLocation(),
+                            => s.BaseList.Types[0].GetLocation(),
                         { } otherSyntax => otherSyntax.GetLocation()
                     };
 
@@ -288,15 +288,15 @@ namespace Microsoft.EntityFrameworkCore
             => syntax switch
             {
                 CSharpSyntax.InvocationExpressionSyntax s
-                when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
-                => memberAccessSyntax.Name,
+                    when s.Expression is CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
+                    => memberAccessSyntax.Name,
                 CSharpSyntax.MemberAccessExpressionSyntax s => s.Name,
                 CSharpSyntax.ObjectCreationExpressionSyntax s => s.Type,
                 CSharpSyntax.PropertyDeclarationSyntax s => s.Type,
                 CSharpSyntax.VariableDeclaratorSyntax declarator
-                => declarator.Parent is CSharpSyntax.VariableDeclarationSyntax declaration
-                    ? declaration.Type
-                    : (SyntaxNode)declarator,
+                    => declarator.Parent is CSharpSyntax.VariableDeclarationSyntax declaration
+                        ? declaration.Type
+                        : declarator,
                 CSharpSyntax.TypeOfExpressionSyntax s => s.Type,
 
                 // TODO: VB syntax narrowing (#22085)

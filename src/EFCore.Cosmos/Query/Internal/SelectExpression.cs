@@ -55,7 +55,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         {
             Container = entityType.GetContainer();
             FromExpression = new FromSqlExpression(entityType, RootAlias, sql, argument);
-            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(entityType, new RootReferenceExpression(entityType, RootAlias));
+            _projectionMapping[new ProjectionMember()] = new EntityProjectionExpression(
+                entityType, new RootReferenceExpression(entityType, RootAlias));
         }
 
         /// <summary>

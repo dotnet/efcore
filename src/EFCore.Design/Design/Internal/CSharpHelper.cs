@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -1133,6 +1132,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             {
                 builder.IncrementIndent();
             }
+
             builder.AppendLine("{");
             using (builder.Indent())
             {

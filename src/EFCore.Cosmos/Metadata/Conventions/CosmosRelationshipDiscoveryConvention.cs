@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="targetType"> Target entity type. </param>
         /// <param name="model"> The model. </param>
-        /// <returns> <see langword="true"/> if the given entity type should be owned. </returns>
+        /// <returns> <see langword="true" /> if the given entity type should be owned. </returns>
         protected override bool? ShouldBeOwned(Type targetType, IConventionModel model)
             => ShouldBeOwnedType(targetType, model);
 
@@ -42,10 +42,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="targetType"> Target entity type. </param>
         /// <param name="model"> The model. </param>
-        /// <returns> <see langword="true"/> if the given entity type should be owned. </returns>
+        /// <returns> <see langword="true" /> if the given entity type should be owned. </returns>
         public static bool ShouldBeOwnedType(Type targetType, IConventionModel model)
             => !targetType.IsGenericType
-            || targetType == typeof(Dictionary<string, object>)
-            || targetType.GetInterface(typeof(IEnumerable<>).Name) == null;
+                || targetType == typeof(Dictionary<string, object>)
+                || targetType.GetInterface(typeof(IEnumerable<>).Name) == null;
     }
 }

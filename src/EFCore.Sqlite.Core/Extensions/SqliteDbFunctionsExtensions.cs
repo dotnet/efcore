@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace Microsoft.EntityFrameworkCore
 {
     /// <summary>
-    ///     Contains extension methods on <see cref="DbFunctions"/> for the Microsoft.EntityFrameworkCore.Sqlite provider.
+    ///     Contains extension methods on <see cref="DbFunctions" /> for the Microsoft.EntityFrameworkCore.Sqlite provider.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
     {
         /// <summary>
         ///     Maps to the SQLite <c>glob</c> function which is similar to
-        ///     <see cref="DbFunctionsExtensions.Like(DbFunctions, string, string)"/> but uses the file system globbing
+        ///     <see cref="DbFunctionsExtensions.Like(DbFunctions, string, string)" /> but uses the file system globbing
         ///     syntax instead.
         /// </summary>
         /// <remarks>
@@ -58,14 +58,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="startIndex"> The 1-based starting index. If negative, the index is relative to the end of the value. </param>
         /// <returns>The subarray.</returns>
         /// <remarks>
-        ///     Use <see cref="string.Substring(int)"/> for string values.
+        ///     Use <see cref="string.Substring(int)" /> for string values.
         /// </remarks>
         public static byte[] Substr(this DbFunctions _, byte[] bytes, int startIndex)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Substr)));
 
         /// <summary>
         ///     Maps to the SQLite substr function which returns a subarray of the specified value. The subarray starts
-        ///     at <paramref name="startIndex" /> and has the specified <paramref name="length"/>.
+        ///     at <paramref name="startIndex" /> and has the specified <paramref name="length" />.
         /// </summary>
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
@@ -75,11 +75,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="bytes">The binary value.</param>
         /// <param name="startIndex"> The 1-based starting index. If negative, the index is relative to the end of the value. </param>
         /// <param name="length">
-        ///      The length of the subarray. If negative, bytes preceding <paramref name="startIndex" /> are returned.
+        ///     The length of the subarray. If negative, bytes preceding <paramref name="startIndex" /> are returned.
         /// </param>
         /// <returns>The subarray.</returns>
         /// <remarks>
-        ///     Use <see cref="string.Substring(int, int)"/> for string values.
+        ///     Use <see cref="string.Substring(int, int)" /> for string values.
         /// </remarks>
         public static byte[] Substr(this DbFunctions _, byte[] bytes, int startIndex, int length)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Substr)));

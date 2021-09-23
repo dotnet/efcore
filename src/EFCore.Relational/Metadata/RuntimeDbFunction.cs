@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private IStoreFunction? _storeFunction;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RuntimeDbFunction"/> class.
+        ///     Initializes a new instance of the <see cref="RuntimeDbFunction" /> class.
         /// </summary>
         /// <param name="modelName"> The model name. </param>
         /// <param name="model"> The model. </param>
@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <param name="storeName"> The store name. </param>
         /// <param name="schema"> The store schema. </param>
         /// <param name="storeType"> The store type. </param>
-        /// <param name="methodInfo"> The mapped <see cref="MethodInfo"/>. </param>
+        /// <param name="methodInfo"> The mapped <see cref="MethodInfo" />. </param>
         /// <param name="scalar"> Whether the return type is scalar. </param>
         /// <param name="aggregate"> Whether the function is an aggregate. </param>
         /// <param name="nullable"> Whether the function is nullable. </param>
@@ -98,15 +98,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public virtual RelationalTypeMapping? TypeMapping
         {
             get => _isScalar
-                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static dbFunction =>
-                    {
-                        var relationalTypeMappingSource =
-                            (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
-                        return !string.IsNullOrEmpty(dbFunction._storeType)
-                                    ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
-                                    : relationalTypeMappingSource.FindMapping(dbFunction._returnType, (IModel)dbFunction.Model)!;
-                    })
-                    : _typeMapping;
+                ? NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _typeMapping, this, static dbFunction =>
+                        {
+                            var relationalTypeMappingSource =
+                                (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
+                            return !string.IsNullOrEmpty(dbFunction._storeType)
+                                ? relationalTypeMappingSource.FindMapping(dbFunction._storeType)!
+                                : relationalTypeMappingSource.FindMapping(dbFunction._returnType, dbFunction.Model)!;
+                        })
+                : _typeMapping;
             set => _typeMapping = value;
         }
 
@@ -154,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         [EntityFrameworkInternal]
         public virtual DebugView DebugView
             => new(
-                () => ((IDbFunction)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IDbFunction)this).ToDebugString(),
                 () => ((IDbFunction)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         /// <inheritdoc />

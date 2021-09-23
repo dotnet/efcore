@@ -78,13 +78,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
 
             var entityTypeIds = new Dictionary<IEntityType, (string Variable, string Class)>();
-            var modelBuilderCode = CreateModelBuilder(model, options.ModelNamespace, options.ContextType, entityTypeIds, options.UseNullableReferenceTypes);
+            var modelBuilderCode = CreateModelBuilder(
+                model, options.ModelNamespace, options.ContextType, entityTypeIds, options.UseNullableReferenceTypes);
             var modelBuilderFileName = options.ContextType.ShortDisplayName() + ModelBuilderSuffix + FileExtension;
             scaffoldedFiles.Add(new ScaffoldedFile { Path = modelBuilderFileName, Code = modelBuilderCode });
 
             foreach (var (entityType, namePair) in entityTypeIds)
             {
-                var generatedCode = GenerateEntityType(entityType, options.ModelNamespace, namePair.Class, options.UseNullableReferenceTypes);
+                var generatedCode = GenerateEntityType(
+                    entityType, options.ModelNamespace, namePair.Class, options.UseNullableReferenceTypes);
 
                 var entityTypeFileName = namePair.Class + FileExtension;
                 scaffoldedFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
@@ -168,9 +170,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 mainBuilder
                     .Append("static ").Append(className).Append("()")
                     .AppendLines(
-                @"
+                        @"
 {
-    var model = new " + className + @"();
+    var model = new "
+                        + className
+                        + @"();
     model.Initialize();
     model.Customize();
     _instance = model;
@@ -204,7 +208,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var mainBuilder = new IndentedStringBuilder();
             var methodBuilder = new IndentedStringBuilder();
-            var namespaces = new SortedSet<string>(new NamespaceComparer()) {
+            var namespaces = new SortedSet<string>(new NamespaceComparer())
+            {
                 typeof(RuntimeModel).Namespace!,
                 typeof(DbContextAttribute).Namespace!
             };
@@ -582,14 +587,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
         {
             var runtimeEntityType = entityType as IRuntimeEntityType;
             if ((entityType.ConstructorBinding is not null
-                && ((runtimeEntityType?.GetConstructorBindingConfigurationSource()).OverridesStrictly(ConfigurationSource.Convention)
-                    || entityType.ConstructorBinding is FactoryMethodBinding))
+                    && ((runtimeEntityType?.GetConstructorBindingConfigurationSource()).OverridesStrictly(ConfigurationSource.Convention)
+                        || entityType.ConstructorBinding is FactoryMethodBinding))
                 || (runtimeEntityType?.ServiceOnlyConstructorBinding is not null
-                    && (runtimeEntityType.GetServiceOnlyConstructorBindingConfigurationSource().OverridesStrictly(ConfigurationSource.Convention)
+                    && (runtimeEntityType.GetServiceOnlyConstructorBindingConfigurationSource()
+                            .OverridesStrictly(ConfigurationSource.Convention)
                         || runtimeEntityType.ServiceOnlyConstructorBinding is FactoryMethodBinding)))
             {
-                throw new InvalidOperationException(DesignStrings.CompiledModelConstructorBinding(
-                    entityType.ShortName(), "Customize()", parameters.ClassName));
+                throw new InvalidOperationException(
+                    DesignStrings.CompiledModelConstructorBinding(
+                        entityType.ShortName(), "Customize()", parameters.ClassName));
             }
 
             if (entityType.GetQueryFilter() != null)
@@ -1083,6 +1090,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     mainBuilder.Append("!");
                 }
+
                 mainBuilder.AppendLine(",")
                     .Append(principalEntityType);
 
@@ -1129,12 +1137,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     .DecrementIndent();
 
                 var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
-                        foreignKeyVariable,
-                        className,
-                        mainBuilder,
-                        methodBuilder,
-                        namespaces,
-                        variables);
+                    foreignKeyVariable,
+                    className,
+                    mainBuilder,
+                    methodBuilder,
+                    namespaces,
+                    variables);
 
                 var navigation = foreignKey.DependentToPrincipal;
                 if (navigation != null)
@@ -1228,12 +1236,12 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 };
 
                 var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
-                        navigationVariable,
-                        className,
-                        mainBuilder,
-                        methodBuilder,
-                        namespaces,
-                        variables);
+                    navigationVariable,
+                    className,
+                    mainBuilder,
+                    methodBuilder,
+                    namespaces,
+                    variables);
 
                 mainBuilder
                     .Append("var ").Append(navigationVariable).Append(" = ")
@@ -1291,6 +1299,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                         .Append(navigationVariable).AppendLine(".Inverse = inverse;")
                         .Append("inverse.Inverse = ").Append(navigationVariable).AppendLine(";");
                 }
+
                 mainBuilder
                     .AppendLine("}")
                     .AppendLine();
@@ -1358,14 +1367,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
             where TAnnotatable : IAnnotatable
         {
-            process(annotatable,
+            process(
+                annotatable,
                 parameters with
                 {
                     Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value),
                     IsRuntime = false
                 });
 
-            process(annotatable,
+            process(
+                annotatable,
                 parameters with
                 {
                     Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),

@@ -11,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 {
     /// <summary>
     ///     <para>
-    ///         An expression that represents creation of a collection in <see cref="ShapedQueryExpression.ShaperExpression" /> for relational providers.
+    ///         An expression that represents creation of a collection in <see cref="ShapedQueryExpression.ShaperExpression" /> for relational
+    ///         providers.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
@@ -40,19 +41,24 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///     The expression to get the subquery for this collection.
         /// </summary>
         public virtual ProjectionBindingExpression ProjectionBindingExpression { get; }
+
         /// <summary>
         ///     The navigation if associated with the collection.
         /// </summary>
         public virtual INavigationBase? Navigation { get; }
+
         /// <summary>
         ///     The clr type of elements of the collection.
         /// </summary>
         public virtual Type ElementType { get; }
 
         /// <inheritdoc />
-        public override Type Type => ProjectionBindingExpression.Type;
+        public override Type Type
+            => ProjectionBindingExpression.Type;
+
         /// <inheritdoc />
-        public override ExpressionType NodeType => ExpressionType.Extension;
+        public override ExpressionType NodeType
+            => ExpressionType.Extension;
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -92,6 +98,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 {
                     expressionPrinter.Append("Navigation:").AppendLine(Navigation.ToString()!);
                 }
+
                 expressionPrinter.Append("ElementType:").AppendLine(ElementType.ShortDisplayName());
             }
         }

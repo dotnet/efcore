@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
         /// <param name="comparer"> An <see cref="IComparer{T}" /> for <see cref="IUpdateEntry" />. </param>
         /// <param name="generateParameterName"> A delegate to generate parameter names. </param>
-        /// <param name="logger"> An <see cref="IDiagnosticsLogger{T}" /> for <see cref="DbLoggerCategory.Update" />. </param>
+        /// <param name="logger"> An <see cref="IDiagnosticsLogger{TLoggerCategory}" /> for <see cref="DbLoggerCategory.Update" />. </param>
         public ModificationCommandParameters(
             string tableName,
             string? schemaName,

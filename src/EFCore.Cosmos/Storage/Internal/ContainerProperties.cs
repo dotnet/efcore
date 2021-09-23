@@ -59,7 +59,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public ContainerProperties(string containerId, string partitionKey, int? analyticalTTL, int? defaultTTL, ThroughputProperties? throughput)
+        public ContainerProperties(
+            string containerId,
+            string partitionKey,
+            int? analyticalTTL,
+            int? defaultTTL,
+            ThroughputProperties? throughput)
         {
             Id = containerId;
             PartitionKey = partitionKey;
@@ -74,7 +79,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public void Deconstruct(out string containerId, out string partitionKey, out int? analyticalTTL, out int? defaultTTL, out ThroughputProperties? throughput)
+        public void Deconstruct(
+            out string containerId,
+            out string partitionKey,
+            out int? analyticalTTL,
+            out int? defaultTTL,
+            out ThroughputProperties? throughput)
         {
             containerId = Id;
             partitionKey = PartitionKey;

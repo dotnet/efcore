@@ -210,7 +210,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             }
         }
 
-        private static bool CanBeInsertedInSameStatement(IReadOnlyModificationCommand firstCommand, IReadOnlyModificationCommand secondCommand)
+        private static bool CanBeInsertedInSameStatement(
+            IReadOnlyModificationCommand firstCommand,
+            IReadOnlyModificationCommand secondCommand)
             => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
                 && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
                 && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(

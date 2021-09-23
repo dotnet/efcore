@@ -48,7 +48,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// </summary>
         /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
         /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder, IConventionContext<IConventionEntityTypeBuilder> context)
+        public virtual void ProcessEntityTypeAdded(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionContext<IConventionEntityTypeBuilder> context)
         {
             var entityType = entityTypeBuilder.Metadata;
             if (!entityType.HasSharedClrType)
@@ -114,10 +116,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                             && configurationSource == ConfigurationSource.Explicit
                             && checkConstraint.GetConfigurationSource() == ConfigurationSource.Explicit)
                         {
-                            throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(
-                                checkConstraint.ModelName,
-                                checkConstraint.EntityType.DisplayName(),
-                                baseCheckConstraint.EntityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                RelationalStrings.DuplicateCheckConstraint(
+                                    checkConstraint.ModelName,
+                                    checkConstraint.EntityType.DisplayName(),
+                                    baseCheckConstraint.EntityType.DisplayName()));
                         }
 
                         if (checkConstraintsToBeRemoved == null)

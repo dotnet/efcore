@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
@@ -97,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -235,7 +234,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The amount of time before the connection was opened. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<DbTransaction> TransactionStartedAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -372,7 +371,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<DbTransaction> TransactionUsedAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -514,7 +513,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<InterceptionResult> TransactionCommittingAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -637,7 +636,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task TransactionCommittedAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -764,7 +763,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task TransactionRolledBackAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -893,7 +892,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<InterceptionResult> TransactionRollingBackAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -1018,7 +1017,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<InterceptionResult> CreatingTransactionSavepointAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -1137,7 +1136,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task CreatedTransactionSavepointAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -1262,7 +1261,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<InterceptionResult> RollingBackToTransactionSavepointAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -1381,7 +1380,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task RolledBackToTransactionSavepointAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -1506,7 +1505,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static ValueTask<InterceptionResult> ReleasingTransactionSavepointAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -1625,7 +1624,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task ReleasedTransactionSavepointAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -1794,7 +1793,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The elapsed time from when the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task TransactionErrorAsync(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics,
             IRelationalConnection connection,
@@ -2831,7 +2830,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     l => l.Log(
                         definition.Level,
                         definition.EventId,
@@ -2861,17 +2861,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             var d = (FallbackEventDefinition)definition;
             var p = (ForeignKeyEventData)payload;
             return d.GenerateMessage(
-                    l => l.Log(
-                        d.Level,
-                        d.EventId,
-                        d.MessageFormat,
-                        p.ForeignKey.Properties.Format(),
-                        p.ForeignKey.DeclaringEntityType.DisplayName(),
-                        p.ForeignKey.PrincipalEntityType.DisplayName(),
-                        p.ForeignKey.Properties.Format(),
-                        p.ForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
-                        p.ForeignKey.PrincipalKey.Properties.Format(),
-                        p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
+                l => l.Log(
+                    d.Level,
+                    d.EventId,
+                    d.MessageFormat,
+                    p.ForeignKey.Properties.Format(),
+                    p.ForeignKey.DeclaringEntityType.DisplayName(),
+                    p.ForeignKey.PrincipalEntityType.DisplayName(),
+                    p.ForeignKey.Properties.Format(),
+                    p.ForeignKey.DeclaringEntityType.GetSchemaQualifiedTableName(),
+                    p.ForeignKey.PrincipalKey.Properties.Format(),
+                    p.ForeignKey.PrincipalEntityType.GetSchemaQualifiedTableName()));
         }
 
         /// <summary>
@@ -3015,7 +3015,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
 
             if (diagnostics.ShouldLog(definition))
             {
-                definition.Log(diagnostics, entry.EntityType.DisplayName(), entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties));
+                definition.Log(
+                    diagnostics, entry.EntityType.DisplayName(),
+                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties));
             }
 
             if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -3024,7 +3026,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                     definition,
                     OptionalDependentWithAllNullPropertiesWarningSensitive,
                     entry
-                    );
+                );
 
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
@@ -3034,7 +3036,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         {
             var d = (EventDefinition<string, string>)definition;
             var p = (UpdateEntryEventData)payload;
-            return d.GenerateMessage(p.EntityEntry.EntityType.DisplayName(), p.EntityEntry.BuildCurrentValuesString(p.EntityEntry.EntityType.FindPrimaryKey()!.Properties));
+            return d.GenerateMessage(
+                p.EntityEntry.EntityType.DisplayName(),
+                p.EntityEntry.BuildCurrentValuesString(p.EntityEntry.EntityType.FindPrimaryKey()!.Properties));
         }
 
         /// <summary>

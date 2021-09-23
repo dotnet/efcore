@@ -76,7 +76,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly Dictionary<ProjectionMember, ProjectionMember> _projectionMemberMappings;
 
             public ProjectionMemberRemappingExpressionVisitor(
-                Expression queryExpression, Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
+                Expression queryExpression,
+                Dictionary<ProjectionMember, ProjectionMember> projectionMemberMappings)
             {
                 _queryExpression = queryExpression;
                 _projectionMemberMappings = projectionMemberMappings;
@@ -87,7 +88,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 if (expression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    Check.DebugAssert(projectionBindingExpression.ProjectionMember != null,
+                    Check.DebugAssert(
+                        projectionBindingExpression.ProjectionMember != null,
                         "ProjectionBindingExpression must have projection member.");
 
                     return new ProjectionBindingExpression(
@@ -106,7 +108,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly Dictionary<ProjectionMember, int> _projectionMemberMappings;
 
             public ProjectionMemberToIndexConvertingExpressionVisitor(
-                Expression queryExpression, Dictionary<ProjectionMember, int> projectionMemberMappings)
+                Expression queryExpression,
+                Dictionary<ProjectionMember, int> projectionMemberMappings)
             {
                 _queryExpression = queryExpression;
                 _projectionMemberMappings = projectionMemberMappings;
@@ -117,7 +120,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 if (expression is ProjectionBindingExpression projectionBindingExpression)
                 {
-                    Check.DebugAssert(projectionBindingExpression.ProjectionMember != null,
+                    Check.DebugAssert(
+                        projectionBindingExpression.ProjectionMember != null,
                         "ProjectionBindingExpression must have projection member.");
 
                     return new ProjectionBindingExpression(
@@ -137,7 +141,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             private readonly int[] _indexMap;
 
             public ProjectionIndexRemappingExpressionVisitor(
-                Expression oldExpression, Expression newExpression, int[] indexMap)
+                Expression oldExpression,
+                Expression newExpression,
+                int[] indexMap)
             {
                 _oldExpression = oldExpression;
                 _newExpression = newExpression;
@@ -150,7 +156,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 if (expression is ProjectionBindingExpression projectionBindingExpression
                     && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldExpression))
                 {
-                    Check.DebugAssert(projectionBindingExpression.Index != null,
+                    Check.DebugAssert(
+                        projectionBindingExpression.Index != null,
                         "ProjectionBindingExpression must have index.");
 
                     return new ProjectionBindingExpression(
@@ -191,12 +198,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             {
                 return expression is ProjectionBindingExpression projectionBindingExpression
                     && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldQuery)
-                    ? projectionBindingExpression.ProjectionMember != null
-                        ? new ProjectionBindingExpression(
-                            _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
-                        : new ProjectionBindingExpression(
-                            _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
-                    : base.Visit(expression);
+                        ? projectionBindingExpression.ProjectionMember != null
+                            ? new ProjectionBindingExpression(
+                                _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
+                            : new ProjectionBindingExpression(
+                                _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
+                        : base.Visit(expression);
             }
         }
 
@@ -215,8 +222,10 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         _scalarServerQuery = inMemoryQueryExpression._scalarServerQuery
                     };
 
-                    clonedInMemoryQueryExpression._clientProjections.AddRange(inMemoryQueryExpression._clientProjections.Select(e => Visit(e)));
-                    clonedInMemoryQueryExpression._projectionMappingExpressions.AddRange(inMemoryQueryExpression._projectionMappingExpressions);
+                    clonedInMemoryQueryExpression._clientProjections.AddRange(
+                        inMemoryQueryExpression._clientProjections.Select(e => Visit(e)));
+                    clonedInMemoryQueryExpression._projectionMappingExpressions.AddRange(
+                        inMemoryQueryExpression._projectionMappingExpressions);
                     foreach (var item in inMemoryQueryExpression._projectionMapping)
                     {
                         clonedInMemoryQueryExpression._projectionMapping[item.Key] = Visit(item.Value);

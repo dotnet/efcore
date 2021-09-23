@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Globalization;
 using System.Linq;
+using System.Security;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -402,6 +402,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 {
                     unicodeAttribute.AddParameter(_code.Literal(false));
                 }
+
                 _sb.AppendLine(unicodeAttribute.ToString());
             }
         }
@@ -597,7 +598,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 foreach (var line in comment.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None))
                 {
-                    _sb.AppendLine($"/// {System.Security.SecurityElement.Escape(line)}");
+                    _sb.AppendLine($"/// {SecurityElement.Escape(line)}");
                 }
 
                 _sb.AppendLine("/// </summary>");

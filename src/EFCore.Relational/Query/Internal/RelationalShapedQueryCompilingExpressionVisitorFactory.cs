@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             Check.NotNull(dependencies, nameof(dependencies));
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            
+
             Dependencies = dependencies;
             RelationalDependencies = relationalDependencies;
         }

@@ -390,7 +390,9 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
 
         private bool TryGetInExressionCandidateInfo(
             SqlExpression sqlExpression,
-            [MaybeNullWhen(false)] out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType) candidateInfo)
+            [MaybeNullWhen(false)]
+            out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType)
+                candidateInfo)
         {
             if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
                 && sqlUnaryExpression.OperatorType == ExpressionType.Not)

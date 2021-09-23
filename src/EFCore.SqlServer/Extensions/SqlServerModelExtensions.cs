@@ -183,9 +183,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The default identity increment. </returns>
         public static int GetIdentityIncrement(this IReadOnlyModel model)
-            => model is RuntimeModel
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)model[SqlServerAnnotationNames.IdentityIncrement] ?? 1;
+            => (model is RuntimeModel)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (int?)model[SqlServerAnnotationNames.IdentityIncrement] ?? 1;
 
         /// <summary>
         ///     Sets the default identity increment.
@@ -277,9 +277,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The maximum size of the database. </returns>
         public static string? GetDatabaseMaxSize(this IReadOnlyModel model)
-            => model is RuntimeModel
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)model[SqlServerAnnotationNames.MaxDatabaseSize];
+            => (model is RuntimeModel)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)model[SqlServerAnnotationNames.MaxDatabaseSize];
 
         /// <summary>
         ///     Sets the maximum size of the database.
@@ -320,9 +320,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The service tier of the database. </returns>
         public static string? GetServiceTierSql(this IReadOnlyModel model)
-            => model is RuntimeModel
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)model[SqlServerAnnotationNames.ServiceTierSql];
+            => (model is RuntimeModel)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)model[SqlServerAnnotationNames.ServiceTierSql];
 
         /// <summary>
         ///     Sets the service tier of the database.
@@ -363,9 +363,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="model"> The model. </param>
         /// <returns> The performance level of the database. </returns>
         public static string? GetPerformanceLevelSql(this IReadOnlyModel model)
-            => model is RuntimeModel
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)model[SqlServerAnnotationNames.PerformanceLevelSql];
+            => (model is RuntimeModel)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)model[SqlServerAnnotationNames.PerformanceLevelSql];
 
         /// <summary>
         ///     Sets the performance level of the database.

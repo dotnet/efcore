@@ -38,7 +38,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="runtimeProperty"> The target property that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
         protected override void ProcessPropertyAnnotations(
-            Dictionary<string, object?> annotations, IProperty property, RuntimeProperty runtimeProperty, bool runtime)
+            Dictionary<string, object?> annotations,
+            IProperty property,
+            RuntimeProperty runtimeProperty,
+            bool runtime)
         {
             base.ProcessPropertyAnnotations(annotations, property, runtimeProperty, runtime);
 

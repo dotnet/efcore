@@ -65,13 +65,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 var memoryOptimized = annotation?.Value as bool? == true;
                 foreach (var key in entityTypeBuilder.Metadata.GetDeclaredKeys())
                 {
-                    key.Builder.IsClustered(memoryOptimized ? false : (bool?)null);
+                    key.Builder.IsClustered(memoryOptimized ? false : null);
                 }
 
                 foreach (var index in
                     entityTypeBuilder.Metadata.GetDerivedTypesInclusive().SelectMany(et => et.GetDeclaredIndexes()))
                 {
-                    index.Builder.IsClustered(memoryOptimized ? false : (bool?)null);
+                    index.Builder.IsClustered(memoryOptimized ? false : null);
                 }
             }
         }

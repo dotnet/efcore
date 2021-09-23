@@ -123,7 +123,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             return baseDelay == null
                 ? null
                 : CallOnWrappedException(lastException, GetDelayFromException)
-                    ?? baseDelay;
+                ?? baseDelay;
         }
 
         private static TimeSpan? GetDelayFromException(Exception exception)

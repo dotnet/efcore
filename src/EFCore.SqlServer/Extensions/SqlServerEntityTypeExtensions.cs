@@ -109,7 +109,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the period start property. </returns>
         public static string? GetPeriodStartPropertyName(this IReadOnlyEntityType entityType)
-            => entityType is RuntimeEntityType
+            => (entityType is RuntimeEntityType)
                 ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
                 : entityType[SqlServerAnnotationNames.TemporalPeriodStartPropertyName] as string;
 
@@ -155,7 +155,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the period start property. </returns>
         public static string? GetPeriodEndPropertyName(this IReadOnlyEntityType entityType)
-            => entityType is RuntimeEntityType
+            => (entityType is RuntimeEntityType)
                 ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
                 : entityType[SqlServerAnnotationNames.TemporalPeriodEndPropertyName] as string;
 
@@ -201,7 +201,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the history table. </returns>
         public static string? GetHistoryTableName(this IReadOnlyEntityType entityType)
-            => entityType is RuntimeEntityType
+            => (entityType is RuntimeEntityType)
                 ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
                 : entityType[SqlServerAnnotationNames.TemporalHistoryTableName] is string historyTableName
                     ? historyTableName
@@ -251,7 +251,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> Name of the history table. </returns>
         public static string? GetHistoryTableSchema(this IReadOnlyEntityType entityType)
-            => entityType is RuntimeEntityType
+            => (entityType is RuntimeEntityType)
                 ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
                 : entityType[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
                     ?? entityType[RelationalAnnotationNames.Schema] as string;

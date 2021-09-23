@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -196,9 +195,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
 
             if (GetAndRemove<bool?>(annotations, SqlServerAnnotationNames.MemoryOptimized) is bool isMemoryOptimized)
             {
-                fragments.Add(isMemoryOptimized
-                    ? new(_entityTypeIsMemoryOptimizedMethodInfo)
-                    : new(_entityTypeIsMemoryOptimizedMethodInfo, false));
+                fragments.Add(
+                    isMemoryOptimized
+                        ? new(_entityTypeIsMemoryOptimizedMethodInfo)
+                        : new(_entityTypeIsMemoryOptimizedMethodInfo, false));
             }
 
             if (annotations.TryGetValue(SqlServerAnnotationNames.IsTemporal, out var isTemporalAnnotation)
@@ -243,9 +243,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Design.Internal
                 // ttb => ttb.HasPeriodStart("Start").HasColumnName("ColumnStart")
                 temporalTableBuilderCalls.Add(
                     periodStartColumnName != null
-                    ? new MethodCallCodeFragment(_temporalTableHasPeriodStartMethodInfo, periodStartPropertyName)
-                        .Chain(new MethodCallCodeFragment(_temporalPropertyHasColumnNameMethodInfo, periodStartColumnName))
-                    : new MethodCallCodeFragment(_temporalTableHasPeriodStartMethodInfo, periodStartPropertyName));
+                        ? new MethodCallCodeFragment(_temporalTableHasPeriodStartMethodInfo, periodStartPropertyName)
+                            .Chain(new MethodCallCodeFragment(_temporalPropertyHasColumnNameMethodInfo, periodStartColumnName))
+                        : new MethodCallCodeFragment(_temporalTableHasPeriodStartMethodInfo, periodStartPropertyName));
 
                 // ttb => ttb.HasPeriodEnd("End").HasColumnName("ColumnEnd")
                 temporalTableBuilderCalls.Add(

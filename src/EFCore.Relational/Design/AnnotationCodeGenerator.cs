@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -11,7 +12,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using NotNullWhenAttribute = System.Diagnostics.CodeAnalysis.NotNullWhenAttribute;
 
 #pragma warning disable EF1001 // Accessing annotation names (internal)
 
@@ -254,7 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Design
             if (TryGetAndRemove(annotations, RelationalAnnotationNames.IsFixedLength, out bool isFixedLength))
             {
                 methodCallCodeFragments.Add(
-                        isFixedLength
+                    isFixedLength
                         ? new MethodCallCodeFragment(_propertyIsFixedLengthMethodInfo)
                         : new MethodCallCodeFragment(_propertyIsFixedLengthMethodInfo, isFixedLength));
             }
@@ -734,7 +734,9 @@ namespace Microsoft.EntityFrameworkCore.Design
         }
 
         private static bool TryGetAndRemove<T>(
-            IDictionary<string, IAnnotation> annotations, string annotationName, [NotNullWhen(true)] out T? annotationValue)
+            IDictionary<string, IAnnotation> annotations,
+            string annotationName,
+            [NotNullWhen(true)] out T? annotationValue)
         {
             if (annotations.TryGetValue(annotationName, out var annotation)
                 && annotation.Value != null)

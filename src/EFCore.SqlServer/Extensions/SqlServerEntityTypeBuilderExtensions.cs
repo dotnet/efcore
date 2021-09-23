@@ -344,7 +344,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.TemporalPeriodStartPropertyName, propertyName, fromDataAnnotation);
+            return entityTypeBuilder.CanSetAnnotation(
+                SqlServerAnnotationNames.TemporalPeriodStartPropertyName, propertyName, fromDataAnnotation);
         }
 
         /// <summary>
@@ -394,7 +395,8 @@ namespace Microsoft.EntityFrameworkCore
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return entityTypeBuilder.CanSetAnnotation(SqlServerAnnotationNames.TemporalPeriodEndPropertyName, propertyName, fromDataAnnotation);
+            return entityTypeBuilder.CanSetAnnotation(
+                SqlServerAnnotationNames.TemporalPeriodEndPropertyName, propertyName, fromDataAnnotation);
         }
     }
 }

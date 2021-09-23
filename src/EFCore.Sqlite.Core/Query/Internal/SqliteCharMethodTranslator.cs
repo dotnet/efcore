@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     {
         private static readonly Dictionary<MethodInfo, string> _supportedMethods = new()
         {
-            { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToLower), new[] { typeof(char) }), "lower" },
-            { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToUpper), new[] { typeof(char) }), "upper" }
+            { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToLower), typeof(char)), "lower" },
+            { typeof(char).GetRequiredRuntimeMethod(nameof(char.ToUpper), typeof(char)), "upper" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

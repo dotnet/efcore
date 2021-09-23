@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="key"> The key. </param>
         /// <returns> <see langword="true" /> if the key is clustered. </returns>
         public static bool? IsClustered(this IReadOnlyKey key)
-            => key is RuntimeKey
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (bool?)key[SqlServerAnnotationNames.Clustered];
+            => (key is RuntimeKey)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (bool?)key[SqlServerAnnotationNames.Clustered];
 
         /// <summary>
         ///     Returns a value indicating whether the key is clustered.

@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -383,12 +381,11 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// </summary>
         public virtual object? Value
         {
-            get
-                => Entry == null
-                    ? _value
-                    : Entry.EntityState == EntityState.Deleted
-                        ? null
-                        : Entry.GetCurrentValue(Property!);
+            get => Entry == null
+                ? _value
+                : Entry.EntityState == EntityState.Deleted
+                    ? null
+                    : Entry.GetCurrentValue(Property!);
             set
             {
                 if (Entry == null)

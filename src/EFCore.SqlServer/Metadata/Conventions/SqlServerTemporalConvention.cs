@@ -133,7 +133,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             IConventionForeignKey? oldForeignKey,
             IConventionContext<IConventionForeignKey> context)
         {
-             if (skipNavigationBuilder.Metadata.JoinEntityType is IConventionEntityType joinEntityType
+            if (skipNavigationBuilder.Metadata.JoinEntityType is IConventionEntityType joinEntityType
                 && joinEntityType.HasSharedClrType
                 && !joinEntityType.IsTemporal()
                 && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention

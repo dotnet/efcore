@@ -112,7 +112,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             VisitDatabaseModel(modelBuilder, databaseModel);
 
-            return _modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: true, null);
+            return _modelRuntimeInitializer.Initialize((IModel)modelBuilder.Model, designTime: true);
         }
 
         /// <summary>
@@ -735,6 +735,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     {
                         leftNavigationPropertyCandidateName = _pluralizer.Pluralize(leftNavigationPropertyCandidateName);
                     }
+
                     var leftNavigationPropertyName =
                         _cSharpUtilities.GenerateCSharpIdentifier(
                             leftNavigationPropertyCandidateName,
@@ -749,6 +750,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                     {
                         rightNavigationPropertyCandidateName = _pluralizer.Pluralize(rightNavigationPropertyCandidateName);
                     }
+
                     var rightNavigationPropertyName =
                         _cSharpUtilities.GenerateCSharpIdentifier(
                             rightNavigationPropertyCandidateName,

@@ -87,7 +87,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Indicates whether the function parameter is read-only.
         /// </summary>
-        public override bool IsReadOnly => ((Annotatable)Function.Model).IsReadOnly;
+        public override bool IsReadOnly
+            => ((Annotatable)Function.Model).IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -156,15 +157,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         public virtual RelationalTypeMapping? TypeMapping
         {
             get => IsReadOnly
-                    ? NonCapturingLazyInitializer.EnsureInitialized(ref _typeMapping, this, static parameter =>
-                    {
-                        var relationalTypeMappingSource =
-                            (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
-                        return !string.IsNullOrEmpty(parameter._storeType)
-                                    ? relationalTypeMappingSource.FindMapping(parameter._storeType)!
-                                    : relationalTypeMappingSource.FindMapping(parameter.ClrType, (IModel)parameter.Function.Model)!;
-                    })
-                    : _typeMapping;
+                ? NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _typeMapping, this, static parameter =>
+                        {
+                            var relationalTypeMappingSource =
+                                (IRelationalTypeMappingSource)((IModel)parameter.Function.Model).GetModelDependencies().TypeMappingSource;
+                            return !string.IsNullOrEmpty(parameter._storeType)
+                                ? relationalTypeMappingSource.FindMapping(parameter._storeType)!
+                                : relationalTypeMappingSource.FindMapping(parameter.ClrType, (IModel)parameter.Function.Model)!;
+                        })
+                : _typeMapping;
             set => SetTypeMapping(value, ConfigurationSource.Explicit);
         }
 

@@ -193,25 +193,25 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
 
                 var index = i;
                 yield return () =>
-                {
-                    _logger.MigrationReverting(this, migration);
+                    {
+                        _logger.MigrationReverting(this, migration);
 
-                    return GenerateDownSql(
-                        migration,
-                        index != migrationsToRevert.Count - 1
-                            ? migrationsToRevert[index + 1]
-                            : actualTargetMigration);
-                };
+                        return GenerateDownSql(
+                            migration,
+                            index != migrationsToRevert.Count - 1
+                                ? migrationsToRevert[index + 1]
+                                : actualTargetMigration);
+                    };
             }
 
             foreach (var migration in migrationsToApply)
             {
                 yield return () =>
-                {
-                    _logger.MigrationApplying(this, migration);
+                    {
+                        _logger.MigrationApplying(this, migration);
 
-                    return GenerateUpSql(migration);
-                };
+                        return GenerateUpSql(migration);
+                    };
             }
 
             if (migrationsToRevert.Count + migrationsToApply.Count == 0)
@@ -490,7 +490,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 _historyRepository.GetDeleteScript(migration.GetId()));
 
             return _migrationsSqlGenerator
-                .Generate(migration.DownOperations, previousMigration == null ? null : FinalizeModel(previousMigration.TargetModel), options)
+                .Generate(
+                    migration.DownOperations, previousMigration == null ? null : FinalizeModel(previousMigration.TargetModel), options)
                 .Concat(new[] { new MigrationCommand(deleteCommand, _currentContext.Context, _commandLogger) })
                 .ToList();
         }

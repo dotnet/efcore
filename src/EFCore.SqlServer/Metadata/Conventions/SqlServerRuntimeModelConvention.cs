@@ -39,7 +39,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="runtimeModel"> The target model that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
         protected override void ProcessModelAnnotations(
-            Dictionary<string, object?> annotations, IModel model, RuntimeModel runtimeModel, bool runtime)
+            Dictionary<string, object?> annotations,
+            IModel model,
+            RuntimeModel runtimeModel,
+            bool runtime)
         {
             base.ProcessModelAnnotations(annotations, model, runtimeModel, runtime);
 
@@ -61,7 +64,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="runtimeProperty"> The target property that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
         protected override void ProcessPropertyAnnotations(
-            Dictionary<string, object?> annotations, IProperty property, RuntimeProperty runtimeProperty, bool runtime)
+            Dictionary<string, object?> annotations,
+            IProperty property,
+            RuntimeProperty runtimeProperty,
+            bool runtime)
         {
             base.ProcessPropertyAnnotations(annotations, property, runtimeProperty, runtime);
 

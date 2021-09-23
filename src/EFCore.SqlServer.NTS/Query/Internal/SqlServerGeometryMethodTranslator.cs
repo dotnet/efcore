@@ -26,35 +26,35 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         {
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsBinary), Type.EmptyTypes), "STAsBinary" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.AsText), Type.EmptyTypes), "AsTextZM" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Buffer), new[] { typeof(double) }), "STBuffer" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Contains), new[] { typeof(Geometry) }), "STContains" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Buffer), typeof(double)), "STBuffer" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Contains), typeof(Geometry)), "STContains" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.ConvexHull), Type.EmptyTypes), "STConvexHull" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Difference), new[] { typeof(Geometry) }), "STDifference" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Disjoint), new[] { typeof(Geometry) }), "STDisjoint" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Distance), new[] { typeof(Geometry) }), "STDistance" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.EqualsTopologically), new[] { typeof(Geometry) }), "STEquals" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersection), new[] { typeof(Geometry) }), "STIntersection" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersects), new[] { typeof(Geometry) }), "STIntersects" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Overlaps), new[] { typeof(Geometry) }), "STOverlaps" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.SymmetricDifference), new[] { typeof(Geometry) }), "STSymDifference" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Difference), typeof(Geometry)), "STDifference" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Disjoint), typeof(Geometry)), "STDisjoint" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Distance), typeof(Geometry)), "STDistance" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.EqualsTopologically), typeof(Geometry)), "STEquals" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersection), typeof(Geometry)), "STIntersection" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Intersects), typeof(Geometry)), "STIntersects" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Overlaps), typeof(Geometry)), "STOverlaps" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.SymmetricDifference), typeof(Geometry)), "STSymDifference" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.ToBinary), Type.EmptyTypes), "STAsBinary" },
             { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.ToText), Type.EmptyTypes), "AsTextZM" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Union), new[] { typeof(Geometry) }), "STUnion" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Within), new[] { typeof(Geometry) }), "STWithin" }
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Union), typeof(Geometry)), "STUnion" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Within), typeof(Geometry)), "STWithin" }
         };
 
         private static readonly IDictionary<MethodInfo, string> _geometryMethodToFunctionName = new Dictionary<MethodInfo, string>
         {
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Crosses), new[] { typeof(Geometry) }), "STCrosses" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Relate), new[] { typeof(Geometry), typeof(string) }), "STRelate" },
-            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Touches), new[] { typeof(Geometry) }), "STTouches" }
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Crosses), typeof(Geometry)), "STCrosses" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Relate), typeof(Geometry), typeof(string)), "STRelate" },
+            { typeof(Geometry).GetRequiredRuntimeMethod(nameof(Geometry.Touches), typeof(Geometry)), "STTouches" }
         };
 
         private static readonly MethodInfo _getGeometryN = typeof(Geometry).GetRequiredRuntimeMethod(
-            nameof(Geometry.GetGeometryN), new[] { typeof(int) });
+            nameof(Geometry.GetGeometryN), typeof(int));
 
         private static readonly MethodInfo _isWithinDistance = typeof(Geometry).GetRequiredRuntimeMethod(
-            nameof(Geometry.IsWithinDistance), new[] { typeof(Geometry), typeof(double) });
+            nameof(Geometry.IsWithinDistance), typeof(Geometry), typeof(double));
 
         private readonly IRelationalTypeMappingSource _typeMappingSource;
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

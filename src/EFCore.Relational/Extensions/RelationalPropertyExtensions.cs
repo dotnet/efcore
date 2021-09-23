@@ -286,9 +286,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The column order. </returns>
         public static int? GetColumnOrder(this IReadOnlyProperty property)
-            => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (int?)property.FindAnnotation(RelationalAnnotationNames.ColumnOrder)?.Value;
+            => (property is RuntimeProperty)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (int?)property.FindAnnotation(RelationalAnnotationNames.ColumnOrder)?.Value;
 
         /// <summary>
         ///     Returns the order of the column this property is mapped to for a particular table.
@@ -1121,9 +1121,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The comment for the column this property is mapped to. </returns>
         public static string? GetComment(this IReadOnlyProperty property)
-            => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)property.FindAnnotation(RelationalAnnotationNames.Comment)?.Value;
+            => (property is RuntimeProperty)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)property.FindAnnotation(RelationalAnnotationNames.Comment)?.Value;
 
         /// <summary>
         ///     Returns the comment for the column this property is mapped to.
@@ -1192,9 +1192,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="property"> The property. </param>
         /// <returns> The collation for the column this property is mapped to. </returns>
         public static string? GetCollation(this IReadOnlyProperty property)
-            => property is RuntimeProperty
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)property.FindAnnotation(RelationalAnnotationNames.Collation)?.Value;
+            => (property is RuntimeProperty)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)property.FindAnnotation(RelationalAnnotationNames.Collation)?.Value;
 
         /// <summary>
         ///     Returns the collation to be used for the column.

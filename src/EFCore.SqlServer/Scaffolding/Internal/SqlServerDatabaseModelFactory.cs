@@ -20,7 +20,6 @@ using Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
 {
@@ -251,15 +250,15 @@ WHERE name = '{connection.Database}';";
         {
             return schemas.Count > 0
                 ? (s =>
-                {
-                    var schemaFilterBuilder = new StringBuilder();
-                    schemaFilterBuilder.Append(s);
-                    schemaFilterBuilder.Append(" IN (");
-                    schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
-                    schemaFilterBuilder.Append(')');
-                    return schemaFilterBuilder.ToString();
-                })
-                : (Func<string, string>?)null;
+                    {
+                        var schemaFilterBuilder = new StringBuilder();
+                        schemaFilterBuilder.Append(s);
+                        schemaFilterBuilder.Append(" IN (");
+                        schemaFilterBuilder.AppendJoin(", ", schemas.Select(EscapeLiteral));
+                        schemaFilterBuilder.Append(')');
+                        return schemaFilterBuilder.ToString();
+                    })
+                : null;
         }
 
         private static (string? Schema, string Table) Parse(string table)
@@ -283,70 +282,71 @@ WHERE name = '{connection.Database}';";
             => schemaFilter != null
                 || tables.Count > 0
                     ? ((s, t) =>
-                    {
-                        var tableFilterBuilder = new StringBuilder();
-
-                        var openBracket = false;
-                        if (schemaFilter != null)
                         {
-                            tableFilterBuilder
-                                .Append('(')
-                                .Append(schemaFilter(s));
-                            openBracket = true;
-                        }
+                            var tableFilterBuilder = new StringBuilder();
 
-                        if (tables.Count > 0)
-                        {
-                            if (openBracket)
+                            var openBracket = false;
+                            if (schemaFilter != null)
                             {
                                 tableFilterBuilder
-                                    .AppendLine()
-                                    .Append("OR ");
-                            }
-                            else
-                            {
-                                tableFilterBuilder.Append('(');
+                                    .Append('(')
+                                    .Append(schemaFilter(s));
                                 openBracket = true;
                             }
 
-                            var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithoutSchema.Count > 0)
+                            if (tables.Count > 0)
                             {
-                                tableFilterBuilder.Append(t);
-                                tableFilterBuilder.Append(" IN (");
-                                tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
-                                tableFilterBuilder.Append(')');
-                            }
-
-                            var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
-                            if (tablesWithSchema.Count > 0)
-                            {
-                                if (tablesWithoutSchema.Count > 0)
+                                if (openBracket)
                                 {
-                                    tableFilterBuilder.Append(" OR ");
+                                    tableFilterBuilder
+                                        .AppendLine()
+                                        .Append("OR ");
+                                }
+                                else
+                                {
+                                    tableFilterBuilder.Append('(');
+                                    openBracket = true;
                                 }
 
-                                tableFilterBuilder.Append(t);
-                                tableFilterBuilder.Append(" IN (");
-                                tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
-                                tableFilterBuilder.Append(") AND (");
-                                tableFilterBuilder.Append(s);
-                                tableFilterBuilder.Append(" + N'.' + ");
-                                tableFilterBuilder.Append(t);
-                                tableFilterBuilder.Append(") IN (");
-                                tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
+                                var tablesWithoutSchema = tables.Where(e => string.IsNullOrEmpty(e.Schema)).ToList();
+                                if (tablesWithoutSchema.Count > 0)
+                                {
+                                    tableFilterBuilder.Append(t);
+                                    tableFilterBuilder.Append(" IN (");
+                                    tableFilterBuilder.AppendJoin(", ", tablesWithoutSchema.Select(e => EscapeLiteral(e.Table)));
+                                    tableFilterBuilder.Append(')');
+                                }
+
+                                var tablesWithSchema = tables.Where(e => !string.IsNullOrEmpty(e.Schema)).ToList();
+                                if (tablesWithSchema.Count > 0)
+                                {
+                                    if (tablesWithoutSchema.Count > 0)
+                                    {
+                                        tableFilterBuilder.Append(" OR ");
+                                    }
+
+                                    tableFilterBuilder.Append(t);
+                                    tableFilterBuilder.Append(" IN (");
+                                    tableFilterBuilder.AppendJoin(", ", tablesWithSchema.Select(e => EscapeLiteral(e.Table)));
+                                    tableFilterBuilder.Append(") AND (");
+                                    tableFilterBuilder.Append(s);
+                                    tableFilterBuilder.Append(" + N'.' + ");
+                                    tableFilterBuilder.Append(t);
+                                    tableFilterBuilder.Append(") IN (");
+                                    tableFilterBuilder.AppendJoin(
+                                        ", ", tablesWithSchema.Select(e => EscapeLiteral($"{e.Schema}.{e.Table}")));
+                                    tableFilterBuilder.Append(')');
+                                }
+                            }
+
+                            if (openBracket)
+                            {
                                 tableFilterBuilder.Append(')');
                             }
-                        }
 
-                        if (openBracket)
-                        {
-                            tableFilterBuilder.Append(')');
-                        }
-
-                        return tableFilterBuilder.ToString();
-                    })
-                    : (Func<string, string, string>?)null;
+                            return tableFilterBuilder.ToString();
+                        })
+                    : null;
 
         private static string EscapeLiteral(string s)
             => $"N'{s.Replace("'", "''")}'";
@@ -1058,8 +1058,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     {
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                     ?? table.Columns.FirstOrDefault(
-                                         c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            ?? table.Columns.FirstOrDefault(
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                         if (column is null)
                         {
@@ -1087,8 +1087,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                     {
                         var columnName = dataRecord.GetValueOrDefault<string>("column_name");
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                     ?? table.Columns.FirstOrDefault(
-                                         c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            ?? table.Columns.FirstOrDefault(
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                         if (column is null)
                         {
@@ -1135,8 +1135,8 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                         }
 
                         var column = table.Columns.FirstOrDefault(c => c.Name == columnName)
-                                     ?? table.Columns.FirstOrDefault(
-                                         c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            ?? table.Columns.FirstOrDefault(
+                                c => c.Name!.Equals(columnName, StringComparison.OrdinalIgnoreCase));
 
                         if (column is null)
                         {
@@ -1279,8 +1279,9 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
                         else
                         {
                             var duplicated = table.ForeignKeys
-                                .FirstOrDefault(k => k.Columns.SequenceEqual(foreignKey.Columns)
-                                    && k.PrincipalTable.Equals(foreignKey.PrincipalTable));
+                                .FirstOrDefault(
+                                    k => k.Columns.SequenceEqual(foreignKey.Columns)
+                                        && k.PrincipalTable.Equals(foreignKey.PrincipalTable));
                             if (duplicated != null)
                             {
                                 _logger.DuplicateForeignKeyConstraintIgnored(

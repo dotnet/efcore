@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 {
@@ -19,12 +20,16 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
         {
             private static readonly MethodInfo _includeReferenceMethodInfo
                 = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeReference));
+
             private static readonly MethodInfo _includeCollectionMethodInfo
                 = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(IncludeCollection));
+
             private static readonly MethodInfo _materializeCollectionMethodInfo
                 = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeCollection));
+
             private static readonly MethodInfo _materializeSingleResultMethodInfo
                 = typeof(ShaperExpressionProcessingExpressionVisitor).GetRequiredDeclaredMethod(nameof(MaterializeSingleResult));
+
             private static readonly MethodInfo _collectionAccessorAddMethodInfo
                 = typeof(IClrCollectionAccessor).GetRequiredDeclaredMethod(nameof(IClrCollectionAccessor.Add));
 
@@ -81,7 +86,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         {
                             variable = Expression.Parameter(entityShaperExpression.EntityType.ClrType);
                             _variables.Add(variable);
-                            var innerShaper = _inMemoryShapedQueryCompilingExpressionVisitor.InjectEntityMaterializers(entityShaperExpression);
+                            var innerShaper =
+                                _inMemoryShapedQueryCompilingExpressionVisitor.InjectEntityMaterializers(entityShaperExpression);
                             innerShaper = Visit(innerShaper);
                             _expressions.Add(Expression.Assign(variable, innerShaper));
                             _mapping[key] = variable;
@@ -102,12 +108,14 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                             {
                                 _valueBufferParameter = queryExpression.CurrentParameter;
                             }
+
                             var projectionIndex = queryExpression.GetProjection(projectionBindingExpression).GetConstantValue<int>();
 
                             // We don't need to pass property when reading at top-level
-                            _expressions.Add(Expression.Assign(
-                                variable, queryExpression.CurrentParameter.CreateValueBufferReadValueExpression(
-                                    projectionBindingExpression.Type, projectionIndex, property: null)));
+                            _expressions.Add(
+                                Expression.Assign(
+                                    variable, queryExpression.CurrentParameter.CreateValueBufferReadValueExpression(
+                                        projectionBindingExpression.Type, projectionIndex, property: null)));
                             _mapping[key] = variable;
                         }
 
@@ -130,7 +138,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         if (includeExpression.Navigation.IsCollection)
                         {
                             var collectionResultShaperExpression = (CollectionResultShaperExpression)includeExpression.NavigationExpression;
-                            var shaperLambda = new ShaperExpressionProcessingExpressionVisitor(_inMemoryShapedQueryCompilingExpressionVisitor, _tracking)
+                            var shaperLambda = new ShaperExpressionProcessingExpressionVisitor(
+                                    _inMemoryShapedQueryCompilingExpressionVisitor, _tracking)
                                 .ProcessShaper(collectionResultShaperExpression.InnerShaper);
                             _expressions.Add(
                                 Expression.Call(
@@ -143,7 +152,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                                     Expression.Constant(inverseNavigation, typeof(INavigationBase)),
                                     Expression.Constant(
                                         GenerateFixup(
-                                            includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
+                                                includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation)
+                                            .Compile()),
                                     Expression.Constant(_tracking),
 #pragma warning disable EF1001 // Internal EF Core API usage.
                                     Expression.Constant(includeExpression.SetLoaded)));
@@ -151,17 +161,19 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         }
                         else
                         {
-                            _expressions.Add(Expression.Call(
-                                _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, includingClrType, relatedEntityClrType),
-                                QueryCompilationContext.QueryContextParameter,
-                                entity,
-                                Visit(includeExpression.NavigationExpression),
-                                Expression.Constant(includeExpression.Navigation),
-                                Expression.Constant(inverseNavigation, typeof(INavigationBase)),
-                                Expression.Constant(
-                                    GenerateFixup(
-                                        includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation).Compile()),
-                                Expression.Constant(_tracking)));
+                            _expressions.Add(
+                                Expression.Call(
+                                    _includeReferenceMethodInfo.MakeGenericMethod(entityClrType, includingClrType, relatedEntityClrType),
+                                    QueryCompilationContext.QueryContextParameter,
+                                    entity,
+                                    Visit(includeExpression.NavigationExpression),
+                                    Expression.Constant(includeExpression.Navigation),
+                                    Expression.Constant(inverseNavigation, typeof(INavigationBase)),
+                                    Expression.Constant(
+                                        GenerateFixup(
+                                                includingClrType, relatedEntityClrType, includeExpression.Navigation, inverseNavigation)
+                                            .Compile()),
+                                    Expression.Constant(_tracking)));
                         }
 
                         return entity;
@@ -173,8 +185,9 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                         var collectionAccessor = navigation?.GetCollectionAccessor();
                         var collectionType = collectionAccessor?.CollectionType ?? collectionResultShaperExpression.Type;
                         var elementType = collectionResultShaperExpression.ElementType;
-                        var shaperLambda = new ShaperExpressionProcessingExpressionVisitor(_inMemoryShapedQueryCompilingExpressionVisitor, _tracking)
-                                .ProcessShaper(collectionResultShaperExpression.InnerShaper);
+                        var shaperLambda = new ShaperExpressionProcessingExpressionVisitor(
+                                _inMemoryShapedQueryCompilingExpressionVisitor, _tracking)
+                            .ProcessShaper(collectionResultShaperExpression.InnerShaper);
 
                         return Expression.Call(
                             _materializeCollectionMethodInfo.MakeGenericMethod(elementType, collectionType),
@@ -186,7 +199,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
 
                     case SingleResultShaperExpression singleResultShaperExpression:
                     {
-                        var shaperLambda = new ShaperExpressionProcessingExpressionVisitor(_inMemoryShapedQueryCompilingExpressionVisitor, _tracking)
+                        var shaperLambda = new ShaperExpressionProcessingExpressionVisitor(
+                                _inMemoryShapedQueryCompilingExpressionVisitor, _tracking)
                             .ProcessShaper(singleResultShaperExpression.InnerShaper);
 
                         return Expression.Call(
@@ -242,7 +256,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
                 Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
                 if (methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.GetGenericMethodDefinition() == EntityFrameworkCore.Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod)
+                    && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod)
                 {
                     var property = methodCallExpression.Arguments[2].GetConstantValue<IProperty?>();
                     var indexMap = _materializationContextBindings[

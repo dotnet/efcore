@@ -85,33 +85,33 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
 
             app.OnExecute(
                 args =>
-                {
-                    Reporter.IsVerbose = verbose.HasValue();
-                    Reporter.NoColor = noColor.HasValue();
-                    Reporter.PrefixOutput = prefixOutput.HasValue();
+                    {
+                        Reporter.IsVerbose = verbose.HasValue();
+                        Reporter.NoColor = noColor.HasValue();
+                        Reporter.PrefixOutput = prefixOutput.HasValue();
 
-                    ExecuteInternal(args);
+                        ExecuteInternal(args);
 
-                    return 0;
-                });
+                        return 0;
+                    });
         }
 
         private static void ExecuteInternal(string[] args)
         {
             new MigrationsOperations(
-                new OperationReporter(
-                    new OperationReportHandler(
-                        Reporter.WriteError,
-                        Reporter.WriteWarning,
-                        Reporter.WriteInformation,
-                        Reporter.WriteVerbose)),
-                _assembly!,
-                _startupAssembly!,
-                projectDir: string.Empty,
-                rootNamespace: null,
-                language: null,
-                nullable: false,
-                args)
+                    new OperationReporter(
+                        new OperationReportHandler(
+                            Reporter.WriteError,
+                            Reporter.WriteWarning,
+                            Reporter.WriteInformation,
+                            Reporter.WriteVerbose)),
+                    _assembly!,
+                    _startupAssembly!,
+                    projectDir: string.Empty,
+                    rootNamespace: null,
+                    language: null,
+                    nullable: false,
+                    args)
                 .UpdateDatabase(_migration!.Value, _connection!.Value(), _context);
         }
     }

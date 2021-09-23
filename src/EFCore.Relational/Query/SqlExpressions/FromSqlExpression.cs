@@ -96,7 +96,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         }
 
         /// <inheritdoc />
-        public virtual TableExpressionBase Clone() => new FromSqlExpression(Alias, Sql, Arguments);
+        public virtual TableExpressionBase Clone()
+            => new FromSqlExpression(Alias, Sql, Arguments);
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)

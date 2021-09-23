@@ -255,7 +255,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The tables to which the entity type is mapped. </returns>
         public static IEnumerable<ITableMappingBase> GetDefaultMappings(this IEntityType entityType)
             => (IEnumerable<ITableMappingBase>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.DefaultMappings)
+                    RelationalAnnotationNames.DefaultMappings)
                 ?? Array.Empty<ITableMappingBase>();
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The tables to which the entity type is mapped. </returns>
         public static IEnumerable<ITableMapping> GetTableMappings(this IEntityType entityType)
             => (IEnumerable<ITableMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.TableMappings)
+                    RelationalAnnotationNames.TableMappings)
                 ?? Array.Empty<ITableMapping>();
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The views to which the entity type is mapped. </returns>
         public static IEnumerable<IViewMapping> GetViewMappings(this IEntityType entityType)
             => (IEnumerable<IViewMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.ViewMappings)
+                    RelationalAnnotationNames.ViewMappings)
                 ?? Array.Empty<IViewMapping>();
 
         /// <summary>
@@ -504,7 +504,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The functions to which the entity type is mapped. </returns>
         public static IEnumerable<ISqlQueryMapping> GetSqlQueryMappings(this IEntityType entityType)
             => (IEnumerable<ISqlQueryMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.SqlQueryMappings)
+                    RelationalAnnotationNames.SqlQueryMappings)
                 ?? Array.Empty<ISqlQueryMapping>();
 
         /// <summary>
@@ -570,7 +570,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns> The functions to which the entity type is mapped. </returns>
         public static IEnumerable<IFunctionMapping> GetFunctionMappings(this IEntityType entityType)
             => (IEnumerable<IFunctionMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.FunctionMappings)
+                    RelationalAnnotationNames.FunctionMappings)
                 ?? Array.Empty<IFunctionMapping>();
 
         /// <summary>
@@ -788,9 +788,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="entityType"> The entity type. </param>
         /// <returns> The comment for the table this entity is mapped to. </returns>
         public static string? GetComment(this IReadOnlyEntityType entityType)
-            => entityType is RuntimeEntityType
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)entityType[RelationalAnnotationNames.Comment];
+            => (entityType is RuntimeEntityType)
+                ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+                : (string?)entityType[RelationalAnnotationNames.Comment];
 
         /// <summary>
         ///     Configures a comment to be applied to the table this entity is mapped to.

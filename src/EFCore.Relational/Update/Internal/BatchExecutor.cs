@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -77,9 +76,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
             {
                 var transactionEnlistManager = connection as ITransactionEnlistmentManager;
                 if (transaction == null
-                        && transactionEnlistManager?.EnlistedTransaction is null
-                        && transactionEnlistManager?.CurrentAmbientTransaction is null
-                        && CurrentContext.Context.Database.AutoTransactionsEnabled)
+                    && transactionEnlistManager?.EnlistedTransaction is null
+                    && transactionEnlistManager?.CurrentAmbientTransaction is null
+                    && CurrentContext.Context.Database.AutoTransactionsEnabled)
                 {
                     transaction = connection.BeginTransaction();
                     beganTransaction = true;

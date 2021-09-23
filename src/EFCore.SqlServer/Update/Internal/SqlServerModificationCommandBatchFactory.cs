@@ -44,7 +44,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
             Dependencies = dependencies;
             _options = options;
         }
-        
+
         /// <summary>
         ///     Relational provider-specific dependencies for this service.
         /// </summary>
