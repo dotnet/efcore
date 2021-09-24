@@ -15,17 +15,17 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <SystemCollectionsImmutableVersion>6.0.0-rc.2.21473.11</SystemCollectionsImmutableVersion>
-    <SystemDiagnosticsDiagnosticSourceVersion>6.0.0-rc.2.21473.11</SystemDiagnosticsDiagnosticSourceVersion>
-    <MicrosoftExtensionsCachingMemoryVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>6.0.0-rc.2.21473.11</MicrosoftExtensionsLoggingVersion>
+    <SystemCollectionsImmutableVersion>6.0.0-rc.2.21473.14</SystemCollectionsImmutableVersion>
+    <SystemDiagnosticsDiagnosticSourceVersion>6.0.0-rc.2.21473.14</SystemDiagnosticsDiagnosticSourceVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>6.0.0-rc.2.21473.14</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftCodeAnalysisVersion>3.7.0</MicrosoftCodeAnalysisVersion>
