@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public CosmosQueryCompilationContextFactory(QueryCompilationContextDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
-            
+
             Dependencies = dependencies;
         }
 

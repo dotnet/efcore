@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -69,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal
             inMemoryQueryExpression.ApplyProjection();
 
             var shaperExpression = new ShaperExpressionProcessingExpressionVisitor(
-                this, inMemoryQueryExpression, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+                    this, inMemoryQueryExpression, QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
                 .ProcessShaper(shapedQueryExpression.ShaperExpression);
             var innerEnumerable = Visit(inMemoryQueryExpression.ServerQueryExpression);
 

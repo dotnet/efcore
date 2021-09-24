@@ -234,11 +234,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                             builder.Append('\'');
                             openApostrophe = true;
                         }
+
                         builder.Append("''");
                     }
+
                     start = i + 1;
                 }
             }
+
             length = i - start;
             if (length != 0)
             {
@@ -269,6 +272,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                 {
                     builder.Insert(concatStartList[j], "CAST(");
                 }
+
                 builder.Insert(concatStartList[j], "CONCAT(");
                 builder.Append(')');
             }
@@ -296,6 +300,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
                         {
                             builder.Append("n");
                         }
+
                         builder.Append("varchar(max))");
                         castApplied = true;
                     }

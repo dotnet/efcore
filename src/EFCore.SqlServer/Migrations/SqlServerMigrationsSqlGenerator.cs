@@ -319,6 +319,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 {
                     throw new InvalidOperationException(SqlServerStrings.AlterIdentityColumn);
                 }
+
                 var oldType = operation.OldColumn.ColumnType
                     ?? GetColumnType(
                         operation.Schema,
@@ -559,7 +560,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             if (operation[SqlServerAnnotationNames.IsTemporal] as bool? == true)
             {
-                var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? model?.GetDefaultSchema();
+                var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
+                    ?? model?.GetDefaultSchema();
                 var needsExec = historyTableSchema == null;
                 var subBuilder = needsExec
                     ? new MigrationCommandListBuilder(Dependencies)
@@ -600,7 +602,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 if (needsExec)
                 {
                     historyTable = Dependencies.SqlGenerationHelper.DelimitIdentifier(historyTableName!);
-                    builder.Append($") WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].{ historyTable}))')");
+                    builder.Append($") WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + N'].{historyTable}))')");
                 }
                 else
                 {
@@ -1316,7 +1318,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             if (operation[SqlServerAnnotationNames.IsTemporal] as bool? == true)
             {
                 var historyTableName = operation[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
-                var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? model?.GetDefaultSchema();
+                var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
+                    ?? model?.GetDefaultSchema();
                 var periodStartColumnName = operation[SqlServerAnnotationNames.TemporalPeriodStartColumnName] as string;
                 var periodEndColumnName = operation[SqlServerAnnotationNames.TemporalPeriodEndColumnName] as string;
 
@@ -1327,12 +1330,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 if (operation.Name != periodStartColumnName
                     && operation.Name != periodEndColumnName)
                 {
-                    Generate(new DropColumnOperation
-                    {
-                        Name = operation.Name,
-                        Table = historyTableName!,
-                        Schema = historyTableSchema
-                    }, model, builder, terminate);
+                    Generate(
+                        new DropColumnOperation
+                        {
+                            Name = operation.Name,
+                            Table = historyTableName!,
+                            Schema = historyTableSchema
+                        }, model, builder, terminate);
                 }
             }
         }
@@ -2142,11 +2146,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                 builder.Append("N'");
                                 openApostrophe = true;
                             }
+
                             builder.Append("''");
                         }
+
                         start = i + 1;
                     }
                 }
+
                 length = i - start;
                 if (length != 0)
                 {
@@ -2379,7 +2386,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                     schema ??= model?.GetDefaultSchema();
                     var historyTableName = operation[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
-                    var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string ?? model?.GetDefaultSchema();
+                    var historyTableSchema = operation[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
+                        ?? model?.GetDefaultSchema();
                     var periodStartColumnName = operation[SqlServerAnnotationNames.TemporalPeriodStartColumnName] as string;
                     var periodEndColumnName = operation[SqlServerAnnotationNames.TemporalPeriodEndColumnName] as string;
 
@@ -2412,7 +2420,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             // since table was renamed, remove old entry and add new entry
                             // marked as versioning disabled, so we enable it in the end for the new table
                             versioningMap.Remove((table, schema));
-                            versioningMap[(renameTableOperation.NewName, renameTableOperation.NewSchema)] = (historyTableName!, historyTableSchema);
+                            versioningMap[(renameTableOperation.NewName, renameTableOperation.NewSchema)] =
+                                (historyTableName!, historyTableSchema);
 
                             // same thing for disabled system period - remove one associated with old table and add one for the new table
                             if (periodMap.TryGetValue((table, schema), out var result))
@@ -2427,13 +2436,17 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             var oldIsTemporal = alterTableOperation.OldTable[SqlServerAnnotationNames.IsTemporal] as bool? == true;
                             if (!oldIsTemporal)
                             {
-                                periodMap[(alterTableOperation.Name, alterTableOperation.Schema)] = (periodStartColumnName!, periodEndColumnName!);
-                                versioningMap[(alterTableOperation.Name, alterTableOperation.Schema)] = (historyTableName!, historyTableSchema);
+                                periodMap[(alterTableOperation.Name, alterTableOperation.Schema)] =
+                                    (periodStartColumnName!, periodEndColumnName!);
+                                versioningMap[(alterTableOperation.Name, alterTableOperation.Schema)] =
+                                    (historyTableName!, historyTableSchema);
                             }
                             else
                             {
-                                var oldHistoryTableName = alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
-                                var oldHistoryTableSchema = alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
+                                var oldHistoryTableName =
+                                    alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalHistoryTableName] as string;
+                                var oldHistoryTableSchema =
+                                    alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalHistoryTableSchema] as string
                                     ?? alterTableOperation.OldTable.Schema
                                     ?? model?[RelationalAnnotationNames.DefaultSchema] as string;
 
@@ -2447,17 +2460,19 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                                         availbleSchemas.Add(historyTableSchema);
                                     }
 
-                                    operations.Add(new RenameTableOperation
-                                    {
-                                        Name = oldHistoryTableName!,
-                                        Schema = oldHistoryTableSchema,
-                                        NewName = historyTableName,
-                                        NewSchema = historyTableSchema
-                                    });
+                                    operations.Add(
+                                        new RenameTableOperation
+                                        {
+                                            Name = oldHistoryTableName!,
+                                            Schema = oldHistoryTableSchema,
+                                            NewName = historyTableName,
+                                            NewSchema = historyTableSchema
+                                        });
 
                                     if (versioningMap.ContainsKey((alterTableOperation.Name, alterTableOperation.Schema)))
                                     {
-                                        versioningMap[(alterTableOperation.Name, alterTableOperation.Schema)] = (historyTableName!, historyTableSchema);
+                                        versioningMap[(alterTableOperation.Name, alterTableOperation.Schema)] =
+                                            (historyTableName!, historyTableSchema);
                                     }
                                 }
                             }
@@ -2485,6 +2500,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
                                 operations.Add(operation);
                             }
+
                             break;
 
                         case DropPrimaryKeyOperation:
@@ -2546,8 +2562,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                             ?? alterTableOperation.OldTable.Schema
                             ?? model?[RelationalAnnotationNames.DefaultSchema] as string;
 
-                        var periodStartColumnName = alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalPeriodStartColumnName] as string;
-                        var periodEndColumnName = alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalPeriodEndColumnName] as string;
+                        var periodStartColumnName =
+                            alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalPeriodStartColumnName] as string;
+                        var periodEndColumnName =
+                            alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalPeriodEndColumnName] as string;
 
                         DisableVersioning(alterTableOperation.Name, alterTableOperation.Schema, historyTableName!, historyTableSchema);
                         DisablePeriod(alterTableOperation.Name, alterTableOperation.Schema, periodStartColumnName!, periodEndColumnName!);
@@ -2592,7 +2610,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
 
             foreach (var versioningMapEntry in versioningMap)
             {
-                EnableVersioning(versioningMapEntry.Key.Item1!, versioningMapEntry.Key.Item2, versioningMapEntry.Value.Item1, versioningMapEntry.Value.Item2);
+                EnableVersioning(
+                    versioningMapEntry.Key.Item1!, versioningMapEntry.Key.Item2, versioningMapEntry.Value.Item1,
+                    versioningMapEntry.Value.Item2);
             }
 
             return operations;
@@ -2646,7 +2666,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 }
                 else
                 {
-                    stringBuilder.AppendLine($" SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].{historyTable}))')");
+                    stringBuilder.AppendLine(
+                        $" SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].{historyTable}))')");
                 }
 
                 operations.Add(
@@ -2745,7 +2766,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                 foreach (var annotation in second.GetAnnotations())
                 {
                     var index = unmatched.FindIndex(
-                        a => a.Name == annotation.Name && StructuralComparisons.StructuralEqualityComparer.Equals(a.Value, annotation.Value));
+                        a => a.Name == annotation.Name
+                            && StructuralComparisons.StructuralEqualityComparer.Equals(a.Value, annotation.Value));
                     if (index == -1)
                     {
                         continue;
@@ -2754,13 +2776,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     unmatched.RemoveAt(index);
                 }
 
-                return unmatched.All(a => a.Name == SqlServerAnnotationNames.IsTemporal
-                    || a.Name == SqlServerAnnotationNames.TemporalHistoryTableName
-                    || a.Name == SqlServerAnnotationNames.TemporalHistoryTableSchema
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodStartColumnName
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+                return unmatched.All(
+                    a => a.Name == SqlServerAnnotationNames.IsTemporal
+                        || a.Name == SqlServerAnnotationNames.TemporalHistoryTableName
+                        || a.Name == SqlServerAnnotationNames.TemporalHistoryTableSchema
+                        || a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName
+                        || a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName
+                        || a.Name == SqlServerAnnotationNames.TemporalPeriodStartColumnName
+                        || a.Name == SqlServerAnnotationNames.TemporalPeriodEndColumnName);
             }
         }
     }

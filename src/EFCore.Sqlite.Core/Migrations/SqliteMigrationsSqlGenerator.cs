@@ -823,6 +823,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         }
 
         #region Invalid migration operations
+
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since this operation requires table rebuilds, which
         ///     are not yet supported.
@@ -994,9 +995,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
                     .Append(operation.Collation);
             }
         }
+
         #endregion
 
         #region Ignored schema operations
+
         /// <summary>
         ///     Ignored, since schemas are not supported by SQLite and are silently ignored to improve testing compatibility.
         /// </summary>
@@ -1016,9 +1019,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         protected override void Generate(DropSchemaOperation operation, IModel? model, MigrationCommandListBuilder builder)
         {
         }
+
         #endregion
 
         #region Sequences not supported
+
         /// <summary>
         ///     Throws <see cref="NotSupportedException" /> since SQLite does not support sequences.
         /// </summary>
@@ -1063,6 +1068,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="builder"> The command builder to use to build the commands. </param>
         protected override void Generate(DropSequenceOperation operation, IModel? model, MigrationCommandListBuilder builder)
             => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
+
         #endregion
 
         private sealed class RebuildContext

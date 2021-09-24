@@ -20,13 +20,11 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     {
         private static readonly MethodInfo _methodInfo
             = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+                nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string));
 
         private static readonly MethodInfo _methodInfoWithEscape
             = typeof(DbFunctionsExtensions).GetRequiredRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like),
-                new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) });
+                nameof(DbFunctionsExtensions.Like), typeof(DbFunctions), typeof(string), typeof(string), typeof(string));
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

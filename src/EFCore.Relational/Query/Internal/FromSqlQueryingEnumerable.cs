@@ -225,7 +225,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 EntityFrameworkEventSource.Log.QueryExecuting();
 
-                var relationalCommand = enumerator._relationalCommand = enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                var relationalCommand = enumerator._relationalCommand =
+                    enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
                 enumerator._dataReader = relationalCommand.ExecuteReader(
                     new RelationalCommandParameterObject(
@@ -335,17 +336,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 EntityFrameworkEventSource.Log.QueryExecuting();
 
-                var relationalCommand = enumerator._relationalCommand = enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
-                
+                var relationalCommand = enumerator._relationalCommand =
+                    enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+
                 enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
-                    new RelationalCommandParameterObject(
-                        enumerator._relationalQueryContext.Connection,
-                        enumerator._relationalQueryContext.ParameterValues,
-                        enumerator._relationalCommandCache.ReaderColumns,
-                        enumerator._relationalQueryContext.Context,
-                        enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled, CommandSource.FromSqlQuery),
-                    cancellationToken)
+                        new RelationalCommandParameterObject(
+                            enumerator._relationalQueryContext.Connection,
+                            enumerator._relationalQueryContext.ParameterValues,
+                            enumerator._relationalCommandCache.ReaderColumns,
+                            enumerator._relationalQueryContext.Context,
+                            enumerator._relationalQueryContext.CommandLogger,
+                            enumerator._detailedErrorsEnabled, CommandSource.FromSqlQuery),
+                        cancellationToken)
                     .ConfigureAwait(false);
 
                 enumerator._indexMap = BuildIndexMap(enumerator._columnNames, enumerator._dataReader.DbDataReader);

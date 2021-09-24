@@ -16,17 +16,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     {
         private static readonly IDictionary<MemberInfo, string> _memberToPropertyName = new Dictionary<MemberInfo, string>
         {
-            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.M)), "M" }, { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Z)), "Z" }
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.M)), "M" },
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Z)), "Z" }
         };
 
         private static readonly IDictionary<MemberInfo, string> _geographyMemberToPropertyName = new Dictionary<MemberInfo, string>
         {
-            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.X)), "Long" }, { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Y)), "Lat" }
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.X)), "Long" },
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Y)), "Lat" }
         };
 
         private static readonly IDictionary<MemberInfo, string> _geometryMemberToPropertyName = new Dictionary<MemberInfo, string>
         {
-            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.X)), "STX" }, { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Y)), "STY" }
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.X)), "STX" },
+            { typeof(Point).GetRequiredRuntimeProperty(nameof(Point.Y)), "STY" }
         };
 
         private readonly ISqlExpressionFactory _sqlExpressionFactory;

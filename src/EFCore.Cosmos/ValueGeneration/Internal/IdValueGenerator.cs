@@ -105,10 +105,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal
                     if (propertyValue == null)
                     {
                         builder.Append("null");
-                    } else
+                    }
+                    else
                     {
                         AppendEscape(builder, propertyValue.ToString()!);
                     }
+
                     return;
             }
         }

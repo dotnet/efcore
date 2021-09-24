@@ -91,8 +91,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
         public override QueryRootExpression UpdateEntityType(IEntityType entityType)
             => entityType.ClrType != EntityType.ClrType
                 || entityType.Name != EntityType.Name
-                ? throw new InvalidOperationException(CoreStrings.QueryRootDifferentEntityType(entityType.DisplayName()))
-                : new FromSqlQueryRootExpression(entityType, Sql, Argument);
+                    ? throw new InvalidOperationException(CoreStrings.QueryRootDifferentEntityType(entityType.DisplayName()))
+                    : new FromSqlQueryRootExpression(entityType, Sql, Argument);
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

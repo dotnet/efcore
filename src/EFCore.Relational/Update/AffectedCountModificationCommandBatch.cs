@@ -103,7 +103,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <param name="reader"> The data reader. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         protected override async Task ConsumeAsync(
             RelationalDataReader reader,
             CancellationToken cancellationToken = default)
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     A task that represents the asynchronous operation.
         ///     The task contains the ordinal of the next command that must be consumed.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
             int commandIndex,
             RelationalDataReader reader,
@@ -292,7 +292,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///     A task that represents the asynchronous operation.
         ///     The task contains the ordinal of the next command that must be consumed.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
             int commandIndex,
             RelationalDataReader reader,

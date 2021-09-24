@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandSource"> Source of the command. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         ValueTask<InterceptionResult<DbDataReader>> CommandReaderExecutingAsync(
             IRelationalConnection connection,
             DbCommand command,
@@ -157,7 +157,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandSource"> Source of the command. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         ValueTask<InterceptionResult<object>> CommandScalarExecutingAsync(
             IRelationalConnection connection,
             DbCommand command,
@@ -180,7 +180,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandSource"> Source of the command. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An intercepted result. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         ValueTask<InterceptionResult<int>> CommandNonQueryExecutingAsync(
             IRelationalConnection connection,
             DbCommand command,
@@ -277,7 +277,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandSource"> Source of the command. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         ValueTask<DbDataReader> CommandReaderExecutedAsync(
             IRelationalConnection connection,
             DbCommand command,
@@ -304,7 +304,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandSource"> Source of the command. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         ValueTask<object?> CommandScalarExecutedAsync(
             IRelationalConnection connection,
             DbCommand command,
@@ -331,7 +331,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandSource"> Source of the command. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The result of execution, which may have been modified by an interceptor. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         ValueTask<int> CommandNonQueryExecutedAsync(
             IRelationalConnection connection,
             DbCommand command,
@@ -384,7 +384,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="commandSource"> Source of the command. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         Task CommandErrorAsync(
             IRelationalConnection connection,
             DbCommand command,

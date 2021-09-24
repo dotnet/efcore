@@ -119,7 +119,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             = new();
 
         /// <inheritdoc />
-        public virtual bool IsExcludedFromMigrations => EntityTypeMappings.First().EntityType.IsTableExcludedFromMigrations();
+        public virtual bool IsExcludedFromMigrations
+            => EntityTypeMappings.First().EntityType.IsTableExcludedFromMigrations();
 
         /// <inheritdoc />
         public override IColumnBase? FindColumn(IProperty property)

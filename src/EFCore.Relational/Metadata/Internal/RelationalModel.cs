@@ -41,7 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override bool IsReadOnly => _isReadOnly;
+        public override bool IsReadOnly
+            => _isReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -186,7 +187,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     {
                         foreach (var checkConstraint in ((ITable)table).CheckConstraints)
                         {
-                            ((AnnotatableBase)checkConstraint).AddAnnotations(relationalAnnotationProvider.For(checkConstraint, designTime));
+                            ((AnnotatableBase)checkConstraint).AddAnnotations(
+                                relationalAnnotationProvider.For(checkConstraint, designTime));
                         }
                     }
 
@@ -624,7 +626,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
                 mappedType = mappedType.BaseType;
 
-                functionMappings = entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings) as List<FunctionMapping>;
+                functionMappings =
+                    entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.FunctionMappings) as List<FunctionMapping>;
                 if (functionMappings == null)
                 {
                     functionMappings = new List<FunctionMapping>();
@@ -768,7 +771,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     continue;
                 }
 
-                var entityType = (IEntityType)entityTypeMapping.EntityType;
+                var entityType = entityTypeMapping.EntityType;
                 foreach (var foreignKey in entityType.GetForeignKeys())
                 {
                     var firstPrincipalMapping = true;
@@ -1068,7 +1071,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 ((View)mainMapping.Table).EntityTypeMappings.Add(mainViewMapping);
             }
 
-            Check.DebugAssert(mainMapping is not null,
+            Check.DebugAssert(
+                mainMapping is not null,
                 $"{nameof(mainMapping)} is neither a {nameof(TableMapping)} nor a {nameof(ViewMapping)}");
 
             if (referencingInternalForeignKeyMap != null)
@@ -1127,7 +1131,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             {
                 DeleteBehavior.SetNull => ReferentialAction.SetNull,
                 DeleteBehavior.Cascade => ReferentialAction.Cascade,
-                DeleteBehavior.NoAction or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade or DeleteBehavior.ClientNoAction => ReferentialAction.NoAction,
+                DeleteBehavior.NoAction or DeleteBehavior.ClientSetNull or DeleteBehavior.ClientCascade or DeleteBehavior.ClientNoAction =>
+                    ReferentialAction.NoAction,
                 DeleteBehavior.Restrict => ReferentialAction.Restrict,
                 _ => throw new NotSupportedException(deleteBehavior.ToString()),
             };
@@ -1140,7 +1145,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// </summary>
         public virtual DebugView DebugView
             => new(
-                () => ((IRelationalModel)this).ToDebugString(MetadataDebugStringOptions.ShortDefault),
+                () => ((IRelationalModel)this).ToDebugString(),
                 () => ((IRelationalModel)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
         IEnumerable<ITable> IRelationalModel.Tables

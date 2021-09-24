@@ -56,15 +56,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
 
             if (constraints.ContainsKey(name))
             {
-                throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(
-                    name, EntityType.DisplayName(), EntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateCheckConstraint(
+                        name, EntityType.DisplayName(), EntityType.DisplayName()));
             }
 
             var baseCheckConstraint = entityType.BaseType?.FindCheckConstraint(name);
             if (baseCheckConstraint != null)
             {
-                throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(
-                    name, EntityType.DisplayName(), baseCheckConstraint.EntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    RelationalStrings.DuplicateCheckConstraint(
+                        name, EntityType.DisplayName(), baseCheckConstraint.EntityType.DisplayName()));
             }
 
             foreach (var derivedType in entityType.GetDerivedTypes())
@@ -72,8 +74,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                 var derivedCheckConstraint = FindCheckConstraint(derivedType, name);
                 if (derivedCheckConstraint != null)
                 {
-                    throw new InvalidOperationException(RelationalStrings.DuplicateCheckConstraint(
-                        name, EntityType.DisplayName(), derivedCheckConstraint.EntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateCheckConstraint(
+                            name, EntityType.DisplayName(), derivedCheckConstraint.EntityType.DisplayName()));
                 }
             }
 
@@ -198,7 +201,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
                     detachedCheckConstraint.Name, nameConfigurationSource.Value);
             }
 
-            ((InternalCheckConstraintBuilder)existingCheckConstraint.Builder).MergeAnnotationsFrom((CheckConstraint)detachedCheckConstraint);
+            ((InternalCheckConstraintBuilder)existingCheckConstraint.Builder).MergeAnnotationsFrom(
+                (CheckConstraint)detachedCheckConstraint);
         }
 
         /// <summary>
@@ -273,7 +277,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
         /// <summary>
         ///     Indicates whether the check constraint is read-only.
         /// </summary>
-        public override bool IsReadOnly => ((Annotatable)EntityType.Model).IsReadOnly;
+        public override bool IsReadOnly
+            => ((Annotatable)EntityType.Model).IsReadOnly;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -295,7 +300,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             set => SetName(value, ConfigurationSource.Explicit);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public virtual string? GetName(in StoreObjectIdentifier storeObject)
             => _name ?? ((IReadOnlyCheckConstraint)this).GetDefaultName(storeObject) ?? ModelName;
 

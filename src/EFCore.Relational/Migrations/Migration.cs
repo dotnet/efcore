@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
-using DisallowNullAttribute = System.Diagnostics.CodeAnalysis.DisallowNullAttribute;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {

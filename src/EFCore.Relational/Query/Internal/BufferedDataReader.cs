@@ -1551,7 +1551,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     _bytes[_currentRowNumber * _byteCount + _ordinalToIndexMap[ordinal]] =
                         ((ReaderColumn<byte>)column).GetFieldValue(reader, _indexMap);
                 }
-
             }
 
             private void ReadChar(DbDataReader reader, int ordinal, ReaderColumn column)

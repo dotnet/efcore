@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         /// <summary>
         ///     Gets the value which indicates whether the parameter propagates nullability,
-        ///     meaning if it's value is <see langword="null"/> the database function itself returns <see langword="null"/>.
+        ///     meaning if it's value is <see langword="null" /> the database function itself returns <see langword="null" />.
         /// </summary>
         bool PropagatesNullability { get; }
 

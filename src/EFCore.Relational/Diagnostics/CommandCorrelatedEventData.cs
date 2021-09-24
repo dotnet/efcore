@@ -50,7 +50,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 startTime,
                 CommandSource.Unknown)
         {
-            
         }
 
         /// <summary>
@@ -119,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public virtual DateTimeOffset StartTime { get; }
 
         /// <summary>
-        /// Source of the command.
+        ///     Source of the command.
         /// </summary>
         public virtual CommandSource CommandSource { get; }
     }

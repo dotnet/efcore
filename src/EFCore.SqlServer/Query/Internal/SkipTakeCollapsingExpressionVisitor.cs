@@ -89,7 +89,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     switch (sqlExpression)
                     {
                         case SqlConstantExpression constant
-                        when constant.Value is int intValue:
+                            when constant.Value is int intValue:
                             return intValue == 0;
                         case SqlParameterExpression parameter:
                             _canCache = false;

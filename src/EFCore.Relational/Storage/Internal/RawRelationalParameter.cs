@@ -54,7 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
         /// </summary>
         public override void AddDbParameter(DbCommand command, object? value)
         {
-            Check.DebugAssert(value is DbParameter,
+            Check.DebugAssert(
+                value is DbParameter,
                 $"{nameof(value)} isn't a DbParameter in {nameof(RawRelationalParameter)}.{nameof(AddDbParameter)}");
 
             if (value is DbParameter dbParameter

@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
                 diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
             }
         }
-        
+
         private static string ExecutingReadItem(EventDefinitionBase definition, EventData payload)
         {
             var d = (EventDefinition<string, string, string?>)definition;
@@ -213,7 +213,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             if (diagnostics.ShouldLog(definition))
             {
                 var logSensitiveData = diagnostics.ShouldLogSensitiveData();
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     elapsed.TotalMilliseconds.ToString(),
                     requestCharge.ToString(),
                     activityId,
@@ -244,12 +245,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             var d = (EventDefinition<string, string, string, string, string, string?>)definition;
             var p = (CosmosItemCommandExecutedEventData)payload;
             return d.GenerateMessage(
-                    p.Elapsed.Milliseconds.ToString(),
-                    p.RequestCharge.ToString(),
-                    p.ActivityId,
-                    p.ContainerId,
-                    p.LogSensitiveData ? p.ResourceId : "?",
-                    p.LogSensitiveData ? p.PartitionKey : "?");
+                p.Elapsed.Milliseconds.ToString(),
+                p.RequestCharge.ToString(),
+                p.ActivityId,
+                p.ContainerId,
+                p.LogSensitiveData ? p.ResourceId : "?",
+                p.LogSensitiveData ? p.PartitionKey : "?");
         }
 
         /// <summary>
@@ -272,7 +273,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             if (diagnostics.ShouldLog(definition))
             {
                 var logSensitiveData = diagnostics.ShouldLogSensitiveData();
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     elapsed.TotalMilliseconds.ToString(),
                     requestCharge.ToString(),
                     activityId,
@@ -303,12 +305,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             var d = (EventDefinition<string, string, string, string, string, string?>)definition;
             var p = (CosmosItemCommandExecutedEventData)payload;
             return d.GenerateMessage(
-                    p.Elapsed.Milliseconds.ToString(),
-                    p.RequestCharge.ToString(),
-                    p.ActivityId,
-                    p.ContainerId,
-                    p.LogSensitiveData ? p.ResourceId : "?",
-                    p.LogSensitiveData ? p.PartitionKey : "?");
+                p.Elapsed.Milliseconds.ToString(),
+                p.RequestCharge.ToString(),
+                p.ActivityId,
+                p.ContainerId,
+                p.LogSensitiveData ? p.ResourceId : "?",
+                p.LogSensitiveData ? p.PartitionKey : "?");
         }
 
         /// <summary>
@@ -331,7 +333,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             if (diagnostics.ShouldLog(definition))
             {
                 var logSensitiveData = diagnostics.ShouldLogSensitiveData();
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     elapsed.TotalMilliseconds.ToString(),
                     requestCharge.ToString(),
                     activityId,
@@ -362,12 +365,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             var d = (EventDefinition<string, string, string, string, string, string?>)definition;
             var p = (CosmosItemCommandExecutedEventData)payload;
             return d.GenerateMessage(
-                    p.Elapsed.Milliseconds.ToString(),
-                    p.RequestCharge.ToString(),
-                    p.ActivityId,
-                    p.ContainerId,
-                    p.LogSensitiveData ? p.ResourceId : "?",
-                    p.LogSensitiveData ? p.PartitionKey : "?");
+                p.Elapsed.Milliseconds.ToString(),
+                p.RequestCharge.ToString(),
+                p.ActivityId,
+                p.ContainerId,
+                p.LogSensitiveData ? p.ResourceId : "?",
+                p.LogSensitiveData ? p.PartitionKey : "?");
         }
 
         /// <summary>
@@ -390,7 +393,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             if (diagnostics.ShouldLog(definition))
             {
                 var logSensitiveData = diagnostics.ShouldLogSensitiveData();
-                definition.Log(diagnostics,
+                definition.Log(
+                    diagnostics,
                     elapsed.TotalMilliseconds.ToString(),
                     requestCharge.ToString(),
                     activityId,
@@ -421,12 +425,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Diagnostics.Internal
             var d = (EventDefinition<string, string, string, string, string, string?>)definition;
             var p = (CosmosItemCommandExecutedEventData)payload;
             return d.GenerateMessage(
-                    p.Elapsed.Milliseconds.ToString(),
-                    p.RequestCharge.ToString(),
-                    p.ActivityId,
-                    p.ContainerId,
-                    p.LogSensitiveData ? p.ResourceId : "?",
-                    p.LogSensitiveData ? p.PartitionKey : "?");
+                p.Elapsed.Milliseconds.ToString(),
+                p.RequestCharge.ToString(),
+                p.ActivityId,
+                p.ContainerId,
+                p.LogSensitiveData ? p.ResourceId : "?",
+                p.LogSensitiveData ? p.PartitionKey : "?");
         }
 
         private static string FormatParameters(IReadOnlyList<(string Name, object? Value)> parameters, bool shouldLogParameterValues)

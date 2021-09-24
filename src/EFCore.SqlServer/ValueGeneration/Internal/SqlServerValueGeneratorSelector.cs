@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.ValueGeneration.Internal
 
             return property.ClrType.UnwrapNullableType() == typeof(Guid)
                 ? property.ValueGenerated == ValueGenerated.Never || property.GetDefaultValueSql() != null
-                    ? (ValueGenerator)new TemporaryGuidValueGenerator()
+                    ? new TemporaryGuidValueGenerator()
                     : new SequentialGuidValueGenerator()
                 : base.Create(property, entityType);
         }

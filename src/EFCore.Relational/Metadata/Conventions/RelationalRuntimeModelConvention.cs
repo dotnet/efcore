@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             : base(dependencies)
         {
             Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-            
+
             RelationalDependencies = relationalDependencies;
         }
 
@@ -50,7 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="runtimeModel"> The target model that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
         protected override void ProcessModelAnnotations(
-            Dictionary<string, object?> annotations, IModel model, RuntimeModel runtimeModel, bool runtime)
+            Dictionary<string, object?> annotations,
+            IModel model,
+            RuntimeModel runtimeModel,
+            bool runtime)
         {
             base.ProcessModelAnnotations(annotations, model, runtimeModel, runtime);
 
@@ -75,12 +78,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         {
                             var runtimeParameter = Create(parameter, runtimeFunction);
 
-                            CreateAnnotations(parameter, runtimeParameter, static (convention, annotations, source, target, runtime) =>
-                                convention.ProcessFunctionParameterAnnotations(annotations, source, target, runtime));
+                            CreateAnnotations(
+                                parameter, runtimeParameter, static (convention, annotations, source, target, runtime) =>
+                                    convention.ProcessFunctionParameterAnnotations(annotations, source, target, runtime));
                         }
 
-                        CreateAnnotations(functionPair.Value, runtimeFunction, static (convention, annotations, source, target, runtime) =>
-                            convention.ProcessFunctionAnnotations(annotations, source, target, runtime));
+                        CreateAnnotations(
+                            functionPair.Value, runtimeFunction, static (convention, annotations, source, target, runtime) =>
+                                convention.ProcessFunctionAnnotations(annotations, source, target, runtime));
                     }
 
                     annotations[RelationalAnnotationNames.DbFunctions] = runtimeFunctions;
@@ -94,8 +99,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         var runtimeSequence = Create(sequencePair.Value, runtimeModel);
                         runtimeSequences[sequencePair.Key] = runtimeSequence;
 
-                        CreateAnnotations(sequencePair.Value, runtimeSequence, static (convention, annotations, source, target, runtime) =>
-                            convention.ProcessSequenceAnnotations(annotations, source, target, runtime));
+                        CreateAnnotations(
+                            sequencePair.Value, runtimeSequence, static (convention, annotations, source, target, runtime) =>
+                                convention.ProcessSequenceAnnotations(annotations, source, target, runtime));
                     }
 
                     annotations[RelationalAnnotationNames.Sequences] = runtimeSequences;
@@ -111,7 +117,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="runtimeEntityType"> The target entity type that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
         protected override void ProcessEntityTypeAnnotations(
-            IDictionary<string, object?> annotations, IEntityType entityType, RuntimeEntityType runtimeEntityType, bool runtime)
+            IDictionary<string, object?> annotations,
+            IEntityType entityType,
+            RuntimeEntityType runtimeEntityType,
+            bool runtime)
         {
             base.ProcessEntityTypeAnnotations(annotations, entityType, runtimeEntityType, runtime);
 
@@ -244,7 +253,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="runtimeProperty"> The target property that will contain the annotations. </param>
         /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
         protected override void ProcessPropertyAnnotations(
-            Dictionary<string, object?> annotations, IProperty property, RuntimeProperty runtimeProperty, bool runtime)
+            Dictionary<string, object?> annotations,
+            IProperty property,
+            RuntimeProperty runtimeProperty,
+            bool runtime)
         {
             base.ProcessPropertyAnnotations(annotations, property, runtimeProperty, runtime);
 
@@ -270,7 +282,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         var runtimeOverrides = Create((IRelationalPropertyOverrides)overridesPair.Value, runtimeProperty);
                         runtimePropertyOverrides[overridesPair.Key] = runtimeOverrides;
 
-                        CreateAnnotations((IRelationalPropertyOverrides)overridesPair.Value, runtimeOverrides,
+                        CreateAnnotations(
+                            (IRelationalPropertyOverrides)overridesPair.Value, runtimeOverrides,
                             static (convention, annotations, source, target, runtime) =>
                                 convention.ProcessPropertyOverridesAnnotations(annotations, source, target, runtime));
                     }

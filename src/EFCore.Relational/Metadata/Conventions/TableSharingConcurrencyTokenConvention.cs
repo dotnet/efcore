@@ -254,6 +254,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                         entityTypeDictionary.Remove(entityType);
                         break;
                     }
+
                     baseType = baseType.BaseType;
                 }
             }

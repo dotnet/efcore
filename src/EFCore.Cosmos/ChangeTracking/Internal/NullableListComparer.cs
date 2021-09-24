@@ -37,7 +37,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public override Type Type => typeof(TCollection);
+        public override Type Type
+            => typeof(TCollection);
 
         private static bool Compare(TCollection? a, TCollection? b, ValueComparer<TElement> elementComparer)
         {
@@ -68,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal
 
                     return false;
                 }
+
                 if (bElement is null || !elementComparer.Equals(aElement, bElement))
                 {
                     return false;

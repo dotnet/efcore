@@ -350,6 +350,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             }
                         }
                     }
+
                     if (!requiredNonSharedColumnFound)
                     {
                         if (entityType.GetReferencingForeignKeys().Select(e => e.DeclaringEntityType).Any(t => mappedTypes.Contains(t)))
@@ -375,6 +376,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                             {
                                 continue;
                             }
+
                             list.Add(principalEntityType);
                             var (entityTypes, innerOptional) = GetPrincipalEntityTypes(principalEntityType.GetRootType());
                             list.AddRange(entityTypes);
@@ -422,7 +424,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 var primaryKey = mappedType.FindPrimaryKey();
                 if (primaryKey != null
                     && (mappedType.FindForeignKeys(primaryKey.Properties)
-                        .FirstOrDefault(fk => fk.PrincipalKey.IsPrimaryKey()
+                        .FirstOrDefault(
+                            fk => fk.PrincipalKey.IsPrimaryKey()
                                 && unvalidatedTypes.Contains(fk.PrincipalEntityType)) is IForeignKey linkingFK))
                 {
                     if (mappedType.BaseType != null)
@@ -682,7 +685,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
         private static bool IsIdentifyingPrincipal(IEntityType dependentEntityType, IEntityType principalEntityType)
             => dependentEntityType.FindForeignKeys(dependentEntityType.FindPrimaryKey()!.Properties)
-                .Any(fk => fk.PrincipalKey.IsPrimaryKey()
+                .Any(
+                    fk => fk.PrincipalKey.IsPrimaryKey()
                         && fk.PrincipalEntityType == principalEntityType);
 
         /// <summary>
@@ -928,7 +932,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             var hasDefaultValue = property.TryGetDefaultValue(storeObject, out var currentDefaultValue);
             var duplicateHasDefaultValue = duplicateProperty.TryGetDefaultValue(storeObject, out var previousDefaultValue);
             if ((hasDefaultValue
-                || duplicateHasDefaultValue)
+                    || duplicateHasDefaultValue)
                 && !Equals(currentDefaultValue, previousDefaultValue))
             {
                 currentDefaultValue = GetDefaultColumnValue(property, storeObject);
@@ -1067,9 +1071,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                         .Select(t => StoreObjectIdentifier.Create(t, StoreObjectType.Table))
                         .Where(t => t != null);
                     if (foreignKey.GetConstraintName() != null
-                        && derivedTables.All(t => foreignKey.GetConstraintName(
-                            t!.Value,
-                            principalTable.Value) == null))
+                        && derivedTables.All(
+                            t => foreignKey.GetConstraintName(
+                                    t!.Value,
+                                    principalTable.Value)
+                                == null))
                     {
                         logger.ForeignKeyPropertiesMappedToUnrelatedTables(foreignKey);
                     }

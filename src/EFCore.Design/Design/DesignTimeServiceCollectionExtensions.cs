@@ -48,39 +48,40 @@ namespace Microsoft.EntityFrameworkCore.Design
             }
 
             new EntityFrameworkRelationalDesignServicesBuilder(services)
-                .TryAddProviderSpecificServices(services => services
-                    .TryAddSingleton<CSharpMigrationOperationGeneratorDependencies, CSharpMigrationOperationGeneratorDependencies>()
-                    .TryAddSingleton<CSharpMigrationsGeneratorDependencies, CSharpMigrationsGeneratorDependencies>()
-                    .TryAddSingleton<CSharpSnapshotGeneratorDependencies, CSharpSnapshotGeneratorDependencies>()
-                    .TryAddSingleton<ICandidateNamingService, CandidateNamingService>()
-                    .TryAddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
-                    .TryAddSingleton<ICSharpEntityTypeGenerator, CSharpEntityTypeGenerator>()
-                    .TryAddSingleton<ICSharpHelper, CSharpHelper>()
-                    .TryAddSingleton<ICSharpMigrationOperationGenerator, CSharpMigrationOperationGenerator>()
-                    .TryAddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()
-                    .TryAddSingleton<ICSharpUtilities, CSharpUtilities>()
-                    .TryAddSingleton(reporter)
-                    .TryAddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
-                    .TryAddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
-                    .TryAddSingleton<IModelCodeGenerator, CSharpModelGenerator>()
-                    .TryAddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
-                    .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
-                    .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
-                    .TryAddSingleton<ICompiledModelScaffolder, CompiledModelScaffolder>()
-                    .TryAddSingleton<INamedConnectionStringResolver>(
-                        new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
-                    .TryAddSingleton<IPluralizer, HumanizerPluralizer>()
-                    .TryAddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
-                    .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
-                    .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
-                    .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
-                    .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
-                    .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
-                    .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
-                    .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
+                .TryAddProviderSpecificServices(
+                    services => services
+                        .TryAddSingleton<CSharpMigrationOperationGeneratorDependencies, CSharpMigrationOperationGeneratorDependencies>()
+                        .TryAddSingleton<CSharpMigrationsGeneratorDependencies, CSharpMigrationsGeneratorDependencies>()
+                        .TryAddSingleton<CSharpSnapshotGeneratorDependencies, CSharpSnapshotGeneratorDependencies>()
+                        .TryAddSingleton<ICandidateNamingService, CandidateNamingService>()
+                        .TryAddSingleton<ICSharpDbContextGenerator, CSharpDbContextGenerator>()
+                        .TryAddSingleton<ICSharpEntityTypeGenerator, CSharpEntityTypeGenerator>()
+                        .TryAddSingleton<ICSharpHelper, CSharpHelper>()
+                        .TryAddSingleton<ICSharpMigrationOperationGenerator, CSharpMigrationOperationGenerator>()
+                        .TryAddSingleton<ICSharpSnapshotGenerator, CSharpSnapshotGenerator>()
+                        .TryAddSingleton<ICSharpUtilities, CSharpUtilities>()
+                        .TryAddSingleton(reporter)
+                        .TryAddSingleton<IMigrationsCodeGenerator, CSharpMigrationsGenerator>()
+                        .TryAddSingleton<IMigrationsCodeGeneratorSelector, MigrationsCodeGeneratorSelector>()
+                        .TryAddSingleton<IModelCodeGenerator, CSharpModelGenerator>()
+                        .TryAddSingleton<IModelCodeGeneratorSelector, ModelCodeGeneratorSelector>()
+                        .TryAddSingleton<ICompiledModelCodeGenerator, CSharpRuntimeModelCodeGenerator>()
+                        .TryAddSingleton<ICompiledModelCodeGeneratorSelector, CompiledModelCodeGeneratorSelector>()
+                        .TryAddSingleton<ICompiledModelScaffolder, CompiledModelScaffolder>()
+                        .TryAddSingleton<INamedConnectionStringResolver>(
+                            new DesignTimeConnectionStringResolver(applicationServiceProviderAccessor))
+                        .TryAddSingleton<IPluralizer, HumanizerPluralizer>()
+                        .TryAddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
+                        .TryAddSingleton<IScaffoldingTypeMapper, ScaffoldingTypeMapper>()
+                        .TryAddSingleton<MigrationsCodeGeneratorDependencies, MigrationsCodeGeneratorDependencies>()
+                        .TryAddSingleton<ModelCodeGeneratorDependencies, ModelCodeGeneratorDependencies>()
+                        .TryAddScoped<IReverseEngineerScaffolder, ReverseEngineerScaffolder>()
+                        .TryAddScoped<MigrationsScaffolderDependencies, MigrationsScaffolderDependencies>()
+                        .TryAddScoped<IMigrationsScaffolder, MigrationsScaffolder>()
+                        .TryAddScoped<ISnapshotModelProcessor, SnapshotModelProcessor>());
 
             return services
-                    .AddLogging(b => b.SetMinimumLevel(LogLevel.Debug).AddProvider(new OperationLoggerProvider(reporter)));
+                .AddLogging(b => b.SetMinimumLevel(LogLevel.Debug).AddProvider(new OperationLoggerProvider(reporter)));
         }
 
         /// <summary>

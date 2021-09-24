@@ -34,7 +34,7 @@ namespace Microsoft.DotNet.Cli.CommandLine
             Commands = new List<CommandLineApplication>();
             RemainingArguments = new List<string>();
             ApplicationArguments = new List<string>();
-            Invoke = (args) => 0;
+            Invoke = args => 0;
         }
 
         public CommandLineApplication? Parent { get; set; }
@@ -62,7 +62,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
             => Command(name, _ => { }, throwOnUnexpectedArg);
 
         public CommandLineApplication Command(
-            string name, Action<CommandLineApplication> configuration,
+            string name,
+            Action<CommandLineApplication> configuration,
             bool throwOnUnexpectedArg = true)
         {
             var command = new CommandLineApplication(throwOnUnexpectedArg) { Name = name, Parent = this };
@@ -102,9 +103,11 @@ namespace Microsoft.DotNet.Cli.CommandLine
             return argument;
         }
 
-        public void OnExecute(Func<string[], int> invoke) => Invoke = invoke;
+        public void OnExecute(Func<string[], int> invoke)
+            => Invoke = invoke;
 
-        public void OnExecute(Func<string[], Task<int>> invoke) => Invoke = (args) => invoke(args).Result;
+        public void OnExecute(Func<string[], Task<int>> invoke)
+            => Invoke = args => invoke(args).Result;
 
         public int Execute(params string[] args)
         {
@@ -599,13 +602,17 @@ namespace Microsoft.DotNet.Cli.CommandLine
         {
             private readonly IEnumerator<CommandArgument> _enumerator;
 
-            public CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator) => _enumerator = enumerator;
+            public CommandArgumentEnumerator(IEnumerator<CommandArgument> enumerator)
+                => _enumerator = enumerator;
 
-            public CommandArgument Current => _enumerator.Current;
+            public CommandArgument Current
+                => _enumerator.Current;
 
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current
+                => Current;
 
-            public void Dispose() => _enumerator.Dispose();
+            public void Dispose()
+                => _enumerator.Dispose();
 
             public bool MoveNext()
             {
@@ -619,7 +626,8 @@ namespace Microsoft.DotNet.Cli.CommandLine
                 return true;
             }
 
-            public void Reset() => _enumerator.Reset();
+            public void Reset()
+                => _enumerator.Reset();
         }
     }
 }

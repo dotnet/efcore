@@ -130,7 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
         {
             var (throughput, wrapper) = parameters;
-            var response = await wrapper.Client.CreateDatabaseIfNotExistsAsync(wrapper._databaseId, throughput, cancellationToken: cancellationToken)
+            var response = await wrapper.Client.CreateDatabaseIfNotExistsAsync(
+                    wrapper._databaseId, throughput, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             return response.StatusCode == HttpStatusCode.Created;
@@ -165,7 +166,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CosmosClientWrapper wrapper,
             CancellationToken cancellationToken = default)
         {
-            using var response = await wrapper.Client.GetDatabase(wrapper._databaseId).DeleteStreamAsync(cancellationToken: cancellationToken)
+            using var response = await wrapper.Client.GetDatabase(wrapper._databaseId)
+                .DeleteStreamAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -196,7 +198,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual Task<bool> CreateContainerIfNotExistsAsync(ContainerProperties properties, CancellationToken cancellationToken = default)
+        public virtual Task<bool> CreateContainerIfNotExistsAsync(
+            ContainerProperties properties,
+            CancellationToken cancellationToken = default)
             => _executionStrategy.ExecuteAsync((properties, this), CreateContainerIfNotExistsOnceAsync, null, cancellationToken);
 
         private static async Task<bool> CreateContainerIfNotExistsOnceAsync(
@@ -207,14 +211,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var parameters = parametersTuple.Parameters;
             var wrapper = parametersTuple.Wrapper;
             using var response = await wrapper.Client.GetDatabase(wrapper._databaseId).CreateContainerStreamAsync(
-                new Azure.Cosmos.ContainerProperties(parameters.Id, "/" + parameters.PartitionKey)
-                {
-                    PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
-                    DefaultTimeToLive = parameters.DefaultTimeToLive,
-                    AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
-                },
-                parameters.Throughput,
-                cancellationToken: cancellationToken)
+                    new Azure.Cosmos.ContainerProperties(parameters.Id, "/" + parameters.PartitionKey)
+                    {
+                        PartitionKeyDefinitionVersion = PartitionKeyDefinitionVersion.V2,
+                        DefaultTimeToLive = parameters.DefaultTimeToLive,
+                        AnalyticalStoreTimeToLiveInSeconds = parameters.AnalyticalStoreTimeToLiveInSeconds,
+                    },
+                    parameters.Throughput,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
             if (response.StatusCode == HttpStatusCode.Conflict)
             {
@@ -255,7 +259,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             CancellationToken cancellationToken = default)
             => _executionStrategy.ExecuteAsync((containerId, document, updateEntry, this), CreateItemOnceAsync, null, cancellationToken);
 
-        private async static Task<bool> CreateItemOnceAsync(
+        private static async Task<bool> CreateItemOnceAsync(
             DbContext _,
             (string ContainerId, JToken Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
             CancellationToken cancellationToken = default)
@@ -273,10 +277,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var partitionKey = CreatePartitionKey(entry);
 
             var response = await container.CreateItemStreamAsync(
-                stream,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
-                itemRequestOptions,
-                cancellationToken)
+                    stream,
+                    partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                    itemRequestOptions,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             wrapper._commandLogger.ExecutedCreateItem(
@@ -325,7 +329,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             => _executionStrategy.ExecuteAsync(
                 (collectionId, documentId, document, updateEntry, this), ReplaceItemOnceAsync, null, cancellationToken);
 
-        private async static Task<bool> ReplaceItemOnceAsync(
+        private static async Task<bool> ReplaceItemOnceAsync(
             DbContext _,
             (string ContainerId, string ResourceId, JObject Document, IUpdateEntry Entry, CosmosClientWrapper Wrapper) parameters,
             CancellationToken cancellationToken = default)
@@ -343,11 +347,11 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var partitionKey = CreatePartitionKey(entry);
 
             using var response = await container.ReplaceItemStreamAsync(
-                stream,
-                parameters.ResourceId,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
-                itemRequestOptions,
-                cancellationToken)
+                    stream,
+                    parameters.ResourceId,
+                    partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                    itemRequestOptions,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             wrapper._commandLogger.ExecutedReplaceItem(
@@ -406,10 +410,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var partitionKey = CreatePartitionKey(entry);
 
             using var response = await items.DeleteItemStreamAsync(
-                parameters.ResourceId,
-                partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
-                itemRequestOptions,
-                cancellationToken: cancellationToken)
+                    parameters.ResourceId,
+                    partitionKey == null ? PartitionKey.None : new PartitionKey(partitionKey),
+                    itemRequestOptions,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             wrapper._commandLogger.ExecutedDeleteItem(
@@ -586,10 +590,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             _commandLogger.ExecutingReadItem(containerId, partitionKey, resourceId);
 
             var response = await _executionStrategy.ExecuteAsync(
-                (containerId, partitionKey, resourceId, this),
-                CreateSingleItemQueryAsync,
-                null,
-                cancellationToken)
+                    (containerId, partitionKey, resourceId, this),
+                    CreateSingleItemQueryAsync,
+                    null,
+                    cancellationToken)
                 .ConfigureAwait(false);
 
             _commandLogger.ExecutedReadItem(
@@ -617,9 +621,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
             var container = wrapper.Client.GetDatabase(wrapper._databaseId).GetContainer(containerId);
 
             return container.ReadItemStreamAsync(
-                    resourceId,
-                    string.IsNullOrEmpty(partitionKey) ? PartitionKey.None : new PartitionKey(partitionKey),
-                    cancellationToken: cancellationToken);
+                resourceId,
+                string.IsNullOrEmpty(partitionKey) ? PartitionKey.None : new PartitionKey(partitionKey),
+                cancellationToken: cancellationToken);
         }
 
         private static JObject? JObjectFromReadItemResponseMessage(ResponseMessage responseMessage)
@@ -704,6 +708,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -755,7 +760,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
                     _cosmosSqlQuery = documentEnumerable._cosmosSqlQuery;
                 }
 
-                public JObject Current => _current ?? throw new InvalidOperationException();
+                public JObject Current
+                    => _current ?? throw new InvalidOperationException();
 
                 object IEnumerator.Current
                     => Current;
@@ -862,7 +868,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal
 
                 private FeedIterator? _query;
 
-                public JObject Current => _current ?? throw new InvalidOperationException();
+                public JObject Current
+                    => _current ?? throw new InvalidOperationException();
 
                 public AsyncEnumerator(DocumentAsyncEnumerable documentEnumerable, CancellationToken cancellationToken)
                 {

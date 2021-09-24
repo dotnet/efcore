@@ -106,8 +106,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             Dictionary<(string Name, string? Schema), List<IConventionEntityType>> tables,
             int maxLength)
         {
-            Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>? clashingTables
-                = null;
+            Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>?
+                clashingTables
+                    = null;
             foreach (var entityType in model.GetEntityTypes())
             {
                 var tableName = entityType.GetTableName();
@@ -553,7 +554,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                     continue;
                 }
 
-                var newOtherConstraintName = TryUniquify(otherCheckConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
+                var newOtherConstraintName = TryUniquify(
+                    otherCheckConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
                 if (newOtherConstraintName != null)
                 {
                     checkConstraints[(constraintName, storeObject.Schema)] = checkConstraint;

@@ -70,7 +70,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                     TemporalAllQueryRootExpression _ => (TemporalTableExpression)new TemporalAllTableExpression(table),
                     TemporalAsOfQueryRootExpression asOf => new TemporalAsOfTableExpression(table, asOf.PointInTime),
                     TemporalBetweenQueryRootExpression between => new TemporalBetweenTableExpression(table, between.From, between.To),
-                    TemporalContainedInQueryRootExpression containedIn => new TemporalContainedInTableExpression(table, containedIn.From, containedIn.To),
+                    TemporalContainedInQueryRootExpression containedIn => new TemporalContainedInTableExpression(
+                        table, containedIn.From, containedIn.To),
                     TemporalFromToQueryRootExpression fromTo => new TemporalFromToTableExpression(table, fromTo.From, fromTo.To),
                     _ => throw new InvalidOperationException(queryRootExpression.Print())
                 };

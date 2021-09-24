@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <param name="targetClrType"> The CLR type of the target entity type. </param>
         /// <param name="navigationMemberInfo"> The navigation member. </param>
         /// <param name="shouldCreate"> Whether an entity type should be created if one doesn't currently exist. </param>
-        /// <returns> The builder for the target entity type or <see langword="null"/> if it can't be created. </returns>
+        /// <returns> The builder for the target entity type or <see langword="null" /> if it can't be created. </returns>
         protected override IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(
             IConventionEntityTypeBuilder entityTypeBuilder,
             Type targetClrType,

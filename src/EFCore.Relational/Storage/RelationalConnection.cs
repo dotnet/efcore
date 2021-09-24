@@ -189,7 +189,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     The current ambient transaction. Defaults to <see cref="Transaction.Current" />.
         /// </summary>
-        public virtual Transaction? CurrentAmbientTransaction => Transaction.Current;
+        public virtual Transaction? CurrentAmbientTransaction
+            => Transaction.Current;
 
         /// <summary>
         ///     Gets the current transaction.
@@ -251,7 +252,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="transaction"> The transaction to be used. </param>
         protected virtual void ConnectionEnlistTransaction(Transaction? transaction)
-             => DbConnection.EnlistTransaction(transaction);
+            => DbConnection.EnlistTransaction(transaction);
 
         /// <summary>
         ///     Indicates whether the store connection supports ambient transactions
@@ -314,7 +315,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
             => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken).ConfigureAwait(false);
 
@@ -361,7 +362,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <returns> The newly created transaction. </returns>
         protected virtual DbTransaction ConnectionBeginTransaction(IsolationLevel isolationLevel)
-             => DbConnection.BeginTransaction(isolationLevel);
+            => DbConnection.BeginTransaction(isolationLevel);
 
         /// <summary>
         ///     Asynchronously begins a new transaction.
@@ -371,7 +372,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result contains the newly created transaction.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
             // ReSharper disable once RedundantNameQualifier
             IsolationLevel isolationLevel,
@@ -416,11 +417,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="isolationLevel"> The isolation level to use for the transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> The newly created transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         protected virtual ValueTask<DbTransaction> ConnectionBeginTransactionAsync(
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
-             => DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken);
+            => DbConnection.BeginTransactionAsync(isolationLevel, cancellationToken);
 
         private void EnsureNoTransactions()
         {
@@ -496,7 +497,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transaction"> The transaction to be used. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<IDbContextTransaction?> UseTransactionAsync(
             DbTransaction? transaction,
             CancellationToken cancellationToken = default)
@@ -509,7 +510,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> An instance of <see cref="IDbTransaction" /> that wraps the provided transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<IDbContextTransaction?> UseTransactionAsync(
             DbTransaction? transaction,
             Guid transactionId,
@@ -547,7 +548,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
 
             EnsureNoAmbientOrEnlistedTransactions();
 
-            if (CurrentTransaction != null 
+            if (CurrentTransaction != null
                 && transaction == CurrentTransaction.GetDbTransaction())
             {
                 return false;
@@ -574,7 +575,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task CommitTransactionAsync(CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
@@ -603,7 +604,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A Task representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task RollbackTransactionAsync(CancellationToken cancellationToken = default)
         {
             if (CurrentTransaction == null)
@@ -653,7 +654,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually opened.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual async Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false)
         {
             if (DbConnection.State == ConnectionState.Broken)
@@ -802,7 +803,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="errorsExpected"> Indicates if the connection errors are expected and should be logged as debug message. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         protected virtual Task OpenDbConnectionAsync(bool errorsExpected, CancellationToken cancellationToken)
             => DbConnection.OpenAsync(cancellationToken);
 

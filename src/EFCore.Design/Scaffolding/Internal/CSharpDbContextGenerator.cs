@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design;
@@ -438,7 +437,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             foreach (var skipNavigation in entityType.GetSkipNavigations())
             {
-                if (skipNavigation.JoinEntityType.FindPrimaryKey()!.Properties[0].GetContainingForeignKeys().Single().PrincipalEntityType == entityType)
+                if (skipNavigation.JoinEntityType.FindPrimaryKey()!.Properties[0].GetContainingForeignKeys().Single().PrincipalEntityType
+                    == entityType)
                 {
                     // We generate UsingEntity for entityType from first property's FK.
                     GenerateManyToMany(skipNavigation);
@@ -777,6 +777,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             {
                 InitializeEntityTypeBuilder(skipNavigation.DeclaringEntityType);
             }
+
             _builder.AppendLine();
 
             var inverse = skipNavigation.Inverse;
@@ -787,14 +788,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 using (_builder.Indent())
                 {
                     _builder.AppendLine($".{nameof(CollectionNavigationBuilder.WithMany)}(p => p.{inverse.Name})");
-                    _builder.AppendLine($".{nameof(CollectionCollectionBuilder.UsingEntity)}<{_code.Reference(Model.DefaultPropertyBagType)}>(");
+                    _builder.AppendLine(
+                        $".{nameof(CollectionCollectionBuilder.UsingEntity)}<{_code.Reference(Model.DefaultPropertyBagType)}>(");
                     using (_builder.Indent())
                     {
                         _builder.AppendLine($"{_code.Literal(joinEntityType.Name)},");
                         var lines = new List<string>();
 
                         GenerateForeignKeyConfigurationLines(inverse.ForeignKey, inverse.ForeignKey.PrincipalEntityType.Name, "l");
-                        GenerateForeignKeyConfigurationLines(skipNavigation.ForeignKey, skipNavigation.ForeignKey.PrincipalEntityType.Name, "r");
+                        GenerateForeignKeyConfigurationLines(
+                            skipNavigation.ForeignKey, skipNavigation.ForeignKey.PrincipalEntityType.Name, "r");
                         _builder.AppendLine("j =>");
                         _builder.AppendLine("{");
 
@@ -809,7 +812,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             var explicitName = key.GetName() != key.GetDefaultName();
                             keyAnnotations.Remove(RelationalAnnotationNames.Name);
 
-                            lines.Add($"j.{nameof(EntityTypeBuilder.HasKey)}({string.Join(", ", key.Properties.Select(e => _code.Literal(e.Name)))})");
+                            lines.Add(
+                                $"j.{nameof(EntityTypeBuilder.HasKey)}({string.Join(", ", key.Properties.Select(e => _code.Literal(e.Name)))})");
                             if (explicitName)
                             {
                                 lines.Add($".{nameof(RelationalKeyBuilderExtensions.HasName)}({_code.Literal(key.GetName()!)})");
@@ -857,7 +861,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                     .ToDictionary(a => a.Name, a => a);
                                 _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(index, indexAnnotations);
 
-                                lines.Add($"j.{nameof(EntityTypeBuilder.HasIndex)}({_code.Literal(index.Properties.Select(e => e.Name).ToArray())}, {_code.Literal(index.GetDatabaseName())})");
+                                lines.Add(
+                                    $"j.{nameof(EntityTypeBuilder.HasIndex)}({_code.Literal(index.Properties.Select(e => e.Name).ToArray())}, {_code.Literal(index.GetDatabaseName())})");
                                 indexAnnotations.Remove(RelationalAnnotationNames.Name);
 
                                 if (index.IsUnique)
@@ -873,7 +878,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                             foreach (var property in joinEntityType.GetProperties())
                             {
-                                lines.Add($"j.{nameof(EntityTypeBuilder.IndexerProperty)}<{_code.Reference(property.ClrType)}>({_code.Literal(property.Name)})");
+                                lines.Add(
+                                    $"j.{nameof(EntityTypeBuilder.IndexerProperty)}<{_code.Reference(property.ClrType)}>({_code.Literal(property.Name)})");
 
                                 var propertyAnnotations = _annotationCodeGenerator
                                     .FilterIgnoredAnnotations(property.GetAnnotations())
@@ -953,7 +959,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                             : nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate),
                                         ValueGenerated.OnUpdate => nameof(PropertyBuilder.ValueGeneratedOnUpdate),
                                         ValueGenerated.Never => nameof(PropertyBuilder.ValueGeneratedNever),
-                                        _ => throw new InvalidOperationException(DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
+                                        _ => throw new InvalidOperationException(
+                                            DesignStrings.UnhandledEnumValue($"{nameof(ValueGenerated)}.{valueGenerated}"))
                                     };
 
                                     lines.Add($".{methodName}()");
@@ -976,10 +983,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 {
                                     lines.Clear();
                                 }
-
                             }
-
                         }
+
                         _builder.AppendLine("});");
 
                         void GenerateForeignKeyConfigurationLines(IForeignKey foreignKey, string targetType, string identifier)
@@ -988,14 +994,17 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                                 .FilterIgnoredAnnotations(foreignKey.GetAnnotations())
                                 .ToDictionary(a => a.Name, a => a);
                             _annotationCodeGenerator.RemoveAnnotationsHandledByConventions(foreignKey, annotations);
-                            lines.Add($"{identifier} => {identifier}.{nameof(EntityTypeBuilder.HasOne)}<{targetType}>().{nameof(ReferenceNavigationBuilder.WithMany)}()");
+                            lines.Add(
+                                $"{identifier} => {identifier}.{nameof(EntityTypeBuilder.HasOne)}<{targetType}>().{nameof(ReferenceNavigationBuilder.WithMany)}()");
 
                             if (!foreignKey.PrincipalKey.IsPrimaryKey())
                             {
-                                lines.Add($".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}({string.Join(", ", foreignKey.PrincipalKey.Properties.Select(e => _code.Literal(e.Name)))})");
+                                lines.Add(
+                                    $".{nameof(ReferenceReferenceBuilder.HasPrincipalKey)}({string.Join(", ", foreignKey.PrincipalKey.Properties.Select(e => _code.Literal(e.Name)))})");
                             }
 
-                            lines.Add($".{nameof(ReferenceReferenceBuilder.HasForeignKey)}({string.Join(", ", foreignKey.Properties.Select(e => _code.Literal(e.Name)))})");
+                            lines.Add(
+                                $".{nameof(ReferenceReferenceBuilder.HasForeignKey)}({string.Join(", ", foreignKey.Properties.Select(e => _code.Literal(e.Name)))})");
 
                             var defaultOnDeleteAction = foreignKey.IsRequired
                                 ? DeleteBehavior.Cascade
@@ -1005,6 +1014,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             {
                                 lines.Add($".{nameof(ReferenceReferenceBuilder.OnDelete)}({_code.Literal(foreignKey.DeleteBehavior)})");
                             }
+
                             GenerateAnnotations(foreignKey, annotations, lines);
                             WriteLines(",");
                         }
@@ -1015,6 +1025,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                             {
                                 _builder.Append(line);
                             }
+
                             _builder.AppendLine(terminator);
                             lines.Clear();
                         }
@@ -1129,8 +1140,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 }
             }
 
-            lines.AddRange(annotations.Values.Select(
-                a => $".HasAnnotation({_code.Literal(a.Name)}, {_code.UnknownLiteral(a.Value)})"));
+            lines.AddRange(
+                annotations.Values.Select(
+                    a => $".HasAnnotation({_code.Literal(a.Name)}, {_code.UnknownLiteral(a.Value)})"));
         }
 
         internal static bool IsManyToManyJoinEntityType(IEntityType entityType)

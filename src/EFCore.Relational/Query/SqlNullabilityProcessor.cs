@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
-            
+
             _sqlExpressionFactory = dependencies.SqlExpressionFactory;
             UseRelationalNulls = useRelationalNulls;
             _nonNullableColumns = new List<ColumnExpression>();
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                     var newJoinPredicate = ProcessJoinPredicate(innerJoinExpression.JoinPredicate);
 
                     return TryGetBoolConstantValue(newJoinPredicate) == true
-                        ? (TableExpressionBase)new CrossJoinExpression(newTable)
+                        ? new CrossJoinExpression(newTable)
                         : innerJoinExpression.Update(newTable, newJoinPredicate);
                 }
 
@@ -365,35 +365,35 @@ namespace Microsoft.EntityFrameworkCore.Query
             var result = sqlExpression switch
             {
                 CaseExpression caseExpression
-                => VisitCase(caseExpression, allowOptimizedExpansion, out nullable),
+                    => VisitCase(caseExpression, allowOptimizedExpansion, out nullable),
                 CollateExpression collateExpression
-                => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
+                    => VisitCollate(collateExpression, allowOptimizedExpansion, out nullable),
                 ColumnExpression columnExpression
-                => VisitColumn(columnExpression, allowOptimizedExpansion, out nullable),
+                    => VisitColumn(columnExpression, allowOptimizedExpansion, out nullable),
                 DistinctExpression distinctExpression
-                => VisitDistinct(distinctExpression, allowOptimizedExpansion, out nullable),
+                    => VisitDistinct(distinctExpression, allowOptimizedExpansion, out nullable),
                 ExistsExpression existsExpression
-                => VisitExists(existsExpression, allowOptimizedExpansion, out nullable),
+                    => VisitExists(existsExpression, allowOptimizedExpansion, out nullable),
                 InExpression inExpression
-                => VisitIn(inExpression, allowOptimizedExpansion, out nullable),
+                    => VisitIn(inExpression, allowOptimizedExpansion, out nullable),
                 LikeExpression likeExpression
-                => VisitLike(likeExpression, allowOptimizedExpansion, out nullable),
+                    => VisitLike(likeExpression, allowOptimizedExpansion, out nullable),
                 RowNumberExpression rowNumberExpression
-                => VisitRowNumber(rowNumberExpression, allowOptimizedExpansion, out nullable),
+                    => VisitRowNumber(rowNumberExpression, allowOptimizedExpansion, out nullable),
                 ScalarSubqueryExpression scalarSubqueryExpression
-                => VisitScalarSubquery(scalarSubqueryExpression, allowOptimizedExpansion, out nullable),
+                    => VisitScalarSubquery(scalarSubqueryExpression, allowOptimizedExpansion, out nullable),
                 SqlBinaryExpression sqlBinaryExpression
-                => VisitSqlBinary(sqlBinaryExpression, allowOptimizedExpansion, out nullable),
+                    => VisitSqlBinary(sqlBinaryExpression, allowOptimizedExpansion, out nullable),
                 SqlConstantExpression sqlConstantExpression
-                => VisitSqlConstant(sqlConstantExpression, allowOptimizedExpansion, out nullable),
+                    => VisitSqlConstant(sqlConstantExpression, allowOptimizedExpansion, out nullable),
                 SqlFragmentExpression sqlFragmentExpression
-                => VisitSqlFragment(sqlFragmentExpression, allowOptimizedExpansion, out nullable),
+                    => VisitSqlFragment(sqlFragmentExpression, allowOptimizedExpansion, out nullable),
                 SqlFunctionExpression sqlFunctionExpression
-                => VisitSqlFunction(sqlFunctionExpression, allowOptimizedExpansion, out nullable),
+                    => VisitSqlFunction(sqlFunctionExpression, allowOptimizedExpansion, out nullable),
                 SqlParameterExpression sqlParameterExpression
-                => VisitSqlParameter(sqlParameterExpression, allowOptimizedExpansion, out nullable),
+                    => VisitSqlParameter(sqlParameterExpression, allowOptimizedExpansion, out nullable),
                 SqlUnaryExpression sqlUnaryExpression
-                => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
+                    => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
                 _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
             };
 
@@ -445,7 +445,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             foreach (var whenClause in caseExpression.WhenClauses)
             {
                 // we can use column nullability information we got from visiting Test, in the Result
-                var test = Visit(whenClause.Test, allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
+                var test = Visit(
+                    whenClause.Test, allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
 
                 if (TryGetBoolConstantValue(test) is bool testConstantBool)
                 {
@@ -577,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             // if the exisits is negated we need to return true instead
             return TryGetBoolConstantValue(subquery.Predicate) == false
                 ? _sqlExpressionFactory.Constant(existsExpression.IsNegated, existsExpression.TypeMapping)
-                : (SqlExpression)existsExpression.Update(subquery);
+                : existsExpression.Update(subquery);
         }
 
         /// <summary>
@@ -646,7 +647,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // nullable IN (NULL) -> nullable IS NULL
                 // nullable NOT IN (NULL) -> nullable IS NOT NULL
                 return !hasNullValue || !itemNullable
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(
+                    ? _sqlExpressionFactory.Constant(
                         inExpression.IsNegated,
                         inExpression.TypeMapping)
                     : inExpression.IsNegated
@@ -843,7 +844,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var currentNonNullableColumnsCount = _nonNullableColumns.Count;
             var currentNullValueColumnsCount = _nullValueColumns.Count;
 
-            var left = Visit(sqlBinaryExpression.Left, allowOptimizedExpansion, preserveColumnNullabilityInformation: true, out var leftNullable);
+            var left = Visit(
+                sqlBinaryExpression.Left, allowOptimizedExpansion, preserveColumnNullabilityInformation: true, out var leftNullable);
 
             var leftNonNullableColumns = _nonNullableColumns.Skip(currentNonNullableColumnsCount).ToList();
             var leftNullValueColumns = _nullValueColumns.Skip(currentNullValueColumnsCount).ToList();
@@ -864,7 +866,8 @@ namespace Microsoft.EntityFrameworkCore.Query
                 RestoreNullValueColumnsList(currentNullValueColumnsCount);
             }
 
-            var right = Visit(sqlBinaryExpression.Right, allowOptimizedExpansion, preserveColumnNullabilityInformation: true, out var rightNullable);
+            var right = Visit(
+                sqlBinaryExpression.Right, allowOptimizedExpansion, preserveColumnNullabilityInformation: true, out var rightNullable);
 
             if (sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
             {
@@ -973,7 +976,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             SqlExpression AddNullConcatenationProtection(SqlExpression argument, RelationalTypeMapping typeMapping)
                 => argument is SqlConstantExpression || argument is SqlParameterExpression
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(string.Empty, typeMapping)
+                    ? _sqlExpressionFactory.Constant(string.Empty, typeMapping)
                     : _sqlExpressionFactory.Coalesce(argument, _sqlExpressionFactory.Constant(string.Empty, typeMapping));
         }
 
@@ -1082,7 +1085,7 @@ namespace Microsoft.EntityFrameworkCore.Query
 
             return nullable
                 ? _sqlExpressionFactory.Constant(null, sqlParameterExpression.TypeMapping)
-                : (SqlExpression)sqlParameterExpression;
+                : sqlParameterExpression;
         }
 
         /// <summary>
@@ -1137,7 +1140,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             => expression is SqlConstantExpression constantExpression
                 && constantExpression.Value is bool boolValue
                     ? boolValue
-                    : (bool?)null;
+                    : null;
 
         private void RestoreNonNullableColumnsList(int counter)
         {
@@ -1449,7 +1452,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                 // a is null || a is not null -> true
                 // a is null && a is not null -> false
                 return leftUnary.OperatorType == rightUnary.OperatorType
-                    ? (SqlExpression)leftUnary
+                    ? leftUnary
                     : _sqlExpressionFactory.Constant(
                         sqlBinaryExpression.OperatorType == ExpressionType.OrElse, sqlBinaryExpression.TypeMapping);
             }
@@ -1809,7 +1812,7 @@ namespace Microsoft.EntityFrameworkCore.Query
                         return result;
                     }
                 }
-                break;
+                    break;
             }
 
             return sqlUnaryExpression;

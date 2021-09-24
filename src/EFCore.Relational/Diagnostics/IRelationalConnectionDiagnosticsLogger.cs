@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="startTime"> The time that the operation was started. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         ValueTask<InterceptionResult> ConnectionOpeningAsync(
             IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="duration"> The amount of time before the connection was opened. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         Task ConnectionOpenedAsync(
             IRelationalConnection connection,
             DateTimeOffset startTime,
@@ -134,7 +134,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="logErrorAsDebug"> A flag indicating the exception is being handled and so it should be logged at Debug level. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the async operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         Task ConnectionErrorAsync(
             IRelationalConnection connection,
             Exception exception,

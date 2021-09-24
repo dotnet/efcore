@@ -40,12 +40,12 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         {
             return expression is ProjectionBindingExpression projectionBindingExpression
                 && ReferenceEquals(projectionBindingExpression.QueryExpression, _oldQuery)
-                ? projectionBindingExpression.ProjectionMember != null
-                    ? new ProjectionBindingExpression(
-                        _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
-                    : new ProjectionBindingExpression(
-                        _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
-                : base.Visit(expression);
+                    ? projectionBindingExpression.ProjectionMember != null
+                        ? new ProjectionBindingExpression(
+                            _newQuery, projectionBindingExpression.ProjectionMember!, projectionBindingExpression.Type)
+                        : new ProjectionBindingExpression(
+                            _newQuery, projectionBindingExpression.Index!.Value, projectionBindingExpression.Type)
+                    : base.Visit(expression);
         }
     }
 }

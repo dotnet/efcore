@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
@@ -100,7 +100,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
@@ -124,7 +124,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous migration operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task MigrateAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
@@ -319,7 +319,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int> ExecuteSqlInterpolatedAsync(
             this DatabaseFacade databaseFacade,
             FormattableString sql,
@@ -359,7 +359,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<int> ExecuteSqlRawAsync(
             this DatabaseFacade databaseFacade,
             string sql,
@@ -451,7 +451,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static async Task<int> ExecuteSqlRawAsync(
             this DatabaseFacade databaseFacade,
             string sql,
@@ -578,12 +578,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task OpenConnectionAsync(
             this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default)
             => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy
-                .ExecuteAsync(databaseFacade, (database, ct) => GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), null, cancellationToken);
+                .ExecuteAsync(
+                    databaseFacade, (database, ct) => GetFacadeDependencies(database).RelationalConnection.OpenAsync(ct), null,
+                    cancellationToken);
 
         /// <summary>
         ///     Closes the underlying <see cref="DbConnection" />.
@@ -618,13 +620,13 @@ namespace Microsoft.EntityFrameworkCore
         public static IDbContextTransaction BeginTransaction(this DatabaseFacade databaseFacade, IsolationLevel isolationLevel)
             => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy.Execute(
                 databaseFacade, database =>
-                {
-                    var transactionManager = database.GetTransactionManager();
+                    {
+                        var transactionManager = database.GetTransactionManager();
 
-                    return transactionManager is IRelationalTransactionManager relationalTransactionManager
-                        ? relationalTransactionManager.BeginTransaction(isolationLevel)
-                        : transactionManager.BeginTransaction();
-                },
+                        return transactionManager is IRelationalTransactionManager relationalTransactionManager
+                            ? relationalTransactionManager.BeginTransaction(isolationLevel)
+                            : transactionManager.BeginTransaction();
+                    },
                 null);
 
         /// <summary>
@@ -640,20 +642,20 @@ namespace Microsoft.EntityFrameworkCore
         ///     A task that represents the asynchronous transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<IDbContextTransaction> BeginTransactionAsync(
             this DatabaseFacade databaseFacade,
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default)
             => ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies.ExecutionStrategy.ExecuteAsync(
                 databaseFacade, (database, ct) =>
-                {
-                    var transactionManager = database.GetTransactionManager();
+                    {
+                        var transactionManager = database.GetTransactionManager();
 
-                    return transactionManager is IRelationalTransactionManager relationalTransactionManager
-                        ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
-                        : transactionManager.BeginTransactionAsync(ct);
-                }, null, cancellationToken);
+                        return transactionManager is IRelationalTransactionManager relationalTransactionManager
+                            ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, ct)
+                            : transactionManager.BeginTransactionAsync(ct);
+                    }, null, cancellationToken);
 
         /// <summary>
         ///     Sets the <see cref="DbTransaction" /> to be used by database operations on the <see cref="DbContext" />.
@@ -697,7 +699,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="transaction"> The <see cref="DbTransaction" /> to use. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<IDbContextTransaction?> UseTransactionAsync(
             this DatabaseFacade databaseFacade,
             DbTransaction? transaction,
@@ -715,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="transactionId"> The unique identifier for the transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> containing the <see cref="IDbContextTransaction" /> for the given transaction. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public static Task<IDbContextTransaction?> UseTransactionAsync(
             this DatabaseFacade databaseFacade,
             DbTransaction? transaction,
@@ -774,7 +776,7 @@ namespace Microsoft.EntityFrameworkCore
                 SetCommandTimeout(databaseFacade, 0);
                 return;
             }
-            
+
             if (timeout < TimeSpan.Zero)
             {
                 throw new ArgumentException(RelationalStrings.TimeoutTooSmall(timeout.TotalSeconds));

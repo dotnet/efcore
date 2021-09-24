@@ -24,9 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <param name="methodName"> The name of the calling method. </param>
         /// <returns> The relational service dependencies. </returns>
         public static RelationalModelDependencies GetRelationalDependencies(
-            this IModel model, [CallerMemberName]string methodName = "")
+            this IModel model,
+            [CallerMemberName] string methodName = "")
             => (RelationalModelDependencies?)model
-                .FindRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies)?.Value
+                    .FindRuntimeAnnotation(RelationalAnnotationNames.ModelDependencies)?.Value
                 ?? throw new InvalidOperationException(CoreStrings.ModelNotFinalized(methodName));
     }
 }

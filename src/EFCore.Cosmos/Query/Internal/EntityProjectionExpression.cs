@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 expression = navigation.IsCollection
                     ? new ObjectArrayProjectionExpression(navigation, AccessExpression)
-                    : (IAccessExpression)new EntityProjectionExpression(
+                    : new EntityProjectionExpression(
                         navigation.TargetEntityType,
                         new ObjectAccessExpression(navigation, AccessExpression));
 

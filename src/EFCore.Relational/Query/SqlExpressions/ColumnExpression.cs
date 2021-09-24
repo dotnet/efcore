@@ -56,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <returns> A new expression which has <see cref="IsNullable" /> property set to true. </returns>
         public abstract ColumnExpression MakeNullable();
 
-       /// <inheritdoc />
+        /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
         {
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));

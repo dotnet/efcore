@@ -43,7 +43,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         public virtual DateTime PointInTime { get; }
 
         /// <inheritdoc />
-        public override TableExpressionBase Clone() => new TemporalAsOfTableExpression(Name, Schema, Alias, PointInTime);
+        public override TableExpressionBase Clone()
+            => new TemporalAsOfTableExpression(Name, Schema, Alias, PointInTime);
 
         /// <inheritdoc />
         protected override void Print(ExpressionPrinter expressionPrinter)
@@ -65,6 +66,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         }
 
         /// <inheritdoc />
-        public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), PointInTime);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), PointInTime);
     }
 }

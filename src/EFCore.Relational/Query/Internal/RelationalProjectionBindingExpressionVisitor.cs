@@ -132,13 +132,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return expression;
 
                         case ParameterExpression parameterExpression:
-                            return parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
-                                    == true
-                                ? Expression.Call(
-                                    _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
-                                    QueryCompilationContext.QueryContextParameter,
-                                    Expression.Constant(parameterExpression.Name))
-                                : throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
+                            return parameterExpression.Name?.StartsWith(
+                                    QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
+                                == true
+                                    ? Expression.Call(
+                                        _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                                        QueryCompilationContext.QueryContextParameter,
+                                        Expression.Constant(parameterExpression.Name))
+                                    : throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
                         case ProjectionBindingExpression projectionBindingExpression:
                             var mappedProjection = _selectExpression.GetProjection(projectionBindingExpression);
@@ -155,7 +156,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             throw new InvalidOperationException(CoreStrings.TranslationFailed(projectionBindingExpression.Print()));
 
                         case MaterializeCollectionNavigationExpression materializeCollectionNavigationExpression:
-                            _clientProjections!.Add(_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
+                            _clientProjections!.Add(
+                                _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
                                     materializeCollectionNavigationExpression.Subquery)!);
                             return new CollectionResultExpression(
                                 new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, expression.Type),
@@ -201,6 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                                         : projectionBindingExpression;
                                 }
                             }
+
                             break;
                     }
 
@@ -292,7 +295,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                             return QueryCompilationContext.NotTranslatedExpression;
                         }
 
-                        entityProjectionExpression = (EntityProjectionExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
+                        entityProjectionExpression =
+                            (EntityProjectionExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
                             .GetProjection(projectionBindingExpression);
                     }
                     else
@@ -326,13 +330,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     // This happens because we don't process result selector for Join/SelectMany directly.
                     if (_indexBasedBinding)
                     {
-                        Check.DebugAssert(ReferenceEquals(_selectExpression, collectionResultExpression.ProjectionBindingExpression.QueryExpression),
+                        Check.DebugAssert(
+                            ReferenceEquals(_selectExpression, collectionResultExpression.ProjectionBindingExpression.QueryExpression),
                             "The projection should belong to same select expression.");
                         var mappedProjection = _selectExpression.GetProjection(collectionResultExpression.ProjectionBindingExpression);
                         _clientProjections!.Add(mappedProjection);
 
                         return collectionResultExpression.Update(
-                            new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, collectionResultExpression.Type));
+                            new ProjectionBindingExpression(
+                                _selectExpression, _clientProjections.Count - 1, collectionResultExpression.Type));
                     }
 
                     return QueryCompilationContext.NotTranslatedExpression;

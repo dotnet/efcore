@@ -3,8 +3,6 @@
 
 using System;
 using System.Data;
-using System.Globalization;
-using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Storage
 {

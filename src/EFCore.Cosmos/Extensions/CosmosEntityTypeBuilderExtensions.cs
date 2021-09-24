@@ -560,7 +560,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="throughput"> The throughput to set. </param>
-        public static EntityTypeBuilder<TEntity> HasManualThroughput<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder, int? throughput)
+        public static EntityTypeBuilder<TEntity> HasManualThroughput<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            int? throughput)
             where TEntity : class
         {
             entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: false);
@@ -593,7 +595,9 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
         /// <param name="throughput"> The throughput to set. </param>
-        public static EntityTypeBuilder<TEntity> HasAutoscaleThroughput<TEntity>(this EntityTypeBuilder<TEntity> entityTypeBuilder, int? throughput)
+        public static EntityTypeBuilder<TEntity> HasAutoscaleThroughput<TEntity>(
+            this EntityTypeBuilder<TEntity> entityTypeBuilder,
+            int? throughput)
             where TEntity : class
         {
             entityTypeBuilder.Metadata.SetThroughput(throughput, autoscale: true);

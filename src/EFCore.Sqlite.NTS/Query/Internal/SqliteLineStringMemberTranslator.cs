@@ -76,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
                                     returnType))
                         },
                         null)
-                    : (SqlExpression)_sqlExpressionFactory.Function(
+                    : _sqlExpressionFactory.Function(
                         functionName,
                         new[] { instance },
                         nullable: true,

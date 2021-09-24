@@ -245,6 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 _sqlBuilder.Append("FROM root ");
             }
+
             Visit(selectExpression.FromExpression);
             _sqlBuilder.AppendLine();
 
@@ -302,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
 
             switch (fromSqlExpression.Arguments)
             {
-                case ParameterExpression { Name : not null } parameterExpression
+                case ParameterExpression { Name: not null } parameterExpression
                     when _parameterValues.TryGetValue(parameterExpression.Name, out var parameterValue)
                     && parameterValue is object[] parameterValues:
                 {
@@ -317,7 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                     break;
                 }
 
-                case ConstantExpression { Value : object[] constantValues }:
+                case ConstantExpression { Value: object[] constantValues }:
                 {
                     substitutions = new string[constantValues.Length];
                     for (var i = 0; i < constantValues.Length; i++)

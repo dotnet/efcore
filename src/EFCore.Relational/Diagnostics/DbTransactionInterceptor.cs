@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(
             DbConnection connection,
             TransactionStartingEventData eventData,
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual ValueTask<DbTransaction> TransactionStartedAsync(
             DbConnection connection,
             TransactionEndEventData eventData,
@@ -170,7 +170,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to change the result
         ///     is to return the <paramref name="result" /> value passed in, often using <see cref="Task.FromResult{TResult}" />
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual ValueTask<DbTransaction> TransactionUsedAsync(
             DbConnection connection,
             TransactionEventData eventData,
@@ -233,7 +233,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual ValueTask<InterceptionResult> TransactionCommittingAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task TransactionCommittedAsync(
             DbTransaction transaction,
             TransactionEndEventData eventData,
@@ -310,7 +310,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     A normal implementation of this method for any interceptor that is not attempting to suppress
         ///     the operation is to return the <paramref name="result" /> value passed in.
         /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual ValueTask<InterceptionResult> TransactionRollingBackAsync(
             DbTransaction transaction,
             TransactionEventData eventData,
@@ -325,7 +325,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task TransactionRolledBackAsync(
             DbTransaction transaction,
             TransactionEndEventData eventData,
@@ -437,7 +437,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <param name="eventData"> Contextual information about connection and transaction. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A <see cref="Task" /> representing the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task TransactionFailedAsync(
             DbTransaction transaction,
             TransactionErrorEventData eventData,

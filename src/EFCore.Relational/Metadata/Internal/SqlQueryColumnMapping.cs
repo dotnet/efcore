@@ -34,8 +34,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal
             => (ISqlQueryMapping)TableMapping;
 
         /// <inheritdoc />
-        public override RelationalTypeMapping TypeMapping => Property.FindRelationalTypeMapping(
-            StoreObjectIdentifier.SqlQuery(SqlQueryMapping.SqlQuery.Name))!;
+        public override RelationalTypeMapping TypeMapping
+            => Property.FindRelationalTypeMapping(
+                StoreObjectIdentifier.SqlQuery(SqlQueryMapping.SqlQuery.Name))!;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

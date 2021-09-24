@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
     public class SqlServerStringMethodTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _indexOfMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IndexOf), typeof(string));
 
         private static readonly MethodInfo _replaceMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), new[] { typeof(string), typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Replace), typeof(string), typeof(string));
 
         private static readonly MethodInfo _toLowerMethodInfo
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToLower), Array.Empty<Type>());
@@ -34,16 +34,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
             = typeof(string).GetRequiredRuntimeMethod(nameof(string.ToUpper), Array.Empty<Type>());
 
         private static readonly MethodInfo _substringMethodInfoWithOneArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int));
 
         private static readonly MethodInfo _substringMethodInfoWithTwoArgs
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Substring), typeof(int), typeof(int));
 
         private static readonly MethodInfo _isNullOrEmptyMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrEmpty), typeof(string));
 
         private static readonly MethodInfo _isNullOrWhiteSpaceMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrWhiteSpace), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.IsNullOrWhiteSpace), typeof(string));
 
         // Method defined in netcoreapp2.0 only
         private static readonly MethodInfo _trimStartMethodInfoWithoutArgs
@@ -57,22 +57,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
         // Method defined in netstandard2.0
         private static readonly MethodInfo _trimStartMethodInfoWithCharArrayArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimStart), typeof(char[]));
 
         private static readonly MethodInfo _trimEndMethodInfoWithCharArrayArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.TrimEnd), typeof(char[]));
 
         private static readonly MethodInfo _trimMethodInfoWithCharArrayArg
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Trim), typeof(char[]));
 
         private static readonly MethodInfo _startsWithMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.StartsWith), typeof(string));
 
         private static readonly MethodInfo _containsMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.Contains), typeof(string));
 
         private static readonly MethodInfo _endsWithMethodInfo
-            = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
+            = typeof(string).GetRequiredRuntimeMethod(nameof(string.EndsWith), typeof(string));
 
         private static readonly MethodInfo _firstOrDefaultMethodInfoWithoutArgs
             = typeof(Enumerable).GetRuntimeMethods().Single(
@@ -222,11 +222,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         "SUBSTRING",
                         new[]
                         {
-                        instance,
-                        _sqlExpressionFactory.Add(
-                            arguments[0],
-                            _sqlExpressionFactory.Constant(1)),
-                        arguments[1]
+                            instance,
+                            _sqlExpressionFactory.Add(
+                                arguments[0],
+                                _sqlExpressionFactory.Constant(1)),
+                            arguments[1]
                         },
                         nullable: true,
                         argumentsPropagateNullability: new[] { true, true, true },
@@ -271,13 +271,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                         "LTRIM",
                         new[]
                         {
-                        _sqlExpressionFactory.Function(
-                            "RTRIM",
-                            new[] { instance },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true },
-                            instance.Type,
-                            instance.TypeMapping)
+                            _sqlExpressionFactory.Function(
+                                "RTRIM",
+                                new[] { instance },
+                                nullable: true,
+                                argumentsPropagateNullability: new[] { true },
+                                instance.Type,
+                                instance.TypeMapping)
                         },
                         nullable: true,
                         argumentsPropagateNullability: new[] { true },

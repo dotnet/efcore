@@ -165,7 +165,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                     {
                         if (_dataReader == null)
                         {
-                            _relationalQueryContext.ExecutionStrategy.Execute(this, static (_, enumerator) => InitializeReader(enumerator), null);
+                            _relationalQueryContext.ExecutionStrategy.Execute(
+                                this, static (_, enumerator) => InitializeReader(enumerator), null);
                         }
 
                         var hasNext = _resultCoordinator!.HasNext ?? _dataReader!.Read();
@@ -221,7 +222,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 EntityFrameworkEventSource.Log.QueryExecuting();
 
-                var relationalCommand = enumerator._relationalCommand = enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                var relationalCommand = enumerator._relationalCommand =
+                    enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
                 var dataReader = enumerator._dataReader = relationalCommand.ExecuteReader(
                     new RelationalCommandParameterObject(
@@ -230,7 +232,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
                         enumerator._relationalCommandCache.ReaderColumns,
                         enumerator._relationalQueryContext.Context,
                         enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled, 
+                        enumerator._detailedErrorsEnabled,
                         CommandSource.LinqQuery));
                 enumerator._dbDataReader = dataReader.DbDataReader;
 
@@ -364,17 +366,18 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
             {
                 EntityFrameworkEventSource.Log.QueryExecuting();
 
-                var relationalCommand = enumerator._relationalCommand = enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
+                var relationalCommand = enumerator._relationalCommand =
+                    enumerator._relationalCommandCache.RentAndPopulateRelationalCommand(enumerator._relationalQueryContext);
 
                 var dataReader = enumerator._dataReader = await relationalCommand.ExecuteReaderAsync(
-                    new RelationalCommandParameterObject(
-                        enumerator._relationalQueryContext.Connection,
-                        enumerator._relationalQueryContext.ParameterValues,
-                        enumerator._relationalCommandCache.ReaderColumns,
-                        enumerator._relationalQueryContext.Context,
-                        enumerator._relationalQueryContext.CommandLogger,
-                        enumerator._detailedErrorsEnabled, CommandSource.LinqQuery),
-                    cancellationToken)
+                        new RelationalCommandParameterObject(
+                            enumerator._relationalQueryContext.Connection,
+                            enumerator._relationalQueryContext.ParameterValues,
+                            enumerator._relationalCommandCache.ReaderColumns,
+                            enumerator._relationalQueryContext.Context,
+                            enumerator._relationalQueryContext.CommandLogger,
+                            enumerator._detailedErrorsEnabled, CommandSource.LinqQuery),
+                        cancellationToken)
                     .ConfigureAwait(false);
                 enumerator._dbDataReader = dataReader.DbDataReader;
 

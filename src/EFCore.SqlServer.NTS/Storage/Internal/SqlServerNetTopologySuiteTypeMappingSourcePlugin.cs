@@ -29,7 +29,8 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
     {
         private readonly HashSet<string> _spatialStoreTypes = new(StringComparer.OrdinalIgnoreCase)
         {
-            "geometry", "geography"
+            "geometry",
+            "geography"
         };
 
         private readonly NtsGeometryServices _geometryServices;

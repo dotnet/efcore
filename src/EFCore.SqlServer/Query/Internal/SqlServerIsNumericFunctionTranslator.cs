@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
         private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         private static readonly MethodInfo _methodInfo = typeof(SqlServerDbFunctionsExtensions)
-            .GetRequiredRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.IsNumeric), new[] { typeof(DbFunctions), typeof(string) });
+            .GetRequiredRuntimeMethod(nameof(SqlServerDbFunctionsExtensions.IsNumeric), typeof(DbFunctions), typeof(string));
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,13 +51,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
 
             return _methodInfo.Equals(method)
                 ? _sqlExpressionFactory.Equal(
-                     _sqlExpressionFactory.Function(
+                    _sqlExpressionFactory.Function(
                         "ISNUMERIC",
                         new[] { arguments[1] },
                         nullable: false,
                         argumentsPropagateNullability: new[] { false },
                         typeof(int)),
-                     _sqlExpressionFactory.Constant(1))
+                    _sqlExpressionFactory.Constant(1))
                 : null;
         }
     }

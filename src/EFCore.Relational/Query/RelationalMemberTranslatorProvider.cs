@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.Query
             Check.NotNull(dependencies, nameof(dependencies));
 
             Dependencies = dependencies;
-            
+
             _plugins.AddRange(dependencies.Plugins.SelectMany(p => p.Translators));
             _translators
                 .AddRange(

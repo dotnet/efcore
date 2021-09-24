@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Query;
@@ -76,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
                 return _sqlExpressionFactory.Convert(
                     _sqlExpressionFactory.Function(
                         "SUBSTRING",
-                        new SqlExpression[]
+                        new[]
                         {
                             arguments[0],
                             _sqlExpressionFactory.Constant(1),

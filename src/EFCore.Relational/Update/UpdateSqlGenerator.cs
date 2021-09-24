@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -339,19 +338,19 @@ namespace Microsoft.EntityFrameworkCore.Update
                     operations,
                     (this, name, schema),
                     (sb, o, p) =>
-                    {
-                        var (g, n, s) = p;
-                        g.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
-                        sb.Append(" = ");
-                        if (!o.UseCurrentValueParameter)
                         {
-                            g.AppendSqlLiteral(sb, o, n, s);
-                        }
-                        else
-                        {
-                            g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
-                        }
-                    });
+                            var (g, n, s) = p;
+                            g.SqlGenerationHelper.DelimitIdentifier(sb, o.ColumnName);
+                            sb.Append(" = ");
+                            if (!o.UseCurrentValueParameter)
+                            {
+                                g.AppendSqlLiteral(sb, o, n, s);
+                            }
+                            else
+                            {
+                                g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
+                            }
+                        });
         }
 
         /// <summary>
@@ -434,24 +433,24 @@ namespace Microsoft.EntityFrameworkCore.Update
                         operations,
                         (this, name, schema),
                         (sb, o, p) =>
-                        {
-                            if (o.IsWrite)
                             {
-                                var (g, n, s) = p;
-                                if (!o.UseCurrentValueParameter)
+                                if (o.IsWrite)
                                 {
-                                    g.AppendSqlLiteral(sb, o, n, s);
+                                    var (g, n, s) = p;
+                                    if (!o.UseCurrentValueParameter)
+                                    {
+                                        g.AppendSqlLiteral(sb, o, n, s);
+                                    }
+                                    else
+                                    {
+                                        g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
+                                    }
                                 }
                                 else
                                 {
-                                    g.SqlGenerationHelper.GenerateParameterNamePlaceholder(sb, o.ParameterName);
+                                    sb.Append("DEFAULT");
                                 }
-                            }
-                            else
-                            {
-                                sb.Append("DEFAULT");
-                            }
-                        })
+                            })
                     .Append(')');
             }
         }
@@ -501,24 +500,24 @@ namespace Microsoft.EntityFrameworkCore.Update
                     .Append(" AND ")
                     .AppendJoin(
                         operations, (sb, v) =>
-                        {
-                            if (v.IsKey)
                             {
-                                if (!v.IsRead)
+                                if (v.IsKey)
                                 {
-                                    AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
+                                    if (!v.IsRead)
+                                    {
+                                        AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
+                                        return true;
+                                    }
+                                }
+
+                                if (IsIdentityOperation(v))
+                                {
+                                    AppendIdentityWhereCondition(sb, v);
                                     return true;
                                 }
-                            }
 
-                            if (IsIdentityOperation(v))
-                            {
-                                AppendIdentityWhereCondition(sb, v);
-                                return true;
-                            }
-
-                            return false;
-                        }, " AND ");
+                                return false;
+                            }, " AND ");
             }
         }
 
@@ -625,7 +624,11 @@ namespace Microsoft.EntityFrameworkCore.Update
             SqlGenerationHelper.DelimitIdentifier(commandStringBuilder, Check.NotNull(name, nameof(name)), schema);
         }
 
-        private void AppendSqlLiteral(StringBuilder commandStringBuilder, IColumnModification modification, string? tableName, string? schema)
+        private void AppendSqlLiteral(
+            StringBuilder commandStringBuilder,
+            IColumnModification modification,
+            string? tableName,
+            string? schema)
         {
             if (modification.TypeMapping == null)
             {

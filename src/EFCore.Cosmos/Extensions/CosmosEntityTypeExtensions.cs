@@ -26,14 +26,14 @@ namespace Microsoft.EntityFrameworkCore
         public static string? GetContainer(this IReadOnlyEntityType entityType)
             => entityType.BaseType != null
                 ? entityType.GetRootType().GetContainer()
-                : (string?)entityType[CosmosAnnotationNames.ContainerName]
-                ?? GetDefaultContainer(entityType);
+                : ((string?)entityType[CosmosAnnotationNames.ContainerName]
+                    ?? GetDefaultContainer(entityType));
 
         private static string? GetDefaultContainer(IReadOnlyEntityType entityType)
             => entityType.FindOwnership() != null
                 ? null
-                : entityType.Model.GetDefaultContainer()
-                ?? entityType.ShortName();
+                : (entityType.Model.GetDefaultContainer()
+                    ?? entityType.ShortName());
 
         /// <summary>
         ///     Sets the name of the container to which the entity type is mapped.

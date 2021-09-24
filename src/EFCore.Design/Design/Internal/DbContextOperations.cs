@@ -53,15 +53,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             string? language,
             bool nullable,
             string[]? args)
-            : this(reporter,
-                  assembly,
-                  startupAssembly,
-                  projectDir,
-                  rootNamespace,
-                  language,
-                  nullable,
-                  args,
-                  new AppServiceProviderFactory(startupAssembly, reporter))
+            : this(
+                reporter,
+                assembly,
+                startupAssembly,
+                projectDir,
+                rootNamespace,
+                language,
+                nullable,
+                args,
+                new AppServiceProviderFactory(startupAssembly, reporter))
         {
         }
 
@@ -319,16 +320,16 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
                     context,
                     FindContextFactory(context)
                     ?? (() =>
-                    {
-                        try
                         {
-                            return (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
-                        }
-                    }));
+                            try
+                            {
+                                return (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
+                            }
+                        }));
             }
 
             return contexts;
@@ -380,7 +381,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType);
             var service = appServices.GetService(factoryInterface);
             return service == null
-                ? (Func<DbContext>?)null
+                ? null
                 : () => (DbContext)factoryInterface
                     .GetMethod(nameof(IDbContextFactory<DbContext>.CreateDbContext))
                     !.Invoke(service, null)!;
@@ -391,7 +392,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal
             var factoryInterface = typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType);
             var factory = contextType.Assembly.GetConstructibleTypes()
                 .FirstOrDefault(t => factoryInterface.IsAssignableFrom(t));
-            return factory == null ? (Func<DbContext>?)null : (() => CreateContextFromFactory(factory.AsType(), contextType));
+            return factory == null ? null : (() => CreateContextFromFactory(factory.AsType(), contextType));
         }
 
         private DbContext CreateContextFromFactory(Type factory, Type contextType)

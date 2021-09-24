@@ -66,11 +66,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     The SQL-translating expression visitor factory.
         /// </summary>
-        public IRelationalSqlTranslatingExpressionVisitorFactory RelationalSqlTranslatingExpressionVisitorFactory
-        {
-            get;
-            init;
-        }
+        public IRelationalSqlTranslatingExpressionVisitorFactory RelationalSqlTranslatingExpressionVisitorFactory { get; init; }
 
         /// <summary>
         ///     The SQL expression factory.

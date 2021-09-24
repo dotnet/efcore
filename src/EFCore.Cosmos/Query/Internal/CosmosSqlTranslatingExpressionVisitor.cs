@@ -642,7 +642,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         ? _sqlExpressionFactory.Equal(
                             discriminatorColumn,
                             _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                        : (SqlExpression)_sqlExpressionFactory.In(
+                        : _sqlExpressionFactory.In(
                             discriminatorColumn,
                             _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
                             negated: false);
@@ -677,7 +677,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             {
                 EntityProjectionExpression entityProjectionExpression => new EntityReferenceExpression(entityProjectionExpression),
                 ObjectArrayProjectionExpression objectArrayProjectionExpression
-                => new EntityReferenceExpression(objectArrayProjectionExpression.InnerProjection),
+                    => new EntityReferenceExpression(objectArrayProjectionExpression.InnerProjection),
                 _ => result
             };
         }
@@ -726,14 +726,16 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties == null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                    nameof(Queryable.Contains), entityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                        nameof(Queryable.Contains), entityType.DisplayName()));
             }
 
             if (primaryKeyProperties.Count > 1)
             {
                 throw new InvalidOperationException(
-                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(nameof(Queryable.Contains), entityType.DisplayName()));
+                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
+                        nameof(Queryable.Contains), entityType.DisplayName()));
             }
 
             var property = primaryKeyProperties[0];
@@ -784,7 +786,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             return true;
         }
 
-        private bool TryRewriteEntityEquality(ExpressionType nodeType, Expression left, Expression right, bool equalsMethod, out Expression result)
+        private bool TryRewriteEntityEquality(
+            ExpressionType nodeType,
+            Expression left,
+            Expression right,
+            bool equalsMethod,
+            out Expression result)
         {
             var leftEntityReference = left as EntityReferenceExpression;
             var rightEntityReference = right as EntityReferenceExpression;
@@ -804,11 +811,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                 var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
                 if (primaryKeyProperties1 == null)
                 {
-                    throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                        nodeType == ExpressionType.Equal
-                            ? equalsMethod ? nameof(object.Equals) : "=="
-                            : equalsMethod ? "!" + nameof(object.Equals) : "!=",
-                        entityType1.DisplayName()));
+                    throw new InvalidOperationException(
+                        CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                            nodeType == ExpressionType.Equal
+                                ? equalsMethod ? nameof(object.Equals) : "=="
+                                : equalsMethod
+                                    ? "!" + nameof(object.Equals)
+                                    : "!=",
+                            entityType1.DisplayName()));
                 }
 
                 result = Visit(
@@ -839,11 +849,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
             var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties == null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                    nodeType == ExpressionType.Equal
-                        ? equalsMethod ? nameof(object.Equals) : "=="
-                        : equalsMethod ? "!" + nameof(object.Equals) : "!=",
-                    entityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                        nodeType == ExpressionType.Equal
+                            ? equalsMethod ? nameof(object.Equals) : "=="
+                            : equalsMethod
+                                ? "!" + nameof(object.Equals)
+                                : "!=",
+                        entityType.DisplayName()));
             }
 
             result = Visit(
@@ -853,9 +866,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                                 nodeType,
                                 CreatePropertyAccessExpression(left, p),
                                 CreatePropertyAccessExpression(right, p)))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal
-                        ? Expression.AndAlso(l, r)
-                        : Expression.OrElse(l, r)));
+                    .Aggregate(
+                        (l, r) => nodeType == ExpressionType.Equal
+                            ? Expression.AndAlso(l, r)
+                            : Expression.OrElse(l, r)));
 
             return true;
         }

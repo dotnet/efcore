@@ -285,6 +285,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
                         _enumerator = null;
                         return enumerator.DisposeAsync();
                     }
+
                     return default;
                 }
             }

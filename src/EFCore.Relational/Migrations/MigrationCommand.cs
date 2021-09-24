@@ -83,7 +83,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="parameterValues"> The values for the parameters, or <see langword="null" /> if the command has no parameters. </param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> A task that represents the asynchronous operation. The task result contains the number of rows affected.  </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken"/> is canceled. </exception>
+        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
         public virtual Task<int> ExecuteNonQueryAsync(
             IRelationalConnection connection,
             IReadOnlyDictionary<string, object?>? parameterValues = null,
