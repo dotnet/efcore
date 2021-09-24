@@ -25,9 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a new <see cref="ServiceParameterBinding" /> instance for the given service type
         ///     or metadata type.
         /// </summary>
-        /// <param name="parameterType"> The parameter CLR type. </param>
-        /// <param name="serviceType"> The service or metadata CLR type. </param>
-        /// <param name="serviceProperties"> The associated <see cref="IServiceProperty" /> instances, or null. </param>
+        /// <param name="parameterType">The parameter CLR type.</param>
+        /// <param name="serviceType">The service or metadata CLR type.</param>
+        /// <param name="serviceProperties">The associated <see cref="IServiceProperty" /> instances, or null.</param>
         protected ServiceParameterBinding(
             Type parameterType,
             Type serviceType,
@@ -48,8 +48,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates an expression tree representing the binding of the value of a property from a
         ///     materialization expression to a parameter of the constructor, factory method, etc.
         /// </summary>
-        /// <param name="bindingInfo"> The binding information. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="bindingInfo">The binding information.</param>
+        /// <returns>The expression tree.</returns>
         public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
             => BindToParameter(
                 bindingInfo.MaterializationContextExpression,
@@ -59,9 +59,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates an expression tree representing the binding of the value of a property from a
         ///     materialization expression to a parameter of the constructor, factory method, etc.
         /// </summary>
-        /// <param name="materializationExpression"> The expression representing the materialization context. </param>
-        /// <param name="entityTypeExpression"> The expression representing the <see cref="IEntityType" /> constant. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="materializationExpression">The expression representing the materialization context.</param>
+        /// <param name="entityTypeExpression">The expression representing the <see cref="IEntityType" /> constant.</param>
+        /// <returns>The expression tree.</returns>
         public abstract Expression BindToParameter(
             Expression materializationExpression,
             Expression entityTypeExpression);

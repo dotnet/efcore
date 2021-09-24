@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="RelationshipDiscoveryConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         public RelationshipDiscoveryConvention(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -318,12 +318,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Finds or tries to create an entity type target for the given navigation member.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the referencing entity type. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member. </param>
-        /// <param name="shouldBeOwned"> Whether the target entity type should be owned. </param>
-        /// <param name="shouldCreate"> Whether an entity type should be created if one doesn't currently exist. </param>
-        /// <returns> The builder for the target entity type or <see langword="null" /> if it can't be created. </returns>
+        /// <param name="entityTypeBuilder">The builder for the referencing entity type.</param>
+        /// <param name="targetClrType">The CLR type of the target entity type.</param>
+        /// <param name="navigationMemberInfo">The navigation member.</param>
+        /// <param name="shouldBeOwned">Whether the target entity type should be owned.</param>
+        /// <param name="shouldCreate">Whether an entity type should be created if one doesn't currently exist.</param>
+        /// <returns>The builder for the target entity type or <see langword="null" /> if it can't be created.</returns>
         protected virtual IConventionEntityTypeBuilder? TryGetTargetEntityTypeBuilder(
             IConventionEntityTypeBuilder entityTypeBuilder,
             Type targetClrType,
@@ -864,9 +864,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns a value indicating whether the given entity type should be added as owned if it isn't currently in the model.
         /// </summary>
-        /// <param name="targetType"> Target entity type. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> <see langword="true" /> if the given entity type should be owned. </returns>
+        /// <param name="targetType">Target entity type.</param>
+        /// <param name="model">The model.</param>
+        /// <returns><see langword="true" /> if the given entity type should be owned.</returns>
         protected virtual bool? ShouldBeOwned(Type targetType, IConventionModel model)
             => null;
 

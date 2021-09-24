@@ -30,13 +30,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     By calling this method the principal and dependent types can be switched or the relationship could
         ///     be moved to a base type of one of the participating entity types.
         /// </summary>
-        /// <param name="principalEntityType"> The principal entity type to set. </param>
-        /// <param name="dependentEntityType"> The dependent entity type to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="principalEntityType">The principal entity type to set.</param>
+        /// <param name="dependentEntityType">The dependent entity type to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     A builder instance if the entity types were configured as related,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasEntityTypes(
             IConventionEntityType principalEntityType,
             IConventionEntityType dependentEntityType,
@@ -46,13 +46,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the principal and dependent types can be switched or the relationship could
         ///     be moved to a base type of one of the participating entity types.
         /// </summary>
-        /// <param name="principalEntityType"> The principal entity type to set. </param>
-        /// <param name="dependentEntityType"> The dependent entity type to set. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="principalEntityType">The principal entity type to set.</param>
+        /// <param name="dependentEntityType">The dependent entity type to set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     <see langword="true" /> if the principal and dependent entity types can be switched or the relationship could
         ///     be moved to a base type of one of the participating entity types.
-        /// </returns>
+        ///</returns>
         bool CanSetEntityTypes(
             IConventionEntityType principalEntityType,
             IConventionEntityType dependentEntityType,
@@ -64,9 +64,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// </summary>
         /// <param name="newForeignKeyProperties">
         ///     The properties to be used as the new foreign key or <see langword="null" /> to use any compatible properties.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the principal and dependent entity types can be switched. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the principal and dependent entity types can be switched.</returns>
         bool CanInvert(
             IReadOnlyList<IConventionProperty>? newForeignKeyProperties,
             bool fromDataAnnotation = false);
@@ -74,12 +74,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the properties to use as the foreign key for this relationship.
         /// </summary>
-        /// <param name="propertyNames"> The properties to use as the foreign key for this relationship.</param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyNames">The properties to use as the foreign key for this relationship.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the properties were configured as the foreign key,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasForeignKey(
             IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false);
@@ -87,12 +87,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the properties to use as the foreign key for this relationship.
         /// </summary>
-        /// <param name="properties"> The properties to use as the foreign key for this relationship.</param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="properties">The properties to use as the foreign key for this relationship.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the properties were configured as the foreign key,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasForeignKey(
             IReadOnlyList<IConventionProperty>? properties,
             bool fromDataAnnotation = false);
@@ -101,29 +101,29 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the given properties can be set as the foreign key for this relationship
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="propertyNames"> The properties to use as the foreign key for this relationship. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given properties can be set as the foreign key. </returns>
+        /// <param name="propertyNames">The properties to use as the foreign key for this relationship.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given properties can be set as the foreign key.</returns>
         bool CanSetForeignKey(IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the foreign key for this relationship
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="properties"> The properties to use as the foreign key for this relationship. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given properties can be set as the foreign key. </returns>
+        /// <param name="properties">The properties to use as the foreign key for this relationship.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given properties can be set as the foreign key.</returns>
         bool CanSetForeignKey(IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the properties that this relationship targets.
         /// </summary>
-        /// <param name="propertyNames"> The properties for this relationship to target. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyNames">The properties for this relationship to target.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the properties were configured as the target for this relationship,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasPrincipalKey(
             IReadOnlyList<string>? propertyNames,
             bool fromDataAnnotation = false);
@@ -131,12 +131,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the properties that this relationship targets.
         /// </summary>
-        /// <param name="properties"> The properties for this relationship to target. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="properties">The properties for this relationship to target.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the properties were configured as the target for this relationship,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasPrincipalKey(
             IReadOnlyList<IConventionProperty>? properties,
             bool fromDataAnnotation = false);
@@ -145,32 +145,32 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the given properties can be set as the target for this relationship
         ///     from the current configuration source
         /// </summary>
-        /// <param name="propertyNames"> The properties for this relationship to target. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given properties can be set as the target. </returns>
+        /// <param name="propertyNames">The properties for this relationship to target.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given properties can be set as the target.</returns>
         bool CanSetPrincipalKey(IReadOnlyList<string>? propertyNames, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns a value indicating whether the given properties can be set as the target for this relationship
         ///     from the current configuration source
         /// </summary>
-        /// <param name="properties"> The properties for this relationship to target. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given properties can be set as the target. </returns>
+        /// <param name="properties">The properties for this relationship to target.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given properties can be set as the target.</returns>
         bool CanSetPrincipalKey(IReadOnlyList<IConventionProperty>? properties, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Configures the property with the given name as a navigation property used by this relationship.
         /// </summary>
-        /// <param name="name"> The name of the property to use. </param>
+        /// <param name="name">The name of the property to use.</param>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the navigation property was configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasNavigation(
             string? name,
             bool pointsToPrincipal,
@@ -179,15 +179,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the given property as a navigation property used by this relationship.
         /// </summary>
-        /// <param name="property"> The property to use. </param>
+        /// <param name="property">The property to use.</param>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the navigation property was configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasNavigation(
             MemberInfo? property,
             bool pointsToPrincipal,
@@ -199,16 +199,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationToPrincipalName">
         ///     The name of the property to use as the navigation to the principal entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
+        ///</param>
         /// <param name="navigationToDependentName">
         ///     The name of the property to use as the navigation to the dependent entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the navigation properties were configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasNavigations(
             string? navigationToPrincipalName,
             string? navigationToDependentName,
@@ -220,16 +220,16 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationToPrincipal">
         ///     The property to use as the navigation to the principal entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
+        ///</param>
         /// <param name="navigationToDependent">
         ///     The property to use as the navigation to the dependent entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the navigation properties were configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? HasNavigations(
             MemberInfo? navigationToPrincipal,
             MemberInfo? navigationToDependent,
@@ -239,12 +239,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the property with the given name can be used as a navigation for this relationship
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="name"> The name of the property to use. </param>
+        /// <param name="name">The name of the property to use.</param>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given property can be used as a navigation. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given property can be used as a navigation.</returns>
         bool CanSetNavigation(
             string? name,
             bool pointsToPrincipal,
@@ -254,12 +254,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Returns a value indicating whether the given property can be used as a navigation for this relationship
         ///     from the current configuration source.
         /// </summary>
-        /// <param name="property"> The property to use. </param>
+        /// <param name="property">The property to use.</param>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given property can be used as a navigation. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given property can be used as a navigation.</returns>
         bool CanSetNavigation(
             MemberInfo? property,
             bool pointsToPrincipal,
@@ -272,13 +272,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationToPrincipalName">
         ///     The name of the property to use as the navigation to the principal entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
+        ///</param>
         /// <param name="navigationToDependentName">
         ///     The name of the property to use as the navigation to the dependent entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given properties can be used as navigations. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given properties can be used as navigations.</returns>
         bool CanSetNavigations(
             string? navigationToPrincipalName,
             string? navigationToDependentName,
@@ -291,13 +291,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="navigationToPrincipal">
         ///     The property to use as the navigation to the principal entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
+        ///</param>
         /// <param name="navigationToDependent">
         ///     The property to use as the navigation to the dependent entity type.
         ///     Can be <see langword="null" />.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given properties can be used as navigations. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given properties can be used as navigations.</returns>
         bool CanSetNavigations(
             MemberInfo? navigationToPrincipal,
             MemberInfo? navigationToDependent,
@@ -310,12 +310,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required">
         ///     A value indicating whether this is a required relationship.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the requiredness was configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? IsRequired(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -325,9 +325,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required">
         ///     A value indicating whether this is a required relationship.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the relationship requiredness can be configured. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the relationship requiredness can be configured.</returns>
         bool CanSetIsRequired(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -337,12 +337,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required">
         ///     A value indicating whether the dependent end is required.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the dependent end requiredness was configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? IsRequiredDependent(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -352,9 +352,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="required">
         ///     A value indicating whether this is a required relationship.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the relationship requiredness can be configured. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the relationship requiredness can be configured.</returns>
         bool CanSetIsRequiredDependent(bool? required, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -364,12 +364,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownership">
         ///     A value indicating whether this relationship defines an ownership.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the ownership was configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? IsOwnership(bool? ownership, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -379,9 +379,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="ownership">
         ///     A value indicating whether this relationship defines an ownership.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the relationship can be configured as defining an ownership. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the relationship can be configured as defining an ownership.</returns>
         bool CanSetIsOwnership(bool? ownership, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -391,12 +391,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="unique">
         ///     A value indicating whether the dependent entity is unique.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the uniqueness was configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? IsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -406,9 +406,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="unique">
         ///     A value indicating whether the dependent entity is unique.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the relationship uniqueness can be configured. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the relationship uniqueness can be configured.</returns>
         bool CanSetIsUnique(bool? unique, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -418,12 +418,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior">
         ///     The action to perform.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the delete operation was configured,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         IConventionForeignKeyBuilder? OnDelete(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -433,9 +433,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <param name="deleteBehavior">
         ///     The action to perform.
         ///     <see langword="null" /> to reset to default.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the operation on principal deletion can be configured </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the operation on principal deletion can be configured</returns>
         bool CanSetOnDelete(DeleteBehavior? deleteBehavior, bool fromDataAnnotation = false);
     }
 }

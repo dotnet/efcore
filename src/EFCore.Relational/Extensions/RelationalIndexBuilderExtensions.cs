@@ -23,9 +23,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder HasDatabaseName(this IndexBuilder indexBuilder, string? name)
         {
             indexBuilder.Metadata.SetDatabaseName(name);
@@ -39,9 +39,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <returns>A builder to further configure the index.</returns>
         [Obsolete("Use HasDatabaseName() instead.")]
         public static IndexBuilder HasName(this IndexBuilder indexBuilder, string? name)
             => HasDatabaseName(indexBuilder, name);
@@ -52,10 +52,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> HasDatabaseName<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
             string? name)
@@ -71,10 +71,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <returns>A builder to further configure the index.</returns>
         [Obsolete("Use HasDatabaseName() instead.")]
         public static IndexBuilder<TEntity> HasName<TEntity>(this IndexBuilder<TEntity> indexBuilder, string? name)
             => indexBuilder.HasDatabaseName(name);
@@ -85,13 +85,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionIndexBuilder? HasDatabaseName(
             this IConventionIndexBuilder indexBuilder,
             string? name,
@@ -112,13 +112,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         [Obsolete("Use HasDatabaseName() instead.")]
         public static IConventionIndexBuilder? HasName(
             this IConventionIndexBuilder indexBuilder,
@@ -132,10 +132,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given name can be set for the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given name can be set for the index.</returns>
         public static bool CanSetDatabaseName(
             this IConventionIndexBuilder indexBuilder,
             string? name,
@@ -148,10 +148,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given name can be set for the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given name can be set for the index.</returns>
         [Obsolete("Use CanSetDatabaseName() instead.")]
         public static bool CanSetName(
             this IConventionIndexBuilder indexBuilder,
@@ -165,9 +165,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="sql"> The filter expression for the index. </param>
-        /// <returns>A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="sql">The filter expression for the index.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder HasFilter(this IndexBuilder indexBuilder, string? sql)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
@@ -184,10 +184,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="sql"> The filter expression for the index. </param>
-        /// <returns>A builder to further configure the index. </returns>
+        /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="sql">The filter expression for the index.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> HasFilter<TEntity>(this IndexBuilder<TEntity> indexBuilder, string? sql)
             => (IndexBuilder<TEntity>)HasFilter((IndexBuilder)indexBuilder, sql);
 
@@ -197,13 +197,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="sql"> The filter expression for the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="sql">The filter expression for the index.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionIndexBuilder? HasFilter(
             this IConventionIndexBuilder indexBuilder,
             string? sql,
@@ -224,10 +224,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-indexes">Indexes</see> for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="sql"> The filter expression for the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given name can be set for the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="sql">The filter expression for the index.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given name can be set for the index.</returns>
         public static bool CanSetFilter(
             this IConventionIndexBuilder indexBuilder,
             string? sql,

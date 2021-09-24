@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Creates a new <see cref="SaveChangesFailedEventArgs" /> instance with the exception that was thrown.
         /// </summary>
-        /// <param name="acceptAllChangesOnSuccess"> The value passed to SaveChanges. </param>
-        /// <param name="exception"> The exception thrown. </param>
+        /// <param name="acceptAllChangesOnSuccess">The value passed to SaveChanges.</param>
+        /// <param name="exception">The exception thrown.</param>
         public SaveChangesFailedEventArgs(bool acceptAllChangesOnSuccess, Exception exception)
             : base(acceptAllChangesOnSuccess)
         {

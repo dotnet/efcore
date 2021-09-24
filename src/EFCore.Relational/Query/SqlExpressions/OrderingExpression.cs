@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="OrderingExpression" /> class.
         /// </summary>
-        /// <param name="expression"> An expression used for ordering. </param>
-        /// <param name="ascending"> A value indicating if the ordering is ascending. </param>
+        /// <param name="expression">An expression used for ordering.</param>
+        /// <param name="ascending">A value indicating if the ordering is ascending.</param>
         public OrderingExpression(SqlExpression expression, bool ascending)
         {
             Check.NotNull(expression, nameof(expression));
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="expression"> The <see cref="Expression" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="expression">The <see cref="Expression" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual OrderingExpression Update(SqlExpression expression)
         {
             Check.NotNull(expression, nameof(expression));

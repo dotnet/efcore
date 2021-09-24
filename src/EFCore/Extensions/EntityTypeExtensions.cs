@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the unique name for the given <see cref="IReadOnlyTypeBase" />.
         /// </summary>
-        /// <param name="type"> The entity type. </param>
-        /// <returns> The full name. </returns>
+        /// <param name="type">The entity type.</param>
+        /// <returns>The full name.</returns>
         [DebuggerStepThrough]
         [Obsolete("Use Name property")]
         public static string FullName(this ITypeBase type)
@@ -31,8 +31,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets a value indicating whether this entity type has a defining navigation.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> <see langword="true" /> if this entity type has a defining navigation. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns><see langword="true" /> if this entity type has a defining navigation.</returns>
         [DebuggerStepThrough]
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static bool HasDefiningNavigation(this IEntityType entityType)
@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the defining navigation if one exists or <see langword="null" /> otherwise.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>The defining navigation if one exists or <see langword="null" /> otherwise.</returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static INavigation? FindDefiningNavigation(this IEntityType entityType)
         {
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets all navigation properties on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> All navigation properties on the given entity type. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>All navigation properties on the given entity type.</returns>
         [Obsolete("Use IReadOnlyEntityType.GetNavigations")]
         public static IEnumerable<INavigation> GetNavigations(this IEntityType entityType)
             => entityType.GetNavigations();
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Gets the LINQ query used as the default source for queries of this type.
         /// </summary>
-        /// <param name="entityType"> The entity type to get the defining query for. </param>
-        /// <returns> The LINQ query used as the default source. </returns>
+        /// <param name="entityType">The entity type to get the defining query for.</param>
+        /// <returns>The LINQ query used as the default source.</returns>
         [Obsolete("Use InMemoryEntityTypeExtensions.GetInMemoryQuery")]
         public static LambdaExpression? GetDefiningQuery(this IEntityType entityType)
         {
@@ -81,12 +81,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns the closest entity type that is a parent of both given entity types. If one of the given entities is
         ///     a parent of the other, that parent is returned. Returns <see langword="null" /> if the two entity types aren't in the same hierarchy.
         /// </summary>
-        /// <param name="entityType1"> An entity type.</param>
-        /// <param name="entityType2"> Another entity type.</param>
+        /// <param name="entityType1">An entity type.</param>
+        /// <param name="entityType2">Another entity type.</param>
         /// <returns>
         ///     The closest common parent of <paramref name="entityType1" /> and <paramref name="entityType2" />,
         ///     or null if they have not common parent.
-        /// </returns>
+        ///</returns>
         [Obsolete("Use IReadOnlyEntityType.FindClosestCommonParent")]
         public static IEntityType? GetClosestCommonParent(
             this IEntityType entityType1,
@@ -96,7 +96,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the <see cref="IReadOnlyProperty" /> that will be used for storing a discriminator value.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
+        /// <param name="entityType">The entity type.</param>
         [Obsolete("Use IReadOnlyEntityType.FindDiscriminatorProperty")]
         public static IProperty? GetDiscriminatorProperty(this IEntityType entityType)
             => entityType.FindDiscriminatorProperty();

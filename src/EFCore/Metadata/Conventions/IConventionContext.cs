@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///         This is useful when performing multiple operations that depend on each other.
         ///     </para>
         /// </summary>
-        /// <returns> An object that should be disposed to execute the delayed conventions. </returns>
+        /// <returns>An object that should be disposed to execute the delayed conventions.</returns>
         IConventionBatch DelayConventions();
     }
 }

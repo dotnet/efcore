@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Initializes a new instance of the <see cref="CSharpMigrationsGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> The base dependencies. </param>
-        /// <param name="csharpDependencies"> The dependencies. </param>
+        /// <param name="dependencies">The base dependencies.</param>
+        /// <param name="csharpDependencies">The dependencies.</param>
         public CSharpMigrationsGenerator(
             MigrationsCodeGeneratorDependencies dependencies,
             CSharpMigrationsGeneratorDependencies csharpDependencies)
@@ -62,11 +62,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates the migration code.
         /// </summary>
-        /// <param name="migrationNamespace"> The migration's namespace. </param>
-        /// <param name="migrationName"> The migration's name. </param>
-        /// <param name="upOperations"> The migration's up operations. </param>
-        /// <param name="downOperations"> The migration's down operations. </param>
-        /// <returns> The migration code. </returns>
+        /// <param name="migrationNamespace">The migration's namespace.</param>
+        /// <param name="migrationName">The migration's name.</param>
+        /// <param name="upOperations">The migration's up operations.</param>
+        /// <param name="downOperations">The migration's down operations.</param>
+        /// <returns>The migration code.</returns>
         public override string GenerateMigration(
             string? migrationNamespace,
             string migrationName,
@@ -150,12 +150,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates the migration metadata code.
         /// </summary>
-        /// <param name="migrationNamespace"> The migration's namespace. </param>
-        /// <param name="contextType"> The migration's <see cref="DbContext" /> type. </param>
-        /// <param name="migrationName"> The migration's name. </param>
-        /// <param name="migrationId"> The migration's ID. </param>
-        /// <param name="targetModel"> The migration's target model. </param>
-        /// <returns> The migration metadata code. </returns>
+        /// <param name="migrationNamespace">The migration's namespace.</param>
+        /// <param name="contextType">The migration's <see cref="DbContext" /> type.</param>
+        /// <param name="migrationName">The migration's name.</param>
+        /// <param name="migrationId">The migration's ID.</param>
+        /// <param name="targetModel">The migration's target model.</param>
+        /// <returns>The migration metadata code.</returns>
         public override string GenerateMetadata(
             string? migrationNamespace,
             Type contextType,
@@ -249,11 +249,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Generates the model snapshot code.
         /// </summary>
-        /// <param name="modelSnapshotNamespace"> The model snapshot's namespace. </param>
-        /// <param name="contextType"> The model snapshot's <see cref="DbContext" /> type. </param>
-        /// <param name="modelSnapshotName"> The model snapshot's name. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The model snapshot code. </returns>
+        /// <param name="modelSnapshotNamespace">The model snapshot's namespace.</param>
+        /// <param name="contextType">The model snapshot's <see cref="DbContext" /> type.</param>
+        /// <param name="modelSnapshotName">The model snapshot's name.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The model snapshot code.</returns>
         public override string GenerateSnapshot(
             string? modelSnapshotNamespace,
             Type contextType,

@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ProviderConventionSetBuilder" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ProviderConventionSetBuilder(ProviderConventionSetBuilderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -53,7 +53,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Builds and returns the convention set for the current database provider.
         /// </summary>
-        /// <returns> The convention set for the current database provider. </returns>
+        /// <returns>The convention set for the current database provider.</returns>
         public virtual ConventionSet CreateConventionSet()
         {
             var conventionSet = new ConventionSet();
@@ -252,10 +252,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Replaces an existing convention with a derived convention.
         /// </summary>
-        /// <typeparam name="TConvention"> The type of convention being replaced. </typeparam>
-        /// <typeparam name="TImplementation"> The type of the old convention. </typeparam>
-        /// <param name="conventionsList"> The list of existing convention instances to scan. </param>
-        /// <param name="newConvention"> The new convention. </param>
+        /// <typeparam name="TConvention">The type of convention being replaced.</typeparam>
+        /// <typeparam name="TImplementation">The type of the old convention.</typeparam>
+        /// <param name="conventionsList">The list of existing convention instances to scan.</param>
+        /// <param name="newConvention">The new convention.</param>
         protected virtual bool ReplaceConvention<TConvention, TImplementation>(
             IList<TConvention> conventionsList,
             TImplementation newConvention)

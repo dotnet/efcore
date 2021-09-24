@@ -20,13 +20,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Creates an event definition instance.
         /// </summary>
-        /// <param name="loggingOptions"> Logging options. </param>
-        /// <param name="eventId"> The <see cref="EventId" />. </param>
-        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
+        /// <param name="loggingOptions">Logging options.</param>
+        /// <param name="eventId">The <see cref="EventId" />.</param>
+        /// <param name="level">The <see cref="LogLevel" /> at which the event will be logged.</param>
         /// <param name="eventIdCode">
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
-        /// </param>
-        /// <param name="messageFormat"> The parameterized message definition. </param>
+        ///</param>
+        /// <param name="messageFormat">The parameterized message definition.</param>
         public FallbackEventDefinition(
             ILoggingOptions loggingOptions,
             EventId eventId,
@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     Generates the message that would be logged without logging it.
         ///     Typically used for throwing an exception in warning-as-error cases.
         /// </summary>
-        /// <param name="logAction"> A delegate that will log the message to an <see cref="ILogger" />. </param>
-        /// <returns> The message string. </returns>
+        /// <param name="logAction">A delegate that will log the message to an <see cref="ILogger" />.</param>
+        /// <returns>The message string.</returns>
         public virtual string GenerateMessage(Action<ILogger> logAction)
         {
             Check.NotNull(logAction, nameof(logAction));
@@ -58,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Logs the event, or throws if the event has been configured to be treated as an error.
         /// </summary>
-        /// <typeparam name="TLoggerCategory"> The <see cref="DbLoggerCategory" />. </typeparam>
-        /// <param name="logger"> The logger to which the event should be logged. </param>
-        /// <param name="logAction"> A delegate that will log the message to an <see cref="ILogger" />. </param>
+        /// <typeparam name="TLoggerCategory">The <see cref="DbLoggerCategory" />.</typeparam>
+        /// <param name="logger">The logger to which the event should be logged.</param>
+        /// <param name="logAction">A delegate that will log the message to an <see cref="ILogger" />.</param>
         public virtual void Log<TLoggerCategory>(
             IDiagnosticsLogger<TLoggerCategory> logger,
             Action<ILogger> logAction)

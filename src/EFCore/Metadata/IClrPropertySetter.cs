@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Sets the value of the property.
         /// </summary>
-        /// <param name="instance"> The entity instance. </param>
-        /// <param name="value"> The value to set. </param>
+        /// <param name="instance">The entity instance.</param>
+        /// <param name="value">The value to set.</param>
         void SetClrValue(object instance, object? value);
     }
 }

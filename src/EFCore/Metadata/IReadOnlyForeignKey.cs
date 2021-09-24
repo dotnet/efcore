@@ -85,7 +85,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the skip navigations using this foreign key.
         /// </summary>
-        /// <returns> The skip navigations using this foreign key. </returns>
+        /// <returns>The skip navigations using this foreign key.</returns>
         IEnumerable<IReadOnlySkipNavigation> GetReferencingSkipNavigations()
             => PrincipalEntityType.GetSkipNavigations().Where(n => !n.IsOnDependent && n.ForeignKey == this)
                 .Concat(DeclaringEntityType.GetSkipNavigations().Where(n => n.IsOnDependent && n.ForeignKey == this));
@@ -93,8 +93,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the entity type related to the given one.
         /// </summary>
-        /// <param name="entityType"> One of the entity types related by the foreign key. </param>
-        /// <returns> The entity type related to the given one. </returns>
+        /// <param name="entityType">One of the entity types related by the foreign key.</param>
+        /// <returns>The entity type related to the given one.</returns>
         IReadOnlyEntityType GetRelatedEntityType(IReadOnlyEntityType entityType)
         {
             if (DeclaringEntityType != entityType
@@ -117,17 +117,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="pointsToPrincipal">
         ///     A value indicating whether the navigation is on the dependent type pointing to the principal type.
-        /// </param>
+        ///</param>
         /// <returns>
         ///     A navigation associated with this foreign key or <see langword="null" />.
-        /// </returns>
+        ///</returns>
         IReadOnlyNavigation? GetNavigation(bool pointsToPrincipal)
             => pointsToPrincipal ? DependentToPrincipal : PrincipalToDependent;
 
         /// <summary>
         ///     Returns a value indicating whether the foreign key is defined on the primary key and pointing to the same primary key.
         /// </summary>
-        /// <returns> A value indicating whether the foreign key is defined on the primary key and pointing to the same primary key. </returns>
+        /// <returns>A value indicating whether the foreign key is defined on the primary key and pointing to the same primary key.</returns>
         bool IsBaseLinking()
         {
             var primaryKey = DeclaringEntityType.FindPrimaryKey();
@@ -144,9 +144,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         It is designed for debugging only and may change arbitrarily between releases.
         ///     </para>
         /// </summary>
-        /// <param name="options"> Options for generating the string. </param>
-        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
-        /// <returns> A human-readable representation. </returns>
+        /// <param name="options">Options for generating the string.</param>
+        /// <param name="indent">The number of indent spaces to use before each new line.</param>
+        /// <returns>A human-readable representation.</returns>
         string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();

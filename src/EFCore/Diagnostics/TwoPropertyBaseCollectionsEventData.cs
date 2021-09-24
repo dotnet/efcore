@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="firstPropertyCollection"> The first property collection. </param>
-        /// <param name="secondPropertyCollection"> The second property collection. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="firstPropertyCollection">The first property collection.</param>
+        /// <param name="secondPropertyCollection">The second property collection.</param>
         public TwoPropertyBaseCollectionsEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

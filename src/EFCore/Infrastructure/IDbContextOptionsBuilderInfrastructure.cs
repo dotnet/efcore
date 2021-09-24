@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
-        /// <param name="extension"> The extension to be added. </param>
+        /// <typeparam name="TExtension">The type of extension to be added.</typeparam>
+        /// <param name="extension">The extension to be added.</param>
         void AddOrUpdateExtension<TExtension>(TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
     }

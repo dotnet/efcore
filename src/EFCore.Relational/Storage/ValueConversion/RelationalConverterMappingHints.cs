@@ -19,12 +19,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Creates a new <see cref="ConverterMappingHints" /> instance. Any hint contained in the instance
         ///     can be <see langword="null" /> to indicate it has not been specified.
         /// </summary>
-        /// <param name="size"> The suggested size of the mapped data type.</param>
-        /// <param name="precision"> The suggested precision of the mapped data type. </param>
-        /// <param name="scale"> The suggested scale of the mapped data type. </param>
-        /// <param name="unicode"> Whether or not the mapped data type should support Unicode. </param>
-        /// <param name="fixedLength"> Whether or not the mapped data type is fixed length. </param>
-        /// <param name="valueGeneratorFactory"> An optional factory for creating a specific <see cref="ValueGenerator" />. </param>
+        /// <param name="size">The suggested size of the mapped data type.</param>
+        /// <param name="precision">The suggested precision of the mapped data type.</param>
+        /// <param name="scale">The suggested scale of the mapped data type.</param>
+        /// <param name="unicode">Whether or not the mapped data type should support Unicode.</param>
+        /// <param name="fixedLength">Whether or not the mapped data type is fixed length.</param>
+        /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
         public RelationalConverterMappingHints(
             int? size = null,
             int? precision = null,
@@ -41,8 +41,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     Adds hints from the given object to this one. Hints that are already specified are
         ///     not overridden.
         /// </summary>
-        /// <param name="hints"> The hints to add. </param>
-        /// <returns> The combined hints. </returns>
+        /// <param name="hints">The hints to add.</param>
+        /// <returns>The combined hints.</returns>
         public override ConverterMappingHints With(ConverterMappingHints? hints)
             => hints == null
                 ? this

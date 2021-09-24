@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Executes the commands in the batches against the given database connection.
         /// </summary>
-        /// <param name="commandBatches"> The batches to execute. </param>
-        /// <param name="connection"> The database connection to use. </param>
-        /// <returns> The total number of rows affected. </returns>
+        /// <param name="commandBatches">The batches to execute.</param>
+        /// <param name="connection">The database connection to use.</param>
+        /// <returns>The total number of rows affected.</returns>
         int Execute(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection);
@@ -43,14 +43,14 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Executes the commands in the batches against the given database connection.
         /// </summary>
-        /// <param name="commandBatches"> The batches to execute. </param>
-        /// <param name="connection"> The database connection to use. </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <param name="commandBatches">The batches to execute.</param>
+        /// <param name="connection">The database connection to use.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     total number of rows affected.
-        /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<int> ExecuteAsync(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection,

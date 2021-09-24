@@ -68,28 +68,28 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Opens the connection to the database.
         /// </summary>
-        /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
-        /// <returns> <see langword="true" /> if the underlying connection was actually opened; <see langword="false" /> otherwise. </returns>
+        /// <param name="errorsExpected">Indicate if the connection errors are expected and should be logged as debug message.</param>
+        /// <returns><see langword="true" /> if the underlying connection was actually opened; <see langword="false" /> otherwise.</returns>
         bool Open(bool errorsExpected = false);
 
         /// <summary>
         ///     Asynchronously opens the connection to the database.
         /// </summary>
-        /// <param name="errorsExpected"> Indicate if the connection errors are expected and should be logged as debug message. </param>
+        /// <param name="errorsExpected">Indicate if the connection errors are expected and should be logged as debug message.</param>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> to observe while waiting for the task to complete.
-        /// </param>
+        ///</param>
         /// <returns>
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually opened.
-        /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task<bool> OpenAsync(CancellationToken cancellationToken, bool errorsExpected = false);
 
         /// <summary>
         ///     Closes the connection to the database.
         /// </summary>
-        /// <returns> <see langword="true" /> if the underlying connection was actually closed; <see langword="false" /> otherwise. </returns>
+        /// <returns><see langword="true" /> if the underlying connection was actually closed; <see langword="false" /> otherwise.</returns>
         bool Close();
 
         /// <summary>
@@ -98,13 +98,13 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <returns>
         ///     A task that represents the asynchronous operation, with a value of <see langword="true" /> if the connection
         ///     was actually closed.
-        /// </returns>
+        ///</returns>
         Task<bool> CloseAsync();
 
         /// <summary>
         ///     Rents a relational command that can be executed with this connection.
         /// </summary>
-        /// <returns> A relational command that can be executed with this connection. </returns>
+        /// <returns>A relational command that can be executed with this connection.</returns>
         IRelationalCommand RentCommand();
 
         /// <summary>

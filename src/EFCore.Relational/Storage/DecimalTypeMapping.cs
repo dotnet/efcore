@@ -25,10 +25,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="DecimalTypeMapping" /> class.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        /// <param name="precision"> The precision of data the property is configured to store, or null if the default precision is required. </param>
-        /// <param name="scale"> The scale of data the property is configured to store, or null if the default scale is required. </param>
+        /// <param name="storeType">The name of the database type.</param>
+        /// <param name="dbType">The <see cref="DbType" /> to be used.</param>
+        /// <param name="precision">The precision of data the property is configured to store, or null if the default precision is required.</param>
+        /// <param name="scale">The scale of data the property is configured to store, or null if the default scale is required.</param>
         public DecimalTypeMapping(
             string storeType,
             DbType? dbType = System.Data.DbType.Decimal,
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="DecimalTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
+        /// <param name="parameters">Parameter object for <see cref="RelationalTypeMapping" />.</param>
         protected DecimalTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
         {
@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="parameters"> The parameters for this mapping. </param>
-        /// <returns> The newly created mapping. </returns>
+        /// <param name="parameters">The parameters for this mapping.</param>
+        /// <returns>The newly created mapping.</returns>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => new DecimalTypeMapping(parameters);
 

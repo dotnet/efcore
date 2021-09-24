@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         public BytesToStringConverter(ConverterMappingHints? mappingHints)
             : base(
                 v => v == null ? null : Convert.ToBase64String(v),

@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a static factory method.
         /// </summary>
-        /// <param name="factoryMethod"> The factory method to bind to. </param>
-        /// <param name="parameterBindings"> The parameters to use. </param>
-        /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
+        /// <param name="factoryMethod">The factory method to bind to.</param>
+        /// <param name="parameterBindings">The parameters to use.</param>
+        /// <param name="runtimeType">The CLR type of the instance created by the factory method.</param>
         public FactoryMethodBinding(
             MethodInfo factoryMethod,
             IReadOnlyList<ParameterBinding> parameterBindings,
@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a static factory method.
         /// </summary>
-        /// <param name="factoryInstance"> The object on which the factory method should be called. </param>
-        /// <param name="factoryMethod"> The factory method to bind to. </param>
-        /// <param name="parameterBindings"> The parameters to use. </param>
-        /// <param name="runtimeType"> The CLR type of the instance created by the factory method. </param>
+        /// <param name="factoryInstance">The object on which the factory method should be called.</param>
+        /// <param name="factoryMethod">The factory method to bind to.</param>
+        /// <param name="parameterBindings">The parameters to use.</param>
+        /// <param name="runtimeType">The CLR type of the instance created by the factory method.</param>
         public FactoryMethodBinding(
             object factoryInstance,
             MethodInfo factoryMethod,
@@ -62,8 +62,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a <see cref="MethodCallExpression" /> using the given method.
         /// </summary>
-        /// <param name="bindingInfo"> Information needed to create the expression. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="bindingInfo">Information needed to create the expression.</param>
+        /// <returns>The expression tree.</returns>
         public override Expression CreateConstructorExpression(ParameterBindingInfo bindingInfo)
         {
             var arguments = ParameterBindings.Select(b => b.BindToParameter(bindingInfo));
@@ -94,8 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a copy that contains the given parameter bindings.
         /// </summary>
-        /// <param name="parameterBindings"> The new parameter bindings. </param>
-        /// <returns> A copy with replaced parameter bindings. </returns>
+        /// <param name="parameterBindings">The new parameter bindings.</param>
+        /// <returns>A copy with replaced parameter bindings.</returns>
         public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
             => _factoryInstance == null
                 ? new FactoryMethodBinding(_factoryMethod, parameterBindings, RuntimeType)

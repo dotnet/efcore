@@ -17,15 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Invoked when a result is available.
         /// </summary>
-        /// <param name="value"> The result. </param>
+        /// <param name="value">The result.</param>
         void OnResult(object? value);
 
         /// <summary>
         ///     Invoked when an error occurs.
         /// </summary>
-        /// <param name="type"> The exception type. </param>
-        /// <param name="message"> The error message. </param>
-        /// <param name="stackTrace"> The stack trace. </param>
+        /// <param name="type">The exception type.</param>
+        /// <param name="message">The error message.</param>
+        /// <param name="stackTrace">The stack trace.</param>
         /// <remarks>
         ///     When an <see cref="OperationException" /> is received, the stack trace should not be shown by default.
         /// </remarks>

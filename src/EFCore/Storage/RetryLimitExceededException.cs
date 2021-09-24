@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbUpdateException" /> class from a serialized form.
         /// </summary>
-        /// <param name="info"> The serialization info. </param>
-        /// <param name="context"> The streaming context being used. </param>
+        /// <param name="info">The serialization info.</param>
+        /// <param name="context">The streaming context being used.</param>
         public RetryLimitExceededException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

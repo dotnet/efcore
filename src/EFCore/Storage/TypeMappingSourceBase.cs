@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         protected TypeMappingSourceBase(TypeMappingSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -57,8 +57,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         if no mapping is available.
         ///     </para>
         /// </summary>
-        /// <param name="mappingInfo"> The mapping info to use to create the mapping. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none could be found. </returns>
+        /// <param name="mappingInfo">The mapping info to use to create the mapping.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none could be found.</returns>
         protected virtual CoreTypeMapping? FindMapping(in TypeMappingInfo mappingInfo)
         {
             foreach (var plugin in Dependencies.Plugins)
@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Called after a mapping has been found so that it can be validated for the given property.
         /// </summary>
-        /// <param name="mapping"> The mapping, if any. </param>
-        /// <param name="property"> The property, if any. </param>
+        /// <param name="mapping">The mapping, if any.</param>
+        /// <param name="property">The property, if any.</param>
         protected virtual void ValidateMapping(
             CoreTypeMapping? mapping,
             IProperty? property)
@@ -92,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note: providers should typically not need to override this method.
         ///     </para>
         /// </summary>
-        /// <param name="property"> The property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="property">The property.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public abstract CoreTypeMapping? FindMapping(IProperty property);
 
         /// <summary>
@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         or <see cref="FindMapping(Type, IModel)" />
         ///     </para>
         /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="type">The CLR type.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public abstract CoreTypeMapping? FindMapping(Type type);
 
         /// <summary>
@@ -119,9 +119,9 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         otherwise call <see cref="FindMapping(IProperty)" />.
         ///     </para>
         /// </summary>
-        /// <param name="type"> The CLR type. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="type">The CLR type.</param>
+        /// <param name="model">The model.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public abstract CoreTypeMapping? FindMapping(Type type, IModel model);
 
         /// <summary>
@@ -137,8 +137,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         Note: providers should typically not need to override this method.
         ///     </para>
         /// </summary>
-        /// <param name="member"> The field or property. </param>
-        /// <returns> The type mapping, or <see langword="null" /> if none was found. </returns>
+        /// <param name="member">The field or property.</param>
+        /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
         public abstract CoreTypeMapping? FindMapping(MemberInfo member);
     }
 }

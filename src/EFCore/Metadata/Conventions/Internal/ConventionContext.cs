@@ -52,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         The common use case is when the metadata object was removed or replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
+        /// <param name="result">The new metadata object or <see langword="null" />.</param>
         public virtual void StopProcessing(TMetadata? result)
         {
             _stopProcessing = true;
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         The common use case is when the metadata object was replaced by the convention.
         ///     </para>
         /// </summary>
-        /// <param name="result"> The new metadata object or <see langword="null" />. </param>
+        /// <param name="result">The new metadata object or <see langword="null" />.</param>
         public virtual void StopProcessingIfChanged(TMetadata? result)
         {
             if (!Equals(Result, result))
@@ -86,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal
         ///         This is useful when performing multiple operations that depend on each other.
         ///     </para>
         /// </summary>
-        /// <returns> An object that should be disposed to execute the delayed conventions. </returns>
+        /// <returns>An object that should be disposed to execute the delayed conventions.</returns>
         public virtual IConventionBatch DelayConventions()
             => _dispatcher.DelayConventions();
 

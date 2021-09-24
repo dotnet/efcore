@@ -37,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="SqlUnaryExpression" /> class.
         /// </summary>
-        /// <param name="operatorType"> The operator to apply. </param>
-        /// <param name="operand"> An expression on which operator is applied. </param>
-        /// <param name="type"> The <see cref="Type" /> of the expression. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="operatorType">The operator to apply.</param>
+        /// <param name="operand">An expression on which operator is applied.</param>
+        /// <param name="type">The <see cref="Type" /> of the expression.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public SqlUnaryExpression(
             ExpressionType operatorType,
             SqlExpression operand,
@@ -84,8 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="operand"> The <see cref="Operand" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="operand">The <see cref="Operand" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual SqlUnaryExpression Update(SqlExpression operand)
         {
             Check.NotNull(operand, nameof(operand));

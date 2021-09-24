@@ -48,7 +48,7 @@ namespace Microsoft.EntityFrameworkCore
     ///     <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see>, and
     ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information.
     /// </remarks>
-    /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
+    /// <typeparam name="TEntity">The type of entity being operated on by this set.</typeparam>
     public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
         where TEntity : class
     {
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
-        /// <returns> This object. </returns>
+        /// <returns>This object.</returns>
         public virtual IAsyncEnumerable<TEntity> AsAsyncEnumerable()
             => (IAsyncEnumerable<TEntity>)this;
 
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
-        /// <returns> This object. </returns>
+        /// <returns>This object.</returns>
         public virtual IQueryable<TEntity> AsQueryable()
             => this;
 
@@ -154,7 +154,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual ValueTask<TEntity?> FindAsync(object?[]? keyValues, CancellationToken cancellationToken)
             => throw new NotSupportedException();
 
@@ -171,11 +171,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to add. </param>
+        /// <param name="entity">The entity to add.</param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Add(TEntity entity)
             => throw new NotSupportedException();
 
@@ -197,14 +197,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to add. </param>
+        /// <param name="entity">The entity to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous Add operation. The task result contains the
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
-        /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual ValueTask<EntityEntry<TEntity>> AddAsync(
             TEntity entity,
             CancellationToken cancellationToken = default)
@@ -242,11 +242,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to attach. </param>
+        /// <param name="entity">The entity to attach.</param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Attach(TEntity entity)
             => throw new NotSupportedException();
 
@@ -272,11 +272,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         ///     </para>
         /// </remarks>
-        /// <param name="entity"> The entity to remove. </param>
+        /// <param name="entity">The entity to remove.</param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Remove(TEntity entity)
             => throw new NotSupportedException();
 
@@ -312,11 +312,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to update. </param>
+        /// <param name="entity">The entity to update.</param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Update(TEntity entity)
             => throw new NotSupportedException();
 
@@ -330,7 +330,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
+        /// <param name="entities">The entities to add.</param>
         public virtual void AddRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
@@ -351,8 +351,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <param name="entities">The entities to add.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public virtual Task AddRangeAsync(params TEntity[] entities)
             => throw new NotSupportedException();
 
@@ -390,7 +390,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to attach. </param>
+        /// <param name="entities">The entities to attach.</param>
         public virtual void AttachRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
@@ -415,7 +415,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to remove. </param>
+        /// <param name="entities">The entities to remove.</param>
         public virtual void RemoveRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
@@ -453,7 +453,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to update. </param>
+        /// <param name="entities">The entities to update.</param>
         public virtual void UpdateRange(params TEntity[] entities)
             => throw new NotSupportedException();
 
@@ -467,7 +467,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
+        /// <param name="entities">The entities to add.</param>
         public virtual void AddRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
@@ -488,10 +488,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
+        /// <param name="entities">The entities to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task AddRangeAsync(
             IEnumerable<TEntity> entities,
             CancellationToken cancellationToken = default)
@@ -531,7 +531,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to attach. </param>
+        /// <param name="entities">The entities to attach.</param>
         public virtual void AttachRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
@@ -556,7 +556,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         for more information.
         ///     </para>
         /// </remarks>
-        /// <param name="entities"> The entities to remove. </param>
+        /// <param name="entities">The entities to remove.</param>
         public virtual void RemoveRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
@@ -594,7 +594,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to update. </param>
+        /// <param name="entities">The entities to update.</param>
         public virtual void UpdateRange(IEnumerable<TEntity> entities)
             => throw new NotSupportedException();
 
@@ -605,7 +605,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
-        /// <returns> The query results. </returns>
+        /// <returns>The query results.</returns>
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
             => throw new NotSupportedException();
 
@@ -616,7 +616,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
-        /// <returns> The query results. </returns>
+        /// <returns>The query results.</returns>
         IEnumerator IEnumerable.GetEnumerator()
             => throw new NotSupportedException();
 
@@ -629,8 +629,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="cancellationToken">
         ///     A <see cref="CancellationToken" /> that may be used to cancel the asynchronous iteration.
-        /// </param>
-        /// <returns> The query results. </returns>
+        ///</param>
+        /// <returns>The query results.</returns>
         public virtual IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => ((IAsyncEnumerable<TEntity>)this).GetAsyncEnumerator(cancellationToken);
 
@@ -695,8 +695,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <exception cref="NotSupportedException"> Always thrown. </exception>
-        /// <returns> Never returns, always throws an exception. </returns>
+        /// <exception cref="NotSupportedException">Always thrown.</exception>
+        /// <returns>Never returns, always throws an exception.</returns>
         IList IListSource.GetList()
         {
             throw new NotSupportedException(CoreStrings.DataBindingWithIListSource);
@@ -717,7 +717,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -725,8 +725,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -734,7 +734,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

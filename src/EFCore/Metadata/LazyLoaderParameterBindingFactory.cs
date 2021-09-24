@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="LazyLoaderParameterBindingFactory" /> instance.
         /// </summary>
-        /// <param name="dependencies"> The service dependencies to use. </param>
+        /// <param name="dependencies">The service dependencies to use.</param>
         public LazyLoaderParameterBindingFactory(LazyLoaderParameterBindingFactoryDependencies dependencies)
             : base(typeof(ILazyLoader))
         {
@@ -51,9 +51,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Checks whether or not this factory can bind a parameter with the given type and name.
         /// </summary>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> <see langword="true" /> if this parameter can be bound; <see langword="false" /> otherwise. </returns>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns><see langword="true" /> if this parameter can be bound; <see langword="false" /> otherwise.</returns>
         public override bool CanBind(
             Type parameterType,
             string parameterName)
@@ -69,10 +69,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns>The binding.</returns>
         public override ParameterBinding Bind(
             IMutableEntityType entityType,
             Type parameterType,
@@ -96,10 +96,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns>The binding.</returns>
         public override ParameterBinding Bind(
             IConventionEntityType entityType,
             Type parameterType,
@@ -123,10 +123,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a <see cref="ParameterBinding" /> for the given type and name on the given entity type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="parameterType"> The parameter type. </param>
-        /// <param name="parameterName"> The parameter name. </param>
-        /// <returns> The binding. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="parameterType">The parameter type.</param>
+        /// <param name="parameterName">The parameter name.</param>
+        /// <returns>The binding.</returns>
         public override ParameterBinding Bind(
             IReadOnlyEntityType entityType,
             Type parameterType,

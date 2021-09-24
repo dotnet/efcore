@@ -25,12 +25,12 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="convertToProviderExpression"> An expression to convert objects when writing data to the store. </param>
-        /// <param name="convertFromProviderExpression"> An expression to convert objects when reading data from the store. </param>
+        /// <param name="convertToProviderExpression">An expression to convert objects when writing data to the store.</param>
+        /// <param name="convertFromProviderExpression">An expression to convert objects when reading data from the store.</param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         public ValueConverter(
             Expression<Func<TModel, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TModel>> convertFromProviderExpression,
@@ -45,16 +45,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="convertToProviderExpression"> An expression to convert objects when writing data to the store. </param>
-        /// <param name="convertFromProviderExpression"> An expression to convert objects when reading data from the store. </param>
+        /// <param name="convertToProviderExpression">An expression to convert objects when writing data to the store.</param>
+        /// <param name="convertFromProviderExpression">An expression to convert objects when reading data from the store.</param>
         /// <param name="convertsNulls">
         ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
         ///     values always remain null.
-        /// </param>
+        ///</param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         public ValueConverter(
             Expression<Func<TModel, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TModel>> convertFromProviderExpression,

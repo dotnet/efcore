@@ -34,8 +34,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="MaterializationContext" /> instance.
         /// </summary>
-        /// <param name="valueBuffer"> The <see cref="ValueBuffer" /> to use to materialize an entity. </param>
-        /// <param name="context"> The current <see cref="DbContext" /> instance being used. </param>
+        /// <param name="valueBuffer">The <see cref="ValueBuffer" /> to use to materialize an entity.</param>
+        /// <param name="context">The current <see cref="DbContext" /> instance being used.</param>
         public MaterializationContext(
             in ValueBuffer valueBuffer,
             DbContext context)

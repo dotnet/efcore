@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Initializes a new instance of the <see cref="DatabaseModelFactoryOptions" /> class.
         /// </summary>
-        /// <param name="tables"> A list of tables to include. Empty to include all tables. </param>
-        /// <param name="schemas"> A list of schemas to include. Empty to include all schemas. </param>
+        /// <param name="tables">A list of tables to include. Empty to include all tables.</param>
+        /// <param name="schemas">A list of schemas to include. Empty to include all schemas.</param>
         public DatabaseModelFactoryOptions(IEnumerable<string>? tables = null, IEnumerable<string>? schemas = null)
         {
             Tables = tables ?? Enumerable.Empty<string>();

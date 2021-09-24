@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="JoinExpressionBase" /> class.
         /// </summary>
-        /// <param name="table"> A table source to join with. </param>
+        /// <param name="table">A table source to join with.</param>
         protected JoinExpressionBase(TableExpressionBase table)
             : base(null)
         {

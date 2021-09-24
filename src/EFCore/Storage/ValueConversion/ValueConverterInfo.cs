@@ -23,13 +23,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="modelClrType"> The CLR type used in the EF model. </param>
-        /// <param name="providerClrType"> The CLR type used when reading and writing from the database provider. </param>
-        /// <param name="factory"> A factory to create the converter, if needed. </param>
+        /// <param name="modelClrType">The CLR type used in the EF model.</param>
+        /// <param name="providerClrType">The CLR type used when reading and writing from the database provider.</param>
+        /// <param name="factory">A factory to create the converter, if needed.</param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         public ValueConverterInfo(
             Type modelClrType,
             Type providerClrType,

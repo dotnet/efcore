@@ -20,10 +20,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteStringTypeMapping" /> class.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="storeType">The name of the database type.</param>
+        /// <param name="dbType">The <see cref="DbType" /> to be used.</param>
+        /// <param name="unicode">A value indicating whether the type should handle Unicode data or not.</param>
+        /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
         public SqliteStringTypeMapping(
             string storeType,
             DbType? dbType = null,
@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteStringTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
+        /// <param name="parameters">Parameter object for <see cref="RelationalTypeMapping" />.</param>
         protected SqliteStringTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
         {
@@ -45,8 +45,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="parameters"> The parameters for this mapping. </param>
-        /// <returns> The newly created mapping. </returns>
+        /// <param name="parameters">The parameters for this mapping.</param>
+        /// <returns>The newly created mapping.</returns>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => new SqliteStringTypeMapping(parameters);
 

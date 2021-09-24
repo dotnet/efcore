@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Called lazily by <see cref="Model" /> to build the model snapshot
         ///     the first time it is requested.
         /// </summary>
-        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
+        /// <param name="modelBuilder">The <see cref="ModelBuilder" /> to use to build the model.</param>
         protected abstract void BuildModel(ModelBuilder modelBuilder);
     }
 }

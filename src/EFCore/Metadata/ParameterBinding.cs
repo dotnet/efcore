@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="ParameterBinding" /> instance.
         /// </summary>
-        /// <param name="parameterType"> The parameter CLR type. </param>
-        /// <param name="consumedProperties"> The properties that are handled by this binding and so do not need to be set in some other way. </param>
+        /// <param name="parameterType">The parameter CLR type.</param>
+        /// <param name="consumedProperties">The properties that are handled by this binding and so do not need to be set in some other way.</param>
         protected ParameterBinding(
             Type parameterType,
             params IPropertyBase[]? consumedProperties)
@@ -46,15 +46,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates an expression tree representing the binding of the value of a property from a
         ///     materialization expression to a parameter of the constructor, factory method, etc.
         /// </summary>
-        /// <param name="bindingInfo"> The binding information. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="bindingInfo">The binding information.</param>
+        /// <returns>The expression tree.</returns>
         public abstract Expression BindToParameter(ParameterBindingInfo bindingInfo);
 
         /// <summary>
         ///     Creates a copy that contains the given consumed properties.
         /// </summary>
-        /// <param name="consumedProperties"> The new consumed properties. </param>
-        /// <returns> A copy with replaced consumed properties. </returns>
+        /// <param name="consumedProperties">The new consumed properties.</param>
+        /// <returns>A copy with replaced consumed properties.</returns>
         public abstract ParameterBinding With(IPropertyBase[] consumedProperties);
     }
 }

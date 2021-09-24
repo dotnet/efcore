@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new <see cref="QueryCompilationContext" />.
         /// </summary>
-        /// <param name="async"> Specifies whether the query is async. </param>
-        /// <returns> The created query compilation context. </returns>
+        /// <param name="async">Specifies whether the query is async.</param>
+        /// <returns>The created query compilation context.</returns>
         QueryCompilationContext Create(bool async);
     }
 }

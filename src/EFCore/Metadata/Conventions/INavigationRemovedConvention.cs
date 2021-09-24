@@ -17,11 +17,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a navigation is removed from the entity type.
         /// </summary>
-        /// <param name="sourceEntityTypeBuilder"> The builder for the entity type that contained the navigation. </param>
-        /// <param name="targetEntityTypeBuilder"> The builder for the target entity type of the navigation. </param>
-        /// <param name="navigationName"> The navigation name. </param>
-        /// <param name="memberInfo"> The member used for by the navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="sourceEntityTypeBuilder">The builder for the entity type that contained the navigation.</param>
+        /// <param name="targetEntityTypeBuilder">The builder for the target entity type of the navigation.</param>
+        /// <param name="navigationName">The navigation name.</param>
+        /// <param name="memberInfo">The member used for by the navigation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessNavigationRemoved(
             IConventionEntityTypeBuilder sourceEntityTypeBuilder,
             IConventionEntityTypeBuilder targetEntityTypeBuilder,

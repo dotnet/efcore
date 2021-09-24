@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
     /// </remarks>
-    /// <typeparam name="TAttribute"> The attribute type to look for. </typeparam>
+    /// <typeparam name="TAttribute">The attribute type to look for.</typeparam>
     public abstract class NavigationAttributeConventionBase<TAttribute> :
         IEntityTypeAddedConvention,
         IEntityTypeIgnoredConvention,
@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="NavigationAttributeConventionBase{TAttribute}" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         protected NavigationAttributeConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -304,10 +304,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns the attributes applied to the given navigation.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <typeparam name="TCustomAttribute"> The attribute type to look for. </typeparam>
-        /// <returns> The attributes applied to the given navigation. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="navigation">The navigation.</param>
+        /// <typeparam name="TCustomAttribute">The attribute type to look for.</typeparam>
+        /// <returns>The attributes applied to the given navigation.</returns>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
             IConventionEntityType entityType,
             IConventionNavigation navigation)
@@ -317,10 +317,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns the attributes applied to the given skip navigation.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="skipNavigation"> The skip navigation. </param>
-        /// <typeparam name="TCustomAttribute"> The attribute type to look for. </typeparam>
-        /// <returns> The attributes applied to the given skip navigation. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="skipNavigation">The skip navigation.</param>
+        /// <typeparam name="TCustomAttribute">The attribute type to look for.</typeparam>
+        /// <returns>The attributes applied to the given skip navigation.</returns>
         protected static IEnumerable<TCustomAttribute> GetAttributes<TCustomAttribute>(
             IConventionEntityType entityType,
             IConventionSkipNavigation skipNavigation)
@@ -345,11 +345,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called for every navigation property that has an attribute after an entity type is added to the model.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type</param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="navigationMemberInfo">The navigation member info.</param>
+        /// <param name="targetClrType">The CLR type of the target entity type</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeAdded(
             IConventionEntityTypeBuilder entityTypeBuilder,
             MemberInfo navigationMemberInfo,
@@ -361,12 +361,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called for every navigation property that has an attribute after an entity type is ignored.
         /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="type"> The ignored entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="modelBuilder">The builder for the model.</param>
+        /// <param name="type">The ignored entity type.</param>
+        /// <param name="navigationMemberInfo">The navigation member info.</param>
+        /// <param name="targetClrType">The CLR type of the target entity type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeIgnored(
             IConventionModelBuilder modelBuilder,
             Type type,
@@ -379,12 +379,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called for every navigation property that has an attribute after an entity type is removed.
         /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="entityType"> The ignored entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="modelBuilder">The builder for the model.</param>
+        /// <param name="entityType">The ignored entity type.</param>
+        /// <param name="navigationMemberInfo">The navigation member info.</param>
+        /// <param name="targetClrType">The CLR type of the target entity type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeRemoved(
             IConventionModelBuilder modelBuilder,
             IConventionEntityType entityType,
@@ -397,13 +397,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called for every navigation property that has an attribute after the base type for an entity type is changed.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="newBaseType"> The new base type. </param>
-        /// <param name="oldBaseType"> The old base type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="newBaseType">The new base type.</param>
+        /// <param name="oldBaseType">The old base type.</param>
+        /// <param name="navigationMemberInfo">The navigation member info.</param>
+        /// <param name="targetClrType">The CLR type of the target entity type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionEntityType? newBaseType,
@@ -417,9 +417,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a navigation property that has an attribute is added to an entity type.
         /// </summary>
-        /// <param name="navigationBuilder"> The builder for the navigation. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="navigationBuilder">The builder for the navigation.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             TAttribute attribute,
@@ -429,9 +429,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a skip navigation property that has an attribute is added to an entity type.
         /// </summary>
-        /// <param name="skipNavigationBuilder"> The builder for the navigation. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="skipNavigationBuilder">The builder for the navigation.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessSkipNavigationAdded(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
             TAttribute attribute,
@@ -441,11 +441,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a navigation property that has an attribute is ignored.
         /// </summary>
-        /// <param name="entityTypeBuilder"> The builder for the entity type. </param>
-        /// <param name="navigationMemberInfo"> The navigation member info. </param>
-        /// <param name="targetClrType"> The CLR type of the target entity type. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+        /// <param name="navigationMemberInfo">The navigation member info.</param>
+        /// <param name="targetClrType">The CLR type of the target entity type.</param>
+        /// <param name="attribute">The attribute.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder,
             MemberInfo navigationMemberInfo,
@@ -457,10 +457,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after the principal end of a foreign key is changed.
         /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the foreign key. </param>
-        /// <param name="dependentToPrincipalAttributes"> The attributes on the dependent to principal navigation. </param>
-        /// <param name="principalToDependentAttributes"> The attributes on the principal to dependent navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+        /// <param name="dependentToPrincipalAttributes">The attributes on the dependent to principal navigation.</param>
+        /// <param name="principalToDependentAttributes">The attributes on the principal to dependent navigation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessForeignKeyPrincipalEndChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IEnumerable<TAttribute>? dependentToPrincipalAttributes,

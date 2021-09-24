@@ -17,15 +17,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="elapsed"> The time elapsed since the command was sent to the database. </param>
-        /// <param name="requestCharge"> The request charge in RU. </param>
-        /// <param name="activityId"> The activity ID. </param>
-        /// <param name="resourceId"> The ID of the resource being read. </param>
-        /// <param name="containerId"> The ID of the Cosmos container being queried. </param>
-        /// <param name="partitionKey"> The key of the Cosmos partition that the query is using. </param>
-        /// <param name="logSensitiveData"> Indicates whether the application allows logging of sensitive data. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="elapsed">The time elapsed since the command was sent to the database.</param>
+        /// <param name="requestCharge">The request charge in RU.</param>
+        /// <param name="activityId">The activity ID.</param>
+        /// <param name="resourceId">The ID of the resource being read.</param>
+        /// <param name="containerId">The ID of the Cosmos container being queried.</param>
+        /// <param name="partitionKey">The key of the Cosmos partition that the query is using.</param>
+        /// <param name="logSensitiveData">Indicates whether the application allows logging of sensitive data.</param>
         public CosmosItemCommandExecutedEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

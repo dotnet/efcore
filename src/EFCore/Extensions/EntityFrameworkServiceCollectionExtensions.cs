@@ -40,8 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -57,10 +57,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
-        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
-        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
+        /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContext<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -89,9 +89,9 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
-        /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContextService">The class or interface that will be used to resolve the context from the container.</typeparam>
+        /// <typeparam name="TContextImplementation">The concrete implementation type to create.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -107,10 +107,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
-        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
-        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
+        /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -152,17 +152,17 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder> optionsAction,
@@ -199,18 +199,18 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
-        /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContextService">The class or interface that will be used to resolve the context from the container.</typeparam>
+        /// <typeparam name="TContextImplementation">The concrete implementation type to create.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder> optionsAction,
@@ -260,17 +260,17 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Entity Framework to create and maintain its own <see cref="IServiceProvider" /> for internal Entity Framework services.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
@@ -316,18 +316,18 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Entity Framework services.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
-        /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContextService">The class or interface that will be used to resolve the context from the container.</typeparam>
+        /// <typeparam name="TContextImplementation">The concrete implementation type to create.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
@@ -401,11 +401,11 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
-        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
-        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
+        /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
+        /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContext<TContext>(
             this IServiceCollection serviceCollection,
             ServiceLifetime contextLifetime,
@@ -433,12 +433,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         See <see href="https://aka.ms/efcore-docs-di">Using DbContext with dependency injection</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
-        /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
-        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
-        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        /// <typeparam name="TContextService">The class or interface that will be used to resolve the context from the container.</typeparam>
+        /// <typeparam name="TContextImplementation">The concrete implementation type to create.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
+        /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
+        /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             ServiceLifetime contextLifetime,
@@ -486,8 +486,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Entity Framework services.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -503,10 +503,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
-        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
-        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
+        /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContext<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
@@ -545,9 +545,9 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         Entity Framework services.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContextService"> The class or interface that will be used to resolve the context from the container. </typeparam>
-        /// <typeparam name="TContextImplementation"> The concrete implementation type to create. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContextService">The class or interface that will be used to resolve the context from the container.</typeparam>
+        /// <typeparam name="TContextImplementation">The concrete implementation type to create.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -563,10 +563,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
-        /// <param name="contextLifetime"> The lifetime with which to register the DbContext service in the container. </param>
-        /// <param name="optionsLifetime"> The lifetime with which to register the DbContextOptions service in the container. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
+        /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
@@ -644,8 +644,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of <see cref="DbContext" /> to be created by the factory.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -661,12 +661,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
+        ///</param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        /// </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -710,9 +710,9 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <typeparam name="TFactory"> The type of <see cref="IDbContextFactory{TContext}" /> to register. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of <see cref="DbContext" /> to be created by the factory.</typeparam>
+        /// <typeparam name="TFactory">The type of <see cref="IDbContextFactory{TContext}" /> to register.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -728,12 +728,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
+        ///</param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        /// </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder>? optionsAction = null,
@@ -787,8 +787,8 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of <see cref="DbContext" /> to be created by the factory.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -804,12 +804,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
+        ///</param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        /// </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
@@ -861,9 +861,9 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContext factories</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <typeparam name="TFactory"> The type of <see cref="IDbContextFactory{TContext}" /> to register. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of <see cref="DbContext" /> to be created by the factory.</typeparam>
+        /// <typeparam name="TFactory">The type of <see cref="IDbContextFactory{TContext}" /> to register.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         An optional action to configure the <see cref="DbContextOptions" /> for the context. This provides an
@@ -879,12 +879,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         In order for the options to be passed into your context, you need to expose a constructor on your context that takes
         ///         <see cref="DbContextOptions{TContext}" /> and passes it to the base constructor of <see cref="DbContext" />.
         ///     </para>
-        /// </param>
+        ///</param>
         /// <param name="lifetime">
         ///     The lifetime with which to register the factory and options.
         ///     The default is <see cref="ServiceLifetime.Singleton" />
-        /// </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
@@ -944,17 +944,17 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of <see cref="DbContext" /> to be created by the factory.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<DbContextOptionsBuilder> optionsAction,
@@ -995,17 +995,17 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TContext"> The type of <see cref="DbContext" /> to be created by the factory. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <typeparam name="TContext">The type of <see cref="DbContext" /> to be created by the factory.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="optionsAction">
         ///     <para>
         ///         A required action to configure the <see cref="DbContextOptions" /> for the context. When using
         ///         context pooling, options configuration must be performed externally; <see cref="DbContext.OnConfiguring" />
         ///         will not be called.
         ///     </para>
-        /// </param>
-        /// <param name="poolSize"> Sets the maximum number of instances retained by the pool. Defaults to 1024. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddPooledDbContextFactory<TContext>(
             this IServiceCollection serviceCollection,
             Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,

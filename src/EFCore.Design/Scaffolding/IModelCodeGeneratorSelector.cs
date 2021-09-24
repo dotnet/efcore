@@ -14,8 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Selects an <see cref="IModelCodeGenerator" /> service for a given programming language.
         /// </summary>
-        /// <param name="language"> The programming language. </param>
-        /// <returns> The <see cref="IModelCodeGenerator" />. </returns>
+        /// <param name="language">The programming language.</param>
+        /// <returns>The <see cref="IModelCodeGenerator" />.</returns>
         IModelCodeGenerator Select(string? language);
     }
 }

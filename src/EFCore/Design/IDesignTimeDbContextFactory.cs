@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Creates a new instance of a derived context.
         /// </summary>
-        /// <param name="args"> Arguments provided by the design-time service. </param>
-        /// <returns> An instance of <typeparamref name="TContext" />. </returns>
+        /// <param name="args">Arguments provided by the design-time service.</param>
+        /// <returns>An instance of <typeparamref name="TContext" />.</returns>
         TContext CreateDbContext(string[] args);
     }
 }

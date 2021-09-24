@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Builds and returns the convention set to use.
         /// </summary>
-        /// <returns> The convention set to use. </returns>
+        /// <returns>The convention set to use.</returns>
         ConventionSet CreateConventionSet();
     }
 }

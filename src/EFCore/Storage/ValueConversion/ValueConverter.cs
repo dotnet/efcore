@@ -30,16 +30,16 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     The expression to convert objects when writing data to the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        /// </param>
+        ///</param>
         /// <param name="convertFromProviderExpression">
         ///     The expression to convert objects when reading data from the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        /// </param>
+        ///</param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         protected ValueConverter(
             LambdaExpression convertToProviderExpression,
             LambdaExpression convertFromProviderExpression,
@@ -58,20 +58,20 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         ///     The expression to convert objects when writing data to the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        /// </param>
+        ///</param>
         /// <param name="convertFromProviderExpression">
         ///     The expression to convert objects when reading data from the store,
         ///     exactly as supplied and may not handle
         ///     nulls, boxing, and non-exact matches of simple types.
-        /// </param>
+        ///</param>
         /// <param name="convertsNulls">
         ///     If <see langword="true" />, then the nulls will be passed to the converter for conversion. Otherwise null
         ///     values always remain null.
-        /// </param>
+        ///</param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         protected ValueConverter(
             LambdaExpression convertToProviderExpression,
             LambdaExpression convertFromProviderExpression,
@@ -168,10 +168,10 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <summary>
         ///     Checks that the type used with a value converter is supported by that converter and throws if not.
         /// </summary>
-        /// <param name="type"> The type to check. </param>
-        /// <param name="converterType"> The value converter type. </param>
-        /// <param name="supportedTypes"> The types that are supported. </param>
-        /// <returns> The given type. </returns>
+        /// <param name="type">The type to check.</param>
+        /// <param name="converterType">The value converter type.</param>
+        /// <param name="supportedTypes">The types that are supported.</param>
+        /// <returns>The given type.</returns>
         protected static Type CheckTypeSupported(
             Type type,
             Type converterType,
@@ -200,8 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="secondConverter"> The second converter. </param>
-        /// <returns> The composed converter. </returns>
+        /// <param name="secondConverter">The second converter.</param>
+        /// <returns>The composed converter.</returns>
         public virtual ValueConverter ComposeWith(
             ValueConverter? secondConverter)
         {

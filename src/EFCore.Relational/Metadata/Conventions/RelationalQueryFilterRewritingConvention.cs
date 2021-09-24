@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalQueryFilterRewritingConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
         public RelationalQueryFilterRewritingConvention(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -64,7 +64,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
             /// <summary>
             ///     Creates a new instance of <see cref="RelationalDbSetAccessRewritingExpressionVisitor" />.
             /// </summary>
-            /// <param name="contextType"> The clr type of derived DbContext. </param>
+            /// <param name="contextType">The clr type of derived DbContext.</param>
             public RelationalDbSetAccessRewritingExpressionVisitor(Type contextType)
                 : base(contextType)
             {

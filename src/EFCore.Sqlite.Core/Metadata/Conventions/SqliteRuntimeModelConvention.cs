@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalModelConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
         public SqliteRuntimeModelConvention(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -33,10 +33,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the property annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="property"> The source property. </param>
-        /// <param name="runtimeProperty"> The target property that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="property">The source property.</param>
+        /// <param name="runtimeProperty">The target property that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessPropertyAnnotations(
             Dictionary<string, object?> annotations,
             IProperty property,

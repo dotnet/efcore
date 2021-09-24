@@ -74,8 +74,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="QueryCompilationContext" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
-        /// <param name="async"> A bool value indicating whether it is for async query. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
+        /// <param name="async">A bool value indicating whether it is for async query.</param>
         public QueryCompilationContext(
             QueryCompilationContextDependencies dependencies,
             bool async)
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Adds a tag to <see cref="Tags" />.
         /// </summary>
-        /// <param name="tag"> The tag to add. </param>
+        /// <param name="tag">The tag to add.</param>
         public virtual void AddTag(string tag)
         {
             Check.NotEmpty(tag, nameof(tag));
@@ -175,9 +175,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates the query executor func which gives results for this query.
         /// </summary>
-        /// <typeparam name="TResult"> The result type of this query. </typeparam>
-        /// <param name="query"> The query to generate executor for. </param>
-        /// <returns> Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query. </returns>
+        /// <typeparam name="TResult">The result type of this query.</typeparam>
+        /// <param name="query">The query to generate executor for.</param>
+        /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
         public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));

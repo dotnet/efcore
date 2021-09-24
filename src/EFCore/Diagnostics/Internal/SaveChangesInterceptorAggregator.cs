@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// <summary>
         ///     Must be implemented by the inheriting type to create a single interceptor from the given list.
         /// </summary>
-        /// <param name="interceptors"> The interceptors to combine. </param>
-        /// <returns> The combined interceptor. </returns>
+        /// <param name="interceptors">The interceptors to combine.</param>
+        /// <returns>The combined interceptor.</returns>
         protected override ISaveChangesInterceptor CreateChain(IEnumerable<ISaveChangesInterceptor> interceptors)
             => new CompositeSaveChangesInterceptor(interceptors);
 

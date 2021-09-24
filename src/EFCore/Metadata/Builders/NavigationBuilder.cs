@@ -58,9 +58,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     with the key specified in <paramref name="annotation" /> already exists
         ///     its value will be updated.
         /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="annotation">The key of the annotation to be added or updated.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual NavigationBuilder HasAnnotation(string annotation, object? value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
@@ -92,8 +92,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         entity type or model.
         ///     </para>
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" /> to use for this property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for this property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual NavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
         {
             if (InternalNavigationBuilder != null)
@@ -111,8 +111,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Sets a backing field to use for this navigation property.
         /// </summary>
-        /// <param name="fieldName"> The name of the field to use for this navigation property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="fieldName">The name of the field to use for this navigation property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual NavigationBuilder HasField(string? fieldName)
         {
             if (InternalNavigationBuilder != null)
@@ -130,8 +130,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures whether this navigation should be automatically included in a query.
         /// </summary>
-        /// <param name="autoInclude"> A value indicating if the navigation should be automatically included. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="autoInclude">A value indicating if the navigation should be automatically included.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual NavigationBuilder AutoInclude(bool autoInclude = true)
         {
             if (InternalNavigationBuilder != null)
@@ -149,8 +149,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures whether this navigation is required.
         /// </summary>
-        /// <param name="required"> A value indicating whether the navigation should be required. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="required">A value indicating whether the navigation should be required.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public virtual NavigationBuilder IsRequired(bool required = true)
         {
             if (InternalNavigationBuilder != null)
@@ -185,7 +185,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -193,8 +193,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object? obj)
@@ -203,7 +203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode()

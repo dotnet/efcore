@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets or sets the type mapping for this property.
         /// </summary>
-        /// <returns> The type mapping. </returns>
+        /// <returns>The type mapping.</returns>
         public virtual CoreTypeMapping TypeMapping
         {
             get => NonCapturingLazyInitializer.EnsureInitialized(
@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         public override string ToString()
             => ((IProperty)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 

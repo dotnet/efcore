@@ -40,7 +40,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorSelector" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -56,12 +56,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Selects the appropriate value generator for a given property.
         /// </summary>
-        /// <param name="property"> The property to get the value generator for. </param>
+        /// <param name="property">The property to get the value generator for.</param>
         /// <param name="entityType">
         ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
         ///     this entity type may be different from the declared entity type on <paramref name="property" />
-        /// </param>
-        /// <returns> The value generator to be used. </returns>
+        ///</param>
+        /// <returns>The value generator to be used.</returns>
         public virtual ValueGenerator Select(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));
@@ -106,12 +106,12 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Creates a new value generator for the given property.
         /// </summary>
-        /// <param name="property"> The property to get the value generator for. </param>
+        /// <param name="property">The property to get the value generator for.</param>
         /// <param name="entityType">
         ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
         ///     this entity type may be different from the declared entity type on <paramref name="property" />
-        /// </param>
-        /// <returns> The newly created value generator. </returns>
+        ///</param>
+        /// <returns>The newly created value generator.</returns>
         public virtual ValueGenerator Create(IProperty property, IEntityType entityType)
         {
             Check.NotNull(property, nameof(property));

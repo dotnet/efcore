@@ -19,15 +19,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
     ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
     ///     for more information.
     /// </remarks>
-    /// <typeparam name="TGeometry"> The geometry type. </typeparam>
-    /// <typeparam name="TProvider"> The native type of the database provider. </typeparam>
+    /// <typeparam name="TGeometry">The geometry type.</typeparam>
+    /// <typeparam name="TProvider">The native type of the database provider.</typeparam>
     public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : RelationalTypeMapping
     {
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalGeometryTypeMapping{TGeometry,TProvider}" /> class.
         /// </summary>
-        /// <param name="converter"> The converter to use when converting to and from database types. </param>
-        /// <param name="storeType"> The store type name. </param>
+        /// <param name="converter">The converter to use when converting to and from database types.</param>
+        /// <param name="storeType">The store type name.</param>
         protected RelationalGeometryTypeMapping(
             ValueConverter<TGeometry, TProvider>? converter,
             string storeType)
@@ -39,8 +39,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> The parameters for this mapping. </param>
-        /// <param name="converter"> The converter to use when converting to and from database types. </param>
+        /// <param name="parameters">The parameters for this mapping.</param>
+        /// <param name="converter">The converter to use when converting to and from database types.</param>
         protected RelationalGeometryTypeMapping(
             RelationalTypeMappingParameters parameters,
             ValueConverter<TGeometry, TProvider>? converter)
@@ -70,11 +70,11 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a <see cref="DbParameter" /> with the appropriate type information configured.
         /// </summary>
-        /// <param name="command"> The command the parameter should be created on. </param>
-        /// <param name="name"> The name of the parameter. </param>
-        /// <param name="value"> The value to be assigned to the parameter. </param>
-        /// <param name="nullable"> A value indicating whether the parameter should be a nullable type. </param>
-        /// <returns> The newly created parameter. </returns>
+        /// <param name="command">The command the parameter should be created on.</param>
+        /// <param name="name">The name of the parameter.</param>
+        /// <param name="value">The value to be assigned to the parameter.</param>
+        /// <param name="nullable">A value indicating whether the parameter should be a nullable type.</param>
+        /// <returns>The newly created parameter.</returns>
         public override DbParameter CreateParameter(DbCommand command, string name, object? value, bool? nullable = null)
         {
             var parameter = command.CreateParameter();
@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Gets a custom expression tree for the code to convert from the database value
         ///     to the model value.
         /// </summary>
-        /// <param name="expression"> The input expression, containing the database value. </param>
-        /// <returns> The expression with conversion added. </returns>
+        /// <param name="expression">The input expression, containing the database value.</param>
+        /// <returns>The expression with conversion added.</returns>
         public override Expression CustomizeDataReaderExpression(Expression expression)
         {
             if (SpatialConverter is null)
@@ -131,8 +131,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     Currently, only very basic expressions such as constructor calls and factory methods taking
         ///     simple constants are supported.
         /// </summary>
-        /// <param name="value"> The value for which a literal is needed. </param>
-        /// <returns> An expression tree that can be used to generate code for the literal value. </returns>
+        /// <param name="value">The value for which a literal is needed.</param>
+        /// <returns>An expression tree that can be used to generate code for the literal value.</returns>
         public override Expression GenerateCodeLiteral(object value)
             => Expression.Convert(
                 Expression.Call(
@@ -161,15 +161,15 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Returns the Well-Known-Text (WKT) representation of the given object.
         /// </summary>
-        /// <param name="value"> The 'Geometry' value. </param>
-        /// <returns> The WKT. </returns>
+        /// <param name="value">The 'Geometry' value.</param>
+        /// <returns>The WKT.</returns>
         protected abstract string AsText(object value);
 
         /// <summary>
         ///     Returns the SRID representation of the given object.
         /// </summary>
-        /// <param name="value"> The 'Geometry' value. </param>
-        /// <returns> The SRID. </returns>
+        /// <param name="value">The 'Geometry' value.</param>
+        /// <returns>The SRID.</returns>
         protected abstract int GetSrid(object value);
     }
 }

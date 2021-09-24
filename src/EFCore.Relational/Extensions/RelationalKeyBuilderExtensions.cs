@@ -22,9 +22,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
         /// </remarks>
-        /// <param name="keyBuilder"> The builder for the key being configured. </param>
-        /// <param name="name"> The name of the key. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="keyBuilder">The builder for the key being configured.</param>
+        /// <param name="name">The name of the key.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static KeyBuilder HasName(this KeyBuilder keyBuilder, string? name)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
@@ -41,9 +41,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
         /// </remarks>
-        /// <param name="keyBuilder"> The builder for the key being configured. </param>
-        /// <param name="name"> The name of the key. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="keyBuilder">The builder for the key being configured.</param>
+        /// <param name="name">The name of the key.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static KeyBuilder<TEntity> HasName<TEntity>(
             this KeyBuilder<TEntity> keyBuilder,
             string? name)
@@ -55,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
         /// </remarks>
-        /// <param name="keyBuilder"> The builder for the key being configured. </param>
-        /// <param name="name"> The name of the key. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="keyBuilder">The builder for the key being configured.</param>
+        /// <param name="name">The name of the key.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionKeyBuilder? HasName(
             this IConventionKeyBuilder keyBuilder,
             string? name,
@@ -82,10 +82,10 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-keys">Keys</see> for more information.
         /// </remarks>
-        /// <param name="keyBuilder"> The builder for the key being configured. </param>
-        /// <param name="name"> The name of the index. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given name can be set for the key constraint. </returns>
+        /// <param name="keyBuilder">The builder for the key being configured.</param>
+        /// <param name="name">The name of the index.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given name can be set for the key constraint.</returns>
         public static bool CanSetName(
             this IConventionKeyBuilder keyBuilder,
             string? name,

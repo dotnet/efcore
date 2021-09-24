@@ -111,7 +111,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Used by relational database providers to create a new <see cref="EntityFrameworkRelationalServicesBuilder" /> for
         ///     registration of provider services.
         /// </summary>
-        /// <param name="serviceCollection"> The collection to which services will be registered. </param>
+        /// <param name="serviceCollection">The collection to which services will be registered.</param>
         public EntityFrameworkRelationalServicesBuilder(IServiceCollection serviceCollection)
             : base(serviceCollection)
         {
@@ -120,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the <see cref="ServiceCharacteristics" /> for the given service type.
         /// </summary>
-        /// <param name="serviceType"> The type that defines the service API. </param>
-        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null" /> if it's not an EF service. </returns>
+        /// <param name="serviceType">The type that defines the service API.</param>
+        /// <returns>The <see cref="ServiceCharacteristics" /> for the type or <see langword="null" /> if it's not an EF service.</returns>
         protected override ServiceCharacteristics? TryGetServiceCharacteristics(Type serviceType)
             => RelationalServices.TryGetValue(serviceType, out var characteristics)
                 ? characteristics
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public override EntityFrameworkServicesBuilder TryAddCoreServices()
         {
             TryAdd<IParameterNameGeneratorFactory, ParameterNameGeneratorFactory>();

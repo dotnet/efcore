@@ -154,8 +154,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure
         /// <summary>
         ///     Clones this dependency parameter object with one service replaced.
         /// </summary>
-        /// <param name="currentContext"> A replacement for the current dependency of this type. </param>
-        /// <returns> A new parameter object with the given service replaced. </returns>
+        /// <param name="currentContext">A replacement for the current dependency of this type.</param>
+        /// <returns>A new parameter object with the given service replaced.</returns>
         public ProviderConventionSetBuilderDependencies With(ICurrentDbContext currentContext)
 #pragma warning disable CS0618 // Type or member is obsolete
             => new(

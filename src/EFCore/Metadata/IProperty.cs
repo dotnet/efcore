@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates an <see cref="IEqualityComparer{T}" /> for values of the given property type.
         /// </summary>
-        /// <typeparam name="TProperty"> The property type. </typeparam>
-        /// <returns> A new equality comparer. </returns>
+        /// <typeparam name="TProperty">The property type.</typeparam>
+        /// <returns>A new equality comparer.</returns>
         IEqualityComparer<TProperty> CreateKeyEqualityComparer<TProperty>()
         {
             var comparer = GetKeyValueComparer()!;
@@ -57,7 +57,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Finds the first principal property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
-        /// <returns> The first associated principal property, or <see langword="null" /> if none exists. </returns>
+        /// <returns>The first associated principal property, or <see langword="null" /> if none exists.</returns>
         new IProperty? FindFirstPrincipal()
             => (IProperty?)((IReadOnlyProperty)this).FindFirstPrincipal();
 
@@ -65,7 +65,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Finds the list of principal properties including the given property that the given property is constrained by
         ///     if the given property is part of a foreign key.
         /// </summary>
-        /// <returns> The list of all associated principal properties including the given property. </returns>
+        /// <returns>The list of all associated principal properties including the given property.</returns>
         new IReadOnlyList<IProperty> GetPrincipals()
             => ((IReadOnlyProperty)this).GetPrincipals().Cast<IProperty>().ToList();
 
@@ -75,7 +75,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The foreign keys that use this property.
-        /// </returns>
+        ///</returns>
         new IEnumerable<IForeignKey> GetContainingForeignKeys();
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The indexes that use this property.
-        /// </returns>
+        ///</returns>
         new IEnumerable<IIndex> GetContainingIndexes();
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The primary that use this property, or <see langword="null" /> if it is not part of the primary key.
-        /// </returns>
+        ///</returns>
         new IKey? FindContainingPrimaryKey()
             => (IKey?)((IReadOnlyProperty)this).FindContainingPrimaryKey();
 
@@ -103,20 +103,20 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>
         ///     The primary and alternate keys that use this property.
-        /// </returns>
+        ///</returns>
         new IEnumerable<IKey> GetContainingKeys();
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> for this property.
         /// </summary>
-        /// <returns> The comparer. </returns>
+        /// <returns>The comparer.</returns>
         [DebuggerStepThrough]
         new ValueComparer GetValueComparer();
 
         /// <summary>
         ///     Gets the <see cref="ValueComparer" /> to use with keys for this property.
         /// </summary>
-        /// <returns> The comparer. </returns>
+        /// <returns>The comparer.</returns>
         [DebuggerStepThrough]
         new ValueComparer GetKeyValueComparer();
     }

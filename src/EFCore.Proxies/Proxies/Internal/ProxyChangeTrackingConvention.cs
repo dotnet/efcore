@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal
         /// <summary>
         ///     Called after a model is finalized.
         /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="modelBuilder">The builder for the model.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         public virtual void ProcessModelInitialized(
             IConventionModelBuilder modelBuilder,
             IConventionContext<IConventionModelBuilder> context)

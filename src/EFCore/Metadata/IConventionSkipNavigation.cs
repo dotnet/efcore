@@ -25,7 +25,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this property.
         /// </summary>
-        /// <exception cref="InvalidOperationException"> If the skip navigation has been removed from the model. </exception>
+        /// <exception cref="InvalidOperationException">If the skip navigation has been removed from the model.</exception>
         new IConventionSkipNavigationBuilder Builder { get; }
 
         /// <summary>
@@ -69,15 +69,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="foreignKey">
         ///     The foreign key. Passing <see langword="null" /> will result in there being no foreign key associated.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The new foreign key. </returns>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The new foreign key.</returns>
         IConventionForeignKey? SetForeignKey(IConventionForeignKey? foreignKey, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="ForeignKey" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="ForeignKey" />. </returns>
+        /// <returns>The configuration source for <see cref="ForeignKey" />.</returns>
         ConfigurationSource? GetForeignKeyConfigurationSource();
 
         /// <summary>
@@ -94,15 +94,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="inverse">
         ///     The inverse skip navigation. Passing <see langword="null" /> will result in there being no inverse navigation property defined.
-        /// </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        ///</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         [DebuggerStepThrough]
         IConventionSkipNavigation? SetInverse(IConventionSkipNavigation? inverse, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="Inverse" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="Inverse" />. </returns>
+        /// <returns>The configuration source for <see cref="Inverse" />.</returns>
         ConfigurationSource? GetInverseConfigurationSource();
     }
 }

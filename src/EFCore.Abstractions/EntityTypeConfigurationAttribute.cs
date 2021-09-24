@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Initializes a new instance of the <see cref="EntityTypeConfigurationAttribute" /> class.
         /// </summary>
-        /// <param name="entityConfigurationType"> The IEntityTypeConfiguration&lt;&gt; type to use. </param>
+        /// <param name="entityConfigurationType">The IEntityTypeConfiguration&lt;&gt; type to use.</param>
         public EntityTypeConfigurationAttribute(Type entityConfigurationType)
         {
             Check.NotNull(entityConfigurationType, nameof(entityConfigurationType));

@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Adds or updates an annotation on the property. If an annotation with the key specified in
         ///     <paramref name="annotation" /> already exists its value will be updated.
         /// </summary>
-        /// <param name="annotation"> The key of the annotation to be added or updated. </param>
-        /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="annotation">The key of the annotation to be added or updated.</param>
+        /// <param name="value">The value to be stored in the annotation.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual TypeMappingConfigurationBuilder<TProperty> HasAnnotation(string annotation, object value)
             => (TypeMappingConfigurationBuilder<TProperty>)base.HasAnnotation(annotation, value);
 
@@ -48,17 +48,17 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the maximum length of data that can be stored in this property.
         ///     Maximum length can only be set on array properties (including <see cref="string" /> properties).
         /// </summary>
-        /// <param name="maxLength"> The maximum length of data allowed in the property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="maxLength">The maximum length of data allowed in the property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual TypeMappingConfigurationBuilder<TProperty> HasMaxLength(int maxLength)
             => (TypeMappingConfigurationBuilder<TProperty>)base.HasMaxLength(maxLength);
 
         /// <summary>
         ///     Configures the precision and scale of the property.
         /// </summary>
-        /// <param name="precision"> The precision of the property. </param>
-        /// <param name="scale"> The scale of the property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="precision">The precision of the property.</param>
+        /// <param name="scale">The scale of the property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual TypeMappingConfigurationBuilder<TProperty> HasPrecision(int precision, int scale)
             => (TypeMappingConfigurationBuilder<TProperty>)base.HasPrecision(precision, scale);
 
@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///         Configures the precision of the property.
         ///     </para>
         /// </summary>
-        /// <param name="precision"> The precision of the property. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="precision">The precision of the property.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual TypeMappingConfigurationBuilder<TProperty> HasPrecision(int precision)
             => (TypeMappingConfigurationBuilder<TProperty>)base.HasPrecision(precision);
 
@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property as capable of persisting unicode characters.
         ///     Can only be set on <see cref="string" /> properties.
         /// </summary>
-        /// <param name="unicode"> A value indicating whether the property can contain unicode characters. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="unicode">A value indicating whether the property can contain unicode characters.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual TypeMappingConfigurationBuilder<TProperty> IsUnicode(bool unicode = true)
             => (TypeMappingConfigurationBuilder<TProperty>)base.IsUnicode(unicode);
 
@@ -85,8 +85,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <typeparam name="TConversion"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </typeparam>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <typeparam name="TConversion">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</typeparam>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual TypeMappingConfigurationBuilder<TProperty> HasConversion<TConversion>()
             => (TypeMappingConfigurationBuilder<TProperty>)base.HasConversion<TConversion>();
 
@@ -94,8 +94,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         ///     Configures the property so that the property value is converted before
         ///     writing to the database and converted back when reading from the database.
         /// </summary>
-        /// <param name="conversionType"> The type to convert to and from or a type that derives from <see cref="ValueConverter" />. </param>
-        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
+        /// <param name="conversionType">The type to convert to and from or a type that derives from <see cref="ValueConverter" />.</param>
+        /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
         public new virtual TypeMappingConfigurationBuilder<TProperty> HasConversion(Type conversionType)
             => (TypeMappingConfigurationBuilder<TProperty>)base.HasConversion(conversionType);
     }

@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     ///     <see href="https://aka.ms/efcore-docs-changing-relationships">Changing foreign keys and navigations</see>,
     ///     and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information.
     /// </remarks>
-    /// <typeparam name="TEntity"> The type of the entity the property belongs to. </typeparam>
-    /// <typeparam name="TRelatedEntity"> The type of the property. </typeparam>
+    /// <typeparam name="TEntity">The type of the entity the property belongs to.</typeparam>
+    /// <typeparam name="TRelatedEntity">The type of the property.</typeparam>
     public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
         where TEntity : class
         where TRelatedEntity : class
@@ -107,7 +107,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to get the entry for. </param>
+        /// <param name="entity">The entity to get the entry for.</param>
         /// <value> An entry for an entity that this navigation targets. </value>
         public new virtual EntityEntry<TRelatedEntity>? FindEntry(object entity)
         {

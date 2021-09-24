@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="RelationalModelConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
         public SqlServerRuntimeModelConvention(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -34,10 +34,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the model annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="model"> The source model. </param>
-        /// <param name="runtimeModel"> The target model that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="model">The source model.</param>
+        /// <param name="runtimeModel">The target model that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessModelAnnotations(
             Dictionary<string, object?> annotations,
             IModel model,
@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the property annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="property"> The source property. </param>
-        /// <param name="runtimeProperty"> The target property that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="property">The source property.</param>
+        /// <param name="runtimeProperty">The target property that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessPropertyAnnotations(
             Dictionary<string, object?> annotations,
             IProperty property,
@@ -87,10 +87,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the index annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="index"> The source index. </param>
-        /// <param name="runtimeIndex"> The target index that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="index">The source index.</param>
+        /// <param name="runtimeIndex">The target index that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessIndexAnnotations(
             Dictionary<string, object?> annotations,
             IIndex index,
@@ -111,10 +111,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the key annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="key"> The source key. </param>
-        /// <param name="runtimeKey"> The target key that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="key">The source key.</param>
+        /// <param name="runtimeKey">The target key that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessKeyAnnotations(
             IDictionary<string, object?> annotations,
             IKey key,
@@ -132,10 +132,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Updates the entity type annotations that will be set on the read-only object.
         /// </summary>
-        /// <param name="annotations"> The annotations to be processed. </param>
-        /// <param name="entityType"> The source entity type. </param>
-        /// <param name="runtimeEntityType"> The target entity type that will contain the annotations. </param>
-        /// <param name="runtime"> Indicates whether the given annotations are runtime annotations. </param>
+        /// <param name="annotations">The annotations to be processed.</param>
+        /// <param name="entityType">The source entity type.</param>
+        /// <param name="runtimeEntityType">The target entity type that will contain the annotations.</param>
+        /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
         protected override void ProcessEntityTypeAnnotations(
             IDictionary<string, object?> annotations,
             IEntityType entityType,

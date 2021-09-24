@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqlServerCodeGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> The dependencies. </param>
+        /// <param name="dependencies">The dependencies.</param>
         public SqlServerCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {

@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a new <see cref="ConstructorBinding" /> instance.
         /// </summary>
-        /// <param name="constructor"> The constructor to use. </param>
-        /// <param name="parameterBindings"> The parameters to bind. </param>
+        /// <param name="constructor">The constructor to use.</param>
+        /// <param name="parameterBindings">The parameters to bind.</param>
         public ConstructorBinding(
             ConstructorInfo constructor,
             IReadOnlyList<ParameterBinding> parameterBindings)
@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Creates a <see cref="NewExpression" /> that represents creating an entity instance using the given
         ///     constructor.
         /// </summary>
-        /// <param name="bindingInfo"> Information needed to create the expression. </param>
-        /// <returns> The expression tree. </returns>
+        /// <param name="bindingInfo">Information needed to create the expression.</param>
+        /// <returns>The expression tree.</returns>
         public override Expression CreateConstructorExpression(ParameterBindingInfo bindingInfo)
             => Expression.New(
                 Constructor,
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Creates a copy that contains the given parameter bindings.
         /// </summary>
-        /// <param name="parameterBindings"> The new parameter bindings. </param>
-        /// <returns> A copy with replaced parameter bindings. </returns>
+        /// <param name="parameterBindings">The new parameter bindings.</param>
+        /// <returns>A copy with replaced parameter bindings.</returns>
         public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
             => new ConstructorBinding(Constructor, parameterBindings);
     }

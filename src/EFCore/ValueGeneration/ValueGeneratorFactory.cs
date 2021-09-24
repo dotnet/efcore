@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
         /// </remarks>
-        /// <param name="property"> The property to create the value generator for. </param>
-        /// <returns> The newly created value generator. </returns>
+        /// <param name="property">The property to create the value generator for.</param>
+        /// <returns>The newly created value generator.</returns>
         [Obsolete("Use the overload with most parameters")]
         public virtual ValueGenerator Create(IProperty property)
             => Create(property, property.DeclaringEntityType);
@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
         /// </remarks>
-        /// <param name="property"> The property to create the value generator for. </param>
-        /// <param name="entityType"> The entity type for which the value generator will be used. </param>
-        /// <returns> The newly created value generator. </returns>
+        /// <param name="property">The property to create the value generator for.</param>
+        /// <param name="entityType">The entity type for which the value generator will be used.</param>
+        /// <returns>The newly created value generator.</returns>
         public abstract ValueGenerator Create(IProperty property, IEntityType entityType);
     }
 }

@@ -22,8 +22,8 @@ namespace System.Transactions
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
-        /// <param name="transaction"> The transaction to be used. </param>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <param name="transaction">The transaction to be used.</param>
         public static void EnlistTransaction(this DatabaseFacade databaseFacade, Transaction? transaction)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));
@@ -44,8 +44,8 @@ namespace System.Transactions
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context.</param>
-        /// <returns> The currently enlisted transaction. </returns>
+        /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+        /// <returns>The currently enlisted transaction.</returns>
         public static Transaction? GetEnlistedTransaction(this DatabaseFacade databaseFacade)
         {
             Check.NotNull(databaseFacade, nameof(databaseFacade));

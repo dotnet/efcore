@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information.
     /// </remarks>
-    /// <typeparam name="TContext"> The type of context to be configured. </typeparam>
+    /// <typeparam name="TContext">The type of context to be configured.</typeparam>
     public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
         where TContext : DbContext
     {
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     Initializes a new instance of the <see cref="DbContextOptionsBuilder{TContext}" /> class to further configure
         ///     a given <see cref="DbContextOptions" />.
         /// </summary>
-        /// <param name="options"> The options to be configured. </param>
+        /// <param name="options">The options to be configured.</param>
         public DbContextOptionsBuilder(DbContextOptions<TContext> options)
             : base(options)
         {
@@ -61,8 +61,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
         ///     will not be run.
         /// </summary>
-        /// <param name="model"> The model to be used. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="model">The model to be used.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> UseModel(IModel model)
             => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
 
@@ -82,8 +82,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         should be configured directly in that service provider.
         ///     </para>
         /// </summary>
-        /// <param name="loggerFactory"> The logger factory to be used. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="loggerFactory">The logger factory to be used.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> UseLoggerFactory(ILoggerFactory? loggerFactory)
             => (DbContextOptionsBuilder<TContext>)base.UseLoggerFactory(loggerFactory);
 
@@ -105,12 +105,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="action"> Delegate called when there is a message to log. </param>
-        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="action">Delegate called when there is a message to log.</param>
+        /// <param name="minimumLevel">The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /></param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
             Action<string> action,
             LogLevel minimumLevel = LogLevel.Debug,
@@ -133,13 +133,13 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="action"> Delegate called when there is a message to log. </param>
-        /// <param name="events"> The <see cref="EventId" /> of each event to log. </param>
-        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="action">Delegate called when there is a message to log.</param>
+        /// <param name="events">The <see cref="EventId" /> of each event to log.</param>
+        /// <param name="minimumLevel">The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /></param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
             Action<string> action,
             IEnumerable<EventId> events,
@@ -163,13 +163,13 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="action"> Delegate called when there is a message to log. </param>
-        /// <param name="categories"> The <see cref="DbLoggerCategory" /> of each event to log. </param>
-        /// <param name="minimumLevel"> The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /> </param>
+        /// <param name="action">Delegate called when there is a message to log.</param>
+        /// <param name="categories">The <see cref="DbLoggerCategory" /> of each event to log.</param>
+        /// <param name="minimumLevel">The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /></param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
             Action<string> action,
             IEnumerable<string> categories,
@@ -191,12 +191,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
         ///     </para>
         /// </summary>
-        /// <param name="action"> Delegate called when there is a message to log. </param>
-        /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
+        /// <param name="action">Delegate called when there is a message to log.</param>
+        /// <param name="filter">Delegate that returns true to log the message or false to ignore it.</param>
         /// <param name="options">
         ///     Formatting options for log messages. Passing null (the default) means use <see cref="DbContextLoggerOptions.DefaultWithLocalTime" />
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
             Action<string> action,
             Func<EventId, LogLevel, bool> filter,
@@ -218,9 +218,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         overload to use a custom filter for events.
         ///     </para>
         /// </summary>
-        /// <param name="filter"> Delegate that returns true to log the message or false to ignore it. </param>
-        /// <param name="logger"> Delegate called when there is a message to log. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="filter">Delegate that returns true to log the message or false to ignore it.</param>
+        /// <param name="logger">Delegate called when there is a message to log.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         // Filter comes first, logger second, otherwise it's hard to get the correct overload to resolve
         public new virtual DbContextOptionsBuilder<TContext> LogTo(
             Func<EventId, LogLevel, bool> filter,
@@ -245,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         so that EF will manage the service providers and can create new instances as required.
         ///     </para>
         /// </summary>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableThreadSafetyChecks(bool checksEnabled = true)
             => (DbContextOptionsBuilder<TContext>)base.EnableThreadSafetyChecks(checksEnabled);
 
@@ -267,7 +267,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         so that EF will manage the service providers and can create new instances as required.
         ///     </para>
         /// </summary>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableDetailedErrors(bool detailedErrorsEnabled = true)
             => (DbContextOptionsBuilder<TContext>)base.EnableDetailedErrors(detailedErrorsEnabled);
 
@@ -286,8 +286,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         should be configured directly in that service provider.
         ///     </para>
         /// </summary>
-        /// <param name="memoryCache"> The memory cache to be used. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="memoryCache">The memory cache to be used.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> UseMemoryCache(IMemoryCache? memoryCache)
             => (DbContextOptionsBuilder<TContext>)base.UseMemoryCache(memoryCache);
 
@@ -308,8 +308,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         this context instance.
         ///     </para>
         /// </summary>
-        /// <param name="serviceProvider"> The service provider to be used. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="serviceProvider">The service provider to be used.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> UseInternalServiceProvider(IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseInternalServiceProvider(serviceProvider);
 
@@ -317,8 +317,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     Sets the <see cref="IServiceProvider" /> from which application services will be obtained. This
         ///     is done automatically when using 'AddDbContext', so it is rare that this method needs to be called.
         /// </summary>
-        /// <param name="serviceProvider"> The service provider to be used. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="serviceProvider">The service provider to be used.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> UseApplicationServiceProvider(IServiceProvider? serviceProvider)
             => (DbContextOptionsBuilder<TContext>)base.UseApplicationServiceProvider(serviceProvider);
 
@@ -336,7 +336,7 @@ namespace Microsoft.EntityFrameworkCore
         ///         so that EF will manage the service providers and can create new instances as required.
         ///     </para>
         /// </summary>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableSensitiveDataLogging(bool sensitiveDataLoggingEnabled = true)
             => (DbContextOptionsBuilder<TContext>)base.EnableSensitiveDataLogging(sensitiveDataLoggingEnabled);
 
@@ -351,8 +351,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
         ///     </para>
         /// </summary>
-        /// <param name="cacheServiceProvider"> If <see langword="true" />, then the internal service provider is cached. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="cacheServiceProvider">If <see langword="true" />, then the internal service provider is cached.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> EnableServiceProviderCaching(bool cacheServiceProvider = true)
             => (DbContextOptionsBuilder<TContext>)base.EnableServiceProviderCaching(cacheServiceProvider);
 
@@ -404,8 +404,8 @@ namespace Microsoft.EntityFrameworkCore
         /// </example>
         /// <param name="warningsConfigurationBuilderAction">
         ///     An action to configure the warning behavior.
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> ConfigureWarnings(
             Action<WarningsConfigurationBuilder> warningsConfigurationBuilderAction)
             => (DbContextOptionsBuilder<TContext>)base.ConfigureWarnings(warningsConfigurationBuilderAction);
@@ -425,9 +425,9 @@ namespace Microsoft.EntityFrameworkCore
         ///         The replacement service gets the same scope as the EF service that it is replacing.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TService"> The type (usually an interface) that defines the contract of the service to replace. </typeparam>
-        /// <typeparam name="TImplementation"> The new implementation type for the service. </typeparam>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TService">The type (usually an interface) that defines the contract of the service to replace.</typeparam>
+        /// <typeparam name="TImplementation">The new implementation type for the service.</typeparam>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TImplementation>()
             where TImplementation : TService
             => (DbContextOptionsBuilder<TContext>)base.ReplaceService<TService, TImplementation>();
@@ -451,10 +451,10 @@ namespace Microsoft.EntityFrameworkCore
         ///         The replacement service gets the same scope as the EF service that it is replacing.
         ///     </para>
         /// </summary>
-        /// <typeparam name="TService"> The type (usually an interface) that defines the contract of the service to replace. </typeparam>
-        /// <typeparam name="TCurrentImplementation"> The current implementation type for the service. </typeparam>
-        /// <typeparam name="TNewImplementation"> The new implementation type for the service. </typeparam>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TService">The type (usually an interface) that defines the contract of the service to replace.</typeparam>
+        /// <typeparam name="TCurrentImplementation">The current implementation type for the service.</typeparam>
+        /// <typeparam name="TNewImplementation">The new implementation type for the service.</typeparam>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> ReplaceService<TService, TCurrentImplementation, TNewImplementation>()
             where TCurrentImplementation : TService
             where TNewImplementation : TService
@@ -483,8 +483,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
         ///     </para>
         /// </summary>
-        /// <param name="interceptors"> The interceptors to add. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="interceptors">The interceptors to add.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> AddInterceptors(IEnumerable<IInterceptor> interceptors)
             => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
 
@@ -507,8 +507,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
         ///     </para>
         /// </summary>
-        /// <param name="interceptors"> The interceptors to add. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="interceptors">The interceptors to add.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> AddInterceptors(params IInterceptor[] interceptors)
             => (DbContextOptionsBuilder<TContext>)base.AddInterceptors(interceptors);
 
@@ -522,8 +522,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         Defaults to one second.
         ///     </para>
         /// </summary>
-        /// <param name="timeSpan"> The maximum time period over which to skip logging checks before checking again. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="timeSpan">The maximum time period over which to skip logging checks before checking again.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public new virtual DbContextOptionsBuilder<TContext> ConfigureLoggingCacheTime(TimeSpan timeSpan)
             => (DbContextOptionsBuilder<TContext>)base.ConfigureLoggingCacheTime(timeSpan);
     }

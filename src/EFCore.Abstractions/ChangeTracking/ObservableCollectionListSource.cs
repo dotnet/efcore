@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information.
     /// </remarks>
-    /// <typeparam name="T"> The type of elements in the collection. </typeparam>
+    /// <typeparam name="T">The type of elements in the collection.</typeparam>
     public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListSource
         where T : class
     {
@@ -41,7 +41,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Initializes a new instance of the <see cref="ObservableCollectionListSource{T}" /> class that
         ///     contains elements copied from the specified collection.
         /// </summary>
-        /// <param name="collection"> The collection from which the elements are copied. </param>
+        /// <param name="collection">The collection from which the elements are copied.</param>
         public ObservableCollectionListSource(IEnumerable<T> collection)
             : base(collection)
         {
@@ -51,7 +51,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Initializes a new instance of the <see cref="ObservableCollectionListSource{T}" /> class that
         ///     contains elements copied from the specified list.
         /// </summary>
-        /// <param name="list"> The list from which the elements are copied. </param>
+        /// <param name="list">The list from which the elements are copied.</param>
         public ObservableCollectionListSource(List<T> list)
             : base(list)
         {
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// </summary>
         /// <returns>
         ///     An <see cref="IBindingList" /> in sync with the ObservableCollection.
-        /// </returns>
+        ///</returns>
         IList IListSource.GetList()
             => _bindingList ??= this.ToBindingList();
     }

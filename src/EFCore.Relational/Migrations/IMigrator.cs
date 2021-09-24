@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </remarks>
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
-        /// </param>
+        ///</param>
         void Migrate(string? targetMigration = null);
 
         /// <summary>
@@ -46,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </remarks>
         /// <param name="targetMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
-        /// </param>
+        ///</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A task that represents the asynchronous operation </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>A task that represents the asynchronous operation</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task MigrateAsync(
             string? targetMigration = null,
             CancellationToken cancellationToken = default);
@@ -63,14 +63,14 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// </remarks>
         /// <param name="fromMigration">
         ///     The migration to start from, or <see langword="null" /> to start from the empty database.
-        /// </param>
+        ///</param>
         /// <param name="toMigration">
         ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
-        /// </param>
+        ///</param>
         /// <param name="options">
         ///     The options to use when generating SQL for migrations.
-        /// </param>
-        /// <returns> The generated script. </returns>
+        ///</param>
+        /// <returns>The generated script.</returns>
         string GenerateScript(
             string? fromMigration = null,
             string? toMigration = null,

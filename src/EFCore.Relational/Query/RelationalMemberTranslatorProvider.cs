@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalMemberTranslatorProvider" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this class. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this class.</param>
         public RelationalMemberTranslatorProvider(RelationalMemberTranslatorProviderDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -70,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Adds additional translators which will take priority over existing registered translators.
         /// </summary>
-        /// <param name="translators"> Translators to add. </param>
+        /// <param name="translators">Translators to add.</param>
         protected virtual void AddTranslators(IEnumerable<IMemberTranslator> translators)
         {
             Check.NotNull(translators, nameof(translators));

@@ -169,7 +169,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
         ///     </para>
         /// </summary>
-        /// <returns> An entry for each entity being tracked. </returns>
+        /// <returns>An entry for each entity being tracked.</returns>
         public virtual IEnumerable<EntityEntry> Entries()
         {
             TryDetectChanges();
@@ -181,8 +181,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///     Gets an <see cref="EntityEntry" /> for all entities of a given type being tracked by the context.
         ///     The entries provide access to change tracking information and operations for each entity.
         /// </summary>
-        /// <typeparam name="TEntity"> The type of entities to get entries for. </typeparam>
-        /// <returns> An entry for each entity of the given type that is being tracked. </returns>
+        /// <typeparam name="TEntity">The type of entities to get entries for.</typeparam>
+        /// <returns>An entry for each entity of the given type that is being tracked.</returns>
         public virtual IEnumerable<EntityEntry<TEntity>> Entries<TEntity>()
             where TEntity : class
         {
@@ -212,7 +212,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         <see cref="AutoDetectChangesEnabled" /> has been set to <see langword="false" />.
         ///     </para>
         /// </summary>
-        /// <returns> <see langword="true" /> if there are changes to save, otherwise <see langword="false" />. </returns>
+        /// <returns><see langword="true" /> if there are changes to save, otherwise <see langword="false" />.</returns>
         public virtual bool HasChanges()
         {
             TryDetectChanges();
@@ -267,11 +267,11 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         navigation properties are not traversed).
         ///     </para>
         /// </summary>
-        /// <param name="rootEntity"> The entity to begin traversal from. </param>
+        /// <param name="rootEntity">The entity to begin traversal from.</param>
         /// <param name="callback">
         ///     An action to configure the change tracking information for each entity. For the entity to begin being tracked,
         ///     the <see cref="EntityEntry.State" /> must be set.
-        /// </param>
+        ///</param>
         public virtual void TrackGraph(
             object rootEntity,
             Action<EntityEntryGraphNode> callback)
@@ -313,14 +313,14 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         ///         traversal will not enter an infinite loop.
         ///     </para>
         /// </summary>
-        /// <param name="rootEntity"> The entity to begin traversal from. </param>
-        /// <param name="state"> An arbitrary state object passed to the callback. </param>
+        /// <param name="rootEntity">The entity to begin traversal from.</param>
+        /// <param name="state">An arbitrary state object passed to the callback.</param>
         /// <param name="callback">
         ///     An delegate to configure the change tracking information for each entity. The second parameter to the
         ///     callback is the arbitrary state object passed above. Iteration of the graph will not continue down the graph
         ///     if the callback returns <see langword="false" />.
-        /// </param>
-        /// <typeparam name="TState"> The type of the state object. </typeparam>
+        ///</param>
+        /// <typeparam name="TState">The type of the state object.</typeparam>
         public virtual void TrackGraph<TState>(
             object rootEntity,
             TState? state,
@@ -464,7 +464,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -472,8 +472,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -481,7 +481,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

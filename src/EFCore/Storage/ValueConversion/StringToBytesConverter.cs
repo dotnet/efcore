@@ -19,11 +19,11 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="encoding"> The string encoding to use. </param>
+        /// <param name="encoding">The string encoding to use.</param>
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         public StringToBytesConverter(
             Encoding encoding,
             ConverterMappingHints? mappingHints = null)

@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelationalTransactionFactory" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public SqlServerTransactionFactory(RelationalTransactionFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));

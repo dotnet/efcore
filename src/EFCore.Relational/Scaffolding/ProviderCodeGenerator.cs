@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Initializes a new instance of the <see cref="ProviderCodeGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> The dependencies. </param>
+        /// <param name="dependencies">The dependencies.</param>
         protected ProviderCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
             => Dependencies = Check.NotNull(dependencies, nameof(dependencies));
 
@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Generates a method chain used to configure provider-specific options.
         /// </summary>
-        /// <returns> The method chain. May be null. </returns>
+        /// <returns>The method chain. May be null.</returns>
         public virtual MethodCallCodeFragment? GenerateProviderOptions()
         {
             MethodCallCodeFragment? providerOptions = null;
@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         ///     Generates a code fragment like <c>.UseSqlServer("Database=Foo")</c> which can be used in
         ///     the <see cref="DbContext.OnConfiguring" /> method of the generated DbContext.
         /// </summary>
-        /// <param name="connectionString"> The connection string to include in the code fragment. </param>
-        /// <param name="providerOptions"> The method chain used to configure provider options. </param>
-        /// <returns> The code fragment. </returns>
+        /// <param name="connectionString">The connection string to include in the code fragment.</param>
+        /// <param name="providerOptions">The method chain used to configure provider options.</param>
+        /// <returns>The code fragment.</returns>
         public abstract MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
             MethodCallCodeFragment? providerOptions);
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Generates a method chain to configure additional context options.
         /// </summary>
-        /// <returns> The method chain. May be null. </returns>
+        /// <returns>The method chain. May be null.</returns>
         public virtual MethodCallCodeFragment? GenerateContextOptions()
         {
             MethodCallCodeFragment? contextOptions = null;

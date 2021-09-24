@@ -62,7 +62,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="TypedRelationalValueBufferFactoryFactory" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public TypedRelationalValueBufferFactoryFactory(RelationalValueBufferFactoryDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -106,8 +106,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="IRelationalValueBufferFactory" />.
         /// </summary>
-        /// <param name="types"> Types and mapping for the values to be read. </param>
-        /// <returns> The newly created <see cref="IRelationalValueBufferFactoryFactory" />. </returns>
+        /// <param name="types">Types and mapping for the values to be read.</param>
+        /// <returns>The newly created <see cref="IRelationalValueBufferFactoryFactory" />.</returns>
         public virtual IRelationalValueBufferFactory Create(IReadOnlyList<TypeMaterializationInfo> types)
         {
             Check.NotNull(types, nameof(types));
@@ -122,8 +122,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates value buffer assignment expressions for the given type information.
         /// </summary>
-        /// <param name="types"> Types and mapping for the values to be read. </param>
-        /// <returns> The value buffer assignment expressions. </returns>
+        /// <param name="types">Types and mapping for the values to be read.</param>
+        /// <returns>The value buffer assignment expressions.</returns>
         [Obsolete]
         public virtual IReadOnlyList<Expression> CreateAssignmentExpressions(IReadOnlyList<TypeMaterializationInfo> types)
             => Check.NotNull(types, nameof(types))

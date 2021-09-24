@@ -33,9 +33,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="clustered"> A value indicating whether the index is clustered. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="clustered">A value indicating whether the index is clustered.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder IsClustered(this IndexBuilder indexBuilder, bool clustered = true)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
@@ -53,9 +53,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="clustered"> A value indicating whether the index is clustered. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="clustered">A value indicating whether the index is clustered.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> IsClustered<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
             bool clustered = true)
@@ -69,13 +69,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="clustered"> A value indicating whether the index is clustered. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="clustered">A value indicating whether the index is clustered.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionIndexBuilder? IsClustered(
             this IConventionIndexBuilder indexBuilder,
             bool? clustered,
@@ -98,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="clustered"> A value indicating whether the index is clustered. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the index can be configured as clustered. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="clustered">A value indicating whether the index is clustered.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the index can be configured as clustered.</returns>
         public static bool CanSetIsClustered(
             this IConventionIndexBuilder indexBuilder,
             bool? clustered,
@@ -120,9 +120,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="propertyNames"> An array of property names to be used in 'include' clause. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder IncludeProperties(this IndexBuilder indexBuilder, params string[] propertyNames)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
@@ -141,9 +141,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="propertyNames"> An array of property names to be used in 'include' clause. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> IncludeProperties<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
             params string[] propertyNames)
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
         /// <param name="includeExpression">
         ///     <para>
         ///         A lambda expression representing the property(s) to be included in the 'include' clause
@@ -174,8 +174,8 @@ namespace Microsoft.EntityFrameworkCore
         ///         If multiple properties are to be included then specify an anonymous type including the
         ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
-        /// </param>
-        /// <returns> A builder to further configure the index. </returns>
+        ///</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> IncludeProperties<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
             Expression<Func<TEntity, object?>> includeExpression)
@@ -198,13 +198,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="propertyNames"> An array of property names to be used in 'include' clause. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionIndexBuilder? IncludeProperties(
             this IConventionIndexBuilder indexBuilder,
             IReadOnlyList<string>? propertyNames,
@@ -228,10 +228,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="propertyNames"> An array of property names to be used in 'include' clause. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given include properties can be set. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="propertyNames">An array of property names to be used in 'include' clause.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given include properties can be set.</returns>
         public static bool CanSetIncludeProperties(
             this IConventionIndexBuilder indexBuilder,
             IReadOnlyList<string>? propertyNames,
@@ -254,9 +254,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="createdOnline"> A value indicating whether the index is created with online option. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder IsCreatedOnline(this IndexBuilder indexBuilder, bool createdOnline = true)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
@@ -274,9 +274,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="createdOnline"> A value indicating whether the index is created with online option. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> IsCreatedOnline<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
             bool createdOnline = true)
@@ -290,13 +290,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="createdOnline"> A value indicating whether the index is created with online option. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionIndexBuilder? IsCreatedOnline(
             this IConventionIndexBuilder indexBuilder,
             bool? createdOnline,
@@ -320,14 +320,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="createdOnline"> A value indicating whether the index is created with online option. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="createdOnline">A value indicating whether the index is created with online option.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
-        /// <returns> <see langword="true" /> if the index can be configured with online option when targeting SQL Server. </returns>
+        ///</returns>
+        /// <returns><see langword="true" /> if the index can be configured with online option when targeting SQL Server.</returns>
         public static bool CanSetIsCreatedOnline(
             this IConventionIndexBuilder indexBuilder,
             bool? createdOnline,
@@ -346,9 +346,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder HasFillFactor(this IndexBuilder indexBuilder, int fillFactor)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
@@ -366,9 +366,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
-        /// <returns> A builder to further configure the index. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>
+        /// <returns>A builder to further configure the index.</returns>
         public static IndexBuilder<TEntity> HasFillFactor<TEntity>(
             this IndexBuilder<TEntity> indexBuilder,
             int fillFactor)
@@ -382,13 +382,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionIndexBuilder? HasFillFactor(
             this IConventionIndexBuilder indexBuilder,
             int? fillFactor,
@@ -412,10 +412,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="indexBuilder"> The builder for the index being configured. </param>
-        /// <param name="fillFactor"> A value indicating whether the index is created with fill factor option. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the index can be configured with fill factor option when targeting SQL Server. </returns>
+        /// <param name="indexBuilder">The builder for the index being configured.</param>
+        /// <param name="fillFactor">A value indicating whether the index is created with fill factor option.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the index can be configured with fill factor option when targeting SQL Server.</returns>
         public static bool CanSetFillFactor(
             this IConventionIndexBuilder indexBuilder,
             int? fillFactor,

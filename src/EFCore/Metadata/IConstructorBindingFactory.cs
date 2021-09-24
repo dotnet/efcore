@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
         ///     the constructor with only service property parameters.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
-        /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="constructorBinding">The binding for the constructor with most parameters.</param>
+        /// <param name="serviceOnlyBinding">The binding for the constructor with only service property parameters.</param>
         void GetBindings(
             IConventionEntityType entityType,
             out InstantiationBinding constructorBinding,
@@ -40,9 +40,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
         ///     the constructor with only service property parameters.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
-        /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="constructorBinding">The binding for the constructor with most parameters.</param>
+        /// <param name="serviceOnlyBinding">The binding for the constructor with only service property parameters.</param>
         void GetBindings(
             IMutableEntityType entityType,
             out InstantiationBinding constructorBinding,
@@ -52,9 +52,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
         ///     the constructor with only service property parameters.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="constructorBinding"> The binding for the constructor with most parameters. </param>
-        /// <param name="serviceOnlyBinding"> The binding for the constructor with only service property parameters. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="constructorBinding">The binding for the constructor with most parameters.</param>
+        /// <param name="serviceOnlyBinding">The binding for the constructor with only service property parameters.</param>
         void GetBindings(
             IReadOnlyEntityType entityType,
             out InstantiationBinding constructorBinding,
@@ -64,11 +64,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
         ///     <see cref="ConstructorInfo" />
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="constructor"> The constructor to use. </param>
-        /// <param name="binding"> The binding, or <see langword="null" /> if <see langword="null" /> could be created. </param>
-        /// <param name="unboundParameters"> The parameters that could not be bound. </param>
-        /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="constructor">The constructor to use.</param>
+        /// <param name="binding">The binding, or <see langword="null" /> if <see langword="null" /> could be created.</param>
+        /// <param name="unboundParameters">The parameters that could not be bound.</param>
+        /// <returns><see langword="true" /> if a binding was created; <see langword="false" /> otherwise.</returns>
         bool TryBindConstructor(
             IConventionEntityType entityType,
             ConstructorInfo constructor,
@@ -79,11 +79,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
         ///     <see cref="ConstructorInfo" />
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="constructor"> The constructor to use. </param>
-        /// <param name="binding"> The binding, or <see langword="null" /> if <see langword="null" /> could be created. </param>
-        /// <param name="unboundParameters"> The parameters that could not be bound. </param>
-        /// <returns> <see langword="true" /> if a binding was created; <see langword="false" /> otherwise. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="constructor">The constructor to use.</param>
+        /// <param name="binding">The binding, or <see langword="null" /> if <see langword="null" /> could be created.</param>
+        /// <param name="unboundParameters">The parameters that could not be bound.</param>
+        /// <returns><see langword="true" /> if a binding was created; <see langword="false" /> otherwise.</returns>
         bool TryBindConstructor(
             IMutableEntityType entityType,
             ConstructorInfo constructor,

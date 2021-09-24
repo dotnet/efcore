@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public SqlServerAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
             : base(dependencies)
         {

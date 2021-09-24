@@ -29,8 +29,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="dependencies"> The dependencies to use. </param>
-        /// <param name="relationalDependencies"> The relational-specific dependencies to use. </param>
+        /// <param name="dependencies">The dependencies to use.</param>
+        /// <param name="relationalDependencies">The relational-specific dependencies to use.</param>
         public RelationalEvaluatableExpressionFilter(
             EvaluatableExpressionFilterDependencies dependencies,
             RelationalEvaluatableExpressionFilterDependencies relationalDependencies)
@@ -49,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Checks whether the given expression can be evaluated.
         /// </summary>
-        /// <param name="expression"> The expression. </param>
-        /// <param name="model"> The model. </param>
-        /// <returns> <see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise. </returns>
+        /// <param name="expression">The expression.</param>
+        /// <param name="model">The model.</param>
+        /// <returns><see langword="true" /> if the expression can be evaluated; <see langword="false" /> otherwise.</returns>
         public override bool IsEvaluatableExpression(Expression expression, IModel model)
         {
             Check.NotNull(expression, nameof(expression));

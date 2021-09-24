@@ -1125,7 +1125,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, and
         ///     millisecond.
-        /// </returns>
+        ///</returns>
         public static DateTime DateTimeFromParts(
             this DbFunctions _,
             int year,
@@ -1180,7 +1180,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     New instance of the <see cref="DateTime" /> structure to the specified year, month, day, hour, minute, second, fractions,
         ///     and precision.
-        /// </returns>
+        ///</returns>
         public static DateTime DateTime2FromParts(
             this DbFunctions _,
             int year,
@@ -1222,7 +1222,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <returns>
         ///     New instance of the <see cref="DateTimeOffset" /> structure to the specified year, month, day, hour, minute, second,
         ///     fractions, hourOffset, minuteOffset and precision.
-        /// </returns>
+        ///</returns>
         public static DateTimeOffset DateTimeOffsetFromParts(
             this DbFunctions _,
             int year,
@@ -1279,7 +1279,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="precision">The precision of the time value (0 through 7).</param>
         /// <returns>
         ///     New instance of the <see cref="TimeSpan" /> structure to the specified hour, minute, second, fractions, and precision.
-        /// </returns>
+        ///</returns>
         public static TimeSpan TimeFromParts(
             this DbFunctions _,
             int hour,

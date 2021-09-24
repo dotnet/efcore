@@ -20,15 +20,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
         /// <param name="exceptionsEncountered">
         ///     The exceptions that have been caught during the execution of an operation.
-        /// </param>
-        /// <param name="delay"> The delay before retrying the operation. </param>
+        ///</param>
+        /// <param name="delay">The delay before retrying the operation.</param>
         /// <param name="async">
         ///     Indicates whether or not the command was executed asynchronously.
-        /// </param>
+        ///</param>
         public ExecutionStrategyEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

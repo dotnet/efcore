@@ -32,8 +32,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <param name="entry"> The change tracking entry of the entity for which the value is being generated. </param>
-        /// <returns> The value to be assigned to a property. </returns>
+        /// <param name="entry">The change tracking entry of the entity for which the value is being generated.</param>
+        /// <returns>The value to be assigned to a property.</returns>
         public override Guid Next(EntityEntry entry)
         {
             var guidBytes = Guid.NewGuid().ToByteArray();

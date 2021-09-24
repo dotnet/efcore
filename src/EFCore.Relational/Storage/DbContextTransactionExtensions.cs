@@ -24,8 +24,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="dbContextTransaction"> The transaction to get the <see cref="DbTransaction" /> from. </param>
-        /// <returns> The underlying <see cref="DbTransaction" />. </returns>
+        /// <param name="dbContextTransaction">The transaction to get the <see cref="DbTransaction" /> from.</param>
+        /// <returns>The underlying <see cref="DbTransaction" />.</returns>
         public static DbTransaction GetDbTransaction(this IDbContextTransaction dbContextTransaction)
         {
             Check.NotNull(dbContextTransaction, nameof(dbContextTransaction));

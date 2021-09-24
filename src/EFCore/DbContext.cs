@@ -326,8 +326,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> and
         ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
-        /// <returns> A set for the given entity type. </returns>
+        /// <typeparam name="TEntity">The type of entity for which a set should be returned.</typeparam>
+        /// <returns>A set for the given entity type.</returns>
         public virtual DbSet<TEntity> Set<TEntity>()
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, typeof(TEntity));
@@ -346,9 +346,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     <see href="https://aka.ms/efcore-docs-change-tracking">Changing tracking</see>, and
         ///     <see href="https://aka.ms/efcore-docs-shared-types">Shared entity types</see>  for more information.
         /// </remarks>
-        /// <param name="name"> The name for the shared-type entity type to use. </param>
-        /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
-        /// <returns> A set for the given entity type. </returns>
+        /// <param name="name">The name for the shared-type entity type to use.</param>
+        /// <typeparam name="TEntity">The type of entity for which a set should be returned.</typeparam>
+        /// <returns>A set for the given entity type.</returns>
         public virtual DbSet<TEntity> Set<TEntity>(string name)
             where TEntity : class
             => (DbSet<TEntity>)((IDbSetCache)this).GetOrAddSet(DbContextDependencies.SetSource, name, typeof(TEntity));
@@ -480,7 +480,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.
-        /// </param>
+        ///</param>
         protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
@@ -498,7 +498,7 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <param name="configurationBuilder">
         ///     The builder being used to set defaults and configure conventions that will be used to build the model for this context.
-        /// </param>
+        ///</param>
         protected internal virtual void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
         }
@@ -521,7 +521,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     The builder being used to construct the model for this context. Databases (and other extensions) typically
         ///     define extension methods on this object that allow you to configure aspects of the model that are specific
         ///     to a given database.
-        /// </param>
+        ///</param>
         protected internal virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
@@ -547,15 +547,15 @@ namespace Microsoft.EntityFrameworkCore
         /// </remarks>
         /// <returns>
         ///     The number of state entries written to the database.
-        /// </returns>
+        ///</returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        /// </exception>
+        ///</exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        /// </exception>
+        ///</exception>
         public virtual int SaveChanges()
             => SaveChanges(acceptAllChangesOnSuccess: true);
 
@@ -581,18 +581,18 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
         ///     been sent successfully to the database.
-        /// </param>
+        ///</param>
         /// <returns>
         ///     The number of state entries written to the database.
-        /// </returns>
+        ///</returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        /// </exception>
+        ///</exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        /// </exception>
+        ///</exception>
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             CheckDisposed();
@@ -670,20 +670,20 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     Ssee <see href="https://aka.ms/efcore-docs-saving-data">Saving data in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
-        /// </returns>
+        ///</returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        /// </exception>
+        ///</exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
@@ -709,21 +709,21 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracker.AcceptAllChanges" /> is called after the changes have
         ///     been sent successfully to the database.
-        /// </param>
-        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        ///</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
         ///     number of state entries written to the database.
-        /// </returns>
+        ///</returns>
         /// <exception cref="DbUpdateException">
         ///     An error is encountered while saving to the database.
-        /// </exception>
+        ///</exception>
         /// <exception cref="DbUpdateConcurrencyException">
         ///     A concurrency violation is encountered while saving to the database.
         ///     A concurrency violation occurs when an unexpected number of rows are affected during save.
         ///     This is usually because the data in the database has been modified since it was loaded into memory.
-        /// </exception>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default)
@@ -1034,9 +1034,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-        /// <param name="entity"> The entity to get the entry for. </param>
-        /// <returns> The entry for the given entity. </returns>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to get the entry for.</param>
+        /// <returns>The entry for the given entity.</returns>
         public virtual EntityEntry<TEntity> Entry<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1068,8 +1068,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to get the entry for. </param>
-        /// <returns> The entry for the given entity. </returns>
+        /// <param name="entity">The entity to get the entry for.</param>
+        /// <returns>The entry for the given entity.</returns>
         public virtual EntityEntry Entry(object entity)
         {
             Check.NotNull(entity, nameof(entity));
@@ -1136,12 +1136,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-        /// <param name="entity"> The entity to add. </param>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to add.</param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Add<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1172,15 +1172,15 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-        /// <param name="entity"> The entity to add. </param>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous Add operation. The task result contains the
         ///     <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
-        /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async ValueTask<EntityEntry<TEntity>> AddAsync<TEntity>(
             TEntity entity,
             CancellationToken cancellationToken = default)
@@ -1228,12 +1228,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-        /// <param name="entity"> The entity to attach. </param>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to attach.</param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Attach<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1274,12 +1274,12 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-        /// <param name="entity"> The entity to update. </param>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to update.</param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Update<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1310,12 +1310,12 @@ namespace Microsoft.EntityFrameworkCore
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         ///     </para>
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of the entity. </typeparam>
-        /// <param name="entity"> The entity to remove. </param>
+        /// <typeparam name="TEntity">The type of the entity.</typeparam>
+        /// <param name="entity">The entity to remove.</param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry<TEntity> Remove<TEntity>(TEntity entity)
             where TEntity : class
         {
@@ -1365,11 +1365,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to add. </param>
+        /// <param name="entity">The entity to add.</param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry Add(object entity)
         {
             CheckDisposed();
@@ -1402,14 +1402,14 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to add. </param>
+        /// <param name="entity">The entity to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous Add operation. The task result contains the
         ///     <see cref="EntityEntry" /> for the entity. The entry provides access to change tracking
         ///     information and operations for the entity.
-        /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async ValueTask<EntityEntry> AddAsync(
             object entity,
             CancellationToken cancellationToken = default)
@@ -1456,11 +1456,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to attach. </param>
+        /// <param name="entity">The entity to attach.</param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry Attach(object entity)
         {
             CheckDisposed();
@@ -1500,11 +1500,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         /// </remarks>
-        /// <param name="entity"> The entity to update. </param>
+        /// <param name="entity">The entity to update.</param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry Update(object entity)
         {
             CheckDisposed();
@@ -1534,11 +1534,11 @@ namespace Microsoft.EntityFrameworkCore
         ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information.
         ///     </para>
         /// </remarks>
-        /// <param name="entity"> The entity to remove. </param>
+        /// <param name="entity">The entity to remove.</param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. The entry provides
         ///     access to change tracking information and operations for the entity.
-        /// </returns>
+        ///</returns>
         public virtual EntityEntry Remove(object entity)
         {
             Check.NotNull(entity, nameof(entity));
@@ -1581,7 +1581,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
+        /// <param name="entities">The entities to add.</param>
         public virtual void AddRange(params object[] entities)
         {
             CheckDisposed();
@@ -1613,8 +1613,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
+        /// <param name="entities">The entities to add.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public virtual Task AddRangeAsync(params object[] entities)
         {
             CheckDisposed();
@@ -1656,7 +1656,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to attach. </param>
+        /// <param name="entities">The entities to attach.</param>
         public virtual void AttachRange(params object[] entities)
         {
             CheckDisposed();
@@ -1698,7 +1698,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to update. </param>
+        /// <param name="entities">The entities to update.</param>
         public virtual void UpdateRange(params object[] entities)
         {
             CheckDisposed();
@@ -1727,7 +1727,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to remove. </param>
+        /// <param name="entities">The entities to remove.</param>
         public virtual void RemoveRange(params object[] entities)
         {
             CheckDisposed();
@@ -1755,7 +1755,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
+        /// <param name="entities">The entities to add.</param>
         public virtual void AddRange(IEnumerable<object> entities)
         {
             CheckDisposed();
@@ -1787,12 +1787,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to add. </param>
+        /// <param name="entities">The entities to add.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous operation.
-        /// </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        ///</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async Task AddRangeAsync(
             IEnumerable<object> entities,
             CancellationToken cancellationToken = default)
@@ -1845,7 +1845,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to attach. </param>
+        /// <param name="entities">The entities to attach.</param>
         public virtual void AttachRange(IEnumerable<object> entities)
         {
             CheckDisposed();
@@ -1887,7 +1887,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to update. </param>
+        /// <param name="entities">The entities to update.</param>
         public virtual void UpdateRange(IEnumerable<object> entities)
         {
             CheckDisposed();
@@ -1916,7 +1916,7 @@ namespace Microsoft.EntityFrameworkCore
         ///     and <see href="https://aka.ms/efcore-docs-attach-range">Using AddRange, UpdateRange, AttachRange, and RemoveRange</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="entities"> The entities to remove. </param>
+        /// <param name="entities">The entities to remove.</param>
         public virtual void RemoveRange(IEnumerable<object> entities)
         {
             Check.NotNull(entities, nameof(entities));
@@ -1953,7 +1953,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
-        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="entityType">The type of entity to find.</param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual object? Find(Type entityType, params object?[]? keyValues)
@@ -1982,7 +1982,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
-        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="entityType">The type of entity to find.</param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual ValueTask<object?> FindAsync(Type entityType, params object?[]? keyValues)
@@ -2011,11 +2011,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
-        /// <param name="entityType"> The type of entity to find. </param>
+        /// <param name="entityType">The type of entity to find.</param>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual ValueTask<object?> FindAsync(
             Type entityType,
             object?[]? keyValues,
@@ -2036,7 +2036,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <typeparam name="TEntity">The type of entity to find.</typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual TEntity? Find<TEntity>(params object?[]? keyValues)
@@ -2066,7 +2066,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <typeparam name="TEntity">The type of entity to find.</typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
         public virtual ValueTask<TEntity?> FindAsync<TEntity>(params object?[]? keyValues)
@@ -2096,11 +2096,11 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-find">Using Find and FindAsync</see> for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The type of entity to find. </typeparam>
+        /// <typeparam name="TEntity">The type of entity to find.</typeparam>
         /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The entity found, or <see langword="null" />.</returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual ValueTask<TEntity?> FindAsync<TEntity>(object?[]? keyValues, CancellationToken cancellationToken)
             where TEntity : class
         {
@@ -2130,9 +2130,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TResult"> The result type of the query expression. </typeparam>
-        /// <param name="expression"> The query expression to create. </param>
-        /// <returns> An <see cref="IQueryable{T}" /> representing the query. </returns>
+        /// <typeparam name="TResult">The result type of the query expression.</typeparam>
+        /// <param name="expression">The query expression to create.</param>
+        /// <returns>An <see cref="IQueryable{T}" /> representing the query.</returns>
         public virtual IQueryable<TResult> FromExpression<TResult>(Expression<Func<IQueryable<TResult>>> expression)
         {
             Check.NotNull(expression, nameof(expression));
@@ -2145,7 +2145,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -2153,8 +2153,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -2162,7 +2162,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

@@ -95,12 +95,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.
         /// </summary>
-        /// <param name="currentNode"> The node that the entity is being traversed from. </param>
+        /// <param name="currentNode">The node that the entity is being traversed from.</param>
         /// <param name="internalEntityEntry">
         ///     The internal entry tracking information about the entity being traversed to.
-        /// </param>
-        /// <param name="reachedVia"> The navigation property that is being traversed to reach the new node. </param>
-        /// <returns> The newly created node. </returns>
+        ///</param>
+        /// <param name="reachedVia">The navigation property that is being traversed to reach the new node.</param>
+        /// <returns>The newly created node.</returns>
         public virtual EntityEntryGraphNode CreateNode(
             EntityEntryGraphNode currentNode,
             InternalEntityEntry internalEntityEntry,

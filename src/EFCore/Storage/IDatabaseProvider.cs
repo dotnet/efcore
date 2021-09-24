@@ -44,8 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets a value indicating whether this database provider has been configured for a given context.
         /// </summary>
-        /// <param name="options"> The options for the context. </param>
-        /// <returns> <see langword="true" /> if the database provider has been configured, otherwise <see langword="false" />. </returns>
+        /// <param name="options">The options for the context.</param>
+        /// <returns><see langword="true" /> if the database provider has been configured, otherwise <see langword="false" />.</returns>
         bool IsConfigured(IDbContextOptions options);
     }
 }

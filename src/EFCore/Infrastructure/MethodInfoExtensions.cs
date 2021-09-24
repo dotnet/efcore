@@ -25,8 +25,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Returns <see langword="true" /> if the given method is <see cref="EF.Property{TProperty}" />.
         /// </summary>
-        /// <param name="methodInfo"> The method. </param>
-        /// <returns> <see langword="true" /> if the method is <see cref="EF.Property{TProperty}" />; <see langword="false" /> otherwise. </returns>
+        /// <param name="methodInfo">The method.</param>
+        /// <returns><see langword="true" /> if the method is <see cref="EF.Property{TProperty}" />; <see langword="false" /> otherwise.</returns>
         public static bool IsEFPropertyMethod(this MethodInfo? methodInfo)
             => Equals(methodInfo, EF.PropertyMethod)
                 // fallback to string comparison because MethodInfo.Equals is not

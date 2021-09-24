@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
         /// </remarks>
-        /// <param name="assembly"> The assembly. </param>
-        /// <param name="nameOrId"> The name or identifier to lookup. </param>
-        /// <returns> The identifier of the migration. </returns>
+        /// <param name="assembly">The assembly.</param>
+        /// <param name="nameOrId">The name or identifier to lookup.</param>
+        /// <returns>The identifier of the migration.</returns>
         public static string GetMigrationId(this IMigrationsAssembly assembly, string nameOrId)
         {
             Check.NotNull(assembly, nameof(assembly));

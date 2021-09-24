@@ -19,9 +19,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="tableBuilder"> The builder for the table being configured. </param>
-        /// <param name="temporal"> A value indicating whether the table is temporal. </param>
-        /// <returns> An object that can be used to configure the temporal table. </returns>
+        /// <param name="tableBuilder">The builder for the table being configured.</param>
+        /// <param name="temporal">A value indicating whether the table is temporal.</param>
+        /// <returns>An object that can be used to configure the temporal table.</returns>
         public static TemporalTableBuilder IsTemporal(
             this TableBuilder tableBuilder,
             bool temporal = true)
@@ -38,9 +38,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="tableBuilder"> The builder for the table being configured. </param>
-        /// <param name="buildAction"> An action that performs configuration of the temporal table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="tableBuilder">The builder for the table being configured.</param>
+        /// <param name="buildAction">An action that performs configuration of the temporal table.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static TableBuilder IsTemporal(
             this TableBuilder tableBuilder,
             Action<TemporalTableBuilder> buildAction)
@@ -59,10 +59,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="tableBuilder"> The builder for the table being configured. </param>
-        /// <param name="temporal"> A value indicating whether the table is temporal. </param>
-        /// <returns> An object that can be used to configure the temporal table. </returns>
+        /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+        /// <param name="tableBuilder">The builder for the table being configured.</param>
+        /// <param name="temporal">A value indicating whether the table is temporal.</param>
+        /// <returns>An object that can be used to configure the temporal table.</returns>
         public static TemporalTableBuilder<TEntity> IsTemporal<TEntity>(
             this TableBuilder<TEntity> tableBuilder,
             bool temporal = true)
@@ -80,10 +80,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TEntity"> The entity type being configured. </typeparam>
-        /// <param name="tableBuilder"> The builder for the table being configured. </param>
-        /// <param name="buildAction"> An action that performs configuration of the temporal table. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+        /// <param name="tableBuilder">The builder for the table being configured.</param>
+        /// <param name="buildAction">An action that performs configuration of the temporal table.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static TableBuilder<TEntity> IsTemporal<TEntity>(
             this TableBuilder<TEntity> tableBuilder,
             Action<TemporalTableBuilder<TEntity>> buildAction)

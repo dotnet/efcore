@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ///     <para> Called after a model is finalized and can no longer be mutated. </para>
         ///     <para> The implementation must be thread-safe. </para>
         /// </summary>
-        /// <param name="model"> The model. </param>
+        /// <param name="model">The model.</param>
         IModel ProcessModelFinalized(IModel model);
     }
 }

@@ -59,12 +59,12 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
         /// </remarks>
-        /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
-        /// <param name="connectionString"> The connection string of the database to connect to. </param>
-        /// <param name="sqliteOptionsAction"> An optional action to allow additional SQLite specific configuration. </param>
-        /// <param name="optionsAction"> An optional action to configure the <see cref="DbContextOptions" /> for the context. </param>
-        /// <returns> The same service collection so that multiple calls can be chained. </returns>
+        /// <typeparam name="TContext">The type of context to be registered.</typeparam>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
+        /// <param name="connectionString">The connection string of the database to connect to.</param>
+        /// <param name="sqliteOptionsAction">An optional action to allow additional SQLite specific configuration.</param>
+        /// <param name="optionsAction">An optional action to configure the <see cref="DbContextOptions" /> for the context.</param>
+        /// <returns>The same service collection so that multiple calls can be chained.</returns>
         public static IServiceCollection AddSqlite<TContext>(
             this IServiceCollection serviceCollection,
             string connectionString,
@@ -100,10 +100,10 @@ namespace Microsoft.Extensions.DependencyInjection
         ///         This is not recommend other than for some advanced scenarios.
         ///     </para>
         /// </summary>
-        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <returns>
         ///     The same service collection so that multiple calls can be chained.
-        /// </returns>
+        ///</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static IServiceCollection AddEntityFrameworkSqlite(this IServiceCollection serviceCollection)
         {

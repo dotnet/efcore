@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the builder that can be used to configure this service property.
         /// </summary>
-        /// <exception cref="InvalidOperationException"> If the service property has been removed from the model. </exception>
+        /// <exception cref="InvalidOperationException">If the service property has been removed from the model.</exception>
         new IConventionServicePropertyBuilder Builder { get; }
 
         /// <summary>
@@ -35,15 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Sets the <see cref="ServiceParameterBinding" /> for this property.
         /// </summary>
-        /// <param name="parameterBinding"> The parameter binding. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured binding. </returns>
+        /// <param name="parameterBinding">The parameter binding.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The configured binding.</returns>
         ServiceParameterBinding? SetParameterBinding(ServiceParameterBinding? parameterBinding, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />. </returns>
+        /// <returns>The configuration source for <see cref="IReadOnlyServiceProperty.ParameterBinding" />.</returns>
         ConfigurationSource? GetParameterBindingConfigurationSource();
     }
 }

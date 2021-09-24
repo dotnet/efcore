@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="TableValuedDbFunctionConvention" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
         public TableValuedDbFunctionConvention(
             ProviderConventionSetBuilderDependencies dependencies,
             RelationalConventionSetBuilderDependencies relationalDependencies)
@@ -60,8 +60,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called when an <see cref="IConventionDbFunction" /> is added to the model.
         /// </summary>
-        /// <param name="dbFunctionBuilder"> The builder for the <see cref="IConventionDbFunction" />. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="dbFunctionBuilder">The builder for the <see cref="IConventionDbFunction" />.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         private void ProcessDbFunctionAdded(
             IConventionDbFunctionBuilder dbFunctionBuilder,
             IConventionContext context)

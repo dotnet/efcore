@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The default container name. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="name">The default container name.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static ModelBuilder HasDefaultContainer(
             this ModelBuilder modelBuilder,
             string? name)
@@ -50,13 +50,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The default container name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="name">The default container name.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionModelBuilder? HasDefaultContainer(
             this IConventionModelBuilder modelBuilder,
             string? name,
@@ -79,10 +79,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="name"> The default container name. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given container name can be set as default. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="name">The default container name.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given container name can be set as default.</returns>
         public static bool CanSetDefaultContainer(
             this IConventionModelBuilder modelBuilder,
             string? name,
@@ -100,8 +100,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="throughput">The throughput to set.</param>
         public static ModelBuilder HasManualThroughput(this ModelBuilder modelBuilder, int? throughput)
         {
             modelBuilder.Model.SetThroughput(throughput, autoscale: false);
@@ -116,8 +116,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="throughput"> The throughput to set. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="throughput">The throughput to set.</param>
         public static ModelBuilder HasAutoscaleThroughput(this ModelBuilder modelBuilder, int? throughput)
         {
             modelBuilder.Model.SetThroughput(throughput, autoscale: true);
@@ -132,10 +132,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="throughput"> The throughput to set. </param>
-        /// <param name="autoscale"> Whether autoscale is enabled. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="throughput">The throughput to set.</param>
+        /// <param name="autoscale">Whether autoscale is enabled.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         public static IConventionModelBuilder? HasThroughput(
             this IConventionModelBuilder modelBuilder,
             int? throughput,
@@ -159,11 +159,11 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The model builder. </param>
-        /// <param name="throughput"> The throughput to set. </param>
-        /// <param name="autoscale"> Whether autoscale is enabled. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given container name can be set as default. </returns>
+        /// <param name="modelBuilder">The model builder.</param>
+        /// <param name="throughput">The throughput to set.</param>
+        /// <param name="autoscale">Whether autoscale is enabled.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given container name can be set as default.</returns>
         public static bool CanSetThroughput(
             this IConventionModelBuilder modelBuilder,
             int? throughput,

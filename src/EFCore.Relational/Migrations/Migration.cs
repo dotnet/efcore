@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
         /// </remarks>
-        /// <param name="modelBuilder"> The <see cref="ModelBuilder" /> to use to build the model. </param>
+        /// <param name="modelBuilder">The <see cref="ModelBuilder" /> to use to build the model.</param>
         protected virtual void BuildTargetModel(ModelBuilder modelBuilder)
         {
         }
@@ -122,7 +122,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
         /// </remarks>
-        /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
+        /// <param name="migrationBuilder">The <see cref="MigrationBuilder" /> that will build the operations.</param>
         protected abstract void Up(MigrationBuilder migrationBuilder);
 
         /// <summary>
@@ -142,7 +142,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information.
         /// </remarks>
-        /// <param name="migrationBuilder"> The <see cref="MigrationBuilder" /> that will build the operations. </param>
+        /// <param name="migrationBuilder">The <see cref="MigrationBuilder" /> that will build the operations.</param>
         protected virtual void Down(MigrationBuilder migrationBuilder)
             => throw new NotSupportedException(RelationalStrings.MigrationDownMissing);
 

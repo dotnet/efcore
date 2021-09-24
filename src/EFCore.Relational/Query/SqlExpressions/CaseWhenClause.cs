@@ -20,8 +20,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="CaseWhenClause" /> class.
         /// </summary>
-        /// <param name="test"> A value to compare with <see cref="CaseExpression.Operand" /> or condition to evaluate. </param>
-        /// <param name="result"> A value to return if test succeeds. </param>
+        /// <param name="test">A value to compare with <see cref="CaseExpression.Operand" /> or condition to evaluate.</param>
+        /// <param name="result">A value to return if test succeeds.</param>
         public CaseWhenClause(SqlExpression test, SqlExpression result)
         {
             Check.NotNull(test, nameof(test));

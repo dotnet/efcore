@@ -20,14 +20,14 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information.
         /// </remarks>
-        /// <typeparam name="TRelated"> The type of the navigation property. </typeparam>
+        /// <typeparam name="TRelated">The type of the navigation property.</typeparam>
         /// <param name="loader">The loader instance, which may be <see langword="null" />.</param>
-        /// <param name="entity"> The entity on which the navigation property is located. </param>
-        /// <param name="navigationField"> A reference to the backing field for the navigation. </param>
-        /// <param name="navigationName"> The navigation property name. </param>
+        /// <param name="entity">The entity on which the navigation property is located.</param>
+        /// <param name="navigationField">A reference to the backing field for the navigation.</param>
+        /// <param name="navigationName">The navigation property name.</param>
         /// <returns>
         ///     The loaded navigation property value, or the navigation property value unchanged if the loader is <see langword="null" />.
-        /// </returns>
+        ///</returns>
         public static TRelated? Load<TRelated>(
             this ILazyLoader? loader,
             object entity,

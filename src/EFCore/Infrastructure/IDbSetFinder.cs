@@ -22,8 +22,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Finds <see cref="DbSet{TEntity}" /> properties on a type that inherits from <see cref="DbContext" />.
         /// </summary>
-        /// <param name="contextType"> A type that inherits from <see cref="DbContext" /> </param>
-        /// <returns> A list of the found properties. </returns>
+        /// <param name="contextType">A type that inherits from <see cref="DbContext" /></param>
+        /// <returns>A list of the found properties.</returns>
         IReadOnlyList<DbSetProperty> FindSets(Type contextType);
     }
 }

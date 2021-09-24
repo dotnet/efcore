@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Creates a new instance of <see cref="NonNullableConventionBase" />.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
         protected NonNullableConventionBase(ProviderConventionSetBuilderDependencies dependencies)
         {
             Dependencies = dependencies;
@@ -44,9 +44,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Returns a value indicating whether the member type is a non-nullable reference type.
         /// </summary>
-        /// <param name="modelBuilder"> The model builder used to build the model. </param>
-        /// <param name="memberInfo"> The member info. </param>
-        /// <returns> <see langword="true" /> if the member type is a non-nullable reference type. </returns>
+        /// <param name="modelBuilder">The model builder used to build the model.</param>
+        /// <param name="memberInfo">The member info.</param>
+        /// <returns><see langword="true" /> if the member type is a non-nullable reference type.</returns>
         protected virtual bool IsNonNullableReferenceType(
             IConventionModelBuilder modelBuilder,
             MemberInfo memberInfo)

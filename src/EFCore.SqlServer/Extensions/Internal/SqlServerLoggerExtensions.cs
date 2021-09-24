@@ -578,7 +578,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Extensions.Internal
         /// <summary>
         ///     Logs for the <see cref="RelationalEventId.MultipleCollectionIncludeWarning" /> event.
         /// </summary>
-        /// <param name="diagnostics"> The diagnostics logger to use. </param>
+        /// <param name="diagnostics">The diagnostics logger to use.</param>
         public static void SavepointsDisabledBecauseOfMARS(
             this IDiagnosticsLogger<DbLoggerCategory.Database.Transaction> diagnostics)
         {

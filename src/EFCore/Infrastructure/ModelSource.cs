@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates a new <see cref="ModelSource" /> instance.
         /// </summary>
-        /// <param name="dependencies"> The dependencies to use. </param>
+        /// <param name="dependencies">The dependencies to use.</param>
         public ModelSource(ModelSourceDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -54,9 +54,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Returns the model from the cache, or creates a model if it is not present in the cache.
         /// </summary>
-        /// <param name="context"> The context the model is being produced for. </param>
-        /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <returns> The model to be used. </returns>
+        /// <param name="context">The context the model is being produced for.</param>
+        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
+        /// <returns>The model to be used.</returns>
         [Obsolete("Use the overload with ModelCreationDependencies")]
         public virtual IModel GetModel(
             DbContext context,
@@ -95,10 +95,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Returns the model from the cache, or creates a model if it is not present in the cache.
         /// </summary>
-        /// <param name="context"> The context the model is being produced for. </param>
-        /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <param name="modelDependencies"> The dependencies object for the model. </param>
-        /// <returns> The model to be used. </returns>
+        /// <param name="context">The context the model is being produced for.</param>
+        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
+        /// <param name="modelDependencies">The dependencies object for the model.</param>
+        /// <returns>The model to be used.</returns>
         [Obsolete("Use the overload with ModelCreationDependencies")]
         public virtual IModel GetModel(
             DbContext context,
@@ -138,10 +138,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Gets the model to be used.
         /// </summary>
-        /// <param name="context"> The context the model is being produced for. </param>
-        /// <param name="modelCreationDependencies"> The dependencies object used during the creation of the model. </param>
-        /// <param name="designTime"> Whether the model should contain design-time configuration.</param>
-        /// <returns> The model to be used. </returns>
+        /// <param name="context">The context the model is being produced for.</param>
+        /// <param name="modelCreationDependencies">The dependencies object used during the creation of the model.</param>
+        /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+        /// <returns>The model to be used.</returns>
         public virtual IModel GetModel(
             DbContext context,
             ModelCreationDependencies modelCreationDependencies,
@@ -173,9 +173,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates the model. This method is called when the model was not found in the cache.
         /// </summary>
-        /// <param name="context"> The context the model is being produced for. </param>
-        /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <returns> The model to be used. </returns>
+        /// <param name="context">The context the model is being produced for.</param>
+        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
+        /// <returns>The model to be used.</returns>
         [Obsolete("Use the overload with ModelCreationDependencies")]
         protected virtual IModel CreateModel(
             DbContext context,
@@ -193,10 +193,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Creates the model. This method is called when the model was not found in the cache.
         /// </summary>
-        /// <param name="context"> The context the model is being produced for. </param>
-        /// <param name="conventionSetBuilder"> The convention set to use when creating the model. </param>
-        /// <param name="modelDependencies"> The dependencies object for the model. </param>
-        /// <returns> The model to be used. </returns>
+        /// <param name="context">The context the model is being produced for.</param>
+        /// <param name="conventionSetBuilder">The convention set to use when creating the model.</param>
+        /// <param name="modelDependencies">The dependencies object for the model.</param>
+        /// <returns>The model to be used.</returns>
         protected virtual IModel CreateModel(
             DbContext context,
             IConventionSetBuilder conventionSetBuilder,

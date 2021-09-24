@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
         /// </summary>
-        /// <param name="storeType"> The name of the database type. </param>
-        /// <param name="dbType"> The <see cref="DbType" /> to be used. </param>
-        /// <param name="unicode"> A value indicating whether the type should handle Unicode data or not. </param>
-        /// <param name="size"> The size of data the property is configured to store, or null if no size is configured. </param>
+        /// <param name="storeType">The name of the database type.</param>
+        /// <param name="dbType">The <see cref="DbType" /> to be used.</param>
+        /// <param name="unicode">A value indicating whether the type should handle Unicode data or not.</param>
+        /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
         public StringTypeMapping(
             string storeType,
             DbType? dbType,
@@ -43,7 +43,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="StringTypeMapping" /> class.
         /// </summary>
-        /// <param name="parameters"> Parameter object for <see cref="RelationalTypeMapping" />. </param>
+        /// <param name="parameters">Parameter object for <see cref="RelationalTypeMapping" />.</param>
         protected StringTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
         {
@@ -52,8 +52,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a copy of this mapping.
         /// </summary>
-        /// <param name="parameters"> The parameters for this mapping. </param>
-        /// <returns> The newly created mapping. </returns>
+        /// <param name="parameters">The parameters for this mapping.</param>
+        /// <returns>The newly created mapping.</returns>
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => new StringTypeMapping(parameters);
 
@@ -63,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="literal">The value to be escaped.</param>
         /// <returns>
         ///     The generated string.
-        /// </returns>
+        ///</returns>
         protected virtual string EscapeSqlLiteral(string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="value">The literal value.</param>
         /// <returns>
         ///     The generated string.
-        /// </returns>
+        ///</returns>
         protected override string GenerateNonNullSqlLiteral(object value)
             => $"'{EscapeSqlLiteral((string)value)}'";
     }

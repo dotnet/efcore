@@ -24,10 +24,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="InExpression" /> class which represents a <paramref name="item" /> IN subquery expression.
         /// </summary>
-        /// <param name="item"> An item to look into values. </param>
-        /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
-        /// <param name="subquery"> A subquery in which item is searched. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="item">An item to look into values.</param>
+        /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
+        /// <param name="subquery">A subquery in which item is searched.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         [Obsolete("Use overload which passes negated argument after subquery argument.")]
         public InExpression(
             SqlExpression item,
@@ -41,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="InExpression" /> class which represents a <paramref name="item" /> IN values expression.
         /// </summary>
-        /// <param name="item"> An item to look into values. </param>
-        /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
-        /// <param name="values"> A list of values in which item is searched. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="item">An item to look into values.</param>
+        /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
+        /// <param name="values">A list of values in which item is searched.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         [Obsolete("Use overload which passes negated argument after values argument.")]
         public InExpression(
             SqlExpression item,
@@ -58,10 +58,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="InExpression" /> class which represents a <paramref name="item" /> IN subquery expression.
         /// </summary>
-        /// <param name="item"> An item to look into values. </param>
-        /// <param name="subquery"> A subquery in which item is searched. </param>
-        /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="item">An item to look into values.</param>
+        /// <param name="subquery">A subquery in which item is searched.</param>
+        /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public InExpression(
             SqlExpression item,
             SelectExpression subquery,
@@ -74,10 +74,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="InExpression" /> class which represents a <paramref name="item" /> IN values expression.
         /// </summary>
-        /// <param name="item"> An item to look into values. </param>
-        /// <param name="values"> A list of values in which item is searched. </param>
-        /// <param name="negated"> A value indicating if the item should be present in the values or absent. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="item">An item to look into values.</param>
+        /// <param name="values">A list of values in which item is searched.</param>
+        /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public InExpression(
             SqlExpression item,
             SqlExpression values,
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Negates this expression by changing presence/absence state indicated by <see cref="IsNegated" />.
         /// </summary>
-        /// <returns> An expression which is negated form of this expression. </returns>
+        /// <returns>An expression which is negated form of this expression.</returns>
         public virtual InExpression Negate()
             => new(Item, Values, Subquery, !IsNegated, TypeMapping);
 
@@ -144,10 +144,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="item"> The <see cref="Item" /> property of the result. </param>
-        /// <param name="values"> The <see cref="Values" /> property of the result. </param>
-        /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="item">The <see cref="Item" /> property of the result.</param>
+        /// <param name="values">The <see cref="Values" /> property of the result.</param>
+        /// <param name="subquery">The <see cref="Subquery" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual InExpression Update(
             SqlExpression item,
             SqlExpression? values,

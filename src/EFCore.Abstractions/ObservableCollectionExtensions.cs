@@ -20,9 +20,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     Returns a <see cref="BindingList{T}" /> implementation that stays in sync with the given
         ///     <see cref="ObservableCollection{T}" />.
         /// </summary>
-        /// <typeparam name="T"> The element type. </typeparam>
-        /// <param name="source"> The collection that the binding list will stay in sync with. </param>
-        /// <returns> The binding list. </returns>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="source">The collection that the binding list will stay in sync with.</param>
+        /// <returns>The binding list.</returns>
         public static BindingList<T> ToBindingList<T>(this ObservableCollection<T> source)
             where T : class
         {

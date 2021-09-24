@@ -18,9 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Initializes a new instance of the <see cref="RuntimeRelationalPropertyOverrides" /> class.
         /// </summary>
-        /// <param name="property"> The property for which the overrides are applied. </param>
-        /// <param name="columnNameOverriden"> Whether the column name is overridden. </param>
-        /// <param name="columnName"> The column name. </param>
+        /// <param name="property">The property for which the overrides are applied.</param>
+        /// <param name="columnNameOverriden">Whether the column name is overridden.</param>
+        /// <param name="columnName">The column name.</param>
         public RuntimeRelationalPropertyOverrides(
             RuntimeProperty property,
             bool columnNameOverriden,

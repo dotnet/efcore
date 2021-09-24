@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqlServerDbContextOptionsBuilder" /> class.
         /// </summary>
-        /// <param name="optionsBuilder"> The options builder. </param>
+        /// <param name="optionsBuilder">The options builder.</param>
         public SqlServerDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
         {
@@ -80,9 +80,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="maxRetryCount"> The maximum number of retry attempts. </param>
-        /// <param name="maxRetryDelay"> The maximum delay between retries. </param>
-        /// <param name="errorNumbersToAdd"> Additional SQL error numbers that should be considered transient. </param>
+        /// <param name="maxRetryCount">The maximum number of retry attempts.</param>
+        /// <param name="maxRetryDelay">The maximum delay between retries.</param>
+        /// <param name="errorNumbersToAdd">Additional SQL error numbers that should be considered transient.</param>
         public virtual SqlServerDbContextOptionsBuilder EnableRetryOnFailure(
             int maxRetryCount,
             TimeSpan maxRetryDelay,

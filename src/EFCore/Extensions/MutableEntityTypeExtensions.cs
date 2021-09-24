@@ -18,8 +18,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Returns the defining navigation if one exists or <see langword="null" /> otherwise.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <returns> The defining navigation if one exists or <see langword="null" /> otherwise. </returns>
+        /// <param name="entityType">The entity type.</param>
+        /// <returns>The defining navigation if one exists or <see langword="null" /> otherwise.</returns>
         [Obsolete("Entity types with defining navigations have been replaced by shared-type entity types")]
         public static IMutableNavigation? FindDefiningNavigation(this IMutableEntityType entityType)
             => (IMutableNavigation?)((IEntityType)entityType).FindDefiningNavigation();
@@ -27,8 +27,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Sets the LINQ query used as the default source for queries of this type.
         /// </summary>
-        /// <param name="entityType"> The entity type. </param>
-        /// <param name="definingQuery"> The LINQ query used as the default source. </param>
+        /// <param name="entityType">The entity type.</param>
+        /// <param name="definingQuery">The LINQ query used as the default source.</param>
         [Obsolete("Use InMemoryEntityTypeExtensions.SetInMemoryQuery")]
         public static void SetDefiningQuery(
             this IMutableEntityType entityType,

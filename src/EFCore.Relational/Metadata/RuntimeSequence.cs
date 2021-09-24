@@ -27,15 +27,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Initializes a new instance of the <see cref="RuntimeSequence" /> class.
         /// </summary>
-        /// <param name="name"> The sequence name. </param>
-        /// <param name="model"> The model. </param>
-        /// <param name="type"> The type of values generated. </param>
-        /// <param name="schema"> The schema. </param>
-        /// <param name="startValue"> The initial value. </param>
-        /// <param name="incrementBy"> The value increment. </param>
-        /// <param name="cyclic"> Whether the sequence is cyclic. </param>
-        /// <param name="minValue"> The minimum value. </param>
-        /// <param name="maxValue"> The maximum value. </param>
+        /// <param name="name">The sequence name.</param>
+        /// <param name="model">The model.</param>
+        /// <param name="type">The type of values generated.</param>
+        /// <param name="schema">The schema.</param>
+        /// <param name="startValue">The initial value.</param>
+        /// <param name="incrementBy">The value increment.</param>
+        /// <param name="cyclic">Whether the sequence is cyclic.</param>
+        /// <param name="minValue">The minimum value.</param>
+        /// <param name="maxValue">The maximum value.</param>
         public RuntimeSequence(
             string name,
             RuntimeModel model,
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         public override string ToString()
             => ((ISequence)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 

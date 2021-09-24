@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
         /// <param name="escapeCharacter">
         ///     The escape character (as a single character string) to use in front of %,_,[,],^
         ///     if they are not used as wildcards.
-        /// </param>
+        ///</param>
         /// <returns><see langword="true" /> if there is a match.</returns>
         public static bool Like(
             this DbFunctions _,
@@ -76,8 +76,8 @@ namespace Microsoft.EntityFrameworkCore
         ///     This DbFunction method has no in-memory implementation and will throw if the query switches to client-evaluation.
         ///     This can happen if the query contains one or more expressions that could not be translated to the store.
         /// </remarks>
-        /// <param name="_"> The <see cref="DbFunctions" /> instance. </param>
-        /// <returns> A random double number between 0 and 1, exclusive. </returns>
+        /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+        /// <returns>A random double number between 0 and 1, exclusive.</returns>
         public static double Random(this DbFunctions _)
             => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Random)));
     }

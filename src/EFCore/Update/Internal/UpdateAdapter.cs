@@ -134,8 +134,8 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal
         ///     severed from a required parent/principal entity, or the required parent/principal entity
         ///     is itself deleted. See <see cref="DeleteBehavior" />.
         /// </summary>
-        /// <param name="entry"> The entry. </param>
-        /// <param name="foreignKeys"> The foreign keys to consider when cascading. </param>
+        /// <param name="entry">The entry.</param>
+        /// <param name="foreignKeys">The foreign keys to consider when cascading.</param>
         public virtual void CascadeDelete(IUpdateEntry entry, IEnumerable<IForeignKey>? foreignKeys = null)
             => _stateManager.CascadeDelete((InternalEntityEntry)entry, force: true, foreignKeys);
 

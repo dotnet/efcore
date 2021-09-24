@@ -24,9 +24,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="srid"> The SRID. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="srid">The SRID.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder HasSrid(this PropertyBuilder propertyBuilder, int srid)
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
@@ -43,9 +43,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="srid"> The SRID. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="srid">The SRID.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static PropertyBuilder<TProperty> HasSrid<TProperty>(
             this PropertyBuilder<TProperty> propertyBuilder,
             int srid)
@@ -58,13 +58,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="srid"> The SRID. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="srid">The SRID.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the configuration was applied,
         ///     <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionPropertyBuilder? HasSrid(
             this IConventionPropertyBuilder propertyBuilder,
             int? srid,
@@ -87,10 +87,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-spatial">Spatial data</see>, and
         ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="propertyBuilder"> The builder for the property being configured. </param>
-        /// <param name="srid"> The SRID. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given value can be set as the SRID for the column. </returns>
+        /// <param name="propertyBuilder">The builder for the property being configured.</param>
+        /// <param name="srid">The SRID.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given value can be set as the SRID for the column.</returns>
         public static bool CanSetSrid(
             this IConventionPropertyBuilder propertyBuilder,
             int? srid,

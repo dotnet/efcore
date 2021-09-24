@@ -28,14 +28,14 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <typeparam name="TContext"> The type of context being configured. </typeparam>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <typeparam name="TContext">The type of context being configured.</typeparam>
+        /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        /// </param>
+        ///</param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
+        /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
             this DbContextOptionsBuilder<TContext> optionsBuilder,
             string databaseName,
@@ -55,13 +55,13 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        /// </param>
+        ///</param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
+        /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
             this DbContextOptionsBuilder optionsBuilder,
             string databaseName,
@@ -77,19 +77,19 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <typeparam name="TContext"> The type of context being configured. </typeparam>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <typeparam name="TContext">The type of context being configured.</typeparam>
+        /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        /// </param>
+        ///</param>
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
         ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
-        /// </param>
+        ///</param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
+        /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder<TContext> UseInMemoryDatabase<TContext>(
             this DbContextOptionsBuilder<TContext> optionsBuilder,
             string databaseName,
@@ -108,18 +108,18 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="optionsBuilder"> The builder being used to configure the context. </param>
+        /// <param name="optionsBuilder">The builder being used to configure the context.</param>
         /// <param name="databaseName">
         ///     The name of the in-memory database. This allows the scope of the in-memory database to be controlled
         ///     independently of the context. The in-memory database is shared anywhere the same name is used.
-        /// </param>
+        ///</param>
         /// <param name="databaseRoot">
         ///     All in-memory databases will be rooted in this object, allowing the application
         ///     to control their lifetime. This is useful when sometimes the context instance
         ///     is created explicitly with <see langword="new" /> while at other times it is resolved using dependency injection.
-        /// </param>
+        ///</param>
         /// <param name="inMemoryOptionsAction">An optional action to allow additional in-memory specific configuration.</param>
-        /// <returns> The options builder so that further configuration can be chained. </returns>
+        /// <returns>The options builder so that further configuration can be chained.</returns>
         public static DbContextOptionsBuilder UseInMemoryDatabase(
             this DbContextOptionsBuilder optionsBuilder,
             string databaseName,

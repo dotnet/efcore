@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="serviceCollection"> The collection to which services will be registered. </param>
+        /// <param name="serviceCollection">The collection to which services will be registered.</param>
         public EntityFrameworkServicesBuilder(IServiceCollection serviceCollection)
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
@@ -188,9 +188,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="serviceType"> The type that defines the service API. </param>
-        /// <returns> The <see cref="ServiceCharacteristics" /> for the type. </returns>
-        /// <exception cref="InvalidOperationException"> when the type is not an EF service. </exception>
+        /// <param name="serviceType">The type that defines the service API.</param>
+        /// <returns>The <see cref="ServiceCharacteristics" /> for the type.</returns>
+        /// <exception cref="InvalidOperationException">when the type is not an EF service.</exception>
         protected virtual ServiceCharacteristics GetServiceCharacteristics(Type serviceType)
         {
             var characteristics = TryGetServiceCharacteristics(serviceType);
@@ -206,8 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="serviceType"> The type that defines the service API. </param>
-        /// <returns> The <see cref="ServiceCharacteristics" /> for the type or <see langword="null" /> if it's not an EF service. </returns>
+        /// <param name="serviceType">The type that defines the service API.</param>
+        /// <returns>The <see cref="ServiceCharacteristics" /> for the type or <see langword="null" /> if it's not an EF service.</returns>
         protected virtual ServiceCharacteristics? TryGetServiceCharacteristics(Type serviceType)
             => !CoreServices.TryGetValue(serviceType, out var characteristics)
                 ? null
@@ -223,8 +223,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="serviceMap"> The underlying map to which provider services should be added.</param>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <param name="serviceMap">The underlying map to which provider services should be added.</param>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAddProviderSpecificServices(Action<ServiceCollectionMap> serviceMap)
         {
             Check.NotNull(serviceMap, nameof(serviceMap));
@@ -253,7 +253,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAddCoreServices()
         {
             TryAdd<IDbSetFinder, DbSetFinder>();
@@ -378,9 +378,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
@@ -394,9 +394,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd(Type serviceType, Type implementationType)
         {
             Check.NotNull(serviceType, nameof(serviceType));
@@ -424,9 +424,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <param name="factory"> The factory that will create the service instance. </param>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <param name="factory">The factory that will create the service instance.</param>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd<TService>(Func<IServiceProvider, TService> factory)
             where TService : class
             => TryAdd(typeof(TService), typeof(TService), factory);
@@ -439,10 +439,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <typeparam name="TImplementation"> The concrete type that implements the service. </typeparam>
-        /// <param name="factory"> The factory that will create the service instance. </param>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <typeparam name="TImplementation">The concrete type that implements the service.</typeparam>
+        /// <param name="factory">The factory that will create the service instance.</param>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd<TService, TImplementation>(
             Func<IServiceProvider, TImplementation> factory)
             where TService : class
@@ -457,10 +457,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementationType"> The concrete type that implements the service. </param>
-        /// <param name="factory"> The factory that will create the service instance. </param>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementationType">The concrete type that implements the service.</param>
+        /// <param name="factory">The factory that will create the service instance.</param>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd(
             Type serviceType,
             Type implementationType,
@@ -498,9 +498,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <typeparam name="TService"> The contract for the service. </typeparam>
-        /// <param name="implementation"> The implementation of the service. </param>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <typeparam name="TService">The contract for the service.</typeparam>
+        /// <param name="implementation">The implementation of the service.</param>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd<TService>(TService implementation)
             where TService : class
             => TryAdd(typeof(TService), implementation);
@@ -513,9 +513,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
         ///     for more information.
         /// </remarks>
-        /// <param name="serviceType"> The contract for the service. </param>
-        /// <param name="implementation"> The implementation of the service. </param>
-        /// <returns> This builder, such that further calls can be chained. </returns>
+        /// <param name="serviceType">The contract for the service.</param>
+        /// <param name="implementation">The implementation of the service.</param>
+        /// <returns>This builder, such that further calls can be chained.</returns>
         public virtual EntityFrameworkServicesBuilder TryAdd(
             Type serviceType,
             object implementation)

@@ -407,8 +407,8 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal
         /// <summary>
         ///     Throws an exception indicating that concurrency conflicts were detected.
         /// </summary>
-        /// <param name="entry"> The update entry which resulted in the conflict(s). </param>
-        /// <param name="concurrencyConflicts"> The conflicting properties with their associated database values. </param>
+        /// <param name="entry">The update entry which resulted in the conflict(s).</param>
+        /// <param name="concurrencyConflicts">The conflicting properties with their associated database values.</param>
         protected virtual void ThrowUpdateConcurrencyException(
             IUpdateEntry entry,
             Dictionary<IProperty, object?> concurrencyConflicts)

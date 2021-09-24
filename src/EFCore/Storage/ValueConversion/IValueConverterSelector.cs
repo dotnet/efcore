@@ -32,9 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information.
         /// </remarks>
-        /// <param name="modelClrType"> The type for which a converter is needed. </param>
-        /// <param name="providerClrType"> The store type to target, or null for any. </param>
-        /// <returns> The converters available. </returns>
+        /// <param name="modelClrType">The type for which a converter is needed.</param>
+        /// <param name="providerClrType">The store type to target, or null for any.</param>
+        /// <returns>The converters available.</returns>
         IEnumerable<ValueConverterInfo> Select(
             Type modelClrType,
             Type? providerClrType = null);

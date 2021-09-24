@@ -16,18 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Runs the delayed conventions while tracking changes to the given foreign key.
         /// </summary>
-        /// <param name="foreignKey"> The foreign key to track. </param>
-        /// <returns> The new foreign key object if the given one was replaced by a convention. </returns>
+        /// <param name="foreignKey">The foreign key to track.</param>
+        /// <returns>The new foreign key object if the given one was replaced by a convention.</returns>
         IConventionForeignKey? Run(IConventionForeignKey foreignKey);
 
         /// <summary>
         ///     Starts tracking changes to the given foreign key.
         /// </summary>
-        /// <param name="foreignKey"> The foreign key to track. </param>
+        /// <param name="foreignKey">The foreign key to track.</param>
         /// <returns>
         ///     An object that will contain the reference to the new foreign key instance if the given one was replaced by a convention.
         ///     Otherwise, returns the original foreign key.
-        /// </returns>
+        ///</returns>
         IMetadataReference<IConventionForeignKey> Track(IConventionForeignKey foreignKey);
     }
 }

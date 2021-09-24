@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the configuration source for this annotation.
         /// </summary>
-        /// <returns> The configuration source. </returns>
+        /// <returns>The configuration source.</returns>
         ConfigurationSource GetConfigurationSource();
     }
 }

@@ -42,8 +42,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures if the discriminator mapping is complete.
         /// </summary>
-        /// <param name="complete"> The value indicating if this discriminator mapping is complete. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="complete">The value indicating if this discriminator mapping is complete.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder IsComplete(bool complete = true)
             => IsComplete(complete, ConfigurationSource.Explicit)!;
 
@@ -72,26 +72,26 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the default discriminator value to use.
         /// </summary>
-        /// <param name="value"> The discriminator value. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="value">The discriminator value.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder HasValue(object? value)
             => HasValue(EntityTypeBuilder, value, ConfigurationSource.Explicit)!;
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given generic type.
         /// </summary>
-        /// <typeparam name="TEntity"> The entity type for which a discriminator value is being set. </typeparam>
-        /// <param name="value"> The discriminator value. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <typeparam name="TEntity">The entity type for which a discriminator value is being set.</typeparam>
+        /// <param name="value">The discriminator value.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder HasValue<TEntity>(object? value)
             => HasValue(typeof(TEntity), value)!;
 
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given type.
         /// </summary>
-        /// <param name="entityType"> The entity type for which a discriminator value is being set. </param>
-        /// <param name="value"> The discriminator value. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="entityType">The entity type for which a discriminator value is being set.</param>
+        /// <param name="value">The discriminator value.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder HasValue(Type entityType, object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
@@ -103,9 +103,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Configures the discriminator value to use for entities of the given type.
         /// </summary>
-        /// <param name="entityTypeName"> The name of the entity type for which a discriminator value is being set. </param>
-        /// <param name="value"> The discriminator value. </param>
-        /// <returns> The same builder so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeName">The name of the entity type for which a discriminator value is being set.</param>
+        /// <param name="value">The discriminator value.</param>
+        /// <returns>The same builder so that multiple calls can be chained.</returns>
         public virtual DiscriminatorBuilder HasValue(string entityTypeName, object? value)
         {
             var entityTypeBuilder = EntityTypeBuilder.ModelBuilder.Entity(
@@ -198,7 +198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -206,8 +206,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectEqualsIsObjectEquals
         public override bool Equals(object? obj)
@@ -216,7 +216,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
         public override int GetHashCode()

@@ -41,10 +41,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="modelBuilder">
         ///     The builder being used to construct the model.
-        /// </param>
+        ///</param>
         /// <param name="context">
         ///     The context instance that the model is being created for.
-        /// </param>
+        ///</param>
         void Customize(ModelBuilder modelBuilder, DbContext context);
     }
 }

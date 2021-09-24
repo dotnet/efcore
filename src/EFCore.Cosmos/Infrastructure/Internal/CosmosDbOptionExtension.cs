@@ -479,8 +479,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="executionStrategyFactory"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="executionStrategyFactory">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CosmosOptionsExtension WithExecutionStrategyFactory(
             Func<ExecutionStrategyDependencies, IExecutionStrategy>? executionStrategyFactory)
         {

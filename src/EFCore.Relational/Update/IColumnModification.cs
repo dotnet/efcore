@@ -129,7 +129,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Adds a modification affecting the same database value.
         /// </summary>
-        /// <param name="modification"> The modification for the shared column. </param>
+        /// <param name="modification">The modification for the shared column.</param>
         public void AddSharedColumnModification(IColumnModification modification);
     }
 }

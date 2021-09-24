@@ -27,9 +27,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="query">The query that will provide the underlying data for the entity type.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder ToInMemoryQuery(
             this EntityTypeBuilder entityTypeBuilder,
             LambdaExpression? query)
@@ -48,9 +48,9 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="query">The query that will provide the underlying data for the entity type.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public static EntityTypeBuilder<TEntity> ToInMemoryQuery<TEntity>(
             this EntityTypeBuilder<TEntity> entityTypeBuilder,
             Expression<Func<IQueryable<TEntity>>> query)
@@ -70,12 +70,12 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="query"> The query that will provide the underlying data for the entity type. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="query">The query that will provide the underlying data for the entity type.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         /// <returns>
         ///     The same builder instance if the query was set, <see langword="null" /> otherwise.
-        /// </returns>
+        ///</returns>
         public static IConventionEntityTypeBuilder? ToInMemoryQuery(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             LambdaExpression? query,
@@ -98,10 +98,10 @@ namespace Microsoft.EntityFrameworkCore
         ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="entityTypeBuilder"> The builder for the entity type being configured. </param>
-        /// <param name="query"> The query that will provide the underlying data for the keyless entity type. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> <see langword="true" /> if the given in-memory query can be set. </returns>
+        /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
+        /// <param name="query">The query that will provide the underlying data for the keyless entity type.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns><see langword="true" /> if the given in-memory query can be set.</returns>
         public static bool CanSetInMemoryQuery(
             this IConventionEntityTypeBuilder entityTypeBuilder,
             LambdaExpression? query,

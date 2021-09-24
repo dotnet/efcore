@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <param name="blockSize">
         ///     The number of sequential values that can be used, starting from the low value, before
         ///     a new low value must be fetched from the database.
-        /// </param>
+        ///</param>
         public HiLoValueGeneratorState(int blockSize)
         {
             if (blockSize <= 0)
@@ -43,11 +43,11 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <typeparam name="TValue"> The type of values being generated. </typeparam>
+        /// <typeparam name="TValue">The type of values being generated.</typeparam>
         /// <param name="getNewLowValue">
         ///     A function to get the next low value if needed.
-        /// </param>
-        /// <returns> The value to be assigned to a property. </returns>
+        ///</param>
+        /// <returns>The value to be assigned to a property.</returns>
         public virtual TValue Next<TValue>(Func<long> getNewLowValue)
         {
             Check.NotNull(getNewLowValue, nameof(getNewLowValue));
@@ -87,13 +87,13 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
         /// <summary>
         ///     Gets a value to be assigned to a property.
         /// </summary>
-        /// <typeparam name="TValue"> The type of values being generated. </typeparam>
+        /// <typeparam name="TValue">The type of values being generated.</typeparam>
         /// <param name="getNewLowValue">
         ///     A function to get the next low value if needed.
-        /// </param>
+        ///</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> The value to be assigned to a property. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>The value to be assigned to a property.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         public virtual async ValueTask<TValue> NextAsync<TValue>(
             Func<CancellationToken, Task<long>> getNewLowValue,
             CancellationToken cancellationToken = default)

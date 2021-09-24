@@ -19,10 +19,10 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="migrator"> The <see cref="IMigrator" /> in use. </param>
-        /// <param name="migrationsAssembly"> The <see cref="IMigrationsAssembly" /> in use. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="migrator">The <see cref="IMigrator" /> in use.</param>
+        /// <param name="migrationsAssembly">The <see cref="IMigrationsAssembly" /> in use.</param>
         public MigrationAssemblyEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

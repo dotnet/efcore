@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="ProjectionBindingExpression" /> class.
         /// </summary>
-        /// <param name="queryExpression"> The query expression to get the value from. </param>
-        /// <param name="projectionMember"> The projection member to bind with query expression. </param>
-        /// <param name="type"> The clr type of value being read. </param>
+        /// <param name="queryExpression">The query expression to get the value from.</param>
+        /// <param name="projectionMember">The projection member to bind with query expression.</param>
+        /// <param name="type">The clr type of value being read.</param>
         public ProjectionBindingExpression(
             Expression queryExpression,
             ProjectionMember projectionMember,
@@ -49,9 +49,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="ProjectionBindingExpression" /> class.
         /// </summary>
-        /// <param name="queryExpression"> The query expression to get the value from. </param>
-        /// <param name="index"> The index to bind with query expression projection. </param>
-        /// <param name="type"> The clr type of value being read. </param>
+        /// <param name="queryExpression">The query expression to get the value from.</param>
+        /// <param name="index">The index to bind with query expression projection.</param>
+        /// <param name="type">The clr type of value being read.</param>
         public ProjectionBindingExpression(
             Expression queryExpression,
             int index,
@@ -68,8 +68,8 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="ProjectionBindingExpression" /> class.
         /// </summary>
-        /// <param name="queryExpression"> The query expression to get the value from. </param>
-        /// <param name="indexMap"> The index map to bind with query expression projection for ValueBuffer. </param>
+        /// <param name="queryExpression">The query expression to get the value from.</param>
+        /// <param name="indexMap">The index map to bind with query expression projection for ValueBuffer.</param>
         [Obsolete("The dictionary should be stored in client projection in query expression and access via index based binding.")]
         public ProjectionBindingExpression(
             Expression queryExpression,

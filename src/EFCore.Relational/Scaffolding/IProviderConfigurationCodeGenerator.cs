@@ -18,16 +18,16 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Generates a method chain used to configure provider-specific options.
         /// </summary>
-        /// <returns> The method chain. May be null. </returns>
+        /// <returns>The method chain. May be null.</returns>
         MethodCallCodeFragment? GenerateProviderOptions();
 
         /// <summary>
         ///     Generates a code fragment like <c>.UseSqlServer("Database=Foo")</c> which can be used in
         ///     the <see cref="DbContext.OnConfiguring" /> method of the generated DbContext.
         /// </summary>
-        /// <param name="connectionString"> The connection string to include in the code fragment. </param>
-        /// <param name="providerOptions"> The method chain used to configure provider options. </param>
-        /// <returns> The code fragment. </returns>
+        /// <param name="connectionString">The connection string to include in the code fragment.</param>
+        /// <param name="providerOptions">The method chain used to configure provider options.</param>
+        /// <returns>The code fragment.</returns>
         MethodCallCodeFragment GenerateUseProvider(
             string connectionString,
             MethodCallCodeFragment? providerOptions);
@@ -35,15 +35,15 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
         /// <summary>
         ///     Generates a method chain to configure additional context options.
         /// </summary>
-        /// <returns> The method chain. May be null. </returns>
+        /// <returns>The method chain. May be null.</returns>
         MethodCallCodeFragment? GenerateContextOptions();
 
         /// <summary>
         ///     Generates a code fragment like <c>.UseSqlServer("Database=Foo")</c> which can be used in
         ///     the <see cref="DbContext.OnConfiguring" /> method of the generated DbContext.
         /// </summary>
-        /// <param name="connectionString"> The connection string to include in the code fragment. </param>
-        /// <returns> The code fragment. </returns>
+        /// <param name="connectionString">The connection string to include in the code fragment.</param>
+        /// <returns>The code fragment.</returns>
         MethodCallCodeFragment GenerateUseProvider(string connectionString)
         {
             var useProviderCall = GenerateUseProvider(

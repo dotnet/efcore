@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a tracker for the model currently in use.
         /// </summary>
-        /// <returns> The new tracker. </returns>
+        /// <returns>The new tracker.</returns>
         IUpdateAdapter Create();
 
         /// <summary>
@@ -38,8 +38,8 @@ namespace Microsoft.EntityFrameworkCore.Update
         ///         including <see cref="DbContext.SaveChanges()" />.
         ///     </para>
         /// </summary>
-        /// <param name="model"> The model for which a tracker is needed, or null to use the current model. </param>
-        /// <returns> The new tracker. </returns>
+        /// <param name="model">The model for which a tracker is needed, or null to use the current model.</param>
+        /// <returns>The new tracker.</returns>
         IUpdateAdapter CreateStandalone(IModel? model = null);
     }
 }

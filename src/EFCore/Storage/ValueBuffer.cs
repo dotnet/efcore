@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueBuffer" /> class.
         /// </summary>
-        /// <param name="values"> The list of values for this buffer. </param>
+        /// <param name="values">The list of values for this buffer.</param>
         public ValueBuffer(object?[] values)
         {
             // ReSharper disable once ConditionIsAlwaysTrueOrFalse
@@ -46,8 +46,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Gets the value at a requested index.
         /// </summary>
-        /// <param name="index"> The index of the value to get. </param>
-        /// <returns> The value at the requested index. </returns>
+        /// <param name="index">The index of the value to get.</param>
+        /// <returns>The value at the requested index.</returns>
         public object? this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -77,10 +77,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="obj">
         ///     The object to compare this value buffer to.
-        /// </param>
+        ///</param>
         /// <returns>
         ///     <see langword="true" /> if the object is a <see cref="ValueBuffer" /> and contains the same values, otherwise <see langword="false" />.
-        /// </returns>
+        ///</returns>
         public override bool Equals(object? obj)
             => !(obj is null)
                 && obj is ValueBuffer buffer
@@ -91,10 +91,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <param name="other">
         ///     An object to compare with this object.
-        /// </param>
+        ///</param>
         /// <returns>
         ///     <see langword="true" /> if the current object is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.
-        /// </returns>
+        ///</returns>
         public bool Equals(ValueBuffer other)
         {
             if (_values.Length != other._values.Length)
@@ -118,7 +118,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// </summary>
         /// <returns>
         ///     The hash code for the value buffer.
-        /// </returns>
+        ///</returns>
         public override int GetHashCode()
         {
             var hash = new HashCode();

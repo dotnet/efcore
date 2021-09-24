@@ -20,12 +20,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Creates an event definition instance.
         /// </summary>
-        /// <param name="loggingOptions"> Logging options. </param>
-        /// <param name="eventId"> The <see cref="Extensions.Logging.EventId" />. </param>
-        /// <param name="level"> The <see cref="LogLevel" /> at which the event will be logged. </param>
+        /// <param name="loggingOptions">Logging options.</param>
+        /// <param name="eventId">The <see cref="Extensions.Logging.EventId" />.</param>
+        /// <param name="level">The <see cref="LogLevel" /> at which the event will be logged.</param>
         /// <param name="eventIdCode">
         ///     A string representing the code that should be passed to <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
-        /// </param>
+        ///</param>
         protected EventDefinitionBase(
             ILoggingOptions loggingOptions,
             EventId eventId,
@@ -82,7 +82,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Returns a warning-as-error exception wrapping the given message for this event.
         /// </summary>
-        /// <param name="message"> The message to wrap. </param>
+        /// <param name="message">The message to wrap.</param>
         protected virtual Exception WarningAsError(string message)
             => new InvalidOperationException(
                 CoreStrings.WarningAsErrorTemplate(EventId.ToString(), message, EventIdCode));

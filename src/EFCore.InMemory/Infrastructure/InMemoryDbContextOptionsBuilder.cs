@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="InMemoryDbContextOptionsBuilder" /> class.
         /// </summary>
-        /// <param name="optionsBuilder"> The options builder. </param>
+        /// <param name="optionsBuilder">The options builder.</param>
         public InMemoryDbContextOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
@@ -38,7 +38,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Clones the configuration in this builder.
         /// </summary>
-        /// <returns> The cloned configuration. </returns>
+        /// <returns>The cloned configuration.</returns>
         protected virtual DbContextOptionsBuilder OptionsBuilder { get; }
 
         /// <inheritdoc />
@@ -54,8 +54,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
         ///     <see href="https://aka.ms/efcore-docs-in-memory">The EF Core in-memory database provider</see> for more information.
         /// </remarks>
-        /// <param name="nullChecksEnabled"> If <see langword="true" />, then nullability check is enforced. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="nullChecksEnabled">If <see langword="true" />, then nullability check is enforced.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual InMemoryDbContextOptionsBuilder EnableNullChecks(bool nullChecksEnabled = true)
         {
             var extension = OptionsBuilder.Options.FindExtension<InMemoryOptionsExtension>()
@@ -73,7 +73,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Returns a string that represents the current object.
         /// </summary>
-        /// <returns> A string that represents the current object. </returns>
+        /// <returns>A string that represents the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override string? ToString()
             => base.ToString();
@@ -81,8 +81,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Determines whether the specified object is equal to the current object.
         /// </summary>
-        /// <param name="obj"> The object to compare with the current object. </param>
-        /// <returns> <see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />. </returns>
+        /// <param name="obj">The object to compare with the current object.</param>
+        /// <returns><see langword="true" /> if the specified object is equal to the current object; otherwise, <see langword="false" />.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override bool Equals(object? obj)
             => base.Equals(obj);
@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Serves as the default hash function.
         /// </summary>
-        /// <returns> A hash code for the current object. </returns>
+        /// <returns>A hash code for the current object.</returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public override int GetHashCode()
             => base.GetHashCode();

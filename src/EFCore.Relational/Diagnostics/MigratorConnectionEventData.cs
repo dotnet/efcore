@@ -20,17 +20,17 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
         /// <param name="migrator">
         ///     The <see cref="IMigrator" /> in use.
-        /// </param>
+        ///</param>
         /// <param name="connection">
         ///     The <see cref="DbConnection" />.
-        /// </param>
+        ///</param>
         /// <param name="connectionId">
         ///     A correlation ID that identifies the <see cref="DbConnection" /> instance being used.
-        /// </param>
+        ///</param>
         public MigratorConnectionEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

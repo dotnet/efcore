@@ -19,8 +19,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information.
     /// </remarks>
-    /// <typeparam name="TEntity"> The type of the entity the property belongs to. </typeparam>
-    /// <typeparam name="TProperty"> The type of the property. </typeparam>
+    /// <typeparam name="TEntity">The type of the entity the property belongs to.</typeparam>
+    /// <typeparam name="TProperty">The type of the property.</typeparam>
     public class PropertyEntry<TEntity, TProperty> : PropertyEntry
         where TEntity : class
     {

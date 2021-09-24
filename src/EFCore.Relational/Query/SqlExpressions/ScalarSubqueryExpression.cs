@@ -23,7 +23,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="ScalarSubqueryExpression" /> class.
         /// </summary>
-        /// <param name="subquery"> A subquery projecting single row with a single scalar projection. </param>
+        /// <param name="subquery">A subquery projecting single row with a single scalar projection.</param>
         public ScalarSubqueryExpression(SelectExpression subquery)
             : base(Verify(subquery).Projection[0].Type, subquery.Projection[0].Expression.TypeMapping)
         {
@@ -59,8 +59,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="subquery"> The <see cref="Subquery" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="subquery">The <see cref="Subquery" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual ScalarSubqueryExpression Update(SelectExpression subquery)
         {
             Check.NotNull(subquery, nameof(subquery));

@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
         ///     for more information.
         /// </remarks>
-        /// <returns> An instance of <see cref="IExecutionStrategy" />. </returns>
+        /// <returns>An instance of <see cref="IExecutionStrategy" />.</returns>
         IExecutionStrategy Create();
     }
 }

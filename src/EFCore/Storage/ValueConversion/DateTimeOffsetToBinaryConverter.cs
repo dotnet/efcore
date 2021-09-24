@@ -34,7 +34,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion
         /// <param name="mappingHints">
         ///     Hints that can be used by the <see cref="ITypeMappingSource" /> to create data types with appropriate
         ///     facets for the converted data.
-        /// </param>
+        ///</param>
         public DateTimeOffsetToBinaryConverter(ConverterMappingHints? mappingHints)
             : base(
                 v => ((v.Ticks / 1000) << 11) | ((long)v.Offset.TotalMinutes & 0x7FF),

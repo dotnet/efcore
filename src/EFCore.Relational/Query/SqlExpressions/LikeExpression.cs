@@ -22,10 +22,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         /// <summary>
         ///     Creates a new instance of the <see cref="LikeExpression" /> class.
         /// </summary>
-        /// <param name="match"> An expression on which LIKE is applied. </param>
-        /// <param name="pattern"> A pattern to search. </param>
-        /// <param name="escapeChar"> An optional escape character to use in LIKE. </param>
-        /// <param name="typeMapping"> The <see cref="RelationalTypeMapping" /> associated with the expression. </param>
+        /// <param name="match">An expression on which LIKE is applied.</param>
+        /// <param name="pattern">A pattern to search.</param>
+        /// <param name="escapeChar">An optional escape character to use in LIKE.</param>
+        /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
         public LikeExpression(
             SqlExpression match,
             SqlExpression pattern,
@@ -72,10 +72,10 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
         ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
         ///     return this expression.
         /// </summary>
-        /// <param name="match"> The <see cref="Match" /> property of the result. </param>
-        /// <param name="pattern"> The <see cref="Pattern" /> property of the result. </param>
-        /// <param name="escapeChar"> The <see cref="EscapeChar" /> property of the result. </param>
-        /// <returns> This expression if no children changed, or an expression with the updated children. </returns>
+        /// <param name="match">The <see cref="Match" /> property of the result.</param>
+        /// <param name="pattern">The <see cref="Pattern" /> property of the result.</param>
+        /// <param name="escapeChar">The <see cref="EscapeChar" /> property of the result.</param>
+        /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
         public virtual LikeExpression Update(
             SqlExpression match,
             SqlExpression pattern,

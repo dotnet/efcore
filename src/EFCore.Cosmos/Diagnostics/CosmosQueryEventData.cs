@@ -18,13 +18,13 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="containerId"> The ID of the Cosmos container being queried. </param>
-        /// <param name="partitionKey"> The key of the Cosmos partition that the query is using. </param>
-        /// <param name="parameters"> Name/values for each parameter in the Cosmos Query. </param>
-        /// <param name="querySql"> The SQL representing the query. </param>
-        /// <param name="logSensitiveData"> Indicates whether the application allows logging of sensitive data. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+        /// <param name="containerId">The ID of the Cosmos container being queried.</param>
+        /// <param name="partitionKey">The key of the Cosmos partition that the query is using.</param>
+        /// <param name="parameters">Name/values for each parameter in the Cosmos Query.</param>
+        /// <param name="querySql">The SQL representing the query.</param>
+        /// <param name="logSensitiveData">Indicates whether the application allows logging of sensitive data.</param>
         public CosmosQueryEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

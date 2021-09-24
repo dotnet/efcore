@@ -37,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         since such a property has no associated <see cref="MemberInfo" />.
         ///     </para>
         /// </summary>
-        /// <returns> The accessor. </returns>
+        /// <returns>The accessor.</returns>
         IClrPropertyGetter GetGetter();
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
         ///     </para>
         /// </summary>
-        /// <returns> The comparer. </returns>
+        /// <returns>The comparer.</returns>
         IComparer<IUpdateEntry> GetCurrentValueComparer();
 
         /// <summary>
@@ -60,12 +60,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <param name="forMaterialization">
         ///     If <see langword="true" />, then the member to use for query materialization will be returned.
-        /// </param>
+        ///</param>
         /// <param name="forSet">
         ///     If <see langword="true" />, then the member to use for setting the property value will be returned, otherwise
         ///     the member to use for getting the property value will be returned.
-        /// </param>
-        /// <returns> The <see cref="MemberInfo" /> to use. </returns>
+        ///</param>
+        /// <returns>The <see cref="MemberInfo" /> to use.</returns>
         MemberInfo GetMemberInfo(bool forMaterialization, bool forSet)
         {
             if (this.TryGetMemberInfo(forMaterialization, forSet, out var memberInfo, out var errorMessage))
@@ -79,7 +79,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the property index for this property.
         /// </summary>
-        /// <returns> The index of the property. </returns>
+        /// <returns>The index of the property.</returns>
         int GetIndex()
             => this.GetPropertyIndexes().Index;
     }

@@ -29,16 +29,16 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new command based on SQL command text.
         /// </summary>
-        /// <param name="sql"> The command text. </param>
-        /// <returns> The newly created command. </returns>
+        /// <param name="sql">The command text.</param>
+        /// <returns>The newly created command.</returns>
         IRelationalCommand Build(string sql);
 
         /// <summary>
         ///     Creates a new command based on SQL command text.
         /// </summary>
-        /// <param name="sql"> The command text. </param>
-        /// <param name="parameters"> Parameters for the command. </param>
-        /// <returns> The newly created command. </returns>
+        /// <param name="sql">The command text.</param>
+        /// <param name="parameters">Parameters for the command.</param>
+        /// <returns>The newly created command.</returns>
         RawSqlCommand Build(
             string sql,
             IEnumerable<object> parameters);

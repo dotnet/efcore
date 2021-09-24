@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Scaffolding.Internal
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteCodeGenerator" /> class.
         /// </summary>
-        /// <param name="dependencies"> The dependencies. </param>
+        /// <param name="dependencies">The dependencies.</param>
         public SqliteCodeGenerator(ProviderCodeGeneratorDependencies dependencies)
             : base(dependencies)
         {

@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <summary>
         ///     Creates a new <see cref="SavedChangesEventArgs" /> instance with the given number of entities saved.
         /// </summary>
-        /// <param name="acceptAllChangesOnSuccess"> The value passed to SaveChanges. </param>
-        /// <param name="entitiesSavedCount"> The number of entities saved. </param>
+        /// <param name="acceptAllChangesOnSuccess">The value passed to SaveChanges.</param>
+        /// <param name="entitiesSavedCount">The number of entities saved.</param>
         public SavedChangesEventArgs(bool acceptAllChangesOnSuccess, int entitiesSavedCount)
             : base(acceptAllChangesOnSuccess)
         {

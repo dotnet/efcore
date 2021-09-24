@@ -28,9 +28,9 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalEntityShaperExpression" /> class.
         /// </summary>
-        /// <param name="entityType"> The entity type to shape. </param>
-        /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
-        /// <param name="nullable"> A bool value indicating whether this entity instance can be null. </param>
+        /// <param name="entityType">The entity type to shape.</param>
+        /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
+        /// <param name="nullable">A bool value indicating whether this entity instance can be null.</param>
         public RelationalEntityShaperExpression(IEntityType entityType, Expression valueBufferExpression, bool nullable)
             : base(entityType, valueBufferExpression, nullable, null)
         {
@@ -39,13 +39,13 @@ namespace Microsoft.EntityFrameworkCore.Query
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalEntityShaperExpression" /> class.
         /// </summary>
-        /// <param name="entityType"> The entity type to shape. </param>
-        /// <param name="valueBufferExpression"> An expression of ValueBuffer to get values for properties of the entity. </param>
-        /// <param name="nullable"> Whether this entity instance can be null. </param>
+        /// <param name="entityType">The entity type to shape.</param>
+        /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
+        /// <param name="nullable">Whether this entity instance can be null.</param>
         /// <param name="materializationCondition">
         ///     An expression of <see cref="Func{T,TResult}" /> to determine which entity type to
         ///     materialize.
-        /// </param>
+        ///</param>
         protected RelationalEntityShaperExpression(
             IEntityType entityType,
             Expression valueBufferExpression,

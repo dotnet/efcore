@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gets the value of the <see cref="AssemblyInformationalVersionAttribute.InformationalVersion" />
         ///     for the EntityFrameworkCore assembly.
         /// </summary>
-        /// <returns> The EF Core version being used. </returns>
+        /// <returns>The EF Core version being used.</returns>
         public static string GetVersion()
             => typeof(ProductInfo).Assembly
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;

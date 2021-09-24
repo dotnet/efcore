@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Initializes a new instance of the <see cref="WarningsConfigurationBuilder" /> class.
         /// </summary>
-        /// <param name="optionsBuilder"> The options builder to which the warnings configuration will be applied. </param>
+        /// <param name="optionsBuilder">The options builder to which the warnings configuration will be applied.</param>
         public WarningsConfigurationBuilder(DbContextOptionsBuilder optionsBuilder)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
@@ -50,8 +50,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-warning-configuration">Configuration for specific messages</see> for more information.
         /// </remarks>
-        /// <param name="warningBehavior"> The desired behavior. </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        /// <param name="warningBehavior">The desired behavior.</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual WarningsConfigurationBuilder Default(WarningBehavior warningBehavior)
             => WithOption(e => e.WithDefaultBehavior(warningBehavior));
 
@@ -70,8 +70,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </remarks>
         /// <param name="eventIds">
         ///     The IDs for events to configure.
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual WarningsConfigurationBuilder Throw(
             params EventId[] eventIds)
         {
@@ -95,8 +95,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </remarks>
         /// <param name="eventIds">
         ///     The IDs for events to configure.
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual WarningsConfigurationBuilder Log(
             params EventId[] eventIds)
         {
@@ -120,8 +120,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </remarks>
         /// <param name="eventsAndLevels">
         ///     The event IDs and levels to configure.
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual WarningsConfigurationBuilder Log(
             params (EventId Id, LogLevel Level)[] eventsAndLevels)
         {
@@ -145,8 +145,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </remarks>
         /// <param name="eventIds">
         ///     The IDs for events to configure.
-        /// </param>
-        /// <returns> The same builder instance so that multiple calls can be chained. </returns>
+        ///</param>
+        /// <returns>The same builder instance so that multiple calls can be chained.</returns>
         public virtual WarningsConfigurationBuilder Ignore(
             params EventId[] eventIds)
         {

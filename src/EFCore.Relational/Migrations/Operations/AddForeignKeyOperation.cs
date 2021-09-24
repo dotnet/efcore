@@ -67,8 +67,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Operations
         /// <summary>
         ///     Creates a new <see cref="AddForeignKeyOperation" /> from the specified foreign key.
         /// </summary>
-        /// <param name="foreignKey"> The foreign key. </param>
-        /// <returns> The operation. </returns>
+        /// <param name="foreignKey">The foreign key.</param>
+        /// <returns>The operation.</returns>
         public static AddForeignKeyOperation CreateFrom(IForeignKeyConstraint foreignKey)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));

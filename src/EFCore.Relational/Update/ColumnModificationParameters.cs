@@ -95,18 +95,18 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
         /// </summary>
-        /// <param name="columnName"> The name of the column. </param>
-        /// <param name="originalValue"> The original value of the property mapped to this column. </param>
-        /// <param name="value"> The current value of the property mapped to this column. </param>
-        /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="columnType"> The database type of the column. </param>
-        /// <param name="typeMapping"> The relational type mapping to be used for the command parameter. </param>
-        /// <param name="read"> Indicates whether a value must be read from the database for the column. </param>
-        /// <param name="write"> Indicates whether a value must be written to the database for the column. </param>
-        /// <param name="key"> Indicates whether the column part of a primary or alternate key.</param>
-        /// <param name="condition"> Indicates whether the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
-        /// <param name="isNullable"> A value indicating whether the value could be null. </param>
+        /// <param name="columnName">The name of the column.</param>
+        /// <param name="originalValue">The original value of the property mapped to this column.</param>
+        /// <param name="value">The current value of the property mapped to this column.</param>
+        /// <param name="property">The property that maps to the column.</param>
+        /// <param name="columnType">The database type of the column.</param>
+        /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
+        /// <param name="read">Indicates whether a value must be read from the database for the column.</param>
+        /// <param name="write">Indicates whether a value must be written to the database for the column.</param>
+        /// <param name="key">Indicates whether the column part of a primary or alternate key.</param>
+        /// <param name="condition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
+        /// <param name="isNullable">A value indicating whether the value could be null.</param>
         public ColumnModificationParameters(
             string columnName,
             object? originalValue,
@@ -145,16 +145,16 @@ namespace Microsoft.EntityFrameworkCore.Update
         /// <summary>
         ///     Creates a new <see cref="ColumnModificationParameters" /> instance.
         /// </summary>
-        /// <param name="entry"> The <see cref="IUpdateEntry" /> that represents the entity that is being modified. </param>
-        /// <param name="property"> The property that maps to the column. </param>
-        /// <param name="column"> The column to be modified. </param>
-        /// <param name="generateParameterName"> A delegate for generating parameter names for the update SQL. </param>
-        /// <param name="typeMapping"> The relational type mapping to be used for the command parameter. </param>
-        /// <param name="valueIsRead"> Indicates whether a value must be read from the database for the column. </param>
-        /// <param name="valueIsWrite"> Indicates whether a value must be written to the database for the column. </param>
-        /// <param name="columnIsKey"> Indicates whether the column part of a primary or alternate key.</param>
-        /// <param name="columnIsCondition"> Indicates whether the column is used in the <c>WHERE</c> clause when updating. </param>
-        /// <param name="sensitiveLoggingEnabled"> Indicates whether potentially sensitive data (e.g. database values) can be logged. </param>
+        /// <param name="entry">The <see cref="IUpdateEntry" /> that represents the entity that is being modified.</param>
+        /// <param name="property">The property that maps to the column.</param>
+        /// <param name="column">The column to be modified.</param>
+        /// <param name="generateParameterName">A delegate for generating parameter names for the update SQL.</param>
+        /// <param name="typeMapping">The relational type mapping to be used for the command parameter.</param>
+        /// <param name="valueIsRead">Indicates whether a value must be read from the database for the column.</param>
+        /// <param name="valueIsWrite">Indicates whether a value must be written to the database for the column.</param>
+        /// <param name="columnIsKey">Indicates whether the column part of a primary or alternate key.</param>
+        /// <param name="columnIsCondition">Indicates whether the column is used in the <c>WHERE</c> clause when updating.</param>
+        /// <param name="sensitiveLoggingEnabled">Indicates whether potentially sensitive data (e.g. database values) can be logged.</param>
         public ColumnModificationParameters(
             IUpdateEntry entry,
             IProperty property,

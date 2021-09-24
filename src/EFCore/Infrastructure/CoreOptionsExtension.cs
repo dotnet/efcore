@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Called by a derived class constructor when implementing the <see cref="Clone" /> method.
         /// </summary>
-        /// <param name="copyFrom"> The instance that is being cloned. </param>
+        /// <param name="copyFrom">The instance that is being cloned.</param>
         protected CoreOptionsExtension(CoreOptionsExtension copyFrom)
         {
             _internalServiceProvider = copyFrom.InternalServiceProvider;
@@ -102,7 +102,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Override this method in a derived class to ensure that any clone created is also of that class.
         /// </summary>
-        /// <returns> A clone of this instance, which can be modified before being returned as immutable. </returns>
+        /// <returns>A clone of this instance, which can be modified before being returned as immutable.</returns>
         protected virtual CoreOptionsExtension Clone()
             => new(this);
 
@@ -110,8 +110,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="internalServiceProvider"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="internalServiceProvider">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithInternalServiceProvider(IServiceProvider? internalServiceProvider)
         {
             var clone = Clone();
@@ -125,8 +125,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="applicationServiceProvider"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="applicationServiceProvider">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithApplicationServiceProvider(IServiceProvider? applicationServiceProvider)
         {
             var clone = Clone();
@@ -140,8 +140,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="model"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="model">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithModel(IModel? model)
         {
             var clone = Clone();
@@ -155,8 +155,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="memoryCache"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="memoryCache">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithMemoryCache(IMemoryCache? memoryCache)
         {
             var clone = Clone();
@@ -170,8 +170,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="loggerFactory"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="loggerFactory">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithLoggerFactory(ILoggerFactory? loggerFactory)
         {
             var clone = Clone();
@@ -185,8 +185,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="contextLogger"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="contextLogger">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithDbContextLogger(IDbContextLogger? contextLogger)
         {
             var clone = Clone();
@@ -200,8 +200,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="sensitiveDataLoggingEnabled"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="sensitiveDataLoggingEnabled">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithSensitiveDataLoggingEnabled(bool sensitiveDataLoggingEnabled)
         {
             var clone = Clone();
@@ -215,8 +215,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="detailedErrorsEnabled"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="detailedErrorsEnabled">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithDetailedErrorsEnabled(bool detailedErrorsEnabled)
         {
             var clone = Clone();
@@ -230,8 +230,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="checksEnabled"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="checksEnabled">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithThreadSafetyChecksEnabled(bool checksEnabled)
         {
             var clone = Clone();
@@ -245,8 +245,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="queryTrackingBehavior"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="queryTrackingBehavior">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithQueryTrackingBehavior(QueryTrackingBehavior queryTrackingBehavior)
         {
             var clone = Clone();
@@ -260,10 +260,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="serviceType"> The service contract. </param>
-        /// <param name="newImplementationType"> The implementation type to use for the service. </param>
-        /// <param name="currentImplementationType"> The specific existing implementation type to replace. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="serviceType">The service contract.</param>
+        /// <param name="newImplementationType">The implementation type to use for the service.</param>
+        /// <param name="currentImplementationType">The specific existing implementation type to replace.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithReplacedService(
             Type serviceType,
             Type newImplementationType,
@@ -285,8 +285,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="maxPoolSize"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="maxPoolSize">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithMaxPoolSize(int? maxPoolSize)
         {
             var clone = Clone();
@@ -300,8 +300,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="timeSpan"> The maximum time period over which to skip logging checks before checking again. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="timeSpan">The maximum time period over which to skip logging checks before checking again.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithLoggingCacheTime(TimeSpan timeSpan)
         {
             var clone = Clone();
@@ -315,8 +315,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="warningsConfiguration"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="warningsConfiguration">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithWarningsConfiguration(WarningsConfiguration warningsConfiguration)
         {
             var clone = Clone();
@@ -330,8 +330,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="serviceProviderCachingEnabled"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="serviceProviderCachingEnabled">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithServiceProviderCachingEnabled(bool serviceProviderCachingEnabled)
         {
             var clone = Clone();
@@ -345,8 +345,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
         ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
         /// </summary>
-        /// <param name="interceptors"> The option to change. </param>
-        /// <returns> A new instance with the option changed. </returns>
+        /// <param name="interceptors">The option to change.</param>
+        /// <returns>A new instance with the option changed.</returns>
         public virtual CoreOptionsExtension WithInterceptors(IEnumerable<IInterceptor> interceptors)
         {
             Check.NotNull(interceptors, nameof(interceptors));
@@ -468,7 +468,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     provider internally. This allows database providers (and other extensions) to register their
         ///     required services when EF is creating an service provider.
         /// </summary>
-        /// <param name="services"> The collection to add services to. </param>
+        /// <param name="services">The collection to add services to.</param>
         public virtual void ApplyServices(IServiceCollection services)
         {
             var memoryCache = GetMemoryCache();
@@ -485,7 +485,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         ///     Gives the extension a chance to validate that all options in the extension are valid.
         ///     If options are invalid, then an exception will be thrown.
         /// </summary>
-        /// <param name="options"> The options being validated. </param>
+        /// <param name="options">The options being validated.</param>
         public virtual void Validate(IDbContextOptions options)
         {
             if (MaxPoolSize.HasValue && MaxPoolSize <= 0)

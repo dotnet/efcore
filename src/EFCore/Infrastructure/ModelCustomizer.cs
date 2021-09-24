@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelCustomizer" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ModelCustomizer(ModelCustomizerDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -50,10 +50,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         /// </summary>
         /// <param name="modelBuilder">
         ///     The builder being used to construct the model.
-        /// </param>
+        ///</param>
         /// <param name="context">
         ///     The context instance that the model is being created for.
-        /// </param>
+        ///</param>
         public virtual void Customize(ModelBuilder modelBuilder, DbContext context)
         {
             context.OnModelCreating(modelBuilder);

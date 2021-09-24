@@ -140,7 +140,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="buffer">
         ///     An array of bytes. When this method returns, the buffer contains the specified byte array
         ///     with the values between offset and (offset + count - 1) replaced by the bytes read from the current source.
-        /// </param>
+        ///</param>
         /// <param name="offset">The zero-based byte offset in buffer at which to begin storing the data read from the current stream.</param>
         /// <param name="count">The maximum number of bytes to be read from the current stream.</param>
         /// <returns>The total number of bytes read into the buffer.</returns>
@@ -177,12 +177,12 @@ namespace Microsoft.Data.Sqlite
         /// <param name="buffer">
         ///     A region of memory. When this method returns, the contents of this region are replaced by the bytes read
         ///     from the current source.
-        /// </param>
+        ///</param>
         /// <returns>
         ///     The total number of bytes read into the buffer. This can be less than the number of bytes allocated in
         ///     the buffer if that many bytes are not currently available, or zero (0) if the end of the stream has been
         ///     reached.
-        /// </returns>
+        ///</returns>
 #if NET
         public override int Read(Span<byte> buffer)
 #else
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="buffer">
         ///     A region of memory. This method copies the contents of this region to the current stream.
-        /// </param>
+        ///</param>
 #if NET
         public override void Write(ReadOnlySpan<byte> buffer)
 #else
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="disposing">
         ///     true to release managed and unmanaged resources; <see langword="false" /> to release only unmanaged resources.
-        /// </param>
+        ///</param>
         protected override void Dispose(bool disposing)
         {
             if (_blob != null)

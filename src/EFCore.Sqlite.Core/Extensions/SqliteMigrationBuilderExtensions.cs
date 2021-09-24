@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <param name="migrationBuilder">
         ///     The migrationBuilder from the parameters on <see cref="Migration.Up(MigrationBuilder)" /> or
         ///     <see cref="Migration.Down(MigrationBuilder)" />.
-        /// </param>
-        /// <returns> <see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise. </returns>
+        ///</param>
+        /// <returns><see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise.</returns>
         public static bool IsSqlite(this MigrationBuilder migrationBuilder)
             => string.Equals(
                 migrationBuilder.ActiveProvider,

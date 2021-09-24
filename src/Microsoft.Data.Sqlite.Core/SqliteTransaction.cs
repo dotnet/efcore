@@ -198,7 +198,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="disposing">
         ///     <see langword="true" /> to release managed and unmanaged resources;
         ///     <see langword="false" /> to release only unmanaged resources.
-        /// </param>
+        ///</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing

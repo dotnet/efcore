@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the <see cref="ParameterNameGeneratorFactory" /> class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public ParameterNameGeneratorFactory(ParameterNameGeneratorDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Creates a new <see cref="ParameterNameGenerator" />.
         /// </summary>
-        /// <returns> The newly created generator. </returns>
+        /// <returns>The newly created generator.</returns>
         public virtual ParameterNameGenerator Create()
             => new();
     }

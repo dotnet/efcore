@@ -29,22 +29,22 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Checks whether there are differences between the two models.
         /// </summary>
-        /// <param name="source"> The first model. </param>
-        /// <param name="target"> The second model. </param>
+        /// <param name="source">The first model.</param>
+        /// <param name="target">The second model.</param>
         /// <returns>
         ///     <see langword="true" /> if there are any differences and <see langword="false" /> otherwise.
-        /// </returns>
+        ///</returns>
         bool HasDifferences(IRelationalModel? source, IRelationalModel? target);
 
         /// <summary>
         ///     Finds the differences between two models.
         /// </summary>
-        /// <param name="source"> The model as it was before it was possibly modified. </param>
-        /// <param name="target"> The model as it is now. </param>
+        /// <param name="source">The model as it was before it was possibly modified.</param>
+        /// <param name="target">The model as it is now.</param>
         /// <returns>
         ///     A list of the operations that need to applied to the database to migrate it
         ///     from mapping to the source model so that is now mapping to the target model.
-        /// </returns>
+        ///</returns>
         IReadOnlyList<MigrationOperation> GetDifferences(IRelationalModel? source, IRelationalModel? target);
     }
 }

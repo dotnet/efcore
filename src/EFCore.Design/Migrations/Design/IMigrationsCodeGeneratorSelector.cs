@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         /// <summary>
         ///     Selects an <see cref="IMigrationsCodeGenerator" /> service for a given programming language.
         /// </summary>
-        /// <param name="language"> The programming language. </param>
-        /// <returns> The <see cref="IMigrationsCodeGenerator" />. </returns>
+        /// <param name="language">The programming language.</param>
+        /// <returns>The <see cref="IMigrationsCodeGenerator" />.</returns>
         IMigrationsCodeGenerator Select(string? language);
     }
 }

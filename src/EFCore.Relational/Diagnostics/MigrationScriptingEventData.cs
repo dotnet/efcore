@@ -19,23 +19,23 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Constructs the event payload.
         /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
+        /// <param name="eventDefinition">The event definition.</param>
+        /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
         /// <param name="migrator">
         ///     The <see cref="IMigrator" /> in use.
-        /// </param>
+        ///</param>
         /// <param name="migration">
         ///     The <see cref="Migration" /> being processed.
-        /// </param>
+        ///</param>
         /// <param name="fromMigration">
         ///     The migration that scripting is starting from.
-        /// </param>
+        ///</param>
         /// <param name="toMigration">
         ///     The migration that scripting is going to.
-        /// </param>
+        ///</param>
         /// <param name="idempotent">
         ///     Indicates whether or not the script is idempotent.
-        /// </param>
+        ///</param>
         public MigrationScriptingEventData(
             EventDefinitionBase eventDefinition,
             Func<EventDefinitionBase, EventData, string> messageGenerator,

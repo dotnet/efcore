@@ -43,10 +43,10 @@ namespace Microsoft.EntityFrameworkCore.Storage
         ///         not used in application code.
         ///     </para>
         /// </summary>
-        /// <param name="parameterObject"> Parameters for this method. </param>
-        /// <param name="commandId"> The command correlation ID. </param>
-        /// <param name="commandMethod"> The method that will be called on the created command. </param>
-        /// <returns> The created command. </returns>
+        /// <param name="parameterObject">Parameters for this method.</param>
+        /// <param name="commandId">The command correlation ID.</param>
+        /// <param name="commandMethod">The method that will be called on the created command.</param>
+        /// <returns>The created command.</returns>
         DbCommand CreateDbCommand(
             RelationalCommandParameterObject parameterObject,
             Guid commandId,

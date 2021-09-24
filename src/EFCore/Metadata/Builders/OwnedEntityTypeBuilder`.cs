@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
     /// </remarks>
-    /// <typeparam name="T"> The entity type being configured. </typeparam>
+    /// <typeparam name="T">The entity type being configured.</typeparam>
     // ReSharper disable once UnusedTypeParameter
     public class OwnedEntityTypeBuilder<T> : OwnedEntityTypeBuilder
     {

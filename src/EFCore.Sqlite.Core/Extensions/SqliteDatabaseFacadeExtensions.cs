@@ -26,8 +26,8 @@ namespace Microsoft.EntityFrameworkCore
         /// <remarks>
         ///     See <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information.
         /// </remarks>
-        /// <param name="database"> The facade from <see cref="DbContext.Database" />. </param>
-        /// <returns> <see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise. </returns>
+        /// <param name="database">The facade from <see cref="DbContext.Database" />.</param>
+        /// <returns><see langword="true" /> if SQLite is being used; <see langword="false" /> otherwise.</returns>
         public static bool IsSqlite(this DatabaseFacade database)
             => database.ProviderName == typeof(SqliteOptionsExtension).Assembly.GetName().Name;
     }

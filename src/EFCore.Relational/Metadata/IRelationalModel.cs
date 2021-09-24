@@ -28,13 +28,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns all the views mapped in the model.
         /// </summary>
-        /// <returns> All the views mapped in the model. </returns>
+        /// <returns>All the views mapped in the model.</returns>
         IEnumerable<IView> Views { get; }
 
         /// <summary>
         ///     Returns all the SQL queries mapped in the model.
         /// </summary>
-        /// <returns> All the SQL queries mapped in the model. </returns>
+        /// <returns>All the SQL queries mapped in the model.</returns>
         IEnumerable<ISqlQuery> Queries { get; }
 
         /// <summary>
@@ -57,45 +57,45 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Gets the table with the given name. Returns <see langword="null" /> if no table with the given name is defined.
         /// </summary>
-        /// <param name="name"> The name of the table. </param>
-        /// <param name="schema"> The schema of the table. </param>
-        /// <returns> The table with a given name or <see langword="null" /> if no table with the given name is defined. </returns>
+        /// <param name="name">The name of the table.</param>
+        /// <param name="schema">The schema of the table.</param>
+        /// <returns>The table with a given name or <see langword="null" /> if no table with the given name is defined.</returns>
         ITable? FindTable(string name, string? schema);
 
         /// <summary>
         ///     Gets the view with the given name. Returns <see langword="null" /> if no view with the given name is defined.
         /// </summary>
-        /// <param name="name"> The name of the view. </param>
-        /// <param name="schema"> The schema of the view. </param>
-        /// <returns> The view with a given name or <see langword="null" /> if no view with the given name is defined. </returns>
+        /// <param name="name">The name of the view.</param>
+        /// <param name="schema">The schema of the view.</param>
+        /// <returns>The view with a given name or <see langword="null" /> if no view with the given name is defined.</returns>
         IView? FindView(string name, string? schema);
 
         /// <summary>
         ///     Gets the SQL query with the given name. Returns <see langword="null" /> if no SQL query with the given name is defined.
         /// </summary>
-        /// <param name="name"> The name of the SQL query. </param>
-        /// <returns> The SQL query with a given name or <see langword="null" /> if no SQL query with the given name is defined. </returns>
+        /// <param name="name">The name of the SQL query.</param>
+        /// <returns>The SQL query with a given name or <see langword="null" /> if no SQL query with the given name is defined.</returns>
         ISqlQuery? FindQuery(string name);
 
         /// <summary>
         ///     Finds an <see cref="ISequence" /> with the given name.
         /// </summary>
-        /// <param name="name"> The sequence name. </param>
-        /// <param name="schema"> The schema that contains the sequence. </param>
+        /// <param name="name">The sequence name.</param>
+        /// <param name="schema">The schema that contains the sequence.</param>
         /// <returns>
         ///     The <see cref="ISequence" /> or <see langword="null" /> if no sequence with the given name in
         ///     the given schema was found.
-        /// </returns>
+        ///</returns>
         ISequence? FindSequence(string name, string? schema)
             => Model.FindSequence(name, schema);
 
         /// <summary>
         ///     Finds a <see cref="IStoreFunction" /> with the given signature.
         /// </summary>
-        /// <param name="name"> The name of the function. </param>
-        /// <param name="schema"> The schema of the function. </param>
-        /// <param name="parameters"> A list of parameter types. </param>
-        /// <returns> The <see cref="IStoreFunction" /> or <see langword="null" /> if no function with the given name was defined. </returns>
+        /// <param name="name">The name of the function.</param>
+        /// <param name="schema">The schema of the function.</param>
+        /// <param name="parameters">A list of parameter types.</param>
+        /// <returns>The <see cref="IStoreFunction" /> or <see langword="null" /> if no function with the given name was defined.</returns>
         IStoreFunction? FindFunction(string name, string? schema, IReadOnlyList<string> parameters);
 
         /// <summary>
@@ -107,9 +107,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         It is designed for debugging only and may change arbitrarily between releases.
         ///     </para>
         /// </summary>
-        /// <param name="options"> Options for generating the string. </param>
-        /// <param name="indent"> The number of indent spaces to use before each new line. </param>
-        /// <returns> A human-readable representation. </returns>
+        /// <param name="options">Options for generating the string.</param>
+        /// <param name="indent">The number of indent spaces to use before each new line.</param>
+        /// <returns>A human-readable representation.</returns>
         string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
         {
             var builder = new StringBuilder();

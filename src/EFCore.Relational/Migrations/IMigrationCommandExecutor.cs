@@ -28,8 +28,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Executes the given commands using the given database connection.
         /// </summary>
-        /// <param name="migrationCommands"> The commands to execute. </param>
-        /// <param name="connection"> The connection to use. </param>
+        /// <param name="migrationCommands">The commands to execute.</param>
+        /// <param name="connection">The connection to use.</param>
         void ExecuteNonQuery(
             IEnumerable<MigrationCommand> migrationCommands,
             IRelationalConnection connection);
@@ -37,11 +37,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations
         /// <summary>
         ///     Executes the given commands using the given database connection.
         /// </summary>
-        /// <param name="migrationCommands"> The commands to execute. </param>
-        /// <param name="connection"> The connection to use. </param>
+        /// <param name="migrationCommands">The commands to execute.</param>
+        /// <param name="connection">The connection to use.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        /// <exception cref="OperationCanceledException"> If the <see cref="CancellationToken" /> is canceled. </exception>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
         Task ExecuteNonQueryAsync(
             IEnumerable<MigrationCommand> migrationCommands,
             IRelationalConnection connection,

@@ -21,8 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Design
         /// <summary>
         ///     Initializes a new instance of the <see cref="AttributeCodeFragment" /> class.
         /// </summary>
-        /// <param name="type"> The attribute's CLR type. </param>
-        /// <param name="arguments"> The attribute's arguments. </param>
+        /// <param name="type">The attribute's CLR type.</param>
+        /// <param name="arguments">The attribute's arguments.</param>
         public AttributeCodeFragment(Type type, params object[] arguments)
         {
             Check.NotNull(type, nameof(type));

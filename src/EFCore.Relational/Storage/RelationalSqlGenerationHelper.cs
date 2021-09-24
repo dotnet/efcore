@@ -32,7 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Initializes a new instance of the this class.
         /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this service. </param>
+        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
         public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)
         {
             Check.NotNull(dependencies, nameof(dependencies));
@@ -77,7 +77,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">The candidate name for the parameter.</param>
         /// <returns>
         ///     A valid name based on the candidate name.
-        /// </returns>
+        ///</returns>
         public virtual string GenerateParameterName(string name)
             => name.StartsWith("@", StringComparison.Ordinal)
                 ? name
@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="name">The candidate name for the parameter placeholder.</param>
         /// <returns>
         ///     A valid name based on the candidate name.
-        /// </returns>
+        ///</returns>
         public virtual string GenerateParameterNamePlaceholder(string name)
             => GenerateParameterName(name);
 
@@ -115,7 +115,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="identifier">The identifier to be escaped.</param>
         /// <returns>
         ///     The generated string.
-        /// </returns>
+        ///</returns>
         public virtual string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
 
@@ -139,7 +139,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="identifier">The identifier to delimit.</param>
         /// <returns>
         ///     The generated string.
-        /// </returns>
+        ///</returns>
         public virtual string DelimitIdentifier(string identifier)
             => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\""; // Interpolation okay; strings
 
@@ -164,7 +164,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <param name="schema">The schema of the identifier.</param>
         /// <returns>
         ///     The generated string.
-        /// </returns>
+        ///</returns>
         public virtual string DelimitIdentifier(string name, string? schema)
             => (!string.IsNullOrEmpty(schema)
                     ? DelimitIdentifier(schema) + "."
@@ -191,8 +191,8 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Generates a SQL comment.
         /// </summary>
-        /// <param name="text"> The comment text. </param>
-        /// <returns> The generated SQL. </returns>
+        /// <param name="text">The comment text.</param>
+        /// <returns>The generated SQL.</returns>
         public virtual string GenerateComment(string text)
         {
             Check.NotEmpty(text, nameof(text));
@@ -213,24 +213,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         /// <summary>
         ///     Generates an SQL statement which creates a savepoint with the given name.
         /// </summary>
-        /// <param name="name"> The name of the savepoint to be created. </param>
-        /// <returns> An SQL string to create the savepoint. </returns>
+        /// <param name="name">The name of the savepoint to be created.</param>
+        /// <returns>An SQL string to create the savepoint.</returns>
         public virtual string GenerateCreateSavepointStatement(string name)
             => "SAVEPOINT " + DelimitIdentifier(name) + StatementTerminator;
 
         /// <summary>
         ///     Generates an SQL statement which rolls back to a savepoint with the given name.
         /// </summary>
-        /// <param name="name"> The name of the savepoint to be rolled back to. </param>
-        /// <returns> An SQL string to roll back the savepoint. </returns>
+        /// <param name="name">The name of the savepoint to be rolled back to.</param>
+        /// <returns>An SQL string to roll back the savepoint.</returns>
         public virtual string GenerateRollbackToSavepointStatement(string name)
             => "ROLLBACK TO " + DelimitIdentifier(name) + StatementTerminator;
 
         /// <summary>
         ///     Generates an SQL statement which releases a savepoint with the given name.
         /// </summary>
-        /// <param name="name"> The name of the savepoint to be released. </param>
-        /// <returns> An SQL string to release the savepoint. </returns>
+        /// <param name="name">The name of the savepoint to be released.</param>
+        /// <returns>An SQL string to release the savepoint.</returns>
         public virtual string GenerateReleaseSavepointStatement(string name)
             => "RELEASE SAVEPOINT " + DelimitIdentifier(name) + StatementTerminator;
     }

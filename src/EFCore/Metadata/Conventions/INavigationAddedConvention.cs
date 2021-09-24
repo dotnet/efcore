@@ -16,8 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         /// <summary>
         ///     Called after a navigation is added to the entity type.
         /// </summary>
-        /// <param name="navigationBuilder"> The builder for the navigation. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
+        /// <param name="navigationBuilder">The builder for the navigation.</param>
+        /// <param name="context">Additional information associated with convention execution.</param>
         void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
             IConventionContext<IConventionNavigationBuilder> context);

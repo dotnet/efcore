@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the configuration source for this property.
         /// </summary>
-        /// <returns> The configuration source. </returns>
+        /// <returns>The configuration source.</returns>
         ConfigurationSource GetConfigurationSource();
 
         /// <summary>
@@ -42,9 +42,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
-        /// <param name="fieldInfo"> The <see cref="FieldInfo" /> for the underlying CLR field to use. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The new <see cref="FieldInfo" />. </returns>
+        /// <param name="fieldInfo">The <see cref="FieldInfo" /> for the underlying CLR field to use.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The new <see cref="FieldInfo" />.</returns>
         FieldInfo? SetFieldInfo(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
 
         /// <summary>
@@ -58,8 +58,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
-        /// <param name="fieldInfo"> The <see cref="FieldInfo" /> for the underlying CLR field to use. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
+        /// <param name="fieldInfo">The <see cref="FieldInfo" /> for the underlying CLR field to use.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
         [Obsolete("Use SetFieldInfo")]
         void SetField(FieldInfo? fieldInfo, bool fromDataAnnotation = false)
             => SetFieldInfo(fieldInfo, fromDataAnnotation);
@@ -82,23 +82,23 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         ///         <see cref="SetPropertyAccessMode" />.
         ///     </para>
         /// </summary>
-        /// <param name="fieldName"> The name of the field to use. </param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The new <see cref="FieldInfo" />. </returns>
+        /// <param name="fieldName">The name of the field to use.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The new <see cref="FieldInfo" />.</returns>
         FieldInfo? SetField(string? fieldName, bool fromDataAnnotation = false);
 
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.FieldInfo" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IReadOnlyPropertyBase.FieldInfo" />. </returns>
+        /// <returns>The configuration source for <see cref="IReadOnlyPropertyBase.FieldInfo" />.</returns>
         ConfigurationSource? GetFieldInfoConfigurationSource();
 
         /// <summary>
         ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
         /// </summary>
-        /// <param name="propertyAccessMode"> The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
-        /// <param name="fromDataAnnotation"> Indicates whether the configuration was specified using a data annotation. </param>
-        /// <returns> The configured value. </returns>
+        /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" />, or null to clear the mode set.</param>
+        /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+        /// <returns>The configured value.</returns>
         PropertyAccessMode? SetPropertyAccessMode(
             PropertyAccessMode? propertyAccessMode,
             bool fromDataAnnotation = false);
@@ -106,7 +106,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// <summary>
         ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.GetPropertyAccessMode" />.
         /// </summary>
-        /// <returns> The configuration source for <see cref="IReadOnlyPropertyBase.GetPropertyAccessMode" />. </returns>
+        /// <returns>The configuration source for <see cref="IReadOnlyPropertyBase.GetPropertyAccessMode" />.</returns>
         ConfigurationSource? GetPropertyAccessModeConfigurationSource();
     }
 }
